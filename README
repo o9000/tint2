@@ -1,0 +1,18 @@
+DEPENDENCIES:
+cairo, pango, glib, imlib2
+
+---------------------------------------------------------
+INSTALL:
+
+cd to "src" and type "make"
+as root type "make install"
+
+execute "tint2"
+or "tint2  -c  path_to_config_file"
+
+documentation is in /doc
+
+check http://code.google.com/p/tint2/ 
+for latest release, documentation and sample config file.
+
+

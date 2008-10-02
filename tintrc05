@@ -1,0 +1,74 @@
+#---------------------------------------------
+# TINT CONFIG FILE
+#---------------------------------------------
+
+#---------------------------------------------
+# BACKGROUND AND BORDER
+#---------------------------------------------
+rounded = 3
+border_width = 1
+background_color = #3c3020 90
+border_color = #3c3020 90
+
+rounded = 3
+border_width = 1
+background_color = #3c3020 90
+border_color = #ffffff 30
+
+#---------------------------------------------
+# PANEL
+#---------------------------------------------
+panel_monitor = 1
+panel_position = bottom center
+panel_size = 900 30
+panel_margin = 0 0
+panel_padding = 10 2
+font_shadow = 0
+panel_background_id = 0
+
+#---------------------------------------------
+# TASKBAR
+#---------------------------------------------
+taskbar_mode = single_desktop
+taskbar_padding = 9 0
+taskbar_background_id = 0
+
+#---------------------------------------------
+# TASKS
+#---------------------------------------------
+task_icon = 0
+task_text = 1
+task_width = 190
+task_centered = 1
+task_padding = 2 0
+task_font = sans 8.4
+task_font_color = #ececec 50
+task_active_font_color = #ffffff 90
+task_background_id = 1
+task_active_background_id = 2
+
+#---------------------------------------------
+# SYSTRAY
+#---------------------------------------------
+#systray_padding = 9 3
+#systray_background_id = 0
+
+#---------------------------------------------
+# CLOCK
+#---------------------------------------------
+time1_format = %H:%M
+time1_font = sans bold 8
+time2_format = %A %d %B
+time2_font = sans 7
+clock_font_color = #ececec 50
+clock_padding = 4 0
+clock_background_id = 1
+
+#---------------------------------------------
+# MOUSE ACTION ON TASK
+#---------------------------------------------
+mouse_middle = none
+mouse_right = close
+mouse_scroll_up = toggle
+mouse_scroll_down = iconify
+
