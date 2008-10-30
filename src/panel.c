@@ -36,43 +36,6 @@ void visual_refresh ()
    draw (&panel.area);
    refresh (&panel.area);
    
-/*
-pour version 0.7
-gestion du systray
-  positionnement et taille fixe du systray (objet systray)
-  détection des notifications (détection des icones, ajout a la liste)
-  ajouter la transparence des icones
-  gérer le redimentionnement des éléments
-    => voir si lon peut faire abstraction sur le positionnement des objets ?
-       sachant que certains objets (task, taskbar) on une taille définit par l'extérieur
-       et d'autres objets (clock, systray) on une taille définit par l'intérieur
-
-gestion du layout 
-  voir le positionnement des taskbar, task et systray
-  définir panel_layout dans la configuration
-  comment gérer le multi panel avec des layouts différents
-
-vérifier le niveau d'abstraction du code
-  utiliser la fonction draw(obj) récurrente sur Taskbar, Task, Systray, Clock
-  est ce compatible avec l'affichage de la tache active et les changement de taille -> redessine le panel
-
-correction de bugs : 
-  memory, segfault
-  background
-  remettre en place single_desktop avec nouveau layout
-  remettre en place multi_monitor avec nouveau layout
-  vérifier le changement de configuration
-
-pour version 0.8
-gestion du thème
-  voir la gestion du dégradé sur le bord et le fond (inkscape)
-  faut-il trois coordonnées de padding x, y, x inter-objects
-
-gestion du zoom  
-  définir le zoom du panel
-
-*/
-
    if (panel.clock.time1_format) {
       if (panel.clock.area.redraw)
          panel.refresh = 1;

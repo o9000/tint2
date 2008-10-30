@@ -1,17 +1,15 @@
 /**************************************************************************
-* base class for all objects (panel, taskbar, task, systray, clock, ...).
-* each object 'inherit' Area and implement draw_foreground if needed.
+* Copyright (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr)
 * 
-* Area is at the begining of each object so &object == &area.
+* base class for all graphical objects (panel, taskbar, task, systray, clock, ...).
+* Area is at the begining of each graphical object so &object == &area.
 * 
-* une zone comprend :
-* - fond : couleur / opacité
-* - contenu
-* - largeur / hauteur
-* - paddingx / paddingy
-* - pixmap mémorisant l'affichage (évite de redessiner l'objet à chaque rafraichissement)
-* - une liste de sous objets
-*
+* Area manage the background and border drawing, size and padding.
+* Area manage also the tree of visible objects
+*   panel -> taskbars -> tasks
+*         -> clock
+*         -> systray -> icons
+* 
 * un objet comprend les actions:
 * 1) redraw(obj)
 *    force l'indicateur 'redraw' sur l'objet
@@ -34,13 +32,8 @@
 * 6) voir refresh(obj)
 * 
 * Implémentation :
-* - tous les éléments du panel possèdent 1 objet en début de structure
-*   panel, taskbar, systray, task, ...
 * - l'objet est en fait une zone (area). 
 *   l'imbrication des sous objet doit permettre de gérer le layout.
-* - on a une relation 1<->1 entre un objet et une zone graphique
-*   les taskbar affichent toutes les taches.
-*   donc on utilise la liste des objets pour gérer la liste des taches.
 * - les taches ont 2 objets : l'un pour la tache inactive et l'autre pour la tache active
 *   draw(obj) est appellé sur le premier objet automatiquement 
 *   et draw_foreground(obj) lance l'affichage du 2 ieme objet
@@ -60,8 +53,6 @@
 * 3. tester l'implémentation et évaluer les autres abstractions possibles ?
 * 
 * 4. comment gérer le groupage des taches
-* 5. la clock est le contenu du panel. mais elle ne tiens pas compte du padding vertical ?
-*    c'est ok pour la clock. voir l'impact sur paddingx ?
 * 
 * voir resize_taskbar(), resize_clock() et resize_tasks()
 * voir les taches actives et inactives ?? une seule tache est active !

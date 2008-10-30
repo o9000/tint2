@@ -51,6 +51,7 @@ typedef struct Global_atom
         Atom _WIN_LAYER;
         Atom _NET_WM_STRUT_PARTIAL;
         Atom WM_NAME;
+        Atom __SWM_VROOT;
 } Global_atom;
 
 
@@ -97,6 +98,7 @@ void server_catch_error (Display *d, XErrorEvent *ev);
 void server_init_atoms ();
 Pixmap server_create_pixmap (int width, int height);
 void get_monitors();
+Pixmap get_root_pixmap();
 
 
 #endif

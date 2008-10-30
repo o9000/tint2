@@ -75,7 +75,7 @@ void init ()
    }
    server_init_atoms ();
    server.screen = DefaultScreen (server.dsp);
-   server.root_win = RootWindow (server.dsp, server.screen);   
+	server.root_win = RootWindow(server.dsp, server.screen);
    server.depth = DefaultDepth (server.dsp, server.screen);
    server.visual = DefaultVisual (server.dsp, server.screen);
    server.desktop = server_get_current_desktop ();
@@ -407,6 +407,7 @@ load_config:
                   break;
 
                case PropertyNotify:
+                  //printf("PropertyNotify\n");
                   event_property_notify (e.xproperty.window, e.xproperty.atom);
                   break;
 

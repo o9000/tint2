@@ -58,7 +58,7 @@ void set_close (Window win)
 
 void window_toggle_shade (Window win)
 {
-   send_event32 (win, server.atom._NET_WM_STATE, 2, 0);
+   send_event32 (win, server.atom._NET_WM_STATE, 2, server.atom._NET_WM_STATE_SHADED);
 }
 
 
@@ -259,6 +259,5 @@ void get_text_size(PangoFontDescription *font, int *height_ink, int *height, int
    cairo_surface_destroy (cs);
    XFreePixmap (server.dsp, pmap);
 }
-
 
 

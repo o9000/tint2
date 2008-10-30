@@ -1,9 +1,7 @@
 
-
-2008-09-30
-- change tintrc format
-  background and border can use linear gradiant
-- update documentation
+2008-10-28
+- fixed issue : "untitled task", "task button did not update", "window don't shade",
+  "error if I don't do 'make install", "Makefile error"
 
 2008-09-24
 - change tintrc format

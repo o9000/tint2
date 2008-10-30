@@ -66,6 +66,7 @@ void server_init_atoms ()
    server.atom._WIN_LAYER = XInternAtom (server.dsp, "_WIN_LAYER", False);
    server.atom._NET_WM_STRUT_PARTIAL = XInternAtom (server.dsp, "_NET_WM_STRUT_PARTIAL", False);
    server.atom.WM_NAME = XInternAtom(server.dsp, "WM_NAME", False);
+   server.atom.__SWM_VROOT = XInternAtom(server.dsp, "__SWM_VROOT", False);
 }
 
 
@@ -133,11 +134,48 @@ void *server_get_property (Window win, Atom at, Atom type, int *num_results)
 }
 
 
+Pixmap server_create_pixmap (int width, int height)
+{
+   return XCreatePixmap (server.dsp, server.root_win, width, height, server.depth);
+}
+
+
+Pixmap get_root_pixmap ()
+{
+   Pixmap ret;
+	Window root = RootWindow(server.dsp, server.screen);
+
+   ret = None;    
+   int  act_format, c = 2 ;
+   u_long  nitems ;
+   u_long  bytes_after ;
+   u_char *prop ;
+   Atom dummy_id;
+
+   do {
+      if (XGetWindowProperty(server.dsp, root, server.atom._XROOTPMAP_ID, 0, 1,
+                False, XA_PIXMAP, &dummy_id, &act_format,
+                &nitems, &bytes_after, &prop) == Success) {
+          if (prop) {
+              ret = *((Pixmap *)prop);
+              XFree(prop);
+              break;
+          }
+      }
+   } while (--c > 0);
+
+   return ret;
+}
+
+
+/*
 Pixmap get_root_pixmap ()
 {
    // conky capture correctement le fond d'écran en xlib !!
    Pixmap root_pixmap;
    unsigned long *res;
+
+	server.root_win = window_get_root();   
 
    res = server_get_property (server.root_win, server.atom._XROOTPMAP_ID, XA_PIXMAP, 0);
    if (res) {
@@ -149,18 +187,9 @@ Pixmap get_root_pixmap ()
       printf("get_root_pixmap incorrect\n");
       // try _XSETROOT_ID
    }
-         
    return 0;
-}
-
-
-
-
-Pixmap server_create_pixmap (int width, int height)
-{
-   return XCreatePixmap (server.dsp, server.root_win, width, height, server.depth);
-}
-
+}  
+*/
 
 void server_refresh_root_pixmap ()
 {

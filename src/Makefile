@@ -7,13 +7,16 @@ ifndef DESTDIR
 	ifndef PREFIX
 		BINDIR=/usr/bin
 		XDG_CONFIG_DIR=/etc/xdg
+		MAN_DIR=/usr/share/man
 	else
 		BINDIR=$(PREFIX)/bin
 		XDG_CONFIG_DIR=/etc/xdg
+		MAN_DIR=/usr/share/man
 	endif
 else
 	BINDIR=$(DESTDIR)/usr/bin
 	XDG_CONFIG_DIR=$(DESTDIR)/etc/xdg
+	MAN_DIR=$(DESTDIR)/usr/share/man
 endif
 
 
@@ -24,13 +27,17 @@ $(PROGNAME): $(FILES) $(SYSTRAYOBJ)
 install:
 	mkdir -p $(BINDIR)
 	mkdir -p $(XDG_CONFIG_DIR)/tint2
+	mkdir -p $(MANDIR)
+	mkdir -p $(MANDIR)/man1
 	install $(PROGNAME) $(BINDIR)
 	cp -f ../tintrc06 $(XDG_CONFIG_DIR)/tint2/tint2rc
-	cp -f ../doc/man/tint2.1 /usr/man/man1
+	cp -f ../doc/man/tint2.1 $(MAN_DIR)/man1
 
 uninstall:
 	rm -f $(BINDIR)/$(PROGNAME)
+	rm -f $(MAN_DIR)/man1/tint2.1
 
 clean:
 	rm -f $(PROGNAME)
 
+.PHONY: clean uninstall install
