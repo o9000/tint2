@@ -21,7 +21,7 @@ endif
 
 
 $(PROGNAME): $(FILES) $(SYSTRAYOBJ)
-	$(CC) $(CFLAGS) $(FLAGS) -I. -Iutil -Iclock -Itaskbar -Isystray -o $(PROGNAME) $(FILES) 
+	$(CC) $(CFLAGS) -I. -Iutil -Iclock -Itaskbar -Isystray -o $(PROGNAME) $(FILES) $(FLAGS)
 	strip $(PROGNAME)
 
 install:
