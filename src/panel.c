@@ -31,43 +31,22 @@
 
 void visual_refresh ()
 {
-   server_refresh_root_pixmap ();
-   
-   draw (&panel.area);
-   refresh (&panel.area);
-   
-   if (panel.clock.time1_format) {
-      if (panel.clock.area.redraw)
-         panel.refresh = 1;
-      if (draw (&panel.clock.area)) {
-         panel.clock.area.redraw = 1;
-         draw (&panel.clock.area);
-         resize_clock();
-         resize_taskbar();
-         redraw(&panel.area);
-      }
-      refresh (&panel.clock.area);
-   }
+   if (!server.root_pmap) {
+      Pixmap wall = get_root_pixmap();
 
-   // TODO: ne pas afficher les taskbar invisibles
-   //if (panel.mode != MULTI_DESKTOP && desktop != server.desktop) continue;
-   Task *tsk;
-   Taskbar *tskbar;
-   GSList *l0;
-   for (l0 = panel.area.list; l0 ; l0 = l0->next) {
-      tskbar = l0->data;
-      draw (&tskbar->area);
-      refresh (&tskbar->area);
-      
-      GSList *l1;
-      for (l1 = tskbar->area.list; l1 ; l1 = l1->next) {
-         tsk = l1->data;
-         draw(&tsk->area);
-         
-         if (tsk == panel.task_active) refresh (&tsk->area_active);
-         else refresh (&tsk->area);
-      }
+      server.root_pmap = server_create_pixmap (panel.area.width, panel.area.height);
+
+      XCopyArea (server.dsp, wall, server.root_pmap, server.gc, server.posx, server.posy, panel.area.width, panel.area.height, 0, 0);
+   
+      redraw (&panel.area);
    }
+   
+   if (server.pmap) XFreePixmap (server.dsp, server.pmap);
+   server.pmap = server_create_pixmap (panel.area.width, panel.area.height);
+
+   XCopyArea (server.dsp, server.root_pmap, server.pmap, server.gc, 0, 0, panel.area.width, panel.area.height, 0, 0);
+         
+   draw (&panel.area);
 
    XCopyArea (server.dsp, server.pmap, window.main_win, server.gc, 0, 0, panel.area.width, panel.area.height, 0, 0);
    XFlush(server.dsp);
@@ -103,9 +82,9 @@ void set_panel_properties (Window win)
       struts[10] = server.posx;
       struts[11] = server.posx + panel.area.width;
    }
-   XChangeProperty (server.dsp, win, server.atom._NET_WM_STRUT_PARTIAL, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &struts, 12);
-   // Old specification
+   // Old specification : fluxbox need _NET_WM_STRUT.
    XChangeProperty (server.dsp, win, server.atom._NET_WM_STRUT, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &struts, 4);
+   XChangeProperty (server.dsp, win, server.atom._NET_WM_STRUT_PARTIAL, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &struts, 12);
    
    // Sticky and below other window
    val = 0xFFFFFFFF;
@@ -163,50 +142,29 @@ void window_draw_panel ()
 }
 
 
-void resize_clock()
+void visible_object()
 {
-   panel.clock.area.posx = panel.area.width - panel.clock.area.width - panel.area.paddingx - panel.area.border.width;
-}
-
-
-// initialise taskbar posx and width
-void resize_taskbar()
-{
-   int taskbar_width, modulo_width, taskbar_on_screen;
-
-   if (panel.mode == MULTI_DESKTOP) taskbar_on_screen = panel.nb_desktop;
-   else taskbar_on_screen = panel.nb_monitor;
-   
-   taskbar_width = panel.area.width - (2 * panel.area.paddingx) - (2 * panel.area.border.width);
-   if (panel.clock.time1_format) 
-      taskbar_width -= (panel.clock.area.width + panel.area.paddingx);
-   taskbar_width = (taskbar_width - ((taskbar_on_screen-1) * panel.area.paddingx)) / taskbar_on_screen;
-
-   if (taskbar_on_screen > 1)
-      modulo_width = (taskbar_width - ((taskbar_on_screen-1) * panel.area.paddingx)) % taskbar_on_screen;
-   else 
-      modulo_width = 0;
-   
-   int posx, modulo, i;
-   Taskbar *tskbar;
-   GSList *l0;
-   for (i = 0, l0 = panel.area.list; l0 ; i++, l0 = l0->next) {
-      if ((i % taskbar_on_screen) == 0) {
-         posx = panel.area.border.width + panel.area.paddingx;
-         modulo = modulo_width;
-      }
-      else posx += taskbar_width + panel.area.paddingx;
-
-      tskbar = l0->data;      
-      tskbar->area.posx = posx;
-      tskbar->area.width = taskbar_width;
-      if (modulo) {
-         tskbar->area.width++;
-         modulo--;
-      }
-
-      resize_tasks(tskbar);
+   if (panel.area.list) {
+      g_slist_free(panel.area.list);
+      panel.area.list = 0;   
    }
+
+   // list of visible objects
+   // start with clock because draw(clock) can resize others object
+   if (panel.clock.time1_format)
+      panel.area.list = g_slist_append(panel.area.list, &panel.clock);
+
+   int i, j;
+   Taskbar *taskbar;
+   for (i=0 ; i < panel.nb_desktop ; i++) {
+      for (j=0 ; j < panel.nb_monitor ; j++) {
+         taskbar = &panel.taskbar[index(i,j)];
+         if (panel.mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) continue;
+         
+         panel.area.list = g_slist_append(panel.area.list, taskbar);
+      }
+   }
+   panel.refresh = 1;
 }
 
 

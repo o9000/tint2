@@ -158,6 +158,8 @@ void event_button_press (int x, int y)
 void event_button_release (int button, int x, int y)
 {
    int action = TOGGLE_ICONIFY;
+   // TODO: convert event_button_press(int x, int y) to area->event_button_press()
+   // if systray is ok
 
    switch (button) {
       case 2:
@@ -173,9 +175,6 @@ void event_button_release (int button, int x, int y)
          action = panel.mouse_scroll_down;
          break;
    }
-
-   // TODO: ne pas afficher les taskbar invisibles
-   //if (panel.mode != MULTI_DESKTOP && desktop != server.desktop) continue;
    
    // search taskbar
    Taskbar *tskbar;
@@ -237,13 +236,15 @@ void event_property_notify (Window win, Atom at)
       /* Change number of desktops */
       else if (at == server.atom._NET_NUMBER_OF_DESKTOPS) {
          config_taskbar();
+         visible_object();
          redraw(&panel.area);
-         panel.refresh = 1;
       }
       /* Change desktop */
       else if (at == server.atom._NET_CURRENT_DESKTOP) {
          server.desktop = server_get_current_desktop ();
-         if (panel.mode != MULTI_DESKTOP) panel.refresh = 1;
+         if (panel.mode != MULTI_DESKTOP) {
+            visible_object();
+         }
       }
       /* Window list */
       else if (at == server.atom._NET_CLIENT_LIST) {
@@ -313,20 +314,14 @@ void event_configure_notify (Window win)
 
    tsk = task_get_task (win);
    if (!tsk) return;
-
-/* TODO ??? voir ancien code !!
-   Taskbar *tskbar;
-   tskbar = tsk->area.parent;
-   int new_monitor = window_get_monitor (win);
-   int desktop = tskbar->desktop;
    
-   // task on the same monitor
-   if (tsk->id_taskbar == index(desktop, new_monitor)) return;
-   
-   add_task (tsk->win);
-   remove_task (tsk);
-   panel.refresh = 1;
-   */
+   Taskbar *tskbar = tsk->area.parent;
+   if (tskbar->monitor != window_get_monitor (win)) {   
+      // task on another monitor
+      add_task (tsk->win);
+      remove_task (tsk);
+      panel.refresh = 1;
+   }
 }
 
 
@@ -375,6 +370,9 @@ load_config:
    config_finish ();
    
    window_draw_panel ();
+   
+   // BUG: draw(clock) is needed here, but 'on the paper' it's not necessary.
+   draw(&panel.clock.area);
 
    x11_fd = ConnectionNumber (server.dsp);
    XSync (server.dsp, False);

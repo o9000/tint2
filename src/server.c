@@ -191,24 +191,6 @@ Pixmap get_root_pixmap ()
 }  
 */
 
-void server_refresh_root_pixmap ()
-{
-   if (!server.root_pmap) {
-      Pixmap wall = get_root_pixmap();
-
-      server.root_pmap = server_create_pixmap (panel.area.width, panel.area.height);
-
-      XCopyArea (server.dsp, wall, server.root_pmap, server.gc, server.posx, server.posy, panel.area.width, panel.area.height, 0, 0);
-   
-      panel.area.redraw = 1;
-   }
-   
-   if (server.pmap) XFreePixmap (server.dsp, server.pmap);
-   server.pmap = server_create_pixmap (panel.area.width, panel.area.height);
-
-   XCopyArea (server.dsp, server.root_pmap, server.pmap, server.gc, 0, 0, panel.area.width, panel.area.height, 0, 0);
-}
-
 
 void get_monitors()
 {

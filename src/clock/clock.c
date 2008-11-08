@@ -27,6 +27,7 @@
 #include "server.h"
 #include "area.h"
 #include "clock.h"
+#include "panel.h"
 
 
 void init_clock(Clock *clock, int panel_height)
@@ -40,6 +41,10 @@ void init_clock(Clock *clock, int panel_height)
    if (strchr(clock->time1_format, 'S') == NULL) clock->time_precision = 60;
    else clock->time_precision = 1;
    
+   clock->area.posy = panel.area.border.width + panel.area.paddingy;
+   clock->area.height = panel.area.height - (2 * clock->area.posy);
+   clock->area.redraw = 1;      
+
    gettimeofday(&clock->clock, 0);
    clock->clock.tv_sec -= clock->clock.tv_sec % clock->time_precision;
    
@@ -72,6 +77,8 @@ int draw_foreground_clock (void *obj, cairo_t *c)
    if (clock->time2_format)
       strftime(buf_date, sizeof(buf_date), clock->time2_format, localtime(&clock->clock.tv_sec));
 
+   //printf("  draw_foreground_clock : %s\n", buf_time);
+redraw:
    layout = pango_cairo_create_layout (c);
 
    // check width
@@ -90,11 +97,14 @@ int draw_foreground_clock (void *obj, cairo_t *c)
    new_width += (2*clock->area.paddingx) + (2*clock->area.border.width);
    
    if (new_width > clock->area.width || (new_width != clock->area.width && date_width > time_width)) {
-      printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
+      //printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
+      // resize clock
       clock->area.width = new_width;
+      panel.clock.area.posx = panel.area.width - panel.clock.area.width - panel.area.paddingx - panel.area.border.width;
       
       g_object_unref (layout);
-      return 1;
+      resize_taskbar();
+      goto redraw;
    }
 
    // draw layout

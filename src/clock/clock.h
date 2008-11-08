@@ -13,7 +13,6 @@
 
 
 typedef struct Clock {
-   // --------------------------------------------------
    // always start with area
    Area area;
 

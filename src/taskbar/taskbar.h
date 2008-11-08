@@ -8,7 +8,6 @@
 // --------------------------------------------------
 // taskbar parameter
 typedef struct {
-   // --------------------------------------------------
    // always start with area
    Area area;
 
@@ -32,6 +31,8 @@ void task_refresh_tasklist ();
 
 // return 1 if task_width changed
 int resize_tasks (Taskbar *tskbar);
+
+void resize_taskbar();
 
 //void add_taskbar(Area *a);
 

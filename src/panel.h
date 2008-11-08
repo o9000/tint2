@@ -26,7 +26,6 @@ enum { LEFT=0x01, RIGHT=0x02, CENTER=0X04, TOP=0X08, BOTTOM=0x10 };
 
 
 typedef struct {
-   // --------------------------------------------------
    // always start with area
    Area area;
 
@@ -49,7 +48,7 @@ typedef struct {
 
    // --------------------------------------------------
    // taskbar point to the first taskbar in panel.area.list. number of tasbar == nb_desktop x nb_monitor.
-   //Taskbar *taskbar;
+   Taskbar *taskbar;
    int mode;
    int nb_desktop;
    int nb_monitor;
@@ -78,8 +77,7 @@ Panel panel;
 void visual_refresh ();
 void set_panel_properties (Window win);
 void window_draw_panel ();
-void resize_clock();
-void resize_taskbar();
+void visible_object();
 
 
 #endif

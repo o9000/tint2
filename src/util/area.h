@@ -7,8 +7,8 @@
 * Area manage the background and border drawing, size and padding.
 * Area manage also the tree of visible objects
 *   panel -> taskbars -> tasks
-*         -> clock
 *         -> systray -> icons
+*         -> clock
 * 
 * un objet comprend les actions:
 * 1) redraw(obj)
@@ -110,7 +110,7 @@ typedef struct {
    void (*add_child)(void *obj);
    int (*remove_child)(void *obj);
    
-   // list of child
+   // list of child : Area object
    GSList *list;
 } Area;
 
@@ -123,9 +123,9 @@ void redraw (Area *a);
 int  draw (Area *a);
 void draw_background (Area *a, cairo_t *c);
 
-void refresh (Area *a);
 void remove_area (Area *a);
 void add_area (Area *a);
+void free_area (Area *a);
 
 #endif
 

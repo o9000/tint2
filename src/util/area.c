@@ -30,7 +30,6 @@
 #include "area.h"
 
 
-
 void redraw (Area *a)
 {
    a->redraw = 1;
@@ -43,34 +42,41 @@ void redraw (Area *a)
 
 int draw (Area *a)
 {
-   if (!a->redraw) return 0;
-
    cairo_surface_t *cs;
    cairo_t *c;
    int ret = 0;
 
-   if (a->pmap) XFreePixmap (server.dsp, a->pmap);
-   a->pmap = server_create_pixmap (a->width, a->height);
+   if (a->redraw) {
+      //printf("begin draw area\n");
+      if (a->pmap) XFreePixmap (server.dsp, a->pmap);
+      a->pmap = server_create_pixmap (a->width, a->height);
 
-   // add layer of root pixmap
-   XCopyArea (server.dsp, server.pmap, a->pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+      // add layer of root pixmap
+      XCopyArea (server.dsp, server.pmap, a->pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
 
-   cs = cairo_xlib_surface_create (server.dsp, a->pmap, server.visual, a->width, a->height);
-   c = cairo_create (cs);
+      cs = cairo_xlib_surface_create (server.dsp, a->pmap, server.visual, a->width, a->height);
+      c = cairo_create (cs);
 
-   draw_background (a, c);
-   
-   if (a->draw_foreground) {
-      ret = a->draw_foreground(a, c);
+      draw_background (a, c);
+      
+      if (a->draw_foreground)
+         ret = a->draw_foreground(a, c);
+
+      cairo_destroy (c);
+      cairo_surface_destroy (cs);
+      a->redraw = 0;
    }
-   else {
-      // parcours de la liste des sous objets
+   
+   XCopyArea (server.dsp, a->pmap, server.pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
+   
+   GSList *l = a->list;
+   if (l) {
+      // draw child object
+      for (; l ; l = l->next)
+         draw(l->data);
    }
 
-   cairo_destroy (c);
-   cairo_surface_destroy (cs);
-   a->redraw = 0;
-   
+   //printf("end draw area\n");
    return ret;
 }
 
@@ -153,12 +159,6 @@ void draw_background (Area *a, cairo_t *c)
 }
 
 
-void refresh (Area *a)
-{
-   XCopyArea (server.dsp, a->pmap, server.pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
-}
-
-
 void remove_area (Area *a)
 {
    Area *parent;
@@ -178,5 +178,18 @@ void add_area (Area *a)
    parent->list = g_slist_remove(parent->list, a);
    redraw (parent);
 
+}
+
+
+void free_area (Area *a)
+{
+   GSList *l0;
+   for (l0 = a->list; l0 ; l0 = l0->next) 
+      free_area (l0->data);
+
+   if (a->list) {
+      g_slist_free(a->list);
+      a->list = 0;   
+   }
 }
 

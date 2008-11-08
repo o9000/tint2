@@ -17,6 +17,7 @@
 typedef struct {
    Area area;
    Area area_active;
+   Area area_inactive;
    
    int text;
    int icon;
@@ -38,10 +39,10 @@ typedef struct {
 // --------------------------------------------------
 // task parameter
 typedef struct {
-   // --------------------------------------------------
    // always start with area
    Area area;
    Area area_active;
+   Area area_inactive;
 
    // TODO: group task with list of windows here
    Window win;

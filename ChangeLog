@@ -1,7 +1,13 @@
 
+
+
+2008-11-02
+- fixed bugs with new design
+- panel.area manage the tree of visible objects
+
 2008-10-28
 - fixed issue : "untitled task", "task button did not update", "window don't shade",
-  "error if I don't do 'make install", "Makefile error"
+  "error if I don't do 'make install'", "Makefile error"
 
 2008-09-24
 - change tintrc format

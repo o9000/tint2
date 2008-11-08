@@ -45,21 +45,24 @@
 
 
 void cleanup_taskbar() 
-{
-   Task *tsk;
-   Taskbar *tskbar;
-   GSList *l0;
-   for (l0 = panel.area.list; l0 ; l0 = l0->next) {
-      tskbar = l0->data;
-      GSList *l1;
-      for (l1 = tskbar->area.list; l1 ; l1 = l1->next) {
-         tsk = l1->data;
+{   
+   free_area(&panel.area);
+
+   int i, nb;
+   Task *tsk, *next;
+
+   nb = panel.nb_desktop * panel.nb_monitor;
+   for (i=0 ; i < nb ; i++) {
+/* TODO: voir ce code !!
+      for (tsk = panel.taskbar[i].tasklist; tsk ; tsk = next) {
+         next = tsk->next;
          remove_task (tsk);
       }
-      g_slist_free(tskbar->area.list);
+*/
    }
-   g_slist_free(panel.area.list);
-   panel.area.list = 0;
+
+   free(panel.taskbar);
+   panel.taskbar = 0;
 }
 
 
@@ -69,7 +72,7 @@ void cleanup ()
    if (g_task.font_desc) pango_font_description_free(g_task.font_desc);
    if (panel.clock.time1_font_desc) pango_font_description_free(panel.clock.time1_font_desc);
    if (panel.clock.time2_font_desc) pango_font_description_free(panel.clock.time2_font_desc);
-   cleanup_taskbar();
+   if (panel.taskbar) cleanup_taskbar();
    if (panel.clock.time1_format) g_free(panel.clock.time1_format);
    if (panel.clock.time2_format) g_free(panel.clock.time2_format);
    if (server.monitor) free(server.monitor);
@@ -473,37 +476,31 @@ void config_taskbar()
       fprintf(stderr, "tint2 warning : cannot found number of desktop.\n");
    }
 
-   cleanup_taskbar();
+   if (panel.taskbar) cleanup_taskbar();
    
    panel.nb_desktop = server.nb_desktop;
    if (panel.mode == MULTI_MONITOR) panel.nb_monitor = server.nb_monitor;
    else panel.nb_monitor = 1;
- 
-   // TODO: mémoriser le pointeur sur la première
-   // malgré l'apparant désordre, les taskbars sont ordonnées
-   Taskbar *new_tskbar;
+   panel.taskbar = calloc(panel.nb_desktop * panel.nb_monitor, sizeof(Taskbar));
+   g_slist_free(panel.area.list);
+   panel.area.list = 0;
+
+   Taskbar *tskbar;
    for (i=0 ; i < panel.nb_desktop ; i++) {
       for (j=0 ; j < panel.nb_monitor ; j++) {
-         new_tskbar = calloc(1, sizeof(Taskbar));
-         memcpy(&new_tskbar->area, &g_taskbar, sizeof(Area));
-         new_tskbar->desktop = i;
-         new_tskbar->monitor = j;
+         tskbar = &panel.taskbar[index(i,j)];
+         memcpy(&tskbar->area, &g_taskbar, sizeof(Area));
+         tskbar->desktop = i;
+         tskbar->monitor = j;
          
-         panel.area.list = g_slist_append(panel.area.list, new_tskbar);
+         // TODO: redefinir panel.area.list en fonction des objets visibles
+         panel.area.list = g_slist_append(panel.area.list, tskbar);
       }
    }
-   /*
-   comment faire pour parcourir les barres de taches ? on ne peut pas se baser sur l'ordre des éléments !!
-   a t'on besoin de parcourir les barres de taches ?? OUI !! bof ??
-   => resize_taskbar() dans panel.c => 
-   => task_refresh_tasklist () dans taskbar.c
-   => Task *task_get_task (Window win) dans taskbar.c
-   => event_button_press (int x, int y) dans tint.c => area->event_button_press() est conseillé !!
-   cela enlève aussi l'organisation des barres de taches en tableau à 2 dimensions
-   il est possible de mémoriser un pointeur sur la première barre de taches
-*/
+   if (panel.clock.time1_format)
+      panel.area.list = g_slist_append(panel.area.list, &panel.clock);
    
-   //printf("tasbar (desktop x monitor) : (%d x %d)\n", panel.nb_desktop, panel.nb_monitor);
+   //printf("taskbar (desktop x monitor) : (%d x %d)\n", panel.nb_desktop, panel.nb_monitor);
    resize_taskbar();
    task_refresh_tasklist ();
    panel.refresh = 1;
@@ -529,7 +526,7 @@ void config_finish ()
       if (!server.monitor[panel.monitor].width || !server.monitor[panel.monitor].height) 
          fprintf(stderr, "tint2 error : invalid monitor size.\n");
    }
-      
+
    if (!panel.area.width) panel.area.width = server.monitor[panel.monitor].width;
    
    // taskbar
@@ -551,9 +548,6 @@ void config_finish ()
       panel.area.border.rounded = panel.area.height/2;
 
    // clock
-   panel.clock.area.posy = panel.area.border.width + panel.area.paddingy;
-   panel.clock.area.height = panel.area.height - (2 * panel.clock.area.posy);
-   panel.clock.area.redraw = 1;      
    init_clock(&panel.clock, panel.area.height);
 
    // compute vertical position : text and icon
@@ -569,7 +563,8 @@ void config_finish ()
    }
    
    config_taskbar();
-   
+   visible_object();
+
    // cleanup background list
    GSList *l0;
    for (l0 = list_back; l0 ; l0 = l0->next) {

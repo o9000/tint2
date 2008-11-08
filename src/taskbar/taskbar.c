@@ -35,21 +35,17 @@
 
 Task *task_get_task (Window win)
 {
-   Taskbar *tskbar;
    Task *tsk;
    GSList *l0;
+   int i, nb;
    
-   for (l0 = panel.area.list; l0 ; l0 = l0->next) {
-      tskbar = l0->data;
-      GSList *l1;
-      for (l1 = tskbar->area.list; l1 ; l1 = l1->next) {
-         tsk = l1->data;
+   nb = panel.nb_desktop * panel.nb_monitor;
+   for (i=0 ; i < nb ; i++) {
+      for (l0 = panel.taskbar[i].area.list; l0 ; l0 = l0->next) {
+         tsk = l0->data;
          if (win == tsk->win) return tsk;
       }
    }
-   
-   //   nb = panel.nb_desktop * panel.nb_monitor;
-   //printf("task_get_task return 0\n");
    return 0;
 }
 
@@ -57,24 +53,22 @@ Task *task_get_task (Window win)
 void task_refresh_tasklist ()
 {
    Window *win, active_win;
-   int num_results, i, j;
+   int num_results, i, j, nb;
+   GSList *l0;
+   Task *tsk;
 
    win = server_get_property (server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
 
    if (!win) return;
    
-   /* Remove any old and set active win */
+   // Remove any old and set active win
    active_win = window_get_active ();
 
-   Task *tsk;
-   Taskbar *tskbar;
-   GSList *l0;
-   for (l0 = panel.area.list; l0 ; l0 = l0->next) {
-      tskbar = l0->data;
-      GSList *l1;
-      for (l1 = tskbar->area.list; l1 ; l1 = l1->next) {
-         tsk = l1->data;
-
+   nb = panel.nb_desktop * panel.nb_monitor;
+   for (i=0 ; i < nb ; i++) {
+      for (l0 = panel.taskbar[i].area.list; l0 ; l0 = l0->next) {
+         tsk = l0->data;
+         
          if (tsk->win == active_win) panel.task_active = tsk;
          
          for (j = 0; j < num_results; j++) {
@@ -83,11 +77,11 @@ void task_refresh_tasklist ()
          if (tsk->win != win[j]) remove_task (tsk);
       }
    }
-   
-   /* Add any new */
-   for (i = 0; i < num_results; i++) {
-      if (!task_get_task (win[i])) add_task (win[i]);
-   }
+
+   // Add any new
+   for (i = 0; i < num_results; i++) 
+      if (!task_get_task (win[i])) 
+         add_task (win[i]);
 
    XFree (win);
 }
@@ -138,6 +132,45 @@ int resize_tasks (Taskbar *taskbar)
       x += tsk->area.width + g_taskbar.paddingx;
    }
    return ret;
+}
+
+
+// initialise taskbar posx and width
+void resize_taskbar()
+{
+   int taskbar_width, modulo_width, taskbar_on_screen;
+
+   if (panel.mode == MULTI_DESKTOP) taskbar_on_screen = panel.nb_desktop;
+   else taskbar_on_screen = panel.nb_monitor;
+   
+   taskbar_width = panel.area.width - (2 * panel.area.paddingx) - (2 * panel.area.border.width);
+   if (panel.clock.time1_format) 
+      taskbar_width -= (panel.clock.area.width + panel.area.paddingx);
+   taskbar_width = (taskbar_width - ((taskbar_on_screen-1) * panel.area.paddingx)) / taskbar_on_screen;
+
+   if (taskbar_on_screen > 1)
+      modulo_width = (taskbar_width - ((taskbar_on_screen-1) * panel.area.paddingx)) % taskbar_on_screen;
+   else 
+      modulo_width = 0;
+   
+   int posx, modulo, i, nb;
+   nb = panel.nb_desktop * panel.nb_monitor;
+   for (i=0 ; i < nb ; i++) {
+      if ((i % taskbar_on_screen) == 0) {
+         posx = panel.area.border.width + panel.area.paddingx;
+         modulo = modulo_width;
+      }
+      else posx += taskbar_width + panel.area.paddingx;
+
+      panel.taskbar[i].area.posx = posx;
+      panel.taskbar[i].area.width = taskbar_width;
+      if (modulo) {
+         panel.taskbar[i].area.width++;
+         modulo--;
+      }
+      
+      resize_tasks(&panel.taskbar[i]);
+   }
 }
 
 

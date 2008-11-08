@@ -68,11 +68,11 @@ void add_task (Window win)
    }
    
    Taskbar *tskbar;
-   tskbar = g_slist_nth_data(panel.area.list, index(desktop, monitor));      
+   tskbar = &panel.taskbar[index(desktop, monitor)];     
    new_tsk->area.parent = tskbar;
    tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk);
 
-   if (resize_tasks (tskbar)) 
+   if (resize_tasks (tskbar))
       redraw (&tskbar->area);
 }
 
@@ -263,7 +263,8 @@ int draw_foreground_task (void *obj, cairo_t *c)
    Task *tsk = obj;
    cairo_surface_t *cs;
    cairo_t *ca;
-   
+   //printf("  draw_foreground_task\n");
+
    draw_task_title (c, tsk, 0);
 
    // draw active pmap
