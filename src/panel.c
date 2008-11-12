@@ -31,25 +31,21 @@
 
 void visual_refresh ()
 {
-   if (!server.root_pmap) {
-      Pixmap wall = get_root_pixmap();
-
-      server.root_pmap = server_create_pixmap (panel.area.width, panel.area.height);
-
-      XCopyArea (server.dsp, wall, server.root_pmap, server.gc, server.posx, server.posy, panel.area.width, panel.area.height, 0, 0);
-   
-      redraw (&panel.area);
-   }
+   if (!panel.area.pmap)
+      set_panel_background(); 
    
    if (server.pmap) XFreePixmap (server.dsp, server.pmap);
    server.pmap = server_create_pixmap (panel.area.width, panel.area.height);
+   XCopyArea (server.dsp, panel.area.pmap, server.pmap, server.gc, 0, 0, panel.area.width, panel.area.height, 0, 0);
 
-   XCopyArea (server.dsp, server.root_pmap, server.pmap, server.gc, 0, 0, panel.area.width, panel.area.height, 0, 0);
-         
-   draw (&panel.area);
+   // draw child object
+   GSList *l = panel.area.list;
+   for (; l ; l = l->next)
+      draw (l->data);
 
-   XCopyArea (server.dsp, server.pmap, window.main_win, server.gc, 0, 0, panel.area.width, panel.area.height, 0, 0);
-   XFlush(server.dsp);
+   // main_win doesn't include panel.area.paddingx, so we have WM capabilities on left and right.
+   XCopyArea (server.dsp, server.pmap, window.main_win, server.gc, panel.area.paddingx, 0, panel.area.width-(2*panel.area.paddingx), panel.area.height, 0, 0);
+   XFlush (server.dsp);
    panel.refresh = 0;
 }
 
@@ -125,9 +121,10 @@ void window_draw_panel ()
    /* Catch some events */
    XSetWindowAttributes att = { ParentRelative, 0L, 0, 0L, 0, 0, Always, 0L, 0L, False, ExposureMask|ButtonPressMask|ButtonReleaseMask, NoEventMask, False, 0, 0 };
                
-   /* XCreateWindow(display, parent, x, y, w, h, border, depth, class, visual, mask, attrib) */
+   // XCreateWindow(display, parent, x, y, w, h, border, depth, class, visual, mask, attrib)
+   // main_win doesn't include panel.area.paddingx, so we have WM capabilities on left and right.
    if (window.main_win) XDestroyWindow(server.dsp, window.main_win);
-   win = XCreateWindow (server.dsp, server.root_win, server.posx, server.posy, panel.area.width, panel.area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
+   win = XCreateWindow (server.dsp, server.root_win, server.posx+panel.area.paddingx, server.posy, panel.area.width-(2*panel.area.paddingx), panel.area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
 
    set_panel_properties (win);
    window.main_win = win;
@@ -136,7 +133,9 @@ void window_draw_panel ()
    if (server.gc) XFree(server.gc);
    XGCValues gcValues;
    server.gc = XCreateGC(server.dsp, win, (unsigned long) 0, &gcValues);
-   
+   if (server.gc_root) XFree(server.gc_root);
+   server.gc_root = XCreateGC(server.dsp, server.root_win, (unsigned long) 0, &gcValues);
+
    XMapWindow (server.dsp, win);
    XFlush (server.dsp);
 }
@@ -164,7 +163,35 @@ void visible_object()
          panel.area.list = g_slist_append(panel.area.list, taskbar);
       }
    }
+   redraw(&panel.area);
    panel.refresh = 1;
+}
+
+
+void set_panel_background()
+{
+   Pixmap wall = get_root_pixmap();
+
+   panel.area.pmap = server_create_pixmap (panel.area.width, panel.area.height);
+
+   // add layer of root pixmap
+   XCopyArea (server.dsp, wall, panel.area.pmap, server.gc, server.posx, server.posy, panel.area.width, panel.area.height, 0, 0);
+
+   // draw background panel
+   cairo_surface_t *cs;
+   cairo_t *c;
+   cs = cairo_xlib_surface_create (server.dsp, panel.area.pmap, server.visual, panel.area.width, panel.area.height);
+   c = cairo_create (cs);
+
+   draw_background (&panel.area, c);
+   
+   cairo_destroy (c);
+   cairo_surface_destroy (cs);
+
+   // copy background panel on desktop window
+   XCopyArea (server.dsp, panel.area.pmap, server.root_win, server.gc_root, 0, 0, panel.area.width, panel.area.height, server.posx, server.posy);
+
+   redraw (&panel.area);
 }
 
 

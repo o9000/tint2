@@ -16,4 +16,15 @@ check http://code.google.com/p/tint2/
 for latest release, documentation and sample config file.
 
 
+---------------------------------------------------------
+FAQ:
+
+- How to get menu in tint2 panel ?
+use panel_padding = x y  with option x>1
+then put the mouse in left (or right) padding and right clic,
+tint2 will open the menu of your Window manager.
+
+
+
+
 

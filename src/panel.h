@@ -78,6 +78,6 @@ void visual_refresh ();
 void set_panel_properties (Window win);
 void window_draw_panel ();
 void visible_object();
-
+void set_panel_background();
 
 #endif

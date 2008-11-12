@@ -97,7 +97,7 @@ void init ()
    /* Catch events */
    XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
 
-   setlocale(LC_ALL, "");
+   setlocale (LC_ALL, "");
 }
 
 
@@ -237,7 +237,6 @@ void event_property_notify (Window win, Atom at)
       else if (at == server.atom._NET_NUMBER_OF_DESKTOPS) {
          config_taskbar();
          visible_object();
-         redraw(&panel.area);
       }
       /* Change desktop */
       else if (at == server.atom._NET_CURRENT_DESKTOP) {
@@ -265,10 +264,8 @@ void event_property_notify (Window win, Atom at)
       }
       /* Wallpaper changed */
       else if (at == server.atom._XROOTPMAP_ID) {
-         XFreePixmap (server.dsp, server.root_pmap);
-         server.root_pmap = 0;
-         redraw(&panel.area);
-         panel.clock.area.redraw = 1;
+         XFreePixmap (server.dsp, panel.area.pmap);
+         panel.area.pmap = 0;
          panel.refresh = 1;
       }
    }
@@ -354,8 +351,8 @@ int main (int argc, char *argv[])
    init ();
 
 load_config:
-   if (server.root_pmap) XFreePixmap (server.dsp, server.root_pmap);
-   server.root_pmap = 0;			   
+   if (panel.area.pmap) XFreePixmap (server.dsp, panel.area.pmap);
+   panel.area.pmap = 0;			   
    // read tint2rc config
    i = 0;
    if (c != -1)
@@ -401,7 +398,8 @@ load_config:
                   break;
             
                case Expose:
-                  XCopyArea (server.dsp, server.pmap, window.main_win, server.gc, 0, 0, panel.area.width, panel.area.height, 0, 0);
+                  XCopyArea (server.dsp, panel.area.pmap, server.root_win, server.gc_root, 0, 0, panel.area.width, panel.area.height, server.posx, server.posy);
+                  XCopyArea (server.dsp, server.pmap, window.main_win, server.gc, panel.area.paddingx, 0, panel.area.width-(2*panel.area.paddingx), panel.area.height, 0, 0);
                   break;
 
                case PropertyNotify:

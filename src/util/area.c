@@ -70,11 +70,9 @@ int draw (Area *a)
    XCopyArea (server.dsp, a->pmap, server.pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
    
    GSList *l = a->list;
-   if (l) {
-      // draw child object
-      for (; l ; l = l->next)
-         draw(l->data);
-   }
+   // draw child object
+   for (; l ; l = l->next)
+      draw(l->data);
 
    //printf("end draw area\n");
    return ret;

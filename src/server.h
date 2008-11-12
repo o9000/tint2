@@ -79,8 +79,8 @@ typedef struct
         Visual *visual;
         int posx, posy;
         Pixmap pmap;
-        Pixmap root_pmap;
         GC gc;
+        GC gc_root;
         Global_atom atom;
 } Server_global;
 
