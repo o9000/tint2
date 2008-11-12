@@ -1,5 +1,6 @@
 
 2008-11-12
+- fixed segfault with icon
 - panel's left and right padding feel like WM background
   (right click open window managers's menu, ...)
 

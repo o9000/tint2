@@ -60,8 +60,14 @@ void add_task (Window win)
    XSelectInput (server.dsp, new_tsk->win, PropertyChangeMask|StructureNotifyMask);
    
    if (desktop == 0xFFFFFFFF) {
-      if (new_tsk->title) XFree (new_tsk->title);
-      if (new_tsk->icon_data) XFree (new_tsk->icon_data);
+      if (new_tsk->title) {
+         free (new_tsk->title);
+         new_tsk->title = 0;
+      }
+      if (new_tsk->icon_data) {
+         XFree (new_tsk->icon_data);
+         new_tsk->icon_data = 0;
+      }
       free(new_tsk);
       fprintf(stderr, "task on all desktop : ignored\n");
       return;
@@ -87,8 +93,14 @@ void remove_task (Task *tsk)
    resize_tasks (tskbar);
    redraw (&tskbar->area);
 
-   if (tsk->title) XFree (tsk->title);
-   if (tsk->icon_data) XFree (tsk->icon_data);
+   if (tsk->title) {
+      free (tsk->title);
+      tsk->title = 0;
+   }
+   if (tsk->icon_data) {
+      XFree (tsk->icon_data);
+      tsk->icon_data = 0;
+   }
    XFreePixmap (server.dsp, tsk->area.pmap);
    XFreePixmap (server.dsp, tsk->area_active.pmap);
    free(tsk);
@@ -100,8 +112,6 @@ void get_title(Task *tsk)
    if (!g_task.text) return;
 
    char *title, *name;
-
-   if (tsk->title) free(tsk->title);
 
    name = server_get_property (tsk->win, server.atom._NET_WM_VISIBLE_NAME, server.atom.UTF8_STRING, 0);
    if (!name || !strlen(name)) {
@@ -116,12 +126,14 @@ void get_title(Task *tsk)
    }
 
    // add space before title
-   title = malloc(strlen(name)+1);      
+   title = malloc(strlen(name)+2);      
    if (g_task.icon) strcpy(title, " ");
    else title[0] = 0;
    strcat(title, name);
-   
    if (name) XFree (name);
+
+   if (tsk->title)
+      free(tsk->title);
    tsk->title = title;
 }
 

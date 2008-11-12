@@ -11,9 +11,14 @@ background_color = #000000 45
 border_color = #ffffff 0
 
 rounded = 7
-border_width = 1
-background_color = #ffffff 0
-border_color = #ffffff 70
+border_width = 0
+background_color = #ffffff 20
+border_color = #ffffff 15
+
+rounded = 0
+border_width = 0
+background_color = #000000 35
+border_color = #ffffff 0
 
 
 #---------------------------------------------
@@ -21,7 +26,7 @@ border_color = #ffffff 70
 #---------------------------------------------
 panel_monitor = 1
 panel_position = bottom left
-panel_size = 1010 30
+panel_size = 0 30
 panel_margin = 0 0
 panel_padding = 11 2
 font_shadow = 0
@@ -44,7 +49,7 @@ task_centered = 1
 task_padding = 2 2
 task_font = sans bold 8
 task_font_color = #ffffff 60
-task_active_font_color = #ffffff 95
+task_active_font_color = #ffffff 85
 task_background_id = 0
 task_active_background_id = 2
 
