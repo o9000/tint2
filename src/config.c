@@ -46,23 +46,27 @@
 
 void cleanup_taskbar() 
 {   
-   free_area(&panel.area);
-
+   GSList *l0;
+   Task *tsk;
+   
    int i, nb;
-   Task *tsk, *next;
-
    nb = panel.nb_desktop * panel.nb_monitor;
    for (i=0 ; i < nb ; i++) {
-/* TODO: voir ce code !!
-      for (tsk = panel.taskbar[i].tasklist; tsk ; tsk = next) {
-         next = tsk->next;
+      l0 = panel.taskbar[i].area.list;
+      while (l0) {
+         tsk = l0->data;
+         l0 = l0->next;
+         // careful : remove_task change l0->next
          remove_task (tsk);
       }
-*/
+      
+      free_area (&panel.taskbar[i].area);
    }
 
    free(panel.taskbar);
    panel.taskbar = 0;
+   
+   free_area(&panel.area);
 }
 
 

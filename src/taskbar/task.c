@@ -65,14 +65,15 @@ void add_task (Window win)
          new_tsk->title = 0;
       }
       if (new_tsk->icon_data) {
-         XFree (new_tsk->icon_data);
+         free (new_tsk->icon_data);
          new_tsk->icon_data = 0;
       }
       free(new_tsk);
       fprintf(stderr, "task on all desktop : ignored\n");
       return;
    }
-   
+      
+   //printf("add_task %d  %s\n", index(desktop, monitor), new_tsk->title);
    Taskbar *tskbar;
    tskbar = &panel.taskbar[index(desktop, monitor)];     
    new_tsk->area.parent = tskbar;
@@ -92,13 +93,14 @@ void remove_task (Task *tsk)
    tskbar->area.list = g_slist_remove(tskbar->area.list, tsk);
    resize_tasks (tskbar);
    redraw (&tskbar->area);
+   //printf("remove_task %d  %s\n", index(tskbar->desktop, tskbar->monitor), tsk->title);
 
    if (tsk->title) {
       free (tsk->title);
       tsk->title = 0;
    }
    if (tsk->icon_data) {
-      XFree (tsk->icon_data);
+      free (tsk->icon_data);
       tsk->icon_data = 0;
    }
    XFreePixmap (server.dsp, tsk->area.pmap);

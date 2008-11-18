@@ -66,14 +66,17 @@ void task_refresh_tasklist ()
 
    nb = panel.nb_desktop * panel.nb_monitor;
    for (i=0 ; i < nb ; i++) {
-      for (l0 = panel.taskbar[i].area.list; l0 ; l0 = l0->next) {
+      l0 = panel.taskbar[i].area.list;
+      while (l0) {
          tsk = l0->data;
-         
+         l0 = l0->next;
+
          if (tsk->win == active_win) panel.task_active = tsk;
          
          for (j = 0; j < num_results; j++) {
             if (tsk->win == win[j]) break;
          }
+         // careful : remove_task change l0->next
          if (tsk->win != win[j]) remove_task (tsk);
       }
    }

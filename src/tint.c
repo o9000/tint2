@@ -288,9 +288,11 @@ void event_property_notify (Window win, Atom at)
       }
       /* Window icon changed */
       else if (at == server.atom._NET_WM_ICON) {
-         if (tsk->icon_data != 0) XFree (tsk->icon_data);
+         if (tsk->icon_data) {
+            free (tsk->icon_data);
+            tsk->icon_data = 0;
+         }
          tsk->area.redraw = 1;
-         tsk->icon_data = 0;
          panel.refresh = 1;
       }
       /* Window desktop changed */
