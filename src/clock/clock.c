@@ -64,7 +64,7 @@ void init_clock(Clock *clock, int panel_height)
 }
 
 
-int draw_foreground_clock (void *obj, cairo_t *c)
+void draw_foreground_clock (void *obj, cairo_t *c)
 {
    Clock *clock = obj;
    PangoLayout *layout;
@@ -131,6 +131,5 @@ redraw:
    }
    
    g_object_unref (layout);
-   return 0;
 }
 

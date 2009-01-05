@@ -14,6 +14,22 @@
 // taskbar table : convert 2 dimension in 1 dimension
 #define index(i, j) ((i * panel.nb_monitor) + j)
 
+/*
+void fxfree(void** ptr){
+  if(*ptr){
+    free(*ptr);
+    *ptr=NULL;
+    }
+  }
+FXint fxmalloc(void** ptr,unsigned long size){
+  *ptr=NULL;
+  if(size!=0){
+    if((*ptr=malloc(size))==NULL) return FALSE;
+    }
+  return TRUE;
+  }
+*/
+
 // mouse actions
 enum { NONE=0, CLOSE, TOGGLE, ICONIFY, SHADE, TOGGLE_ICONIFY };
 

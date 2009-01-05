@@ -30,52 +30,59 @@
 #include "area.h"
 
 
-void redraw (Area *a)
+void refresh (Area *a)
 {
-   a->redraw = 1;
-   
-   GSList *l;
-   for (l = a->list ; l ; l = l->next) 
-      redraw(l->data);
-}
-
-
-int draw (Area *a)
-{
-   cairo_surface_t *cs;
-   cairo_t *c;
-   int ret = 0;
-
    if (a->redraw) {
-      //printf("begin draw area\n");
-      if (a->pmap) XFreePixmap (server.dsp, a->pmap);
-      a->pmap = server_create_pixmap (a->width, a->height);
-
-      // add layer of root pixmap
-      XCopyArea (server.dsp, server.pmap, a->pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
-
-      cs = cairo_xlib_surface_create (server.dsp, a->pmap, server.visual, a->width, a->height);
-      c = cairo_create (cs);
-
-      draw_background (a, c);
-      
-      if (a->draw_foreground)
-         ret = a->draw_foreground(a, c);
-
-      cairo_destroy (c);
-      cairo_surface_destroy (cs);
-      a->redraw = 0;
+      if (a->draw)
+         a->draw(a);
+      else
+         draw(a);
    }
    
    XCopyArea (server.dsp, a->pmap, server.pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
    
    GSList *l = a->list;
-   // draw child object
+   // refresh child object (after refreshing parent)
    for (; l ; l = l->next)
-      draw(l->data);
+      refresh(l->data);
 
-   //printf("end draw area\n");
-   return ret;
+   //printf("end refresh area\n");
+}
+
+
+void set_redraw (Area *a)
+{
+   a->redraw = 1;
+   
+   GSList *l;
+   for (l = a->list ; l ; l = l->next) 
+      set_redraw(l->data);
+}
+
+
+void draw (Area *a)
+{
+   cairo_surface_t *cs;
+   cairo_t *c;
+   
+   //printf("begin draw area\n");
+   if (a->pmap) XFreePixmap (server.dsp, a->pmap);
+   a->pmap = server_create_pixmap (a->width, a->height);
+
+   // add layer of root pixmap
+   XCopyArea (server.dsp, server.pmap, a->pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+
+   cs = cairo_xlib_surface_create (server.dsp, a->pmap, server.visual, a->width, a->height);
+   c = cairo_create (cs);
+
+   draw_background (a, c);
+      
+   if (a->draw_foreground)
+      a->draw_foreground(a, c);
+
+   cairo_destroy (c);
+   cairo_surface_destroy (cs);
+   a->redraw = 0;
 }
 
 
@@ -84,27 +91,9 @@ void draw_background (Area *a, cairo_t *c)
    if (a->back.alpha > 0.0) {
       //printf("   draw_background %d %d\n", a->width, a->height);
       draw_rect(c, a->border.width, a->border.width, a->width-(2.0 * a->border.width), a->height-(2.0*a->border.width), a->border.rounded - a->border.width/1.571);
-      /*
-      double x0, y0, x1, y1;
-      x0 = 0;
-      y0 = 100;
-      x1 = 100;
-      y1 = 0;
-            
-      cairo_pattern_t *linpat;
-      cairo_matrix_t matrix;
-      linpat = cairo_pattern_create_linear (x0, y0, x1, y1);
-
-      cairo_pattern_add_color_stop_rgba (linpat, 0, a->back.color[0], a->back.color[1], a->back.color[2], a->back.alpha);
-      cairo_pattern_add_color_stop_rgba (linpat, 1, a->back.color[0], a->back.color[1], a->back.color[2], 0);
-      //cairo_matrix_init_scale (&matrix, a->height, a->width);
-      //cairo_pattern_set_matrix (linpat, &matrix);
-      cairo_set_source (c, linpat);
-      */
       cairo_set_source_rgba(c, a->back.color[0], a->back.color[1], a->back.color[2], a->back.alpha);
       
       cairo_fill(c);
-      //cairo_pattern_destroy (linpat);
    }
 
    if (a->border.width > 0 && a->border.alpha > 0.0) {
@@ -163,7 +152,7 @@ void remove_area (Area *a)
    
    parent = (Area*)a->parent;
    parent->list = g_slist_remove(parent->list, a);
-   redraw (parent);
+   set_redraw (parent);
 
 }
 
@@ -174,7 +163,7 @@ void add_area (Area *a)
    
    parent = (Area*)a->parent;
    parent->list = g_slist_remove(parent->list, a);
-   redraw (parent);
+   set_redraw (parent);
 
 }
 

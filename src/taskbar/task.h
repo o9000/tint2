@@ -59,7 +59,7 @@ Global_task g_task;
 void add_task (Window win);
 void remove_task (Task *tsk);
 
-int draw_foreground_task (void *obj, cairo_t *c);
+void draw_foreground_task (void *obj, cairo_t *c);
 
 void get_icon (Task *tsk);
 void get_title(Task *tsk);

@@ -575,6 +575,7 @@ void config_finish ()
       free(l0->data);
    }
    g_slist_free(list_back);
+   list_back = NULL;
 }
 
 

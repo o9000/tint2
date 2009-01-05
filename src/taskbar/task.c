@@ -80,7 +80,7 @@ void add_task (Window win)
    tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk);
 
    if (resize_tasks (tskbar))
-      redraw (&tskbar->area);
+      set_redraw (&tskbar->area);
 }
 
 
@@ -92,7 +92,7 @@ void remove_task (Task *tsk)
    tskbar = (Taskbar*)tsk->area.parent;
    tskbar->area.list = g_slist_remove(tskbar->area.list, tsk);
    resize_tasks (tskbar);
-   redraw (&tskbar->area);
+   set_redraw (&tskbar->area);
    //printf("remove_task %d  %s\n", index(tskbar->desktop, tskbar->monitor), tsk->title);
 
    if (tsk->title) {
@@ -148,18 +148,30 @@ void get_icon (Task *tsk)
    int num;
 
    data = server_get_property (tsk->win, server.atom._NET_WM_ICON, XA_CARDINAL, &num);
-   if (!data) return;
+   if (data) {
+      printf("get_icon plein\n");
+      // ARGB
+      int w, h;
+      long *tmp_data;
+      tmp_data = get_best_icon (data, get_icon_count (data, num), num, &w, &h, g_task.icon_size1);
 
-   int w, h;
-   long *tmp_data;
-   tmp_data = get_best_icon (data, get_icon_count (data, num), num, &w, &h, g_task.icon_size1);
-
-   tsk->icon_width = w;
-   tsk->icon_height = h;
-   tsk->icon_data = malloc (w * h * sizeof (long));
-   memcpy (tsk->icon_data, tmp_data, w * h * sizeof (long));
-      
-   XFree (data);
+      tsk->icon_width = w;
+      tsk->icon_height = h;
+      tsk->icon_data = malloc (w * h * sizeof (long));
+      memcpy (tsk->icon_data, tmp_data, w * h * sizeof (long));
+         
+      XFree (data);
+   }
+   else {
+      //XWMHints *hints;
+      //hints = XGetWMHints(server.dsp, tkwin);
+      //if (hints != NULL) {
+      //   XFree(hints);
+      //}
+      printf("get_icon vide\n");
+      // XChangeProperty (display, windowH, XInternAtom (display, "_NET_WM_ICON", False), XA_CARDINAL, 32, PropModeReplace, (unsigned char*) data, dataSize);
+      return;
+   }
 }
 
 
@@ -272,7 +284,16 @@ void draw_task_title (cairo_t *c, Task *tsk, int active)
 }
 
 
-int draw_foreground_task (void *obj, cairo_t *c)
+void draw_background_task (void *obj, cairo_t *c)
+{
+   Task *tsk = obj;
+
+   draw_background (&tsk->area_active, c);
+   draw_background (&tsk->area_inactive, c);
+}
+
+
+void draw_foreground_task (void *obj, cairo_t *c)
 {
    Task *tsk = obj;
    cairo_surface_t *cs;
@@ -292,11 +313,9 @@ int draw_foreground_task (void *obj, cairo_t *c)
    ca = cairo_create (cs);
 
    // redraw task
-   draw_background (&tsk->area_active, ca);
    draw_task_title (ca, tsk, 1);
    
    cairo_destroy (ca);
    cairo_surface_destroy (cs);
-   return 0;
 }
 

@@ -1,6 +1,23 @@
+wmhints.icon_pixmap=icon->xid;
+wmhints.icon_mask=icon->shape;
+XGetWMHints(...);
+XGetWMNormalHints
+
+- fixed bug : detect X11 icons
+- fixed bug : desktop background detection
+- fixed bug : border with compiz ? with xfce composite ? with xcompmanager ?
+- fixed bug : task active/inactive
+- multi_monitor : taskbar follow monitor's order (left to right, top to bottom)
+- WM background with panel padding_x and panel padding_y 
+  => task (x, y) just on taskbar height
+  => draw background just when needed
+
+
+2008-12-30
+- fixed bug : segfault on ConfigureNotify event
 
 2008-11-12
-- fixed segfault with icon
+- fixed bug : segfault with icon
 - panel's left and right padding feel like WM background
   (right click open window managers's menu, ...)
 

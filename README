@@ -1,5 +1,5 @@
 DEPENDENCIES:
-cairo, pango, glib, imlib2
+cairo, pango, glib, imlib2, xrandr, xinerama
 
 ---------------------------------------------------------
 INSTALL:

@@ -117,7 +117,7 @@ int resize_tasks (Taskbar *taskbar)
       taskbar->task_modulo = modulo_width;
       taskbar->text_width = pixel_width - g_task.text_posx - g_task.area.border.width - g_task.area.paddingx;
    }
-      
+   
    // change pos_x and width for all tasks
    x = taskbar->area.posx + taskbar->area.border.width + taskbar->area.paddingx;
    for (l = taskbar->area.list; l ; l = l->next) {

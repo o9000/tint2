@@ -9,7 +9,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-
+// list of background
 GSList *list_back;
 
 

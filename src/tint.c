@@ -63,11 +63,7 @@ void init ()
    panel.clock.area.draw_foreground = draw_foreground_clock;
    g_task.area.draw_foreground = draw_foreground_task;
    window.main_win = 0;
-   
-   // append full transparency background
-   //Area *back = calloc(1, sizeof(Area));
-   list_back = g_slist_append(0, calloc(1, sizeof(Area)));
-   
+      
    server.dsp = XOpenDisplay (NULL);
    if (!server.dsp) {
       fprintf(stderr, "Could not open display.\n");
@@ -355,6 +351,9 @@ int main (int argc, char *argv[])
 load_config:
    if (panel.area.pmap) XFreePixmap (server.dsp, panel.area.pmap);
    panel.area.pmap = 0;			   
+   // append full transparency background
+   list_back = g_slist_append(0, calloc(1, sizeof(Area)));
+
    // read tint2rc config
    i = 0;
    if (c != -1)
@@ -370,8 +369,8 @@ load_config:
    
    window_draw_panel ();
    
-   // BUG: draw(clock) is needed here, but 'on the paper' it's not necessary.
-   draw(&panel.clock.area);
+   // BUG: refresh(clock) is needed here, but 'on the paper' it's not necessary.
+   refresh(&panel.clock.area);
 
    x11_fd = ConnectionNumber (server.dsp);
    XSync (server.dsp, False);

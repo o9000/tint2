@@ -41,7 +41,7 @@ void visual_refresh ()
    // draw child object
    GSList *l = panel.area.list;
    for (; l ; l = l->next)
-      draw (l->data);
+      refresh (l->data);
 
    // main_win doesn't include panel.area.paddingx, so we have WM capabilities on left and right.
    XCopyArea (server.dsp, server.pmap, window.main_win, server.gc, panel.area.paddingx, 0, panel.area.width-(2*panel.area.paddingx), panel.area.height, 0, 0);
@@ -102,6 +102,10 @@ void set_panel_properties (Window win)
    wmhints.flags = InputHint;
    wmhints.input = False;
    XChangeProperty (server.dsp, win, XA_WM_HINTS, XA_WM_HINTS, 32, PropModeReplace, (unsigned char *) &wmhints, sizeof (XWMHints) / 4);
+   
+   // Undecorated
+   long prop[5] = { 2, 0, 0, 0, 0 };
+   XChangeProperty(server.dsp, win, server.atom._MOTIF_WM_HINTS, server.atom._MOTIF_WM_HINTS, 32, PropModeReplace, (unsigned char *) prop, 5);
 }
 
 
@@ -163,7 +167,7 @@ void visible_object()
          panel.area.list = g_slist_append(panel.area.list, taskbar);
       }
    }
-   redraw(&panel.area);
+   set_redraw(&panel.area);
    panel.refresh = 1;
 }
 
@@ -191,7 +195,7 @@ void set_panel_background()
    // copy background panel on desktop window
    XCopyArea (server.dsp, panel.area.pmap, server.root_win, server.gc_root, 0, 0, panel.area.width, panel.area.height, server.posx, server.posy);
 
-   redraw (&panel.area);
+   set_redraw (&panel.area);
 }
 
 

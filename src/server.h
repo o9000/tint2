@@ -52,6 +52,7 @@ typedef struct Global_atom
         Atom _NET_WM_STRUT_PARTIAL;
         Atom WM_NAME;
         Atom __SWM_VROOT;
+        Atom _MOTIF_WM_HINTS;
 } Global_atom;
 
 
