@@ -1,9 +1,9 @@
 /**************************************************************************
 *
 * Tint2 : clock
-* 
+*
 * Copyright (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr)
-* 
+*
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2
 * as published by the Free Software Foundation.
@@ -37,27 +37,27 @@ void init_clock(Clock *clock, int panel_height)
    int time_height, time_height_ink, date_height, date_height_ink;
 
    if (!clock->time1_format) return;
-   
+
    if (strchr(clock->time1_format, 'S') == NULL) clock->time_precision = 60;
    else clock->time_precision = 1;
-   
-   clock->area.posy = panel.area.border.width + panel.area.paddingy;
+
+   clock->area.posy = panel.area.pix.border.width + panel.area.paddingy;
    clock->area.height = panel.area.height - (2 * clock->area.posy);
-   clock->area.redraw = 1;      
+   clock->area.redraw = 1;
 
    gettimeofday(&clock->clock, 0);
    clock->clock.tv_sec -= clock->clock.tv_sec % clock->time_precision;
-   
+
    strftime(buf_time, sizeof(buf_time), clock->time1_format, localtime(&clock->clock.tv_sec));
    if (clock->time2_format)
       strftime(buf_date, sizeof(buf_date), clock->time2_format, localtime(&clock->clock.tv_sec));
-   
+
    get_text_size(clock->time1_font_desc, &time_height_ink, &time_height, panel_height, buf_time, strlen(buf_time));
    clock->time1_posy = (clock->area.height - time_height) / 2;
 
-   if (clock->time2_format) {      
+   if (clock->time2_format) {
       get_text_size(clock->time2_font_desc, &date_height_ink, &date_height, panel_height, buf_date, strlen(buf_date));
-      
+
       clock->time1_posy -= ((date_height_ink + 2) / 2);
       clock->time2_posy = clock->time1_posy + time_height + 2 - (time_height - time_height_ink)/2 - (date_height - date_height_ink)/2;
    }
@@ -94,14 +94,14 @@ redraw:
    }
    if (time_width > date_width) new_width = time_width;
    else new_width = date_width;
-   new_width += (2*clock->area.paddingx) + (2*clock->area.border.width);
-   
+   new_width += (2*clock->area.paddingx) + (2*clock->area.pix.border.width);
+
    if (new_width > clock->area.width || (new_width != clock->area.width && date_width > time_width)) {
       //printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
       // resize clock
       clock->area.width = new_width;
-      panel.clock.area.posx = panel.area.width - panel.clock.area.width - panel.area.paddingx - panel.area.border.width;
-      
+      panel.clock.area.posx = panel.area.width - panel.clock.area.width - panel.area.paddingx - panel.area.pix.border.width;
+
       g_object_unref (layout);
       resize_taskbar();
       goto redraw;
@@ -124,12 +124,12 @@ redraw:
       pango_layout_set_indent(layout, 0);
       pango_layout_set_text (layout, buf_date, strlen(buf_date));
       pango_layout_set_width (layout, clock->area.width * PANGO_SCALE);
-      
+
       pango_cairo_update_layout (c, layout);
       cairo_move_to (c, 0, clock->time2_posy);
       pango_cairo_show_layout (c, layout);
    }
-   
+
    g_object_unref (layout);
 }
 

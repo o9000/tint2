@@ -1,9 +1,9 @@
 /**************************************************************************
 *
 * Tint2 : taskbar
-* 
+*
 * Copyright (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr)
-* 
+*
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2
 * as published by the Free Software Foundation.
@@ -38,7 +38,7 @@ Task *task_get_task (Window win)
    Task *tsk;
    GSList *l0;
    int i, nb;
-   
+
    nb = panel.nb_desktop * panel.nb_monitor;
    for (i=0 ; i < nb ; i++) {
       for (l0 = panel.taskbar[i].area.list; l0 ; l0 = l0->next) {
@@ -60,9 +60,13 @@ void task_refresh_tasklist ()
    win = server_get_property (server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
 
    if (!win) return;
-   
+
    // Remove any old and set active win
    active_win = window_get_active ();
+	if (panel.task_active) {
+		panel.task_active->area.is_active = 0;
+		panel.task_active = 0;
+	}
 
    nb = panel.nb_desktop * panel.nb_monitor;
    for (i=0 ; i < nb ; i++) {
@@ -71,8 +75,11 @@ void task_refresh_tasklist ()
          tsk = l0->data;
          l0 = l0->next;
 
-         if (tsk->win == active_win) panel.task_active = tsk;
-         
+         if (tsk->win == active_win) {
+      		tsk->area.is_active = 1;
+         	panel.task_active = tsk;
+			}
+
          for (j = 0; j < num_results; j++) {
             if (tsk->win == win[j]) break;
          }
@@ -82,8 +89,8 @@ void task_refresh_tasklist ()
    }
 
    // Add any new
-   for (i = 0; i < num_results; i++) 
-      if (!task_get_task (win[i])) 
+   for (i = 0; i < num_results; i++)
+      if (!task_get_task (win[i]))
          add_task (win[i]);
 
    XFree (win);
@@ -101,7 +108,7 @@ int resize_tasks (Taskbar *taskbar)
    task_count = g_slist_length(taskbar->area.list);
    if (!task_count) pixel_width = g_task.maximum_width;
    else {
-      taskbar_width = taskbar->area.width - (2 * g_taskbar.border.width) - ((task_count+1) * g_taskbar.paddingx);
+      taskbar_width = taskbar->area.width - (2 * g_taskbar.pix.border.width) - ((task_count+1) * g_taskbar.paddingx);
 
       pixel_width = taskbar_width / task_count;
       if (pixel_width > g_task.maximum_width) pixel_width = g_task.maximum_width;
@@ -115,20 +122,17 @@ int resize_tasks (Taskbar *taskbar)
       ret = 1;
       taskbar->task_width = pixel_width;
       taskbar->task_modulo = modulo_width;
-      taskbar->text_width = pixel_width - g_task.text_posx - g_task.area.border.width - g_task.area.paddingx;
+      taskbar->text_width = pixel_width - g_task.text_posx - g_task.area.pix.border.width - g_task.area.paddingx;
    }
-   
+
    // change pos_x and width for all tasks
-   x = taskbar->area.posx + taskbar->area.border.width + taskbar->area.paddingx;
+   x = taskbar->area.posx + taskbar->area.pix.border.width + taskbar->area.paddingx;
    for (l = taskbar->area.list; l ; l = l->next) {
       tsk = l->data;
       tsk->area.posx = x;
-      tsk->area_active.posx = x;
       tsk->area.width = pixel_width;
-      tsk->area_active.width = pixel_width;
       if (modulo_width) {
          tsk->area.width++;
-         tsk->area_active.width++;
          modulo_width--;
       }
 
@@ -145,22 +149,22 @@ void resize_taskbar()
 
    if (panel.mode == MULTI_DESKTOP) taskbar_on_screen = panel.nb_desktop;
    else taskbar_on_screen = panel.nb_monitor;
-   
-   taskbar_width = panel.area.width - (2 * panel.area.paddingx) - (2 * panel.area.border.width);
-   if (panel.clock.time1_format) 
+
+   taskbar_width = panel.area.width - (2 * panel.area.paddingx) - (2 * panel.area.pix.border.width);
+   if (panel.clock.time1_format)
       taskbar_width -= (panel.clock.area.width + panel.area.paddingx);
    taskbar_width = (taskbar_width - ((taskbar_on_screen-1) * panel.area.paddingx)) / taskbar_on_screen;
 
    if (taskbar_on_screen > 1)
       modulo_width = (taskbar_width - ((taskbar_on_screen-1) * panel.area.paddingx)) % taskbar_on_screen;
-   else 
+   else
       modulo_width = 0;
-   
-   int posx, modulo, i, nb;
+
+   int i, nb, modulo=0, posx=0;
    nb = panel.nb_desktop * panel.nb_monitor;
    for (i=0 ; i < nb ; i++) {
       if ((i % taskbar_on_screen) == 0) {
-         posx = panel.area.border.width + panel.area.paddingx;
+         posx = panel.area.pix.border.width + panel.area.paddingx;
          modulo = modulo_width;
       }
       else posx += taskbar_width + panel.area.paddingx;
@@ -171,7 +175,7 @@ void resize_taskbar()
          panel.taskbar[i].area.width++;
          modulo--;
       }
-      
+
       resize_tasks(&panel.taskbar[i]);
    }
 }

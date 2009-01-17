@@ -44,11 +44,11 @@
 #include "window.h"
 
 
-void cleanup_taskbar() 
-{   
+void cleanup_taskbar()
+{
    GSList *l0;
    Task *tsk;
-   
+
    int i, nb;
    nb = panel.nb_desktop * panel.nb_monitor;
    for (i=0 ; i < nb ; i++) {
@@ -59,13 +59,13 @@ void cleanup_taskbar()
          // careful : remove_task change l0->next
          remove_task (tsk);
       }
-      
+
       free_area (&panel.taskbar[i].area);
    }
 
    free(panel.taskbar);
    panel.taskbar = 0;
-   
+
    free_area(&panel.area);
 }
 
@@ -92,12 +92,12 @@ void copy_file(const char *pathSrc, const char *pathDest)
 
    fileSrc = fopen(pathSrc, "rb");
    if (fileSrc == NULL) return;
-   
+
    fileDest = fopen(pathDest, "wb");
    if (fileDest == NULL) return;
-   
+
    while ((nb = fread(line, 1, 100, fileSrc)) > 0) fwrite(line, 1, nb, fileDest);
-   
+
    fclose (fileDest);
    fclose (fileSrc);
 }
@@ -109,7 +109,7 @@ void extract_values (const char *value, char **value1, char **value2)
 
    if (*value1) free (*value1);
    if (*value2) free (*value2);
-   
+
    if ((b = strchr (value, ' '))) {
       b[0] = '\0';
       b++;
@@ -117,7 +117,7 @@ void extract_values (const char *value, char **value1, char **value2)
       g_strstrip(*value2);
    }
    else *value2 = 0;
-   
+
    *value1 = strdup (value);
    g_strstrip(*value1);
 }
@@ -126,7 +126,7 @@ void extract_values (const char *value, char **value1, char **value2)
 int hex_char_to_int (char c)
 {
    int r;
-   
+
    if (c >= '0' && c <= '9')  r = c - '0';
    else if (c >= 'a' && c <= 'f')  r = c - 'a' + 10;
    else if (c >= 'A' && c <= 'F')  r = c - 'A' + 10;
@@ -199,27 +199,27 @@ void add_entry (char *key, char *value)
    /* Background and border */
    if (strcmp (key, "rounded") == 0) {
       // 'rounded' is the first parameter => alloc a new background
-      Area *back = calloc(1, sizeof(Area));
-      back->border.rounded = atoi (value);
-      list_back = g_slist_append(list_back, back);
+      Area *a = calloc(1, sizeof(Area));
+      a->pix.border.rounded = atoi (value);
+      list_back = g_slist_append(list_back, a);
    }
    else if (strcmp (key, "border_width") == 0) {
-      Area *back = g_slist_last(list_back)->data;
-      back->border.width = atoi (value);
+      Area *a = g_slist_last(list_back)->data;
+      a->pix.border.width = atoi (value);
    }
    else if (strcmp (key, "background_color") == 0) {
-      Area *back = g_slist_last(list_back)->data;
+      Area *a = g_slist_last(list_back)->data;
       extract_values(value, &value1, &value2);
-      get_color (value1, back->back.color);
-      if (value2) back->back.alpha = (atoi (value2) / 100.0);
-      else back->back.alpha = 0.5;
+      get_color (value1, a->pix.back.color);
+      if (value2) a->pix.back.alpha = (atoi (value2) / 100.0);
+      else a->pix.back.alpha = 0.5;
    }
    else if (strcmp (key, "border_color") == 0) {
-      Area *back = g_slist_last(list_back)->data;
+      Area *a = g_slist_last(list_back)->data;
       extract_values(value, &value1, &value2);
-      get_color (value1, back->border.color);
-      if (value2) back->border.alpha = (atoi (value2) / 100.0);
-      else back->border.alpha = 0.5;
+      get_color (value1, a->pix.border.color);
+      if (value2) a->pix.border.alpha = (atoi (value2) / 100.0);
+      else a->pix.border.alpha = 0.5;
    }
 
    /* Panel */
@@ -260,9 +260,9 @@ void add_entry (char *key, char *value)
       g_task.font_shadow = atoi (value);
    else if (strcmp (key, "panel_background_id") == 0) {
       int id = atoi (value);
-      Area *back = g_slist_nth_data(list_back, id);
-      memcpy(&panel.area.back, &back->back, sizeof(Color));
-      memcpy(&panel.area.border, &back->border, sizeof(Border));
+      Area *a = g_slist_nth_data(list_back, id);
+      memcpy(&panel.area.pix.back, &a->pix.back, sizeof(Color));
+      memcpy(&panel.area.pix.border, &a->pix.border, sizeof(Border));
    }
 
    /* Clock */
@@ -297,11 +297,11 @@ void add_entry (char *key, char *value)
    }
    else if (strcmp (key, "clock_background_id") == 0) {
       int id = atoi (value);
-      Area *back = g_slist_nth_data(list_back, id);
-      memcpy(&panel.clock.area.back, &back->back, sizeof(Color));
-      memcpy(&panel.clock.area.border, &back->border, sizeof(Border));
+      Area *a = g_slist_nth_data(list_back, id);
+      memcpy(&panel.clock.area.pix.back, &a->pix.back, sizeof(Color));
+      memcpy(&panel.clock.area.pix.border, &a->pix.border, sizeof(Border));
    }
-   
+
    /* Taskbar */
    else if (strcmp (key, "taskbar_mode") == 0) {
       if (strcmp (value, "multi_desktop") == 0) panel.mode = MULTI_DESKTOP;
@@ -315,9 +315,9 @@ void add_entry (char *key, char *value)
    }
    else if (strcmp (key, "taskbar_background_id") == 0) {
       int id = atoi (value);
-      Area *back = g_slist_nth_data(list_back, id);
-      memcpy(&g_taskbar.back, &back->back, sizeof(Color));
-      memcpy(&g_taskbar.border, &back->border, sizeof(Border));
+      Area *a = g_slist_nth_data(list_back, id);
+      memcpy(&g_taskbar.pix.back, &a->pix.back, sizeof(Color));
+      memcpy(&g_taskbar.pix.border, &a->pix.border, sizeof(Border));
    }
 
    /* Task */
@@ -332,10 +332,8 @@ void add_entry (char *key, char *value)
    else if (strcmp (key, "task_padding") == 0) {
       extract_values(value, &value1, &value2);
       g_task.area.paddingx = atoi (value1);
-      g_task.area_active.paddingx = atoi (value1);
       if (value2) {
          g_task.area.paddingy = atoi (value2);
-         g_task.area_active.paddingy = atoi (value2);
       }
    }
    else if (strcmp (key, "task_font") == 0) {
@@ -356,15 +354,15 @@ void add_entry (char *key, char *value)
    }
    else if (strcmp (key, "task_background_id") == 0) {
       int id = atoi (value);
-      Area *back = g_slist_nth_data(list_back, id);
-      memcpy(&g_task.area.back, &back->back, sizeof(Color));
-      memcpy(&g_task.area.border, &back->border, sizeof(Border));
+      Area *a = g_slist_nth_data(list_back, id);
+      memcpy(&g_task.area.pix.back, &a->pix.back, sizeof(Color));
+      memcpy(&g_task.area.pix.border, &a->pix.border, sizeof(Border));
    }
    else if (strcmp (key, "task_active_background_id") == 0) {
       int id = atoi (value);
-      Area *back = g_slist_nth_data(list_back, id);
-      memcpy(&g_task.area_active.back, &back->back, sizeof(Color));
-      memcpy(&g_task.area_active.border, &back->border, sizeof(Border));
+      Area *a = g_slist_nth_data(list_back, id);
+      memcpy(&g_task.area.pix_active.back, &a->pix.back, sizeof(Color));
+      memcpy(&g_task.area.pix_active.border, &a->pix.border, sizeof(Border));
    }
 
    /* Mouse actions */
@@ -405,25 +403,25 @@ void add_entry (char *key, char *value)
    else if (strcmp (key, "panel_background") == 0)
       panel.old_panel_background = atoi (value);
    else if (strcmp (key, "panel_background_alpha") == 0)
-      panel.area.back.alpha = (atoi (value) / 100.0);
+      panel.area.pix.back.alpha = (atoi (value) / 100.0);
    else if (strcmp (key, "panel_border_alpha") == 0)
-      panel.area.border.alpha = (atoi (value) / 100.0);
+      panel.area.pix.border.alpha = (atoi (value) / 100.0);
    else if (strcmp (key, "task_icon") == 0)
       panel.old_task_icon = atoi (value);
    else if (strcmp (key, "task_background") == 0)
       panel.old_task_background = atoi (value);
    else if (strcmp (key, "task_background_alpha") == 0)
-      g_task.area.back.alpha = (atoi (value) / 100.0);
+      g_task.area.pix.back.alpha = (atoi (value) / 100.0);
    else if (strcmp (key, "task_active_background_alpha") == 0)
-      g_task.area_active.back.alpha = (atoi (value) / 100.0);
+      g_task.area.pix_active.back.alpha = (atoi (value) / 100.0);
    else if (strcmp (key, "task_border_alpha") == 0)
-      g_task.area.border.alpha = (atoi (value) / 100.0);
+      g_task.area.pix.border.alpha = (atoi (value) / 100.0);
    else if (strcmp (key, "task_active_border_alpha") == 0)
-      g_task.area_active.border.alpha = (atoi (value) / 100.0);
+      g_task.area.pix_active.border.alpha = (atoi (value) / 100.0);
    // disabled parameters
    else if (strcmp (key, "task_active_border_width") == 0) ;
    else if (strcmp (key, "task_active_rounded") == 0) ;
-   
+
    else
       fprintf(stderr, "Invalid option: \"%s\", correct your config file\n", key);
 
@@ -465,11 +463,11 @@ void config_taskbar()
 {
    int i, j;
 
-   if (g_task.area.border.rounded > g_task.area.height/2) {
-      g_task.area.border.rounded = g_task.area.height/2;
-      g_task.area_active.border.rounded = g_task.area.border.rounded;
+   if (g_task.area.pix.border.rounded > g_task.area.height/2) {
+      g_task.area.pix.border.rounded = g_task.area.height/2;
+      g_task.area.pix_active.border.rounded = g_task.area.pix.border.rounded;
    }
-   
+
    for (i=0 ; i < 15 ; i++) {
       server.nb_desktop = server_get_number_of_desktop ();
       if (server.nb_desktop > 0) break;
@@ -481,7 +479,7 @@ void config_taskbar()
    }
 
    if (panel.taskbar) cleanup_taskbar();
-   
+
    panel.nb_desktop = server.nb_desktop;
    if (panel.mode == MULTI_MONITOR) panel.nb_monitor = server.nb_monitor;
    else panel.nb_monitor = 1;
@@ -496,14 +494,14 @@ void config_taskbar()
          memcpy(&tskbar->area, &g_taskbar, sizeof(Area));
          tskbar->desktop = i;
          tskbar->monitor = j;
-         
+
          // TODO: redefinir panel.area.list en fonction des objets visibles
          panel.area.list = g_slist_append(panel.area.list, tskbar);
       }
    }
    if (panel.clock.time1_format)
       panel.area.list = g_slist_append(panel.area.list, &panel.clock);
-   
+
    //printf("taskbar (desktop x monitor) : (%d x %d)\n", panel.nb_desktop, panel.nb_monitor);
    resize_taskbar();
    task_refresh_tasklist ();
@@ -514,7 +512,7 @@ void config_taskbar()
 void config_finish ()
 {
    int height_ink, height;
-   
+
    if (panel.old_config_file) save_config();
 
    // get monitor's configuration
@@ -527,29 +525,28 @@ void config_finish ()
    else {
       panel.sleep_mode = 0;
       //printf("tint2 wake up on monitor %d\n", panel.monitor+1);
-      if (!server.monitor[panel.monitor].width || !server.monitor[panel.monitor].height) 
+      if (!server.monitor[panel.monitor].width || !server.monitor[panel.monitor].height)
          fprintf(stderr, "tint2 error : invalid monitor size.\n");
    }
 
    if (!panel.area.width) panel.area.width = server.monitor[panel.monitor].width;
-   
+
    // taskbar
-   g_taskbar.posy = panel.area.border.width + panel.area.paddingy;
+   g_taskbar.posy = panel.area.pix.border.width + panel.area.paddingy;
    g_taskbar.height = panel.area.height - (2 * g_taskbar.posy);
    g_taskbar.redraw = 1;
-   
+
    // task
-   g_task.area.posy = g_taskbar.posy + g_taskbar.border.width + g_taskbar.paddingy;
-   g_task.area_active.posy = g_task.area.posy;
+   g_task.area.posy = g_taskbar.posy + g_taskbar.pix.border.width + g_taskbar.paddingy;
    g_task.area.height = panel.area.height - (2 * g_task.area.posy);
-   g_task.area_active.height = g_task.area.height;
+   g_task.area.use_active = 1;
    g_task.area.redraw = 1;
 
    if (!g_task.maximum_width)
       g_task.maximum_width = server.monitor[panel.monitor].width;
-         
-   if (panel.area.border.rounded > panel.area.height/2)
-      panel.area.border.rounded = panel.area.height/2;
+
+   if (panel.area.pix.border.rounded > panel.area.height/2)
+      panel.area.pix.border.rounded = panel.area.height/2;
 
    // clock
    init_clock(&panel.clock, panel.area.height);
@@ -559,13 +556,13 @@ void config_finish ()
    g_task.text_posy = (g_task.area.height - height) / 2.0;
 
    // add task_icon_size
-   g_task.text_posx = g_task.area.paddingx + g_task.area.border.width;
+   g_task.text_posx = g_task.area.paddingx + g_task.area.pix.border.width;
    if (g_task.icon) {
       g_task.icon_size1 = g_task.area.height - (2 * g_task.area.paddingy);
       g_task.text_posx += g_task.icon_size1;
       g_task.icon_posy = (g_task.area.height - g_task.icon_size1) / 2;
    }
-   
+
    config_taskbar();
    visible_object();
 
@@ -588,23 +585,23 @@ int config_read ()
    // check tint2rc file according to XDG specification
    path1 = g_build_filename (g_get_user_config_dir(), "tint2", "tint2rc", NULL);
    if (!g_file_test (path1, G_FILE_TEST_EXISTS)) {
-      
+
       path2 = 0;
       system_dirs = g_get_system_config_dirs();
       for (i = 0; system_dirs[i]; i++) {
          path2 = g_build_filename(system_dirs[i], "tint2", "tint2rc", NULL);
-         
+
          if (g_file_test(path2, G_FILE_TEST_EXISTS)) break;
          g_free (path2);
          path2 = 0;
       }
-      
+
       if (path2) {
          // copy file in user directory (path1)
          dir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
          if (!g_file_test (dir, G_FILE_TEST_IS_DIR)) g_mkdir(dir, 0777);
          g_free(dir);
-   
+
          copy_file(path2, path1);
          g_free(path2);
       }
@@ -620,9 +617,9 @@ int config_read_file (const char *path)
 {
    FILE *fp;
    char line[80];
-   
+
    if ((fp = fopen(path, "r")) == NULL) return 0;
-   
+
    while (fgets(line, sizeof(line), fp) != NULL)
       parse_line (line);
 
@@ -636,17 +633,17 @@ void save_config ()
    fprintf(stderr, "tint2 warning : convert user's config file\n");
    panel.area.paddingx = panel.area.paddingy = panel.marginx;
    panel.marginx = panel.marginy = 0;
-   
+
    if (panel.old_task_icon == 0) g_task.icon_size1 = 0;
-   if (panel.old_panel_background == 0) panel.area.back.alpha = 0;
+   if (panel.old_panel_background == 0) panel.area.pix.back.alpha = 0;
    if (panel.old_task_background == 0) {
-      g_task.area.back.alpha = 0;
-      g_task.area_active.back.alpha = 0;
+      g_task.area.pix.back.alpha = 0;
+      g_task.area.pix_active.back.alpha = 0;
    }
-   g_task.area.border.rounded = g_task.area.border.rounded / 2;
-   g_task.area_active.border.rounded = g_task.area.border.rounded;
-   panel.area.border.rounded = panel.area.border.rounded / 2;
-   
+   g_task.area.pix.border.rounded = g_task.area.pix.border.rounded / 2;
+   g_task.area.pix_active.border.rounded = g_task.area.pix.border.rounded;
+   panel.area.pix.border.rounded = panel.area.pix.border.rounded / 2;
+
    char *path;
    FILE *fp;
 
@@ -654,7 +651,7 @@ void save_config ()
    fp = fopen(path, "w");
    g_free(path);
    if (fp == NULL) return;
-   
+
    fputs("#---------------------------------------------\n", fp);
    fputs("# TINT CONFIG FILE\n", fp);
    fputs("#---------------------------------------------\n\n", fp);
@@ -677,11 +674,11 @@ void save_config ()
    fputs("\n#---------------------------------------------\n", fp);
    fputs("# PANEL BACKGROUND AND BORDER\n", fp);
    fputs("#---------------------------------------------\n", fp);
-   fprintf(fp, "panel_rounded = %d\n", panel.area.border.rounded);
-   fprintf(fp, "panel_border_width = %d\n", panel.area.border.width);
-   fprintf(fp, "panel_background_color = #%02x%02x%02x %d\n", (int)(panel.area.back.color[0]*255), (int)(panel.area.back.color[1]*255), (int)(panel.area.back.color[2]*255), (int)(panel.area.back.alpha*100));
-   fprintf(fp, "panel_border_color = #%02x%02x%02x %d\n", (int)(panel.area.border.color[0]*255), (int)(panel.area.border.color[1]*255), (int)(panel.area.border.color[2]*255), (int)(panel.area.border.alpha*100));
-   
+   fprintf(fp, "panel_rounded = %d\n", panel.area.pix.border.rounded);
+   fprintf(fp, "panel_border_width = %d\n", panel.area.pix.border.width);
+   fprintf(fp, "panel_background_color = #%02x%02x%02x %d\n", (int)(panel.area.pix.back.color[0]*255), (int)(panel.area.pix.back.color[1]*255), (int)(panel.area.pix.back.color[2]*255), (int)(panel.area.pix.back.alpha*100));
+   fprintf(fp, "panel_border_color = #%02x%02x%02x %d\n", (int)(panel.area.pix.border.color[0]*255), (int)(panel.area.pix.border.color[1]*255), (int)(panel.area.pix.border.color[2]*255), (int)(panel.area.pix.border.alpha*100));
+
    fputs("\n#---------------------------------------------\n", fp);
    fputs("# TASKS\n", fp);
    fputs("#---------------------------------------------\n", fp);
@@ -696,12 +693,12 @@ void save_config ()
    fputs("\n#---------------------------------------------\n", fp);
    fputs("# TASK BACKGROUND AND BORDER\n", fp);
    fputs("#---------------------------------------------\n", fp);
-   fprintf(fp, "task_rounded = %d\n", g_task.area.border.rounded);
-   fprintf(fp, "task_background_color = #%02x%02x%02x %d\n", (int)(g_task.area.back.color[0]*255), (int)(g_task.area.back.color[1]*255), (int)(g_task.area.back.color[2]*255), (int)(g_task.area.back.alpha*100));
-   fprintf(fp, "task_active_background_color = #%02x%02x%02x %d\n", (int)(g_task.area_active.back.color[0]*255), (int)(g_task.area_active.back.color[1]*255), (int)(g_task.area_active.back.color[2]*255), (int)(g_task.area_active.back.alpha*100));
-   fprintf(fp, "task_border_width = %d\n", g_task.area.border.width);
-   fprintf(fp, "task_border_color = #%02x%02x%02x %d\n", (int)(g_task.area.border.color[0]*255), (int)(g_task.area.border.color[1]*255), (int)(g_task.area.border.color[2]*255), (int)(g_task.area.border.alpha*100));
-   fprintf(fp, "task_active_border_color = #%02x%02x%02x %d\n", (int)(g_task.area_active.border.color[0]*255), (int)(g_task.area_active.border.color[1]*255), (int)(g_task.area_active.border.color[2]*255), (int)(g_task.area_active.border.alpha*100));
+   fprintf(fp, "task_rounded = %d\n", g_task.area.pix.border.rounded);
+   fprintf(fp, "task_background_color = #%02x%02x%02x %d\n", (int)(g_task.area.pix.back.color[0]*255), (int)(g_task.area.pix.back.color[1]*255), (int)(g_task.area.pix.back.color[2]*255), (int)(g_task.area.pix.back.alpha*100));
+   fprintf(fp, "task_active_background_color = #%02x%02x%02x %d\n", (int)(g_task.area.pix_active.back.color[0]*255), (int)(g_task.area.pix_active.back.color[1]*255), (int)(g_task.area.pix_active.back.color[2]*255), (int)(g_task.area.pix_active.back.alpha*100));
+   fprintf(fp, "task_border_width = %d\n", g_task.area.pix.border.width);
+   fprintf(fp, "task_border_color = #%02x%02x%02x %d\n", (int)(g_task.area.pix.border.color[0]*255), (int)(g_task.area.pix.border.color[1]*255), (int)(g_task.area.pix.border.color[2]*255), (int)(g_task.area.pix.border.alpha*100));
+   fprintf(fp, "task_active_border_color = #%02x%02x%02x %d\n", (int)(g_task.area.pix_active.border.color[0]*255), (int)(g_task.area.pix_active.border.color[1]*255), (int)(g_task.area.pix_active.border.color[2]*255), (int)(g_task.area.pix_active.border.alpha*100));
 
    fputs("\n#---------------------------------------------\n", fp);
    fputs("# CLOCK\n", fp);
@@ -728,14 +725,14 @@ void save_config ()
    else if (panel.mouse_right == ICONIFY) fputs("mouse_right = iconify\n", fp);
    else if (panel.mouse_right == SHADE) fputs("mouse_right = shade\n", fp);
    else fputs("mouse_right = toggle_iconify\n", fp);
-   
+
    if (panel.mouse_scroll_up == NONE) fputs("mouse_scroll_up = none\n", fp);
    else if (panel.mouse_scroll_up == CLOSE) fputs("mouse_scroll_up = close\n", fp);
    else if (panel.mouse_scroll_up == TOGGLE) fputs("mouse_scroll_up = toggle\n", fp);
    else if (panel.mouse_scroll_up == ICONIFY) fputs("mouse_scroll_up = iconify\n", fp);
    else if (panel.mouse_scroll_up == SHADE) fputs("mouse_scroll_up = shade\n", fp);
    else fputs("mouse_scroll_up = toggle_iconify\n", fp);
-   
+
    if (panel.mouse_scroll_down == NONE) fputs("mouse_scroll_down = none\n", fp);
    else if (panel.mouse_scroll_down == CLOSE) fputs("mouse_scroll_down = close\n", fp);
    else if (panel.mouse_scroll_down == TOGGLE) fputs("mouse_scroll_down = toggle\n", fp);

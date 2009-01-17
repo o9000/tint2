@@ -31,12 +31,12 @@
 
 void visual_refresh ()
 {
-   if (!panel.area.pmap)
-      set_panel_background(); 
-   
+   if (!panel.area.pix.pmap)
+      set_panel_background();
+
    if (server.pmap) XFreePixmap (server.dsp, server.pmap);
    server.pmap = server_create_pixmap (panel.area.width, panel.area.height);
-   XCopyArea (server.dsp, panel.area.pmap, server.pmap, server.gc, 0, 0, panel.area.width, panel.area.height, 0, 0);
+   XCopyArea (server.dsp, panel.area.pix.pmap, server.pmap, server.gc, 0, 0, panel.area.width, panel.area.height, 0, 0);
 
    // draw child object
    GSList *l = panel.area.list;
@@ -61,7 +61,7 @@ void set_panel_properties (Window win)
       XChangeProperty(server.dsp, win, server.atom._NET_WM_NAME, server.atom.UTF8_STRING, 8, PropModeReplace, (unsigned char *) name, (int) len);
       g_free(name);
    }
-  
+
    // Dock
    long val = server.atom._NET_WM_WINDOW_TYPE_DOCK;
    XChangeProperty (server.dsp, win, server.atom._NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &val, 1);
@@ -81,7 +81,7 @@ void set_panel_properties (Window win)
    // Old specification : fluxbox need _NET_WM_STRUT.
    XChangeProperty (server.dsp, win, server.atom._NET_WM_STRUT, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &struts, 4);
    XChangeProperty (server.dsp, win, server.atom._NET_WM_STRUT_PARTIAL, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &struts, 12);
-   
+
    // Sticky and below other window
    val = 0xFFFFFFFF;
    XChangeProperty (server.dsp, win, server.atom._NET_WM_DESKTOP, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &val, 1);
@@ -90,19 +90,19 @@ void set_panel_properties (Window win)
    state[1] = server.atom._NET_WM_STATE_SKIP_TASKBAR;
    state[2] = server.atom._NET_WM_STATE_STICKY;
    state[3] = server.atom._NET_WM_STATE_BELOW;
-   XChangeProperty (server.dsp, win, server.atom._NET_WM_STATE, XA_ATOM, 32, PropModeReplace, (unsigned char *) state, 4);   
-   
+   XChangeProperty (server.dsp, win, server.atom._NET_WM_STATE, XA_ATOM, 32, PropModeReplace, (unsigned char *) state, 4);
+
    // Fixed position
    XSizeHints size_hints;
    size_hints.flags = PPosition;
    XChangeProperty (server.dsp, win, XA_WM_NORMAL_HINTS, XA_WM_SIZE_HINTS, 32, PropModeReplace, (unsigned char *) &size_hints, sizeof (XSizeHints) / 4);
-   
+
    // Unfocusable
    XWMHints wmhints;
    wmhints.flags = InputHint;
    wmhints.input = False;
    XChangeProperty (server.dsp, win, XA_WM_HINTS, XA_WM_HINTS, 32, PropModeReplace, (unsigned char *) &wmhints, sizeof (XWMHints) / 4);
-   
+
    // Undecorated
    long prop[5] = { 2, 0, 0, 0, 0 };
    XChangeProperty(server.dsp, win, server.atom._MOTIF_WM_HINTS, server.atom._MOTIF_WM_HINTS, 32, PropModeReplace, (unsigned char *) prop, 5);
@@ -124,7 +124,7 @@ void window_draw_panel ()
 
    /* Catch some events */
    XSetWindowAttributes att = { ParentRelative, 0L, 0, 0L, 0, 0, Always, 0L, 0L, False, ExposureMask|ButtonPressMask|ButtonReleaseMask, NoEventMask, False, 0, 0 };
-               
+
    // XCreateWindow(display, parent, x, y, w, h, border, depth, class, visual, mask, attrib)
    // main_win doesn't include panel.area.paddingx, so we have WM capabilities on left and right.
    if (window.main_win) XDestroyWindow(server.dsp, window.main_win);
@@ -149,7 +149,7 @@ void visible_object()
 {
    if (panel.area.list) {
       g_slist_free(panel.area.list);
-      panel.area.list = 0;   
+      panel.area.list = 0;
    }
 
    // list of visible objects
@@ -163,7 +163,7 @@ void visible_object()
       for (j=0 ; j < panel.nb_monitor ; j++) {
          taskbar = &panel.taskbar[index(i,j)];
          if (panel.mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) continue;
-         
+
          panel.area.list = g_slist_append(panel.area.list, taskbar);
       }
    }
@@ -176,24 +176,24 @@ void set_panel_background()
 {
    Pixmap wall = get_root_pixmap();
 
-   panel.area.pmap = server_create_pixmap (panel.area.width, panel.area.height);
+   panel.area.pix.pmap = server_create_pixmap (panel.area.width, panel.area.height);
 
    // add layer of root pixmap
-   XCopyArea (server.dsp, wall, panel.area.pmap, server.gc, server.posx, server.posy, panel.area.width, panel.area.height, 0, 0);
+   XCopyArea (server.dsp, wall, panel.area.pix.pmap, server.gc, server.posx, server.posy, panel.area.width, panel.area.height, 0, 0);
 
    // draw background panel
    cairo_surface_t *cs;
    cairo_t *c;
-   cs = cairo_xlib_surface_create (server.dsp, panel.area.pmap, server.visual, panel.area.width, panel.area.height);
+   cs = cairo_xlib_surface_create (server.dsp, panel.area.pix.pmap, server.visual, panel.area.width, panel.area.height);
    c = cairo_create (cs);
 
-   draw_background (&panel.area, c);
-   
+   draw_background (&panel.area, c, 0);
+
    cairo_destroy (c);
    cairo_surface_destroy (cs);
 
    // copy background panel on desktop window
-   XCopyArea (server.dsp, panel.area.pmap, server.root_win, server.gc_root, 0, 0, panel.area.width, panel.area.height, server.posx, server.posy);
+   XCopyArea (server.dsp, panel.area.pix.pmap, server.root_win, server.gc_root, 0, 0, panel.area.width, panel.area.height, server.posx, server.posy);
 
    set_redraw (&panel.area);
 }

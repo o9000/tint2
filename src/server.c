@@ -1,10 +1,10 @@
 /**************************************************************************
 *
 * Tint2 panel
-* 
+*
 * Copyright (C) 2007 Pål Staurland (staura@gmail.com)
 * Modified (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr)
-* 
+*
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2
 * as published by the Free Software Foundation.
@@ -146,7 +146,7 @@ Pixmap get_root_pixmap ()
    Pixmap ret;
 	Window root = RootWindow(server.dsp, server.screen);
 
-   ret = None;    
+   ret = None;
    int  act_format, c = 2 ;
    u_long  nitems ;
    u_long  bytes_after ;
@@ -176,7 +176,7 @@ Pixmap get_root_pixmap ()
    Pixmap root_pixmap;
    unsigned long *res;
 
-	server.root_win = window_get_root();   
+	server.root_win = window_get_root();
 
    res = server_get_property (server.root_win, server.atom._XROOTPMAP_ID, XA_PIXMAP, 0);
    if (res) {
@@ -189,7 +189,7 @@ Pixmap get_root_pixmap ()
       // try _XSETROOT_ID
    }
    return 0;
-}  
+}
 */
 
 
@@ -198,20 +198,20 @@ void get_monitors()
    if (server.monitor) free(server.monitor);
    server.nb_monitor = 0;
    server.monitor = 0;
-   
+
    if (XineramaIsActive(server.dsp)) {
       XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &server.nb_monitor);
 
       if (info) {
          int i;
-         
+
          server.monitor = calloc(server.nb_monitor, sizeof(Monitor));
          for (i = 0; i < server.nb_monitor; i++) {
             server.monitor[i].x = info[i].x_org;
             server.monitor[i].y = info[i].y_org;
             server.monitor[i].width = info[i].width;
             server.monitor[i].height = info[i].height;
-         }  
+         }
          XFree(info);
       }
    }

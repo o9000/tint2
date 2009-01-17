@@ -1,6 +1,6 @@
 /**************************************************************************
-* task : 
-* - 
+* task :
+* -
 *
 **************************************************************************/
 
@@ -16,9 +16,7 @@
 // global task parameter
 typedef struct {
    Area area;
-   Area area_active;
-   Area area_inactive;
-   
+
    int text;
    int icon;
    int icon_size1;
@@ -41,8 +39,6 @@ typedef struct {
 typedef struct {
    // always start with area
    Area area;
-   Area area_active;
-   Area area_inactive;
 
    // TODO: group task with list of windows here
    Window win;
@@ -59,7 +55,7 @@ Global_task g_task;
 void add_task (Window win);
 void remove_task (Task *tsk);
 
-void draw_foreground_task (void *obj, cairo_t *c);
+void draw_foreground_task (void *obj, cairo_t *c, int active);
 
 void get_icon (Task *tsk);
 void get_title(Task *tsk);
