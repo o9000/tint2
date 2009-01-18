@@ -43,7 +43,8 @@ Task *task_get_task (Window win)
    for (i=0 ; i < nb ; i++) {
       for (l0 = panel.taskbar[i].area.list; l0 ; l0 = l0->next) {
          tsk = l0->data;
-         if (win == tsk->win) return tsk;
+         if (win == tsk->win) 
+            return tsk;
       }
    }
    return 0;

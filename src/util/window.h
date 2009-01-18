@@ -9,8 +9,6 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <cairo.h>
-#include <cairo-xlib.h>
 #include <pango/pangocairo.h>
 
 
@@ -36,9 +34,6 @@ int window_get_desktop (Window win);
 void windows_set_desktop (Window win, int desktop);
 int window_get_monitor (Window win);
 Window window_get_active ();
-
-// draw rounded rectangle
-void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
 
 void get_text_size(PangoFontDescription *font, int *height_ink, int *height, int panel_height, char *text, int len);
 

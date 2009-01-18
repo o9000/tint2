@@ -97,7 +97,6 @@ void server_refresh_root_pixmap ();
 void server_refresh_main_pixmap ();
 void server_catch_error (Display *d, XErrorEvent *ev);
 void server_init_atoms ();
-Pixmap server_create_pixmap (int width, int height);
 void get_monitors();
 Pixmap get_root_pixmap();
 

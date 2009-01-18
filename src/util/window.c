@@ -24,7 +24,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <Imlib2.h>
+#include <cairo.h>
+#include <cairo-xlib.h>
 
 #include "common.h"
 #include "window.h"
@@ -217,31 +220,12 @@ long *get_best_icon (long *data, int icon_count, int num, int *iw, int *ih, int 
 }
 
 
-void draw_rect(cairo_t *c, double x, double y, double w, double h, double r)
-{
-   if (r > 0.0) {
-      double c1 = 0.55228475 * r;
-
-      cairo_move_to(c, x+r, y);
-      cairo_rel_line_to(c, w-2*r, 0);
-      cairo_rel_curve_to(c, c1, 0.0, r, c1, r, r);
-      cairo_rel_line_to(c, 0, h-2*r);
-      cairo_rel_curve_to(c, 0.0, c1, c1-r, r, -r, r);
-      cairo_rel_line_to (c, -w +2*r, 0);
-      cairo_rel_curve_to (c, -c1, 0, -r, -c1, -r, -r);
-      cairo_rel_line_to (c, 0, -h + 2 * r);
-      cairo_rel_curve_to (c, 0, -c1, r - c1, -r, r, -r);
-   }
-   else
-      cairo_rectangle(c, x, y, w, h);
-}
-
-
 void get_text_size(PangoFontDescription *font, int *height_ink, int *height, int panel_height, char *text, int len)
 {
    PangoRectangle rect_ink, rect;
 
-   Pixmap pmap = server_create_pixmap (panel_height, panel_height);
+   Pixmap pmap = XCreatePixmap (server.dsp, server.root_win, panel_height, panel_height, server.depth);
+
    cairo_surface_t *cs = cairo_xlib_surface_create (server.dsp, pmap, server.visual, panel_height, panel_height);
    cairo_t *c = cairo_create (cs);
    

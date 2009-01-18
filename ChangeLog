@@ -1,4 +1,9 @@
 
+2009-01-18
+- update documentation for new config format
+- fixed memory corruption
+- fixed bug with "task on all desktop" (issue 39)
+
 2009-01-17
 - fixed drawing of active task (with new layout)
 

@@ -190,10 +190,12 @@ suite:
    // drag and drop task
    if (panel.task_drag) {
       if (tskbar != panel.task_drag->area.parent && action == TOGGLE_ICONIFY) {
-         windows_set_desktop(panel.task_drag->win, tskbar->desktop);
-         if (tskbar->desktop == server.desktop)
-            set_active(panel.task_drag->win);
-         panel.task_drag = 0;
+         if (!panel.task_drag->all_desktop && panel.mode == MULTI_DESKTOP) {
+            windows_set_desktop(panel.task_drag->win, tskbar->desktop);
+            if (tskbar->desktop == server.desktop)
+               set_active(panel.task_drag->win);
+            panel.task_drag = 0;
+         }
          return;
       }
       else panel.task_drag = 0;
@@ -249,7 +251,20 @@ void event_property_notify (Window win, Atom at)
       /* Change active */
       else if (at == server.atom._NET_ACTIVE_WINDOW) {
       	if (panel.task_active) {
-      		panel.task_active->area.is_active = 0;
+         	if (panel.task_active->all_desktop) {
+               Task *tsk;
+               GSList *l0;
+               int i, nb;
+               nb = server.nb_desktop * server.nb_monitor;
+               for (i=0 ; i < nb ; i++) {
+                  for (l0 = panel.taskbar[i].area.list; l0 ; l0 = l0->next) {
+                     tsk = l0->data;
+             		   tsk->area.is_active = 0;
+                  }
+               }
+            }
+            else
+         		panel.task_active->area.is_active = 0;
          	panel.task_active = 0;
 			}
          Window w1 = window_get_active ();
@@ -260,7 +275,21 @@ void event_property_notify (Window win, Atom at)
                if (w2) t = task_get_task(w2);
          }
          if (t) {
-	      	t->area.is_active = 1;
+         	if (t->all_desktop) {
+               Task *tsk;
+               GSList *l0;
+               int i, nb;
+               nb = server.nb_desktop * server.nb_monitor;
+               for (i=0 ; i < nb ; i++) {
+                  for (l0 = panel.taskbar[i].area.list; l0 ; l0 = l0->next) {
+                     tsk = l0->data;
+                     if (tsk->win == t->win)
+                  		tsk->area.is_active = 1;
+                  }
+               }
+            }
+            else
+   	      	t->area.is_active = 1;
          	panel.task_active = t;
 			}
          panel.refresh = 1;
@@ -280,17 +309,49 @@ void event_property_notify (Window win, Atom at)
 
       /* Window title changed */
       if (at == server.atom._NET_WM_VISIBLE_NAME || at == server.atom._NET_WM_NAME || at == server.atom.WM_NAME) {
-         get_title(tsk);
-         tsk->area.redraw = 1;
+         if (tsk->all_desktop) {
+            Task *tsk2;
+            GSList *l0;
+            int i, nb;
+            nb = server.nb_desktop * server.nb_monitor;
+            for (i=0 ; i < nb ; i++) {
+               for (l0 = panel.taskbar[i].area.list; l0 ; l0 = l0->next) {
+                  tsk2 = l0->data;
+                  if (tsk->win == tsk2->win) {
+                     get_title(tsk2);
+                     tsk2->area.redraw = 1;
+                  }
+               }
+            }
+         }
+         else {
+            get_title(tsk);
+            tsk->area.redraw = 1;
+         }
          panel.refresh = 1;
       }
       /* Iconic state */
       else if (at == server.atom.WM_STATE) {
          if (window_is_iconified (win))
-            if (panel.task_active == tsk) {
-            	tsk->area.is_active = 0;
-            	panel.task_active = 0;
-				}
+            if (panel.task_active) {
+               if (panel.task_active->win == tsk->win) {
+                  if (tsk->all_desktop) {
+                     Task *tsk2;
+                     GSList *l0;
+                     int i, nb;
+                     nb = server.nb_desktop * server.nb_monitor;
+                     for (i=0 ; i < nb ; i++) {
+                        for (l0 = panel.taskbar[i].area.list; l0 ; l0 = l0->next) {
+                           tsk2 = l0->data;
+                           tsk2->area.is_active = 0;
+                        }
+                     }
+                  }
+                  else
+                     panel.task_active->area.is_active = 0;
+                  panel.task_active = 0;
+               }
+            }
       }
       /* Window icon changed */
       else if (at == server.atom._NET_WM_ICON) {
@@ -303,8 +364,24 @@ void event_property_notify (Window win, Atom at)
       }
       /* Window desktop changed */
       else if (at == server.atom._NET_WM_DESKTOP) {
-         add_task (tsk->win);
-         remove_task (tsk);
+         Window win2 = tsk->win;
+         if (tsk->all_desktop) {
+            Task *tsk2;
+            GSList *l0;
+            int i, nb;
+            nb = server.nb_desktop * server.nb_monitor;
+            for (i=0 ; i < nb ; i++) {
+               for (l0 = panel.taskbar[i].area.list; l0 ; ) {
+                  tsk2 = l0->data;
+                  l0 = l0->next;
+                  if (win2 == tsk2->win)
+                     remove_task (tsk2);
+               }
+            }
+         }
+         else
+            remove_task (tsk);
+         add_task (win);
          panel.refresh = 1;
       }
 

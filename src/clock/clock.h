@@ -32,7 +32,7 @@ typedef struct Clock {
 // initialize clock : y position, precision, ...
 void init_clock(Clock *clock, int panel_height);
 
-void draw_foreground_clock (void *obj, cairo_t *c);
+void draw_foreground_clock (void *obj, cairo_t *c, int active);
 
 
 #endif

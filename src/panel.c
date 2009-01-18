@@ -35,7 +35,8 @@ void visual_refresh ()
       set_panel_background();
 
    if (server.pmap) XFreePixmap (server.dsp, server.pmap);
-   server.pmap = server_create_pixmap (panel.area.width, panel.area.height);
+   server.pmap = XCreatePixmap (server.dsp, server.root_win, panel.area.width, panel.area.height, server.depth);
+
    XCopyArea (server.dsp, panel.area.pix.pmap, server.pmap, server.gc, 0, 0, panel.area.width, panel.area.height, 0, 0);
 
    // draw child object
@@ -176,7 +177,8 @@ void set_panel_background()
 {
    Pixmap wall = get_root_pixmap();
 
-   panel.area.pix.pmap = server_create_pixmap (panel.area.width, panel.area.height);
+   if (panel.area.pix.pmap) XFreePixmap (server.dsp, panel.area.pix.pmap);
+   panel.area.pix.pmap = XCreatePixmap (server.dsp, server.root_win, panel.area.width, panel.area.height, server.depth);
 
    // add layer of root pixmap
    XCopyArea (server.dsp, wall, panel.area.pix.pmap, server.gc, server.posx, server.posy, panel.area.width, panel.area.height, 0, 0);

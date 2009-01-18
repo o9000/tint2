@@ -23,11 +23,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <glib.h>
+#include <pango/pangocairo.h>
 
-#include "window.h"
-#include "server.h"
 #include "area.h"
+#include "server.h"
 
 
 void refresh (Area *a)
@@ -69,7 +68,7 @@ void draw (Area *a, int active)
 
    //printf("begin draw area\n");
    if (*pmap) XFreePixmap (server.dsp, *pmap);
-   *pmap = server_create_pixmap (a->width, a->height);
+   *pmap = XCreatePixmap (server.dsp, server.root_win, a->width, a->height, server.depth);
 
    // add layer of root pixmap
    XCopyArea (server.dsp, server.pmap, *pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
@@ -185,4 +184,25 @@ void free_area (Area *a)
       a->list = 0;
    }
 }
+
+
+void draw_rect(cairo_t *c, double x, double y, double w, double h, double r)
+{
+   if (r > 0.0) {
+      double c1 = 0.55228475 * r;
+
+      cairo_move_to(c, x+r, y);
+      cairo_rel_line_to(c, w-2*r, 0);
+      cairo_rel_curve_to(c, c1, 0.0, r, c1, r, r);
+      cairo_rel_line_to(c, 0, h-2*r);
+      cairo_rel_curve_to(c, 0.0, c1, c1-r, r, -r, r);
+      cairo_rel_line_to (c, -w +2*r, 0);
+      cairo_rel_curve_to (c, -c1, 0, -r, -c1, -r, -r);
+      cairo_rel_line_to (c, 0, -h + 2 * r);
+      cairo_rel_curve_to (c, 0, -c1, r - c1, -r, r, -r);
+   }
+   else
+      cairo_rectangle(c, x, y, w, h);
+}
+
 

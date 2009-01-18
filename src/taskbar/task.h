@@ -46,6 +46,7 @@ typedef struct {
    int icon_width;
    int icon_height;
    char *title;
+   int  all_desktop;
 } Task;
 
 

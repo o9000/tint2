@@ -135,12 +135,6 @@ void *server_get_property (Window win, Atom at, Atom type, int *num_results)
 }
 
 
-Pixmap server_create_pixmap (int width, int height)
-{
-   return XCreatePixmap (server.dsp, server.root_win, width, height, server.depth);
-}
-
-
 Pixmap get_root_pixmap ()
 {
    Pixmap ret;

@@ -39,7 +39,8 @@ void add_task (Window win)
    Task *new_tsk;
    int desktop, monitor;
 
-   if (!win || window_is_hidden (win) || win == window.main_win) return;
+   if (!win) return;
+   if (window_is_hidden (win) || win == window.main_win) return;
 
    new_tsk = malloc(sizeof(Task));
    new_tsk->win = win;
@@ -55,31 +56,46 @@ void add_task (Window win)
    //if (panel.mode == MULTI_MONITOR) monitor = window_get_monitor (new_tsk->win);
    //else monitor = 0;
    //printf("task %s : desktop %d, monitor %d\n", new_tsk->title, desktop, monitor);
-
    XSelectInput (server.dsp, new_tsk->win, PropertyChangeMask|StructureNotifyMask);
 
+   Taskbar *tskbar;
    if (desktop == 0xFFFFFFFF) {
-      if (new_tsk->title) {
-         free (new_tsk->title);
-         new_tsk->title = 0;
-      }
-      if (new_tsk->icon_data) {
-         free (new_tsk->icon_data);
-         new_tsk->icon_data = 0;
-      }
-      free(new_tsk);
-      fprintf(stderr, "task on all desktop : ignored\n");
-      return;
+      tskbar = &panel.taskbar[index(0, monitor)];
+      new_tsk->all_desktop = 1;
+   }
+   else {
+      tskbar = &panel.taskbar[index(desktop, monitor)];
+      new_tsk->all_desktop = 0;
    }
 
    //printf("add_task %d  %s\n", index(desktop, monitor), new_tsk->title);
-   Taskbar *tskbar;
-   tskbar = &panel.taskbar[index(desktop, monitor)];
    new_tsk->area.parent = tskbar;
    tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk);
 
    if (resize_tasks (tskbar))
       set_redraw (&tskbar->area);
+
+   if (desktop == 0xFFFFFFFF) {
+      // task on all desktop
+      int i;
+      Task *new_tsk2;
+      for (i = 1 ; i < server.nb_desktop ; i++) {
+         new_tsk2 = malloc(sizeof(Task));
+         memcpy(new_tsk2, new_tsk, sizeof(Task));
+         
+         new_tsk2->title = 0;
+         new_tsk2->icon_data = 0;
+         get_icon(new_tsk2);
+         get_title(new_tsk2);
+
+         tskbar = &panel.taskbar[index(i, monitor)];
+         new_tsk2->area.parent = tskbar;
+         tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk2);
+
+         if (resize_tasks (tskbar))
+            set_redraw (&tskbar->area);
+      }
+   }
 }
 
 
@@ -94,6 +110,11 @@ void remove_task (Task *tsk)
    set_redraw (&tskbar->area);
    //printf("remove_task %d  %s\n", index(tskbar->desktop, tskbar->monitor), tsk->title);
 
+   if (tsk == panel.task_active) 
+     	panel.task_active = 0;
+   if (tsk == panel.task_drag) 
+     	panel.task_drag = 0;
+
    if (tsk->title) {
       free (tsk->title);
       tsk->title = 0;
@@ -102,6 +123,7 @@ void remove_task (Task *tsk)
       free (tsk->icon_data);
       tsk->icon_data = 0;
    }
+
    XFreePixmap (server.dsp, tsk->area.pix.pmap);
    XFreePixmap (server.dsp, tsk->area.pix_active.pmap);
    free(tsk);

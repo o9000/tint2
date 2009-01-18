@@ -30,10 +30,10 @@
 #ifndef AREA_H
 #define AREA_H
 
+#include <glib.h>
 #include <X11/Xlib.h>
-#include <pango/pangocairo.h>
-
-#include "common.h"
+#include <cairo.h>
+#include <cairo-xlib.h>
 
 
 typedef struct
@@ -100,6 +100,9 @@ void draw_background (Area *a, cairo_t *c, int active);
 void remove_area (Area *a);
 void add_area (Area *a);
 void free_area (Area *a);
+
+// draw rounded rectangle
+void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
 
 #endif
 
