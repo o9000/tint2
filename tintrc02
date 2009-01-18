@@ -6,24 +6,23 @@
 # BACKGROUND AND BORDER
 #---------------------------------------------
 rounded = 1
-border_width = 1 
-background_color = #282828 100
-border_color = #000000 100
+border_width = 0 
+background_color = #282828 40
+border_color = #000000 40
 
 rounded = 1
 border_width = 1
-background_color = #282828 100
-#background_color = #3b3b3b 100
-border_color = #cccccc 100
+background_color = #282828 0
+border_color = #cccccc 40
 
 #---------------------------------------------
 # PANEL
 #---------------------------------------------
 panel_monitor = 1
-panel_position = bottom right
-panel_size = 0 27
-panel_margin = 0 20
-panel_padding = 4 2
+panel_position = top right
+panel_size = 600 27
+panel_margin = 0 0
+panel_padding = 4 0
 font_shadow = 0
 panel_background_id = 1
 
@@ -38,12 +37,12 @@ taskbar_background_id = 0
 # TASKS
 #---------------------------------------------
 task_icon = 1
-task_text = 1
-task_width = 200
+task_text = 0
+task_width = 30
 task_centered = 1
-task_padding = 2 3
+task_padding = 2 5
 task_font = sans 8
-task_font_color = #ffffff 40
+task_font_color = #ffffff 60
 task_active_font_color = #ffffff 100
 task_background_id = 0
 task_active_background_id = 2
@@ -62,7 +61,7 @@ time1_font = sans 7
 time2_format = %A %d %B
 time2_font = sans 7
 clock_font_color = #ffffff 100
-clock_padding = 0 0
+clock_padding = 4 0
 clock_background_id = 0
 
 #---------------------------------------------

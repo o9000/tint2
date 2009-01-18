@@ -162,12 +162,12 @@ void get_icon (Task *tsk)
       XFree (data);
    }
    else {
+      printf("get_icon vide\n");
       //XWMHints *hints;
       //hints = XGetWMHints(server.dsp, tkwin);
       //if (hints != NULL) {
       //   XFree(hints);
       //}
-      printf("get_icon vide\n");
       // XChangeProperty (display, windowH, XInternAtom (display, "_NET_WM_ICON", False), XA_CARDINAL, 32, PropModeReplace, (unsigned char*) data, dataSize);
       return;
    }

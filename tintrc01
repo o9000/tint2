@@ -24,7 +24,7 @@ border_color = #ffffff 70
 # PANEL
 #---------------------------------------------
 panel_monitor = 1
-panel_position = bottom center
+panel_position = top center
 panel_size = 900 30
 panel_margin = 15 2
 panel_padding = 9 0
@@ -34,7 +34,7 @@ panel_background_id = 1
 #---------------------------------------------
 # TASKBAR
 #---------------------------------------------
-taskbar_mode = multi_desktop
+taskbar_mode = single_desktop
 taskbar_padding = 2 4
 taskbar_background_id = 0
 
