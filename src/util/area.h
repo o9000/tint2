@@ -75,7 +75,9 @@ typedef struct {
    // need redraw Pixmap
    int redraw;
    int use_active, is_active;
-   int paddingx, paddingy;
+   // paddingxlr = horizontal padding left/right
+   // paddingx = horizontal padding between childs
+   int paddingxlr, paddingx, paddingy;
    // parent Area
    void *parent;
 

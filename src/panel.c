@@ -45,7 +45,7 @@ void visual_refresh ()
       refresh (l->data);
 
    // main_win doesn't include panel.area.paddingx, so we have WM capabilities on left and right.
-   XCopyArea (server.dsp, server.pmap, window.main_win, server.gc, panel.area.paddingx, 0, panel.area.width-(2*panel.area.paddingx), panel.area.height, 0, 0);
+   XCopyArea (server.dsp, server.pmap, window.main_win, server.gc, panel.area.paddingxlr, 0, panel.area.width-(2*panel.area.paddingxlr), panel.area.height, 0, 0);
    XFlush (server.dsp);
    panel.refresh = 0;
 }
@@ -129,7 +129,7 @@ void window_draw_panel ()
    // XCreateWindow(display, parent, x, y, w, h, border, depth, class, visual, mask, attrib)
    // main_win doesn't include panel.area.paddingx, so we have WM capabilities on left and right.
    if (window.main_win) XDestroyWindow(server.dsp, window.main_win);
-   win = XCreateWindow (server.dsp, server.root_win, server.posx+panel.area.paddingx, server.posy, panel.area.width-(2*panel.area.paddingx), panel.area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
+   win = XCreateWindow (server.dsp, server.root_win, server.posx+panel.area.paddingxlr, server.posy, panel.area.width-(2*panel.area.paddingxlr), panel.area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
 
    set_panel_properties (win);
    window.main_win = win;

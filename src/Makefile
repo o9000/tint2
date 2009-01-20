@@ -2,7 +2,7 @@ CFLAGS= -O2
 CC = gcc
 FLAGS=-W -Wall -g `pkg-config --cflags --libs cairo pangocairo x11 xinerama imlib2 glib-2.0`
 PROGNAME=tint2
-FILES=tint.c server.c panel.c config.c taskbar/task.c taskbar/taskbar.c clock/clock.c systray/docker.c systray/icons.c systray/kde.c systray/net.c systray/xproperty.c util/window.c util/area.c
+FILES=tint.c server.c panel.c config.c taskbar/task.c taskbar/taskbar.c clock/clock.c systray/systraybar.c systray/docker.c systray/icons.c systray/kde.c systray/net.c systray/xproperty.c util/window.c util/area.c
 
 ifndef DESTDIR
 	ifndef PREFIX

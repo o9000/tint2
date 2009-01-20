@@ -1,8 +1,10 @@
 /**************************************************************************
-* panel : 
+* Copyright (C) 2008 Pål Staurland (staura@gmail.com)
+* Modified (C) 2008/2009 thierry lorthiois (lorthiois@bbsoft.fr)
+*
+* panel :
 * - draw panel and all objects according to panel_layout
-* 
-* Check COPYING file for Copyright
+*
 *
 **************************************************************************/
 
@@ -16,6 +18,7 @@
 #include "clock.h"
 #include "task.h"
 #include "taskbar.h"
+#include "systraybar.h"
 
 
 //panel mode
@@ -54,13 +57,14 @@ typedef struct {
    int nb_monitor;
    Task *task_active;
    Task *task_drag;
-   
+
    // --------------------------------------------------
    // clock
    Clock clock;
 
    // --------------------------------------------------
    // systray
+   Systraybar systraybar;
 
    // --------------------------------------------------
    // mouse events

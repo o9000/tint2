@@ -34,8 +34,6 @@ typedef struct {
 
 
 
-// --------------------------------------------------
-// task parameter
 typedef struct {
    // always start with area
    Area area;

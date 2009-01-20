@@ -1,3 +1,9 @@
+/**************************************************************************
+* Copyright (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr)
+*
+* taskbar
+*
+**************************************************************************/
 
 #ifndef TASKBAR_H
 #define TASKBAR_H
@@ -5,15 +11,13 @@
 #include "task.h"
 
 
-// --------------------------------------------------
-// taskbar parameter
 typedef struct {
    // always start with area
    Area area;
 
    int desktop;
    int monitor;
-   
+
    // task parameters
    int task_width;
    int task_modulo;

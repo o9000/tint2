@@ -43,7 +43,7 @@ Task *task_get_task (Window win)
    for (i=0 ; i < nb ; i++) {
       for (l0 = panel.taskbar[i].area.list; l0 ; l0 = l0->next) {
          tsk = l0->data;
-         if (win == tsk->win) 
+         if (win == tsk->win)
             return tsk;
       }
    }
@@ -109,7 +109,8 @@ int resize_tasks (Taskbar *taskbar)
    task_count = g_slist_length(taskbar->area.list);
    if (!task_count) pixel_width = g_task.maximum_width;
    else {
-      taskbar_width = taskbar->area.width - (2 * g_taskbar.pix.border.width) - ((task_count+1) * g_taskbar.paddingx);
+      taskbar_width = taskbar->area.width - (2 * g_taskbar.pix.border.width) - (2 * g_taskbar.paddingxlr);
+      if (task_count>1) taskbar_width -= ((task_count-1) * g_taskbar.paddingx);
 
       pixel_width = taskbar_width / task_count;
       if (pixel_width > g_task.maximum_width) pixel_width = g_task.maximum_width;
@@ -127,7 +128,7 @@ int resize_tasks (Taskbar *taskbar)
    }
 
    // change pos_x and width for all tasks
-   x = taskbar->area.posx + taskbar->area.pix.border.width + taskbar->area.paddingx;
+   x = taskbar->area.posx + taskbar->area.pix.border.width + taskbar->area.paddingxlr;
    for (l = taskbar->area.list; l ; l = l->next) {
       tsk = l->data;
       tsk->area.posx = x;
@@ -151,7 +152,7 @@ void resize_taskbar()
    if (panel.mode == MULTI_DESKTOP) taskbar_on_screen = panel.nb_desktop;
    else taskbar_on_screen = panel.nb_monitor;
 
-   taskbar_width = panel.area.width - (2 * panel.area.paddingx) - (2 * panel.area.pix.border.width);
+   taskbar_width = panel.area.width - (2 * panel.area.paddingxlr) - (2 * panel.area.pix.border.width);
    if (panel.clock.time1_format)
       taskbar_width -= (panel.clock.area.width + panel.area.paddingx);
    taskbar_width = (taskbar_width - ((taskbar_on_screen-1) * panel.area.paddingx)) / taskbar_on_screen;
@@ -165,7 +166,7 @@ void resize_taskbar()
    nb = panel.nb_desktop * panel.nb_monitor;
    for (i=0 ; i < nb ; i++) {
       if ((i % taskbar_on_screen) == 0) {
-         posx = panel.area.pix.border.width + panel.area.paddingx;
+         posx = panel.area.pix.border.width + panel.area.paddingxlr;
          modulo = modulo_width;
       }
       else posx += taskbar_width + panel.area.paddingx;

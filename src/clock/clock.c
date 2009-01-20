@@ -94,13 +94,13 @@ redraw:
    }
    if (time_width > date_width) new_width = time_width;
    else new_width = date_width;
-   new_width += (2*clock->area.paddingx) + (2*clock->area.pix.border.width);
+   new_width += (2*clock->area.paddingxlr) + (2*clock->area.pix.border.width);
 
    if (new_width > clock->area.width || (new_width != clock->area.width && date_width > time_width)) {
       //printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
       // resize clock
       clock->area.width = new_width;
-      panel.clock.area.posx = panel.area.width - panel.clock.area.width - panel.area.paddingx - panel.area.pix.border.width;
+      panel.clock.area.posx = panel.area.width - panel.clock.area.width - panel.area.paddingxlr - panel.area.pix.border.width;
 
       g_object_unref (layout);
       resize_taskbar();

@@ -103,23 +103,43 @@ void copy_file(const char *pathSrc, const char *pathDest)
 }
 
 
-void extract_values (const char *value, char **value1, char **value2)
+void extract_values (const char *value, char **value1, char **value2, char **value3)
 {
-   char *b;
+   char *b, *c;
 
    if (*value1) free (*value1);
    if (*value2) free (*value2);
+   if (*value3) free (*value3);
 
-   if ((b = strchr (value, ' '))) {
+   if (b = strchr (value, ' ')) {
       b[0] = '\0';
       b++;
-      *value2 = strdup (b);
-      g_strstrip(*value2);
-   }
-   else *value2 = 0;
+	}
+	else {
+		b = 0;
+   	*value2 = 0;
+   	*value3 = 0;
+	}
+	*value1 = strdup (value);
+	g_strstrip(*value1);
 
-   *value1 = strdup (value);
-   g_strstrip(*value1);
+	if (b) {
+		if (c = strchr (b, ' ')) {
+			c[0] = '\0';
+			c++;
+		}
+		else {
+			c = 0;
+			*value3 = 0;
+		}
+		*value2 = strdup (b);
+		g_strstrip(*value2);
+	}
+
+	if (c) {
+		*value3 = strdup (c);
+		g_strstrip(*value3);
+	}
 }
 
 
@@ -194,7 +214,7 @@ void get_action (char *event, int *action)
 
 void add_entry (char *key, char *value)
 {
-   char *value1=0, *value2=0;
+   char *value1=0, *value2=0, *value3=0;
 
    /* Background and border */
    if (strcmp (key, "rounded") == 0) {
@@ -209,14 +229,14 @@ void add_entry (char *key, char *value)
    }
    else if (strcmp (key, "background_color") == 0) {
       Area *a = g_slist_last(list_back)->data;
-      extract_values(value, &value1, &value2);
+      extract_values(value, &value1, &value2, &value3);
       get_color (value1, a->pix.back.color);
       if (value2) a->pix.back.alpha = (atoi (value2) / 100.0);
       else a->pix.back.alpha = 0.5;
    }
    else if (strcmp (key, "border_color") == 0) {
       Area *a = g_slist_last(list_back)->data;
-      extract_values(value, &value1, &value2);
+      extract_values(value, &value1, &value2, &value3);
       get_color (value1, a->pix.border.color);
       if (value2) a->pix.border.alpha = (atoi (value2) / 100.0);
       else a->pix.border.alpha = 0.5;
@@ -228,22 +248,23 @@ void add_entry (char *key, char *value)
       if (panel.monitor > 0) panel.monitor -= 1;
    }
    else if (strcmp (key, "panel_size") == 0) {
-      extract_values(value, &value1, &value2);
+      extract_values(value, &value1, &value2, &value3);
       panel.area.width = atoi (value1);
       if (value2) panel.area.height = atoi (value2);
    }
    else if (strcmp (key, "panel_margin") == 0) {
-      extract_values(value, &value1, &value2);
+      extract_values(value, &value1, &value2, &value3);
       panel.marginx = atoi (value1);
       if (value2) panel.marginy = atoi (value2);
    }
    else if (strcmp (key, "panel_padding") == 0) {
-      extract_values(value, &value1, &value2);
-      panel.area.paddingx = atoi (value1);
+      extract_values(value, &value1, &value2, &value3);
+      panel.area.paddingxlr = panel.area.paddingx = atoi (value1);
       if (value2) panel.area.paddingy = atoi (value2);
+      if (value3) panel.area.paddingx = atoi (value3);
    }
    else if (strcmp (key, "panel_position") == 0) {
-      extract_values(value, &value1, &value2);
+      extract_values(value, &value1, &value2, &value3);
       if (strcmp (value1, "top") == 0) panel.position = TOP;
       else panel.position = BOTTOM;
 
@@ -285,15 +306,16 @@ void add_entry (char *key, char *value)
       panel.clock.time2_font_desc = pango_font_description_from_string (value);
    }
    else if (strcmp (key, "clock_font_color") == 0) {
-      extract_values(value, &value1, &value2);
+      extract_values(value, &value1, &value2, &value3);
       get_color (value1, panel.clock.font.color);
       if (value2) panel.clock.font.alpha = (atoi (value2) / 100.0);
       else panel.clock.font.alpha = 0.1;
    }
    else if (strcmp (key, "clock_padding") == 0) {
-      extract_values(value, &value1, &value2);
-      panel.clock.area.paddingx = atoi (value1);
+      extract_values(value, &value1, &value2, &value3);
+      panel.clock.area.paddingxlr = panel.clock.area.paddingx = atoi (value1);
       if (value2) panel.clock.area.paddingy = atoi (value2);
+      if (value3) panel.clock.area.paddingx = atoi (value3);
    }
    else if (strcmp (key, "clock_background_id") == 0) {
       int id = atoi (value);
@@ -309,9 +331,10 @@ void add_entry (char *key, char *value)
       else panel.mode = SINGLE_DESKTOP;
    }
    else if (strcmp (key, "taskbar_padding") == 0) {
-      extract_values(value, &value1, &value2);
-      g_taskbar.paddingx = atoi (value1);
+      extract_values(value, &value1, &value2, &value3);
+      g_taskbar.paddingxlr = g_taskbar.paddingx = atoi (value1);
       if (value2) g_taskbar.paddingy = atoi (value2);
+      if (value3) g_taskbar.paddingx = atoi (value3);
    }
    else if (strcmp (key, "taskbar_background_id") == 0) {
       int id = atoi (value);
@@ -330,24 +353,23 @@ void add_entry (char *key, char *value)
    else if (strcmp (key, "task_width") == 0)
       g_task.maximum_width = atoi (value);
    else if (strcmp (key, "task_padding") == 0) {
-      extract_values(value, &value1, &value2);
-      g_task.area.paddingx = atoi (value1);
-      if (value2) {
-         g_task.area.paddingy = atoi (value2);
-      }
+      extract_values(value, &value1, &value2, &value3);
+      g_task.area.paddingxlr = g_task.area.paddingx = atoi (value1);
+      if (value2) g_task.area.paddingy = atoi (value2);
+      if (value3) g_task.area.paddingx = atoi (value3);
    }
    else if (strcmp (key, "task_font") == 0) {
       if (g_task.font_desc) pango_font_description_free(g_task.font_desc);
       g_task.font_desc = pango_font_description_from_string (value);
    }
    else if (strcmp (key, "task_font_color") == 0) {
-      extract_values(value, &value1, &value2);
+      extract_values(value, &value1, &value2, &value3);
       get_color (value1, g_task.font.color);
       if (value2) g_task.font.alpha = (atoi (value2) / 100.0);
       else g_task.font.alpha = 0.1;
    }
    else if (strcmp (key, "task_active_font_color") == 0) {
-      extract_values(value, &value1, &value2);
+      extract_values(value, &value1, &value2, &value3);
       get_color (value1, g_task.font_active.color);
       if (value2) g_task.font_active.alpha = (atoi (value2) / 100.0);
       else g_task.font_active.alpha = 0.1;
@@ -427,6 +449,7 @@ void add_entry (char *key, char *value)
 
    if (value1) free (value1);
    if (value2) free (value2);
+   if (value3) free (value3);
 }
 
 
@@ -556,7 +579,7 @@ void config_finish ()
    g_task.text_posy = (g_task.area.height - height) / 2.0;
 
    // add task_icon_size
-   g_task.text_posx = g_task.area.paddingx + g_task.area.pix.border.width;
+   g_task.text_posx = g_task.area.paddingxlr + g_task.area.pix.border.width;
    if (g_task.icon) {
       g_task.icon_size1 = g_task.area.height - (2 * g_task.area.paddingy);
       g_task.text_posx += g_task.icon_size1;

@@ -63,7 +63,7 @@ deb:
    get_icon(new_tsk);
    get_title(new_tsk);
    memcpy(&new_tsk->area, &g_task.area, sizeof(Area));
-   
+
    //printf("task %s : desktop %d, monitor %d\n", new_tsk->title, desktop, monitor);
    XSelectInput (server.dsp, new_tsk->win, PropertyChangeMask|StructureNotifyMask);
 
@@ -85,14 +85,14 @@ deb:
 void remove_task (Task *tsk)
 {
    if (!tsk) return;
-   
+
    Task *tsk2 = tsk;
    Taskbar *tskbar;
    Window win = tsk->win;
    int desktop = 0, all_desktop = tsk->all_desktop;
    int monitor = ((Taskbar*)tsk->area.parent)->monitor;
-   
-deb:   
+
+deb:
    if (all_desktop) {
       tskbar = &panel.taskbar[index(desktop, monitor)];
       GSList *l0;
@@ -103,28 +103,28 @@ deb:
             break;
       }
    }
-   else 
+   else
       tskbar = (Taskbar*)tsk->area.parent;
-   
+
    tskbar->area.list = g_slist_remove(tskbar->area.list, tsk2);
    resize_tasks (tskbar);
    set_redraw (&tskbar->area);
    //printf("remove_task %d  %s\n", index(tskbar->desktop, tskbar->monitor), tsk->title);
 
-   if (tsk2 == panel.task_active) 
+   if (tsk2 == panel.task_active)
      	panel.task_active = 0;
-   if (tsk2 == panel.task_drag) 
+   if (tsk2 == panel.task_drag)
      	panel.task_drag = 0;
 
-   if (tsk2->title) 
+   if (tsk2->title)
       free (tsk2->title);
-   if (tsk2->icon_data) 
+   if (tsk2->icon_data)
       free (tsk2->icon_data);
 
    XFreePixmap (server.dsp, tsk2->area.pix.pmap);
    XFreePixmap (server.dsp, tsk2->area.pix_active.pmap);
    free(tsk2);
-   
+
    if (all_desktop) {
       desktop++;
       if (desktop < server.nb_desktop)
@@ -214,7 +214,7 @@ void draw_task_icon (Task *tsk, int text_width, int active)
       else
          pos_x = (tsk->area.width - g_task.icon_size1) / 2;
    }
-   else pos_x = g_task.area.paddingx + g_task.area.pix.border.width;
+   else pos_x = g_task.area.paddingxlr + g_task.area.pix.border.width;
 
    /* Render */
    Imlib_Image icon;

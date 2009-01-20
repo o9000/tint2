@@ -24,18 +24,18 @@ border_color = #d1d1d1 14
 # PANEL
 #---------------------------------------------
 panel_monitor = 1
-panel_position = bottom center
+panel_position = top center
 panel_size = 1000 25
 panel_margin = 0 7
-panel_padding = 6 0
+panel_padding = 7 3 0
 font_shadow = 0
 panel_background_id = 1
 
 #---------------------------------------------
 # TASKBAR
 #---------------------------------------------
-taskbar_mode = multi_desktop
-taskbar_padding = 2 3
+taskbar_mode = single_desktop
+taskbar_padding = 0 0 0
 taskbar_background_id = 0
 
 #---------------------------------------------
@@ -45,7 +45,7 @@ task_icon = 1
 task_text = 1
 task_width = 150
 task_centered = 1
-task_padding = 3 2
+task_padding = 2 1
 task_font = myriad pro 8
 task_font_color = #000000 70
 task_active_font_color = #000000 100
@@ -66,7 +66,7 @@ time1_font = sans bold 12
 #time2_format = %A %d %B
 #time2_font = sans bold 10
 clock_font_color = #000000 70
-clock_padding = 6 0
+clock_padding = 4 0
 clock_background_id = 0
 
 #---------------------------------------------

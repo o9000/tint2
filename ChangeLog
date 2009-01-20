@@ -1,4 +1,8 @@
 
+2009-01-20
+- change config file format : add another padding parameter
+- update documentation and sample config file
+
 2009-01-19
 - patch from Robert Escriva, fixed tint2 on multi-monitor
 - fixed bug between MULTI_MONITOR mode and 'task on all desktop'
@@ -38,7 +42,7 @@
   user's background start with number 1, 2, ...
 
 2008-09-22
-- better control on icon opacity 
+- better control on icon opacity
   icon opacity use the same value as text opacity
 
 2008-09-21
@@ -48,23 +52,23 @@
 
 2008-09-19
 - improve clock drawing on 2 lines
-- new design : object oriented 
+- new design : object oriented
     clock inherit Area (with draw_background)
 - rename parameter 'panel_mode' in 'taskbar_mode'
 
 2008-09-17
 - change name from tint to tint2 because debian has already a package named tint
-- new design : object oriented 
+- new design : object oriented
     tasks inherit Area
     taskbars inherit Area
 
 2008-09-16
-- new design : object oriented 
+- new design : object oriented
     remove task_margin parameter, replaced by taskbar_padding
     fixed segfault with new layout
 
 2008-09-04
-- new design : object oriented 
+- new design : object oriented
   all objects inherit from Area : panel, taskbar, task, clock
 
 2008-09-02 licence changed to GPL V2
@@ -106,7 +110,7 @@ released tint-0.6
 - update documentation
 
 2008-07-04
-- changed in config file, panel_show_all_desktop 
+- changed in config file, panel_show_all_desktop
   replaced by panel_mode = single_desktop / multi_desktop / multi_monitor
 - with panel_mode = multi_monitor, tint show one taskbar by monitor
 
@@ -120,24 +124,24 @@ released tint-0.6
 2008-06-30 patch from goo...@dougbarton.us
 - tint wait for window manager on startup
 
-2008-06-29 
+2008-06-29
 - specify monitor with parameter 'panel_monitor'
 - panel_position is relative to your monitor
   panel_monitor = 1
   panel_position = bottom center
 
-2008-06-24 
+2008-06-24
 - fixed bug : show tint on all desktop with fluxbox
 
-2008-06-23 
+2008-06-23
 - task_width = 0 to get full taskbar width
 - added documentation in /doc
 
-2008-06-16 
+2008-06-16
 - renamed parameter panel_margin to panel_padding
 - added parameter panel_margin = vertical_margin horizontal_margin
 
-2008-06-15 
+2008-06-15
 - fixed bug : icon position changed when clock adjust width
 - removed boolean parameter panel_background and task_background
   replaced with opacity (alpha) = 0
@@ -145,51 +149,51 @@ released tint-0.6
   identical to task_border_width
 - fixed bug : draw task below panel border
 
-2008-06-11 
+2008-06-11
 - removed the need of desktop margin.
   tint specify margin to window magager (_NET_WM_STRUT)
 
-2008-06-10 
+2008-06-10
 - fixed bug : time/date vertical and horizontal center
 
 2008-06-10  patch from benjaminfranzke
 - fixed bug : draw icon on 64bit system.
 
-2008-06-08 
+2008-06-08
 - fixed bug : in draw border and fill background
 
-2008-06-04 
+2008-06-04
 - allow config file on the command line : tint -c ./tintrc2
 - allow 2 value in config file : key = value1 value2
 - panel_margin can get 2 values : vertical_margin horizontal_margin
   panel_margin = 8 4
 
-2008-05-30 
+2008-05-30
 - put panel below other window
 - set locale LANG
 
-2008-05-28 
+2008-05-28
 - clock_width adjust automatically
 - configure : time2_format see 'man strftime'
 
-2008-05-27 
+2008-05-27
 - configure : time1_format see 'man strftime'
 - cleanup code : refresh_pos()
 
-2008-05-26 
+2008-05-26
 - catch time event in main loop
 - draw clock fixed format %H:%M
 
-2008-05-24 
+2008-05-24
 - removed boolean parameter task_icon
   task_icon_size = 0 replace task_icon = 0
 - all colors parameters can get 2 values : color and opacity (alpha)
   font_color = #ffffff 70
 
-2008-05-23 
+2008-05-23
 - cpu optimisation : limit call to visual_refresh()
 
-2008-05-22 
+2008-05-22
 - configure clock : clock_font, clock_font_color
 
 
@@ -197,7 +201,7 @@ released tint-0.6
 2008-05-20  thil7 <lorthiois@bbsoft.fr>
 released tint-0.5
 
-2008-05-19 
+2008-05-19
 - improve usability in mode 'show_all_desktop'
   -> don't switch desktop when close a task of another desktop
   -> allow to drag and drop task between desktop
@@ -218,7 +222,7 @@ released tint-0.5
 2008-05-14  thil7 <lorthiois@bbsoft.fr>
 released tint-0.4
 
-2008-05-12 
+2008-05-12
 - boolean option 'show_all_desktop'
   0 : tint panel show one taskbar (from current desktop)
   1 : tint panel show all taskbars (from all desktops)
@@ -235,7 +239,7 @@ released tint-0.4
 2008-05-10  thil7 <lorthiois@bbsoft.fr>
 released tint-0.3
 
-2008-05-10 
+2008-05-10
 - manage events : 'send to desktop' and 'send to all desktop'
 - bug solved : 'close' action now send _NET_CLOSE_WINDOW
   so openoffice ask 'save document...' if needed
@@ -250,27 +254,27 @@ released tint-0.3
 2008-05-09  thil7 <lorthiois@bbsoft.fr>
 released tint-0.2
 
-2008-05-08 
+2008-05-08
 - panel : add rounded and border (color and alpha)
-- remove option 'panel_tasks_centered' 
+- remove option 'panel_tasks_centered'
 - user can configure mouse event on task
   (none, toggle, iconify, shade, close, toggle_iconify)
 
-2008-05-07 
-- cpu optimisation : resize_tasks only when add/remove task, 
+2008-05-07
+- cpu optimisation : resize_tasks only when add/remove task,
   compute pos_y at startup
 
-2008-05-04 
+2008-05-04
 - task width adjust when too many task
 
-2008-05-01 
+2008-05-01
 - task : add rounded and border (color and alpha)
 - panel position (left, right, center) thank to ak47izatool
 - cleanup code : vertical position (icon and text),
   better refresh after delete task, memory leak *font
 - panel : changed panel_margin and task_margin
 
-2008-04-22 
+2008-04-22
 - fork ttm projet from p://code.google.com/p/ttm/ (by Pål Staurland staura@gmail.com)
   while the projet is no longer in developpement, have not changed the name of 'tint'.
 
