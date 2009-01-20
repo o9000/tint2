@@ -1,4 +1,8 @@
 
+2009-01-19
+- patch from Robert Escriva, fixed tint2 on multi-monitor
+- fixed bug between MULTI_MONITOR mode and 'task on all desktop'
+
 2009-01-18
 - update documentation for new config format
 - fixed memory corruption

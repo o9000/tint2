@@ -364,23 +364,7 @@ void event_property_notify (Window win, Atom at)
       }
       /* Window desktop changed */
       else if (at == server.atom._NET_WM_DESKTOP) {
-         Window win2 = tsk->win;
-         if (tsk->all_desktop) {
-            Task *tsk2;
-            GSList *l0;
-            int i, nb;
-            nb = server.nb_desktop * server.nb_monitor;
-            for (i=0 ; i < nb ; i++) {
-               for (l0 = panel.taskbar[i].area.list; l0 ; ) {
-                  tsk2 = l0->data;
-                  l0 = l0->next;
-                  if (win2 == tsk2->win)
-                     remove_task (tsk2);
-               }
-            }
-         }
-         else
-            remove_task (tsk);
+         remove_task (tsk);
          add_task (win);
          panel.refresh = 1;
       }
@@ -392,16 +376,16 @@ void event_property_notify (Window win, Atom at)
 
 void event_configure_notify (Window win)
 {
-   Task *tsk;
+   if (panel.mode != MULTI_MONITOR) return;
 
-   tsk = task_get_task (win);
+   Task *tsk = task_get_task (win);
    if (!tsk) return;
 
    Taskbar *tskbar = tsk->area.parent;
    if (tskbar->monitor != window_get_monitor (win)) {
       // task on another monitor
-      add_task (tsk->win);
       remove_task (tsk);
+      add_task (win);
       panel.refresh = 1;
    }
 }
@@ -499,8 +483,7 @@ load_config:
                   if (e.xconfigure.window == server.root_win)
                      goto load_config;
                   else
-                     if (panel.mode == MULTI_MONITOR)
-                        event_configure_notify (e.xconfigure.window);
+                     event_configure_notify (e.xconfigure.window);
                   break;
             }
          }

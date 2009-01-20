@@ -529,7 +529,7 @@ void config_finish ()
          fprintf(stderr, "tint2 error : invalid monitor size.\n");
    }
 
-   if (!panel.area.width) panel.area.width = server.monitor[panel.monitor].width;
+   if (!panel.area.width) panel.area.width = server.monitor[panel.monitor].width - 1;
 
    // taskbar
    g_taskbar.posy = panel.area.pix.border.width + panel.area.paddingy;

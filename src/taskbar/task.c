@@ -37,64 +37,47 @@
 void add_task (Window win)
 {
    Task *new_tsk;
-   int desktop, monitor;
+   int desktop, monitor, all_desktop;
 
    if (!win) return;
    if (window_is_hidden (win) || win == window.main_win) return;
 
+   desktop = window_get_desktop (win);
+   if (desktop == 0xFFFFFFFF) {
+      desktop = 0;
+      all_desktop = 1;
+   }
+   else
+      all_desktop = 0;
+
+   if (panel.mode == MULTI_MONITOR) monitor = window_get_monitor (win);
+   else monitor = 0;
+
+deb:
    new_tsk = malloc(sizeof(Task));
    new_tsk->win = win;
+   new_tsk->all_desktop = all_desktop;
    new_tsk->title = 0;
    new_tsk->icon_data = 0;
 
    get_icon(new_tsk);
    get_title(new_tsk);
    memcpy(&new_tsk->area, &g_task.area, sizeof(Area));
-   desktop = window_get_desktop (new_tsk->win);
-   monitor = window_get_monitor (new_tsk->win);
-
-   //if (panel.mode == MULTI_MONITOR) monitor = window_get_monitor (new_tsk->win);
-   //else monitor = 0;
+   
    //printf("task %s : desktop %d, monitor %d\n", new_tsk->title, desktop, monitor);
    XSelectInput (server.dsp, new_tsk->win, PropertyChangeMask|StructureNotifyMask);
 
-   Taskbar *tskbar;
-   if (desktop == 0xFFFFFFFF) {
-      tskbar = &panel.taskbar[index(0, monitor)];
-      new_tsk->all_desktop = 1;
-   }
-   else {
-      tskbar = &panel.taskbar[index(desktop, monitor)];
-      new_tsk->all_desktop = 0;
-   }
-
-   //printf("add_task %d  %s\n", index(desktop, monitor), new_tsk->title);
+   Taskbar *tskbar = &panel.taskbar[index(desktop, monitor)];
    new_tsk->area.parent = tskbar;
    tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk);
 
    if (resize_tasks (tskbar))
       set_redraw (&tskbar->area);
 
-   if (desktop == 0xFFFFFFFF) {
-      // task on all desktop
-      int i;
-      Task *new_tsk2;
-      for (i = 1 ; i < server.nb_desktop ; i++) {
-         new_tsk2 = malloc(sizeof(Task));
-         memcpy(new_tsk2, new_tsk, sizeof(Task));
-         
-         new_tsk2->title = 0;
-         new_tsk2->icon_data = 0;
-         get_icon(new_tsk2);
-         get_title(new_tsk2);
-
-         tskbar = &panel.taskbar[index(i, monitor)];
-         new_tsk2->area.parent = tskbar;
-         tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk2);
-
-         if (resize_tasks (tskbar))
-            set_redraw (&tskbar->area);
-      }
+   if (all_desktop) {
+      desktop++;
+      if (desktop < server.nb_desktop)
+         goto deb;
    }
 }
 
@@ -102,31 +85,51 @@ void add_task (Window win)
 void remove_task (Task *tsk)
 {
    if (!tsk) return;
-
+   
+   Task *tsk2 = tsk;
    Taskbar *tskbar;
-   tskbar = (Taskbar*)tsk->area.parent;
-   tskbar->area.list = g_slist_remove(tskbar->area.list, tsk);
+   Window win = tsk->win;
+   int desktop = 0, all_desktop = tsk->all_desktop;
+   int monitor = ((Taskbar*)tsk->area.parent)->monitor;
+   
+deb:   
+   if (all_desktop) {
+      tskbar = &panel.taskbar[index(desktop, monitor)];
+      GSList *l0;
+      for (l0 = tskbar->area.list; l0 ; ) {
+         tsk2 = l0->data;
+         l0 = l0->next;
+         if (win == tsk2->win)
+            break;
+      }
+   }
+   else 
+      tskbar = (Taskbar*)tsk->area.parent;
+   
+   tskbar->area.list = g_slist_remove(tskbar->area.list, tsk2);
    resize_tasks (tskbar);
    set_redraw (&tskbar->area);
    //printf("remove_task %d  %s\n", index(tskbar->desktop, tskbar->monitor), tsk->title);
 
-   if (tsk == panel.task_active) 
+   if (tsk2 == panel.task_active) 
      	panel.task_active = 0;
-   if (tsk == panel.task_drag) 
+   if (tsk2 == panel.task_drag) 
      	panel.task_drag = 0;
 
-   if (tsk->title) {
-      free (tsk->title);
-      tsk->title = 0;
-   }
-   if (tsk->icon_data) {
-      free (tsk->icon_data);
-      tsk->icon_data = 0;
-   }
+   if (tsk2->title) 
+      free (tsk2->title);
+   if (tsk2->icon_data) 
+      free (tsk2->icon_data);
 
-   XFreePixmap (server.dsp, tsk->area.pix.pmap);
-   XFreePixmap (server.dsp, tsk->area.pix_active.pmap);
-   free(tsk);
+   XFreePixmap (server.dsp, tsk2->area.pix.pmap);
+   XFreePixmap (server.dsp, tsk2->area.pix_active.pmap);
+   free(tsk2);
+   
+   if (all_desktop) {
+      desktop++;
+      if (desktop < server.nb_desktop)
+         goto deb;
+   }
 }
 
 
