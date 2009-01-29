@@ -173,7 +173,7 @@ void get_icon (Task *tsk)
 
    data = server_get_property (tsk->win, server.atom._NET_WM_ICON, XA_CARDINAL, &num);
    if (data) {
-      printf("get_icon plein\n");
+      //printf("get_icon plein\n");
       // ARGB
       int w, h;
       long *tmp_data;
@@ -187,14 +187,13 @@ void get_icon (Task *tsk)
       XFree (data);
    }
    else {
-      printf("get_icon vide\n");
-      //XWMHints *hints;
-      //hints = XGetWMHints(server.dsp, tkwin);
-      //if (hints != NULL) {
-      //   XFree(hints);
-      //}
-      // XChangeProperty (display, windowH, XInternAtom (display, "_NET_WM_ICON", False), XA_CARDINAL, 32, PropModeReplace, (unsigned char*) data, dataSize);
-      return;
+      //printf("get_icon vide\n");
+      XWMHints *hints = XGetWMHints(server.dsp, tsk->win);
+      if (hints) {
+         if (hints->flags & IconPixmapHint) {
+			}
+         XFree(hints);
+      }
    }
 }
 

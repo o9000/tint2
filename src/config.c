@@ -105,18 +105,17 @@ void copy_file(const char *pathSrc, const char *pathDest)
 
 void extract_values (const char *value, char **value1, char **value2, char **value3)
 {
-   char *b, *c;
+   char *b=0, *c=0;
 
    if (*value1) free (*value1);
    if (*value2) free (*value2);
    if (*value3) free (*value3);
 
-   if (b = strchr (value, ' ')) {
+   if ((b = strchr (value, ' '))) {
       b[0] = '\0';
       b++;
 	}
 	else {
-		b = 0;
    	*value2 = 0;
    	*value3 = 0;
 	}
@@ -124,7 +123,7 @@ void extract_values (const char *value, char **value1, char **value2, char **val
 	g_strstrip(*value1);
 
 	if (b) {
-		if (c = strchr (b, ' ')) {
+		if ((c = strchr (b, ' '))) {
 			c[0] = '\0';
 			c++;
 		}
@@ -254,8 +253,9 @@ void add_entry (char *key, char *value)
    }
    else if (strcmp (key, "panel_margin") == 0) {
       extract_values(value, &value1, &value2, &value3);
-      panel.marginx = atoi (value1);
+      panel.marginleft = panel.marginright = atoi (value1);
       if (value2) panel.marginy = atoi (value2);
+      if (value3) panel.marginright = atoi (value3);
    }
    else if (strcmp (key, "panel_padding") == 0) {
       extract_values(value, &value1, &value2, &value3);
@@ -543,7 +543,7 @@ void config_finish ()
 
    if (panel.monitor > (server.nb_monitor-1)) {
       panel.sleep_mode = 1;
-      printf("tint2 sleep and wait monitor %d.\n", panel.monitor+1);
+      fprintf(stderr, "tint2 sleep and wait monitor %d.\n", panel.monitor+1);
    }
    else {
       panel.sleep_mode = 0;
@@ -552,7 +552,7 @@ void config_finish ()
          fprintf(stderr, "tint2 error : invalid monitor size.\n");
    }
 
-   if (!panel.area.width) panel.area.width = server.monitor[panel.monitor].width - 1;
+   if (!panel.area.width) panel.area.width = server.monitor[panel.monitor].width - 1 - panel.marginleft - panel.marginright;
 
    // taskbar
    g_taskbar.posy = panel.area.pix.border.width + panel.area.paddingy;
@@ -654,8 +654,8 @@ int config_read_file (const char *path)
 void save_config ()
 {
    fprintf(stderr, "tint2 warning : convert user's config file\n");
-   panel.area.paddingx = panel.area.paddingy = panel.marginx;
-   panel.marginx = panel.marginy = 0;
+   panel.area.paddingx = panel.area.paddingy = panel.marginleft;
+   panel.marginleft = panel.marginright = panel.marginy = 0;
 
    if (panel.old_task_icon == 0) g_task.icon_size1 = 0;
    if (panel.old_panel_background == 0) panel.area.pix.back.alpha = 0;
@@ -690,7 +690,7 @@ void save_config ()
    else if (panel.position & RIGHT) fputs(" right\n", fp);
    else fputs(" center\n", fp);
    fprintf(fp, "panel_size = %d %d\n", panel.area.width, panel.area.height);
-   fprintf(fp, "panel_margin = %d %d\n", panel.marginx, panel.marginy);
+   fprintf(fp, "panel_margin = %d %d\n", panel.marginleft, panel.marginy);
    fprintf(fp, "panel_padding = %d %d\n", panel.area.paddingx, panel.area.paddingy);
    fprintf(fp, "font_shadow = %d\n", g_task.font_shadow);
 

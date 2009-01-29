@@ -7,7 +7,7 @@
 #---------------------------------------------
 rounded = 1
 border_width = 0 
-background_color = #282828 40
+background_color = #282828 60
 border_color = #000000 0
 
 rounded = 1
@@ -34,7 +34,7 @@ panel_background_id = 1
 #---------------------------------------------
 # TASKBAR
 #---------------------------------------------
-taskbar_mode = multi_desktop
+taskbar_mode = multi_monitor
 taskbar_padding = 0 0 0
 taskbar_background_id = 2
 
@@ -66,7 +66,7 @@ time1_font = sans 7
 time2_format = %A %d %B
 time2_font = sans 7
 clock_font_color = #ffffff 100
-clock_padding = 4 0
+clock_padding = 2 0
 clock_background_id = 0
 
 #---------------------------------------------

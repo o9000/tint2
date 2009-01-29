@@ -1,6 +1,6 @@
 /**************************************************************************
-* server : 
-* - 
+* server :
+* -
 *
 * Check COPYING file for Copyright
 *
@@ -98,7 +98,6 @@ void server_refresh_main_pixmap ();
 void server_catch_error (Display *d, XErrorEvent *ev);
 void server_init_atoms ();
 void get_monitors();
-Pixmap get_root_pixmap();
 
 
 #endif

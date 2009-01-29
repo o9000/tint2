@@ -43,6 +43,7 @@ void init_clock(Clock *clock, int panel_height)
 
    clock->area.posy = panel.area.pix.border.width + panel.area.paddingy;
    clock->area.height = panel.area.height - (2 * clock->area.posy);
+   clock->area.width = 0;  // force posx and width detection
    clock->area.redraw = 1;
 
    gettimeofday(&clock->clock, 0);

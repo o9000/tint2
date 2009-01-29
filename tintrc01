@@ -24,9 +24,9 @@ border_color = #ffffff 70
 # PANEL
 #---------------------------------------------
 panel_monitor = 1
-panel_position = top center
-panel_size = 900 30
-panel_margin = 15 2
+panel_position = bottom center
+panel_size = 0 30
+panel_margin = 15 2 15
 panel_padding = 9 0
 font_shadow = 0
 panel_background_id = 1

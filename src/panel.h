@@ -47,7 +47,7 @@ typedef struct {
    int refresh;
    int monitor;
    int position;
-   int marginx, marginy;
+   int marginleft, marginright, marginy;
 
    // --------------------------------------------------
    // taskbar point to the first taskbar in panel.area.list. number of tasbar == nb_desktop x nb_monitor.

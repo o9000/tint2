@@ -1,3 +1,7 @@
+2009-01-29
+- use panel_margin parameter even with full_width
+- multi_monitor mode : monitor number are ordered according to coordinate
+  so taskbar on the left show task in the left monitor
 
 2009-01-20
 - change config file format : add another padding parameter

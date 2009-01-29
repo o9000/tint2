@@ -135,56 +135,30 @@ void *server_get_property (Window win, Atom at, Atom type, int *num_results)
 }
 
 
-Pixmap get_root_pixmap ()
+int compareMonitor(const void *monitor1, const void *monitor2)
 {
-   Pixmap ret;
-	Window root = RootWindow(server.dsp, server.screen);
+   Monitor *m1 = (Monitor*)monitor1;
+   Monitor *m2 = (Monitor*)monitor2;
 
-   ret = None;
-   int  act_format, c = 2 ;
-   u_long  nitems ;
-   u_long  bytes_after ;
-   u_char *prop ;
-   Atom dummy_id;
-
-   do {
-      if (XGetWindowProperty(server.dsp, root, server.atom._XROOTPMAP_ID, 0, 1,
-                False, XA_PIXMAP, &dummy_id, &act_format,
-                &nitems, &bytes_after, &prop) == Success) {
-          if (prop) {
-              ret = *((Pixmap *)prop);
-              XFree(prop);
-              break;
-          }
+   if (m1->x < m2->x) {
+      return -1;
+   }
+   else
+      if (m1->x > m2->x) {
+         return 1;
       }
-   } while (--c > 0);
-
-   return ret;
+      else
+         if (m1->width < m2->width) {
+            return 1;
+         }
+         else
+            if (m1->width > m2->width) {
+               return -1;
+            }
+            else {
+               return 0;
+            }
 }
-
-
-/*
-Pixmap get_root_pixmap ()
-{
-   // conky capture correctement le fond d'écran en xlib !!
-   Pixmap root_pixmap;
-   unsigned long *res;
-
-	server.root_win = window_get_root();
-
-   res = server_get_property (server.root_win, server.atom._XROOTPMAP_ID, XA_PIXMAP, 0);
-   if (res) {
-      root_pixmap = *((Drawable*) res);
-      XFree(res);
-      return root_pixmap;
-   }
-   else {
-      printf("get_root_pixmap incorrect\n");
-      // try _XSETROOT_ID
-   }
-   return 0;
-}
-*/
 
 
 void get_monitors()
@@ -193,13 +167,16 @@ void get_monitors()
    server.nb_monitor = 0;
    server.monitor = 0;
 
+   int nb_monitor;
    if (XineramaIsActive(server.dsp)) {
-      XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &server.nb_monitor);
+      XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &nb_monitor);
 
       if (info) {
          int i;
 
-         server.monitor = calloc(server.nb_monitor, sizeof(Monitor));
+         //printf("nb_monitors %d\n", nb_monitor);
+         server.nb_monitor = nb_monitor;
+         server.monitor = calloc(nb_monitor, sizeof(Monitor));
          for (i = 0; i < server.nb_monitor; i++) {
             server.monitor[i].x = info[i].x_org;
             server.monitor[i].y = info[i].y_org;
@@ -207,6 +184,9 @@ void get_monitors()
             server.monitor[i].height = info[i].height;
          }
          XFree(info);
+         
+         // ordered monitor according to coordinate
+         qsort(server.monitor, server.nb_monitor, sizeof(Monitor), compareMonitor);
       }
    }
 

@@ -115,9 +115,9 @@ void window_draw_panel ()
    Window win;
 
    /* panel position determined here */
-   if (panel.position & LEFT) server.posx = server.monitor[panel.monitor].x + panel.marginx;
+   if (panel.position & LEFT) server.posx = server.monitor[panel.monitor].x + panel.marginleft;
    else {
-      if (panel.position & RIGHT) server.posx = server.monitor[panel.monitor].x + server.monitor[panel.monitor].width - panel.area.width - panel.marginx;
+      if (panel.position & RIGHT) server.posx = server.monitor[panel.monitor].x + server.monitor[panel.monitor].width - panel.area.width - panel.marginright;
       else server.posx = server.monitor[panel.monitor].x + ((server.monitor[panel.monitor].width - panel.area.width) / 2);
    }
    if (panel.position & TOP) server.posy = server.monitor[panel.monitor].y + panel.marginy;
@@ -173,6 +173,35 @@ void visible_object()
 }
 
 
+Pixmap get_root_pixmap ()
+{
+   Pixmap ret;
+	Window root = RootWindow(server.dsp, server.screen);
+
+   ret = None;
+   int  act_format, c = 2 ;
+   u_long  nitems ;
+   u_long  bytes_after ;
+   u_char *prop ;
+   Atom dummy_id;
+
+   do {
+      if (XGetWindowProperty(server.dsp, root, server.atom._XROOTPMAP_ID, 0, 1,
+                False, XA_PIXMAP, &dummy_id, &act_format,
+                &nitems, &bytes_after, &prop) == Success) {
+          if (prop) {
+              ret = *((Pixmap *)prop);
+              XFree(prop);
+              break;
+          }
+      }
+   } while (--c > 0);
+   
+   //if (ret == None) printf("pas de background\n");
+   return ret;
+}
+
+
 void set_panel_background()
 {
    Pixmap wall = get_root_pixmap();
@@ -199,5 +228,6 @@ void set_panel_background()
 
    set_redraw (&panel.area);
 }
+
 
 
