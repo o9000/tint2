@@ -16,6 +16,7 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
+#include <stdio.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -196,8 +197,8 @@ Pixmap get_root_pixmap ()
           }
       }
    } while (--c > 0);
-   
-   //if (ret == None) printf("pas de background\n");
+
+   if (ret == None) fprintf(stderr, "unknown background\n");
    return ret;
 }
 
@@ -210,7 +211,7 @@ void set_panel_background()
    panel.area.pix.pmap = XCreatePixmap (server.dsp, server.root_win, panel.area.width, panel.area.height, server.depth);
 
    // add layer of root pixmap
-   XCopyArea (server.dsp, wall, panel.area.pix.pmap, server.gc, server.posx, server.posy, panel.area.width, panel.area.height, 0, 0);
+   XCopyArea(server.dsp, wall, panel.area.pix.pmap, server.gc, server.posx, server.posy, panel.area.width, panel.area.height, 0, 0);
 
    // draw background panel
    cairo_surface_t *cs;

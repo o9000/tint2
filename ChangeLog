@@ -1,3 +1,6 @@
+2009-01-30
+- fixed issue 13 (not sure but it look right)
+
 2009-01-29
 - use panel_margin parameter even with full_width
 - multi_monitor mode : monitor number are ordered according to coordinate
