@@ -1,9 +1,9 @@
 /**************************************************************************
 * Copyright (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr)
 *
-* clock :
-* - draw clock, adjust width
-*
+* Clock with fonctionnal data (timeval, precision) and drawing data (area, font, ...).
+* Each panel use his own drawing data.
+* 
 **************************************************************************/
 
 #ifndef CLOCK_H
@@ -23,12 +23,12 @@ typedef struct Clock {
    PangoFontDescription *time2_font_desc;
    int time1_posy;
    int time2_posy;
-   char *time1_format;
-   char *time2_format;
-
-   struct timeval clock;
-   int  time_precision;
 } Clock;
+
+extern char *time1_format;
+extern char *time2_format;
+extern struct timeval time_clock;
+extern int  time_precision;
 
 
 // initialize clock : y position, precision, ...

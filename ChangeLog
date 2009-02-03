@@ -1,5 +1,9 @@
-2009-01-30
-- fixed issue 13 (not sure but it look right)
+2009-02-05
+- better fixed for Robert Escriva problem : set_panel_properties -> Reserved space
+- fixed issue 13 with background detection
+- fixed bug with disconnected monitor (in multi monitor mode)
+- removed capability to show Window magager's menu
+  it's a feature I would like, but implementation was buggy
 
 2009-01-29
 - use panel_margin parameter even with full_width

@@ -77,9 +77,10 @@ void cleanup ()
    if (panel.clock.time1_font_desc) pango_font_description_free(panel.clock.time1_font_desc);
    if (panel.clock.time2_font_desc) pango_font_description_free(panel.clock.time2_font_desc);
    if (panel.taskbar) cleanup_taskbar();
-   if (panel.clock.time1_format) g_free(panel.clock.time1_format);
-   if (panel.clock.time2_format) g_free(panel.clock.time2_format);
+   if (time1_format) g_free(time1_format);
+   if (time2_format) g_free(time2_format);
    if (server.monitor) free(server.monitor);
+   XFreeGC(server.dsp, server.gc);
    XCloseDisplay(server.dsp);
 }
 
@@ -288,14 +289,14 @@ void add_entry (char *key, char *value)
 
    /* Clock */
    else if (strcmp (key, "time1_format") == 0) {
-      if (panel.clock.time1_format) g_free(panel.clock.time1_format);
-      if (strlen(value) > 0) panel.clock.time1_format = strdup (value);
-      else panel.clock.time1_format = 0;
+      if (time1_format) g_free(time1_format);
+      if (strlen(value) > 0) time1_format = strdup (value);
+      else time1_format = 0;
    }
    else if (strcmp (key, "time2_format") == 0) {
-      if (panel.clock.time2_format) g_free(panel.clock.time2_format);
-      if (strlen(value) > 0) panel.clock.time2_format = strdup (value);
-      else panel.clock.time2_format = 0;
+      if (time2_format) g_free(time2_format);
+      if (strlen(value) > 0) time2_format = strdup (value);
+      else time2_format = 0;
    }
    else if (strcmp (key, "time1_font") == 0) {
       if (panel.clock.time1_font_desc) pango_font_description_free(panel.clock.time1_font_desc);
@@ -522,7 +523,7 @@ void config_taskbar()
          panel.area.list = g_slist_append(panel.area.list, tskbar);
       }
    }
-   if (panel.clock.time1_format)
+   if (time1_format)
       panel.area.list = g_slist_append(panel.area.list, &panel.clock);
 
    //printf("taskbar (desktop x monitor) : (%d x %d)\n", panel.nb_desktop, panel.nb_monitor);
@@ -552,7 +553,8 @@ void config_finish ()
          fprintf(stderr, "tint2 error : invalid monitor size.\n");
    }
 
-   if (!panel.area.width) panel.area.width = server.monitor[panel.monitor].width - 1 - panel.marginleft - panel.marginright;
+	// use panel.marginleft and panel.marginright even in full width mode
+   if (!panel.area.width) panel.area.width = server.monitor[panel.monitor].width - panel.marginleft - panel.marginright;
 
    // taskbar
    g_taskbar.posy = panel.area.pix.border.width + panel.area.paddingy;

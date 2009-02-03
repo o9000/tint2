@@ -75,12 +75,14 @@ void init ()
    server.depth = DefaultDepth (server.dsp, server.screen);
    server.visual = DefaultVisual (server.dsp, server.screen);
    server.desktop = server_get_current_desktop ();
+	XGCValues  gcv;
+	server.gc = XCreateGC (server.dsp, server.root_win, (unsigned long)0, &gcv) ;
 
    XSetErrorHandler ((XErrorHandler) server_catch_error);
 
    // init systray
-   display = server.dsp;
-   root = RootWindow(display, DefaultScreen(display));
+   //display = server.dsp;
+   //root = RootWindow(display, DefaultScreen(display));
    //create_main_window();
    //kde_init();
    //net_init();
@@ -296,8 +298,7 @@ void event_property_notify (Window win, Atom at)
       }
       /* Wallpaper changed */
       else if (at == server.atom._XROOTPMAP_ID) {
-         XFreePixmap (server.dsp, panel.area.pix.pmap);
-         panel.area.pix.pmap = 0;
+			set_panel_background();
          panel.refresh = 1;
       }
    }
@@ -395,15 +396,15 @@ void event_timer()
 {
    struct timeval stv;
 
-   if (!panel.clock.time1_format) return;
+   if (!time1_format) return;
 
    if (gettimeofday(&stv, 0)) return;
 
-   if (abs(stv.tv_sec - panel.clock.clock.tv_sec) < panel.clock.time_precision) return;
+   if (abs(stv.tv_sec - time_clock.tv_sec) < time_precision) return;
 
    // update clock
-   panel.clock.clock.tv_sec = stv.tv_sec;
-   panel.clock.clock.tv_sec -= panel.clock.clock.tv_sec % panel.clock.time_precision;
+   time_clock.tv_sec = stv.tv_sec;
+   time_clock.tv_sec -= time_clock.tv_sec % time_precision;
    panel.clock.area.redraw = 1;
    panel.refresh = 1;
 }
@@ -420,8 +421,6 @@ int main (int argc, char *argv[])
    init ();
 
 load_config:
-   if (panel.area.pix.pmap) XFreePixmap (server.dsp, panel.area.pix.pmap);
-   panel.area.pix.pmap = 0;
    // append full transparency background
    list_back = g_slist_append(0, calloc(1, sizeof(Area)));
 
@@ -470,8 +469,9 @@ load_config:
                   break;
 
                case Expose:
-                  XCopyArea (server.dsp, panel.area.pix.pmap, server.root_win, server.gc_root, 0, 0, panel.area.width, panel.area.height, server.posx, server.posy);
-                  XCopyArea (server.dsp, server.pmap, window.main_win, server.gc, panel.area.paddingxlr, 0, panel.area.width-(2*panel.area.paddingxlr), panel.area.height, 0, 0);
+                  //XCopyArea (server.dsp, panel.area.pix.pmap, server.root_win, server.gc_root, 0, 0, panel.area.width, panel.area.height, server.posx, server.posy);
+                  //XCopyArea (server.dsp, server.pmap, window.main_win, server.gc, panel.area.paddingxlr, 0, panel.area.width-(2*panel.area.paddingxlr), panel.area.height, 0, 0);
+                  XCopyArea (server.dsp, server.pmap, window.main_win, server.gc, 0, 0, panel.area.width, panel.area.height, 0, 0);
                   break;
 
                case PropertyNotify:

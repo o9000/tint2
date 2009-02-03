@@ -82,6 +82,11 @@ void visual_refresh ();
 void set_panel_properties (Window win);
 void window_draw_panel ();
 void visible_object();
+
+// draw background panel
 void set_panel_background();
+
+// detect server.root_pmap
+void get_root_pixmap();
 
 #endif

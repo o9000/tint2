@@ -6,8 +6,8 @@
 # BACKGROUND AND BORDER
 #---------------------------------------------
 rounded = 1
-border_width = 0 
-background_color = #282828 60
+border_width = 0
+background_color = #282828 40
 border_color = #000000 0
 
 rounded = 1
@@ -24,9 +24,9 @@ border_color = #cccccc 40
 # PANEL
 #---------------------------------------------
 panel_monitor = 1
-panel_position = top left
+panel_position = top center
 panel_size = 0 27
-panel_margin = 0 0
+panel_margin = 5 0
 panel_padding = 7 3 7
 font_shadow = 0
 panel_background_id = 1
@@ -61,8 +61,8 @@ task_active_background_id = 3
 #---------------------------------------------
 # CLOCK
 #---------------------------------------------
-time1_format = %H:%M:%S
-time1_font = sans 7 
+time1_format = %H:%M
+time1_font = sans 7
 time2_format = %A %d %B
 time2_font = sans 7
 clock_font_color = #ffffff 100

@@ -30,33 +30,39 @@
 #include "panel.h"
 
 
+char *time1_format = 0;
+char *time2_format = 0;
+struct timeval time_clock;
+int  time_precision;
+
+
 void init_clock(Clock *clock, int panel_height)
 {
    char buf_time[40];
    char buf_date[40];
    int time_height, time_height_ink, date_height, date_height_ink;
 
-   if (!clock->time1_format) return;
+   if (!time1_format) return;
 
-   if (strchr(clock->time1_format, 'S') == NULL) clock->time_precision = 60;
-   else clock->time_precision = 1;
+   if (strchr(time1_format, 'S') == NULL) time_precision = 60;
+   else time_precision = 1;
 
    clock->area.posy = panel.area.pix.border.width + panel.area.paddingy;
    clock->area.height = panel.area.height - (2 * clock->area.posy);
    clock->area.width = 0;  // force posx and width detection
    clock->area.redraw = 1;
 
-   gettimeofday(&clock->clock, 0);
-   clock->clock.tv_sec -= clock->clock.tv_sec % clock->time_precision;
+   gettimeofday(&time_clock, 0);
+   time_clock.tv_sec -= time_clock.tv_sec % time_precision;
 
-   strftime(buf_time, sizeof(buf_time), clock->time1_format, localtime(&clock->clock.tv_sec));
-   if (clock->time2_format)
-      strftime(buf_date, sizeof(buf_date), clock->time2_format, localtime(&clock->clock.tv_sec));
+   strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
+   if (time2_format)
+      strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
 
    get_text_size(clock->time1_font_desc, &time_height_ink, &time_height, panel_height, buf_time, strlen(buf_time));
    clock->time1_posy = (clock->area.height - time_height) / 2;
 
-   if (clock->time2_format) {
+   if (time2_format) {
       get_text_size(clock->time2_font_desc, &date_height_ink, &date_height, panel_height, buf_date, strlen(buf_date));
 
       clock->time1_posy -= ((date_height_ink + 2) / 2);
@@ -74,9 +80,9 @@ void draw_foreground_clock (void *obj, cairo_t *c, int active)
    int time_width, date_width, new_width;
 
    time_width = date_width = 0;
-   strftime(buf_time, sizeof(buf_time), clock->time1_format, localtime(&clock->clock.tv_sec));
-   if (clock->time2_format)
-      strftime(buf_date, sizeof(buf_date), clock->time2_format, localtime(&clock->clock.tv_sec));
+   strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
+   if (time2_format)
+      strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
 
    //printf("  draw_foreground_clock : %s\n", buf_time);
 redraw:
@@ -87,7 +93,7 @@ redraw:
    pango_layout_set_indent(layout, 0);
    pango_layout_set_text (layout, buf_time, strlen(buf_time));
    pango_layout_get_pixel_size (layout, &time_width, NULL);
-   if (clock->time2_format) {
+   if (time2_format) {
       pango_layout_set_font_description (layout, clock->time2_font_desc);
       pango_layout_set_indent(layout, 0);
       pango_layout_set_text (layout, buf_date, strlen(buf_date));
@@ -120,7 +126,7 @@ redraw:
    cairo_move_to (c, 0, clock->time1_posy);
    pango_cairo_show_layout (c, layout);
 
-   if (clock->time2_format) {
+   if (time2_format) {
       pango_layout_set_font_description (layout, clock->time2_font_desc);
       pango_layout_set_indent(layout, 0);
       pango_layout_set_text (layout, buf_date, strlen(buf_date));

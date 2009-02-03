@@ -153,7 +153,7 @@ void resize_taskbar()
    else taskbar_on_screen = panel.nb_monitor;
 
    taskbar_width = panel.area.width - (2 * panel.area.paddingxlr) - (2 * panel.area.pix.border.width);
-   if (panel.clock.time1_format)
+   if (time1_format)
       taskbar_width -= (panel.clock.area.width + panel.area.paddingx);
    taskbar_width = (taskbar_width - ((taskbar_on_screen-1) * panel.area.paddingx)) / taskbar_on_screen;
 

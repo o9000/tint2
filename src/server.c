@@ -172,19 +172,36 @@ void get_monitors()
       XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &nb_monitor);
 
       if (info) {
-         int i;
+         int i = 0, nb=0, j;
 
-         //printf("nb_monitors %d\n", nb_monitor);
-         server.nb_monitor = nb_monitor;
          server.monitor = calloc(nb_monitor, sizeof(Monitor));
-         for (i = 0; i < server.nb_monitor; i++) {
-            server.monitor[i].x = info[i].x_org;
-            server.monitor[i].y = info[i].y_org;
-            server.monitor[i].width = info[i].width;
-            server.monitor[i].height = info[i].height;
+         while (i < nb_monitor) {
+	         for (j = 0; j < i; j++) {
+					if (info[i].x_org >= info[j].x_org && info[i].y_org >= info[j].y_org && (info[i].x_org+info[i].width) <= (info[j].x_org+info[j].width) && (info[i].y_org+info[i].height) <= (info[j].y_org+info[j].height)) {
+						if (info[i].x_org == info[j].x_org && info[i].y_org == info[j].y_org && info[i].width == info[j].width && info[i].height == info[j].height && nb == 0) {
+							// add the first monitor
+							break;
+						}
+						else {
+							// doesn't count monitor 'i' because it's included into another one
+				       	//fprintf(stderr, "monitor %d included into another one\n", i);
+			       		goto next;
+						}
+					}
+				}
+
+	       	//fprintf(stderr, "monitor %d added\n", i);
+            server.monitor[nb].x = info[i].x_org;
+            server.monitor[nb].y = info[i].y_org;
+            server.monitor[nb].width = info[i].width;
+            server.monitor[nb].height = info[i].height;
+				nb++;
+next:
+				i++;
          }
          XFree(info);
-         
+         server.nb_monitor = nb;
+
          // ordered monitor according to coordinate
          qsort(server.monitor, server.nb_monitor, sizeof(Monitor), compareMonitor);
       }
