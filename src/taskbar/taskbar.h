@@ -16,7 +16,6 @@ typedef struct {
    Area area;
 
    int desktop;
-   int monitor;
 
    // task parameters
    int task_width;
@@ -25,10 +24,9 @@ typedef struct {
 } Taskbar;
 
 
-// --------------------------------------------------
-// global taskbar parameter
-Area g_taskbar;
 
+void init_taskbar();
+void cleanup_taskbar();
 
 Task *task_get_task (Window win);
 void task_refresh_tasklist ();
@@ -36,9 +34,8 @@ void task_refresh_tasklist ();
 // return 1 if task_width changed
 int resize_tasks (Taskbar *tskbar);
 
-void resize_taskbar();
+void resize_taskbar(void *panel);
 
-//void add_taskbar(Area *a);
 
 #endif
 

@@ -1,4 +1,13 @@
-2009-02-05
+2009-02-07
+- better multi-monitor capability :
+  -> panel_monitor = all : tint2 draw one panel per monitor
+  -> panel_size = 90% 30 : panel_size accept percentage or pixel
+- change notation : MULTI_MONITOR changed to SINGLE_MONITOR
+  in SINGLE_MONITOR mode, tint2 draw one taskbar with tasks from current monitor
+- removed sleep mode (replaced by panel_monitor = all)
+- update documentation and sample config file
+
+2009-02-03
 - better fixed for Robert Escriva problem : set_panel_properties -> Reserved space
 - fixed issue 13 with background detection
 - fixed bug with disconnected monitor (in multi monitor mode)

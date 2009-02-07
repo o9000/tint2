@@ -36,49 +36,53 @@
 
 void add_task (Window win)
 {
-   Task *new_tsk;
-   int desktop, monitor, all_desktop;
-
    if (!win) return;
-   if (window_is_hidden (win) || win == window.main_win) return;
+   if (window_is_hidden(win)) return;
 
-   desktop = window_get_desktop (win);
-   if (desktop == 0xFFFFFFFF) {
-      desktop = 0;
-      all_desktop = 1;
-   }
-   else
-      all_desktop = 0;
+   int monitor;
 
-   if (panel.mode == MULTI_MONITOR) monitor = window_get_monitor (win);
+	Task new_tsk;
+   new_tsk.win = win;
+   new_tsk.area.panel = &panel1[0];
+   new_tsk.desktop = window_get_desktop (win);
+   if (panel_mode == SINGLE_MONITOR) monitor = window_get_monitor (win);
    else monitor = 0;
 
-deb:
-   new_tsk = malloc(sizeof(Task));
-   new_tsk->win = win;
-   new_tsk->all_desktop = all_desktop;
-   new_tsk->title = 0;
-   new_tsk->icon_data = 0;
-
-   get_icon(new_tsk);
-   get_title(new_tsk);
-   memcpy(&new_tsk->area, &g_task.area, sizeof(Area));
+	// allocate only one title and one icon
+	// even with task_on_all_desktop and with task_on_all_panel
+   new_tsk.title = 0;
+   new_tsk.icon_data = 0;
+   get_title(&new_tsk);
+   get_icon(&new_tsk);
 
    //printf("task %s : desktop %d, monitor %d\n", new_tsk->title, desktop, monitor);
-   XSelectInput (server.dsp, new_tsk->win, PropertyChangeMask|StructureNotifyMask);
+   XSelectInput (server.dsp, new_tsk.win, PropertyChangeMask|StructureNotifyMask);
 
-   Taskbar *tskbar = &panel.taskbar[index(desktop, monitor)];
-   new_tsk->area.parent = tskbar;
-   tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk);
+	Taskbar *tskbar;
+   Task *new_tsk2;
+	int i, j;
+	for (i=0 ; i < nb_panel ; i++) {
+		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
+			if (new_tsk.desktop != ALLDESKTOP && new_tsk.desktop != j) continue;
+			if (panel_mode == SINGLE_MONITOR && panel1[i].monitor != monitor) continue;
 
-   if (resize_tasks (tskbar))
-      set_redraw (&tskbar->area);
+	   	tskbar = &panel1[i].taskbar[j];
+		   new_tsk2 = malloc(sizeof(Task));
+		   memcpy(&new_tsk2->area, &panel1[i].g_task.area, sizeof(Area));
+		   new_tsk2->area.parent = tskbar;
+			new_tsk2->win = new_tsk.win;
+			new_tsk2->desktop = new_tsk.desktop;
+			new_tsk2->title = new_tsk.title;
+			new_tsk2->icon_data = new_tsk.icon_data;
+			new_tsk2->icon_width = new_tsk.icon_width;
+			new_tsk2->icon_height = new_tsk.icon_height;
+   		tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk2);
 
-   if (all_desktop) {
-      desktop++;
-      if (desktop < server.nb_desktop)
-         goto deb;
-   }
+			//printf("add_task panel %d, desktop %d, task %s\n", i, j, new_tsk2->title);
+		   if (resize_tasks (tskbar))
+      		set_redraw (&tskbar->area);
+		}
+	}
 }
 
 
@@ -86,58 +90,57 @@ void remove_task (Task *tsk)
 {
    if (!tsk) return;
 
-   Task *tsk2 = tsk;
-   Taskbar *tskbar;
    Window win = tsk->win;
-   int desktop = 0, all_desktop = tsk->all_desktop;
-   int monitor = ((Taskbar*)tsk->area.parent)->monitor;
 
-deb:
-   if (all_desktop) {
-      tskbar = &panel.taskbar[index(desktop, monitor)];
-      GSList *l0;
-      for (l0 = tskbar->area.list; l0 ; ) {
-         tsk2 = l0->data;
-         l0 = l0->next;
-         if (win == tsk2->win)
-            break;
-      }
-   }
-   else
-      tskbar = (Taskbar*)tsk->area.parent;
+	// free title and icon just for the first task
+	// even with task_on_all_desktop and with task_on_all_panel
+	//printf("remove_task %s %d\n", tsk->title, tsk->desktop);
+	//printf("remove_task %s \n", tsk->title);
+	if (tsk->title)
+		free (tsk->title);
+	if (tsk->icon_data)
+		free (tsk->icon_data);
 
-   tskbar->area.list = g_slist_remove(tskbar->area.list, tsk2);
-   resize_tasks (tskbar);
-   set_redraw (&tskbar->area);
-   //printf("remove_task %d  %s\n", index(tskbar->desktop, tskbar->monitor), tsk->title);
+	int i, j;
+   Task *tsk2;
+   Taskbar *tskbar;
+	for (i=0 ; i < nb_panel ; i++) {
+		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
+			//if (tsk->desktop != ALLDESKTOP && tsk->desktop != j) continue;
+			if (!panel1[i].taskbar) continue;
 
-   if (tsk2 == panel.task_active)
-     	panel.task_active = 0;
-   if (tsk2 == panel.task_drag)
-     	panel.task_drag = 0;
+			GSList *l0;
+			tskbar = &panel1[i].taskbar[j];
+			for (l0 = tskbar->area.list; l0 ; ) {
+				tsk2 = l0->data;
+				l0 = l0->next;
+				if (win == tsk2->win) {
+					tskbar->area.list = g_slist_remove(tskbar->area.list, tsk2);
+					resize_tasks (tskbar);
+					set_redraw (&tskbar->area);
 
-   if (tsk2->title)
-      free (tsk2->title);
-   if (tsk2->icon_data)
-      free (tsk2->icon_data);
+					if (tsk2 == task_active)
+						task_active = 0;
+					if (tsk2 == task_drag)
+						task_drag = 0;
 
-   XFreePixmap (server.dsp, tsk2->area.pix.pmap);
-   XFreePixmap (server.dsp, tsk2->area.pix_active.pmap);
-   free(tsk2);
+					XFreePixmap (server.dsp, tsk2->area.pix.pmap);
+					XFreePixmap (server.dsp, tsk2->area.pix_active.pmap);
+					free(tsk2);
+				}
+			}
+		}
+	}
 
-   if (all_desktop) {
-      desktop++;
-      if (desktop < server.nb_desktop)
-         goto deb;
-   }
 }
 
 
 void get_title(Task *tsk)
 {
-   if (!g_task.text) return;
-
+   Panel *panel = tsk->area.panel;
    char *title, *name;
+
+   if (!panel->g_task.text) return;
 
    name = server_get_property (tsk->win, server.atom._NET_WM_VISIBLE_NAME, server.atom.UTF8_STRING, 0);
    if (!name || !strlen(name)) {
@@ -153,11 +156,12 @@ void get_title(Task *tsk)
 
    // add space before title
    title = malloc(strlen(name)+2);
-   if (g_task.icon) strcpy(title, " ");
+   if (panel->g_task.icon) strcpy(title, " ");
    else title[0] = 0;
    strcat(title, name);
    if (name) XFree (name);
 
+	tsk->area.redraw = 1;
    if (tsk->title)
       free(tsk->title);
    tsk->title = title;
@@ -166,18 +170,24 @@ void get_title(Task *tsk)
 
 void get_icon (Task *tsk)
 {
-   if (!g_task.icon) return;
+   Panel *panel = tsk->area.panel;
+   if (!panel->g_task.icon) return;
+
+	if (tsk->icon_data) {
+		free (tsk->icon_data);
+		tsk->icon_data = 0;
+	}
+   tsk->area.redraw = 1;
 
    long *data;
    int num;
-
    data = server_get_property (tsk->win, server.atom._NET_WM_ICON, XA_CARDINAL, &num);
    if (data) {
       //printf("get_icon plein\n");
       // ARGB
       int w, h;
       long *tmp_data;
-      tmp_data = get_best_icon (data, get_icon_count (data, num), num, &w, &h, g_task.icon_size1);
+      tmp_data = get_best_icon (data, get_icon_count (data, num), num, &w, &h, panel->g_task.icon_size1);
 
       tsk->icon_width = w;
       tsk->icon_height = h;
@@ -200,20 +210,20 @@ void get_icon (Task *tsk)
 
 void draw_task_icon (Task *tsk, int text_width, int active)
 {
-   if (tsk->icon_data == 0) get_icon (tsk);
    if (tsk->icon_data == 0) return;
 
    Pixmap *pmap = (active == 0) ? (&tsk->area.pix.pmap) : (&tsk->area.pix_active.pmap);
 
    /* Find pos */
    int pos_x;
-   if (g_task.centered) {
-      if (g_task.text)
-         pos_x = (tsk->area.width - text_width - g_task.icon_size1) / 2;
+   Panel *panel = (Panel*)tsk->area.panel;
+   if (panel->g_task.centered) {
+      if (panel->g_task.text)
+         pos_x = (tsk->area.width - text_width - panel->g_task.icon_size1) / 2;
       else
-         pos_x = (tsk->area.width - g_task.icon_size1) / 2;
+         pos_x = (tsk->area.width - panel->g_task.icon_size1) / 2;
    }
-   else pos_x = g_task.area.paddingxlr + g_task.area.pix.border.width;
+   else pos_x = panel->g_task.area.paddingxlr + panel->g_task.area.pix.border.width;
 
    /* Render */
    Imlib_Image icon;
@@ -242,13 +252,13 @@ void draw_task_icon (Task *tsk, int text_width, int active)
    imlib_get_color_modifier_tables (red, green, blue, alpha);
 
    int i, opacity;
-   opacity = (active == 0) ? (255*g_task.font.alpha) : (255*g_task.font_active.alpha);
+   opacity = (active == 0) ? (255*panel->g_task.font.alpha) : (255*panel->g_task.font_active.alpha);
    for (i = 127; i < 256; i++) alpha[i] = opacity;
 
    imlib_set_color_modifier_tables (red, green, blue, alpha);
 
    //imlib_render_image_on_drawable (pos_x, pos_y);
-   imlib_render_image_on_drawable_at_size (pos_x, g_task.icon_posy, g_task.icon_size1, g_task.icon_size1);
+   imlib_render_image_on_drawable_at_size (pos_x, panel->g_task.icon_posy, panel->g_task.icon_size1, panel->g_task.icon_size1);
 
    imlib_free_color_modifier ();
    imlib_free_image ();
@@ -262,11 +272,12 @@ void draw_foreground_task (void *obj, cairo_t *c, int active)
    PangoLayout *layout;
    config_color *config_text;
    int width, height;
+   Panel *panel = (Panel*)tsk->area.panel;
 
-   if (g_task.text) {
+   if (panel->g_task.text) {
 		/* Layout */
 		layout = pango_cairo_create_layout (c);
-		pango_layout_set_font_description (layout, g_task.font_desc);
+		pango_layout_set_font_description (layout, panel->g_task.font_desc);
 		pango_layout_set_text (layout, tsk->title, -1);
 
 		/* Drawing width and Cut text */
@@ -274,30 +285,30 @@ void draw_foreground_task (void *obj, cairo_t *c, int active)
 		pango_layout_set_ellipsize (layout, PANGO_ELLIPSIZE_END);
 
 		/* Center text */
-		if (g_task.centered) pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
+		if (panel->g_task.centered) pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
 		else pango_layout_set_alignment (layout, PANGO_ALIGN_LEFT);
 
 		pango_layout_get_pixel_size (layout, &width, &height);
 
-		if (active) config_text = &g_task.font_active;
-		else config_text = &g_task.font;
+		if (active) config_text = &panel->g_task.font_active;
+		else config_text = &panel->g_task.font;
 
 		cairo_set_source_rgba (c, config_text->color[0], config_text->color[1], config_text->color[2], config_text->alpha);
 
 		pango_cairo_update_layout (c, layout);
-		cairo_move_to (c, g_task.text_posx, g_task.text_posy);
+		cairo_move_to (c, panel->g_task.text_posx, panel->g_task.text_posy);
 		pango_cairo_show_layout (c, layout);
 
-		if (g_task.font_shadow) {
+		if (panel->g_task.font_shadow) {
 			cairo_set_source_rgba (c, 0.0, 0.0, 0.0, 0.5);
 			pango_cairo_update_layout (c, layout);
-			cairo_move_to (c, g_task.text_posx + 1, g_task.text_posy + 1);
+			cairo_move_to (c, panel->g_task.text_posx + 1, panel->g_task.text_posy + 1);
 			pango_cairo_show_layout (c, layout);
 		}
 		g_object_unref (layout);
    }
 
-   if (g_task.icon) {
+   if (panel->g_task.icon) {
       // icon use same opacity as text
       draw_task_icon (tsk, width, active);
    }

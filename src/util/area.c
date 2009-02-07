@@ -27,6 +27,7 @@
 
 #include "area.h"
 #include "server.h"
+#include "panel.h"
 
 
 void refresh (Area *a)
@@ -37,13 +38,11 @@ void refresh (Area *a)
       if (a->use_active)
 	      draw(a, 1);
 	   a->redraw = 0;
-      //printf("end draw pix\n");
 	}
 
-   Pixmap *pmap = (a->is_active == 0) ? (&a->pix.pmap) : (&a->pix_active.pmap);
-
 	// draw current Area
-   XCopyArea (server.dsp, *pmap, server.pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
+   Pixmap *pmap = (a->is_active == 0) ? (&a->pix.pmap) : (&a->pix_active.pmap);
+   XCopyArea (server.dsp, *pmap, ((Panel *)a->panel)->root_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
 
    // and then refresh child object
    GSList *l = a->list;
@@ -71,7 +70,7 @@ void draw (Area *a, int active)
    *pmap = XCreatePixmap (server.dsp, server.root_win, a->width, a->height, server.depth);
 
    // add layer of root pixmap
-   XCopyArea (server.dsp, server.pmap, *pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+   XCopyArea (server.dsp, ((Panel *)a->panel)->root_pmap, *pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
 
    cairo_surface_t *cs;
    cairo_t *c;
@@ -153,9 +152,8 @@ void draw_background (Area *a, cairo_t *c, int active)
 
 void remove_area (Area *a)
 {
-   Area *parent;
+   Area *parent = (Area*)a->parent;
 
-   parent = (Area*)a->parent;
    parent->list = g_slist_remove(parent->list, a);
    set_redraw (parent);
 
@@ -164,9 +162,8 @@ void remove_area (Area *a)
 
 void add_area (Area *a)
 {
-   Area *parent;
+   Area *parent = (Area*)a->parent;
 
-   parent = (Area*)a->parent;
    parent->list = g_slist_remove(parent->list, a);
    set_redraw (parent);
 

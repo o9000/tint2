@@ -1,6 +1,6 @@
 /**************************************************************************
-* window : 
-* - 
+* window :
+* -
 *
 * Check COPYING file for Copyright
 *
@@ -11,13 +11,6 @@
 
 #include <pango/pangocairo.h>
 
-
-typedef struct window_global
-{
-   Window main_win;
-} window_global;
-
-window_global window;
 
 void set_active (Window win);
 void set_desktop (int desktop);

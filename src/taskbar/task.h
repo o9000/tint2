@@ -19,14 +19,15 @@ typedef struct {
 
    int text;
    int icon;
-   int icon_size1;
    int centered;
-   int maximum_width;
-   int font_shadow;
-   // icon position
+
    int icon_posy;
+   int icon_size1;
+   int maximum_width;
    // starting position for text ~ task_padding + task_border + icon_size
    double text_posx, text_posy;
+
+   int font_shadow;
    PangoFontDescription *font_desc;
    config_color font;
    config_color font_active;
@@ -40,15 +41,13 @@ typedef struct {
 
    // TODO: group task with list of windows here
    Window win;
+   int  desktop;
    long *icon_data;
    int icon_width;
    int icon_height;
    char *title;
-   int  all_desktop;
 } Task;
 
-
-Global_task g_task;
 
 
 void add_task (Window win);
@@ -58,6 +57,7 @@ void draw_foreground_task (void *obj, cairo_t *c, int active);
 
 void get_icon (Task *tsk);
 void get_title(Task *tsk);
+
 
 #endif
 

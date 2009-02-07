@@ -70,6 +70,7 @@ typedef struct
 {
 	Display *dsp;
 	Window root_win;
+	// current desktop
 	int desktop;
 	int screen;
 	int depth;
@@ -79,8 +80,6 @@ typedef struct
 	Monitor *monitor;
 	int got_root_win;
 	Visual *visual;
-	int posx, posy;
-	Pixmap pmap;
 	// root background
 	Pixmap root_pmap;
 	GC gc;
@@ -100,9 +99,11 @@ void server_refresh_main_pixmap ();
 void server_catch_error (Display *d, XErrorEvent *ev);
 void server_init_atoms ();
 
-// detect monitors
-// doesn't count monitor included into another one
-void get_monitors();
+// detect root background
+void get_root_pixmap();
+
+// detect monitors and desktops
+void get_monitors_and_desktops();
 
 
 #endif

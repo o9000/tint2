@@ -1,5 +1,5 @@
 #---------------------------------------------
-# TINT CONFIG FILE
+# TINT2 CONFIG FILE
 #---------------------------------------------
 
 #---------------------------------------------
@@ -24,9 +24,9 @@ border_color = #ffffff 0
 #---------------------------------------------
 # PANEL
 #---------------------------------------------
-panel_monitor = 1
-panel_position = bottom left
-panel_size = 0 30
+panel_monitor = all
+panel_position = bottom center
+panel_size = 95% 30
 panel_margin = 0 0
 panel_padding = 9 2 7
 font_shadow = 0
@@ -42,11 +42,11 @@ taskbar_background_id = 1
 #---------------------------------------------
 # TASKS
 #---------------------------------------------
-task_icon = 0
+task_icon = 1
 task_text = 1
 task_width = 160
 task_centered = 1
-task_padding = 2 2
+task_padding = 4 2
 task_font = sans bold 8
 task_font_color = #ffffff 60
 task_active_font_color = #ffffff 85
@@ -54,18 +54,11 @@ task_background_id = 0
 task_active_background_id = 2
 
 #---------------------------------------------
-# SYSTRAY
-#---------------------------------------------
-#systray_padding = 9 3
-#systray_icon_opacity = 50
-#systray_background_id = 1
-
-#---------------------------------------------
 # CLOCK
 #---------------------------------------------
-time1_format = %A %d %H:%M
+time1_format = %H:%M
 time1_font = sans bold 8
-#time2_format = %A %d %B
+time2_format = %A %d %B
 time2_font = sans 7
 clock_font_color = #ffffff 65
 clock_padding = 6 0

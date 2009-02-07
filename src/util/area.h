@@ -80,6 +80,8 @@ typedef struct {
    int paddingxlr, paddingx, paddingy;
    // parent Area
    void *parent;
+   // panel
+   void *panel;
 
    // each object can overwrite following function
    void (*draw_foreground)(void *obj, cairo_t *c, int active);

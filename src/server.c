@@ -20,9 +20,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "server.h"
-#include "panel.h"
 #include "task.h"
 #include "window.h"
 
@@ -135,6 +135,38 @@ void *server_get_property (Window win, Atom at, Atom type, int *num_results)
 }
 
 
+void get_root_pixmap()
+{
+	Pixmap ret = None;
+
+   unsigned long *res;
+	int  c = 2;
+
+	do {
+		res = server_get_property (server.root_win, server.atom._XROOTPMAP_ID, XA_PIXMAP, 0);
+		if (res) {
+			ret = *((Pixmap*)res);
+			XFree(res);
+         break;
+		}
+	} while (--c > 0);
+	server.root_pmap = ret;
+
+	if (server.root_pmap == None)
+		fprintf(stderr, "pixmap background detection failed\n");
+	else {
+		XGCValues  gcv;
+		gcv.ts_x_origin = 0;
+		gcv.ts_y_origin = 0;
+		gcv.fill_style = FillTiled;
+		uint mask = GCTileStipXOrigin | GCTileStipYOrigin | GCFillStyle | GCTile;
+
+		gcv.tile = server.root_pmap;
+		XChangeGC(server.dsp, server.gc, mask, &gcv);
+	}
+}
+
+
 int compareMonitor(const void *monitor1, const void *monitor2)
 {
    Monitor *m1 = (Monitor*)monitor1;
@@ -161,8 +193,10 @@ int compareMonitor(const void *monitor1, const void *monitor2)
 }
 
 
-void get_monitors()
+void get_monitors_and_desktops()
 {
+   int i;
+
    if (server.monitor) free(server.monitor);
    server.nb_monitor = 0;
    server.monitor = 0;
@@ -172,8 +206,9 @@ void get_monitors()
       XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &nb_monitor);
 
       if (info) {
-         int i = 0, nb=0, j;
+			int nb=0, j;
 
+         i = 0;
          server.monitor = calloc(nb_monitor, sizeof(Monitor));
          while (i < nb_monitor) {
 	         for (j = 0; j < i; j++) {
@@ -190,7 +225,6 @@ void get_monitors()
 					}
 				}
 
-	       	//fprintf(stderr, "monitor %d added\n", i);
             server.monitor[nb].x = info[i].x_org;
             server.monitor[nb].y = info[i].y_org;
             server.monitor[nb].width = info[i].width;
@@ -214,6 +248,18 @@ next:
       server.monitor[0].width = DisplayWidth (server.dsp, server.screen);
       server.monitor[0].height = DisplayHeight (server.dsp, server.screen);
    }
+
+	// detect number of desktops
+   for (i=0 ; i < 15 ; i++) {
+      server.nb_desktop = server_get_number_of_desktop ();
+      if (server.nb_desktop > 0) break;
+      sleep(1);
+   }
+   if (server.nb_desktop == 0) {
+      server.nb_desktop = 1;
+      fprintf(stderr, "tint2 warning : cannot found number of desktop.\n");
+   }
+  	fprintf(stderr, "nb monitor %d, nb desktop %d\n", server.nb_monitor, server.nb_desktop);
 }
 
 

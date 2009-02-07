@@ -1,6 +1,6 @@
 /**************************************************************************
 * Common declarations
-* 
+*
 **************************************************************************/
 
 #ifndef COMMON_H
@@ -10,9 +10,6 @@
 #define WM_CLASS_TINT   "panel"
 
 #include "area.h"
-
-// taskbar table : convert 2 dimension in 1 dimension
-#define index(i, j) ((i * panel.nb_monitor) + j)
 
 /*
 void fxfree(void** ptr){
@@ -33,6 +30,7 @@ FXint fxmalloc(void** ptr,unsigned long size){
 // mouse actions
 enum { NONE=0, CLOSE, TOGGLE, ICONIFY, SHADE, TOGGLE_ICONIFY };
 
+#define ALLDESKTOP  0xFFFFFFFF
 
 
 typedef struct config_border

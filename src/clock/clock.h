@@ -3,7 +3,7 @@
 *
 * Clock with fonctionnal data (timeval, precision) and drawing data (area, font, ...).
 * Each panel use his own drawing data.
-* 
+*
 **************************************************************************/
 
 #ifndef CLOCK_H
@@ -19,20 +19,21 @@ typedef struct Clock {
    Area area;
 
    config_color font;
-   PangoFontDescription *time1_font_desc;
-   PangoFontDescription *time2_font_desc;
    int time1_posy;
    int time2_posy;
 } Clock;
+
 
 extern char *time1_format;
 extern char *time2_format;
 extern struct timeval time_clock;
 extern int  time_precision;
+extern PangoFontDescription *time1_font_desc;
+extern PangoFontDescription *time2_font_desc;
 
 
 // initialize clock : y position, precision, ...
-void init_clock(Clock *clock, int panel_height);
+void init_clock(Clock *clock, Area *parent);
 
 void draw_foreground_clock (void *obj, cairo_t *c, int active);
 

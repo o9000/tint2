@@ -21,11 +21,27 @@
 #include "systraybar.h"
 
 
-//panel mode
-enum { SINGLE_DESKTOP=0, MULTI_DESKTOP, MULTI_MONITOR };
 
-//panel alignment
+extern int signal_pending;
+// --------------------------------------------------
+// mouse events
+extern int mouse_middle;
+extern int mouse_right;
+extern int mouse_scroll_up;
+extern int mouse_scroll_down;
+
+//panel mode
+enum { SINGLE_DESKTOP=0, MULTI_DESKTOP, SINGLE_MONITOR };
+extern int panel_mode;
+
+//panel position
 enum { LEFT=0x01, RIGHT=0x02, CENTER=0X04, TOP=0X08, BOTTOM=0x10 };
+extern int panel_position;
+
+extern int panel_refresh;
+
+extern Task *task_active;
+extern Task *task_drag;
 
 
 typedef struct {
@@ -33,30 +49,27 @@ typedef struct {
    Area area;
 
    // --------------------------------------------------
-   // backward compatibility
-   int old_config_file;
-   int old_task_icon;
-   int old_panel_background;
-   int old_task_background;
-   char *old_task_font;
-
-   // --------------------------------------------------
    // panel
-   int signal_pending;
-   int sleep_mode;
-   int refresh;
+   Window main_win;
+   Pixmap root_pmap;
+   // position relative to root window
+	int posx, posy;
+   int marginx, marginy;
+   float initial_width, initial_height;
+   int pourcentx, pourcenty;
+   // location of the panel (monitor number)
    int monitor;
-   int position;
-   int marginleft, marginright, marginy;
 
    // --------------------------------------------------
-   // taskbar point to the first taskbar in panel.area.list. number of tasbar == nb_desktop x nb_monitor.
+   // task annd taskbar parameter per panel
+	Area g_taskbar;
+	Global_task g_task;
+
+   // --------------------------------------------------
+   // taskbar point to the first taskbar in panel.area.list.
+   // number of tasbar == nb_desktop
    Taskbar *taskbar;
-   int mode;
-   int nb_desktop;
-   int nb_monitor;
-   Task *task_active;
-   Task *task_drag;
+   int  nb_desktop;
 
    // --------------------------------------------------
    // clock
@@ -65,28 +78,23 @@ typedef struct {
    // --------------------------------------------------
    // systray
    Systraybar systraybar;
-
-   // --------------------------------------------------
-   // mouse events
-   int mouse_middle;
-   int mouse_right;
-   int mouse_scroll_up;
-   int mouse_scroll_down;
 } Panel;
 
 
-Panel panel;
+extern Panel *panel1;
+extern int  nb_panel;
 
 
-void visual_refresh ();
-void set_panel_properties (Window win);
-void window_draw_panel ();
+void init_panel();
+void cleanup_panel();
+void visual_refresh(Panel *p);
+void set_panel_properties(Panel *p);
 void visible_object();
 
 // draw background panel
-void set_panel_background();
+void set_panel_background(Panel *p);
 
-// detect server.root_pmap
-void get_root_pixmap();
+Panel *get_panel(Window win);
 
 #endif
+

@@ -32,6 +32,7 @@
 #include "common.h"
 #include "window.h"
 #include "server.h"
+#include "panel.h"
 
 
 
@@ -70,7 +71,7 @@ int window_is_hidden (Window win)
    Window window;
    Atom *at;
    int count, i;
-   
+
    if (XGetTransientForHint(server.dsp, win, &window) != 0) {
       if (window) {
          return 1;
@@ -78,7 +79,7 @@ int window_is_hidden (Window win)
    }
 
    at = server_get_property (win, server.atom._NET_WM_STATE, XA_ATOM, &count);
-   for (i = 0; i < count; i++) {      
+   for (i = 0; i < count; i++) {
       if (at[i] == server.atom._NET_WM_STATE_SKIP_PAGER || at[i] == server.atom._NET_WM_STATE_SKIP_TASKBAR) {
          XFree(at);
          return 1;
@@ -93,11 +94,16 @@ int window_is_hidden (Window win)
          return 1;
       }
    }
+   XFree(at);
+
+	for (i=0 ; i < nb_panel ; i++) {
+		if (panel1[i].main_win == win)
+			return 1;
+	}
 
    // specification
    // Windows with neither _NET_WM_WINDOW_TYPE nor WM_TRANSIENT_FOR set
    // MUST be taken as top-level window.
-   XFree(at);
    return 0;
 }
 
@@ -105,7 +111,7 @@ int window_is_hidden (Window win)
 int window_get_desktop (Window win)
 {
    return get_property32(win, server.atom._NET_WM_DESKTOP, XA_CARDINAL);
-}  
+}
 
 
 int window_get_monitor (Window win)
@@ -113,13 +119,15 @@ int window_get_monitor (Window win)
    int i, x, y;
    Window src;
 
-   XTranslateCoordinates(server.dsp, win, server.root_win, 0, 0, &x, &y, &src);   
+   XTranslateCoordinates(server.dsp, win, server.root_win, 0, 0, &x, &y, &src);
+   x += 2;
+   y += 2;
    for (i = 0; i < server.nb_monitor; i++) {
       if (x >= server.monitor[i].x && x <= (server.monitor[i].x + server.monitor[i].width))
          if (y >= server.monitor[i].y && y <= (server.monitor[i].y + server.monitor[i].height))
             break;
    }
-   
+
    //printf("window %lx : ecran %d, (%d, %d)\n", win, i, x, y);
    if (i == server.nb_monitor) return 0;
    else return i;
@@ -213,7 +221,7 @@ long *get_best_icon (long *data, int icon_count, int num, int *iw, int *ih, int 
          }
       }
    }
-       
+
    *iw = width[icon_num];
    *ih = height[icon_num];
    return icon_data[icon_num];
@@ -228,17 +236,17 @@ void get_text_size(PangoFontDescription *font, int *height_ink, int *height, int
 
    cairo_surface_t *cs = cairo_xlib_surface_create (server.dsp, pmap, server.visual, panel_height, panel_height);
    cairo_t *c = cairo_create (cs);
-   
+
    PangoLayout *layout = pango_cairo_create_layout (c);
    pango_layout_set_font_description (layout, font);
    pango_layout_set_text (layout, text, len);
-   
+
    pango_layout_get_pixel_extents(layout, &rect_ink, &rect);
    *height_ink = rect_ink.height;
    *height = rect.height;
    //printf("dimension : %d - %d\n", rect_ink.height, rect.height);
 
-   g_object_unref (layout);   
+   g_object_unref (layout);
    cairo_destroy (c);
    cairo_surface_destroy (cs);
    XFreePixmap (server.dsp, pmap);
