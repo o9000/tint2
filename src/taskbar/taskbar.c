@@ -100,7 +100,6 @@ void cleanup_taskbar()
 
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
-		if (!panel->taskbar) continue;
 
 		for (j=0 ; j < panel->nb_desktop ; j++) {
 			l0 = panel->taskbar[j].area.list;
@@ -110,10 +109,12 @@ void cleanup_taskbar()
 				// careful : remove_task change l0->next
 				remove_task (tsk);
 			}
-
 			free_area (&panel->taskbar[j].area);
 		}
+	}
 
+	for (i=0 ; i < nb_panel ; i++) {
+		panel = &panel1[i];
 		free(panel->taskbar);
 		panel->taskbar = 0;
 	}

@@ -31,7 +31,7 @@ install:
 	mkdir -p $(MANDIR)
 	mkdir -p $(MANDIR)/man1
 	install $(PROGNAME) $(BINDIR)
-	cp -f ../tintrc06 $(XDG_CONFIG_DIR)/tint2/tint2rc
+	cp -f ../tintrc01 $(XDG_CONFIG_DIR)/tint2/tint2rc
 	cp -f ../doc/man/tint2.1 $(MANDIR)/man1
 
 uninstall:

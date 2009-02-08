@@ -27,7 +27,7 @@ panel_monitor = all
 panel_position = bottom center
 panel_size = 92% 30
 panel_margin = 0 0
-panel_padding = 7 3 7
+panel_padding = 7 3
 font_shadow = 0
 panel_background_id = 1
 
