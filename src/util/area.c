@@ -32,6 +32,13 @@
 
 void refresh (Area *a)
 {
+   if (a->resize) {
+   	// resize can generate a redraw
+	   if (a->_resize)
+      	a->_resize(a);
+      a->resize = 0;
+	}
+
    if (a->redraw) {
       //printf("draw pix\n");
       draw(a, 0);
@@ -61,6 +68,16 @@ void set_redraw (Area *a)
 }
 
 
+void set_resize (Area *a)
+{
+   a->resize = 1;
+
+   GSList *l;
+   for (l = a->list ; l ; l = l->next)
+      set_resize(l->data);
+}
+
+
 void draw (Area *a, int active)
 {
    Pixmap *pmap = (active == 0) ? (&a->pix.pmap) : (&a->pix_active.pmap);
@@ -80,8 +97,8 @@ void draw (Area *a, int active)
 
    draw_background (a, c, active);
 
-   if (a->draw_foreground)
-      a->draw_foreground(a, c, active);
+   if (a->_draw_foreground)
+      a->_draw_foreground(a, c, active);
 
    cairo_destroy (c);
    cairo_surface_destroy (cs);
@@ -180,6 +197,8 @@ void free_area (Area *a)
       g_slist_free(a->list);
       a->list = 0;
    }
+   if (a->pix.pmap) XFreePixmap (server.dsp, a->pix.pmap);
+   if (a->pix_active.pmap) XFreePixmap (server.dsp, a->pix_active.pmap);
 }
 
 

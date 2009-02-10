@@ -37,18 +37,19 @@ struct timeval time_clock;
 int  time_precision;
 PangoFontDescription *time1_font_desc;
 PangoFontDescription *time2_font_desc;
+static char buf_time[40];
+static char buf_date[40];
 
 
 void init_clock(Clock *clock, Area *parent)
 {
    Panel *panel = (Panel *)parent;
-   char buf_time[40];
-   char buf_date[40];
    int time_height, time_height_ink, date_height, date_height_ink;
 
 	clock->area.parent = parent;
 	clock->area.panel = panel;
-   clock->area.draw_foreground = draw_foreground_clock;
+   clock->area._draw_foreground = draw_foreground_clock;
+   clock->area._resize = resize_clock;
    if (!time1_format) return;
 
    if (strchr(time1_format, 'S') == NULL) time_precision = 60;
@@ -62,7 +63,7 @@ void init_clock(Clock *clock, Area *parent)
 
    clock->area.posy = parent->pix.border.width + parent->paddingy;
    clock->area.height = parent->height - (2 * clock->area.posy);
-   clock->area.width = 0;  // force posx and width detection
+   clock->area.resize = 1;
    clock->area.redraw = 1;
 
    strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
@@ -83,47 +84,11 @@ void init_clock(Clock *clock, Area *parent)
 
 void draw_foreground_clock (void *obj, cairo_t *c, int active)
 {
-   Area *parent = ((Area*)obj)->parent;
    Clock *clock = obj;
    PangoLayout *layout;
-   char buf_time[40];
-   char buf_date[40];
-   int time_width, date_width, new_width;
 
-   time_width = date_width = 0;
-   strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
-   if (time2_format)
-      strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
-
-   //printf("  draw_foreground_clock : %s\n", buf_time);
-redraw:
+   //printf("  draw_foreground_clock : %s en (%d, %d)\n", buf_time, clock->area.posx, clock->area.width);
    layout = pango_cairo_create_layout (c);
-
-   // check width
-   pango_layout_set_font_description (layout, time1_font_desc);
-   pango_layout_set_indent(layout, 0);
-   pango_layout_set_text (layout, buf_time, strlen(buf_time));
-   pango_layout_get_pixel_size (layout, &time_width, NULL);
-   if (time2_format) {
-      pango_layout_set_font_description (layout, time2_font_desc);
-      pango_layout_set_indent(layout, 0);
-      pango_layout_set_text (layout, buf_date, strlen(buf_date));
-      pango_layout_get_pixel_size (layout, &date_width, NULL);
-   }
-   if (time_width > date_width) new_width = time_width;
-   else new_width = date_width;
-   new_width += (2*clock->area.paddingxlr) + (2*clock->area.pix.border.width);
-
-   if (new_width > clock->area.width || (new_width != clock->area.width && date_width > time_width)) {
-      //printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
-      // resize clock
-      clock->area.width = new_width;
-      clock->area.posx = parent->width - clock->area.width - parent->paddingxlr - parent->pix.border.width;
-
-      g_object_unref (layout);
-      resize_taskbar(parent);
-      goto redraw;
-   }
 
    // draw layout
    pango_layout_set_font_description (layout, time1_font_desc);
@@ -149,5 +114,58 @@ redraw:
    }
 
    g_object_unref (layout);
+}
+
+
+void resize_clock (void *obj)
+{
+   Area *parent = ((Area*)obj)->parent;
+   Clock *clock = obj;
+   PangoLayout *layout;
+   int time_width, date_width, new_width;
+
+   time_width = date_width = 0;
+   strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
+   if (time2_format)
+      strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
+
+   //printf("  resize_clock\n");
+   cairo_surface_t *cs;
+   cairo_t *c;
+	Pixmap pmap;
+	pmap = XCreatePixmap (server.dsp, server.root_win, clock->area.width, clock->area.height, server.depth);
+
+   cs = cairo_xlib_surface_create (server.dsp, pmap, server.visual, clock->area.width, clock->area.height);
+   c = cairo_create (cs);
+   layout = pango_cairo_create_layout (c);
+
+   // check width
+   pango_layout_set_font_description (layout, time1_font_desc);
+   pango_layout_set_indent(layout, 0);
+   pango_layout_set_text (layout, buf_time, strlen(buf_time));
+   pango_layout_get_pixel_size (layout, &time_width, NULL);
+   if (time2_format) {
+      pango_layout_set_font_description (layout, time2_font_desc);
+      pango_layout_set_indent(layout, 0);
+      pango_layout_set_text (layout, buf_date, strlen(buf_date));
+      pango_layout_get_pixel_size (layout, &date_width, NULL);
+   }
+
+   if (time_width > date_width) new_width = time_width;
+   else new_width = date_width;
+   new_width += (2*clock->area.paddingxlr) + (2*clock->area.pix.border.width);
+
+   if (new_width > clock->area.width || new_width < (clock->area.width-3)) {
+      // resize clock
+      //printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
+      clock->area.width = new_width;
+      clock->area.posx = parent->width - clock->area.width - parent->paddingxlr - parent->pix.border.width;
+      set_resize(parent);
+   }
+
+   g_object_unref (layout);
+   cairo_destroy (c);
+   cairo_surface_destroy (cs);
+   XFreePixmap (server.dsp, pmap);
 }
 

@@ -1,3 +1,7 @@
+2009-02-11
+- fixed bug with number of desktop changed
+- fixed clock resize when date changed
+
 2009-02-08
 - backward compatibility with tint-0.6 (convert config file)
   feature freeze until next release. need bug correction.

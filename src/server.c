@@ -28,6 +28,8 @@
 
 void server_catch_error (Display *d, XErrorEvent *ev){}
 
+static char *name_trayer = 0;
+
 
 void server_init_atoms ()
 {
@@ -68,6 +70,19 @@ void server_init_atoms ()
    server.atom.WM_NAME = XInternAtom(server.dsp, "WM_NAME", False);
    server.atom.__SWM_VROOT = XInternAtom(server.dsp, "__SWM_VROOT", False);
    server.atom._MOTIF_WM_HINTS = XInternAtom(server.dsp, "_MOTIF_WM_HINTS", False);
+
+	// systray protocol
+	name_trayer = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", DefaultScreen(server.dsp));
+	server.atom._NET_SYSTEM_TRAY = XInternAtom(server.dsp, name_trayer, False);
+	server.atom._NET_SYSTEM_TRAY_OPCODE = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_OPCODE", False);
+	server.atom.MANAGER = XInternAtom(server.dsp, "MANAGER", False);
+	server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_MESSAGE_DATA", False);
+}
+
+
+void cleanup_server()
+{
+	if (name_trayer) free(name_trayer);
 }
 
 

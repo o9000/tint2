@@ -38,6 +38,7 @@
 #include "server.h"
 #include "task.h"
 #include "taskbar.h"
+#include "systraybar.h"
 #include "clock.h"
 #include "panel.h"
 #include "config.h"
@@ -409,6 +410,14 @@ void add_entry (char *key, char *value)
       memcpy(&panel_config->g_task.area.pix_active.border, &a->pix.border, sizeof(Border));
    }
 
+   /* Trayer */
+   else if (strcmp (key, "trayer_background_id") == 0) {
+      int id = atoi (value);
+      Area *a = g_slist_nth_data(list_back, id);
+      memcpy(&panel_config->trayer.area.pix.back, &a->pix.back, sizeof(Color));
+      memcpy(&panel_config->trayer.area.pix.border, &a->pix.border, sizeof(Border));
+   }
+
    /* Mouse actions */
    else if (strcmp (key, "mouse_middle") == 0)
       get_action (value, &mouse_middle);
@@ -539,20 +548,18 @@ void config_finish ()
       fprintf(stderr, "tint2 exit : monitor %d not found.\n", panel_config->monitor+1);
       exit(0);
    }
-   else {
-      if (!server.monitor[panel_config->monitor].width || !server.monitor[panel_config->monitor].height)
-         fprintf(stderr, "tint2 error : invalid monitor size.\n");
-   }
 
 	// alloc panels
    int i;
    if (panel_config->monitor >= 0) {
+   	// just one monitor
 	   nb_panel = 1;
 	   panel1 = calloc(nb_panel, sizeof(Panel));
 	   memcpy(panel1, panel_config, sizeof(Panel));
+	   panel1->monitor = panel_config->monitor;
 	}
 	else {
-   	// multi monitor
+   	// all monitors
 	   nb_panel = server.nb_monitor;
 	   panel1 = calloc(nb_panel, sizeof(Panel));
 
@@ -566,10 +573,14 @@ void config_finish ()
    init_taskbar();
    visible_object();
 
-	task_refresh_tasklist();
-	panel_refresh = 1;
-
 	cleanup_config();
+
+   // force the resize (using visible_object() order)
+	for (i=0 ; i < nb_panel ; i++) {
+		//init_systray(&panel1[i].trayer, &panel1[i].area);
+		set_resize(&panel1[i]);
+	}
+	task_refresh_tasklist();
 }
 
 

@@ -18,10 +18,14 @@ typedef struct {
 } Systraybar;
 
 
-// --------------------------------------------------
-// global taskbar parameter
-Area g_systraybar;
+typedef struct
+{
+  Window id;
+  int x, y;
+} TrayWindow;
 
+
+void init_systray(Systraybar *sysbar, Area *parent);
 
 // return 1 if task_width changed
 int resize_systray (Systraybar *sysbar);

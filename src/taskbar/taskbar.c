@@ -43,12 +43,13 @@ void init_taskbar()
 		panel = &panel1[i];
 
 		// taskbar
+		panel->g_taskbar._resize = resize_taskbar;
 		panel->g_taskbar.posy = panel->area.pix.border.width + panel->area.paddingy;
 		panel->g_taskbar.height = panel->area.height - (2 * panel->g_taskbar.posy);
 		panel->g_taskbar.redraw = 1;
 
 		// task
-		panel->g_task.area.draw_foreground = draw_foreground_task;
+		panel->g_task.area._draw_foreground = draw_foreground_task;
 		panel->g_task.area.posy = panel->g_taskbar.posy + panel->g_taskbar.pix.border.width + panel->g_taskbar.paddingy;
 		panel->g_task.area.height = panel->area.height - (2 * panel->g_task.area.posy);
 		panel->g_task.area.use_active = 1;
@@ -84,10 +85,7 @@ void init_taskbar()
 			memcpy(&tskbar->area, &panel->g_taskbar, sizeof(Area));
 			tskbar->desktop = j;
 		}
-
-	   resize_taskbar(panel);
 	}
-
 }
 
 
@@ -115,8 +113,10 @@ void cleanup_taskbar()
 
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
-		free(panel->taskbar);
-		panel->taskbar = 0;
+		if (panel->taskbar) {
+			free(panel->taskbar);
+			panel->taskbar = 0;
+		}
 	}
 }
 
@@ -174,7 +174,7 @@ void task_refresh_tasklist ()
 					if (tsk->win == win[k]) break;
 				}
 				// careful : remove_task change l0->next
-				if (tsk->win != win[k]) remove_task (tsk);
+				if (k == num_results) remove_task (tsk);
 			}
 		}
    }
@@ -198,6 +198,7 @@ int resize_tasks (Taskbar *taskbar)
 
    // new task width for 'desktop'
    task_count = g_slist_length(taskbar->area.list);
+
    if (!task_count) pixel_width = panel->g_task.maximum_width;
    else {
       taskbar_width = taskbar->area.width - (2 * panel->g_taskbar.pix.border.width) - (2 * panel->g_taskbar.paddingxlr);
@@ -239,9 +240,9 @@ int resize_tasks (Taskbar *taskbar)
 
 
 // initialise taskbar posx and width
-void resize_taskbar(void *p)
+void resize_taskbar(void *obj)
 {
-   Panel *panel = p;
+   Panel *panel = ((Area*)obj)->panel;
    int taskbar_width, modulo_width, taskbar_on_screen;
 
    if (panel_mode == MULTI_DESKTOP) taskbar_on_screen = panel->nb_desktop;
@@ -250,6 +251,8 @@ void resize_taskbar(void *p)
    taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
    if (time1_format)
       taskbar_width -= (panel->clock.area.width + panel->area.paddingx);
+   //taskbar_width -= (panel->trayer.area.width + panel->area.paddingx);
+
    taskbar_width = (taskbar_width - ((taskbar_on_screen-1) * panel->area.paddingx)) / taskbar_on_screen;
 
    if (taskbar_on_screen > 1)
@@ -272,6 +275,7 @@ void resize_taskbar(void *p)
          modulo--;
       }
 
+		set_redraw (&panel->taskbar[i].area);
       resize_tasks(&panel->taskbar[i]);
    }
 }

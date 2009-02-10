@@ -115,6 +115,7 @@ void init_panel()
 
 		init_clock(&p->clock, &p->area);
 	}
+	panel_refresh = 1;
 }
 
 
@@ -129,10 +130,17 @@ void cleanup_panel()
 	for (i=0 ; i < nb_panel ; i++) {
 		p = &panel1[i];
 
-	   free_area(&p->area);
+		// no free_area(&p->area) because it's the list of visible objects
+		if (p->area.list) {
+			g_slist_free(p->area.list);
+			p->area.list = 0;
+		}
+
 	   free_area(&p->g_task.area);
 	   free_area(&p->g_taskbar);
    	free_area(&p->clock.area);
+		if (p->area.pix.pmap) XFreePixmap(server.dsp, p->area.pix.pmap);
+		if (p->area.pix_active.pmap) XFreePixmap(server.dsp, p->area.pix_active.pmap);
 		if (p->root_pmap) XFreePixmap(server.dsp, p->root_pmap);
 		if (p->main_win) XDestroyWindow(server.dsp, p->main_win);
 	}
@@ -154,8 +162,9 @@ void visual_refresh (Panel *p)
 
    // draw child object
    GSList *l = p->area.list;
-   for (; l ; l = l->next)
+   for (; l ; l = l->next) {
       refresh (l->data);
+	}
 
    XCopyArea(server.dsp, p->root_pmap, p->main_win, server.gc, 0, 0, p->area.width, p->area.height, 0, 0);
 
@@ -243,6 +252,8 @@ void visible_object()
 		// start with clock because draw(clock) can resize others object
 		if (time1_format)
 			panel->area.list = g_slist_append(panel->area.list, &panel->clock);
+
+		//panel->area.list = g_slist_append(panel->area.list, &panel->trayer);
 
 		Taskbar *taskbar;
 		for (j=0 ; j < panel->nb_desktop ; j++) {

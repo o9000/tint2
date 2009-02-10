@@ -91,6 +91,7 @@ void remove_task (Task *tsk)
    if (!tsk) return;
 
    Window win = tsk->win;
+   int desktop = tsk->desktop;
 
 	// free title and icon just for the first task
 	// even with task_on_all_desktop and with task_on_all_panel
@@ -106,8 +107,7 @@ void remove_task (Task *tsk)
    Taskbar *tskbar;
 	for (i=0 ; i < nb_panel ; i++) {
 		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-			if (tsk->desktop != ALLDESKTOP && tsk->desktop != j) continue;
-			//if (!panel1[i].taskbar) continue;
+			if (desktop != ALLDESKTOP && desktop != j) continue;
 
 			GSList *l0;
 			tskbar = &panel1[i].taskbar[j];

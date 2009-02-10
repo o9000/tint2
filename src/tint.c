@@ -35,10 +35,8 @@
 #include "config.h"
 #include "task.h"
 #include "taskbar.h"
+#include "systraybar.h"
 #include "panel.h"
-#include "docker.h"
-#include "net.h"
-#include "kde.h"
 
 
 void signal_handler(int sig)
@@ -73,14 +71,6 @@ void init ()
 	server.gc = XCreateGC (server.dsp, server.root_win, (unsigned long)0, &gcv) ;
 
    XSetErrorHandler ((XErrorHandler) server_catch_error);
-
-   // init systray
-   //display = server.dsp;
-   //root = RootWindow(display, DefaultScreen(display));
-   //create_main_window();
-   //kde_init();
-   //net_init();
-   //printf("ici 4\n");
 
    imlib_context_set_display (server.dsp);
    imlib_context_set_visual (server.visual);
@@ -138,7 +128,7 @@ void event_button_press (XEvent *e)
 
    if (panel_mode != MULTI_DESKTOP) {
       // drag and drop disabled
-      //XLowerWindow (server.dsp, panel.main_win);
+      XLowerWindow (server.dsp, panel->main_win);
       return;
    }
 
@@ -163,7 +153,7 @@ void event_button_press (XEvent *e)
       }
    }
 
-   //XLowerWindow (server.dsp, panel.main_win);
+   XLowerWindow (server.dsp, panel->main_win);
 }
 
 
@@ -202,7 +192,7 @@ void event_button_release (XEvent *e)
    }
 
    // TODO: check better solution to keep window below
-   //XLowerWindow (server.dsp, panel.main_win);
+   XLowerWindow (server.dsp, panel->main_win);
    task_drag = 0;
    return;
 
@@ -238,7 +228,7 @@ suite:
    }
 
    // to keep window below
-   //XLowerWindow (server.dsp, panel.main_win);
+   XLowerWindow (server.dsp, panel->main_win);
 }
 
 
@@ -259,6 +249,9 @@ void event_property_notify (Window win, Atom at)
 		  	cleanup_taskbar();
 			init_taskbar();
 			visible_object();
+			for (i=0 ; i < nb_panel ; i++) {
+				set_resize(&panel1[i]);
+			}
 			task_refresh_tasklist();
 			panel_refresh = 1;
       }
@@ -429,6 +422,7 @@ void event_timer()
 	int i;
 	for (i=0 ; i < nb_panel ; i++) {
 	   panel1[i].clock.area.redraw = 1;
+	   panel1[i].clock.area.resize = 1;
 	}
    panel_refresh = 1;
 }
@@ -458,11 +452,6 @@ load_config:
       exit(1);
    }
    config_finish();
-
-   // BUG: refresh(clock) is needed here, but 'on the paper' it's not necessary.
-	for (i=0 ; i < nb_panel ; i++) {
-		refresh(&panel1[i].clock.area);
-	}
 
    x11_fd = ConnectionNumber(server.dsp);
    XSync(server.dsp, False);
@@ -500,7 +489,6 @@ load_config:
                   break;
 
                case PropertyNotify:
-                  //printf("PropertyNotify %lx\n", e.xproperty.window);
                   event_property_notify (e.xproperty.window, e.xproperty.atom);
                   break;
 
@@ -509,6 +497,25 @@ load_config:
                      goto load_config;
                   else
                      event_configure_notify (e.xconfigure.window);
+                  break;
+
+					case UnmapNotify:
+					case DestroyNotify:
+					/*
+						GSList *it;
+						for (it = icons; it; it = g_slist_next(it)) {
+							if (((TrayWindow*)it->data)->id == e.xany.window) {
+								icon_remove(it);
+								break;
+							}
+						}*/
+					break;
+
+					case ClientMessage:
+						break;
+						if (e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32)
+						// &&	e.xclient.window == net_sel_win)
+							net_message(&e.xclient);
                   break;
             }
          }
@@ -525,8 +532,10 @@ load_config:
       }
 
       if (panel_refresh) {
-			for (i=0 ; i < nb_panel ; i++)
+			for (i=0 ; i < nb_panel ; i++) {
 	         visual_refresh(&panel1[i]);
+			}
+
 			XFlush (server.dsp);
 			panel_refresh = 0;
 		}

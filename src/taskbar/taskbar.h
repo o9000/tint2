@@ -34,7 +34,7 @@ void task_refresh_tasklist ();
 // return 1 if task_width changed
 int resize_tasks (Taskbar *tskbar);
 
-void resize_taskbar(void *panel);
+void resize_taskbar(void *obj);
 
 
 #endif

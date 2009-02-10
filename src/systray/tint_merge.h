@@ -8,7 +8,7 @@
 
 #ifndef TINT_MERGE_H
 #define TINT_MERGE_H
-
+/*
 #define display server.dsp
 #define root server.root_win
 

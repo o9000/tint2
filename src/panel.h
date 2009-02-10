@@ -61,7 +61,7 @@ typedef struct {
    int monitor;
 
    // --------------------------------------------------
-   // task annd taskbar parameter per panel
+   // task and taskbar parameter per panel
 	Area g_taskbar;
 	Global_task g_task;
 
@@ -77,7 +77,10 @@ typedef struct {
 
    // --------------------------------------------------
    // systray
-   Systraybar systraybar;
+   Systraybar trayer;
+
+	// global taskbar parameter
+	//Area g_systraybar;
 } Panel;
 
 

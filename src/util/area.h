@@ -60,8 +60,6 @@ typedef struct
 } Pmap;
 
 
-// TODO: isoler 'draw' de 'refresh'
-// TODO: isoler les données locales des données communes aux freres
 typedef struct {
    // absolute coordinate in panel
    int posx, posy;
@@ -72,6 +70,8 @@ typedef struct {
    // list of child : Area object
    GSList *list;
 
+	// need compute position and width
+	int resize;
    // need redraw Pixmap
    int redraw;
    int use_active, is_active;
@@ -84,9 +84,10 @@ typedef struct {
    void *panel;
 
    // each object can overwrite following function
-   void (*draw_foreground)(void *obj, cairo_t *c, int active);
-   void (*add_child)(void *obj);
-   int (*remove_child)(void *obj);
+   void (*_draw_foreground)(void *obj, cairo_t *c, int active);
+   void (*_resize)(void *obj);
+   void (*_add_child)(void *obj);
+   int (*_remove_child)(void *obj);
 } Area;
 
 

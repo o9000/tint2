@@ -37,5 +37,6 @@ void init_clock(Clock *clock, Area *parent);
 
 void draw_foreground_clock (void *obj, cairo_t *c, int active);
 
+void resize_clock (void *obj);
 
 #endif
