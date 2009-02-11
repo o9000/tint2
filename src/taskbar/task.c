@@ -79,6 +79,7 @@ void add_task (Window win)
    		tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk2);
 
 			//printf("add_task panel %d, desktop %d, task %s\n", i, j, new_tsk2->title);
+			//	set_resize (&tskbar->area);
 		   if (resize_tasks (tskbar))
       		set_redraw (&tskbar->area);
 		}
@@ -116,7 +117,7 @@ void remove_task (Task *tsk)
 				l0 = l0->next;
 				if (win == tsk2->win) {
 					tskbar->area.list = g_slist_remove(tskbar->area.list, tsk2);
-					resize_tasks (tskbar);
+					set_resize (&tskbar->area);
 					set_redraw (&tskbar->area);
 
 					if (tsk2 == task_active)
@@ -183,8 +184,7 @@ void get_icon (Task *tsk)
    int num;
    data = server_get_property (tsk->win, server.atom._NET_WM_ICON, XA_CARDINAL, &num);
    if (data) {
-      //printf("get_icon plein\n");
-      // ARGB
+      // get ARGB icon
       int w, h;
       long *tmp_data;
       tmp_data = get_best_icon (data, get_icon_count (data, num), num, &w, &h, panel->g_task.icon_size1);
@@ -197,13 +197,35 @@ void get_icon (Task *tsk)
       XFree (data);
    }
    else {
-      //printf("get_icon vide\n");
+      // get Pixmap icon
       XWMHints *hints = XGetWMHints(server.dsp, tsk->win);
       if (hints) {
-         if (hints->flags & IconPixmapHint) {
+         if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
+         	// get width, height and depth for the pixmap
+				Window root;
+				int  icon_x, icon_y;
+				uint border_width, bpp;
+				uint icon_width, icon_height;
+
+				XGetGeometry(server.dsp, hints->icon_pixmap, &root, &icon_x, &icon_y, &icon_width, &icon_height, &border_width, &bpp);
+
+		      //printf("  get_pixmap\n");
+		      Imlib_Image  img;
+				imlib_context_set_drawable(hints->icon_pixmap);
+				img = imlib_create_image_from_drawable(hints->icon_mask, 0, 0, icon_width, icon_height, 0);
+				imlib_context_set_image(img);
+				unsigned int *data = imlib_image_get_data();
+				if (!data) {
+					return;
+				}
+				tsk->icon_width = imlib_image_get_width();
+				tsk->icon_height = imlib_image_get_height();
+				tsk->icon_data = malloc (tsk->icon_width * tsk->icon_height * sizeof (long));
+				memcpy (tsk->icon_data, data, tsk->icon_width * tsk->icon_height * sizeof (long));
+				imlib_free_image();
 			}
          XFree(hints);
-      }
+		}
    }
 }
 

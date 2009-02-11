@@ -12,18 +12,7 @@
 *         -> systray -> icons
 *         -> clock
 *
-* draw_foreground(obj) is virtual function.
-*
-* TODO :
-* resize_width(obj, width) = 0 : fonction virtuelle à redéfinir
-*    recalcule la largeur de l'objet (car la hauteur est fixe)
-*    - taille systray calculée à partir de la liste des icones
-*    - taille clock calculée à partir de l'heure
-*    - taille d'une tache calculée à partir de la taskbar (ajout, suppression, taille)
-*    - taille d'une taskbar calculée à partir de la taille du panel et des autres objets
-*
-* voir resize_taskbar(), resize_clock() et resize_tasks()
-* voir config(obj) configure un objet (définie les positions verticales)
+* draw_foreground(obj) and resize(obj) are virtual function.
 *
 **************************************************************************/
 
