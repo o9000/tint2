@@ -58,8 +58,10 @@ void init_panel()
 	for (i=0 ; i < nb_panel ; i++) {
 		p = &panel1[i];
 
-		p->area.parent = 0;
+		p->area.parent = p;
 		p->area.panel = p;
+		p->area.visible = 1;
+		p->area._resize = resize_panel;
 		p->g_taskbar.parent = p;
 		p->g_taskbar.panel = p;
 		p->g_task.area.panel = p;
@@ -72,6 +74,7 @@ void init_panel()
 			p->area.height = (float)server.monitor[p->monitor].height * p->initial_height / 100;
 		else
 			p->area.height = p->initial_height;
+
 
 		// full width mode
 		if (!p->area.width)
@@ -125,52 +128,113 @@ void cleanup_panel()
 
    cleanup_taskbar();
 
+	// font allocated once
+   if (panel1[0].g_task.font_desc) {
+   	pango_font_description_free(panel1[0].g_task.font_desc);
+   	panel1[0].g_task.font_desc = 0;
+	}
+
 	int i;
 	Panel *p;
 	for (i=0 ; i < nb_panel ; i++) {
 		p = &panel1[i];
 
-		// no free_area(&p->area) because it's the list of visible objects
-		if (p->area.list) {
-			g_slist_free(p->area.list);
-			p->area.list = 0;
+		// freed list of visible objects
+		if (p->list_visible) {
+			g_slist_free(p->list_visible);
+			p->list_visible = 0;
 		}
 
+		free_area(&p->area);
 	   free_area(&p->g_task.area);
 	   free_area(&p->g_taskbar);
-   	free_area(&p->clock.area);
-		if (p->area.pix.pmap) XFreePixmap(server.dsp, p->area.pix.pmap);
-		if (p->area.pix_active.pmap) XFreePixmap(server.dsp, p->area.pix_active.pmap);
-		if (p->root_pmap) XFreePixmap(server.dsp, p->root_pmap);
-		if (p->main_win) XDestroyWindow(server.dsp, p->main_win);
-	}
 
-	// font allocated once
-   if (panel1[0].g_task.font_desc) pango_font_description_free(panel1[0].g_task.font_desc);
+		if (p->temp_pmap) {
+			XFreePixmap(server.dsp, p->temp_pmap);
+			p->temp_pmap = 0;
+		}
+		if (p->main_win) {
+			XDestroyWindow(server.dsp, p->main_win);
+			p->main_win = 0;
+		}
+	}
 
    if (panel1) free(panel1);
    panel1 = 0;
 }
 
 
-void visual_refresh (Panel *p)
+void resize_panel(void *obj)
 {
-   if (p->root_pmap) XFreePixmap(server.dsp, p->root_pmap);
-   p->root_pmap = XCreatePixmap(server.dsp, server.root_win, p->area.width, p->area.height, server.depth);
+   Panel *panel = (Panel*)obj;
+   int taskbar_width, modulo_width, taskbar_on_screen;
 
-   XCopyArea (server.dsp, p->area.pix.pmap, p->root_pmap, server.gc, 0, 0, p->area.width, p->area.height, 0, 0);
+//printf("resize_panel :  : posx et width des barres de taches\n");
 
-   // draw child object
-   GSList *l = p->area.list;
-   for (; l ; l = l->next) {
-      refresh (l->data);
+   if (panel_mode == MULTI_DESKTOP) taskbar_on_screen = panel->nb_desktop;
+   else taskbar_on_screen = 1;
+
+   taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
+   if (time1_format)
+      taskbar_width -= (panel->clock.area.width + panel->area.paddingx);
+   //taskbar_width -= (panel->trayer.area.width + panel->area.paddingx);
+
+   taskbar_width = (taskbar_width - ((taskbar_on_screen-1) * panel->area.paddingx)) / taskbar_on_screen;
+
+   if (taskbar_on_screen > 1)
+      modulo_width = (taskbar_width - ((taskbar_on_screen-1) * panel->area.paddingx)) % taskbar_on_screen;
+   else
+      modulo_width = 0;
+
+	// change posx and width for all taskbar
+   int i, modulo=0, posx=0;
+   for (i=0 ; i < panel->nb_desktop ; i++) {
+      if ((i % taskbar_on_screen) == 0) {
+         posx = panel->area.pix.border.width + panel->area.paddingxlr;
+         modulo = modulo_width;
+      }
+      else posx += taskbar_width + panel->area.paddingx;
+
+      panel->taskbar[i].area.posx = posx;
+      panel->taskbar[i].area.width = taskbar_width;
+      panel->taskbar[i].area.resize = 1;
+      if (modulo) {
+         panel->taskbar[i].area.width++;
+         modulo--;
+      }
+   }
+}
+
+
+void visible_object()
+{
+   Panel *panel;
+   int i, j;
+
+	for (i=0 ; i < nb_panel ; i++) {
+		panel = &panel1[i];
+
+		// clock before taskbar because resize(clock) can resize others object
+		if (time1_format)
+			panel->clock.area.visible = 1;
+		else
+			panel->clock.area.visible = 0;
+
+		//panel->area.list = g_slist_append(panel->area.list, &panel->trayer);
+
+		Taskbar *taskbar;
+		for (j=0 ; j < panel->nb_desktop ; j++) {
+			taskbar = &panel->taskbar[j];
+			if (panel_mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) {
+				// (SINGLE_DESKTOP or SINGLE_MONITOR) and not current desktop
+				taskbar->area.visible = 0;
+			}
+			else {
+				taskbar->area.visible = 1;
+			}
+		}
 	}
-
-   XCopyArea(server.dsp, p->root_pmap, p->main_win, server.gc, 0, 0, p->area.width, p->area.height, 0, 0);
-
-   // main_win doesn't include panel.area.paddingx, so we have WM capabilities on left and right.
-   // this feature is disabled !
-   //XCopyArea (server.dsp, server.pmap, p->main_win, server.gc, p->area.paddingxlr, 0, p->area.width-(2*p->area.paddingxlr), p->area.height, 0, 0);
+	panel_refresh = 1;
 }
 
 
@@ -235,42 +299,6 @@ void set_panel_properties(Panel *p)
 }
 
 
-void visible_object()
-{
-   Panel *panel;
-   int i, j;
-
-	for (i=0 ; i < nb_panel ; i++) {
-		panel = &panel1[i];
-
-		if (panel->area.list) {
-			g_slist_free(panel->area.list);
-			panel->area.list = 0;
-		}
-
-		// list of visible objects
-		// start with clock because draw(clock) can resize others object
-		if (time1_format)
-			panel->area.list = g_slist_append(panel->area.list, &panel->clock);
-
-		//panel->area.list = g_slist_append(panel->area.list, &panel->trayer);
-
-		Taskbar *taskbar;
-		for (j=0 ; j < panel->nb_desktop ; j++) {
-			taskbar = &panel->taskbar[j];
-			if (panel_mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) {
-				// (SINGLE_DESKTOP or SINGLE_MONITOR) and not current desktop
-				continue;
-			}
-
-			panel->area.list = g_slist_append(panel->area.list, taskbar);
-		}
-		set_redraw(&panel->area);
-	}
-	panel_refresh = 1;
-}
-
-
 void set_panel_background(Panel *p)
 {
    get_root_pixmap();
@@ -278,7 +306,7 @@ void set_panel_background(Panel *p)
    if (p->area.pix.pmap) XFreePixmap (server.dsp, p->area.pix.pmap);
    p->area.pix.pmap = XCreatePixmap (server.dsp, server.root_win, p->area.width, p->area.height, server.depth);
 
-   // copy background (server.root_pmap) in panel
+   // copy background (server.root_pmap) in panel.area.pix.pmap
    Window dummy;
    int  x, y;
    XTranslateCoordinates(server.dsp, p->main_win, server.root_win, 0, 0, &x, &y, &dummy);
@@ -296,11 +324,13 @@ void set_panel_background(Panel *p)
    cairo_destroy (c);
    cairo_surface_destroy (cs);
 
-	// redraw panel
-   set_redraw (&p->area);
-
-   // copy background panel on desktop window
-   //XCopyArea (server.dsp, p->area.pix.pmap, server.root_win, server.gc_root, 0, 0, p->area.width, p->area.height, p->posx, p->posy);
+	// redraw panel's object
+   GSList *l0;
+   Area *a;
+	for (l0 = p->area.list; l0 ; l0 = l0->next) {
+      a = l0->data;
+      set_redraw(a);
+   }
 }
 
 

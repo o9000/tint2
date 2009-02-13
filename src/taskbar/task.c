@@ -77,11 +77,8 @@ void add_task (Window win)
 			new_tsk2->icon_width = new_tsk.icon_width;
 			new_tsk2->icon_height = new_tsk.icon_height;
    		tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk2);
-
+   		tskbar->area.resize = 1;
 			//printf("add_task panel %d, desktop %d, task %s\n", i, j, new_tsk2->title);
-			//	set_resize (&tskbar->area);
-		   if (resize_tasks (tskbar))
-      		set_redraw (&tskbar->area);
 		}
 	}
 }
@@ -97,7 +94,6 @@ void remove_task (Task *tsk)
 	// free title and icon just for the first task
 	// even with task_on_all_desktop and with task_on_all_panel
 	//printf("remove_task %s %d\n", tsk->title, tsk->desktop);
-	//printf("remove_task %s \n", tsk->title);
 	if (tsk->title)
 		free (tsk->title);
 	if (tsk->icon_data)
@@ -117,8 +113,7 @@ void remove_task (Task *tsk)
 				l0 = l0->next;
 				if (win == tsk2->win) {
 					tskbar->area.list = g_slist_remove(tskbar->area.list, tsk2);
-					set_resize (&tskbar->area);
-					set_redraw (&tskbar->area);
+         		tskbar->area.resize = 1;
 
 					if (tsk2 == task_active)
 						task_active = 0;

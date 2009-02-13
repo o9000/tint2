@@ -54,7 +54,7 @@ void init_systray(Systraybar *sysbar, Area *parent)
 
    sysbar->area.redraw = 1;
 
-printf("init_systray");
+//printf("init_systray");
 
 	net_init();
 }

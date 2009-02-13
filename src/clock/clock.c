@@ -52,6 +52,9 @@ void init_clock(Clock *clock, Area *parent)
    clock->area._resize = resize_clock;
    if (!time1_format) return;
 
+	// add clock to the panel
+	panel->area.list = g_slist_append(panel->area.list, clock);
+
    if (strchr(time1_format, 'S') == NULL) time_precision = 60;
    else time_precision = 1;
 
@@ -119,12 +122,13 @@ void draw_foreground_clock (void *obj, cairo_t *c, int active)
 
 void resize_clock (void *obj)
 {
-   Area *parent = ((Area*)obj)->parent;
    Clock *clock = obj;
    PangoLayout *layout;
    int time_width, date_width, new_width;
 
    time_width = date_width = 0;
+   clock->area.redraw = 1;
+
    strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
    if (time2_format)
       strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
@@ -156,11 +160,19 @@ void resize_clock (void *obj)
    new_width += (2*clock->area.paddingxlr) + (2*clock->area.pix.border.width);
 
    if (new_width > clock->area.width || new_width < (clock->area.width-3)) {
-      // resize clock
+      int i;
+      Panel *panel = ((Area*)obj)->panel;
+
       //printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
+      // resize clock
       clock->area.width = new_width;
-      clock->area.posx = parent->width - clock->area.width - parent->paddingxlr - parent->pix.border.width;
-      set_resize(parent);
+      clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.pix.border.width;
+
+      // resize other objects on panel
+		for (i=0 ; i < nb_panel ; i++) {
+			panel1[i].area.resize = 1;
+		}
+		panel_refresh = 1;
    }
 
    g_object_unref (layout);

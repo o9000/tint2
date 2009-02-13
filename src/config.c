@@ -570,16 +570,17 @@ void config_finish ()
 	}
 
    init_panel();
+   // force the resize
+	for (i=0 ; i < nb_panel ; i++) {
+	   panel1[i].area.resize = 1;
+	   resize_clock(&panel1[i].clock);
+	}
+
    init_taskbar();
    visible_object();
 
 	cleanup_config();
 
-   // force the resize (using visible_object() order)
-	for (i=0 ; i < nb_panel ; i++) {
-		//init_systray(&panel1[i].trayer, &panel1[i].area);
-		set_resize(&panel1[i]);
-	}
 	task_refresh_tasklist();
 }
 

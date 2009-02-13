@@ -7,7 +7,7 @@
 * Area manage the background and border drawing, size and padding.
 * Each Area have 2 Pixmap (pix and pix_active).
 *
-* Area also manage the tree of visible objects. Parent object drawn before child object.
+* Area manage the tree of all objects. Parent object drawn before child object.
 *   panel -> taskbars -> tasks
 *         -> systray -> icons
 *         -> clock
@@ -59,6 +59,7 @@ typedef struct {
    // list of child : Area object
    GSList *list;
 
+	int visible;
 	// need compute position and width
 	int resize;
    // need redraw Pixmap

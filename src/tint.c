@@ -138,6 +138,7 @@ void event_button_press (XEvent *e)
    int y = e->xbutton.y;
    for (l0 = panel->area.list; l0 ; l0 = l0->next) {
       tskbar = l0->data;
+      if (!tskbar->area.visible) continue;
       if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
          break;
    }
@@ -187,6 +188,7 @@ void event_button_release (XEvent *e)
    GSList *l0;
    for (l0 = panel->area.list; l0 ; l0 = l0->next) {
       tskbar = l0->data;
+      if (!tskbar->area.visible) continue;
       if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
          goto suite;
    }
@@ -250,7 +252,7 @@ void event_property_notify (Window win, Atom at)
 			init_taskbar();
 			visible_object();
 			for (i=0 ; i < nb_panel ; i++) {
-				set_resize(&panel1[i]);
+				panel1[i].area.resize = 1;
 			}
 			task_refresh_tasklist();
 			panel_refresh = 1;
@@ -400,6 +402,11 @@ void event_configure_notify (Window win)
       // task on another monitor
       remove_task (tsk);
       add_task (win);
+      if (win == window_get_active ()) {
+		   Task *tsk = task_get_task (win);
+			tsk->area.is_active = 1;
+			task_active = tsk;
+		}
       panel_refresh = 1;
    }
 }
@@ -421,7 +428,6 @@ void event_timer()
 
 	int i;
 	for (i=0 ; i < nb_panel ; i++) {
-	   panel1[i].clock.area.redraw = 1;
 	   panel1[i].clock.area.resize = 1;
 	}
    panel_refresh = 1;
@@ -483,9 +489,7 @@ load_config:
                case Expose:
                	panel = get_panel(e.xany.window);
                	if (!panel) break;
-                  //XCopyArea (server.dsp, panel.area.pix.pmap, server.root_win, server.gc_root, 0, 0, panel.area.width, panel.area.height, server.posx, server.posy);
-                  //XCopyArea (server.dsp, server.pmap, panel.main_win, server.gc, panel.area.paddingxlr, 0, panel.area.width-(2*panel.area.paddingxlr), panel.area.height, 0, 0);
-                  XCopyArea (server.dsp, panel->root_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
+                  XCopyArea (server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
                   break;
 
                case PropertyNotify:
@@ -532,14 +536,26 @@ load_config:
       }
 
       if (panel_refresh) {
-			for (i=0 ; i < nb_panel ; i++) {
-	         visual_refresh(&panel1[i]);
-			}
-
-			XFlush (server.dsp);
 			panel_refresh = 0;
+
+			for (i=0 ; i < nb_panel ; i++) {
+				panel = &panel1[i];
+
+				if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
+				panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
+
+			 	refresh(panel);
+			   XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
+			}
+			XFlush (server.dsp);
 		}
    }
 }
 
+// ****************************************************
+// main_win doesn't include panel.area.paddingx, so we have WM capabilities on left and right.
+// this feature is disabled !
+//XCopyArea (server.dsp, server.pmap, p->main_win, server.gc, p->area.paddingxlr, 0, p->area.width-(2*p->area.paddingxlr), p->area.height, 0, 0);
+//XCopyArea (server.dsp, panel.area.pix.pmap, server.root_win, server.gc_root, 0, 0, panel.area.width, panel.area.height, server.posx, server.posy);
+//XCopyArea (server.dsp, server.pmap, panel.main_win, server.gc, panel.area.paddingxlr, 0, panel.area.width-(2*panel.area.paddingxlr), panel.area.height, 0, 0);
 

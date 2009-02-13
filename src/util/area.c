@@ -32,15 +32,18 @@
 
 void refresh (Area *a)
 {
+	if (!a->visible) return;
    if (a->resize) {
    	// resize can generate a redraw
-	   if (a->_resize)
+	   if (a->_resize) {
+		   //printf("resize area posx %d, width %d\n", a->posx, a->width);
       	a->_resize(a);
+		}
       a->resize = 0;
 	}
 
    if (a->redraw) {
-      //printf("draw pix\n");
+	   //printf("draw area posx %d, width %d\n", a->posx, a->width);
       draw(a, 0);
       if (a->use_active)
 	      draw(a, 1);
@@ -49,7 +52,7 @@ void refresh (Area *a)
 
 	// draw current Area
    Pixmap *pmap = (a->is_active == 0) ? (&a->pix.pmap) : (&a->pix_active.pmap);
-   XCopyArea (server.dsp, *pmap, ((Panel *)a->panel)->root_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
+   XCopyArea (server.dsp, *pmap, ((Panel *)a->panel)->temp_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
 
    // and then refresh child object
    GSList *l = a->list;
@@ -68,26 +71,15 @@ void set_redraw (Area *a)
 }
 
 
-void set_resize (Area *a)
-{
-   a->resize = 1;
-
-   GSList *l;
-   for (l = a->list ; l ; l = l->next)
-      set_resize(l->data);
-}
-
-
 void draw (Area *a, int active)
 {
    Pixmap *pmap = (active == 0) ? (&a->pix.pmap) : (&a->pix_active.pmap);
 
-   //printf("begin draw area\n");
    if (*pmap) XFreePixmap (server.dsp, *pmap);
    *pmap = XCreatePixmap (server.dsp, server.root_win, a->width, a->height, server.depth);
 
    // add layer of root pixmap
-   XCopyArea (server.dsp, ((Panel *)a->panel)->root_pmap, *pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+   XCopyArea (server.dsp, ((Panel *)a->panel)->temp_pmap, *pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
 
    cairo_surface_t *cs;
    cairo_t *c;
@@ -151,7 +143,6 @@ void draw_background (Area *a, cairo_t *c, int active)
       x1 = X1 * ((double)a->height / 100);
       y0 = Y0 * ((double)a->width / 100);
       y1 = Y1 * ((double)a->width / 100);
-      printf("repère (%d, %d)  points (%lf, %lf) (%lf, %lf)\n", a->width, a->height, x0, y0, x1, y1);
 
       cairo_pattern_t *linpat;
       linpat = cairo_pattern_create_linear (x0, y0, x1, y1);
@@ -197,8 +188,14 @@ void free_area (Area *a)
       g_slist_free(a->list);
       a->list = 0;
    }
-   if (a->pix.pmap) XFreePixmap (server.dsp, a->pix.pmap);
-   if (a->pix_active.pmap) XFreePixmap (server.dsp, a->pix_active.pmap);
+   if (a->pix.pmap) {
+   	XFreePixmap (server.dsp, a->pix.pmap);
+   	a->pix.pmap = 0;
+	}
+   if (a->pix_active.pmap) {
+   	XFreePixmap (server.dsp, a->pix_active.pmap);
+   	a->pix_active.pmap = 0;
+	}
 }
 
 

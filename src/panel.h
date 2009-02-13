@@ -46,12 +46,17 @@ extern Task *task_drag;
 
 typedef struct {
    // always start with area
+   // area.list own all objects of the panel according to config file
    Area area;
+
+   // list of visible objects
+   GSList *list_visible;
 
    // --------------------------------------------------
    // panel
    Window main_win;
-   Pixmap root_pmap;
+   Pixmap temp_pmap;
+
    // position relative to root window
 	int posx, posy;
    int marginx, marginy;
@@ -90,13 +95,15 @@ extern int  nb_panel;
 
 void init_panel();
 void cleanup_panel();
-void visual_refresh(Panel *p);
+void resize_panel(void *obj);
+
 void set_panel_properties(Panel *p);
 void visible_object();
 
 // draw background panel
 void set_panel_background(Panel *p);
 
+// detect witch panel
 Panel *get_panel(Window win);
 
 #endif
