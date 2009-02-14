@@ -48,12 +48,10 @@ void init_clock(Clock *clock, Area *parent)
 
 	clock->area.parent = parent;
 	clock->area.panel = panel;
-   clock->area._draw_foreground = draw_foreground_clock;
-   clock->area._resize = resize_clock;
    if (!time1_format) return;
 
-	// add clock to the panel
-	panel->area.list = g_slist_append(panel->area.list, clock);
+   clock->area._draw_foreground = draw_foreground_clock;
+   clock->area._resize = resize_clock;
 
    if (strchr(time1_format, 'S') == NULL) time_precision = 60;
    else time_precision = 1;

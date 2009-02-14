@@ -49,9 +49,6 @@ typedef struct {
    // area.list own all objects of the panel according to config file
    Area area;
 
-   // list of visible objects
-   GSList *list_visible;
-
    // --------------------------------------------------
    // panel
    Window main_win;

@@ -573,7 +573,8 @@ void config_finish ()
    // force the resize
 	for (i=0 ; i < nb_panel ; i++) {
 	   panel1[i].area.resize = 1;
-	   resize_clock(&panel1[i].clock);
+	   if (time1_format)
+		   resize_clock(&panel1[i].clock);
 	}
 
    init_taskbar();

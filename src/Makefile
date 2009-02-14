@@ -1,6 +1,6 @@
 CFLAGS= -O2
 CC = gcc
-FLAGS=-W -g `pkg-config --cflags --libs cairo pangocairo x11 xinerama imlib2 glib-2.0`
+FLAGS=-Wall -g `pkg-config --cflags --libs cairo pangocairo x11 xinerama imlib2 glib-2.0`
 PROGNAME=tint2
 FILES=tint.c server.c panel.c config.c taskbar/task.c taskbar/taskbar.c clock/clock.c systray/systraybar.c util/window.c util/area.c
 
@@ -23,7 +23,7 @@ endif
 
 $(PROGNAME): $(FILES) $(SYSTRAYOBJ)
 	$(CC) $(CFLAGS) -I. -Iutil -Iclock -Itaskbar -Isystray -o $(PROGNAME) $(FILES) $(FLAGS)
-	strip $(PROGNAME)
+	#strip $(PROGNAME)
 
 install:
 	mkdir -p $(BINDIR)

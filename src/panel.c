@@ -66,6 +66,12 @@ void init_panel()
 		p->g_taskbar.panel = p;
 		p->g_task.area.panel = p;
 
+		// add childs
+	   if (time1_format)
+			p->area.list = g_slist_append(p->area.list, &p->clock);
+		//panel->area.list = g_slist_append(panel->area.list, &panel->trayer);
+
+		// detect panel size
 		if (p->pourcentx)
 			p->area.width = (float)server.monitor[p->monitor].width * p->initial_width / 100;
 		else
@@ -74,7 +80,6 @@ void init_panel()
 			p->area.height = (float)server.monitor[p->monitor].height * p->initial_height / 100;
 		else
 			p->area.height = p->initial_height;
-
 
 		// full width mode
 		if (!p->area.width)
@@ -138,12 +143,6 @@ void cleanup_panel()
 	Panel *p;
 	for (i=0 ; i < nb_panel ; i++) {
 		p = &panel1[i];
-
-		// freed list of visible objects
-		if (p->list_visible) {
-			g_slist_free(p->list_visible);
-			p->list_visible = 0;
-		}
 
 		free_area(&p->area);
 	   free_area(&p->g_task.area);
@@ -219,8 +218,6 @@ void visible_object()
 			panel->clock.area.visible = 1;
 		else
 			panel->clock.area.visible = 0;
-
-		//panel->area.list = g_slist_append(panel->area.list, &panel->trayer);
 
 		Taskbar *taskbar;
 		for (j=0 ; j < panel->nb_desktop ; j++) {
