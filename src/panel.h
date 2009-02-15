@@ -79,7 +79,7 @@ typedef struct {
 
    // --------------------------------------------------
    // systray
-   Systraybar trayer;
+   Systraybar systray;
 
 	// global taskbar parameter
 	//Area g_systraybar;

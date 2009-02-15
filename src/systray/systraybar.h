@@ -20,12 +20,19 @@ typedef struct {
 
 typedef struct
 {
-  Window id;
-  int x, y;
+   Window id;
+   int x, y;
+
+   Window win;
+   long *icon_data;
+   int icon_width;
+   int icon_height;
 } TrayWindow;
 
 
-void init_systray(Systraybar *sysbar, Area *parent);
+void init_systray();
+void cleanup_systray();
+int  net_init();
 
 // return 1 if task_width changed
 int resize_systray (Systraybar *sysbar);

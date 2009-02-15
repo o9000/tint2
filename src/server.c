@@ -73,7 +73,7 @@ void server_init_atoms ()
 
 	// systray protocol
 	name_trayer = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", DefaultScreen(server.dsp));
-	server.atom._NET_SYSTEM_TRAY = XInternAtom(server.dsp, name_trayer, False);
+	server.atom._NET_SYSTEM_TRAY_SCREEN = XInternAtom(server.dsp, name_trayer, False);
 	server.atom._NET_SYSTEM_TRAY_OPCODE = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_OPCODE", False);
 	server.atom.MANAGER = XInternAtom(server.dsp, "MANAGER", False);
 	server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_MESSAGE_DATA", False);

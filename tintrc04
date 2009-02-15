@@ -5,58 +5,57 @@
 #---------------------------------------------
 # BACKGROUND AND BORDER
 #---------------------------------------------
-rounded = 10
+rounded = 3
 border_width = 1
-background_color = #ffffff 40
-border_color = #ffffff 60
+background_color = #000000 40
+border_color = #d1d1d1 34
 
-rounded = 1
-border_width = 0
-background_color = #ffffff 30
-border_color = #ffffff 15
-
+rounded = 3
+border_width = 1
+background_color = #000000 55
+border_color = #d1d1d1 40
 
 #---------------------------------------------
 # PANEL
 #---------------------------------------------
 panel_monitor = all
-panel_position = bottom center
-panel_size = 100% 30
+panel_position = bottom left
+panel_size = 99% 27
 panel_margin = 0 0
-panel_padding = 6 3 6
+panel_padding = 5 3 5
 font_shadow = 0
 panel_background_id = 0
 
 #---------------------------------------------
 # TASKBAR
 #---------------------------------------------
-taskbar_mode = multi_desktop
-taskbar_padding = 8 0 0
-taskbar_background_id = 1
+taskbar_mode = single_monitor
+taskbar_padding = 0 0 5
+taskbar_background_id = 0
 
 #---------------------------------------------
 # TASKS
 #---------------------------------------------
-task_icon = 1
+task_icon = 0
 task_text = 1
 task_width = 160
 task_centered = 1
-task_padding = 2 2
-task_font = Dejavu sans 8
-task_font_color = #000000 60
-task_active_font_color = #000000 100
-task_background_id = 0
+task_padding = 3 1
+task_font = sans bold 7.5
+task_font_color = #ffffff 60
+task_active_font_color = #ffffff 90
+task_background_id = 1
 task_active_background_id = 2
 
 #---------------------------------------------
 # CLOCK
 #---------------------------------------------
-time1_format = %A %d %H:%M
-time1_font = Dejavu sans 10
+time1_format = %a %d %H:%M
+time1_font = sans bold 7.5
 #time2_format = %A %d %B
-time2_font = sans 7
-clock_font_color = #000000 80
-clock_padding = 8 0
+time2_font = sans bold 7.5
+clock_font_color = #ffffff 60
+clock_padding = 5 0
 clock_background_id = 1
 
 #---------------------------------------------

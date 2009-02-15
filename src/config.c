@@ -311,6 +311,7 @@ void add_entry (char *key, char *value)
       if (time1_format) g_free(time1_format);
       if (strlen(value) > 0) time1_format = strdup (value);
       else time1_format = 0;
+      panel_config->clock.area.visible = 1;
    }
    else if (strcmp (key, "time2_format") == 0) {
       if (time2_format) g_free(time2_format);
@@ -410,12 +411,19 @@ void add_entry (char *key, char *value)
       memcpy(&panel_config->g_task.area.pix_active.border, &a->pix.border, sizeof(Border));
    }
 
-   /* Trayer */
-   else if (strcmp (key, "trayer_background_id") == 0) {
+   /* Systray */
+   else if (strcmp (key, "systray_padding") == 0) {
+      extract_values(value, &value1, &value2, &value3);
+      panel_config->systray.area.paddingxlr = panel_config->systray.area.paddingx = atoi (value1);
+      if (value2) panel_config->systray.area.paddingy = atoi (value2);
+      if (value3) panel_config->systray.area.paddingx = atoi (value3);
+      panel_config->systray.area.visible = 1;
+   }
+   else if (strcmp (key, "systray_background_id") == 0) {
       int id = atoi (value);
       Area *a = g_slist_nth_data(list_back, id);
-      memcpy(&panel_config->trayer.area.pix.back, &a->pix.back, sizeof(Color));
-      memcpy(&panel_config->trayer.area.pix.border, &a->pix.border, sizeof(Border));
+      memcpy(&panel_config->systray.area.pix.back, &a->pix.back, sizeof(Color));
+      memcpy(&panel_config->systray.area.pix.border, &a->pix.border, sizeof(Border));
    }
 
    /* Mouse actions */
@@ -569,14 +577,18 @@ void config_finish ()
 		}
 	}
 
+	// TODO: user can configure layout => ordered objects in panel.area.list
+	// clock and systray before taskbar because resize(clock) can resize others object
    init_panel();
+	init_clock();
    // force the resize
 	for (i=0 ; i < nb_panel ; i++) {
 	   panel1[i].area.resize = 1;
-	   if (time1_format)
+	   if (panel1[i].clock.area.visible)
 		   resize_clock(&panel1[i].clock);
 	}
 
+	init_systray();
    init_taskbar();
    visible_object();
 

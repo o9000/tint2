@@ -23,7 +23,7 @@ endif
 
 $(PROGNAME): $(FILES) $(SYSTRAYOBJ)
 	$(CC) $(CFLAGS) -I. -Iutil -Iclock -Itaskbar -Isystray -o $(PROGNAME) $(FILES) $(FLAGS)
-	#strip $(PROGNAME)
+	strip $(PROGNAME)
 
 install:
 	mkdir -p $(BINDIR)

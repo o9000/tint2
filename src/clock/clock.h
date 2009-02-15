@@ -33,7 +33,7 @@ extern PangoFontDescription *time2_font_desc;
 
 
 // initialize clock : y position, precision, ...
-void init_clock(Clock *clock, Area *parent);
+void init_clock();
 
 void draw_foreground_clock (void *obj, cairo_t *c, int active);
 

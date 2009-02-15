@@ -53,7 +53,7 @@ typedef struct Global_atom
 	Atom WM_NAME;
 	Atom __SWM_VROOT;
 	Atom _MOTIF_WM_HINTS;
-	Atom _NET_SYSTEM_TRAY;
+	Atom _NET_SYSTEM_TRAY_SCREEN;
 	Atom _NET_SYSTEM_TRAY_OPCODE;
 	Atom MANAGER;
 	Atom _NET_SYSTEM_TRAY_MESSAGE_DATA;

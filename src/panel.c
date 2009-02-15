@@ -67,9 +67,10 @@ void init_panel()
 		p->g_task.area.panel = p;
 
 		// add childs
-	   if (time1_format)
+	   if (p->clock.area.visible)
 			p->area.list = g_slist_append(p->area.list, &p->clock);
-		//panel->area.list = g_slist_append(panel->area.list, &panel->trayer);
+	   if (p->systray.area.visible)
+			p->area.list = g_slist_append(p->area.list, &p->systray);
 
 		// detect panel size
 		if (p->pourcentx)
@@ -120,8 +121,6 @@ void init_panel()
 		set_panel_background(p);
 
 		XMapWindow (server.dsp, p->main_win);
-
-		init_clock(&p->clock, &p->area);
 	}
 	panel_refresh = 1;
 }
@@ -174,9 +173,10 @@ void resize_panel(void *obj)
    else taskbar_on_screen = 1;
 
    taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
-   if (time1_format)
+   if (panel->clock.area.visible)
       taskbar_width -= (panel->clock.area.width + panel->area.paddingx);
-   //taskbar_width -= (panel->trayer.area.width + panel->area.paddingx);
+   if (panel->systray.area.visible)
+   	taskbar_width -= (panel->systray.area.width + panel->area.paddingx);
 
    taskbar_width = (taskbar_width - ((taskbar_on_screen-1) * panel->area.paddingx)) / taskbar_on_screen;
 
@@ -212,12 +212,6 @@ void visible_object()
 
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
-
-		// clock before taskbar because resize(clock) can resize others object
-		if (time1_format)
-			panel->clock.area.visible = 1;
-		else
-			panel->clock.area.visible = 0;
 
 		Taskbar *taskbar;
 		for (j=0 ; j < panel->nb_desktop ; j++) {

@@ -36,34 +36,79 @@ GSList *icons;
 #define SYSTEM_TRAY_BEGIN_MESSAGE   1
 #define SYSTEM_TRAY_CANCEL_MESSAGE  2
 
-Window net_sel_win;
+Window net_sel_win = None;
 
 
-void init_systray(Systraybar *sysbar, Area *parent)
+void init_systray()
 {
-   Panel *panel = (Panel *)parent;
+   Panel *panel;
+   Systraybar *sysbar;
+   int i, run_systray;
 
-	sysbar->area.parent = parent;
-	sysbar->area.panel = panel;
+	cleanup_systray();
 
-   sysbar->area.posy = parent->pix.border.width + parent->paddingy;
-   sysbar->area.height = parent->height - (2 * sysbar->area.posy);
-   sysbar->area.width = 100;
+	run_systray = 0;
+	for (i=0 ; i < nb_panel ; i++) {
+	   if (panel1[i].systray.area.visible) {
+	   	run_systray = 1;
+	   	break;
+		}
+	}
+	if (run_systray) {
+		if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != None) {
+			fprintf(stderr, "tint2 warning : another systray is running\n");
+			run_systray = 0;
+		}
+	}
 
-   sysbar->area.posx = panel->area.width - panel->clock.area.width - panel->area.paddingxlr - panel->area.pix.border.width - panel->area.paddingx - sysbar->area.width;
+	if (run_systray)
+		run_systray = net_init();
 
-   sysbar->area.redraw = 1;
+	for (i=0 ; i < nb_panel ; i++) {
+	   panel = &panel1[i];
+	   sysbar = &panel->systray;
 
-//printf("init_systray");
+	   if (!run_systray) {
+	   	sysbar->area.visible = 0;
+	   	continue;
+		}
+	   if (!sysbar->area.visible)
+	   	continue;
 
-	net_init();
+		sysbar->area.parent = panel;
+		sysbar->area.panel = panel;
+
+		sysbar->area.posy = panel->area.pix.border.width + panel->area.paddingy;
+		sysbar->area.height = panel->area.height - (2 * sysbar->area.posy);
+		sysbar->area.width = 100;
+
+		sysbar->area.posx = panel->area.width - panel->area.paddingxlr - panel->area.pix.border.width - sysbar->area.width;
+	   if (panel->clock.area.visible)
+	   	sysbar->area.posx -= (panel->clock.area.width + panel->area.paddingx);
+
+		sysbar->area.redraw = 1;
+	}
 }
 
 
-// net_sel_atom == server.atom._NET_SYSTEM_TRAY
-// net_opcode_atom == server.atom._NET_SYSTEM_TRAY_OPCODE
-// net_manager_atom == server.atom.MANAGER
-// net_message_data_atom == server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA
+void cleanup_systray()
+{
+   Panel *panel;
+   int i;
+
+	for (i=0 ; i < nb_panel ; i++) {
+		panel = &panel1[i];
+	   if (!panel->systray.area.visible) continue;
+
+		free_area(&panel->systray.area);
+	}
+
+	if (net_sel_win != None) {
+  		XDestroyWindow(server.dsp, net_sel_win);
+  		net_sel_win = None;
+	}
+}
+
 
 int resize_systray (Systraybar *sysbar)
 {
@@ -90,12 +135,6 @@ void fix_geometry()
   }
 
   XResizeWindow(server.dsp, win, width + border * 2, height + border * 2);
-}
-
-
-static void net_create_selection_window()
-{
-  net_sel_win = XCreateSimpleWindow(server.dsp, root, -1, -1, 1, 1, 0, 0, 0);
 }
 
 
@@ -172,15 +211,15 @@ gboolean icon_add(Window id)
 }
 
 
-void net_init()
+int net_init()
 {
 	// init systray protocol
    net_sel_win = XCreateSimpleWindow(server.dsp, server.root_win, -1, -1, 1, 1, 0, 0, 0);
 
-	XSetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY, net_sel_win, CurrentTime);
-	if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY) != net_sel_win) {
-		fprintf(stderr, "tint error : can't get trayer selection");
-		return;
+	XSetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN, net_sel_win, CurrentTime);
+	if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != net_sel_win) {
+		fprintf(stderr, "tint2 warning : can't get systray manager\n");
+		return 0;
  	}
 
 	XEvent m;
@@ -188,11 +227,12 @@ void net_init()
 	m.xclient.message_type = server.atom.MANAGER;
 	m.xclient.format = 32;
 	m.xclient.data.l[0] = CurrentTime;
-	m.xclient.data.l[1] = server.atom._NET_SYSTEM_TRAY;
+	m.xclient.data.l[1] = server.atom._NET_SYSTEM_TRAY_SCREEN;
 	m.xclient.data.l[2] = net_sel_win;
 	m.xclient.data.l[3] = 0;
 	m.xclient.data.l[4] = 0;
 	XSendEvent(server.dsp, server.root_win, False, StructureNotifyMask, &m);
+	return 1;
 }
 
 
