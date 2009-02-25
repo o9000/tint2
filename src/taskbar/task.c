@@ -298,6 +298,7 @@ void draw_foreground_task (void *obj, cairo_t *c, int active)
 		pango_layout_set_text (layout, tsk->title, -1);
 
 		/* Drawing width and Cut text */
+		// pango use U+22EF or U+2026
 		pango_layout_set_width (layout, ((Taskbar*)tsk->area.parent)->text_width * PANGO_SCALE);
 		pango_layout_set_ellipsize (layout, PANGO_ELLIPSIZE_END);
 

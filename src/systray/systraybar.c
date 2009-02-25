@@ -36,6 +36,7 @@ GSList *icons;
 #define SYSTEM_TRAY_BEGIN_MESSAGE   1
 #define SYSTEM_TRAY_CANCEL_MESSAGE  2
 
+// selection window
 Window net_sel_win = None;
 
 
@@ -56,7 +57,7 @@ void init_systray()
 	}
 	if (run_systray) {
 		if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != None) {
-			fprintf(stderr, "tint2 warning : another systray is running\n");
+			fprintf(stderr, "tint2 : another systray is running\n");
 			run_systray = 0;
 		}
 	}
@@ -64,6 +65,7 @@ void init_systray()
 	if (run_systray)
 		run_systray = net_init();
 
+	// configure sysbar on all panels
 	for (i=0 ; i < nb_panel ; i++) {
 	   panel = &panel1[i];
 	   sysbar = &panel->systray;
@@ -110,6 +112,37 @@ void cleanup_systray()
 }
 
 
+int net_init()
+{
+	// init systray protocol
+   net_sel_win = XCreateSimpleWindow(server.dsp, server.root_win, -1, -1, 1, 1, 0, 0, 0);
+
+	// v0.2 trayer specification. tint2 always orizontal.
+	int orient = 0;
+	XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_ORIENTATION, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &orient, 1);
+
+	XSetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN, net_sel_win, CurrentTime);
+	if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != net_sel_win) {
+		fprintf(stderr, "tint2 : can't get systray manager\n");
+		return 0;
+ 	}
+
+   XClientMessageEvent ev;
+	ev.type = ClientMessage;
+   ev.window = server.root_win;
+	ev.message_type = server.atom.MANAGER;
+	ev.format = 32;
+	ev.data.l[0] = CurrentTime;
+	ev.data.l[1] = server.atom._NET_SYSTEM_TRAY_SCREEN;
+	ev.data.l[2] = net_sel_win;
+	ev.data.l[3] = 0;
+	ev.data.l[4] = 0;
+	XSendEvent(server.dsp, server.root_win, False, StructureNotifyMask, &ev);
+
+	return 1;
+}
+
+
 int resize_systray (Systraybar *sysbar)
 {
    return 0;
@@ -127,7 +160,7 @@ void fix_geometry()
 {
   GSList *it;
 
-  //* find the proper width and height
+  // find the proper width and height
   width = 0;
   height = icon_size;
   for (it = icons; it != NULL; it = g_slist_next(it)) {
@@ -169,109 +202,84 @@ gboolean icon_swallow(TrayWindow *traywin)
 // The traywin must have its id and type set.
 gboolean icon_add(Window id)
 {
-  TrayWindow *traywin;
+	TrayWindow *traywin;
 
-  traywin = g_new0(TrayWindow, 1);
-  traywin->id = id;
+	traywin = g_new0(TrayWindow, 1);
+	traywin->id = id;
 
-  if (!icon_swallow(traywin)) {
-    g_free(traywin);
-    return FALSE;
-  }
+	if (!icon_swallow(traywin)) {
+		printf("not icon_swallow\n");
+		g_free(traywin);
+		return FALSE;
+	}
 
-  // find the positon for the systray app window
+	// find the positon for the systray app window
 	int count = g_slist_length(icons);
 	traywin->x = border + ((width % icon_size) / 2) +
 	(count % (width / icon_size)) * icon_size;
 	traywin->y = border + ((height % icon_size) / 2) +
 	(count / (height / icon_size)) * icon_size;
 
-  // add the new icon to the list
-  icons = g_slist_append(icons, traywin);
+	// add the new icon to the list
+	icons = g_slist_append(icons, traywin);
 
-  // watch for the icon trying to resize itself!
-  XSelectInput(server.dsp, traywin->id, StructureNotifyMask);
+	// watch for the icon trying to resize itself!
+	XSelectInput(server.dsp, traywin->id, StructureNotifyMask);
 
-  // position and size the icon window
-  XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
+	// position and size the icon window
+	XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
 
-  // resize our window so that the new window can fit in it
-  fix_geometry();
+	// resize our window so that the new window can fit in it
+	fix_geometry();
 
-  // flush before clearing, otherwise the clear isn't effective.
-  XFlush(server.dsp);
-  // make sure the new child will get the right stuff in its background
-  // for ParentRelative.
-  XClearWindow(server.dsp, win);
+	// flush before clearing, otherwise the clear isn't effective.
+	XFlush(server.dsp);
+	// make sure the new child will get the right stuff in its background
+	// for ParentRelative.
+	XClearWindow(server.dsp, win);
 
-  // show the window
-  XMapRaised(server.dsp, traywin->id);
+	// show the window
+	XMapRaised(server.dsp, traywin->id);
 
-  return TRUE;
-}
-
-
-int net_init()
-{
-	// init systray protocol
-   net_sel_win = XCreateSimpleWindow(server.dsp, server.root_win, -1, -1, 1, 1, 0, 0, 0);
-
-	XSetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN, net_sel_win, CurrentTime);
-	if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != net_sel_win) {
-		fprintf(stderr, "tint2 warning : can't get systray manager\n");
-		return 0;
- 	}
-
-	XEvent m;
-	m.type = ClientMessage;
-	m.xclient.message_type = server.atom.MANAGER;
-	m.xclient.format = 32;
-	m.xclient.data.l[0] = CurrentTime;
-	m.xclient.data.l[1] = server.atom._NET_SYSTEM_TRAY_SCREEN;
-	m.xclient.data.l[2] = net_sel_win;
-	m.xclient.data.l[3] = 0;
-	m.xclient.data.l[4] = 0;
-	XSendEvent(server.dsp, server.root_win, False, StructureNotifyMask, &m);
-	return 1;
+	return TRUE;
 }
 
 
 void net_message(XClientMessageEvent *e)
 {
-  unsigned long opcode;
-  Window id;
+	unsigned long opcode;
+	Window id;
 
-  opcode = e->data.l[1];
+	opcode = e->data.l[1];
 
-  switch (opcode)
-  {
-  case SYSTEM_TRAY_REQUEST_DOCK: /* dock a new icon */
-    id = e->data.l[2];
-    if (id && icon_add(id))
-      XSelectInput(server.dsp, id, StructureNotifyMask);
-    break;
+	switch (opcode) {
+	case SYSTEM_TRAY_REQUEST_DOCK:
+		panel_refresh = 1;
+		id = e->data.l[2];
+		printf("add dockapp\n");
+		if (id && icon_add(id)) {
+			XSelectInput(server.dsp, id, StructureNotifyMask);
+		}
+		break;
 
-  case SYSTEM_TRAY_BEGIN_MESSAGE:
-    //g_printerr("Message From Dockapp\n");
-    id = e->window;
-    break;
+	case SYSTEM_TRAY_BEGIN_MESSAGE:
+		//g_printerr("Message From Dockapp\n");
+		id = e->window;
+		break;
 
-  case SYSTEM_TRAY_CANCEL_MESSAGE:
-    //g_printerr("Message Cancelled\n");
-    id = e->window;
-    break;
+	case SYSTEM_TRAY_CANCEL_MESSAGE:
+		//g_printerr("Message Cancelled\n");
+		id = e->window;
+		break;
 
-  default:
-    if (opcode == server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA) {
-      //g_printerr("Text For Message From Dockapp:\n%s\n", e->data.b);
-      id = e->window;
-      break;
-    }
-
-    /* unknown message type. not in the spec. */
-    //g_printerr("Warning: Received unknown client message to System Tray selection window.\n");
-    break;
-  }
+	default:
+		if (opcode == server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA) {
+			printf("message from dockapp:\n  %s\n", e->data.b);
+			id = e->window;
+		}
+		// unknown message type. not in the spec
+		break;
+	}
 }
 
 

@@ -58,7 +58,7 @@ void init ()
 
    server.dsp = XOpenDisplay (NULL);
    if (!server.dsp) {
-      fprintf(stderr, "Could not open display.\n");
+      fprintf(stderr, "tint2 exit : could not open display.\n");
       exit(0);
    }
    server_init_atoms ();
@@ -234,10 +234,12 @@ suite:
 }
 
 
-void event_property_notify (Window win, Atom at)
+void event_property_notify (XEvent *e)
 {
   	int i, j;
    Task *tsk;
+   Window win = e->xproperty.window;
+   Atom at = e->xproperty.atom;
 
    if (win == server.root_win) {
       if (!server.got_root_win) {
@@ -245,7 +247,7 @@ void event_property_notify (Window win, Atom at)
          server.got_root_win = 1;
       }
 
-      /* Change number of desktops */
+      // Change number of desktops
       else if (at == server.atom._NET_NUMBER_OF_DESKTOPS) {
 	      server.nb_desktop = server_get_number_of_desktop ();
 		  	cleanup_taskbar();
@@ -257,19 +259,19 @@ void event_property_notify (Window win, Atom at)
 			task_refresh_tasklist();
 			panel_refresh = 1;
       }
-      /* Change desktop */
+      // Change desktop
       else if (at == server.atom._NET_CURRENT_DESKTOP) {
          server.desktop = server_get_current_desktop ();
          if (panel_mode != MULTI_DESKTOP) {
 				visible_object();
          }
       }
-      /* Window list */
+      // Window list
       else if (at == server.atom._NET_CLIENT_LIST) {
          task_refresh_tasklist();
          panel_refresh = 1;
       }
-      /* Change active */
+      // Change active
       else if (at == server.atom._NET_ACTIVE_WINDOW) {
          GSList *l0;
       	if (task_active) {
@@ -306,7 +308,7 @@ void event_property_notify (Window win, Atom at)
 			}
          panel_refresh = 1;
       }
-      /* Wallpaper changed */
+      // Wallpaper changed
       else if (at == server.atom._XROOTPMAP_ID) {
 			for (i=0 ; i < nb_panel ; i++) {
 				set_panel_background(&panel1[i]);
@@ -319,7 +321,7 @@ void event_property_notify (Window win, Atom at)
       if (!tsk) return;
       //printf("atom root_win = %s, %s\n", XGetAtomName(server.dsp, at), tsk->title);
 
-      /* Window title changed */
+      // Window title changed
       if (at == server.atom._NET_WM_VISIBLE_NAME || at == server.atom._NET_WM_NAME || at == server.atom.WM_NAME) {
 			Task *tsk2;
 			GSList *l0;
@@ -338,9 +340,18 @@ void event_property_notify (Window win, Atom at)
 			}
          panel_refresh = 1;
       }
-      /* Iconic state */
+		// Demand attention
+      else if (at == server.atom._NET_WM_STATE) {
+         if (window_is_urgent (win)) {
+				printf("  event_property_notify _NET_WM_STATE_DEMANDS_ATTENTION\n");
+			}
+			else {
+			}
+		}
       else if (at == server.atom.WM_STATE) {
-         if (window_is_iconified (win))
+      	// Iconic state
+			// TODO : try to delete following code
+         if (window_is_iconified (win)) {
             if (task_active) {
                if (task_active->win == tsk->win) {
 						Task *tsk2;
@@ -356,8 +367,9 @@ void event_property_notify (Window win, Atom at)
                   task_active = 0;
                }
             }
-      }
-      /* Window icon changed */
+			}
+		}
+      // Window icon changed
       else if (at == server.atom._NET_WM_ICON) {
 		   get_icon(tsk);
 			Task *tsk2;
@@ -377,7 +389,7 @@ void event_property_notify (Window win, Atom at)
 			}
          panel_refresh = 1;
       }
-      /* Window desktop changed */
+      // Window desktop changed
       else if (at == server.atom._NET_WM_DESKTOP) {
          remove_task (tsk);
          add_task (win);
@@ -493,7 +505,7 @@ load_config:
                   break;
 
                case PropertyNotify:
-                  event_property_notify (e.xproperty.window, e.xproperty.atom);
+                  event_property_notify (&e);
                   break;
 
                case ConfigureNotify:
@@ -505,6 +517,7 @@ load_config:
 
 					case UnmapNotify:
 					case DestroyNotify:
+//	printf("destroy client\n");
 					/*
 						GSList *it;
 						for (it = icons; it; it = g_slist_next(it)) {
@@ -516,10 +529,10 @@ load_config:
 					break;
 
 					case ClientMessage:
-						break;
-						if (e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32)
-						// &&	e.xclient.window == net_sel_win)
+						//printf("ClientMessage\n");
+						if (e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
 							net_message(&e.xclient);
+						}
                   break;
             }
          }

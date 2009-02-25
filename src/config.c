@@ -513,7 +513,7 @@ void add_entry (char *key, char *value)
    }
 
    else
-      fprintf(stderr, "Invalid option: \"%s\", correct your config file\n", key);
+      fprintf(stderr, "tint2 : invalid option \"%s\", correct your config file\n", key);
 
    if (value1) free (value1);
    if (value2) free (value2);
@@ -601,61 +601,70 @@ void config_finish ()
 int config_read ()
 {
    const gchar * const * system_dirs;
-   char *path1, *path2, *dir;
+   char *path1;
    gint i;
 
 	save_file_config = 0;
 
+   // follow XDG specification
 deb:
-   // check tint2rc file according to XDG specification
+   // check tint2rc in user directory
    path1 = g_build_filename (g_get_user_config_dir(), "tint2", "tint2rc", NULL);
-   if (!g_file_test (path1, G_FILE_TEST_EXISTS)) {
+   if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
+		i = config_read_file (path1);
+		g_free(path1);
+	   return i;
+	}
 
-		if (save_file_config) {
-		   fprintf(stderr, "tint2 error : enable to write $HOME/.config/tint2/tint2rc\n");
-			exit(0);
-		}
-		// check old tintrc config file
-		path1 = g_build_filename (g_get_user_config_dir(), "tint", "tintrc", NULL);
-		if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
-	   	save_file_config = 1;
-			old_task_font = 0;
-			old_time1_font = 0;
-			old_time2_font = 0;
-		   config_read_file (path1);
-   		save_config();
-			if (old_task_font) g_free(old_task_font);
-			if (old_time1_font) g_free(old_time1_font);
-			if (old_time2_font) g_free(old_time2_font);
-   		goto deb;
-		}
-		else {
-			path2 = 0;
-			system_dirs = g_get_system_config_dirs();
-			for (i = 0; system_dirs[i]; i++) {
-				path2 = g_build_filename(system_dirs[i], "tint2", "tint2rc", NULL);
+	g_free(path1);
+	if (save_file_config) {
+		fprintf(stderr, "tint2 exit : enable to write $HOME/.config/tint2/tint2rc\n");
+		exit(0);
+	}
 
-				if (g_file_test(path2, G_FILE_TEST_EXISTS)) break;
-				g_free (path2);
-				path2 = 0;
-			}
+	// check old tintrc config file
+	path1 = g_build_filename (g_get_user_config_dir(), "tint", "tintrc", NULL);
+	if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
+		save_file_config = 1;
+		old_task_font = 0;
+		old_time1_font = 0;
+		old_time2_font = 0;
+		config_read_file (path1);
+		save_config();
+		if (old_task_font) g_free(old_task_font);
+		if (old_time1_font) g_free(old_time1_font);
+		if (old_time2_font) g_free(old_time2_font);
+		g_free(path1);
+		goto deb;
+	}
 
-			if (path2) {
-				// copy file in user directory (path1)
-				dir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
-				if (!g_file_test (dir, G_FILE_TEST_IS_DIR)) g_mkdir(dir, 0777);
-				g_free(dir);
+	// copy tint2rc from system directory to user directory
+	g_free(path1);
+	char *path2 = 0;
+	system_dirs = g_get_system_config_dirs();
+	for (i = 0; system_dirs[i]; i++) {
+		path2 = g_build_filename(system_dirs[i], "tint2", "tint2rc", NULL);
 
-				copy_file(path2, path1);
-				g_free(path2);
-			}
-		}
-   }
+		if (g_file_test(path2, G_FILE_TEST_EXISTS)) break;
+		g_free (path2);
+		path2 = 0;
+	}
 
-   i = config_read_file (path1);
-   g_free(path1);
+	if (path2) {
+		// copy file in user directory (path1)
+		char *dir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
+		if (!g_file_test (dir, G_FILE_TEST_IS_DIR)) g_mkdir(dir, 0777);
+		g_free(dir);
 
-   return i;
+		path1 = g_build_filename (g_get_user_config_dir(), "tint2", "tint2rc", NULL);
+		copy_file(path2, path1);
+		g_free(path2);
+
+		i = config_read_file (path1);
+		g_free(path1);
+		return i;
+	}
+	return 0;
 }
 
 
@@ -676,7 +685,7 @@ int config_read_file (const char *path)
 
 void save_config ()
 {
-   fprintf(stderr, "tint2 warning : convert user's config file tintrc to tint2rc\n");
+   fprintf(stderr, "tint2 : convert user's config file tintrc to tint2rc\n");
 
    char *path, *dir;
    FILE *fp;

@@ -1,17 +1,18 @@
 
 tint2 is developped by :
-- 2008 Thierry Lorthiois <lorthiois@bbsoft.fr>, project maintainer
+- 2008-2009 Thierry Lorthiois <lorthiois@bbsoft.fr>, project maintainer
 
 
 tint2 is based on ttm source code (http://code.google.com/p/ttm/)
-- 2007 Pål Staurland <staura@gmail.com>
+- 2007-2008 Pål Staurland <staura@gmail.com>
 
 
 Contributors:
+  Kwaku Yeboah <kwakuyeboah@gmail.com> : wiki page
   Daniel Moerner <dmoerner@gmail.com> : man page and debian package
   Doug Barton : freebsd package
   James Buren <ryuo@frugalware.org> : Frugalware package
   Pierre-Emmanuel Andre <pea@raveland.org> : openbsd port
   Redroar : arch package
-  
-  
+
+

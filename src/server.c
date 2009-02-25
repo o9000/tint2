@@ -43,6 +43,7 @@ void server_init_atoms ()
    server.atom._NET_WM_STATE_SKIP_PAGER = XInternAtom (server.dsp, "_NET_WM_STATE_SKIP_PAGER", False);
    server.atom._NET_WM_STATE_SKIP_TASKBAR = XInternAtom (server.dsp, "_NET_WM_STATE_SKIP_TASKBAR", False);
    server.atom._NET_WM_STATE_STICKY = XInternAtom (server.dsp, "_NET_WM_STATE_STICKY", False);
+   server.atom._NET_WM_STATE_DEMANDS_ATTENTION = XInternAtom (server.dsp, "_NET_WM_STATE_DEMANDS_ATTENTION", False);
    server.atom._NET_WM_WINDOW_TYPE_DOCK = XInternAtom (server.dsp, "_NET_WM_WINDOW_TYPE_DOCK", False);
    server.atom._NET_WM_WINDOW_TYPE_DESKTOP = XInternAtom (server.dsp, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
    server.atom._NET_WM_WINDOW_TYPE_TOOLBAR = XInternAtom (server.dsp, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
@@ -77,6 +78,7 @@ void server_init_atoms ()
 	server.atom._NET_SYSTEM_TRAY_OPCODE = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_OPCODE", False);
 	server.atom.MANAGER = XInternAtom(server.dsp, "MANAGER", False);
 	server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_MESSAGE_DATA", False);
+	server.atom._NET_SYSTEM_TRAY_ORIENTATION = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_ORIENTATION", False);
 }
 
 
@@ -168,7 +170,7 @@ void get_root_pixmap()
 	server.root_pmap = ret;
 
 	if (server.root_pmap == None)
-		fprintf(stderr, "pixmap background detection failed\n");
+		fprintf(stderr, "tint2 : pixmap background detection failed\n");
 	else {
 		XGCValues  gcv;
 		gcv.ts_x_origin = 0;
@@ -272,9 +274,9 @@ next:
    }
    if (server.nb_desktop == 0) {
       server.nb_desktop = 1;
-      fprintf(stderr, "tint2 warning : cannot found number of desktop.\n");
+      fprintf(stderr, "tint2 : cannot found number of desktop.\n");
    }
-  	fprintf(stderr, "nb monitor %d, nb desktop %d\n", server.nb_monitor, server.nb_desktop);
+  	fprintf(stderr, "tint2 : nb monitor %d, nb desktop %d\n", server.nb_monitor, server.nb_desktop);
 }
 
 

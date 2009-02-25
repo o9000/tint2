@@ -140,6 +140,23 @@ int window_is_iconified (Window win)
 }
 
 
+int window_is_urgent (Window win)
+{
+   Atom *at;
+   int count, i;
+
+   at = server_get_property (win, server.atom._NET_WM_STATE, XA_ATOM, &count);
+   for (i = 0; i < count; i++) {
+      if (at[i] == server.atom._NET_WM_STATE_DEMANDS_ATTENTION) {
+         XFree(at);
+         return 1;
+      }
+   }
+   XFree(at);
+	return 0;
+}
+
+
 int server_get_number_of_desktop ()
 {
    return get_property32(server.root_win, server.atom._NET_NUMBER_OF_DESKTOPS, XA_CARDINAL);

@@ -2,12 +2,16 @@
 * Copyright (C) 2009 thierry lorthiois (lorthiois@bbsoft.fr)
 *
 * systraybar
+* based on 'docker-1.5' from Ben Jansens
 *
 **************************************************************************/
 
 #ifndef SYSTRAYBAR_H
 #define SYSTRAYBAR_H
 
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
 #include "area.h"
 
 
@@ -15,6 +19,7 @@ typedef struct {
    // always start with area
    Area area;
 
+	GSList *list_icons;
 } Systraybar;
 
 
@@ -22,17 +27,19 @@ typedef struct
 {
    Window id;
    int x, y;
+   int width, height;
 
-   Window win;
    long *icon_data;
-   int icon_width;
-   int icon_height;
 } TrayWindow;
+
+
+extern Window net_sel_win;
 
 
 void init_systray();
 void cleanup_systray();
-int  net_init();
+int net_init();
+void net_message(XClientMessageEvent *e);
 
 // return 1 if task_width changed
 int resize_systray (Systraybar *sysbar);
