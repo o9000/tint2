@@ -34,16 +34,16 @@ typedef struct
 
 
 extern Window net_sel_win;
+extern Systraybar systray;
 
 
 void init_systray();
 void cleanup_systray();
 int net_init();
 void net_message(XClientMessageEvent *e);
+void icon_remove(TrayWindow *traywin);
 
-// return 1 if task_width changed
-int resize_systray (Systraybar *sysbar);
-
+void resize_systray (void *obj);
 
 
 #endif

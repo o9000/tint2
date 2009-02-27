@@ -23,9 +23,20 @@ endif
 
 $(PROGNAME): $(FILES) $(SYSTRAYOBJ)
 	$(CC) $(CFLAGS) -I. -Iutil -Iclock -Itaskbar -Isystray -o $(PROGNAME) $(FILES) $(FLAGS)
-	strip $(PROGNAME)
+	
+install: install-strip
 
-install:
+install-strip:
+	mkdir -p $(BINDIR)
+	mkdir -p $(XDG_CONFIG_DIR)/tint2
+	mkdir -p $(MANDIR)
+	mkdir -p $(MANDIR)/man1
+	strip $(PROGNAME)
+	install $(PROGNAME) $(BINDIR)
+	cp -f ../tintrc01 $(XDG_CONFIG_DIR)/tint2/tint2rc
+	cp -f ../doc/man/tint2.1 $(MANDIR)/man1
+
+install-nostrip:
 	mkdir -p $(BINDIR)
 	mkdir -p $(XDG_CONFIG_DIR)/tint2
 	mkdir -p $(MANDIR)
@@ -41,4 +52,4 @@ uninstall:
 clean:
 	rm -f $(PROGNAME)
 
-.PHONY: clean uninstall install
+.PHONY: clean uninstall install install-strip install-nostrip

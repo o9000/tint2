@@ -52,6 +52,7 @@ typedef struct
 typedef struct {
    // absolute coordinate in panel
    int posx, posy;
+   // width and height including border
    int width, height;
    Pmap pix;
    Pmap pix_active;
@@ -84,6 +85,8 @@ typedef struct {
 
 // draw background and foreground
 void refresh (Area *a);
+
+void size (Area *a);
 
 // set 'redraw' on an area and childs
 void set_redraw (Area *a);

@@ -29,25 +29,22 @@
 #include "server.h"
 #include "panel.h"
 
-
+// 1) resize child
+// 2) resize parent
+// 3) redraw parent
+// 4) redraw child
 void refresh (Area *a)
 {
 	if (!a->visible) return;
-   if (a->resize) {
-   	// resize can generate a redraw
-	   if (a->_resize) {
-		   //printf("resize area posx %d, width %d\n", a->posx, a->width);
-      	a->_resize(a);
-		}
-      a->resize = 0;
-	}
+
+	size(a);
 
    if (a->redraw) {
+	   a->redraw = 0;
 	   //printf("draw area posx %d, width %d\n", a->posx, a->width);
       draw(a, 0);
       if (a->use_active)
 	      draw(a, 1);
-	   a->redraw = 0;
 	}
 
 	// draw current Area
@@ -55,9 +52,26 @@ void refresh (Area *a)
    XCopyArea (server.dsp, *pmap, ((Panel *)a->panel)->temp_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
 
    // and then refresh child object
-   GSList *l = a->list;
-   for (; l ; l = l->next)
+	GSList *l;
+   for (l = a->list; l ; l = l->next)
       refresh(l->data);
+}
+
+
+void size (Area *a)
+{
+	GSList *l;
+
+	if (a->resize) {
+      a->resize = 0;
+		for (l = a->list; l ; l = l->next)
+			size(l->data);
+
+   	// resize can generate a redraw
+	   if (a->_resize) {
+      	a->_resize(a);
+		}
+	}
 }
 
 

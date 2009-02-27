@@ -39,76 +39,58 @@ GSList *icons;
 // selection window
 Window net_sel_win = None;
 
+// freedesktop specification doesn't allow multi systray
+Systraybar systray;
+
 
 void init_systray()
 {
-   Panel *panel;
-   Systraybar *sysbar;
-   int i, run_systray;
-
 	cleanup_systray();
 
-	run_systray = 0;
-	for (i=0 ; i < nb_panel ; i++) {
-	   if (panel1[i].systray.area.visible) {
-	   	run_systray = 1;
-	   	break;
-		}
-	}
-	if (run_systray) {
+	Panel *panel = &panel1[0];
+	systray.area.parent = panel;
+	systray.area.panel = panel;
+	systray.area._resize = resize_systray;
+
+	if (systray.area.visible) {
 		if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != None) {
 			fprintf(stderr, "tint2 : another systray is running\n");
-			run_systray = 0;
+			systray.area.visible = 0;
 		}
 	}
 
-	if (run_systray)
-		run_systray = net_init();
+	if (systray.area.visible)
+		systray.area.visible = net_init();
 
-	// configure sysbar on all panels
-	for (i=0 ; i < nb_panel ; i++) {
-	   panel = &panel1[i];
-	   sysbar = &panel->systray;
+	if (!systray.area.visible)
+		return;
 
-	   if (!run_systray) {
-	   	sysbar->area.visible = 0;
-	   	continue;
-		}
-	   if (!sysbar->area.visible)
-	   	continue;
+	// configure systray
+	// draw only one systray (even with multi panel)
+	systray.area.posy = panel->area.pix.border.width + panel->area.paddingy;
+	systray.area.height = panel->area.height - (2 * systray.area.posy);
+	systray.area.width = 0;
 
-		sysbar->area.parent = panel;
-		sysbar->area.panel = panel;
+	systray.area.posx = panel->area.width - panel->area.paddingxlr - panel->area.pix.border.width - systray.area.width;
+	if (panel->clock.area.visible)
+		systray.area.posx -= (panel->clock.area.width + panel->area.paddingx);
 
-		sysbar->area.posy = panel->area.pix.border.width + panel->area.paddingy;
-		sysbar->area.height = panel->area.height - (2 * sysbar->area.posy);
-		sysbar->area.width = 100;
-
-		sysbar->area.posx = panel->area.width - panel->area.paddingxlr - panel->area.pix.border.width - sysbar->area.width;
-	   if (panel->clock.area.visible)
-	   	sysbar->area.posx -= (panel->clock.area.width + panel->area.paddingx);
-
-		sysbar->area.redraw = 1;
-	}
+	systray.area.redraw = 1;
 }
 
 
 void cleanup_systray()
 {
-   Panel *panel;
-   int i;
-
-	for (i=0 ; i < nb_panel ; i++) {
-		panel = &panel1[i];
-	   if (!panel->systray.area.visible) continue;
-
-		free_area(&panel->systray.area);
-	}
+	free_area(&systray.area);
 
 	if (net_sel_win != None) {
   		XDestroyWindow(server.dsp, net_sel_win);
   		net_sel_win = None;
 	}
+   if (systray.list_icons) {
+      g_slist_free(systray.list_icons);
+      systray.list_icons = 0;
+   }
 }
 
 
@@ -137,15 +119,29 @@ int net_init()
 	ev.data.l[2] = net_sel_win;
 	ev.data.l[3] = 0;
 	ev.data.l[4] = 0;
-	XSendEvent(server.dsp, server.root_win, False, StructureNotifyMask, &ev);
+	XSendEvent(server.dsp, server.root_win, False, StructureNotifyMask, (XEvent*)&ev);
 
 	return 1;
 }
 
 
-int resize_systray (Systraybar *sysbar)
+void resize_systray (void *obj)
 {
-   return 0;
+	Systraybar *sysbar = obj;
+	Panel *panel = sysbar->area.panel;
+	int count = g_slist_length(systray.list_icons);
+
+	if (!count) systray.area.width = 0;
+	else systray.area.width = 30 * count;
+
+	systray.area.posx = panel->area.width - panel->area.paddingxlr - panel->area.pix.border.width - systray.area.width;
+	if (panel->clock.area.visible)
+		systray.area.posx -= (panel->clock.area.width + panel->area.paddingx);
+
+	systray.area.redraw = 1;
+
+	// resize other objects on panel
+	printf("resize_systray %d %d\n", systray.area.posx, systray.area.width);
 }
 
 
@@ -207,6 +203,16 @@ gboolean icon_add(Window id)
 	traywin = g_new0(TrayWindow, 1);
 	traywin->id = id;
 
+	systray.list_icons = g_slist_append(systray.list_icons, traywin);
+  	printf("ajout d'un icone %d (%lx)\n", g_slist_length(systray.list_icons), id);
+  	systray.area.resize = 1;
+
+	// changed in systray force resize on panel
+	Panel *panel = systray.area.panel;
+	panel->area.resize = 1;
+	panel_refresh = 1;
+	return TRUE;
+
 	if (!icon_swallow(traywin)) {
 		printf("not icon_swallow\n");
 		g_free(traywin);
@@ -224,7 +230,7 @@ gboolean icon_add(Window id)
 	icons = g_slist_append(icons, traywin);
 
 	// watch for the icon trying to resize itself!
-	XSelectInput(server.dsp, traywin->id, StructureNotifyMask);
+	//XSelectInput(server.dsp, traywin->id, StructureNotifyMask);
 
 	// position and size the icon window
 	XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
@@ -245,6 +251,39 @@ gboolean icon_add(Window id)
 }
 
 
+void icon_remove(TrayWindow *traywin)
+{
+	XErrorHandler old;
+	Window win_id = traywin->id;
+
+	XSelectInput(server.dsp, traywin->id, NoEventMask);
+
+	// remove it from our list
+	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
+	g_free(traywin);
+	printf("suppression d'un icone %d\n", g_slist_length(systray.list_icons));
+  	systray.area.resize = 1;
+
+	// changed in systray force resize on panel
+	Panel *panel = systray.area.panel;
+	panel->area.resize = 1;
+	panel_refresh = 1;
+	return;
+
+/*
+	// reparent it to root
+	error = FALSE;
+	old = XSetErrorHandler(window_error_handler);
+	XReparentWindow(server.dsp, win_id, root, 0, 0);
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+
+	reposition_icons();
+	fix_geometry();
+	*/
+}
+
+
 void net_message(XClientMessageEvent *e)
 {
 	unsigned long opcode;
@@ -256,7 +295,6 @@ void net_message(XClientMessageEvent *e)
 	case SYSTEM_TRAY_REQUEST_DOCK:
 		panel_refresh = 1;
 		id = e->data.l[2];
-		printf("add dockapp\n");
 		if (id && icon_add(id)) {
 			XSelectInput(server.dsp, id, StructureNotifyMask);
 		}

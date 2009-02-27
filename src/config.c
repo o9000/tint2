@@ -414,16 +414,16 @@ void add_entry (char *key, char *value)
    /* Systray */
    else if (strcmp (key, "systray_padding") == 0) {
       extract_values(value, &value1, &value2, &value3);
-      panel_config->systray.area.paddingxlr = panel_config->systray.area.paddingx = atoi (value1);
-      if (value2) panel_config->systray.area.paddingy = atoi (value2);
-      if (value3) panel_config->systray.area.paddingx = atoi (value3);
-      panel_config->systray.area.visible = 1;
+      systray.area.paddingxlr = systray.area.paddingx = atoi (value1);
+      if (value2) systray.area.paddingy = atoi (value2);
+      if (value3) systray.area.paddingx = atoi (value3);
+      systray.area.visible = 1;
    }
    else if (strcmp (key, "systray_background_id") == 0) {
       int id = atoi (value);
       Area *a = g_slist_nth_data(list_back, id);
-      memcpy(&panel_config->systray.area.pix.back, &a->pix.back, sizeof(Color));
-      memcpy(&panel_config->systray.area.pix.border, &a->pix.border, sizeof(Border));
+      memcpy(&systray.area.pix.back, &a->pix.back, sizeof(Color));
+      memcpy(&systray.area.pix.border, &a->pix.border, sizeof(Border));
    }
 
    /* Mouse actions */
@@ -560,7 +560,7 @@ void config_finish ()
 	// alloc panels
    int i;
    if (panel_config->monitor >= 0) {
-   	// just one monitor
+   	// one monitor
 	   nb_panel = 1;
 	   panel1 = calloc(nb_panel, sizeof(Panel));
 	   memcpy(panel1, panel_config, sizeof(Panel));
@@ -578,16 +578,9 @@ void config_finish ()
 	}
 
 	// TODO: user can configure layout => ordered objects in panel.area.list
-	// clock and systray before taskbar because resize(clock) can resize others object
+	// clock and systray before taskbar because resize(clock) can resize others object ??
    init_panel();
 	init_clock();
-   // force the resize
-	for (i=0 ; i < nb_panel ; i++) {
-	   panel1[i].area.resize = 1;
-	   if (panel1[i].clock.area.visible)
-		   resize_clock(&panel1[i].clock);
-	}
-
 	init_systray();
    init_taskbar();
    visible_object();

@@ -1,3 +1,14 @@
+2009-02-27
+- fixed issue 49 : better Makefile
+- some systray code (doesn't work)
+- cleanup code
+
+2009-02-25
+- fixed issue 48 : tint2 does't create config file on first start
+
+2009-02-14
+- fxed issue 45 : segfault without clock
+
 2009-02-13
 - improved object oriented layout
 - tint2 looks good for me. if you see bugs, report it.

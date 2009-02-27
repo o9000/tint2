@@ -55,6 +55,7 @@ void init ()
 
    // set global data
    memset(&server, 0, sizeof(Server_global));
+   memset(&systray, 0, sizeof(Systraybar));
 
    server.dsp = XOpenDisplay (NULL);
    if (!server.dsp) {
@@ -86,6 +87,7 @@ void init ()
 void cleanup()
 {
 	cleanup_panel();
+	cleanup_systray();
 
    if (time1_font_desc) pango_font_description_free(time1_font_desc);
    if (time2_font_desc) pango_font_description_free(time2_font_desc);
@@ -453,6 +455,7 @@ int main (int argc, char *argv[])
    int x11_fd, i, c;
    struct timeval tv;
    Panel *panel;
+	GSList *it;
 
    c = getopt (argc, argv, "c:");
    init ();
@@ -517,15 +520,12 @@ load_config:
 
 					case UnmapNotify:
 					case DestroyNotify:
-//	printf("destroy client\n");
-					/*
-						GSList *it;
-						for (it = icons; it; it = g_slist_next(it)) {
+						for (it = systray.list_icons; it; it = g_slist_next(it)) {
 							if (((TrayWindow*)it->data)->id == e.xany.window) {
-								icon_remove(it);
+								icon_remove((TrayWindow*)it->data);
 								break;
 							}
-						}*/
+						}
 					break;
 
 					case ClientMessage:
@@ -557,7 +557,7 @@ load_config:
 				if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
 				panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
 
-			 	refresh(panel);
+			 	refresh(&panel->area);
 			   XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
 			}
 			XFlush (server.dsp);

@@ -55,12 +55,14 @@ void init_panel()
 {
 	int i;
 	Panel *p;
+
 	for (i=0 ; i < nb_panel ; i++) {
 		p = &panel1[i];
 
 		p->area.parent = p;
 		p->area.panel = p;
 		p->area.visible = 1;
+	   p->area.resize = 1;
 		p->area._resize = resize_panel;
 		p->g_taskbar.parent = p;
 		p->g_taskbar.panel = p;
@@ -69,8 +71,10 @@ void init_panel()
 		// add childs
 	   if (p->clock.area.visible)
 			p->area.list = g_slist_append(p->area.list, &p->clock);
-	   if (p->systray.area.visible)
-			p->area.list = g_slist_append(p->area.list, &p->systray);
+	   if (systray.area.visible && i == 0) {
+	   	// systray only on first panel
+			p->area.list = g_slist_append(p->area.list, &systray);
+		}
 
 		// detect panel size
 		if (p->pourcentx)
@@ -173,10 +177,10 @@ void resize_panel(void *obj)
    else taskbar_on_screen = 1;
 
    taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
-   if (panel->clock.area.visible)
+   if (panel->clock.area.visible && panel->clock.area.width)
       taskbar_width -= (panel->clock.area.width + panel->area.paddingx);
-   if (panel->systray.area.visible)
-   	taskbar_width -= (panel->systray.area.width + panel->area.paddingx);
+   if (systray.area.visible && systray.area.width)
+   	taskbar_width -= (systray.area.width + panel->area.paddingx);
 
    taskbar_width = (taskbar_width - ((taskbar_on_screen-1) * panel->area.paddingx)) / taskbar_on_screen;
 

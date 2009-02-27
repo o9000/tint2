@@ -77,12 +77,6 @@ typedef struct {
    // clock
    Clock clock;
 
-   // --------------------------------------------------
-   // systray
-   Systraybar systray;
-
-	// global taskbar parameter
-	//Area g_systraybar;
 } Panel;
 
 
