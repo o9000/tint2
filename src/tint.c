@@ -140,7 +140,7 @@ void event_button_press (XEvent *e)
    int y = e->xbutton.y;
    for (l0 = panel->area.list; l0 ; l0 = l0->next) {
       tskbar = l0->data;
-      if (!tskbar->area.visible) continue;
+      if (!tskbar->area.on_screen) continue;
       if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
          break;
    }
@@ -190,7 +190,7 @@ void event_button_release (XEvent *e)
    GSList *l0;
    for (l0 = panel->area.list; l0 ; l0 = l0->next) {
       tskbar = l0->data;
-      if (!tskbar->area.visible) continue;
+      if (!tskbar->area.on_screen) continue;
       if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
          goto suite;
    }
@@ -403,6 +403,37 @@ void event_property_notify (XEvent *e)
 }
 
 
+void event_expose (XEvent *e)
+{
+   Panel *panel;
+
+	panel = get_panel(e->xany.window);
+	if (!panel) return;
+/*
+	if (systray.area.on_screen) {
+		// force trayer refresh
+		//XClearWindow(tray_data.dpy, ti->mid_parent);
+		//x11_send_visibility(tray_data.dpy, dst, VisibilityFullyObscured);
+		//x11_send_visibility(tray_data.dpy, dst, VisibilityUnobscured);
+
+		GSList *l;
+		TrayWindow *traywin;
+		for (l = systray.list_icons; l ; l = l->next) {
+			traywin = (TrayWindow*)l->data;
+			// send Expose event
+			XClearArea(server.dsp, traywin->id, 0, 0, systray.area.width, systray.area.height, True);
+			//printf("expose %lx\n", traywin->id);
+		}
+
+		//x11_refresh_window(tray_data.dpy, ti->wid, ti->l.wnd_sz.x, ti->l.wnd_sz.y, True);
+	}
+*/
+   panel_refresh = 1;
+	//XCopyArea (server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
+
+}
+
+
 void event_configure_notify (Window win)
 {
    if (panel_mode != SINGLE_MONITOR) return;
@@ -498,17 +529,15 @@ load_config:
                   break;
 
                case ButtonRelease:
-                  event_button_release (&e);
+                  event_button_release(&e);
                   break;
 
                case Expose:
-               	panel = get_panel(e.xany.window);
-               	if (!panel) break;
-                  XCopyArea (server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
+               	event_expose(&e);
                   break;
 
                case PropertyNotify:
-                  event_property_notify (&e);
+                  event_property_notify(&e);
                   break;
 
                case ConfigureNotify:

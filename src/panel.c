@@ -61,7 +61,7 @@ void init_panel()
 
 		p->area.parent = p;
 		p->area.panel = p;
-		p->area.visible = 1;
+		p->area.on_screen = 1;
 	   p->area.resize = 1;
 		p->area._resize = resize_panel;
 		p->g_taskbar.parent = p;
@@ -69,9 +69,9 @@ void init_panel()
 		p->g_task.area.panel = p;
 
 		// add childs
-	   if (p->clock.area.visible)
+	   if (p->clock.area.on_screen)
 			p->area.list = g_slist_append(p->area.list, &p->clock);
-	   if (systray.area.visible && i == 0) {
+	   if (systray.area.on_screen && i == 0) {
 	   	// systray only on first panel
 			p->area.list = g_slist_append(p->area.list, &systray);
 		}
@@ -177,9 +177,10 @@ void resize_panel(void *obj)
    else taskbar_on_screen = 1;
 
    taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
-   if (panel->clock.area.visible && panel->clock.area.width)
+   if (panel->clock.area.on_screen && panel->clock.area.width)
       taskbar_width -= (panel->clock.area.width + panel->area.paddingx);
-   if (systray.area.visible && systray.area.width)
+   // TODO : systray only on first panel. search better implementation !
+   if (systray.area.on_screen && systray.area.width && panel == &panel1[0])
    	taskbar_width -= (systray.area.width + panel->area.paddingx);
 
    taskbar_width = (taskbar_width - ((taskbar_on_screen-1) * panel->area.paddingx)) / taskbar_on_screen;
@@ -222,10 +223,10 @@ void visible_object()
 			taskbar = &panel->taskbar[j];
 			if (panel_mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) {
 				// (SINGLE_DESKTOP or SINGLE_MONITOR) and not current desktop
-				taskbar->area.visible = 0;
+				taskbar->area.on_screen = 0;
 			}
 			else {
-				taskbar->area.visible = 1;
+				taskbar->area.on_screen = 1;
 			}
 		}
 	}

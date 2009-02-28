@@ -52,15 +52,15 @@ void init_taskbar()
 		panel->g_taskbar.posy = panel->area.pix.border.width + panel->area.paddingy;
 		panel->g_taskbar.height = panel->area.height - (2 * panel->g_taskbar.posy);
 		panel->g_taskbar.redraw = 1;
-		panel->g_taskbar.visible = 1;
+		panel->g_taskbar.on_screen = 1;
 
 		// task
-		panel->g_task.area._draw_foreground = draw_foreground_task;
+		panel->g_task.area._draw_foreground = draw_task;
 		panel->g_task.area.posy = panel->g_taskbar.posy + panel->g_taskbar.pix.border.width + panel->g_taskbar.paddingy;
 		panel->g_task.area.height = panel->area.height - (2 * panel->g_task.area.posy);
 		panel->g_task.area.use_active = 1;
 		panel->g_task.area.redraw = 1;
-		panel->g_task.area.visible = 1;
+		panel->g_task.area.on_screen = 1;
 
 		if (panel->g_task.area.pix.border.rounded > panel->g_task.area.height/2) {
 			panel->g_task.area.pix.border.rounded = panel->g_task.area.height/2;

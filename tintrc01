@@ -52,6 +52,11 @@ task_active_font_color = #ffffff 85
 task_background_id = 3
 task_active_background_id = 2
 
+#---------------------------------------------
+# SYSTRAYBAR
+#---------------------------------------------
+systray_padding = 0 3 3
+systray_background_id = 0
 
 #---------------------------------------------
 # CLOCK
@@ -61,7 +66,7 @@ time1_font = sans 8
 time2_format = %A %d %B
 time2_font = sans 6
 clock_font_color = #ffffff 76
-clock_padding = 4 0
+clock_padding = 1 0
 clock_background_id = 0
 
 #---------------------------------------------

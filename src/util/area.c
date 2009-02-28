@@ -35,9 +35,12 @@
 // 4) redraw child
 void refresh (Area *a)
 {
-	if (!a->visible) return;
+	// don't draw and resize hide objects
+	if (!a->on_screen) return;
 
 	size(a);
+
+	// don't draw transparent objects (without foreground and without background)
 
    if (a->redraw) {
 	   a->redraw = 0;
@@ -49,6 +52,7 @@ void refresh (Area *a)
 
 	// draw current Area
    Pixmap *pmap = (a->is_active == 0) ? (&a->pix.pmap) : (&a->pix_active.pmap);
+	if (*pmap == 0) printf("empty area posx %d, width %d\n", a->posx, a->width);
    XCopyArea (server.dsp, *pmap, ((Panel *)a->panel)->temp_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
 
    // and then refresh child object

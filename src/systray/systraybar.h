@@ -9,9 +9,7 @@
 #ifndef SYSTRAYBAR_H
 #define SYSTRAYBAR_H
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
+#include "common.h"
 #include "area.h"
 
 
@@ -43,7 +41,9 @@ int net_init();
 void net_message(XClientMessageEvent *e);
 void icon_remove(TrayWindow *traywin);
 
-void resize_systray (void *obj);
+void draw_systray(void *obj, cairo_t *c, int active);
+
+void resize_systray(void *obj);
 
 
 #endif

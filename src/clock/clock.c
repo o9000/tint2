@@ -53,10 +53,10 @@ void init_clock()
 
 		clock->area.parent = panel;
 		clock->area.panel = panel;
-		if (!clock->area.visible) return;
-
-		clock->area._draw_foreground = draw_foreground_clock;
+		clock->area._draw_foreground = draw_clock;
 		clock->area._resize = resize_clock;
+
+		if (!clock->area.on_screen) continue;
 
 		if (strchr(time1_format, 'S') == NULL) time_precision = 60;
 		else time_precision = 1;
@@ -89,12 +89,12 @@ void init_clock()
 }
 
 
-void draw_foreground_clock (void *obj, cairo_t *c, int active)
+void draw_clock (void *obj, cairo_t *c, int active)
 {
    Clock *clock = obj;
    PangoLayout *layout;
 
-   //printf("  draw_foreground_clock : %s en (%d, %d)\n", buf_time, clock->area.posx, clock->area.width);
+   //printf("  draw_clock : %s en (%d, %d)\n", buf_time, clock->area.posx, clock->area.width);
    layout = pango_cairo_create_layout (c);
 
    // draw layout

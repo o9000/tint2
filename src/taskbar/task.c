@@ -283,7 +283,7 @@ void draw_task_icon (Task *tsk, int text_width, int active)
 }
 
 
-void draw_foreground_task (void *obj, cairo_t *c, int active)
+void draw_task (void *obj, cairo_t *c, int active)
 {
    Task *tsk = obj;
    PangoLayout *layout;

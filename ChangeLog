@@ -1,5 +1,10 @@
+2009-03-01
+- cleanup code
+- basic systray with some bugs
+- update documentation and tintrc sample for systray
+
 2009-02-27
-- fixed issue 49 : better Makefile
+- fixed issue 49 : patch from Daniel Moerner
 - some systray code (doesn't work)
 - cleanup code
 
@@ -7,7 +12,7 @@
 - fixed issue 48 : tint2 does't create config file on first start
 
 2009-02-14
-- fxed issue 45 : segfault without clock
+- fixed issue 45 : segfault without clock
 
 2009-02-13
 - improved object oriented layout

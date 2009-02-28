@@ -57,8 +57,8 @@ task_active_background_id = 3
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
-systray_padding = 4 2 2
-systray_background_id = 2
+systray_padding = 0 2 2
+systray_background_id = 0
 
 #---------------------------------------------
 # CLOCK
@@ -68,7 +68,7 @@ time1_font = sans 7
 time2_format = %A %d %B
 time2_font = sans 7
 clock_font_color = #ffffff 100
-clock_padding = 2 0
+clock_padding = 1 0
 clock_background_id = 0
 
 #---------------------------------------------

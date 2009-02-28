@@ -60,7 +60,7 @@ typedef struct {
    // list of child : Area object
    GSList *list;
 
-	int visible;
+	int on_screen;
 	// need compute position and width
 	int resize;
    // need redraw Pixmap
