@@ -39,7 +39,7 @@ void init_systray();
 void cleanup_systray();
 int net_init();
 void net_message(XClientMessageEvent *e);
-void icon_remove(TrayWindow *traywin);
+void remove_icon(TrayWindow *traywin);
 
 void draw_systray(void *obj, cairo_t *c, int active);
 

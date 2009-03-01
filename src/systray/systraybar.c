@@ -82,16 +82,22 @@ void init_systray()
 
 void cleanup_systray()
 {
+   if (systray.list_icons) {
+		GSList *it;
+
+		for (it = systray.list_icons; it; it = it->next)
+			remove_icon((TrayWindow*)it->data);
+
+      g_slist_free(systray.list_icons);
+      systray.list_icons = 0;
+   }
+
 	free_area(&systray.area);
 
 	if (net_sel_win != None) {
   		XDestroyWindow(server.dsp, net_sel_win);
   		net_sel_win = None;
 	}
-   if (systray.list_icons) {
-      g_slist_free(systray.list_icons);
-      systray.list_icons = 0;
-   }
 }
 
 
@@ -196,12 +202,9 @@ int net_init()
 }
 
 
-//Window win, root;
-int width, height;
-int border;
-int icon_size;
+//int width, height;
 
-
+/*
 void fix_geometry()
 {
   GSList *it;
@@ -216,7 +219,7 @@ void fix_geometry()
 
   XResizeWindow(server.dsp, panel->main_win, width + border * 2, height + border * 2);
 }
-
+*/
 
 gboolean error;
 int window_error_handler(Display *d, XErrorEvent *e)
@@ -232,14 +235,14 @@ int window_error_handler(Display *d, XErrorEvent *e)
 }
 
 
-gboolean icon_swallow(TrayWindow *traywin)
+gboolean icon_swallow(Window id)
 {
   XErrorHandler old;
   Panel *panel = systray.area.panel;
 
   error = FALSE;
   old = XSetErrorHandler(window_error_handler);
-  XReparentWindow(server.dsp, traywin->id, panel->main_win, 0, 0);
+  XReparentWindow(server.dsp, id, panel->main_win, 0, 0);
   XSync(server.dsp, False);
   XSetErrorHandler(old);
 
@@ -248,9 +251,14 @@ gboolean icon_swallow(TrayWindow *traywin)
 
 
 // The traywin must have its id and type set.
-gboolean icon_add(Window id)
+gboolean add_icon(Window id)
 {
 	TrayWindow *traywin;
+
+	if (!icon_swallow(id)) {
+		fprintf(stderr, "tint2 : not icon_swallow\n");
+		return FALSE;
+	}
 
 	traywin = g_new0(TrayWindow, 1);
 	traywin->id = id;
@@ -264,15 +272,6 @@ gboolean icon_add(Window id)
 	Panel *panel = systray.area.panel;
 	panel->area.resize = 1;
 	panel_refresh = 1;
-
-	if (!icon_swallow(traywin)) {
-		printf("not icon_swallow\n");
-		g_free(traywin);
-		return FALSE;
-	}
-	else
-		printf("icon_swallow\n");
-	//return TRUE;
 
 // => calcul x, y, width, height dans resize
 /*
@@ -291,14 +290,20 @@ gboolean icon_add(Window id)
 }
 
 
-void icon_remove(TrayWindow *traywin)
+void remove_icon(TrayWindow *traywin)
 {
 	XErrorHandler old;
-	Window win_id = traywin->id;
 
 	XSelectInput(server.dsp, traywin->id, NoEventMask);
 
-	// remove it from our list
+	// reparent to root
+	error = FALSE;
+	old = XSetErrorHandler(window_error_handler);
+	XReparentWindow(server.dsp, traywin->id, server.root_win, 0, 0);
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+
+	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
 	g_free(traywin);
 	printf("suppression d'un icone %d\n", g_slist_length(systray.list_icons));
@@ -308,19 +313,7 @@ void icon_remove(TrayWindow *traywin)
 	Panel *panel = systray.area.panel;
 	panel->area.resize = 1;
 	panel_refresh = 1;
-	return;
 
-/*
-	// reparent it to root
-	error = FALSE;
-	old = XSetErrorHandler(window_error_handler);
-	XReparentWindow(server.dsp, win_id, root, 0, 0);
-	XSync(server.dsp, False);
-	XSetErrorHandler(old);
-
-	reposition_icons();
-	fix_geometry();
-	*/
 }
 
 
@@ -334,7 +327,7 @@ void net_message(XClientMessageEvent *e)
 	switch (opcode) {
 		case SYSTEM_TRAY_REQUEST_DOCK:
 			id = e->data.l[2];
-			if (id) icon_add(id);
+			if (id) add_icon(id);
 			break;
 
 		case SYSTEM_TRAY_BEGIN_MESSAGE:
@@ -358,91 +351,4 @@ void net_message(XClientMessageEvent *e)
 }
 
 
-/*
-void event_loop()
-{
-  XEvent e;
-  Window cover;
-  GSList *it;
-
-  while (!exit_app) {
-    while (XPending(server.dsp)) {
-      XNextEvent(display, &e);
-
-      switch (e.type)
-      {
-      case PropertyNotify:
-        // systray window list has changed?
-        if (e.xproperty.atom == kde_systray_prop) {
-          XSelectInput(display, win, NoEventMask);
-          kde_update_icons();
-          XSelectInput(display, win, StructureNotifyMask);
-
-          while (XCheckTypedEvent(display, PropertyNotify, &e));
-        }
-
-        break;
-
-      case ConfigureNotify:
-        if (e.xany.window != win) {
-          // find the icon it pertains to and beat it into submission
-          GSList *it;
-
-          for (it = icons; it != NULL; it = g_slist_next(it)) {
-            TrayWindow *traywin = it->data;
-            if (traywin->id == e.xany.window) {
-              XMoveResizeWindow(display, traywin->id, traywin->x, traywin->y,
-                                icon_size, icon_size);
-              break;
-            }
-          }
-          break;
-        }
-
-        // briefly cover the entire containing window, which causes it and
-        // all of the icons to refresh their windows. finally, they update
-        // themselves when the background of the main window's parent changes.
-
-        cover = XCreateSimpleWindow(display, win, 0, 0,
-                                    border * 2 + width, border * 2 + height,
-                                    0, 0, 0);
-        XMapWindow(display, cover);
-        XDestroyWindow(display, cover);
-
-        break;
-
-      case ReparentNotify:
-        if (e.xany.window == win) // reparented to us
-          break;
-      case UnmapNotify:
-      case DestroyNotify:
-        for (it = icons; it; it = g_slist_next(it)) {
-          if (((TrayWindow*)it->data)->id == e.xany.window) {
-            icon_remove(it);
-            break;
-          }
-        }
-        break;
-
-      case ClientMessage:
-        if (e.xclient.message_type == net_opcode_atom &&
-            e.xclient.format == 32 &&
-            e.xclient.window == net_sel_win)
-          net_message(&e.xclient);
-
-      default:
-        break;
-      }
-    }
-    usleep(500000);
-  }
-
-  // remove/unparent all the icons
-  while (icons) {
-    // do the remove here explicitly, cuz the event handler isn't going to
-    // happen anymore.
-    icon_remove(icons);
-  }
-}
-*/
 

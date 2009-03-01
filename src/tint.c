@@ -86,8 +86,8 @@ void init ()
 
 void cleanup()
 {
-	cleanup_panel();
 	cleanup_systray();
+	cleanup_panel();
 
    if (time1_font_desc) pango_font_description_free(time1_font_desc);
    if (time2_font_desc) pango_font_description_free(time2_font_desc);
@@ -551,7 +551,7 @@ load_config:
 					case DestroyNotify:
 						for (it = systray.list_icons; it; it = g_slist_next(it)) {
 							if (((TrayWindow*)it->data)->id == e.xany.window) {
-								icon_remove((TrayWindow*)it->data);
+								remove_icon((TrayWindow*)it->data);
 								break;
 							}
 						}

@@ -1,4 +1,7 @@
 2009-03-01
+- fixed segfault on tray application due to tint2
+
+2009-03-01
 - cleanup code
 - basic systray with some bugs
 - update documentation and tintrc sample for systray
