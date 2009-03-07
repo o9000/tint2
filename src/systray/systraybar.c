@@ -45,23 +45,14 @@ Systraybar systray;
 
 void init_systray()
 {
-	cleanup_systray();
-
 	Panel *panel = &panel1[0];
 	systray.area.parent = panel;
 	systray.area.panel = panel;
 	systray.area._draw_foreground = draw_systray;
 	systray.area._resize = resize_systray;
 
-	if (systray.area.on_screen) {
-		if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != None) {
-			fprintf(stderr, "tint2 : another systray is running\n");
-			systray.area.on_screen = 0;
-		}
-	}
-
 	if (systray.area.on_screen)
-		systray.area.on_screen = net_init();
+		systray.area.on_screen = init_net();
 
 	if (!systray.area.on_screen)
 		return;
@@ -94,10 +85,7 @@ void cleanup_systray()
 
 	free_area(&systray.area);
 
-	if (net_sel_win != None) {
-  		XDestroyWindow(server.dsp, net_sel_win);
-  		net_sel_win = None;
-	}
+	cleanup_net();
 }
 
 
@@ -109,11 +97,11 @@ void draw_systray(void *obj, cairo_t *c, int active)
 	GSList *l;
 	int icon_size;
 
+	printf("draw_systray %d %d\n", systray.area.posx, systray.area.width);
 	icon_size = sysbar->area.height - (2 * sysbar->area.pix.border.width) - (2 * sysbar->area.paddingy);
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
 
-		printf("draw_systray %d %d\n", systray.area.posx, systray.area.width);
 		// watch for the icon trying to resize itself!
 		XSelectInput(server.dsp, traywin->id, StructureNotifyMask);
 
@@ -171,8 +159,13 @@ void resize_systray(void *obj)
 }
 
 
-int net_init()
+int init_net()
 {
+	if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != None) {
+		fprintf(stderr, "tint2 : another systray is running\n");
+		return 0;
+	}
+
 	// init systray protocol
    net_sel_win = XCreateSimpleWindow(server.dsp, server.root_win, -1, -1, 1, 1, 0, 0, 0);
 
@@ -202,7 +195,13 @@ int net_init()
 }
 
 
-//int width, height;
+void cleanup_net()
+{
+	if (net_sel_win != None) {
+  		XDestroyWindow(server.dsp, net_sel_win);
+  		net_sel_win = None;
+	}
+}
 
 /*
 void fix_geometry()

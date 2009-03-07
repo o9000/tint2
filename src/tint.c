@@ -86,7 +86,6 @@ void init ()
 
 void cleanup()
 {
-	cleanup_systray();
 	cleanup_panel();
 
    if (time1_font_desc) pango_font_description_free(time1_font_desc);
@@ -549,6 +548,7 @@ load_config:
 
 					case UnmapNotify:
 					case DestroyNotify:
+						if (!systray.area.on_screen) break;
 						for (it = systray.list_icons; it; it = g_slist_next(it)) {
 							if (((TrayWindow*)it->data)->id == e.xany.window) {
 								remove_icon((TrayWindow*)it->data);
@@ -558,6 +558,7 @@ load_config:
 					break;
 
 					case ClientMessage:
+						if (!systray.area.on_screen) break;
 						//printf("ClientMessage\n");
 						if (e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
 							net_message(&e.xclient);

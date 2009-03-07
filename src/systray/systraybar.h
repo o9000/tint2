@@ -37,8 +37,11 @@ extern Systraybar systray;
 
 void init_systray();
 void cleanup_systray();
-int net_init();
+
+int init_net();
+void cleanup_net();
 void net_message(XClientMessageEvent *e);
+
 void remove_icon(TrayWindow *traywin);
 
 void draw_systray(void *obj, cairo_t *c, int active);

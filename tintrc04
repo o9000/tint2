@@ -50,7 +50,7 @@ task_active_background_id = 2
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
-systray_padding = 5 3 5
+systray_padding = 6 2 6
 systray_background_id = 1
 
 #---------------------------------------------

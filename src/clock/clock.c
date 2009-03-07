@@ -177,6 +177,7 @@ void resize_clock (void *obj)
 		for (i=0 ; i < nb_panel ; i++) {
 			panel1[i].area.resize = 1;
 		}
+		systray.area.resize = 1;
 		panel_refresh = 1;
    }
 

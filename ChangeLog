@@ -1,3 +1,8 @@
+2009-03-07
+- fixed segfault when time1_format empty
+- fixed systray : when clock change size
+- fixed systray segfault when xrandr change size
+
 2009-03-01
 - fixed segfault on tray application due to tint2
 

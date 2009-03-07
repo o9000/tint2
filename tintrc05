@@ -22,7 +22,7 @@ panel_monitor = all
 panel_position = bottom center
 panel_size = 95% 22
 panel_margin = 0 0
-panel_padding = 7 0
+panel_padding = 0 0 0
 font_shadow = 0
 panel_background_id = 1
 
@@ -50,18 +50,18 @@ task_active_background_id = 2
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
-systray_padding = 0 3 4
+systray_padding = 4 3 4
 systray_background_id = 0
 
 #---------------------------------------------
 # CLOCK
 #---------------------------------------------
-time1_format = %H:%M
+time1_format = %H:%M:%S
 time1_font = sans 13
 #time2_format = %A %d %B
 time2_font = sans 7
 clock_font_color = #ffffff 90
-clock_padding = 1 0
+clock_padding = 4 0
 clock_background_id = 0
 
 #---------------------------------------------

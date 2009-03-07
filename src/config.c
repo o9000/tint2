@@ -309,9 +309,14 @@ void add_entry (char *key, char *value)
    /* Clock */
    else if (strcmp (key, "time1_format") == 0) {
       if (time1_format) g_free(time1_format);
-      if (strlen(value) > 0) time1_format = strdup (value);
-      else time1_format = 0;
-      panel_config->clock.area.on_screen = 1;
+      if (strlen(value) > 0) {
+      	time1_format = strdup (value);
+	      panel_config->clock.area.on_screen = 1;
+		}
+      else {
+      	time1_format = 0;
+	      panel_config->clock.area.on_screen = 0;
+		}
    }
    else if (strcmp (key, "time2_format") == 0) {
       if (time2_format) g_free(time2_format);

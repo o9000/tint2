@@ -134,6 +134,7 @@ void cleanup_panel()
 {
 	if (!panel1) return;
 
+	cleanup_systray();
    cleanup_taskbar();
 
 	// font allocated once
