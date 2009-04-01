@@ -759,6 +759,12 @@ void save_config ()
    fputs("task_active_background_id = 3\n", fp);
 
    fputs("\n#---------------------------------------------\n", fp);
+   fputs("# SYSTRAYBAR\n", fp);
+   fputs("#---------------------------------------------\n", fp);
+   fputs("systray_padding = 4 3 4\n", fp);
+   fputs("systray_background_id = 0\n", fp);
+
+   fputs("\n#---------------------------------------------\n", fp);
    fputs("# CLOCK\n", fp);
    fputs("#---------------------------------------------\n", fp);
 	if (time1_format) fprintf(fp, "time1_format = %s\n", time1_format);

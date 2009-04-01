@@ -7,13 +7,13 @@
 #---------------------------------------------
 rounded = 1
 border_width = 0
-background_color = #282828 40
+background_color = #282828 60
 border_color = #000000 0
 
 rounded = 1
 border_width = 1
 background_color = #cccccc 0
-border_color = #cccccc 30
+border_color = #cccccc 55
 
 rounded = 1
 border_width = 0
@@ -25,7 +25,7 @@ border_color = #cccccc 40
 #---------------------------------------------
 panel_monitor = all
 panel_position = bottom center
-panel_size = 92% 30
+panel_size = 95% 30
 panel_margin = 0 0
 panel_padding = 7 3 7
 font_shadow = 0
@@ -57,7 +57,7 @@ task_active_background_id = 3
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
-systray_padding = 0 2 3
+systray_padding = 0 4 3
 systray_background_id = 0
 
 #---------------------------------------------

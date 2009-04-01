@@ -37,7 +37,7 @@ GSList *icons;
 #define SYSTEM_TRAY_CANCEL_MESSAGE  2
 
 // selection window
-Window net_sel_win = None;
+Window net_sel_win = None, hint_win = None;
 
 // freedesktop specification doesn't allow multi systray
 Systraybar systray;
@@ -158,6 +158,29 @@ void resize_systray(void *obj)
 	printf("resize_systray %d %d\n", systray.area.posx, systray.area.width);
 }
 
+/*
+void create_hint_win()
+{
+   XWMHints hints;
+   XClassHint classhints;
+	Panel *panel = systray.area.panel;
+
+	hint_win = XCreateSimpleWindow(server.dsp, server.root_win, 0, 0, 1, 1, 0, 0, 0);
+
+	hints.flags = StateHint | WindowGroupHint | IconWindowHint;
+	hints.initial_state = WithdrawnState;
+	hints.window_group = hint_win;
+	hints.icon_window = panel->main_win;
+
+	classhints.res_name = "docker";
+	classhints.res_class = "Docker";
+
+	XSetWMProperties(server.dsp, hint_win, NULL, NULL, NULL, 0,
+						 NULL, &hints, &classhints);
+
+	XMapWindow(server.dsp, hint_win);
+}
+*/
 
 int init_net()
 {
@@ -165,6 +188,8 @@ int init_net()
 		fprintf(stderr, "tint2 : another systray is running\n");
 		return 0;
 	}
+
+	//create_hint_win();
 
 	// init systray protocol
    net_sel_win = XCreateSimpleWindow(server.dsp, server.root_win, -1, -1, 1, 1, 0, 0, 0);
@@ -202,6 +227,7 @@ void cleanup_net()
   		net_sel_win = None;
 	}
 }
+
 
 /*
 void fix_geometry()

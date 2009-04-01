@@ -1,3 +1,7 @@
+2009-03-14
+- add systray option when convert tint-0.6 config file
+  but you need to stop other systemtray program
+
 2009-03-07
 - fixed segfault when time1_format empty
 - fixed systray : when clock change size
