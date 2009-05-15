@@ -40,6 +40,7 @@
 #include "taskbar.h"
 #include "systraybar.h"
 #include "clock.h"
+#include "battery.h"
 #include "panel.h"
 #include "config.h"
 #include "window.h"
@@ -53,6 +54,8 @@ static char *old_time1_font;
 static char *old_time2_font;
 static Area *area_task, *area_task_active;
 
+static char *old_bat1_font;
+static char *old_bat2_font;
 
 // temporary panel
 static Panel *panel_config = 0;
@@ -304,6 +307,50 @@ void add_entry (char *key, char *value)
       Area *a = g_slist_nth_data(list_back, id);
       memcpy(&panel_config->area.pix.back, &a->pix.back, sizeof(Color));
       memcpy(&panel_config->area.pix.border, &a->pix.border, sizeof(Border));
+   }
+
+   /* Battery */
+   else if (strcmp (key, "battery") == 0) {
+		if(atoi(value) == 1)
+			panel_config->battery.area.on_screen = 1;
+   }
+   else if (strcmp (key, "battery_low_status") == 0) {
+		battery_low_status = atoi(value);
+		if(battery_low_status < 0 || battery_low_status > 100)
+			battery_low_status = 0;
+   }
+   else if (strcmp (key, "battery_low_cmd") == 0) {
+      if (battery_low_cmd) g_free(battery_low_cmd);
+      if (strlen(value) > 0) battery_low_cmd = strdup (value);
+      else battery_low_cmd = 0;
+   }
+   else if (strcmp (key, "bat1_font") == 0) {
+   	if (save_file_config) old_bat1_font = strdup (value);
+      if (bat1_font_desc) pango_font_description_free(bat1_font_desc);
+      bat1_font_desc = pango_font_description_from_string (value);
+   }
+   else if (strcmp (key, "bat2_font") == 0) {
+   	if (save_file_config) old_bat2_font = strdup (value);
+      if (bat2_font_desc) pango_font_description_free(bat2_font_desc);
+      bat2_font_desc = pango_font_description_from_string (value);
+   }
+   else if (strcmp (key, "battery_font_color") == 0) {
+      extract_values(value, &value1, &value2, &value3);
+      get_color (value1, panel_config->battery.font.color);
+      if (value2) panel_config->battery.font.alpha = (atoi (value2) / 100.0);
+      else panel_config->battery.font.alpha = 0.5;
+   }
+   else if (strcmp (key, "battery_padding") == 0) {
+      extract_values(value, &value1, &value2, &value3);
+      panel_config->battery.area.paddingxlr = panel_config->battery.area.paddingx = atoi (value1);
+      if (value2) panel_config->battery.area.paddingy = atoi (value2);
+      if (value3) panel_config->battery.area.paddingx = atoi (value3);
+   }
+   else if (strcmp (key, "battery_background_id") == 0) {
+      int id = atoi (value);
+      Area *a = g_slist_nth_data(list_back, id);
+      memcpy(&panel_config->battery.area.pix.back, &a->pix.back, sizeof(Color));
+      memcpy(&panel_config->battery.area.pix.border, &a->pix.border, sizeof(Border));
    }
 
    /* Clock */
@@ -586,9 +633,10 @@ void config_finish ()
 	// clock and systray before taskbar because resize(clock) can resize others object ??
    init_panel();
 	init_clock();
+	init_battery();
 	init_systray();
-   init_taskbar();
-   visible_object();
+	init_taskbar();
+	visible_object();
 
 	cleanup_config();
 
@@ -776,6 +824,18 @@ void save_config ()
 	fprintf(fp, "clock_font_color = #%02x%02x%02x %d\n", (int)(panel_config->clock.font.color[0]*255), (int)(panel_config->clock.font.color[1]*255), (int)(panel_config->clock.font.color[2]*255), (int)(panel_config->clock.font.alpha*100));
    fputs("clock_padding = 2 2\n", fp);
    fputs("clock_background_id = 0\n", fp);
+
+	fputs("\n#---------------------------------------------\n", fp);
+	fputs("# BATTERY\n", fp);
+	fputs("#---------------------------------------------\n", fp);
+	fprintf(fp, "battery = %d\n", panel_config->battery.area.on_screen);
+	fprintf(fp, "battery_low_status = %d\n", battery_low_status);
+	fprintf(fp, "battery_low_cmd = %s\n", battery_low_cmd);
+	fprintf(fp, "bat1_font = %s\n", old_bat1_font);
+	fprintf(fp, "bat2_font = %s\n", old_bat2_font);
+	fprintf(fp, "battery_font_color = #%02x%02x%02x %d\n", (int)(panel_config->battery.font.color[0]*255), (int)(panel_config->battery.font.color[1]*255), (int)(panel_config->battery.font.color[2]*255), (int)(panel_config->battery.font.alpha*100));
+	fputs("battery_padding = 2 2\n", fp);
+	fputs("battery_background_id = 0\n", fp);
 
    fputs("\n#---------------------------------------------\n", fp);
    fputs("# MOUSE ACTION ON TASK\n", fp);

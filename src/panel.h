@@ -14,6 +14,7 @@
 #include <pango/pangocairo.h>
 #include <sys/time.h>
 
+#include "battery.h"
 #include "common.h"
 #include "clock.h"
 #include "task.h"
@@ -76,6 +77,10 @@ typedef struct {
    // --------------------------------------------------
    // clock
    Clock clock;
+
+	// --------------------------------------------------
+	// battery
+	Battery battery;
 
 } Panel;
 

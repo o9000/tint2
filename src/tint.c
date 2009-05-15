@@ -92,6 +92,7 @@ void cleanup()
    if (time2_font_desc) pango_font_description_free(time2_font_desc);
    if (time1_format) g_free(time1_format);
    if (time2_format) g_free(time2_format);
+	if (battery_low_cmd) g_free(battery_low_cmd);
 
    if (server.monitor) free(server.monitor);
    XFreeGC(server.dsp, server.gc);
@@ -136,7 +137,7 @@ void event_button_press (XEvent *e)
    GSList *l0;
    Taskbar *tskbar;
    int x = e->xbutton.x;
-   int y = e->xbutton.y;
+   //int y = e->xbutton.y; // unused
    for (l0 = panel->area.list; l0 ; l0 = l0->next) {
       tskbar = l0->data;
       if (!tskbar->area.on_screen) continue;
@@ -168,7 +169,7 @@ void event_button_release (XEvent *e)
 
    int action = TOGGLE_ICONIFY;
    int x = e->xbutton.x;
-   int y = e->xbutton.y;
+   //int y = e->xbutton.y; // unused
    switch (e->xbutton.button) {
       case 2:
          action = mouse_middle;
@@ -466,15 +467,19 @@ void event_timer()
 
    if (abs(stv.tv_sec - time_clock.tv_sec) < time_precision) return;
 
-   // update clock
-   time_clock.tv_sec = stv.tv_sec;
-   time_clock.tv_sec -= time_clock.tv_sec % time_precision;
+	// update battery
+	update_battery(&battery_state);
+
+	// update clock
+	time_clock.tv_sec = stv.tv_sec;
+	time_clock.tv_sec -= time_clock.tv_sec % time_precision;
 
 	int i;
 	for (i=0 ; i < nb_panel ; i++) {
 	   panel1[i].clock.area.resize = 1;
+		panel1[i].battery.area.resize = 1;
 	}
-   panel_refresh = 1;
+	panel_refresh = 1;
 }
 
 

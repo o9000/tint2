@@ -72,6 +72,18 @@ clock_padding = 1 0
 clock_background_id = 0
 
 #---------------------------------------------
+# BATTERY
+#---------------------------------------------
+battery = 1
+battery_low_status = 7
+battery_low_cmd = notify-send "battery low"
+bat1_font = sans 7
+bat2_font = sans 7
+battery_font_color = #ffffff 100
+battery_padding = 1 0
+battery_background_id = 0
+
+#---------------------------------------------
 # MOUSE ACTION ON TASK
 #---------------------------------------------
 mouse_middle = none

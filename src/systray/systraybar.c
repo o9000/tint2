@@ -66,6 +66,8 @@ void init_systray()
 	systray.area.posx = panel->area.width - panel->area.paddingxlr - panel->area.pix.border.width - systray.area.width;
 	if (panel->clock.area.on_screen)
 		systray.area.posx -= (panel->clock.area.width + panel->area.paddingx);
+	if (panel->battery.area.on_screen)
+		systray.area.posx -= (panel->battery.area.width + panel->area.paddingx);
 
 	systray.area.redraw = 1;
 }
@@ -141,6 +143,8 @@ void resize_systray(void *obj)
 	systray.area.posx = panel->area.width - panel->area.pix.border.width - panel->area.paddingxlr - systray.area.width;
 	if (panel->clock.area.on_screen)
 		systray.area.posx -= (panel->clock.area.width + panel->area.paddingx);
+	if (panel->battery.area.on_screen)
+		systray.area.posx -= (panel->battery.area.width + panel->area.paddingx);
 
 	systray.area.redraw = 1;
 

@@ -2,7 +2,7 @@ CFLAGS= -O2
 CC = gcc
 FLAGS=-Wall -g `pkg-config --cflags --libs cairo pangocairo x11 xinerama xrandr imlib2 glib-2.0`
 PROGNAME=tint2
-FILES=tint.c server.c panel.c config.c taskbar/task.c taskbar/taskbar.c clock/clock.c systray/systraybar.c util/window.c util/area.c
+FILES=tint.c server.c panel.c config.c taskbar/task.c taskbar/taskbar.c battery/battery.c clock/clock.c systray/systraybar.c util/window.c util/area.c
 
 ifndef DESTDIR
 	ifndef PREFIX
@@ -22,7 +22,7 @@ endif
 
 
 $(PROGNAME): $(FILES) $(SYSTRAYOBJ)
-	$(CC) $(CFLAGS) -I. -Iutil -Iclock -Itaskbar -Isystray -o $(PROGNAME) $(FILES) $(FLAGS)
+	$(CC) $(CFLAGS) -I. -Iutil -Ibattery -Iclock -Itaskbar -Isystray -o $(PROGNAME) $(FILES) $(FLAGS)
 	
 install: install-strip
 
