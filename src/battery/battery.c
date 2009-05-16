@@ -100,7 +100,8 @@ void update_battery(struct batstate *data) {
 	seconds -= 60 * data->time.minutes;
 	data->time.seconds = seconds;
 
-	new_percentage = (energy_now*100)/energy_full;
+	if(energy_full > 0)
+		new_percentage = (energy_now*100)/energy_full;
 
 	if(battery_low_status != 0 && battery_low_status == new_percentage && data->percentage > new_percentage) {
 		printf("battery low, executing: %s\n", battery_low_cmd);
