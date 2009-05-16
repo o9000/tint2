@@ -54,27 +54,27 @@ void update_battery(struct batstate *data) {
 		fgets(tmp, sizeof tmp, fp);
 		energy_now = atoi(tmp);
 		fclose(fp);
-	} else printf("ERROR: battery applet can't open energy_now\n");
+	}
 
 	fp = fopen("/sys/class/power_supply/BAT0/energy_full", "r");
 	if(fp != NULL) {
 		fgets(tmp, sizeof tmp, fp);
 		energy_full = atoi(tmp);
 		fclose(fp);
-	} else printf("ERROR: battery applet can't open energy_full\n");
+	}
 
 	fp = fopen("/sys/class/power_supply/BAT0/current_now", "r");
 	if(fp != NULL) {
 		fgets(tmp, sizeof tmp, fp);
 		current_now = atoi(tmp);
 		fclose(fp);
-	} else printf("ERROR: battery applet can't open current_now\n");
+	}
 
 	fp = fopen("/sys/class/power_supply/BAT0/status", "r");
 	if(fp != NULL) {
 		fgets(tmp, sizeof tmp, fp);
 		fclose(fp);
-	} else printf("ERROR: battery applet can't open status");
+	}
 
 	data->state = BATTERY_UNKNOWN;
 	if(strcasecmp(tmp, "Charging\n")==0) data->state = BATTERY_CHARGING;
@@ -110,8 +110,10 @@ void update_battery(struct batstate *data) {
 	data->percentage = new_percentage;
 }
 
+
 void init_battery()
 {
+	FILE *fp;
    Panel *panel;
    Battery *battery;
    int i, bat_percentage_height, bat_percentage_height_ink, bat_time_height, bat_time_height_ink;
@@ -126,6 +128,30 @@ void init_battery()
 		battery->area._resize = resize_battery;
 
 		if (!battery->area.on_screen) continue;
+		if((fp = fopen("/sys/class/power_supply/BAT0/energy_now", "r")) == NULL) {
+			fprintf(stderr, "ERROR: battery applet can't open energy_now\n");
+			panel->battery.area.on_screen = 0;
+			continue;
+		}
+		fclose(fp);
+		if((fp = fopen("/sys/class/power_supply/BAT0/energy_full", "r")) == NULL) {
+			fprintf(stderr, "ERROR: battery applet can't open energy_full\n");
+			panel->battery.area.on_screen = 0;
+			continue;
+		}
+		fclose(fp);
+		if((fp = fopen("/sys/class/power_supply/BAT0/current_now", "r")) == NULL) {
+			fprintf(stderr, "ERROR: battery applet can't open current_now\n");
+			panel->battery.area.on_screen = 0;
+			continue;
+		}
+		fclose(fp);
+		if((fp = fopen("/sys/class/power_supply/BAT0/status", "r")) == NULL) {
+			fprintf(stderr, "ERROR: battery applet can't open status");
+			panel->battery.area.on_screen = 0;
+			continue;
+		}
+		fclose(fp);
 
 		battery->area.posy = panel->area.pix.border.width + panel->area.paddingy;
 		battery->area.height = panel->area.height - (2 * battery->area.posy);

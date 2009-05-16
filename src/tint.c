@@ -468,7 +468,8 @@ void event_timer()
    if (abs(stv.tv_sec - time_clock.tv_sec) < time_precision) return;
 
 	// update battery
-	update_battery(&battery_state);
+	if (panel1[0].battery.area.on_screen)
+		update_battery(&battery_state);
 
 	// update clock
 	time_clock.tv_sec = stv.tv_sec;
