@@ -105,7 +105,7 @@ void draw_systray(void *obj, cairo_t *c, int active)
 		traywin = (TrayWindow*)l->data;
 
 		// watch for the icon trying to resize itself!
-		XSelectInput(server.dsp, traywin->id, StructureNotifyMask);
+		XSelectInput(server.dsp, traywin->id, StructureNotifyMask|ResizeRedirectMask);
 
 		// position and size the icon window
 		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
