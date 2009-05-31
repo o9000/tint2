@@ -1,3 +1,11 @@
+2009-05-31
+- fixed issue 87 and 88 : battery detection
+
+2009-05-26
+- fixed memory leak and battery detection
+
+2009-05-20
+- merge patch from yarin.kaul (fixed issue 52)
 
 2009-05-15
 - merge battery applet from Sebastian Reichel <elektranox@gmail.com>

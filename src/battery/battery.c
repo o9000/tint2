@@ -40,7 +40,9 @@ static char buf_bat_percentage[10];
 static char buf_bat_time[20];
 
 int8_t battery_low_status;
-char* battery_low_cmd;
+char *battery_low_cmd;
+char *path_energy_now, *path_energy_full, *path_current_now, *path_status;
+
 
 void update_battery(struct batstate *data) {
 	FILE *fp;
@@ -49,28 +51,28 @@ void update_battery(struct batstate *data) {
 	int seconds = 0;
 	int8_t new_percentage = 0;
 
-	fp = fopen("/sys/class/power_supply/BAT0/energy_now", "r");
+	fp = fopen(path_energy_now, "r");
 	if(fp != NULL) {
 		fgets(tmp, sizeof tmp, fp);
 		energy_now = atoi(tmp);
 		fclose(fp);
 	}
 
-	fp = fopen("/sys/class/power_supply/BAT0/energy_full", "r");
+	fp = fopen(path_energy_full, "r");
 	if(fp != NULL) {
 		fgets(tmp, sizeof tmp, fp);
 		energy_full = atoi(tmp);
 		fclose(fp);
 	}
 
-	fp = fopen("/sys/class/power_supply/BAT0/current_now", "r");
+	fp = fopen(path_current_now, "r");
 	if(fp != NULL) {
 		fgets(tmp, sizeof tmp, fp);
 		current_now = atoi(tmp);
 		fclose(fp);
 	}
 
-	fp = fopen("/sys/class/power_supply/BAT0/status", "r");
+	fp = fopen(path_status, "r");
 	if(fp != NULL) {
 		fgets(tmp, sizeof tmp, fp);
 		fclose(fp);
@@ -114,6 +116,36 @@ void update_battery(struct batstate *data) {
 
 void init_battery()
 {
+	// check battery
+	GDir *directory;
+	GError *error = NULL;
+	const char *entryname;
+	char *battery_dir = 0;
+
+	path_energy_now = path_energy_full = path_current_now = path_status = 0;
+	directory = g_dir_open("/sys/class/power_supply", 0, &error);
+	if (error)
+		g_error_free(error);
+	else {
+		while ((entryname=g_dir_read_name(directory))) {
+			if (strncmp(entryname,"AC", 2) == 0) continue;
+
+			char *path1 = g_build_filename("/sys/class/power_supply", entryname, "present", NULL);
+			if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
+				g_free(path1);
+				battery_dir = g_build_filename("/sys/class/power_supply", entryname, NULL);
+				break;
+			}
+			g_free(path1);
+		}
+	}
+	if (battery_dir != 0) {
+		path_energy_now = g_build_filename(battery_dir, "energy_now", NULL);
+		path_energy_full = g_build_filename(battery_dir, "energy_full", NULL);
+		path_current_now = g_build_filename(battery_dir, "current_now", NULL);
+		path_status = g_build_filename(battery_dir, "status", NULL);
+	}
+
 	FILE *fp;
    Panel *panel;
    Battery *battery;
@@ -128,26 +160,27 @@ void init_battery()
 		battery->area._draw_foreground = draw_battery;
 		battery->area._resize = resize_battery;
 
+		if (battery_dir == 0) panel->battery.area.on_screen = 0;
 		if (!battery->area.on_screen) continue;
-		if((fp = fopen("/sys/class/power_supply/BAT0/energy_now", "r")) == NULL) {
+		if((fp = fopen(path_energy_now, "r")) == NULL) {
 			fprintf(stderr, "ERROR: battery applet can't open energy_now\n");
 			panel->battery.area.on_screen = 0;
 			continue;
 		}
 		fclose(fp);
-		if((fp = fopen("/sys/class/power_supply/BAT0/energy_full", "r")) == NULL) {
+		if((fp = fopen(path_energy_full, "r")) == NULL) {
 			fprintf(stderr, "ERROR: battery applet can't open energy_full\n");
 			panel->battery.area.on_screen = 0;
 			continue;
 		}
 		fclose(fp);
-		if((fp = fopen("/sys/class/power_supply/BAT0/current_now", "r")) == NULL) {
+		if((fp = fopen(path_current_now, "r")) == NULL) {
 			fprintf(stderr, "ERROR: battery applet can't open current_now\n");
 			panel->battery.area.on_screen = 0;
 			continue;
 		}
 		fclose(fp);
-		if((fp = fopen("/sys/class/power_supply/BAT0/status", "r")) == NULL) {
+		if((fp = fopen(path_status, "r")) == NULL) {
 			fprintf(stderr, "ERROR: battery applet can't open status");
 			panel->battery.area.on_screen = 0;
 			continue;

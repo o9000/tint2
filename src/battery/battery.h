@@ -3,6 +3,7 @@
 *
 * Battery with functional data (percentage, time to life) and drawing data
 * (area, font, ...). Each panel use his own drawing data.
+* Need kernel > 2.6.23.
 *
 **************************************************************************/
 
@@ -48,7 +49,9 @@ extern PangoFontDescription *bat1_font_desc;
 extern PangoFontDescription *bat2_font_desc;
 
 extern int8_t battery_low_status;
-extern char* battery_low_cmd;
+extern char *battery_low_cmd;
+extern char *path_energy_now, *path_energy_full, *path_current_now, *path_status;
+
 
 // initialize clock : y position, ...
 void update_battery(struct batstate *data);

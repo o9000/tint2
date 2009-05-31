@@ -92,7 +92,13 @@ void cleanup()
    if (time2_font_desc) pango_font_description_free(time2_font_desc);
    if (time1_format) g_free(time1_format);
    if (time2_format) g_free(time2_format);
+   if (bat1_font_desc) pango_font_description_free(bat1_font_desc);
+   if (bat2_font_desc) pango_font_description_free(bat2_font_desc);
 	if (battery_low_cmd) g_free(battery_low_cmd);
+	if (path_energy_now) g_free(path_energy_now);
+	if (path_energy_full) g_free(path_energy_full);
+	if (path_current_now) g_free(path_current_now);
+	if (path_status) g_free(path_status);
 
    if (server.monitor) free(server.monitor);
    XFreeGC(server.dsp, server.gc);
