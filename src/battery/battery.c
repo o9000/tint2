@@ -140,10 +140,27 @@ void init_battery()
 		}
 	}
 	if (battery_dir != 0) {
-		path_energy_now = g_build_filename(battery_dir, "energy_now", NULL);
-		path_energy_full = g_build_filename(battery_dir, "energy_full", NULL);
+		char *path1 = g_build_filename(battery_dir, "energy_now", NULL);
+		if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
+			path_energy_now = g_build_filename(battery_dir, "energy_now", NULL);
+			path_energy_full = g_build_filename(battery_dir, "energy_full", NULL);
+		}
+		else {
+			char *path2 = g_build_filename(battery_dir, "charge_now", NULL);
+			if (g_file_test (path2, G_FILE_TEST_EXISTS)) {
+				path_energy_now = g_build_filename(battery_dir, "charge_now", NULL);
+				path_energy_full = g_build_filename(battery_dir, "charge_full", NULL);
+			}
+			else {
+				g_free(battery_dir);
+				battery_dir = 0;
+				fprintf(stderr, "ERROR: can't found energy_* or charge_*\n");
+			}
+			g_free(path2);
+		}
 		path_current_now = g_build_filename(battery_dir, "current_now", NULL);
 		path_status = g_build_filename(battery_dir, "status", NULL);
+		g_free(path1);
 	}
 
 	FILE *fp;
