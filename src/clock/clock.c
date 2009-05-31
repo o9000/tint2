@@ -58,8 +58,10 @@ void init_clock()
 
 		if (!clock->area.on_screen) continue;
 
-		if (strchr(time1_format, 'S') == NULL) time_precision = 60;
-		else time_precision = 1;
+		if (strchr(time1_format, 'S')) time_precision = 1;
+		else if (strchr(time1_format, 'T')) time_precision = 1;
+		else if (strchr(time1_format, 'r')) time_precision = 1;
+		else time_precision = 60;
 
 		// update clock to force update (-time_precision)
 		struct timeval stv;
