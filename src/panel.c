@@ -174,11 +174,6 @@ void resize_panel(void *obj)
    Panel *panel = (Panel*)obj;
    int taskbar_width, modulo_width, taskbar_on_screen;
 
-//printf("resize_panel :  : posx et width des barres de taches\n");
-
-   if (panel_mode == MULTI_DESKTOP) taskbar_on_screen = panel->nb_desktop;
-   else taskbar_on_screen = 1;
-
    taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
    if (panel->clock.area.on_screen && panel->clock.area.width)
       taskbar_width -= (panel->clock.area.width + panel->area.paddingx);
@@ -188,29 +183,31 @@ void resize_panel(void *obj)
    if (systray.area.on_screen && systray.area.width && panel == &panel1[0])
    	taskbar_width -= (systray.area.width + panel->area.paddingx);
 
-   taskbar_width = (taskbar_width - ((taskbar_on_screen-1) * panel->area.paddingx)) / taskbar_on_screen;
-
-   if (taskbar_on_screen > 1)
-      modulo_width = (taskbar_width - ((taskbar_on_screen-1) * panel->area.paddingx)) % taskbar_on_screen;
-   else
+   if (panel_mode == MULTI_DESKTOP) {
+		taskbar_on_screen = panel->nb_desktop;
+		int width = taskbar_width - ((taskbar_on_screen-1) * panel->area.paddingx);
+	   taskbar_width = width / taskbar_on_screen;
+      modulo_width = width % taskbar_on_screen;
+	}
+   else {
+		taskbar_on_screen = 1;
       modulo_width = 0;
+	}
 
 	// change posx and width for all taskbar
-   int i, modulo=0, posx=0;
+   int i, posx;
+	posx = panel->area.pix.border.width + panel->area.paddingxlr;
    for (i=0 ; i < panel->nb_desktop ; i++) {
-      if ((i % taskbar_on_screen) == 0) {
-         posx = panel->area.pix.border.width + panel->area.paddingxlr;
-         modulo = modulo_width;
-      }
-      else posx += taskbar_width + panel->area.paddingx;
-
       panel->taskbar[i].area.posx = posx;
       panel->taskbar[i].area.width = taskbar_width;
       panel->taskbar[i].area.resize = 1;
-      if (modulo) {
+      if (modulo_width) {
          panel->taskbar[i].area.width++;
-         modulo--;
+         modulo_width--;
       }
+		//printf("taskbar %d : posx %d, width, %d, posy %d\n", i, posx, panel->taskbar[i].area.width, posx + panel->taskbar[i].area.width);
+      if (panel_mode == MULTI_DESKTOP)
+      	posx += panel->taskbar[i].area.width + panel->area.paddingx;
    }
 }
 
