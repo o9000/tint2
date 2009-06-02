@@ -99,7 +99,7 @@ void draw_systray(void *obj, cairo_t *c, int active)
 	GSList *l;
 	int icon_size;
 
-	printf("draw_systray %d %d\n", systray.area.posx, systray.area.width);
+	//printf("draw_systray %d %d\n", systray.area.posx, systray.area.width);
 	icon_size = sysbar->area.height - (2 * sysbar->area.pix.border.width) - (2 * sysbar->area.paddingy);
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
@@ -109,6 +109,7 @@ void draw_systray(void *obj, cairo_t *c, int active)
 
 		// position and size the icon window
 		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
+		XSetWindowBackgroundPixmap (server.dsp, panel->main_win, systray.area.pix.pmap);
 
 		// resize our window so that the new window can fit in it
 		//fix_geometry();
