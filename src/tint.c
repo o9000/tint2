@@ -99,6 +99,8 @@ void cleanup()
 	if (path_energy_full) g_free(path_energy_full);
 	if (path_current_now) g_free(path_current_now);
 	if (path_status) g_free(path_status);
+	if (clock_lclick_command) g_free(clock_lclick_command);
+	if (clock_rclick_command) g_free(clock_rclick_command);
 
    if (server.monitor) free(server.monitor);
    XFreeGC(server.dsp, server.gc);
@@ -194,12 +196,17 @@ void event_button_release (XEvent *e)
    // search taskbar
    Taskbar *tskbar;
    GSList *l0;
-   for (l0 = panel->area.list; l0 ; l0 = l0->next) {
-      tskbar = l0->data;
-      if (!tskbar->area.on_screen) continue;
-      if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
-         goto suite;
-   }
+	Clock clk = panel->clock;
+	if (clk.area.on_screen && x >= clk.area.posx && x <= (clk.area.posx + clk.area.width))
+		clock_action(e->xbutton.button);
+	else {
+		for (l0 = panel->area.list; l0 ; l0 = l0->next) {
+			tskbar = l0->data;
+			if (!tskbar->area.on_screen) continue;
+			if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
+				goto suite;
+		}
+	}
 
    // TODO: check better solution to keep window below
    XLowerWindow (server.dsp, panel->main_win);

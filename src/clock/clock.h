@@ -30,6 +30,8 @@ extern struct timeval time_clock;
 extern int  time_precision;
 extern PangoFontDescription *time1_font_desc;
 extern PangoFontDescription *time2_font_desc;
+extern char *clock_lclick_command;
+extern char *clock_rclick_command;
 
 
 // initialize clock : y position, precision, ...
@@ -38,5 +40,7 @@ void init_clock();
 void draw_clock (void *obj, cairo_t *c, int active);
 
 void resize_clock (void *obj);
+
+void clock_action(int button);
 
 #endif

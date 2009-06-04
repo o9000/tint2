@@ -22,6 +22,7 @@
 #include <cairo.h>
 #include <cairo-xlib.h>
 #include <pango/pangocairo.h>
+#include <unistd.h>
 
 #include "window.h"
 #include "server.h"
@@ -31,8 +32,10 @@
 #include "clock.h"
 
 
-char *time1_format = 0;
-char *time2_format = 0;
+char *time1_format;
+char *time2_format;
+char *clock_lclick_command;
+char *clock_rclick_command;
 struct timeval time_clock;
 int  time_precision;
 PangoFontDescription *time1_font_desc;
@@ -187,5 +190,27 @@ void resize_clock (void *obj)
    cairo_destroy (c);
    cairo_surface_destroy (cs);
    XFreePixmap (server.dsp, pmap);
+}
+
+
+void clock_action(int button)
+{
+	char *command = 0;
+	switch (button) {
+		case 1:
+		command = clock_lclick_command;
+		break;
+		case 3:
+		command = clock_rclick_command;
+		break;
+	}
+	if (command) {
+		pid_t pid;
+		pid = fork();
+		if (pid == 0) {
+			execl("/bin/sh", "/bin/sh", "-c", command, NULL);
+			_exit(0);
+		}
+	}
 }
 
