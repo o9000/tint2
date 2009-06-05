@@ -1,3 +1,9 @@
+2009-06-06
+- fixed issue 90 and issue 81 : window manager's menu in panel padding
+  works on openbox and pekwm. doesn't work on xfce, windowmaker ?
+  tint2 send mouse event to your window manager on left/right padding
+  and on top/bottom panel padding.
+
 2009-06-05
 - fixed issue 46 and 59 : urgent task
   limitation : just one urgent task at a time

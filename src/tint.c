@@ -136,6 +136,17 @@ void event_button_press (XEvent *e)
    Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
 
+	if ((e->xbutton.x < panel->area.paddingxlr) || (e->xbutton.x > panel->area.width-panel->area.paddingxlr) || (e->xbutton.y < panel->area.paddingy) || (e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) {
+		// forward the click to the desktop window (thanks conky)
+		XUngrabPointer(server.dsp, e->xbutton.time);
+		e->xbutton.window = server.root_win;
+		XSetInputFocus(server.dsp, e->xbutton.window, RevertToParent, e->xbutton.time);
+		XSendEvent(server.dsp, e->xbutton.window, False, ButtonPressMask, e);
+		return;
+	}
+
+	if (e->xbutton.button != 1) return;
+
    if (panel_mode != MULTI_DESKTOP) {
       // drag and drop disabled
       XLowerWindow (server.dsp, panel->main_win);
@@ -145,7 +156,6 @@ void event_button_press (XEvent *e)
    GSList *l0;
    Taskbar *tskbar;
    int x = e->xbutton.x;
-   //int y = e->xbutton.y; // unused
    for (l0 = panel->area.list; l0 ; l0 = l0->next) {
       tskbar = l0->data;
       if (!tskbar->area.on_screen) continue;
@@ -170,10 +180,15 @@ void event_button_press (XEvent *e)
 
 void event_button_release (XEvent *e)
 {
-   // TODO: convert event_button_press(int x, int y) to area->event_button_press()
-
    Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
+
+	if ((e->xbutton.x < panel->area.paddingxlr) || (e->xbutton.x > panel->area.width-panel->area.paddingxlr) || (e->xbutton.y < panel->area.paddingy) || (e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) {
+		// forward the click to the desktop window (thanks conky)
+		e->xbutton.window = server.root_win;
+		XSendEvent(server.dsp, e->xbutton.window, False, ButtonReleaseMask, e);
+	   return;
+	}
 
    int action = TOGGLE_ICONIFY;
    int x = e->xbutton.x;
@@ -551,8 +566,7 @@ load_config:
 
             switch (e.type) {
                case ButtonPress:
-                  //printf("ButtonPress %lx\n", e.xproperty.window);
-                  if (e.xbutton.button == 1) event_button_press (&e);
+                  event_button_press (&e);
                   break;
 
                case ButtonRelease:
