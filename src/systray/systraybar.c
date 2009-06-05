@@ -111,6 +111,7 @@ void draw_systray(void *obj, cairo_t *c, int active)
 		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
 		// ceci intervertie les fonds : le premier icone prend le fond du dernier
 		// le dernier prend le fond de l'avant dernier, ...
+		XSetWindowBackgroundPixmap (server.dsp, panel->main_win, systray.area.pix.pmap);
 
 		// resize our window so that the new window can fit in it
 		//fix_geometry();
@@ -124,7 +125,6 @@ void draw_systray(void *obj, cairo_t *c, int active)
 		// show the window
 		XMapRaised(server.dsp, traywin->id);
 	}
-	XSetWindowBackgroundPixmap (server.dsp, panel->main_win, systray.area.pix.pmap);
 }
 
 

@@ -43,6 +43,7 @@ extern int panel_refresh;
 
 extern Task *task_active;
 extern Task *task_drag;
+extern Task *task_urgent;
 
 
 typedef struct {

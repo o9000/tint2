@@ -302,6 +302,10 @@ void event_property_notify (XEvent *e)
 			}
          Window w1 = window_get_active ();
          Task *t = task_get_task(w1);
+			if (task_urgent == t) {
+				init_precision();
+				task_urgent = 0;
+			}
          if (!t) {
             Window w2;
             if (XGetTransientForHint(server.dsp, w1, &w2) != 0)
@@ -358,9 +362,8 @@ void event_property_notify (XEvent *e)
 		// Demand attention
       else if (at == server.atom._NET_WM_STATE) {
          if (window_is_urgent (win)) {
-				printf("  event_property_notify _NET_WM_STATE_DEMANDS_ATTENTION\n");
-			}
-			else {
+				task_urgent = tsk;
+				time_precision = 1;
 			}
 		}
       else if (at == server.atom.WM_STATE) {
@@ -473,25 +476,31 @@ void event_configure_notify (Window win)
 void event_timer()
 {
    struct timeval stv;
-
-   if (!time1_format) return;
+	int i;
 
    if (gettimeofday(&stv, 0)) return;
 
    if (abs(stv.tv_sec - time_clock.tv_sec) < time_precision) return;
 
+	// urgent task
+	if (task_urgent) {
+		task_urgent->area.is_active = !task_urgent->area.is_active;
+		task_urgent->area.redraw = 1;
+	}
+
 	// update battery
-	if (panel1[0].battery.area.on_screen)
+	if (panel1[0].battery.area.on_screen) {
 		update_battery(&battery_state);
+		for (i=0 ; i < nb_panel ; i++)
+			panel1[i].battery.area.resize = 1;
+	}
 
 	// update clock
-	time_clock.tv_sec = stv.tv_sec;
-	time_clock.tv_sec -= time_clock.tv_sec % time_precision;
-
-	int i;
-	for (i=0 ; i < nb_panel ; i++) {
-	   panel1[i].clock.area.resize = 1;
-		panel1[i].battery.area.resize = 1;
+   if (time1_format) {
+		time_clock.tv_sec = stv.tv_sec;
+		time_clock.tv_sec -= time_clock.tv_sec % time_precision;
+		for (i=0 ; i < nb_panel ; i++)
+	   	panel1[i].clock.area.resize = 1;
 	}
 	panel_refresh = 1;
 }

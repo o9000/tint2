@@ -44,6 +44,16 @@ static char buf_time[40];
 static char buf_date[40];
 
 
+void init_precision()
+{
+	if (!time1_format) time_precision = 60;
+	else if (strchr(time1_format, 'S')) time_precision = 1;
+	else if (strchr(time1_format, 'T')) time_precision = 1;
+	else if (strchr(time1_format, 'r')) time_precision = 1;
+	else time_precision = 60;
+}
+
+
 void init_clock()
 {
    Panel *panel;
@@ -58,19 +68,15 @@ void init_clock()
 		clock->area.panel = panel;
 		clock->area._draw_foreground = draw_clock;
 		clock->area._resize = resize_clock;
-
-		if (!clock->area.on_screen) continue;
-
-		if (strchr(time1_format, 'S')) time_precision = 1;
-		else if (strchr(time1_format, 'T')) time_precision = 1;
-		else if (strchr(time1_format, 'r')) time_precision = 1;
-		else time_precision = 60;
+		init_precision();
 
 		// update clock to force update (-time_precision)
 		struct timeval stv;
 		gettimeofday(&stv, 0);
 		time_clock.tv_sec = stv.tv_sec - time_precision;
 		time_clock.tv_sec -= time_clock.tv_sec % time_precision;
+
+		if (!clock->area.on_screen) continue;
 
 		clock->area.posy = panel->area.pix.border.width + panel->area.paddingy;
 		clock->area.height = panel->area.height - (2 * clock->area.posy);

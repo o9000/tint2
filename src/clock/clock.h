@@ -36,6 +36,7 @@ extern char *clock_rclick_command;
 
 // initialize clock : y position, precision, ...
 void init_clock();
+void init_precision();
 
 void draw_clock (void *obj, cairo_t *c, int active);
 

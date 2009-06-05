@@ -43,8 +43,9 @@ int panel_mode;
 int panel_position;
 int panel_refresh;
 
-Task *task_active = 0;
-Task *task_drag = 0;
+Task *task_active;
+Task *task_drag;
+Task *task_urgent;
 
 Panel *panel1 = 0;
 int  nb_panel;
@@ -136,6 +137,9 @@ void cleanup_panel()
 {
 	if (!panel1) return;
 
+	task_active = 0;
+	task_drag = 0;
+	task_urgent = 0;
 	cleanup_systray();
    cleanup_taskbar();
 
