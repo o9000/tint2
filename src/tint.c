@@ -302,15 +302,15 @@ void event_property_notify (XEvent *e)
 			}
          Window w1 = window_get_active ();
          Task *t = task_get_task(w1);
-			if (task_urgent == t) {
-				init_precision();
-				task_urgent = 0;
-			}
          if (!t) {
             Window w2;
             if (XGetTransientForHint(server.dsp, w1, &w2) != 0)
                if (w2) t = task_get_task(w2);
          }
+			if (task_urgent == t) {
+				init_precision();
+				task_urgent = 0;
+			}
          if (t) {
 				for (i=0 ; i < nb_panel ; i++) {
 					for (j=0 ; j < panel1[i].nb_desktop ; j++) {
