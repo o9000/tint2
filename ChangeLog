@@ -1,4 +1,8 @@
 2009-06-06
+- fixed issue 56 : with windowmaker
+  bug in windowmaker : send unecessary 'desktop changed' each time focus changed
+
+2009-06-06
 - add 'wm_menu' config option to disable window manager's menu
   if you don't specify "wm_menu = ", the default value will show WM menu.
 

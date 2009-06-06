@@ -96,7 +96,7 @@ int window_is_hidden (Window win)
 
    at = server_get_property (win, server.atom._NET_WM_STATE, XA_ATOM, &count);
    for (i = 0; i < count; i++) {
-      if (at[i] == server.atom._NET_WM_STATE_SKIP_PAGER || at[i] == server.atom._NET_WM_STATE_SKIP_TASKBAR) {
+      if (at[i] == server.atom._NET_WM_STATE_SKIP_TASKBAR) {
          XFree(at);
          return 1;
       }
@@ -113,8 +113,9 @@ int window_is_hidden (Window win)
    XFree(at);
 
 	for (i=0 ; i < nb_panel ; i++) {
-		if (panel1[i].main_win == win)
+		if (panel1[i].main_win == win) {
 			return 1;
+		}
 	}
 
    // specification

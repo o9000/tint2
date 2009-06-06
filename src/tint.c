@@ -430,9 +430,14 @@ void event_property_notify (XEvent *e)
       }
       // Window desktop changed
       else if (at == server.atom._NET_WM_DESKTOP) {
-         remove_task (tsk);
-         add_task (win);
-         panel_refresh = 1;
+			int desktop = window_get_desktop (win);
+			//printf("  Window desktop changed %d, %d\n", tsk->desktop, desktop);
+			// bug in windowmaker : send unecessary 'desktop changed' when focus changed
+			if (desktop != tsk->desktop) {
+				remove_task (tsk);
+				add_task (win);
+				panel_refresh = 1;
+			}
       }
 
       if (!server.got_root_win) server.root_win = RootWindow (server.dsp, server.screen);
