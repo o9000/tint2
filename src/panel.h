@@ -34,6 +34,7 @@ extern int mouse_scroll_down;
 //panel mode
 enum { SINGLE_DESKTOP=0, MULTI_DESKTOP, SINGLE_MONITOR };
 extern int panel_mode;
+extern int wm_menu;
 
 //panel position
 enum { LEFT=0x01, RIGHT=0x02, CENTER=0X04, TOP=0X08, BOTTOM=0x10 };

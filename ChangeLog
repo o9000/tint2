@@ -1,4 +1,8 @@
 2009-06-06
+- add 'wm_menu' config option to disable window manager's menu
+  if you don't specify "wm_menu = ", the default value will show WM menu.
+
+2009-06-06
 - fixed issue 90 and issue 81 : window manager's menu in panel padding
   works on openbox and pekwm. doesn't work on xfce, windowmaker ?
   tint2 send mouse event to your window manager on left/right padding

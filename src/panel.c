@@ -40,6 +40,7 @@ int mouse_scroll_up;
 int mouse_scroll_down;
 
 int panel_mode;
+int wm_menu;
 int panel_position;
 int panel_refresh;
 

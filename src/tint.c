@@ -136,13 +136,15 @@ void event_button_press (XEvent *e)
    Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
 
-	if ((e->xbutton.x < panel->area.paddingxlr) || (e->xbutton.x > panel->area.width-panel->area.paddingxlr) || (e->xbutton.y < panel->area.paddingy) || (e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) {
-		// forward the click to the desktop window (thanks conky)
-		XUngrabPointer(server.dsp, e->xbutton.time);
-		e->xbutton.window = server.root_win;
-		XSetInputFocus(server.dsp, e->xbutton.window, RevertToParent, e->xbutton.time);
-		XSendEvent(server.dsp, e->xbutton.window, False, ButtonPressMask, e);
-		return;
+	if (wm_menu) {
+		if ((e->xbutton.x < panel->area.paddingxlr) || (e->xbutton.x > panel->area.width-panel->area.paddingxlr) || (e->xbutton.y < panel->area.paddingy) || (e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) {
+			// forward the click to the desktop window (thanks conky)
+			XUngrabPointer(server.dsp, e->xbutton.time);
+			e->xbutton.window = server.root_win;
+			XSetInputFocus(server.dsp, e->xbutton.window, RevertToParent, e->xbutton.time);
+			XSendEvent(server.dsp, e->xbutton.window, False, ButtonPressMask, e);
+			return;
+		}
 	}
 
 	if (e->xbutton.button != 1) return;
@@ -183,11 +185,13 @@ void event_button_release (XEvent *e)
    Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
 
-	if ((e->xbutton.x < panel->area.paddingxlr) || (e->xbutton.x > panel->area.width-panel->area.paddingxlr) || (e->xbutton.y < panel->area.paddingy) || (e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) {
-		// forward the click to the desktop window (thanks conky)
-		e->xbutton.window = server.root_win;
-		XSendEvent(server.dsp, e->xbutton.window, False, ButtonReleaseMask, e);
-	   return;
+	if (wm_menu) {
+		if ((e->xbutton.x < panel->area.paddingxlr) || (e->xbutton.x > panel->area.width-panel->area.paddingxlr) || (e->xbutton.y < panel->area.paddingy) || (e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) {
+			// forward the click to the desktop window (thanks conky)
+			e->xbutton.window = server.root_win;
+			XSendEvent(server.dsp, e->xbutton.window, False, ButtonReleaseMask, e);
+			return;
+		}
 	}
 
    int action = TOGGLE_ICONIFY;
@@ -298,11 +302,13 @@ void event_property_notify (XEvent *e)
       }
       // Window list
       else if (at == server.atom._NET_CLIENT_LIST) {
+			//printf("Window list\n");
          task_refresh_tasklist();
          panel_refresh = 1;
       }
       // Change active
       else if (at == server.atom._NET_ACTIVE_WINDOW) {
+			//printf("Change active\n");
          GSList *l0;
       	if (task_active) {
 				for (i=0 ; i < nb_panel ; i++) {

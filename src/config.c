@@ -75,6 +75,8 @@ void init_config()
    list_back = g_slist_append(0, calloc(1, sizeof(Area)));
 
 	panel_config = calloc(1, sizeof(Panel));
+	// window manager's menu default value == true
+	wm_menu = 1;
 }
 
 
@@ -308,6 +310,8 @@ void add_entry (char *key, char *value)
       memcpy(&panel_config->area.pix.back, &a->pix.back, sizeof(Color));
       memcpy(&panel_config->area.pix.border, &a->pix.border, sizeof(Border));
    }
+   else if (strcmp (key, "wm_menu") == 0)
+      wm_menu = atoi (value);
 
    /* Battery */
    else if (strcmp (key, "battery") == 0) {
