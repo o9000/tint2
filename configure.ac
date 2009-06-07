@@ -45,11 +45,6 @@ PKG_CHECK_MODULES([IMLIB2], [imlib2])
 AC_SUBST(IMLIB2_CFLAGS)
 AC_SUBST(IMLIB2_LIBS)
 
-## We need just the header so AC_CHECK_HEADERS might be enough...
-#PKG_CHECK_MODULES([XRANDR], [xrandr])
-#AC_SUBST(XRANDR_CFLAGS)
-#AC_SUBST(XRANDR_LIBS)
-
 # Checks for header files.
 AC_PATH_X
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h sys/time.h unistd.h])
