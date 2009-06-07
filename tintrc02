@@ -5,76 +5,70 @@
 #---------------------------------------------
 # BACKGROUND AND BORDER
 #---------------------------------------------
-rounded = 1
+rounded = 10
 border_width = 0
-background_color = #282828 60
-border_color = #000000 0
+background_color = #ffffff 40
+border_color = #ffffff 60
 
-rounded = 1
-border_width = 1
-background_color = #cccccc 0
-border_color = #cccccc 55
-
-rounded = 1
+rounded = 10
 border_width = 0
-background_color = #cccccc 20
-border_color = #cccccc 40
+background_color = #ffffff 30
+border_color = #ffffff 15
+
 
 #---------------------------------------------
 # PANEL
 #---------------------------------------------
 panel_monitor = all
 panel_position = bottom center
-panel_size = 95% 30
+panel_size = 97% 26
 panel_margin = 0 0
-panel_padding = 7 3 7
+panel_padding = 0 0 10
 font_shadow = 0
-panel_background_id = 1
+panel_background_id = 0
 
 #---------------------------------------------
 # TASKBAR
 #---------------------------------------------
-#taskbar_mode = single_desktop
-#taskbar_mode = single_monitor
-taskbar_mode = multi_desktop
+taskbar_mode = single_desktop
 taskbar_padding = 0 0 0
-taskbar_background_id = 2
+taskbar_background_id = 1
 
 #---------------------------------------------
 # TASKS
 #---------------------------------------------
 task_icon = 1
-task_text = 0
-task_width = 34
+task_text = 1
+task_width = 160
 task_centered = 1
-task_padding = 2 3
-task_font = sans 8
-task_font_color = #ffffff 60
-task_active_font_color = #ffffff 100
+task_padding = 5 4
+task_font = Dejavu sans 8
+task_font_color = #000000 65
+task_active_font_color = #000000 100
 task_background_id = 0
-task_active_background_id = 3
+task_active_background_id = 2
 
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
-systray_padding = 0 4 3
-systray_background_id = 0
+systray_padding = 8 3 4
+systray_background_id = 1
 
 #---------------------------------------------
 # CLOCK
 #---------------------------------------------
-time1_format = %H:%M
-time1_font = sans 7
-time2_format = %A %d %B
+#time1_format = %A %d %H:%M
+time1_font = Dejavu sans 10
+#time2_format = %A %d %B
 time2_font = sans 7
-clock_font_color = #ffffff 100
-clock_padding = 1 0
-clock_background_id = 0
+clock_font_color = #000000 80
+clock_padding = 8 0
+clock_background_id = 1
 
 #---------------------------------------------
 # BATTERY
 #---------------------------------------------
-battery = 1
+battery = 0
 battery_low_status = 7
 battery_low_cmd = notify-send "battery low"
 bat1_font = sans 7
