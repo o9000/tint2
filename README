@@ -1,12 +1,4 @@
-DEPENDENCIES:
-cairo, pango, glib, imlib2, xinerama, xrandr
-
 ---------------------------------------------------------
-INSTALL:
-
-cd to "src" and type "make"
-as root type "make install"
-
 execute "tint2"
 or "tint2  -c  path_to_config_file"
 

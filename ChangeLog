@@ -1,3 +1,6 @@
+2009-06-07
+- merge autotool build system by Christian Ruppert
+
 2009-06-06
 - fixed issue 56 : with windowmaker
   bug in windowmaker : send unecessary 'desktop changed' each time focus changed

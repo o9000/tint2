@@ -8,6 +8,7 @@ tint2 is based on ttm source code (http://code.google.com/p/ttm/)
 
 
 Contributors:
+  Christian Ruppert <Spooky85@gmail.com> : autotools build system
   Kwaku Yeboah <kwakuyeboah@gmail.com> : wiki page
   Daniel Moerner <dmoerner@gmail.com> : man page and debian package
   Doug Barton : freebsd package

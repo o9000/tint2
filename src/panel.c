@@ -254,8 +254,8 @@ void set_panel_properties(Panel *p)
    }
 
    // Dock
-   long val = server.atom._NET_WM_WINDOW_TYPE_DOCK;
-   XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &val, 1);
+   //long val = server.atom._NET_WM_WINDOW_TYPE_DOCK;
+   //XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &val, 1);
 
    // Reserved space
    long   struts [12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -276,7 +276,7 @@ void set_panel_properties(Panel *p)
    XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STRUT_PARTIAL, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &struts, 12);
 
    // Sticky and below other window
-   val = 0xFFFFFFFF;
+   long val = 0xFFFFFFFF;
    XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_DESKTOP, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &val, 1);
    Atom state[4];
    state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;

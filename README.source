@@ -1,0 +1,4 @@
+DEPENDENCIES:
+cairo, pango, glib2, libX11, Xinerama, imlib2
+you might need -dev packages on debian
+
