@@ -1,4 +1,7 @@
 2009-06-08
+- fixed issue 97 and issue 95
+
+2009-06-08
 - allow 'taskbar_mode = multi_desktop' config with 'panel_monitor = all'
 
 2009-06-07

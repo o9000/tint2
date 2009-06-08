@@ -620,7 +620,7 @@ load_config:
             }
          }
       }
-      else event_timer();
+      event_timer();
 
 		switch (signal_pending) {
 			case SIGUSR1:

@@ -175,7 +175,6 @@ void resize_clock (void *obj)
    new_width += (2*clock->area.paddingxlr) + (2*clock->area.pix.border.width);
 
    if (new_width > clock->area.width || new_width < (clock->area.width-6)) {
-      int i;
       Panel *panel = ((Area*)obj)->panel;
 
       printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
@@ -185,9 +184,8 @@ void resize_clock (void *obj)
       clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.pix.border.width;
 
       // resize other objects on panel
-		for (i=0 ; i < nb_panel ; i++) {
-			panel1[i].area.resize = 1;
-		}
+		panel->area.resize = 1;
+		panel->battery.area.resize = 1;
 		systray.area.resize = 1;
 		panel_refresh = 1;
    }

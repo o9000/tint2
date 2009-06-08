@@ -255,6 +255,7 @@ void draw_battery (void *obj, cairo_t *c, int active)
 	g_object_unref(layout);
 }
 
+
 void resize_battery(void *obj)
 {
   	Battery *battery = obj;
@@ -292,23 +293,19 @@ void resize_battery(void *obj)
 
 	new_width += (2*battery->area.paddingxlr) + (2*battery->area.pix.border.width);
 
-	if(new_width > battery->area.width || new_width < (battery->area.width-6)) {
-		int i;
-		Panel *panel = ((Area*)obj)->panel;
+	int old_width = battery->area.width;
 
+	Panel *panel = ((Area*)obj)->panel;
+	battery->area.width = new_width + 1;
+	battery->area.posx = panel->area.width - battery->area.width - panel->area.paddingxlr - panel->area.pix.border.width;
+	if (panel->clock.area.on_screen)
+		battery->area.posx -= (panel->clock.area.width + panel->area.paddingx);
+
+	if(new_width > old_width || new_width < (old_width-6)) {
+		// refresh and resize other objects on panel
+		// we try to limit the number of refresh
 		printf("battery_width %d, new_width %d\n", battery->area.width, new_width);
-
-		// resize battery
-		// we try to limit the number of resize
-		battery->area.width = new_width + 1;
-		battery->area.posx = panel->area.width - battery->area.width - panel->area.paddingxlr - panel->area.pix.border.width;
-		if (panel->clock.area.on_screen)
-			battery->area.posx -= (panel->clock.area.width + panel->area.paddingx);
-
-		// resize other objects on panel
-		for (i=0 ; i < nb_panel ; i++)
-			panel1[i].area.resize = 1;
-
+		panel->area.resize = 1;
 		systray.area.resize = 1;
 		panel_refresh = 1;
 	}
