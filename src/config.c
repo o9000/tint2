@@ -415,9 +415,8 @@ void add_entry (char *key, char *value)
 
    /* Taskbar */
    else if (strcmp (key, "taskbar_mode") == 0) {
-      if (strcmp (value, "multi_desktop") == 0) panel_mode = MULTI_DESKTOP;
-      else if (strcmp (value, "single_desktop") == 0) panel_mode = SINGLE_DESKTOP;
-      else panel_mode = SINGLE_MONITOR;
+      if (strcmp (value, "single_desktop") == 0) panel_mode = SINGLE_DESKTOP;
+      else panel_mode = MULTI_DESKTOP;
    }
    else if (strcmp (key, "taskbar_padding") == 0) {
       extract_values(value, &value1, &value2, &value3);
@@ -505,9 +504,8 @@ void add_entry (char *key, char *value)
 
    /* Read tint-0.6 config for backward compatibility */
    else if (strcmp (key, "panel_mode") == 0) {
-      if (strcmp (value, "multi_desktop") == 0) panel_mode = MULTI_DESKTOP;
-      else if (strcmp (value, "single_desktop") == 0) panel_mode = SINGLE_DESKTOP;
-      else panel_mode = SINGLE_MONITOR;
+      if (strcmp (value, "single_desktop") == 0) panel_mode = SINGLE_DESKTOP;
+      else panel_mode = MULTI_DESKTOP;
    }
    else if (strcmp (key, "panel_rounded") == 0) {
       Area *a = calloc(1, sizeof(Area));

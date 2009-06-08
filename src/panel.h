@@ -32,7 +32,7 @@ extern int mouse_scroll_up;
 extern int mouse_scroll_down;
 
 //panel mode
-enum { SINGLE_DESKTOP=0, MULTI_DESKTOP, SINGLE_MONITOR };
+enum { SINGLE_DESKTOP=0, MULTI_DESKTOP };
 extern int panel_mode;
 extern int wm_menu;
 

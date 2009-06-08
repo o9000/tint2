@@ -118,11 +118,7 @@ void init_panel()
 
 		// Catch some events
 		XSetWindowAttributes att = { ParentRelative, 0L, 0, 0L, 0, 0, Always, 0L, 0L, False, ExposureMask|ButtonPressMask|ButtonReleaseMask, NoEventMask, False, 0, 0 };
-
-		// XCreateWindow(display, parent, x, y, w, h, border, depth, class, visual, mask, attrib)
-		// main_win doesn't include panel.area.paddingx, so we have WM capabilities on left and right.
 		if (p->main_win) XDestroyWindow(server.dsp, p->main_win);
-		//win = XCreateWindow (server.dsp, server.root_win, p->posx+p->area.paddingxlr, p->posy, p->area.width-(2*p->area.paddingxlr), p->area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
 		p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
 
 		set_panel_properties(p);
@@ -229,7 +225,7 @@ void visible_object()
 		for (j=0 ; j < panel->nb_desktop ; j++) {
 			taskbar = &panel->taskbar[j];
 			if (panel_mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) {
-				// (SINGLE_DESKTOP or SINGLE_MONITOR) and not current desktop
+				// SINGLE_DESKTOP and not current desktop
 				taskbar->area.on_screen = 0;
 			}
 			else {
@@ -254,8 +250,8 @@ void set_panel_properties(Panel *p)
    }
 
    // Dock
-   //long val = server.atom._NET_WM_WINDOW_TYPE_DOCK;
-   //XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &val, 1);
+   long val = server.atom._NET_WM_WINDOW_TYPE_DOCK;
+   XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &val, 1);
 
    // Reserved space
    long   struts [12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -276,7 +272,7 @@ void set_panel_properties(Panel *p)
    XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STRUT_PARTIAL, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &struts, 12);
 
    // Sticky and below other window
-   long val = 0xFFFFFFFF;
+   val = 0xFFFFFFFF;
    XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_DESKTOP, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &val, 1);
    Atom state[4];
    state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;

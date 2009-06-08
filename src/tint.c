@@ -478,7 +478,7 @@ void event_expose (XEvent *e)
 
 void event_configure_notify (Window win)
 {
-   if (panel_mode != SINGLE_MONITOR) return;
+   if (nb_panel == 1) return;
    if (server.nb_monitor == 1) return;
 
    Task *tsk = task_get_task (win);

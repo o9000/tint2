@@ -45,7 +45,8 @@ void add_task (Window win)
    new_tsk.win = win;
    new_tsk.area.panel = &panel1[0];
    new_tsk.desktop = window_get_desktop (win);
-   if (panel_mode == SINGLE_MONITOR) monitor = window_get_monitor (win);
+//   if (panel_mode == SINGLE_MONITOR) monitor = window_get_monitor (win);
+   if (nb_panel > 1) monitor = window_get_monitor (win);
    else monitor = 0;
 
 	// allocate only one title and one icon
@@ -64,7 +65,7 @@ void add_task (Window win)
 	for (i=0 ; i < nb_panel ; i++) {
 		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
 			if (new_tsk.desktop != ALLDESKTOP && new_tsk.desktop != j) continue;
-			if (panel_mode == SINGLE_MONITOR && panel1[i].monitor != monitor) continue;
+			if (nb_panel > 1 && panel1[i].monitor != monitor) continue;
 
 	   	tskbar = &panel1[i].taskbar[j];
 		   new_tsk2 = malloc(sizeof(Task));

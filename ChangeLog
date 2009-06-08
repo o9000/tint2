@@ -1,3 +1,6 @@
+2009-06-08
+- allow 'taskbar_mode = multi_desktop' config with 'panel_monitor = all'
+
 2009-06-07
 - merge autotool build system by Christian Ruppert
 
