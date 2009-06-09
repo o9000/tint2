@@ -1,3 +1,6 @@
+2009-06-09
+- fixed issue 98
+
 2009-06-08
 - fixed issue 97 and issue 95
 
@@ -17,7 +20,8 @@
 
 2009-06-06
 - fixed issue 90 and issue 81 : window manager's menu in panel padding
-  works on openbox and pekwm. doesn't work on xfce, windowmaker ?
+  works on openbox, pekwm, fluxbox, icewm.
+  doesn't work on xfce, windowmaker ?
   tint2 send mouse event to your window manager on left/right padding
   and on top/bottom panel padding.
 

@@ -60,6 +60,13 @@ void init_clock()
    Clock *clock;
    int i, time_height, time_height_ink, date_height, date_height_ink;
 
+	init_precision();
+	// update clock to force update (-time_precision)
+	struct timeval stv;
+	gettimeofday(&stv, 0);
+	time_clock.tv_sec = stv.tv_sec - time_precision;
+	time_clock.tv_sec -= time_clock.tv_sec % time_precision;
+
 	for (i=0 ; i < nb_panel ; i++) {
 	   panel = &panel1[i];
 	   clock = &panel->clock;
@@ -68,13 +75,6 @@ void init_clock()
 		clock->area.panel = panel;
 		clock->area._draw_foreground = draw_clock;
 		clock->area._resize = resize_clock;
-		init_precision();
-
-		// update clock to force update (-time_precision)
-		struct timeval stv;
-		gettimeofday(&stv, 0);
-		time_clock.tv_sec = stv.tv_sec - time_precision;
-		time_clock.tv_sec -= time_clock.tv_sec % time_precision;
 
 		if (!clock->area.on_screen) continue;
 

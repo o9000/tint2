@@ -302,13 +302,11 @@ void event_property_notify (XEvent *e)
       }
       // Window list
       else if (at == server.atom._NET_CLIENT_LIST) {
-			//printf("Window list\n");
          task_refresh_tasklist();
          panel_refresh = 1;
       }
       // Change active
       else if (at == server.atom._NET_ACTIVE_WINDOW) {
-			//printf("Change active\n");
          GSList *l0;
       	if (task_active) {
 				for (i=0 ; i < nb_panel ; i++) {
@@ -507,6 +505,9 @@ void event_timer()
    if (gettimeofday(&stv, 0)) return;
 
    if (abs(stv.tv_sec - time_clock.tv_sec) < time_precision) return;
+	time_clock.tv_sec = stv.tv_sec;
+	time_clock.tv_sec -= time_clock.tv_sec % time_precision;
+printf("event_timer %d\n", time_precision);
 
 	// urgent task
 	if (task_urgent) {
@@ -523,8 +524,6 @@ void event_timer()
 
 	// update clock
    if (time1_format) {
-		time_clock.tv_sec = stv.tv_sec;
-		time_clock.tv_sec -= time_clock.tv_sec % time_precision;
 		for (i=0 ; i < nb_panel ; i++)
 	   	panel1[i].clock.area.resize = 1;
 	}
@@ -648,10 +647,4 @@ load_config:
    }
 }
 
-// ****************************************************
-// main_win doesn't include panel.area.paddingx, so we have WM capabilities on left and right.
-// this feature is disabled !
-//XCopyArea (server.dsp, server.pmap, p->main_win, server.gc, p->area.paddingxlr, 0, p->area.width-(2*p->area.paddingxlr), p->area.height, 0, 0);
-//XCopyArea (server.dsp, panel.area.pix.pmap, server.root_win, server.gc_root, 0, 0, panel.area.width, panel.area.height, server.posx, server.posy);
-//XCopyArea (server.dsp, server.pmap, panel.main_win, server.gc, panel.area.paddingxlr, 0, panel.area.width-(2*panel.area.paddingxlr), panel.area.height, 0, 0);
 
