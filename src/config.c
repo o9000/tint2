@@ -415,8 +415,8 @@ void add_entry (char *key, char *value)
 
    /* Taskbar */
    else if (strcmp (key, "taskbar_mode") == 0) {
-      if (strcmp (value, "single_desktop") == 0) panel_mode = SINGLE_DESKTOP;
-      else panel_mode = MULTI_DESKTOP;
+      if (strcmp (value, "multi_desktop") == 0) panel_mode = MULTI_DESKTOP;
+      else panel_mode = SINGLE_DESKTOP;
    }
    else if (strcmp (key, "taskbar_padding") == 0) {
       extract_values(value, &value1, &value2, &value3);
@@ -504,6 +504,7 @@ void add_entry (char *key, char *value)
 
    /* Read tint-0.6 config for backward compatibility */
    else if (strcmp (key, "panel_mode") == 0) {
+		save_file_config = 1;
       if (strcmp (value, "single_desktop") == 0) panel_mode = SINGLE_DESKTOP;
       else panel_mode = MULTI_DESKTOP;
    }
@@ -684,14 +685,7 @@ deb:
 	path1 = g_build_filename (g_get_user_config_dir(), "tint", "tintrc", NULL);
 	if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
 		save_file_config = 1;
-		old_task_font = 0;
-		old_time1_font = 0;
-		old_time2_font = 0;
 		config_read_file (path1);
-		save_config();
-		if (old_task_font) g_free(old_task_font);
-		if (old_time1_font) g_free(old_time1_font);
-		if (old_time2_font) g_free(old_time2_font);
 		g_free(path1);
 		goto deb;
 	}
@@ -732,18 +726,37 @@ int config_read_file (const char *path)
    char line[80];
 
    if ((fp = fopen(path, "r")) == NULL) return 0;
+	old_task_font = 0;
+	old_time1_font = 0;
+	old_time2_font = 0;
 
    while (fgets(line, sizeof(line), fp) != NULL)
       parse_line (line);
 
    fclose (fp);
+
+	if (save_file_config)
+		save_config();
+
+	if (old_task_font) {
+		g_free(old_task_font);
+		old_task_font = 0;
+	}
+	if (old_time1_font) {
+		g_free(old_time1_font);
+		old_time1_font = 0;
+	}
+	if (old_time2_font) {
+		g_free(old_time2_font);
+		old_time2_font = 0;
+	}
    return 1;
 }
 
 
 void save_config ()
 {
-   fprintf(stderr, "tint2 : convert user's config file tintrc to tint2rc\n");
+   fprintf(stderr, "tint2 : convert user's config file\n");
 
    char *path, *dir;
    FILE *fp;
@@ -789,9 +802,9 @@ void save_config ()
    if (panel_position & LEFT) fputs(" left\n", fp);
    else if (panel_position & RIGHT) fputs(" right\n", fp);
    else fputs(" center\n", fp);
-   fprintf(fp, "panel_size = %d %d\n", (int)panel_config->initial_width, (int)panel_config->initial_height);
+	fprintf(fp, "panel_size = %d %d\n", (int)panel_config->initial_width, (int)panel_config->initial_height);
    fprintf(fp, "panel_margin = %d %d\n", panel_config->marginx, panel_config->marginy);
-   fprintf(fp, "panel_padding = %d %d\n", panel_config->area.paddingx, panel_config->area.paddingy);
+   fprintf(fp, "panel_padding = %d %d %d\n", panel_config->area.paddingxlr, panel_config->area.paddingy, panel_config->area.paddingx);
    fprintf(fp, "font_shadow = %d\n", panel_config->g_task.font_shadow);
    fputs("panel_background_id = 1\n", fp);
 

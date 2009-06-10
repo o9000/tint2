@@ -141,6 +141,11 @@ void event_button_press (XEvent *e)
 			// forward the click to the desktop window (thanks conky)
 			XUngrabPointer(server.dsp, e->xbutton.time);
 			e->xbutton.window = server.root_win;
+			// icewm doesn't open under the mouse.
+			// and xfce doesn't open at all.
+			//e->xbutton.x = e->xbutton.x_root;
+			//e->xbutton.y = e->xbutton.y_root;
+			//printf("**** %d, %d\n", e->xbutton.x, e->xbutton.y);
 			XSetInputFocus(server.dsp, e->xbutton.window, RevertToParent, e->xbutton.time);
 			XSendEvent(server.dsp, e->xbutton.window, False, ButtonPressMask, e);
 			return;
@@ -507,7 +512,6 @@ void event_timer()
    if (abs(stv.tv_sec - time_clock.tv_sec) < time_precision) return;
 	time_clock.tv_sec = stv.tv_sec;
 	time_clock.tv_sec -= time_clock.tv_sec % time_precision;
-printf("event_timer %d\n", time_precision);
 
 	// urgent task
 	if (task_urgent) {

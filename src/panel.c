@@ -115,6 +115,7 @@ void init_panel()
 		else {
 			p->posy = server.monitor[p->monitor].y + server.monitor[p->monitor].height - p->area.height - p->marginy;
 		}
+		//printf("posx %d, posy %d, width %d, height %d\n", p->posx, p->posy, p->area.width, p->area.height);
 
 		// Catch some events
 		XSetWindowAttributes att = { ParentRelative, 0L, 0, 0L, 0, 0, Always, 0L, 0L, False, ExposureMask|ButtonPressMask|ButtonReleaseMask, NoEventMask, False, 0, 0 };
