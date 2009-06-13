@@ -355,7 +355,6 @@ void net_message(XClientMessageEvent *e)
 	Window id;
 
 	opcode = e->data.l[1];
-
 	switch (opcode) {
 		case SYSTEM_TRAY_REQUEST_DOCK:
 			id = e->data.l[2];
@@ -363,24 +362,29 @@ void net_message(XClientMessageEvent *e)
 			break;
 
 		case SYSTEM_TRAY_BEGIN_MESSAGE:
-			printf("message from dockapp\n");
-			id = e->window;
-			break;
-
 		case SYSTEM_TRAY_CANCEL_MESSAGE:
-			printf("message cancelled\n");
-			id = e->window;
+			// we don't show baloons messages.
 			break;
 
 		default:
 			if (opcode == server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA) {
-				printf("message from dockapp:\n  %s\n", e->data.b);
-				id = e->window;
+				printf("message from dockapp: %s\n", e->data.b);
 			}
-			// unknown message type. not in the spec
+			else
+				printf("SYSTEM_TRAY : unknown message type\n");
 			break;
 	}
 }
 
+
+void refresh_systray()
+{
+	TrayWindow *traywin;
+	GSList *l;
+	for (l = systray.list_icons; l ; l = l->next) {
+		traywin = (TrayWindow*)l->data;
+		XClearArea(server.dsp, traywin->id, 0, 0, traywin->width, traywin->height, True);
+	}
+}
 
 

@@ -48,6 +48,7 @@ void draw_systray(void *obj, cairo_t *c, int active);
 
 void resize_systray(void *obj);
 
+void refresh_systray();
 
 #endif
 

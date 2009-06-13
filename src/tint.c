@@ -351,11 +351,12 @@ void event_property_notify (XEvent *e)
 			}
          panel_refresh = 1;
       }
-      // Wallpaper changed
       else if (at == server.atom._XROOTPMAP_ID) {
+			// change Wallpaper
 			for (i=0 ; i < nb_panel ; i++) {
 				set_panel_background(&panel1[i]);
 			}
+			refresh_systray();
          panel_refresh = 1;
       }
    }
@@ -454,6 +455,8 @@ void event_expose (XEvent *e)
 
 	panel = get_panel(e->xany.window);
 	if (!panel) return;
+	// TODO : one panel_refresh per panel ?
+   panel_refresh = 1;
 /*
 	if (systray.area.on_screen) {
 		// force trayer refresh
@@ -473,23 +476,30 @@ void event_expose (XEvent *e)
 		//x11_refresh_window(tray_data.dpy, ti->wid, ti->l.wnd_sz.x, ti->l.wnd_sz.y, True);
 	}
 */
-   panel_refresh = 1;
-	//XCopyArea (server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
-
 }
 
 
 void event_configure_notify (Window win)
 {
+	// check 'win' move in systray
+	TrayWindow *traywin;
+	GSList *l;
+	for (l = systray.list_icons; l ; l = l->next) {
+		traywin = (TrayWindow*)l->data;
+		if (traywin->id == win) {
+		  XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
+		  return;
+		}
+	}
+
+	// check 'win' move in another monitor
    if (nb_panel == 1) return;
    if (server.nb_monitor == 1) return;
-
    Task *tsk = task_get_task (win);
    if (!tsk) return;
 
    Panel *p = tsk->area.panel;
    if (p->monitor != window_get_monitor (win)) {
-      // task on another monitor
       remove_task (tsk);
       add_task (win);
       if (win == window_get_active ()) {
@@ -602,9 +612,13 @@ load_config:
                      event_configure_notify (e.xconfigure.window);
                   break;
 
+					case ReparentNotify:
+						if (e.xany.window == server.root_win) // reparented to us
+							break;
 					case UnmapNotify:
 					case DestroyNotify:
-						if (!systray.area.on_screen) break;
+						if (!systray.area.on_screen)
+							break;
 						for (it = systray.list_icons; it; it = g_slist_next(it)) {
 							if (((TrayWindow*)it->data)->id == e.xany.window) {
 								remove_icon((TrayWindow*)it->data);
@@ -615,7 +629,6 @@ load_config:
 
 					case ClientMessage:
 						if (!systray.area.on_screen) break;
-						//printf("ClientMessage\n");
 						if (e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
 							net_message(&e.xclient);
 						}

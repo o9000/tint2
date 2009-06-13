@@ -803,7 +803,7 @@ void save_config ()
    else if (panel_position & RIGHT) fputs(" right\n", fp);
    else fputs(" center\n", fp);
 	fprintf(fp, "panel_size = %d %d\n", (int)panel_config->initial_width, (int)panel_config->initial_height);
-   fprintf(fp, "panel_margin = %d %d\n", panel_config->marginx, panel_config->marginy);
+	fprintf(fp, "panel_margin = %d %d\n", panel_config->marginx, panel_config->marginy);
    fprintf(fp, "panel_padding = %d %d %d\n", panel_config->area.paddingxlr, panel_config->area.paddingy, panel_config->area.paddingx);
    fprintf(fp, "font_shadow = %d\n", panel_config->g_task.font_shadow);
    fputs("panel_background_id = 1\n", fp);
