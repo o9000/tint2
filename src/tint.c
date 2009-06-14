@@ -457,25 +457,6 @@ void event_expose (XEvent *e)
 	if (!panel) return;
 	// TODO : one panel_refresh per panel ?
    panel_refresh = 1;
-/*
-	if (systray.area.on_screen) {
-		// force trayer refresh
-		//XClearWindow(tray_data.dpy, ti->mid_parent);
-		//x11_send_visibility(tray_data.dpy, dst, VisibilityFullyObscured);
-		//x11_send_visibility(tray_data.dpy, dst, VisibilityUnobscured);
-
-		GSList *l;
-		TrayWindow *traywin;
-		for (l = systray.list_icons; l ; l = l->next) {
-			traywin = (TrayWindow*)l->data;
-			// send Expose event
-			XClearArea(server.dsp, traywin->id, 0, 0, systray.area.width, systray.area.height, True);
-			//printf("expose %lx\n", traywin->id);
-		}
-
-		//x11_refresh_window(tray_data.dpy, ti->wid, ti->l.wnd_sz.x, ti->l.wnd_sz.y, True);
-	}
-*/
 }
 
 
@@ -487,8 +468,10 @@ void event_configure_notify (Window win)
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
 		if (traywin->id == win) {
-		  XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
-		  return;
+			//printf("move tray %d\n", traywin->x);
+			XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
+	      panel_refresh = 1;
+			return;
 		}
 	}
 

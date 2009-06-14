@@ -105,16 +105,15 @@ void draw_systray(void *obj, cairo_t *c, int active)
 		traywin = (TrayWindow*)l->data;
 
 		// watch for the icon trying to resize itself!
-		XSelectInput(server.dsp, traywin->id, StructureNotifyMask|ResizeRedirectMask);
+		//XSelectInput(server.dsp, traywin->id, StructureNotifyMask|ResizeRedirectMask);
+		XSelectInput(server.dsp, traywin->id, StructureNotifyMask);
 
 		// position and size the icon window
 		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
+		//printf("icon %d, %d, %d\n", traywin->x, traywin->y, icon_size);
 		// ceci intervertie les fonds : le premier icone prend le fond du dernier
 		// le dernier prend le fond de l'avant dernier, ...
 		XSetWindowBackgroundPixmap (server.dsp, panel->main_win, systray.area.pix.pmap);
-
-		// resize our window so that the new window can fit in it
-		//fix_geometry();
 
 		// flush before clearing, otherwise the clear isn't effective.
 		XFlush(server.dsp);
@@ -158,6 +157,8 @@ void resize_systray(void *obj)
 
 		traywin->y = posy;
 		traywin->x = posx;
+		traywin->width = icon_size;
+		traywin->height = icon_size;
 		posx += (icon_size + systray.area.paddingx);
 	}
 
@@ -260,7 +261,7 @@ int window_error_handler(Display *d, XErrorEvent *e)
   if (e->error_code == BadWindow) {
     error = TRUE;
   } else {
-    //g_printerr("X ERROR NOT BAD WINDOW!\n");
+	 printf("error_handler %d\n", e->error_code);
     abort();
   }
   return 0;
