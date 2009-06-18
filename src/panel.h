@@ -14,13 +14,15 @@
 #include <pango/pangocairo.h>
 #include <sys/time.h>
 
-#include "battery.h"
 #include "common.h"
 #include "clock.h"
 #include "task.h"
 #include "taskbar.h"
 #include "systraybar.h"
 
+#ifdef ENABLE_BATTERY
+#include "battery.h"
+#endif
 
 
 extern int signal_pending;
@@ -82,8 +84,9 @@ typedef struct {
 
 	// --------------------------------------------------
 	// battery
+#ifdef ENABLE_BATTERY
 	Battery battery;
-
+#endif
 } Panel;
 
 

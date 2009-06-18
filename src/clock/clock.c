@@ -185,7 +185,9 @@ void resize_clock (void *obj)
 
       // resize other objects on panel
 		panel->area.resize = 1;
+#ifdef ENABLE_BATTERY
 		panel->battery.area.resize = 1;
+#endif
 		systray.area.resize = 1;
 		panel_refresh = 1;
    }

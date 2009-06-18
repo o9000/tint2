@@ -50,8 +50,9 @@ void init ()
 {
 	// Set signal handler
    signal(SIGUSR1, signal_handler);
-   signal(SIGINT, signal_handler);
-   signal(SIGTERM, signal_handler);
+	signal(SIGINT, signal_handler);
+	signal(SIGTERM, signal_handler);
+	signal(SIGHUP, signal_handler);
 
    // set global data
    memset(&server, 0, sizeof(Server_global));
@@ -92,6 +93,7 @@ void cleanup()
    if (time2_font_desc) pango_font_description_free(time2_font_desc);
    if (time1_format) g_free(time1_format);
    if (time2_format) g_free(time2_format);
+#ifdef ENABLE_BATTERY
    if (bat1_font_desc) pango_font_description_free(bat1_font_desc);
    if (bat2_font_desc) pango_font_description_free(bat2_font_desc);
 	if (battery_low_cmd) g_free(battery_low_cmd);
@@ -99,6 +101,7 @@ void cleanup()
 	if (path_energy_full) g_free(path_energy_full);
 	if (path_current_now) g_free(path_current_now);
 	if (path_status) g_free(path_status);
+#endif
 	if (clock_lclick_command) g_free(clock_lclick_command);
 	if (clock_rclick_command) g_free(clock_rclick_command);
 
@@ -513,11 +516,13 @@ void event_timer()
 	}
 
 	// update battery
+#ifdef ENABLE_BATTERY
 	if (panel1[0].battery.area.on_screen) {
-		update_battery(&battery_state);
+		update_battery();
 		for (i=0 ; i < nb_panel ; i++)
 			panel1[i].battery.area.resize = 1;
 	}
+#endif
 
 	// update clock
    if (time1_format) {
@@ -626,6 +631,7 @@ load_config:
             goto load_config;
 			case SIGINT:
 			case SIGTERM:
+			case SIGHUP:
 			   cleanup ();
 			   return 0;
       }

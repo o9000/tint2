@@ -40,10 +40,14 @@
 #include "taskbar.h"
 #include "systraybar.h"
 #include "clock.h"
-#include "battery.h"
 #include "panel.h"
 #include "config.h"
 #include "window.h"
+
+#ifdef ENABLE_BATTERY
+#include "battery.h"
+#endif
+
 
 // --------------------------------------------------
 // backward compatibility
@@ -54,8 +58,10 @@ static char *old_time1_font;
 static char *old_time2_font;
 static Area *area_task, *area_task_active;
 
+#ifdef ENABLE_BATTERY
 static char *old_bat1_font;
 static char *old_bat2_font;
+#endif
 
 // temporary panel
 static Panel *panel_config = 0;
@@ -75,8 +81,8 @@ void init_config()
    list_back = g_slist_append(0, calloc(1, sizeof(Area)));
 
 	panel_config = calloc(1, sizeof(Panel));
-	// window manager's menu default value == true
-	wm_menu = 1;
+	// window manager's menu default value == false
+	wm_menu = 0;
 }
 
 
@@ -314,6 +320,7 @@ void add_entry (char *key, char *value)
       wm_menu = atoi (value);
 
    /* Battery */
+#ifdef ENABLE_BATTERY
    else if (strcmp (key, "battery") == 0) {
 		if(atoi(value) == 1)
 			panel_config->battery.area.on_screen = 1;
@@ -356,6 +363,11 @@ void add_entry (char *key, char *value)
       memcpy(&panel_config->battery.area.pix.back, &a->pix.back, sizeof(Color));
       memcpy(&panel_config->battery.area.pix.border, &a->pix.border, sizeof(Border));
    }
+#else
+   else if ((strcmp (key, "battery") == 0) || (strcmp (key, "battery_low_status") == 0) || (strcmp (key, "battery_low_cmd") == 0) || (strcmp (key, "bat1_font") == 0) || (strcmp (key, "bat2_font") == 0) || (strcmp (key, "battery_font_color") == 0) || (strcmp (key, "battery_padding") == 0) || (strcmp (key, "battery_background_id") == 0)) {
+		printf("tint2 is build without battery support\n");
+   }
+#endif
 
    /* Clock */
    else if (strcmp (key, "time1_format") == 0) {
@@ -646,7 +658,9 @@ void config_finish ()
 	// clock and systray before taskbar because resize(clock) can resize others object ??
    init_panel();
 	init_clock();
+#ifdef ENABLE_BATTERY
 	init_battery();
+#endif
 	init_systray();
 	init_taskbar();
 	visible_object();
@@ -850,6 +864,7 @@ void save_config ()
    fputs("clock_padding = 2 2\n", fp);
    fputs("clock_background_id = 0\n", fp);
 
+#ifdef ENABLE_BATTERY
 	fputs("\n#---------------------------------------------\n", fp);
 	fputs("# BATTERY\n", fp);
 	fputs("#---------------------------------------------\n", fp);
@@ -861,6 +876,7 @@ void save_config ()
 	fprintf(fp, "battery_font_color = #%02x%02x%02x %d\n", (int)(panel_config->battery.font.color[0]*255), (int)(panel_config->battery.font.color[1]*255), (int)(panel_config->battery.font.color[2]*255), (int)(panel_config->battery.font.alpha*100));
 	fputs("battery_padding = 2 2\n", fp);
 	fputs("battery_background_id = 0\n", fp);
+#endif
 
    fputs("\n#---------------------------------------------\n", fp);
    fputs("# MOUSE ACTION ON TASK\n", fp);

@@ -267,6 +267,8 @@ next:
    }
 
 	// detect number of desktops
+	// wait 15s to leave some time for window manager startup
+	// FIXME: We should also provide a small warning about not respected NETWM specs.
    for (i=0 ; i < 15 ; i++) {
       server.nb_desktop = server_get_number_of_desktop ();
       if (server.nb_desktop > 0) break;

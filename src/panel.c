@@ -73,12 +73,13 @@ void init_panel()
 		// add childs
 	   if (p->clock.area.on_screen)
 			p->area.list = g_slist_append(p->area.list, &p->clock);
+#ifdef ENABLE_BATTERY
 		if (p->battery.area.on_screen)
 			p->area.list = g_slist_append(p->area.list, &p->battery);
-	   if (systray.area.on_screen && i == 0) {
-	   	// systray only on first panel
+#endif
+   	// systray only on first panel
+	   if (systray.area.on_screen && i == 0)
 			p->area.list = g_slist_append(p->area.list, &systray);
-		}
 
 		// detect panel size
 		if (p->pourcentx)
@@ -179,8 +180,10 @@ void resize_panel(void *obj)
    taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
    if (panel->clock.area.on_screen && panel->clock.area.width)
       taskbar_width -= (panel->clock.area.width + panel->area.paddingx);
+#ifdef ENABLE_BATTERY
 	if (panel->battery.area.on_screen && panel->battery.area.width)
 		taskbar_width -= (panel->battery.area.width + panel->area.paddingx);
+#endif
    // TODO : systray only on first panel. search better implementation !
    if (systray.area.on_screen && systray.area.width && panel == &panel1[0])
    	taskbar_width -= (systray.area.width + panel->area.paddingx);

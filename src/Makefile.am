@@ -3,10 +3,10 @@ AM_CFLAGS += @PANGOCAIRO_CFLAGS@ @PANGO_CFLAGS@ @CAIRO_CFLAGS@ @GLIB2_CFLAGS@ @G
 
 AM_LDFLAGS = -Wl,--as-needed
 
-bin_PROGRAMS = tint2
 LIBS = @PANGOCAIRO_LIBS@ @PANGO_LIBS@ @CAIRO_LIBS@ @GLIB2_LIBS@ @GOBJECT2_LIBS@ @X11_LIBS@ @XINERAMA_LIBS@ @IMLIB2_LIBS@
-#noinst_LIBRARIES
-INCLUDES = -Iutil -Ibattery -Iclock -Itaskbar -Isystray
+INCLUDES = -Iutil -Iclock -Itaskbar -Isystray
+
+bin_PROGRAMS = tint2
 tint2_SOURCES = config.c \
 				util/area.h \
 				util/common.h \
@@ -26,9 +26,15 @@ tint2_SOURCES = config.c \
 				taskbar/taskbar.c \
 				taskbar/task.c \
 				taskbar/taskbar.h \
-				taskbar/task.h \
-				battery/battery.c \
-				battery/battery.h
+				taskbar/task.h 
+
+if ENABLE_BATTERY
+AM_CFLAGS += -DENABLE_BATTERY
+INCLUDES += -Ibattery
+tint2_SOURCES += battery/battery.c \
+				 battery/battery.h
+endif
 
 DISTCLEANFILES = Makefile.in
+
 

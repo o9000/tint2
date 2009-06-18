@@ -54,7 +54,7 @@ extern char *path_energy_now, *path_energy_full, *path_current_now, *path_status
 
 
 // initialize clock : y position, ...
-void update_battery(struct batstate *data);
+void update_battery();
 
 void init_battery();
 

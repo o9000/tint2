@@ -60,6 +60,15 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([gettimeofday memset select setlocale strcasecmp strchr strdup])
 
+AC_ARG_ENABLE([battery],
+			  [AS_HELP_STRING([--enable-battery=no], [Disable battery status, only useful for notebooks [default=yes]])],
+			  [case "${enableval}" in
+			   yes) battery=true ;;
+			   no) battery=false ;;
+			   *) AC_MSG_ERROR([bad value ${enableval} for --enable-battery]) ;;
+		   esac], [battery=true])
+AM_CONDITIONAL([ENABLE_BATTERY], [test x$battery = xtrue])
+
 AC_ARG_ENABLE([examples],
 			  [AS_HELP_STRING([--enable-examples], [Install additional $(PACKAGE_NAME)rc examples])],
 			  [case "${enableval}" in

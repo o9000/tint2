@@ -66,8 +66,10 @@ void init_systray()
 	systray.area.posx = panel->area.width - panel->area.paddingxlr - panel->area.pix.border.width - systray.area.width;
 	if (panel->clock.area.on_screen)
 		systray.area.posx -= (panel->clock.area.width + panel->area.paddingx);
+#ifdef ENABLE_BATTERY
 	if (panel->battery.area.on_screen)
 		systray.area.posx -= (panel->battery.area.width + panel->area.paddingx);
+#endif
 
 	systray.area.redraw = 1;
 }
@@ -145,8 +147,10 @@ void resize_systray(void *obj)
 	systray.area.posx = panel->area.width - panel->area.pix.border.width - panel->area.paddingxlr - systray.area.width;
 	if (panel->clock.area.on_screen)
 		systray.area.posx -= (panel->clock.area.width + panel->area.paddingx);
+#ifdef ENABLE_BATTERY
 	if (panel->battery.area.on_screen)
 		systray.area.posx -= (panel->battery.area.width + panel->area.paddingx);
+#endif
 
 	systray.area.redraw = 1;
 
@@ -257,29 +261,28 @@ void fix_geometry()
 gboolean error;
 int window_error_handler(Display *d, XErrorEvent *e)
 {
-  d=d;e=e;
-  if (e->error_code == BadWindow) {
-    error = TRUE;
-  } else {
-	 printf("error_handler %d\n", e->error_code);
-    abort();
-  }
-  return 0;
+	d=d;e=e;
+	error = TRUE;
+	if (e->error_code != BadWindow) {
+		printf("error_handler %d\n", e->error_code);
+	}
+	return 0;
 }
 
 
 gboolean icon_swallow(Window id)
 {
-  XErrorHandler old;
-  Panel *panel = systray.area.panel;
+	XErrorHandler old;
+	Panel *panel = systray.area.panel;
 
-  error = FALSE;
-  old = XSetErrorHandler(window_error_handler);
-  XReparentWindow(server.dsp, id, panel->main_win, 0, 0);
-  XSync(server.dsp, False);
-  XSetErrorHandler(old);
+	error = FALSE;
+	old = XSetErrorHandler(window_error_handler);
+	XReparentWindow(server.dsp, id, panel->main_win, 0, 0);
+	printf("icon_swallow %lx %lx\n", id, panel->main_win);
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
 
-  return !error;
+	return !error;
 }
 
 
@@ -305,19 +308,6 @@ gboolean add_icon(Window id)
 	Panel *panel = systray.area.panel;
 	panel->area.resize = 1;
 	panel_refresh = 1;
-
-// => calcul x, y, width, height dans resize
-/*
-	// find the positon for the systray app window
-	int count = g_slist_length(icons);
-	traywin->x = border + ((width % icon_size) / 2) +
-	(count % (width / icon_size)) * icon_size;
-	traywin->y = border + ((height % icon_size) / 2) +
-	(count / (height / icon_size)) * icon_size;
-
-	// add the new icon to the list
-	icons = g_slist_append(icons, traywin);
-*/
 
 	return TRUE;
 }

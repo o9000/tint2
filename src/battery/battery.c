@@ -44,76 +44,6 @@ char *battery_low_cmd;
 char *path_energy_now, *path_energy_full, *path_current_now, *path_status;
 
 
-void update_battery(struct batstate *data) {
-	FILE *fp;
-	char tmp[25];
-	int64_t energy_now = 0, energy_full = 0, current_now = 0;
-	int seconds = 0;
-	int8_t new_percentage = 0;
-
-	fp = fopen(path_energy_now, "r");
-	if(fp != NULL) {
-		fgets(tmp, sizeof tmp, fp);
-		energy_now = atoi(tmp);
-		fclose(fp);
-	}
-
-	fp = fopen(path_energy_full, "r");
-	if(fp != NULL) {
-		fgets(tmp, sizeof tmp, fp);
-		energy_full = atoi(tmp);
-		fclose(fp);
-	}
-
-	fp = fopen(path_current_now, "r");
-	if(fp != NULL) {
-		fgets(tmp, sizeof tmp, fp);
-		current_now = atoi(tmp);
-		fclose(fp);
-	}
-
-	fp = fopen(path_status, "r");
-	if(fp != NULL) {
-		fgets(tmp, sizeof tmp, fp);
-		fclose(fp);
-	}
-
-	data->state = BATTERY_UNKNOWN;
-	if(strcasecmp(tmp, "Charging\n")==0) data->state = BATTERY_CHARGING;
-	if(strcasecmp(tmp, "Discharging\n")==0) data->state = BATTERY_DISCHARGING;
-
-	if(current_now > 0) {
-		switch(data->state) {
-			case BATTERY_CHARGING:
-				seconds = 3600 * (energy_full - energy_now) / current_now;
-				break;
-			case BATTERY_DISCHARGING:
-				seconds = 3600 * energy_now / current_now;
-				break;
-			default:
-				seconds = 0;
-				break;
-		}
-	} else seconds = 0;
-
-	data->time.hours = seconds / 3600;
-	seconds -= 3600 * data->time.hours;
-	data->time.minutes = seconds / 60;
-	seconds -= 60 * data->time.minutes;
-	data->time.seconds = seconds;
-
-	if(energy_full > 0)
-		new_percentage = (energy_now*100)/energy_full;
-
-	if(battery_low_status != 0 && battery_low_status == new_percentage && data->percentage > new_percentage) {
-		printf("battery low, executing: %s\n", battery_low_cmd);
-		if(battery_low_cmd) system(battery_low_cmd);
-	}
-
-	data->percentage = new_percentage;
-}
-
-
 void init_battery()
 {
 	// check battery
@@ -172,13 +102,14 @@ void init_battery()
 		panel = &panel1[i];
 		battery = &panel->battery;
 
+		if (battery_dir == 0) battery->area.on_screen = 0;
+		if (!battery->area.on_screen) continue;
+
 		battery->area.parent = panel;
 		battery->area.panel = panel;
 		battery->area._draw_foreground = draw_battery;
 		battery->area._resize = resize_battery;
 
-		if (battery_dir == 0) panel->battery.area.on_screen = 0;
-		if (!battery->area.on_screen) continue;
 		if((fp = fopen(path_energy_now, "r")) == NULL) {
 			fprintf(stderr, "ERROR: battery applet can't open energy_now\n");
 			panel->battery.area.on_screen = 0;
@@ -221,6 +152,76 @@ void init_battery()
 		battery->bat1_posy -= ((bat_time_height_ink + 2) / 2);
 		battery->bat2_posy = battery->bat1_posy + bat_percentage_height + 2 - (bat_percentage_height - bat_percentage_height_ink)/2 - (bat_time_height - bat_time_height_ink)/2;
 	}
+}
+
+
+void update_battery() {
+	FILE *fp;
+	char tmp[25];
+	int64_t energy_now = 0, energy_full = 0, current_now = 0;
+	int seconds = 0;
+	int8_t new_percentage = 0;
+
+	fp = fopen(path_energy_now, "r");
+	if(fp != NULL) {
+		fgets(tmp, sizeof tmp, fp);
+		energy_now = atoi(tmp);
+		fclose(fp);
+	}
+
+	fp = fopen(path_energy_full, "r");
+	if(fp != NULL) {
+		fgets(tmp, sizeof tmp, fp);
+		energy_full = atoi(tmp);
+		fclose(fp);
+	}
+
+	fp = fopen(path_current_now, "r");
+	if(fp != NULL) {
+		fgets(tmp, sizeof tmp, fp);
+		current_now = atoi(tmp);
+		fclose(fp);
+	}
+
+	fp = fopen(path_status, "r");
+	if(fp != NULL) {
+		fgets(tmp, sizeof tmp, fp);
+		fclose(fp);
+	}
+
+	battery_state.state = BATTERY_UNKNOWN;
+	if(strcasecmp(tmp, "Charging\n")==0) battery_state.state = BATTERY_CHARGING;
+	if(strcasecmp(tmp, "Discharging\n")==0) battery_state.state = BATTERY_DISCHARGING;
+
+	if(current_now > 0) {
+		switch(battery_state.state) {
+			case BATTERY_CHARGING:
+				seconds = 3600 * (energy_full - energy_now) / current_now;
+				break;
+			case BATTERY_DISCHARGING:
+				seconds = 3600 * energy_now / current_now;
+				break;
+			default:
+				seconds = 0;
+				break;
+		}
+	} else seconds = 0;
+
+	battery_state.time.hours = seconds / 3600;
+	seconds -= 3600 * battery_state.time.hours;
+	battery_state.time.minutes = seconds / 60;
+	seconds -= 60 * battery_state.time.minutes;
+	battery_state.time.seconds = seconds;
+
+	if(energy_full > 0)
+		new_percentage = (energy_now*100)/energy_full;
+
+	if(battery_low_status != 0 && battery_low_status == new_percentage && battery_state.percentage > new_percentage) {
+		printf("battery low, executing: %s\n", battery_low_cmd);
+		if(battery_low_cmd) system(battery_low_cmd);
+	}
+
+	battery_state.percentage = new_percentage;
 }
 
 
