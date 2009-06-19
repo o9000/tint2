@@ -3,7 +3,7 @@ rcdir = $(sysconfdir)/xdg/$(PACKAGE_NAME)
 ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = doc src
-dist_doc_DATA = AUTHORS ChangeLog NEWS README INSTALL
+dist_doc_DATA = AUTHORS ChangeLog NEWS README
 EXTRA_DIST = autogen.sh README.source
 
 dist_rc_DATA = tint2rc
