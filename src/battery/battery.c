@@ -305,7 +305,7 @@ void resize_battery(void *obj)
 	if(new_width > old_width || new_width < (old_width-6)) {
 		// refresh and resize other objects on panel
 		// we try to limit the number of refresh
-		printf("battery_width %d, new_width %d\n", battery->area.width, new_width);
+		// printf("battery_width %d, new_width %d\n", battery->area.width, new_width);
 		panel->area.resize = 1;
 		systray.area.resize = 1;
 		panel_refresh = 1;

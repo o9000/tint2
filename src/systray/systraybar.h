@@ -2,7 +2,7 @@
 * Copyright (C) 2009 thierry lorthiois (lorthiois@bbsoft.fr)
 *
 * systraybar
-* based on 'docker-1.5' from Ben Jansens
+* based on 'docker-1.5' from Ben Jansens.
 *
 **************************************************************************/
 
@@ -43,8 +43,6 @@ void cleanup_net();
 void net_message(XClientMessageEvent *e);
 
 void remove_icon(TrayWindow *traywin);
-
-void draw_systray(void *obj, cairo_t *c, int active);
 
 void resize_systray(void *obj);
 

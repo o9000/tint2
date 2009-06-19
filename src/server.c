@@ -268,7 +268,6 @@ next:
 
 	// detect number of desktops
 	// wait 15s to leave some time for window manager startup
-	// FIXME: We should also provide a small warning about not respected NETWM specs.
    for (i=0 ; i < 15 ; i++) {
       server.nb_desktop = server_get_number_of_desktop ();
       if (server.nb_desktop > 0) break;
@@ -276,7 +275,7 @@ next:
    }
    if (server.nb_desktop == 0) {
       server.nb_desktop = 1;
-      fprintf(stderr, "tint2 : cannot found number of desktop.\n");
+      fprintf(stderr, "warning : WM doesn't respect NETWM specs. tint2 default to 1 desktop.\n");
    }
   	fprintf(stderr, "tint2 : nb monitor %d, nb desktop %d\n", server.nb_monitor, server.nb_desktop);
 }

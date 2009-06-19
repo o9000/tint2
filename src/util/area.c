@@ -41,7 +41,6 @@ void refresh (Area *a)
 	size(a);
 
 	// don't draw transparent objects (without foreground and without background)
-
    if (a->redraw) {
 	   a->redraw = 0;
 	   //printf("draw area posx %d, width %d\n", a->posx, a->width);

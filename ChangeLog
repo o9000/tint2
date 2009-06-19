@@ -1,3 +1,6 @@
+2009-06-19
+- change systray code. fixed issue 91.
+
 2009-06-18
 - patch by Christian Ruppert, configure option for battery
 
