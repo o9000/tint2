@@ -42,6 +42,7 @@ Window net_sel_win = None, hint_win = None;
 
 // freedesktop specification doesn't allow multi systray
 Systraybar systray;
+int refresh_systray;
 
 
 void init_systray()
@@ -56,7 +57,9 @@ void init_systray()
 
 	systray.area.parent = panel;
 	systray.area.panel = panel;
+	systray.area._draw_foreground = draw_systray;
 	systray.area._resize = resize_systray;
+	refresh_systray = 0;
 
 	// configure systray
 	// draw only one systray (even with multi panel)
@@ -90,6 +93,13 @@ void cleanup_systray()
 	free_area(&systray.area);
 
 	cleanup_net();
+}
+
+
+void draw_systray(void *obj, cairo_t *c, int active)
+{
+	// tint2 don't draw systray icons. just the background.
+	refresh_systray = 1;
 }
 
 
@@ -310,7 +320,7 @@ void net_message(XClientMessageEvent *e)
 }
 
 
-void refresh_systray()
+void refresh_systray_icon()
 {
 	TrayWindow *traywin;
 	GSList *l;

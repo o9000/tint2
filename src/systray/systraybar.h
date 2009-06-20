@@ -33,6 +33,7 @@ typedef struct
 
 extern Window net_sel_win;
 extern Systraybar systray;
+extern int refresh_systray;
 
 
 void init_systray();
@@ -44,9 +45,11 @@ void net_message(XClientMessageEvent *e);
 
 void remove_icon(TrayWindow *traywin);
 
+void draw_systray(void *obj, cairo_t *c, int active);
+
 void resize_systray(void *obj);
 
-void refresh_systray();
+void refresh_systray_icon();
 
 #endif
 

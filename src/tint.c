@@ -650,26 +650,29 @@ load_config:
       if (panel_refresh) {
 			panel_refresh = 0;
 
+			if (refresh_systray) {
+				panel = (Panel*)systray.area.panel;
+				XSetWindowBackgroundPixmap (server.dsp, panel->main_win, None);
+			}
 			for (i=0 ; i < nb_panel ; i++) {
 				panel = &panel1[i];
-
-				if (panel == systray.area.panel)
-					XSetWindowBackgroundPixmap (server.dsp, panel->main_win, None);
 
 				if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
 				panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
 
 			 	refresh(&panel->area);
 			   XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
-
-				if (panel == systray.area.panel) {
-					// tint2 doen't draw systray icons. it just redraw background.
-					XSetWindowBackgroundPixmap (server.dsp, panel->main_win, panel->temp_pmap);
-					// force icon's refresh
-					refresh_systray();
-				}
 			}
 			XFlush (server.dsp);
+
+			if (refresh_systray) {
+				refresh_systray = 0;
+				panel = (Panel*)systray.area.panel;
+				// tint2 doen't draw systray icons. it just redraw background.
+				XSetWindowBackgroundPixmap (server.dsp, panel->main_win, panel->temp_pmap);
+				// force icon's refresh
+				refresh_systray_icon();
+			}
 		}
    }
 }
