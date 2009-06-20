@@ -83,6 +83,7 @@ void init_config()
 	panel_config = calloc(1, sizeof(Panel));
 	// window manager's menu default value == false
 	wm_menu = 0;
+	max_tick_urgent = 7;
 }
 
 
@@ -318,6 +319,8 @@ void add_entry (char *key, char *value)
    }
    else if (strcmp (key, "wm_menu") == 0)
       wm_menu = atoi (value);
+   else if (strcmp (key, "urgent_nb_of_blink") == 0)
+      max_tick_urgent = (atoi (value) * 2) + 1;
 
    /* Battery */
 #ifdef ENABLE_BATTERY

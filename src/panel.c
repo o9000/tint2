@@ -47,6 +47,8 @@ int panel_refresh;
 Task *task_active;
 Task *task_drag;
 Task *task_urgent;
+int  tick_urgent;
+int  max_tick_urgent;
 
 Panel *panel1 = 0;
 int  nb_panel;

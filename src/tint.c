@@ -390,6 +390,7 @@ void event_property_notify (XEvent *e)
       else if (at == server.atom._NET_WM_STATE) {
          if (window_is_urgent (win)) {
 				task_urgent = tsk;
+				tick_urgent = 0;
 				time_precision = 1;
 			}
 		}
@@ -510,8 +511,11 @@ void event_timer()
 
 	// urgent task
 	if (task_urgent) {
-		task_urgent->area.is_active = !task_urgent->area.is_active;
-		task_urgent->area.redraw = 1;
+		if (tick_urgent < max_tick_urgent) {
+			task_urgent->area.is_active = !task_urgent->area.is_active;
+			task_urgent->area.redraw = 1;
+			tick_urgent++;
+		}
 	}
 
 	// update battery
@@ -547,8 +551,16 @@ int main (int argc, char *argv[])
 load_config:
    i = 0;
 	init_config();
-   if (c != -1)
+   if (c != -1) {
       i = config_read_file (optarg);
+	   c = getopt (argc, argv, "j:");
+	   if (c != -1) {
+			// usage: tint2 [-c] <config_file> -j <jpeg_file> for internal use
+   	   printf("jpeg file %s\n", optarg);
+	      cleanup();
+   	   exit(0);
+		}
+	}
    if (!i)
       i = config_read ();
    if (!i) {
