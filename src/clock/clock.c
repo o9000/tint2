@@ -71,26 +71,38 @@ void init_clock()
 	   panel = &panel1[i];
 	   clock = &panel->clock;
 
+		if (!clock->area.on_screen) continue;
+
 		clock->area.parent = panel;
 		clock->area.panel = panel;
 		clock->area._draw_foreground = draw_clock;
 		clock->area._resize = resize_clock;
-
-		if (!clock->area.on_screen) continue;
-
-		clock->area.posy = panel->area.pix.border.width + panel->area.paddingy;
-		clock->area.height = panel->area.height - (2 * clock->area.posy);
 		clock->area.resize = 1;
 		clock->area.redraw = 1;
 
 		strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
-		if (time2_format)
-			strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
-
 		get_text_size(time1_font_desc, &time_height_ink, &time_height, panel->area.height, buf_time, strlen(buf_time));
-		clock->time1_posy = (clock->area.height - time_height) / 2;
-
 		if (time2_format) {
+			strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
+			get_text_size(time2_font_desc, &date_height_ink, &date_height, panel->area.height, buf_date, strlen(buf_date));
+		}
+
+		if (panel_horizontal) {
+			// panel horizonal => fixed height and posy
+			clock->area.posy = panel->area.pix.border.width + panel->area.paddingy;
+			clock->area.height = panel->area.height - (2 * clock->area.posy);
+		}
+		else {
+			// panel vertical => fixed width, height, posy and posx
+			clock->area.posy = panel->area.pix.border.width + panel->area.paddingxlr;
+			clock->area.height = (2 * clock->area.paddingxlr) + (time_height + date_height);
+			clock->area.posx = panel->area.pix.border.width + panel->area.paddingy;
+			clock->area.width = panel->area.width - (2 * panel->area.pix.border.width) - (2 * panel->area.paddingy);
+		}
+
+		clock->time1_posy = (clock->area.height - time_height) / 2;
+		if (time2_format) {
+			strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
 			get_text_size(time2_font_desc, &date_height_ink, &date_height, panel->area.height, buf_date, strlen(buf_date));
 
 			clock->time1_posy -= ((date_height_ink + 2) / 2);
@@ -105,7 +117,6 @@ void draw_clock (void *obj, cairo_t *c, int active)
    Clock *clock = obj;
    PangoLayout *layout;
 
-   //printf("  draw_clock : %s en (%d, %d)\n", buf_time, clock->area.posx, clock->area.width);
    layout = pango_cairo_create_layout (c);
 
    // draw layout
@@ -141,12 +152,14 @@ void resize_clock (void *obj)
    PangoLayout *layout;
    int time_width, date_width, new_width;
 
-   time_width = date_width = 0;
    clock->area.redraw = 1;
-
+   time_width = date_width = 0;
    strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
    if (time2_format)
       strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
+
+	// vertical panel doen't adjust width
+	if (!panel_horizontal) return;
 
    //printf("  resize_clock\n");
    cairo_surface_t *cs;
@@ -159,20 +172,20 @@ void resize_clock (void *obj)
    layout = pango_cairo_create_layout (c);
 
    // check width
-   pango_layout_set_font_description (layout, time1_font_desc);
-   pango_layout_set_indent(layout, 0);
-   pango_layout_set_text (layout, buf_time, strlen(buf_time));
-   pango_layout_get_pixel_size (layout, &time_width, NULL);
-   if (time2_format) {
-      pango_layout_set_font_description (layout, time2_font_desc);
-      pango_layout_set_indent(layout, 0);
-      pango_layout_set_text (layout, buf_date, strlen(buf_date));
-      pango_layout_get_pixel_size (layout, &date_width, NULL);
-   }
+	pango_layout_set_font_description (layout, time1_font_desc);
+	pango_layout_set_indent(layout, 0);
+	pango_layout_set_text (layout, buf_time, strlen(buf_time));
+	pango_layout_get_pixel_size (layout, &time_width, NULL);
+	if (time2_format) {
+		pango_layout_set_font_description (layout, time2_font_desc);
+		pango_layout_set_indent(layout, 0);
+		pango_layout_set_text (layout, buf_date, strlen(buf_date));
+		pango_layout_get_pixel_size (layout, &date_width, NULL);
+	}
 
-   if (time_width > date_width) new_width = time_width;
-   else new_width = date_width;
-   new_width += (2*clock->area.paddingxlr) + (2*clock->area.pix.border.width);
+	if (time_width > date_width) new_width = time_width;
+	else new_width = date_width;
+	new_width += (2*clock->area.paddingxlr) + (2*clock->area.pix.border.width);
 
    if (new_width > clock->area.width || new_width < (clock->area.width-6)) {
       Panel *panel = ((Area*)obj)->panel;
@@ -180,8 +193,8 @@ void resize_clock (void *obj)
       // resize clock
       // we try to limit the number of resize
       // printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
-      clock->area.width = new_width + 1;
-      clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.pix.border.width;
+		clock->area.width = new_width + 1;
+		clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.pix.border.width;
 
       // resize other objects on panel
 		panel->area.resize = 1;

@@ -109,6 +109,8 @@ void init_battery()
 		battery->area.panel = panel;
 		battery->area._draw_foreground = draw_battery;
 		battery->area._resize = resize_battery;
+		battery->area.resize = 1;
+		battery->area.redraw = 1;
 
 		if((fp = fopen(path_energy_now, "r")) == NULL) {
 			fprintf(stderr, "ERROR: battery applet can't open energy_now\n");
@@ -135,20 +137,27 @@ void init_battery()
 		}
 		fclose(fp);
 
-		battery->area.posy = panel->area.pix.border.width + panel->area.paddingy;
-		battery->area.height = panel->area.height - (2 * battery->area.posy);
-		battery->area.resize = 1;
-		battery->area.redraw = 1;
-
 		update_battery(&battery_state);
 		snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
 		snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
 
 		get_text_size(bat1_font_desc, &bat_percentage_height_ink, &bat_percentage_height, panel->area.height, buf_bat_percentage, strlen(buf_bat_percentage));
-		battery->bat1_posy = (battery->area.height - bat_percentage_height) / 2;
-
 		get_text_size(bat2_font_desc, &bat_time_height_ink, &bat_time_height, panel->area.height, buf_bat_time, strlen(buf_bat_time));
 
+		if (panel_horizontal) {
+			// panel horizonal => fixed height and posy
+			battery->area.posy = panel->area.pix.border.width + panel->area.paddingy;
+			battery->area.height = panel->area.height - (2 * battery->area.posy);
+		}
+		else {
+			// panel vertical => fixed width, height, posy and posx
+			battery->area.posy = panel->clock.area.posy + panel->clock.area.height + panel->area.paddingx;
+			battery->area.height = (2 * battery->area.paddingxlr) + (bat_time_height + bat_percentage_height);
+			battery->area.posx = panel->area.pix.border.width + panel->area.paddingy;
+			battery->area.width = panel->area.width - (2 * panel->area.pix.border.width) - (2 * panel->area.paddingy);
+		}
+
+		battery->bat1_posy = (battery->area.height - bat_percentage_height) / 2;
 		battery->bat1_posy -= ((bat_time_height_ink + 2) / 2);
 		battery->bat2_posy = battery->bat1_posy + bat_percentage_height + 2 - (bat_percentage_height - bat_percentage_height_ink)/2 - (bat_time_height - bat_time_height_ink)/2;
 	}
@@ -217,8 +226,8 @@ void update_battery() {
 		new_percentage = (energy_now*100)/energy_full;
 
 	if(battery_low_status != 0 && battery_low_status == new_percentage && battery_state.percentage > new_percentage) {
-		printf("battery low, executing: %s\n", battery_low_cmd);
-		if(battery_low_cmd) system(battery_low_cmd);
+		//printf("battery low, executing: %s\n", battery_low_cmd);
+		if (battery_low_cmd) system(battery_low_cmd);
 	}
 
 	battery_state.percentage = new_percentage;
@@ -268,6 +277,8 @@ void resize_battery(void *obj)
 
 	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
 	snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
+	// vertical panel doen't adjust width
+	if (!panel_horizontal) return;
 
 	cairo_surface_t *cs;
 	cairo_t *c;

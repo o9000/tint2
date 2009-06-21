@@ -41,6 +41,7 @@ extern int wm_menu;
 //panel position
 enum { LEFT=0x01, RIGHT=0x02, CENTER=0X04, TOP=0X08, BOTTOM=0x10 };
 extern int panel_position;
+extern int panel_horizontal;
 
 extern int panel_refresh;
 

@@ -1,6 +1,6 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
-AC_INIT([tint2], [0.7_beta2], [http://code.google.com/p/tint2/issues])
+AC_INIT([tint2], [0.7_beta3], [http://code.google.com/p/tint2/issues])
 
 LT_INIT
 AM_INIT_AUTOMAKE

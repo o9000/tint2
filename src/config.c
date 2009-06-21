@@ -298,9 +298,12 @@ void add_entry (char *key, char *value)
    else if (strcmp (key, "panel_position") == 0) {
       extract_values(value, &value1, &value2, &value3);
       if (strcmp (value1, "top") == 0) panel_position = TOP;
-      else panel_position = BOTTOM;
+      else {
+			if (strcmp (value1, "bottom") == 0) panel_position = BOTTOM;
+			else panel_position = CENTER;
+		}
 
-      if (!value2) panel_position = CENTER;
+      if (!value2) panel_position |= CENTER;
       else {
          if (strcmp (value2, "left") == 0) panel_position |= LEFT;
          else {
@@ -308,6 +311,11 @@ void add_entry (char *key, char *value)
             else panel_position |= CENTER;
          }
       }
+      if (!value3) panel_horizontal = 1;
+      else {
+         if (strcmp (value3, "vertical") == 0) panel_horizontal = 0;
+         else panel_horizontal = 1;
+		}
    }
    else if (strcmp (key, "font_shadow") == 0)
       panel_config->g_task.font_shadow = atoi (value);
