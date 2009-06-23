@@ -25,11 +25,13 @@ panel_margin = 0 0
 panel_padding = 0 2 5
 font_shadow = 0
 panel_background_id = 0
+wm_menu = 0
 
 #---------------------------------------------
 # TASKBAR
 #---------------------------------------------
-taskbar_mode = single_monitor
+#taskbar_mode = multi_desktop
+taskbar_mode = single_desktop
 taskbar_padding = 0 0 5
 taskbar_background_id = 0
 
@@ -63,12 +65,14 @@ time2_font = sans bold 7.5
 clock_font_color = #ffffff 60
 clock_padding = 5 0
 clock_background_id = 1
+#clock_lclick_command = xclock
+clock_rclick_command = orage
 
 #---------------------------------------------
 # BATTERY
 #---------------------------------------------
 battery = 0
-battery_low_status = 7
+battery_low_status = 10
 battery_low_cmd = notify-send "battery low"
 bat1_font = sans 7
 bat2_font = sans 7

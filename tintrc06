@@ -5,76 +5,92 @@
 #---------------------------------------------
 # BACKGROUND AND BORDER
 #---------------------------------------------
-rounded = 4
-border_width = 1
-background_color = #000000 40
+rounded = 1
+border_width = 0
+background_color = #cae2dd 40
 border_color = #d1d1d1 34
 
-rounded = 3
+rounded = 1
+border_width = 1
+background_color = #000000 0
+border_color = #ffffff 60
+
+rounded = 1
 border_width = 0
-background_color = #000000 40
-border_color = #d1d1d1 40
+background_color = #000000 15
+border_color = #ffffff 0
+
+rounded = 1
+border_width = 0
+background_color = #cae2dd 50
+border_color = #d1d1d1 34
+
 
 #---------------------------------------------
 # PANEL
 #---------------------------------------------
 panel_monitor = all
-panel_position = bottom center
-panel_size = 97% 30
+panel_position = center left vertical
+#panel_position = bottom center
+panel_size = 90% 50
 panel_margin = 0 0
-panel_padding = 0 2 7
+panel_padding = 7 3 5
 font_shadow = 0
-panel_background_id = 0
+panel_background_id = 1
+wm_menu = 1
 
 #---------------------------------------------
 # TASKBAR
 #---------------------------------------------
 taskbar_mode = multi_desktop
+#taskbar_mode = single_desktop
 taskbar_padding = 0 0 0
-taskbar_background_id = 1
+taskbar_background_id = 2
 
 #---------------------------------------------
 # TASKS
 #---------------------------------------------
-task_icon = 0
-task_text = 1
-task_width = 160
+task_icon = 1
+task_text = 0
+task_width = 30
 task_centered = 1
-task_padding = 4 3
+task_padding = 4 6
 task_font = sans bold 7.5
-task_font_color = #ffffff 60
-task_active_font_color = #ffffff 90
+task_font_color = #ffffff 70
+task_active_font_color = #ffffff 100
 task_background_id = 0
-task_active_background_id = 2
+task_active_background_id = 3
 
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
-systray_padding = 6 3 5
-systray_background_id = 1
+#systray_padding = 6 3 5
+systray_background_id = 2
 
 #---------------------------------------------
 # CLOCK
 #---------------------------------------------
 time1_format = %H:%M
-time1_font = sans bold 7
-time2_format = %A %d %B
+time1_font = sans 8
+time2_format = %d %b
 time2_font = sans 7
-clock_font_color = #ffffff 60
-clock_padding = 2 0
-clock_background_id = 1
+clock_font_color = #000000 90
+clock_padding = 4 2
+clock_background_id = 4
+clock_lclick_command = xclock
+clock_rclick_command = orage
 
 #---------------------------------------------
 # BATTERY
 #---------------------------------------------
-battery = 1
-battery_low_status = 7
+battery = 0
+battery_low_status = 10
 battery_low_cmd = notify-send "battery low"
 bat1_font = sans bold 7
 bat2_font = sans 7
 battery_font_color = #ffffff 60
-battery_padding = 1 0
-battery_background_id = 1
+battery_padding = 0 0
+battery_background_id = 0
 
 #---------------------------------------------
 # MOUSE ACTION ON TASK

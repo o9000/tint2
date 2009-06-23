@@ -140,7 +140,7 @@ void event_button_press (XEvent *e)
 	if (!panel) return;
 
 	if (wm_menu) {
-		if ((e->xbutton.x < panel->area.paddingxlr) || (e->xbutton.x > panel->area.width-panel->area.paddingxlr) || (e->xbutton.y < panel->area.paddingy) || (e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) {
+		if ((panel_horizontal && (e->xbutton.x < panel->area.paddingxlr || e->xbutton.x > panel->area.width-panel->area.paddingxlr || e->xbutton.y < panel->area.paddingy || e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) || (!panel_horizontal && (e->xbutton.y < panel->area.paddingxlr || e->xbutton.y > panel->area.height-panel->area.paddingxlr || e->xbutton.x < panel->area.paddingy || e->xbutton.x > panel->area.paddingy+panel->g_taskbar.width))) {
 			// forward the click to the desktop window (thanks conky)
 			XUngrabPointer(server.dsp, e->xbutton.time);
 			e->xbutton.window = server.root_win;
@@ -165,25 +165,44 @@ void event_button_press (XEvent *e)
 
    GSList *l0;
    Taskbar *tskbar;
-   int x = e->xbutton.x;
-   for (l0 = panel->area.list; l0 ; l0 = l0->next) {
-      tskbar = l0->data;
-      if (!tskbar->area.on_screen) continue;
-      if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
-         break;
-   }
-
-   if (l0) {
-      Task *tsk;
-      for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
-         tsk = l0->data;
-         if (x >= tsk->area.posx && x <= (tsk->area.posx + tsk->area.width)) {
-            task_drag = tsk;
-            break;
-         }
-      }
-   }
-
+	if (panel_horizontal) {
+		int x = e->xbutton.x;
+		for (l0 = panel->area.list; l0 ; l0 = l0->next) {
+			tskbar = l0->data;
+			if (!tskbar->area.on_screen) continue;
+			if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
+				break;
+		}
+		if (l0) {
+			Task *tsk;
+			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
+				tsk = l0->data;
+				if (x >= tsk->area.posx && x <= (tsk->area.posx + tsk->area.width)) {
+					task_drag = tsk;
+					break;
+				}
+			}
+		}
+	}
+	else {
+		int y = e->xbutton.y;
+		for (l0 = panel->area.list; l0 ; l0 = l0->next) {
+			tskbar = l0->data;
+			if (!tskbar->area.on_screen) continue;
+			if (y >= tskbar->area.posy && y <= (tskbar->area.posy + tskbar->area.height))
+				break;
+		}
+		if (l0) {
+			Task *tsk;
+			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
+				tsk = l0->data;
+				if (y >= tsk->area.posy && y <= (tsk->area.posy + tsk->area.height)) {
+					task_drag = tsk;
+					break;
+				}
+			}
+		}
+	}
    XLowerWindow (server.dsp, panel->main_win);
 }
 
@@ -194,7 +213,7 @@ void event_button_release (XEvent *e)
 	if (!panel) return;
 
 	if (wm_menu) {
-		if ((e->xbutton.x < panel->area.paddingxlr) || (e->xbutton.x > panel->area.width-panel->area.paddingxlr) || (e->xbutton.y < panel->area.paddingy) || (e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) {
+		if ((panel_horizontal && (e->xbutton.x < panel->area.paddingxlr || e->xbutton.x > panel->area.width-panel->area.paddingxlr || e->xbutton.y < panel->area.paddingy || e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) || (!panel_horizontal && (e->xbutton.y < panel->area.paddingxlr || e->xbutton.y > panel->area.height-panel->area.paddingxlr || e->xbutton.x < panel->area.paddingy || e->xbutton.x > panel->area.paddingy+panel->g_taskbar.width))) {
 			// forward the click to the desktop window (thanks conky)
 			e->xbutton.window = server.root_win;
 			XSendEvent(server.dsp, e->xbutton.window, False, ButtonReleaseMask, e);
@@ -204,7 +223,7 @@ void event_button_release (XEvent *e)
 
    int action = TOGGLE_ICONIFY;
    int x = e->xbutton.x;
-   //int y = e->xbutton.y; // unused
+   int y = e->xbutton.y;
    switch (e->xbutton.button) {
       case 2:
          action = mouse_middle;
@@ -224,14 +243,28 @@ void event_button_release (XEvent *e)
    Taskbar *tskbar;
    GSList *l0;
 	Clock clk = panel->clock;
-	if (clk.area.on_screen && x >= clk.area.posx && x <= (clk.area.posx + clk.area.width))
-		clock_action(e->xbutton.button);
+	if (panel_horizontal) {
+		if (clk.area.on_screen && x >= clk.area.posx && x <= (clk.area.posx + clk.area.width))
+			clock_action(e->xbutton.button);
+		else {
+			for (l0 = panel->area.list; l0 ; l0 = l0->next) {
+				tskbar = l0->data;
+				if (!tskbar->area.on_screen) continue;
+				if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
+					goto suite;
+			}
+		}
+	}
 	else {
-		for (l0 = panel->area.list; l0 ; l0 = l0->next) {
-			tskbar = l0->data;
-			if (!tskbar->area.on_screen) continue;
-			if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
-				goto suite;
+		if (clk.area.on_screen && y >= clk.area.posy && y <= (clk.area.posy + clk.area.height))
+			clock_action(e->xbutton.button);
+		else {
+			for (l0 = panel->area.list; l0 ; l0 = l0->next) {
+				tskbar = l0->data;
+				if (!tskbar->area.on_screen) continue;
+				if (y >= tskbar->area.posy && y <= (tskbar->area.posy + tskbar->area.height))
+					goto suite;
+			}
 		}
 	}
 
@@ -265,10 +298,18 @@ suite:
    GSList *l;
    for (l = tskbar->area.list ; l ; l = l->next) {
       tsk = l->data;
-      if (x >= tsk->area.posx && x <= (tsk->area.posx + tsk->area.width)) {
-         window_action (tsk, action);
-         break;
-      }
+		if (panel_horizontal) {
+			if (x >= tsk->area.posx && x <= (tsk->area.posx + tsk->area.width)) {
+				window_action (tsk, action);
+				break;
+			}
+		}
+		else {
+			if (y >= tsk->area.posy && y <= (tsk->area.posy + tsk->area.height)) {
+				window_action (tsk, action);
+				break;
+			}
+		}
    }
 
    // to keep window below
@@ -545,11 +586,11 @@ int main (int argc, char *argv[])
    Panel *panel;
 	GSList *it;
 
-   c = getopt (argc, argv, "c:");
    init ();
 
 load_config:
    i = 0;
+   c = getopt (argc, argv, "c:");
 	init_config();
    if (c != -1) {
       i = config_read_file (optarg);
@@ -639,6 +680,7 @@ load_config:
 
 		switch (signal_pending) {
 			case SIGUSR1:
+				signal_pending = 0;
             goto load_config;
 			case SIGINT:
 			case SIGTERM:

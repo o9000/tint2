@@ -49,18 +49,31 @@ void init_taskbar()
 
 		// taskbar
 		panel->g_taskbar._resize = resize_taskbar;
-		panel->g_taskbar.posy = panel->area.pix.border.width + panel->area.paddingy;
-		panel->g_taskbar.height = panel->area.height - (2 * panel->g_taskbar.posy);
 		panel->g_taskbar.redraw = 1;
 		panel->g_taskbar.on_screen = 1;
+		if (panel_horizontal) {
+			panel->g_taskbar.posy = panel->area.pix.border.width + panel->area.paddingy;
+			panel->g_taskbar.height = panel->area.height - (2 * panel->g_taskbar.posy);
+		}
+		else {
+			panel->g_taskbar.posx = panel->area.pix.border.width + panel->area.paddingy;
+			panel->g_taskbar.width = panel->area.width - (2 * panel->g_taskbar.posx);
+		}
 
 		// task
 		panel->g_task.area._draw_foreground = draw_task;
-		panel->g_task.area.posy = panel->g_taskbar.posy + panel->g_taskbar.pix.border.width + panel->g_taskbar.paddingy;
-		panel->g_task.area.height = panel->area.height - (2 * panel->g_task.area.posy);
 		panel->g_task.area.use_active = 1;
 		panel->g_task.area.redraw = 1;
 		panel->g_task.area.on_screen = 1;
+		if (panel_horizontal) {
+			panel->g_task.area.posy = panel->g_taskbar.posy + panel->g_taskbar.pix.border.width + panel->g_taskbar.paddingy;
+			panel->g_task.area.height = panel->area.height - (2 * panel->g_task.area.posy);
+		}
+		else {
+			panel->g_task.area.posx = panel->g_taskbar.posx + panel->g_taskbar.pix.border.width + panel->g_taskbar.paddingy;
+			panel->g_task.area.width = panel->area.width - (2 * panel->g_task.area.posx);
+			panel->g_task.area.height = panel->g_task.maximum_width;
+		}
 
 		if (panel->g_task.area.pix.border.rounded > panel->g_task.area.height/2) {
 			panel->g_task.area.pix.border.rounded = panel->g_task.area.height/2;
@@ -207,51 +220,96 @@ void resize_taskbar(void *obj)
 {
 	Taskbar *taskbar = (Taskbar*)obj;
    Panel *panel = (Panel*)taskbar->area.panel;
-   int  task_count, pixel_width, modulo_width=0;
-   int  x, taskbar_width;
    Task *tsk;
    GSList *l;
+	int  task_count;
 
 //printf("resize_taskbar : posx et width des taches\n");
 
    taskbar->area.redraw = 1;
 
-   // new task width for 'desktop'
-   task_count = g_slist_length(taskbar->area.list);
-   if (!task_count) pixel_width = panel->g_task.maximum_width;
-   else {
-      taskbar_width = taskbar->area.width - (2 * panel->g_taskbar.pix.border.width) - (2 * panel->g_taskbar.paddingxlr);
-      if (task_count>1) taskbar_width -= ((task_count-1) * panel->g_taskbar.paddingx);
+	if (panel_horizontal) {
+		int  pixel_width, modulo_width=0;
+		int  x, taskbar_width;
 
-      pixel_width = taskbar_width / task_count;
-      if (pixel_width > panel->g_task.maximum_width)
-      	pixel_width = panel->g_task.maximum_width;
-      else
-      	modulo_width = taskbar_width % task_count;
-   }
+		// new task width for 'desktop'
+		task_count = g_slist_length(taskbar->area.list);
+		if (!task_count) pixel_width = panel->g_task.maximum_width;
+		else {
+			taskbar_width = taskbar->area.width - (2 * panel->g_taskbar.pix.border.width) - (2 * panel->g_taskbar.paddingxlr);
+			if (task_count>1) taskbar_width -= ((task_count-1) * panel->g_taskbar.paddingx);
 
-   if ((taskbar->task_width == pixel_width) && (taskbar->task_modulo == modulo_width)) {
-   }
-   else {
-      taskbar->task_width = pixel_width;
-      taskbar->task_modulo = modulo_width;
-      taskbar->text_width = pixel_width - panel->g_task.text_posx - panel->g_task.area.pix.border.width - panel->g_task.area.paddingx;
-   }
+			pixel_width = taskbar_width / task_count;
+			if (pixel_width > panel->g_task.maximum_width)
+				pixel_width = panel->g_task.maximum_width;
+			else
+				modulo_width = taskbar_width % task_count;
+		}
 
-   // change pos_x and width for all tasks
-   x = taskbar->area.posx + taskbar->area.pix.border.width + taskbar->area.paddingxlr;
-   for (l = taskbar->area.list; l ; l = l->next) {
-      tsk = l->data;
-      tsk->area.posx = x;
-      tsk->area.width = pixel_width;
-      tsk->area.redraw = 1;
-      if (modulo_width) {
-         tsk->area.width++;
-         modulo_width--;
-      }
+		if ((taskbar->task_width == pixel_width) && (taskbar->task_modulo == modulo_width)) {
+		}
+		else {
+			taskbar->task_width = pixel_width;
+			taskbar->task_modulo = modulo_width;
+			taskbar->text_width = pixel_width - panel->g_task.text_posx - panel->g_task.area.pix.border.width - panel->g_task.area.paddingx;
+		}
 
-      x += tsk->area.width + panel->g_taskbar.paddingx;
-   }
+		// change pos_x and width for all tasks
+		x = taskbar->area.posx + taskbar->area.pix.border.width + taskbar->area.paddingxlr;
+		for (l = taskbar->area.list; l ; l = l->next) {
+			tsk = l->data;
+			tsk->area.posx = x;
+			tsk->area.width = pixel_width;
+			tsk->area.redraw = 1;
+			if (modulo_width) {
+				tsk->area.width++;
+				modulo_width--;
+			}
+
+			x += tsk->area.width + panel->g_taskbar.paddingx;
+		}
+	}
+	else {
+		int  pixel_height, modulo_height=0;
+		int  y, taskbar_height;
+
+		// new task width for 'desktop'
+		task_count = g_slist_length(taskbar->area.list);
+		if (!task_count) pixel_height = panel->g_task.maximum_width;
+		else {
+			taskbar_height = taskbar->area.height - (2 * panel->g_taskbar.pix.border.width) - (2 * panel->g_taskbar.paddingxlr);
+			if (task_count>1) taskbar_height -= ((task_count-1) * panel->g_taskbar.paddingx);
+
+			pixel_height = taskbar_height / task_count;
+			if (pixel_height > panel->g_task.maximum_width)
+				pixel_height = panel->g_task.maximum_width;
+			else
+				modulo_height = taskbar_height % task_count;
+		}
+
+		if ((taskbar->task_width == pixel_height) && (taskbar->task_modulo == modulo_height)) {
+		}
+		else {
+			taskbar->task_width = pixel_height;
+			taskbar->task_modulo = modulo_height;
+			taskbar->text_width = taskbar->area.width - (2 * taskbar->area.paddingy) - (2 * taskbar->area.pix.border.width);
+		}
+
+		// change pos_y and height for all tasks
+		y = taskbar->area.posy + taskbar->area.pix.border.width + taskbar->area.paddingxlr;
+		for (l = taskbar->area.list; l ; l = l->next) {
+			tsk = l->data;
+			tsk->area.posy = y;
+			tsk->area.height = pixel_height;
+			tsk->area.redraw = 1;
+			if (modulo_height) {
+				tsk->area.height++;
+				modulo_height--;
+			}
+
+			y += tsk->area.height + panel->g_taskbar.paddingx;
+		}
+	}
 }
 
 

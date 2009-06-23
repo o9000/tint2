@@ -201,45 +201,78 @@ void cleanup_panel()
 void resize_panel(void *obj)
 {
    Panel *panel = (Panel*)obj;
-   int taskbar_width, modulo_width, taskbar_on_screen;
 
-   taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
-   if (panel->clock.area.on_screen && panel->clock.area.width)
-      taskbar_width -= (panel->clock.area.width + panel->area.paddingx);
-#ifdef ENABLE_BATTERY
-	if (panel->battery.area.on_screen && panel->battery.area.width)
-		taskbar_width -= (panel->battery.area.width + panel->area.paddingx);
-#endif
-   // TODO : systray only on first panel. search better implementation !
-   if (systray.area.on_screen && systray.area.width && panel == &panel1[0])
-   	taskbar_width -= (systray.area.width + panel->area.paddingx);
+	if (panel_horizontal) {
+	   int taskbar_width, modulo_width = 0;
 
-   if (panel_mode == MULTI_DESKTOP) {
-		taskbar_on_screen = panel->nb_desktop;
-		int width = taskbar_width - ((taskbar_on_screen-1) * panel->area.paddingx);
-	   taskbar_width = width / taskbar_on_screen;
-      modulo_width = width % taskbar_on_screen;
+		taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
+		if (panel->clock.area.on_screen && panel->clock.area.width)
+			taskbar_width -= (panel->clock.area.width + panel->area.paddingx);
+	#ifdef ENABLE_BATTERY
+		if (panel->battery.area.on_screen && panel->battery.area.width)
+			taskbar_width -= (panel->battery.area.width + panel->area.paddingx);
+	#endif
+		// TODO : systray only on first panel. search better implementation !
+		if (systray.area.on_screen && systray.area.width && panel == &panel1[0])
+			taskbar_width -= (systray.area.width + panel->area.paddingx);
+
+		if (panel_mode == MULTI_DESKTOP) {
+			int width = taskbar_width - ((panel->nb_desktop-1) * panel->area.paddingx);
+			taskbar_width = width / panel->nb_desktop;
+			modulo_width = width % panel->nb_desktop;
+		}
+
+		// change posx and width for all taskbar
+		int i, posx;
+		posx = panel->area.pix.border.width + panel->area.paddingxlr;
+		for (i=0 ; i < panel->nb_desktop ; i++) {
+			panel->taskbar[i].area.posx = posx;
+			panel->taskbar[i].area.width = taskbar_width;
+			panel->taskbar[i].area.resize = 1;
+			if (modulo_width) {
+				panel->taskbar[i].area.width++;
+				modulo_width--;
+			}
+			//printf("taskbar %d : posx %d, width, %d, posy %d\n", i, posx, panel->taskbar[i].area.width, posx + panel->taskbar[i].area.width);
+			if (panel_mode == MULTI_DESKTOP)
+				posx += panel->taskbar[i].area.width + panel->area.paddingx;
+		}
 	}
-   else {
-		taskbar_on_screen = 1;
-      modulo_width = 0;
-	}
+	else {
+	   int taskbar_height, modulo_height = 0;
+		int i, posy;
 
-	// change posx and width for all taskbar
-   int i, posx;
-	posx = panel->area.pix.border.width + panel->area.paddingxlr;
-   for (i=0 ; i < panel->nb_desktop ; i++) {
-      panel->taskbar[i].area.posx = posx;
-      panel->taskbar[i].area.width = taskbar_width;
-      panel->taskbar[i].area.resize = 1;
-      if (modulo_width) {
-         panel->taskbar[i].area.width++;
-         modulo_width--;
-      }
-		//printf("taskbar %d : posx %d, width, %d, posy %d\n", i, posx, panel->taskbar[i].area.width, posx + panel->taskbar[i].area.width);
-      if (panel_mode == MULTI_DESKTOP)
-      	posx += panel->taskbar[i].area.width + panel->area.paddingx;
-   }
+		taskbar_height = panel->area.height - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
+		if (panel->clock.area.on_screen && panel->clock.area.height)
+			taskbar_height -= (panel->clock.area.height + panel->area.paddingx);
+	#ifdef ENABLE_BATTERY
+		if (panel->battery.area.on_screen && panel->battery.area.height)
+			taskbar_height -= (panel->battery.area.height + panel->area.paddingx);
+	#endif
+		// TODO : systray only on first panel. search better implementation !
+		if (systray.area.on_screen && systray.area.height && panel == &panel1[0])
+			taskbar_height -= (systray.area.height + panel->area.paddingx);
+
+		posy = panel->area.height - panel->area.pix.border.width - panel->area.paddingxlr - taskbar_height;
+		if (panel_mode == MULTI_DESKTOP) {
+			int height = taskbar_height - ((panel->nb_desktop-1) * panel->area.paddingx);
+			taskbar_height = height / panel->nb_desktop;
+			modulo_height = height % panel->nb_desktop;
+		}
+
+		// change posy and height for all taskbar
+		for (i=0 ; i < panel->nb_desktop ; i++) {
+			panel->taskbar[i].area.posy = posy;
+			panel->taskbar[i].area.height = taskbar_height;
+			panel->taskbar[i].area.resize = 1;
+			if (modulo_height) {
+				panel->taskbar[i].area.height++;
+				modulo_height--;
+			}
+			if (panel_mode == MULTI_DESKTOP)
+				posy += panel->taskbar[i].area.height + panel->area.paddingx;
+		}
+	}
 }
 
 
