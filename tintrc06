@@ -64,8 +64,8 @@ task_active_background_id = 3
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
-#systray_padding = 6 3 5
-systray_background_id = 2
+systray_padding = 4 10 2
+systray_background_id = 0
 
 #---------------------------------------------
 # CLOCK

@@ -1,3 +1,13 @@
+2009-06-24
+- vertical panel done
+  user's parameters :
+  1) add 'vertical' to panel_position (panel_position = center left vertical)
+  2) use 'task_width' to define the task height (task_width = 30)
+  3) adjust paddingy on task and systray wiil define the size of icons
+  all others parameters are automatically converted by tint2
+  (x padding become y padding, width become height ...)
+  so user's change between horizontal and vertical are minimised.
+
 2009-06-23
 - play with vertical panel
   check sample file tintrc05 and tintrc06

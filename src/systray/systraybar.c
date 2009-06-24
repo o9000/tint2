@@ -59,22 +59,20 @@ void init_systray()
 	systray.area.panel = panel;
 	systray.area._draw_foreground = draw_systray;
 	systray.area._resize = resize_systray;
+	systray.area.resize = 1;
+	systray.area.redraw = 1;
 	refresh_systray = 0;
 
 	// configure systray
 	// draw only one systray (even with multi panel)
-	systray.area.posy = panel->area.pix.border.width + panel->area.paddingy;
-	systray.area.height = panel->area.height - (2 * systray.area.posy);
-	systray.area.width = 0;
-	systray.area.redraw = 1;
-
-	systray.area.posx = panel->area.width - panel->area.paddingxlr - panel->area.pix.border.width - systray.area.width;
-	if (panel->clock.area.on_screen)
-		systray.area.posx -= (panel->clock.area.width + panel->area.paddingx);
-#ifdef ENABLE_BATTERY
-	if (panel->battery.area.on_screen)
-		systray.area.posx -= (panel->battery.area.width + panel->area.paddingx);
-#endif
+	if (panel_horizontal) {
+		systray.area.posy = panel->area.pix.border.width + panel->area.paddingy;
+		systray.area.height = panel->area.height - (2 * systray.area.posy);
+	}
+	else {
+		systray.area.posx = panel->area.pix.border.width + panel->area.paddingy;
+		systray.area.width = panel->area.width - (2 * panel->area.pix.border.width) - (2 * panel->area.paddingy);
+	}
 }
 
 
@@ -91,7 +89,6 @@ void cleanup_systray()
    }
 
 	free_area(&systray.area);
-
 	cleanup_net();
 }
 
@@ -112,22 +109,46 @@ void resize_systray(void *obj)
 	int count, posx, posy;
 	int icon_size;
 
-	icon_size = sysbar->area.height - (2 * sysbar->area.pix.border.width) - (2 * sysbar->area.paddingy);
+	if (panel_horizontal)
+		icon_size = sysbar->area.height;
+	else
+		icon_size = sysbar->area.width;
+	icon_size = icon_size - (2 * sysbar->area.pix.border.width) - (2 * sysbar->area.paddingy);
 	count = g_slist_length(systray.list_icons);
 
-	if (!count) systray.area.width = 0;
-	else systray.area.width = (2 * systray.area.pix.border.width) + (2 * systray.area.paddingxlr) + (icon_size * count) + ((count-1) * systray.area.paddingx);
+	if (panel_horizontal) {
+		if (!count) systray.area.width = 0;
+		else systray.area.width = (2 * systray.area.pix.border.width) + (2 * systray.area.paddingxlr) + (icon_size * count) + ((count-1) * systray.area.paddingx);
 
-	systray.area.posx = panel->area.width - panel->area.pix.border.width - panel->area.paddingxlr - systray.area.width;
-	if (panel->clock.area.on_screen)
-		systray.area.posx -= (panel->clock.area.width + panel->area.paddingx);
+		systray.area.posx = panel->area.width - panel->area.pix.border.width - panel->area.paddingxlr - systray.area.width;
+		if (panel->clock.area.on_screen)
+			systray.area.posx -= (panel->clock.area.width + panel->area.paddingx);
 #ifdef ENABLE_BATTERY
-	if (panel->battery.area.on_screen)
-		systray.area.posx -= (panel->battery.area.width + panel->area.paddingx);
+		if (panel->battery.area.on_screen)
+			systray.area.posx -= (panel->battery.area.width + panel->area.paddingx);
 #endif
+	}
+	else {
+		if (!count) systray.area.height = 0;
+		else systray.area.height = (2 * systray.area.pix.border.width) + (2 * systray.area.paddingxlr) + (icon_size * count) + ((count-1) * systray.area.paddingx);
 
-	posy = panel->area.pix.border.width + panel->area.paddingy + systray.area.pix.border.width + systray.area.paddingy;
-	posx = systray.area.posx + systray.area.pix.border.width + systray.area.paddingxlr;
+		systray.area.posy = panel->area.pix.border.width + panel->area.paddingxlr;
+		if (panel->clock.area.on_screen)
+			systray.area.posy += (panel->clock.area.height + panel->area.paddingx);
+#ifdef ENABLE_BATTERY
+		if (panel->battery.area.on_screen)
+			systray.area.posy += (panel->battery.area.height + panel->area.paddingx);
+#endif
+	}
+
+	if (panel_horizontal) {
+		posy = panel->area.pix.border.width + panel->area.paddingy + systray.area.pix.border.width + systray.area.paddingy;
+		posx = systray.area.posx + systray.area.pix.border.width + systray.area.paddingxlr;
+	}
+	else {
+		posx = panel->area.pix.border.width + panel->area.paddingy + systray.area.pix.border.width + systray.area.paddingy;
+		posy = systray.area.posy + systray.area.pix.border.width + systray.area.paddingxlr;
+	}
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
 
@@ -135,7 +156,10 @@ void resize_systray(void *obj)
 		traywin->x = posx;
 		traywin->width = icon_size;
 		traywin->height = icon_size;
-		posx += (icon_size + systray.area.paddingx);
+		if (panel_horizontal)
+			posx += (icon_size + systray.area.paddingx);
+		else
+			posy += (icon_size + systray.area.paddingx);
 
 		// position and size the icon window
 		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);

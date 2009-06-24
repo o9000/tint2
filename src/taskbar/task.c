@@ -289,7 +289,7 @@ void draw_task (void *obj, cairo_t *c, int active)
    Task *tsk = obj;
    PangoLayout *layout;
    config_color *config_text;
-   int width, height;
+   int width=0, height;
    Panel *panel = (Panel*)tsk->area.panel;
 
    if (panel->g_task.text) {
