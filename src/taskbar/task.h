@@ -24,6 +24,7 @@ typedef struct {
    int icon_posy;
    int icon_size1;
    int maximum_width;
+   int maximum_height;
    // starting position for text ~ task_padding + task_border + icon_size
    double text_posx, text_posy;
 

@@ -40,7 +40,7 @@ taskbar_background_id = 0
 #---------------------------------------------
 task_icon = 0
 task_text = 1
-task_width = 160
+task_maximum_size = 160 30
 task_centered = 1
 task_padding = 3 1
 task_font = sans bold 7.5

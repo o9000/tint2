@@ -72,7 +72,7 @@ void init_taskbar()
 		else {
 			panel->g_task.area.posx = panel->g_taskbar.posx + panel->g_taskbar.pix.border.width + panel->g_taskbar.paddingy;
 			panel->g_task.area.width = panel->area.width - (2 * panel->g_task.area.posx);
-			panel->g_task.area.height = panel->g_task.maximum_width;
+			panel->g_task.area.height = panel->g_task.maximum_height;
 		}
 
 		if (panel->g_task.area.pix.border.rounded > panel->g_task.area.height/2) {
@@ -274,14 +274,14 @@ void resize_taskbar(void *obj)
 
 		// new task width for 'desktop'
 		task_count = g_slist_length(taskbar->area.list);
-		if (!task_count) pixel_height = panel->g_task.maximum_width;
+		if (!task_count) pixel_height = panel->g_task.maximum_height;
 		else {
 			taskbar_height = taskbar->area.height - (2 * panel->g_taskbar.pix.border.width) - (2 * panel->g_taskbar.paddingxlr);
 			if (task_count>1) taskbar_height -= ((task_count-1) * panel->g_taskbar.paddingx);
 
 			pixel_height = taskbar_height / task_count;
-			if (pixel_height > panel->g_task.maximum_width)
-				pixel_height = panel->g_task.maximum_width;
+			if (pixel_height > panel->g_task.maximum_height)
+				pixel_height = panel->g_task.maximum_height;
 			else
 				modulo_height = taskbar_height % task_count;
 		}

@@ -331,54 +331,67 @@ void add_entry (char *key, char *value)
       max_tick_urgent = (atoi (value) * 2) + 1;
 
    /* Battery */
-#ifdef ENABLE_BATTERY
    else if (strcmp (key, "battery") == 0) {
+#ifdef ENABLE_BATTERY
 		if(atoi(value) == 1)
 			panel_config->battery.area.on_screen = 1;
+#else
+		if(atoi(value) == 1)
+			printf("tint2 is build without battery support\n");
+#endif
    }
    else if (strcmp (key, "battery_low_status") == 0) {
+#ifdef ENABLE_BATTERY
 		battery_low_status = atoi(value);
 		if(battery_low_status < 0 || battery_low_status > 100)
 			battery_low_status = 0;
+#endif
    }
    else if (strcmp (key, "battery_low_cmd") == 0) {
+#ifdef ENABLE_BATTERY
       if (battery_low_cmd) g_free(battery_low_cmd);
       if (strlen(value) > 0) battery_low_cmd = strdup (value);
       else battery_low_cmd = 0;
+#endif
    }
    else if (strcmp (key, "bat1_font") == 0) {
+#ifdef ENABLE_BATTERY
    	if (save_file_config) old_bat1_font = strdup (value);
       if (bat1_font_desc) pango_font_description_free(bat1_font_desc);
       bat1_font_desc = pango_font_description_from_string (value);
+#endif
    }
    else if (strcmp (key, "bat2_font") == 0) {
+#ifdef ENABLE_BATTERY
    	if (save_file_config) old_bat2_font = strdup (value);
       if (bat2_font_desc) pango_font_description_free(bat2_font_desc);
       bat2_font_desc = pango_font_description_from_string (value);
+#endif
    }
    else if (strcmp (key, "battery_font_color") == 0) {
+#ifdef ENABLE_BATTERY
       extract_values(value, &value1, &value2, &value3);
       get_color (value1, panel_config->battery.font.color);
       if (value2) panel_config->battery.font.alpha = (atoi (value2) / 100.0);
       else panel_config->battery.font.alpha = 0.5;
+#endif
    }
    else if (strcmp (key, "battery_padding") == 0) {
+#ifdef ENABLE_BATTERY
       extract_values(value, &value1, &value2, &value3);
       panel_config->battery.area.paddingxlr = panel_config->battery.area.paddingx = atoi (value1);
       if (value2) panel_config->battery.area.paddingy = atoi (value2);
       if (value3) panel_config->battery.area.paddingx = atoi (value3);
+#endif
    }
    else if (strcmp (key, "battery_background_id") == 0) {
+#ifdef ENABLE_BATTERY
       int id = atoi (value);
       Area *a = g_slist_nth_data(list_back, id);
       memcpy(&panel_config->battery.area.pix.back, &a->pix.back, sizeof(Color));
       memcpy(&panel_config->battery.area.pix.border, &a->pix.border, sizeof(Border));
-   }
-#else
-   else if ((strcmp (key, "battery") == 0) || (strcmp (key, "battery_low_status") == 0) || (strcmp (key, "battery_low_cmd") == 0) || (strcmp (key, "bat1_font") == 0) || (strcmp (key, "bat2_font") == 0) || (strcmp (key, "battery_font_color") == 0) || (strcmp (key, "battery_padding") == 0) || (strcmp (key, "battery_background_id") == 0)) {
-		printf("tint2 is build without battery support\n");
-   }
 #endif
+   }
 
    /* Clock */
    else if (strcmp (key, "time1_format") == 0) {
@@ -461,8 +474,18 @@ void add_entry (char *key, char *value)
       panel_config->g_task.icon = atoi (value);
    else if (strcmp (key, "task_centered") == 0)
       panel_config->g_task.centered = atoi (value);
-   else if (strcmp (key, "task_width") == 0)
+   else if (strcmp (key, "task_width") == 0) {
+		// old parameter : just for backward compatibility
       panel_config->g_task.maximum_width = atoi (value);
+      panel_config->g_task.maximum_height = 30;
+	}
+   else if (strcmp (key, "task_maximum_size") == 0) {
+      extract_values(value, &value1, &value2, &value3);
+      panel_config->g_task.maximum_width = atoi (value1);
+		panel_config->g_task.maximum_height = 30;
+		if (value2)
+      	panel_config->g_task.maximum_height = atoi (value2);
+	}
    else if (strcmp (key, "task_padding") == 0) {
       extract_values(value, &value1, &value2, &value3);
       panel_config->g_task.area.paddingxlr = panel_config->g_task.area.paddingx = atoi (value1);
@@ -824,14 +847,15 @@ void save_config ()
    fputs("panel_monitor = all\n", fp);
    if (panel_position & BOTTOM) fputs("panel_position = bottom", fp);
    else fputs("panel_position = top", fp);
-   if (panel_position & LEFT) fputs(" left\n", fp);
-   else if (panel_position & RIGHT) fputs(" right\n", fp);
-   else fputs(" center\n", fp);
+   if (panel_position & LEFT) fputs(" left horizontal\n", fp);
+   else if (panel_position & RIGHT) fputs(" right horizontal\n", fp);
+   else fputs(" center horizontal\n", fp);
 	fprintf(fp, "panel_size = %d %d\n", (int)panel_config->initial_width, (int)panel_config->initial_height);
 	fprintf(fp, "panel_margin = %d %d\n", panel_config->marginx, panel_config->marginy);
    fprintf(fp, "panel_padding = %d %d %d\n", panel_config->area.paddingxlr, panel_config->area.paddingy, panel_config->area.paddingx);
    fprintf(fp, "font_shadow = %d\n", panel_config->g_task.font_shadow);
    fputs("panel_background_id = 1\n", fp);
+   fputs("wm_menu = 0\n", fp);
 
    fputs("\n#---------------------------------------------\n", fp);
    fputs("# TASKBAR\n", fp);
@@ -847,7 +871,7 @@ void save_config ()
 	if (old_task_icon_size) fputs("task_icon = 1\n", fp);
 	else fputs("task_icon = 0\n", fp);
 	fputs("task_text = 1\n", fp);
-   fprintf(fp, "task_width = %d\n", panel_config->g_task.maximum_width);
+   fprintf(fp, "task_maximum_size = %d %d\n", panel_config->g_task.maximum_width, panel_config->g_task.maximum_height);
    fprintf(fp, "task_centered = %d\n", panel_config->g_task.centered);
    fprintf(fp, "task_padding = %d %d\n", panel_config->g_task.area.paddingx, panel_config->g_task.area.paddingy);
    fprintf(fp, "task_font = %s\n", old_task_font);
@@ -874,6 +898,8 @@ void save_config ()
 	fprintf(fp, "clock_font_color = #%02x%02x%02x %d\n", (int)(panel_config->clock.font.color[0]*255), (int)(panel_config->clock.font.color[1]*255), (int)(panel_config->clock.font.color[2]*255), (int)(panel_config->clock.font.alpha*100));
    fputs("clock_padding = 2 2\n", fp);
    fputs("clock_background_id = 0\n", fp);
+   fputs("#clock_lclick_command = xclock\n", fp);
+   fputs("clock_rclick_command = orage\n", fp);
 
 #ifdef ENABLE_BATTERY
 	fputs("\n#---------------------------------------------\n", fp);

@@ -1,3 +1,9 @@
+2009-06-25
+- improve user's message when compiled with --disable-battery
+- replace 'task_width = width' by 'task_maximum_size = width height'
+  width will be used in horizontal panel
+  height will be used in vertical panel
+
 2009-06-24
 - vertical panel done
   user's parameters :
