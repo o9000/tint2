@@ -78,15 +78,6 @@ AC_ARG_ENABLE([examples],
 		   esac],[examples=false])
 AM_CONDITIONAL([INSTALL_EXAMPLES], [test x$examples = xtrue])
 
-AC_ARG_ENABLE([doc],
-			  [AS_HELP_STRING([--enable-doc], [Install additional documentation])],
-              [case "${enableval}" in
-			   yes) doc=true ;;
-			   no)  doc=false ;;
-			   *) AC_MSG_ERROR([bad value ${enableval} for --enable-doc]) ;;
-		   esac],[doc=false])
-AM_CONDITIONAL([INSTALL_DOC], [test x$doc = xtrue])
-
 AC_CONFIG_FILES([
 				 Makefile
 				 doc/Makefile
