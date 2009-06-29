@@ -58,6 +58,8 @@ typedef struct Global_atom
 	Atom MANAGER;
 	Atom _NET_SYSTEM_TRAY_MESSAGE_DATA;
 	Atom _NET_SYSTEM_TRAY_ORIENTATION;
+	Atom _XEMBED;
+	Atom _XEMBED_INFO;
 } Global_atom;
 
 

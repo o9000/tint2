@@ -1,3 +1,6 @@
+2009-06-29
+- fixed issue 110 and issue 107
+
 2009-06-25
 - improve user's message when compiled with --disable-battery
 - replace 'task_width = width' by 'task_maximum_size = width height'

@@ -596,8 +596,8 @@ load_config:
       i = config_read_file (optarg);
 	   c = getopt (argc, argv, "j:");
 	   if (c != -1) {
-			// usage: tint2 [-c] <config_file> -j <jpeg_file> for internal use
-   	   printf("jpeg file %s\n", optarg);
+			// usage: tint2 [-c] <config_file> -j <file> for internal use
+   	   printf("file %s\n", optarg);
 	      cleanup();
    	   exit(0);
 		}
@@ -653,8 +653,13 @@ load_config:
                   break;
 
 					case ReparentNotify:
-						if (e.xany.window == server.root_win) // reparented to us
+						if (!systray.area.on_screen)
 							break;
+						panel = (Panel*)systray.area.panel;
+						if (e.xany.window == panel->main_win) // reparented to us
+							break;
+						// FIXME: 'reparent to us' badly detected => disabled
+						break;
 					case UnmapNotify:
 					case DestroyNotify:
 						if (!systray.area.on_screen)

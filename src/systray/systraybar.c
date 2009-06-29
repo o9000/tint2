@@ -164,46 +164,25 @@ void resize_systray(void *obj)
 		// position and size the icon window
 		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
 	}
-	//printf("resize_systray %d %d\n", systray.area.posx, systray.area.width);
 }
 
-/*
-void create_hint_win()
-{
-   XWMHints hints;
-   XClassHint classhints;
-	Panel *panel = systray.area.panel;
 
-	hint_win = XCreateSimpleWindow(server.dsp, server.root_win, 0, 0, 1, 1, 0, 0, 0);
-
-	hints.flags = StateHint | WindowGroupHint | IconWindowHint;
-	hints.initial_state = WithdrawnState;
-	hints.window_group = hint_win;
-	hints.icon_window = panel->main_win;
-
-	classhints.res_name = "docker";
-	classhints.res_class = "Docker";
-
-	XSetWMProperties(server.dsp, hint_win, NULL, NULL, NULL, 0,
-						 NULL, &hints, &classhints);
-
-	XMapWindow(server.dsp, hint_win);
-}
-*/
+// ***********************************************
+// systray protocol
 
 int init_net()
 {
+	// freedesktop systray specification
 	if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != None) {
 		fprintf(stderr, "tint2 : another systray is running\n");
 		return 0;
 	}
 
-	//create_hint_win();
-
 	// init systray protocol
    net_sel_win = XCreateSimpleWindow(server.dsp, server.root_win, -1, -1, 1, 1, 0, 0, 0);
 
 	// v0.2 trayer specification. tint2 always orizontal.
+	// TODO : vertical panel ??
 	int orient = 0;
 	XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_ORIENTATION, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &orient, 1);
 
@@ -249,7 +228,6 @@ int window_error_handler(Display *d, XErrorEvent *e)
 }
 
 
-// The traywin must have its id and type set.
 gboolean add_icon(Window id)
 {
 	TrayWindow *traywin;
@@ -261,19 +239,48 @@ gboolean add_icon(Window id)
 	XReparentWindow(server.dsp, id, panel->main_win, 0, 0);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
-
 	if (error != FALSE) {
 		fprintf(stderr, "tint2 : not icon_swallow\n");
 		return FALSE;
+	}
+
+	{
+		Atom acttype;
+		int actfmt;
+		unsigned long nbitem, bytes;
+		unsigned char *data = 0;
+		int ret;
+
+		ret = XGetWindowProperty(server.dsp, id, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data);
+		if (data) XFree(data);
+		if (ret != Success) {
+			fprintf(stderr, "tint2 : xembed error\n");
+			return FALSE;
+		}
+	}
+	{
+		XEvent e;
+		e.xclient.type = ClientMessage;
+		e.xclient.serial = 0;
+		e.xclient.send_event = True;
+		e.xclient.message_type = server.atom._XEMBED;
+		e.xclient.window = id;
+		e.xclient.format = 32;
+		e.xclient.data.l[0] = CurrentTime;
+		e.xclient.data.l[1] = XEMBED_EMBEDDED_NOTIFY;
+		e.xclient.data.l[2] = 0;
+		e.xclient.data.l[3] = panel->main_win;
+		e.xclient.data.l[4] = 0;
+		XSendEvent(server.dsp, id, False, 0xFFFFFF, &e);
 	}
 
 	traywin = g_new0(TrayWindow, 1);
 	traywin->id = id;
 
 	systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
-  	//printf("ajout d'un icone %d (%lx)\n", g_slist_length(systray.list_icons), id);
   	systray.area.resize = 1;
 	systray.area.redraw = 1;
+	//printf("add_icon id %lx, %d\n", id, g_slist_length(systray.list_icons));
 
 	// watch for the icon trying to resize itself!
 	XSelectInput(server.dsp, traywin->id, StructureNotifyMask);
@@ -291,28 +298,29 @@ gboolean add_icon(Window id)
 void remove_icon(TrayWindow *traywin)
 {
 	XErrorHandler old;
-
-	XSelectInput(server.dsp, traywin->id, NoEventMask);
-
-	// reparent to root
-	error = FALSE;
-	old = XSetErrorHandler(window_error_handler);
-	XReparentWindow(server.dsp, traywin->id, server.root_win, 0, 0);
-	XSync(server.dsp, False);
-	XSetErrorHandler(old);
+	Window id = traywin->id;
 
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
 	g_free(traywin);
-	//printf("suppression d'un icone %d\n", g_slist_length(systray.list_icons));
   	systray.area.resize = 1;
 	systray.area.redraw = 1;
+	//printf("remove_icon id %lx, %d\n", traywin->id);
+
+	XSelectInput(server.dsp, id, NoEventMask);
+
+	// reparent to root
+	error = FALSE;
+	old = XSetErrorHandler(window_error_handler);
+	XUnmapWindow(server.dsp, id);
+	XReparentWindow(server.dsp, id, server.root_win, 0, 0);
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
 
 	// changed in systray force resize on panel
 	Panel *panel = systray.area.panel;
 	panel->area.resize = 1;
 	panel_refresh = 1;
-
 }
 
 
@@ -334,11 +342,10 @@ void net_message(XClientMessageEvent *e)
 			break;
 
 		default:
-			if (opcode == server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA) {
+			if (opcode == server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA)
 				printf("message from dockapp: %s\n", e->data.b);
-			}
 			else
-				printf("SYSTEM_TRAY : unknown message type\n");
+				fprintf(stderr, "SYSTEM_TRAY : unknown message type\n");
 			break;
 	}
 }

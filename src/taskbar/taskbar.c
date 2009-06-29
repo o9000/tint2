@@ -175,7 +175,6 @@ void task_refresh_tasklist ()
    Task *tsk;
 
    win = server_get_property (server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
-
    if (!win) return;
 
    // Remove any old and set active win
