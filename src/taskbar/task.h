@@ -51,7 +51,7 @@ typedef struct {
 
 
 
-void add_task (Window win);
+Task *add_task (Window win);
 void remove_task (Task *tsk);
 
 void draw_task (void *obj, cairo_t *c, int active);

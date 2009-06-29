@@ -34,10 +34,10 @@
 
 
 
-void add_task (Window win)
+Task *add_task (Window win)
 {
-   if (!win) return;
-   if (window_is_hidden(win)) return;
+   if (!win) return 0;
+   if (window_is_hidden(win)) return 0;
 
    int monitor;
 
@@ -45,7 +45,6 @@ void add_task (Window win)
    new_tsk.win = win;
    new_tsk.area.panel = &panel1[0];
    new_tsk.desktop = window_get_desktop (win);
-//   if (panel_mode == SINGLE_MONITOR) monitor = window_get_monitor (win);
    if (nb_panel > 1) monitor = window_get_monitor (win);
    else monitor = 0;
 
@@ -60,7 +59,7 @@ void add_task (Window win)
    XSelectInput (server.dsp, new_tsk.win, PropertyChangeMask|StructureNotifyMask);
 
 	Taskbar *tskbar;
-   Task *new_tsk2;
+   Task *new_tsk2=0;
 	int i, j;
 	for (i=0 ; i < nb_panel ; i++) {
 		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
@@ -82,6 +81,7 @@ void add_task (Window win)
 			//printf("add_task panel %d, desktop %d, task %s\n", i, j, new_tsk2->title);
 		}
 	}
+	return new_tsk2;
 }
 
 
