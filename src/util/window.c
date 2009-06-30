@@ -38,31 +38,31 @@
 
 void set_active (Window win)
 {
-   send_event32 (win, server.atom._NET_ACTIVE_WINDOW, 2, 0);
+   send_event32 (win, server.atom._NET_ACTIVE_WINDOW, 2, CurrentTime, 0);
 }
 
 
 void set_desktop (int desktop)
 {
-   send_event32 (server.root_win, server.atom._NET_CURRENT_DESKTOP, desktop, 0);
+   send_event32 (server.root_win, server.atom._NET_CURRENT_DESKTOP, desktop, 0, 0);
 }
 
 
 void windows_set_desktop (Window win, int desktop)
 {
-   send_event32 (win, server.atom._NET_WM_DESKTOP, desktop, 2);
+   send_event32 (win, server.atom._NET_WM_DESKTOP, desktop, 2, 0);
 }
 
 
 void set_close (Window win)
 {
-   send_event32 (win, server.atom._NET_CLOSE_WINDOW, 0, 2);
+   send_event32 (win, server.atom._NET_CLOSE_WINDOW, 0, 2, 0);
 }
 
 
 void window_toggle_shade (Window win)
 {
-   send_event32 (win, server.atom._NET_WM_STATE, 2, server.atom._NET_WM_STATE_SHADED);
+   send_event32 (win, server.atom._NET_WM_STATE, 2, server.atom._NET_WM_STATE_SHADED, 0);
 }
 
 /*

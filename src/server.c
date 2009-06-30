@@ -90,7 +90,7 @@ void cleanup_server()
 }
 
 
-void send_event32 (Window win, Atom at, long data1, long data2)
+void send_event32 (Window win, Atom at, long data1, long data2, long data3)
 {
    XEvent event;
 
@@ -104,7 +104,7 @@ void send_event32 (Window win, Atom at, long data1, long data2)
    event.xclient.format = 32;
    event.xclient.data.l[0] = data1;
    event.xclient.data.l[1] = data2;
-   event.xclient.data.l[2] = 0;
+   event.xclient.data.l[2] = data3;
    event.xclient.data.l[3] = 0;
    event.xclient.data.l[4] = 0;
 

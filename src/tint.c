@@ -203,6 +203,7 @@ void event_button_press (XEvent *e)
 			}
 		}
 	}
+
    XLowerWindow (server.dsp, panel->main_win);
 }
 
@@ -289,9 +290,11 @@ suite:
    }
 
    // switch desktop
-   if (panel_mode == MULTI_DESKTOP)
+   if (panel_mode == MULTI_DESKTOP) {
       if (tskbar->desktop != server.desktop && action != CLOSE)
          set_desktop (tskbar->desktop);
+			XFlush (server.dsp);
+	}
 
    // action on task
    Task *tsk;
