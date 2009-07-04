@@ -53,6 +53,7 @@ void init ()
 	signal(SIGINT, signal_handler);
 	signal(SIGTERM, signal_handler);
 	signal(SIGHUP, signal_handler);
+	signal(SIGCLD, SIG_IGN);		// don't have to wait() after fork()
 
    // set global data
    memset(&server, 0, sizeof(Server_global));
