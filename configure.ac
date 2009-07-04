@@ -10,6 +10,7 @@ AC_CONFIG_SRCDIR([src/tint.c])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
+AC_LANG([C])
 AC_PROG_CC
 
 # Checks for libraries.
@@ -44,6 +45,12 @@ AC_SUBST(XINERAMA_LIBS)
 PKG_CHECK_MODULES([IMLIB2], [imlib2])
 AC_SUBST(IMLIB2_CFLAGS)
 AC_SUBST(IMLIB2_LIBS)
+
+# Ensure that Imlib2 has been built with X support and reset LIBS since AC_CHECK_LIB adds -lImlib2 on success.
+LIBS_SAVED=$LIBS
+AC_CHECK_LIB([Imlib2], [imlib_context_set_display], [],
+			 AC_MSG_ERROR([Imlib2 must be built with X support]))
+LIBS=$LIBS_SAVED
 
 # Checks for header files.
 AC_PATH_X
