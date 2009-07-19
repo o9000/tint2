@@ -79,10 +79,9 @@ void init_systray()
 void cleanup_systray()
 {
    if (systray.list_icons) {
-		GSList *it;
-
-		for (it = systray.list_icons; it; it = it->next)
-			remove_icon((TrayWindow*)it->data);
+		// remove_icon change systray.list_icons
+		while(systray.list_icons)
+			remove_icon((TrayWindow*)systray.list_icons->data);
 
       g_slist_free(systray.list_icons);
       systray.list_icons = 0;

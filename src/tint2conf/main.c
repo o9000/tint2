@@ -25,7 +25,6 @@
 #include <glib/gi18n.h>
 
 
-// gcc -Wall -g main.c -o tint2conf `pkg-config --cflags gtk+-2.0` `pkg-config --libs gtk+-2.0 --libs gthread-2.0`
 // need GTK+-2.4 ou plus
 
 #define LONG_VERSION_STRING "0.2"
@@ -39,9 +38,6 @@ static const char *fallback_ui_file =
         "    </menu>"
         "  </menubar>"
         "  <toolbar  name='ToolBar'>"
-        "    <toolitem action='ViewRefreshAll'/>"
-        "    <separator/>"
-        "    <toolitem action='ThemeProperties'/>"
         "    <toolitem action='ViewApply'/>"
         "  </toolbar>"
         "</ui>";
