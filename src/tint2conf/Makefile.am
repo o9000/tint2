@@ -1,0 +1,7 @@
+if ENABLE_TINT2CONF
+bin_PROGRAMS = tint2conf
+tint2conf_SOURCES = main.c
+
+AM_CFLAGS += @TINT2CONF_CFLAGS@
+LIBS += @TINT2CONF_LIBS@
+endif

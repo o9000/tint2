@@ -16,7 +16,7 @@ examplesdir =
 dist_examples_DATA =
 endif
 
-DISTCLEANFILES = configure depcomp config.guess config.sub config.h.in config.h.in~ ltmain.sh missing aclocal.m4 install-sh Makefile.in INSTALL
+DISTCLEANFILES += configure depcomp config.guess config.sub config.h.in config.h.in~ ltmain.sh missing aclocal.m4 install-sh INSTALL
 
 dist-hook:
 	find $(distdir)/ -type d -name '.svn' -exec rm -rf {} ';'
