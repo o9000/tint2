@@ -15,38 +15,38 @@
 // --------------------------------------------------
 // global task parameter
 typedef struct {
-   Area area;
+	Area area;
 
-   int text;
-   int icon;
-   int centered;
+	int text;
+	int icon;
+	int centered;
 
-   int icon_posy;
-   int icon_size1;
-   int maximum_width;
-   int maximum_height;
-   // starting position for text ~ task_padding + task_border + icon_size
-   double text_posx, text_posy;
+	int icon_posy;
+	int icon_size1;
+	int maximum_width;
+	int maximum_height;
+	// starting position for text ~ task_padding + task_border + icon_size
+	double text_posx, text_posy;
 
-   int font_shadow;
-   PangoFontDescription *font_desc;
-   config_color font;
-   config_color font_active;
+	int font_shadow;
+	PangoFontDescription *font_desc;
+	config_color font;
+	config_color font_active;
 } Global_task;
 
 
 
 typedef struct {
-   // always start with area
-   Area area;
+	// always start with area
+	Area area;
 
-   // TODO: group task with list of windows here
-   Window win;
-   int  desktop;
-   long *icon_data;
-   int icon_width;
-   int icon_height;
-   char *title;
+	// TODO: group task with list of windows here
+	Window win;
+	int  desktop;
+	unsigned int *icon_data;
+	int icon_width;
+	int icon_height;
+	char *title;
 } Task;
 
 
