@@ -23,6 +23,7 @@ int window_is_hidden (Window win);
 int window_is_active (Window win);
 int get_icon_count (long *data, int num);
 long *get_best_icon (long *data, int icon_count, int num, int *iw, int *ih, int best_icon_size);
+void window_maximize_restore (Window win);
 void window_toggle_shade (Window win);
 int window_get_desktop (Window win);
 void windows_set_desktop (Window win, int desktop);

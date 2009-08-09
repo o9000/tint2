@@ -226,6 +226,8 @@ void get_action (char *event, int *action)
       *action = SHADE;
    else if (strcmp (event, "toggle_iconify") == 0)
       *action = TOGGLE_ICONIFY;
+   else if (strcmp (event, "maximize_restore") == 0)
+      *action = MAXIMIZE_RESTORE;
 }
 
 
@@ -664,8 +666,10 @@ int parse_line (const char *line)
 void config_finish ()
 {
    if (panel_config->monitor > (server.nb_monitor-1)) {
-      fprintf(stderr, "tint2 exit : monitor %d not found.\n", panel_config->monitor+1);
-      exit(0);
+		// server.nb_monitor minimum value is 1 (see get_monitors_and_desktops())
+		// and panel_config->monitor is higher
+		fprintf(stderr, "warning : monitor not found. tint2 default to monitor 1.\n");
+		panel_config->monitor = 0;
    }
 
 	// alloc panels

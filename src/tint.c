@@ -53,7 +53,7 @@ void init ()
 	signal(SIGINT, signal_handler);
 	signal(SIGTERM, signal_handler);
 	signal(SIGHUP, signal_handler);
-	signal(SIGCLD, SIG_IGN);		// don't have to wait() after fork()
+	signal(SIGCHLD, SIG_IGN);		// don't have to wait() after fork()
 
    // set global data
    memset(&server, 0, sizeof(Server_global));
@@ -114,24 +114,33 @@ void cleanup()
 
 void window_action (Task *tsk, int action)
 {
-   switch (action) {
-      case CLOSE:
-         set_close (tsk->win);
-         break;
-      case TOGGLE:
-         set_active(tsk->win);
-         break;
-      case ICONIFY:
-         XIconifyWindow (server.dsp, tsk->win, server.screen);
-         break;
-      case TOGGLE_ICONIFY:
-         if (tsk == task_active) XIconifyWindow (server.dsp, tsk->win, server.screen);
-         else set_active (tsk->win);
-         break;
-      case SHADE:
-         window_toggle_shade (tsk->win);
-         break;
-   }
+	switch (action) {
+		case CLOSE:
+			set_close (tsk->win);
+			break;
+		case TOGGLE:
+			set_active(tsk->win);
+			break;
+		case ICONIFY:
+			XIconifyWindow (server.dsp, tsk->win, server.screen);
+			break;
+		case TOGGLE_ICONIFY:
+			if (tsk == task_active) XIconifyWindow (server.dsp, tsk->win, server.screen);
+			else set_active (tsk->win);
+			break;
+		case SHADE:
+			window_toggle_shade (tsk->win);
+			break;
+		case MAXIMIZE_RESTORE:
+			window_maximize_restore (tsk->win);
+			break;
+		case MAXIMIZE:
+			window_maximize_restore (tsk->win);
+			break;
+		case RESTORE:
+			window_maximize_restore (tsk->win);
+			break;
+	}
 }
 
 
@@ -382,6 +391,7 @@ void event_property_notify (XEvent *e)
 				init_precision();
 				task_urgent = 0;
 			}
+			// put active state on all task (multi_desktop)
          if (t) {
 				for (i=0 ; i < nb_panel ; i++) {
 					for (j=0 ; j < panel1[i].nb_desktop ; j++) {

@@ -54,6 +54,8 @@ void server_init_atoms ()
    server.atom._NET_WM_DESKTOP = XInternAtom (server.dsp, "_NET_WM_DESKTOP", False);
    server.atom.WM_STATE = XInternAtom (server.dsp, "WM_STATE", False);
    server.atom._NET_WM_STATE = XInternAtom (server.dsp, "_NET_WM_STATE", False);
+   server.atom._NET_WM_STATE_MAXIMIZED_VERT = XInternAtom (server.dsp, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+   server.atom._NET_WM_STATE_MAXIMIZED_HORZ = XInternAtom (server.dsp, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
    server.atom._NET_WM_STATE_SHADED = XInternAtom (server.dsp, "_NET_WM_STATE_SHADED", False);
    server.atom._NET_WM_STATE_BELOW = XInternAtom (server.dsp, "_NET_WM_STATE_BELOW", False);
    server.atom._NET_WM_STATE_MODAL = XInternAtom (server.dsp, "_NET_WM_STATE_MODAL", False);

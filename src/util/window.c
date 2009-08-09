@@ -65,22 +65,13 @@ void window_toggle_shade (Window win)
    send_event32 (win, server.atom._NET_WM_STATE, 2, server.atom._NET_WM_STATE_SHADED, 0);
 }
 
-/*
-int x11_send_expose(Display *dpy, Window dst, int x, int y, int width, int height)
+
+void window_maximize_restore (Window win)
 {
-	XEvent xe;
-	int rc;
-	xe.type = Expose;
-	xe.xexpose.window = dst;
-	xe.xexpose.x = x;
-	xe.xexpose.y = y;
-	xe.xexpose.width = width;
-	xe.xexpose.height = height;
-	xe.xexpose.count = 0;
-	rc = XSendEvent(tray_data.dpy, dst, True, NoEventMask, &xe);
-	return x11_ok() && rc != 0;
+   send_event32 (win, server.atom._NET_WM_STATE, 2, server.atom._NET_WM_STATE_MAXIMIZED_VERT, 0);
+   send_event32 (win, server.atom._NET_WM_STATE, 2, server.atom._NET_WM_STATE_MAXIMIZED_HORZ, 0);
 }
-*/
+
 
 int window_is_hidden (Window win)
 {

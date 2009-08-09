@@ -28,7 +28,7 @@ FXint fxmalloc(void** ptr,unsigned long size){
 */
 
 // mouse actions
-enum { NONE=0, CLOSE, TOGGLE, ICONIFY, SHADE, TOGGLE_ICONIFY };
+enum { NONE=0, CLOSE, TOGGLE, ICONIFY, SHADE, TOGGLE_ICONIFY, MAXIMIZE_RESTORE, MAXIMIZE, RESTORE };
 
 #define ALLDESKTOP  0xFFFFFFFF
 
