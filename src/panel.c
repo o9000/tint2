@@ -38,6 +38,8 @@ int mouse_middle;
 int mouse_right;
 int mouse_scroll_up;
 int mouse_scroll_down;
+int mouse_tilt_left;
+int mouse_tilt_right;
 
 int panel_mode;
 int wm_menu;

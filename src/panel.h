@@ -32,6 +32,8 @@ extern int mouse_middle;
 extern int mouse_right;
 extern int mouse_scroll_up;
 extern int mouse_scroll_down;
+extern int mouse_tilt_left;
+extern int mouse_tilt_right;
 
 //panel mode
 enum { SINGLE_DESKTOP=0, MULTI_DESKTOP };
