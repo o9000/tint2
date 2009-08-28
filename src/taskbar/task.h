@@ -9,6 +9,7 @@
 
 #include <X11/Xlib.h>
 #include <pango/pangocairo.h>
+#include <Imlib2.h>
 #include "common.h"
 
 
@@ -25,6 +26,8 @@ typedef struct {
 	int icon_size1;
 	int maximum_width;
 	int maximum_height;
+   int hue, saturation, brightness;
+   int hue_active, saturation_active, brightness_active;
 	// starting position for text ~ task_padding + task_border + icon_size
 	double text_posx, text_posy;
 
@@ -43,7 +46,9 @@ typedef struct {
 	// TODO: group task with list of windows here
 	Window win;
 	int  desktop;
+	// ARGB icon
 	unsigned int *icon_data;
+	unsigned int *icon_data_active;
 	int icon_width;
 	int icon_height;
 	char *title;

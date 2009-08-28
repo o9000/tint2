@@ -511,6 +511,18 @@ void add_entry (char *key, char *value)
       if (value2) panel_config->g_task.font_active.alpha = (atoi (value2) / 100.0);
       else panel_config->g_task.font_active.alpha = 0.1;
    }
+   else if (strcmp (key, "task_icon_hsb") == 0) {
+      extract_values(value, &value1, &value2, &value3);
+		panel_config->g_task.hue = atoi(value1);
+		panel_config->g_task.saturation = atoi(value2);
+		panel_config->g_task.brightness = atoi(value3);
+   }
+   else if (strcmp (key, "task_active_icon_hsb") == 0) {
+      extract_values(value, &value1, &value2, &value3);
+		panel_config->g_task.hue_active = atoi(value1);
+		panel_config->g_task.saturation_active = atoi(value2);
+		panel_config->g_task.brightness_active = atoi(value3);
+   }
    else if (strcmp (key, "task_background_id") == 0) {
       int id = atoi (value);
       Area *a = g_slist_nth_data(list_back, id);

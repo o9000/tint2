@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
-#include <Imlib2.h>
 
 #include "window.h"
 #include "task.h"
@@ -52,6 +51,7 @@ Task *add_task (Window win)
 	// even with task_on_all_desktop and with task_on_all_panel
 	new_tsk.title = 0;
 	new_tsk.icon_data = 0;
+	new_tsk.icon_data_active = 0;
 	get_title(&new_tsk);
 	get_icon(&new_tsk);
 
@@ -74,6 +74,7 @@ Task *add_task (Window win)
 			new_tsk2->desktop = new_tsk.desktop;
 			new_tsk2->title = new_tsk.title;
 			new_tsk2->icon_data = new_tsk.icon_data;
+			new_tsk2->icon_data_active = new_tsk.icon_data_active;
 			new_tsk2->icon_width = new_tsk.icon_width;
 			new_tsk2->icon_height = new_tsk.icon_height;
 			tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk2);
@@ -97,8 +98,10 @@ void remove_task (Task *tsk)
 	//printf("remove_task %s %d\n", tsk->title, tsk->desktop);
 	if (tsk->title)
 		free (tsk->title);
-	if (tsk->icon_data)
+	if (tsk->icon_data) {
 		free (tsk->icon_data);
+		free (tsk->icon_data_active);
+	}
 
 	int i, j;
 	Task *tsk2;
@@ -171,7 +174,8 @@ void get_icon (Task *tsk)
 
 	if (tsk->icon_data) {
 		free (tsk->icon_data);
-		tsk->icon_data = 0;
+		free (tsk->icon_data_active);
+		tsk->icon_data = tsk->icon_data_active = 0;
 	}
 	tsk->area.redraw = 1;
 
@@ -203,44 +207,48 @@ void get_icon (Task *tsk)
    else {
       // get Pixmap icon
       XWMHints *hints = XGetWMHints(server.dsp, tsk->win);
-      if (hints) {
-         if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
-         	// get width, height and depth for the pixmap
-				Window root;
-				int  icon_x, icon_y;
-				uint border_width, bpp;
-				uint icon_width, icon_height;
+      if (!hints) return;
+		if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
+			// get width, height and depth for the pixmap
+			Window root;
+			int  icon_x, icon_y;
+			uint border_width, bpp;
+			uint icon_width, icon_height;
 
-				XGetGeometry(server.dsp, hints->icon_pixmap, &root, &icon_x, &icon_y, &icon_width, &icon_height, &border_width, &bpp);
+			XGetGeometry(server.dsp, hints->icon_pixmap, &root, &icon_x, &icon_y, &icon_width, &icon_height, &border_width, &bpp);
 
-		      //printf("  get_pixmap\n");
-		      Imlib_Image  img;
-				imlib_context_set_drawable(hints->icon_pixmap);
-				img = imlib_create_image_from_drawable(hints->icon_mask, 0, 0, icon_width, icon_height, 0);
-				imlib_context_set_image(img);
-				unsigned int *data = imlib_image_get_data();
-				if (!data) {
-					return;
-				}
-				tsk->icon_width = imlib_image_get_width();
-				tsk->icon_height = imlib_image_get_height();
-				tsk->icon_data = malloc (tsk->icon_width * tsk->icon_height * sizeof (DATA32));
-				memcpy (tsk->icon_data, data, tsk->icon_width * tsk->icon_height * sizeof (DATA32));
-				imlib_free_image();
+			//printf("  get_pixmap\n");
+			Imlib_Image  img;
+			imlib_context_set_drawable(hints->icon_pixmap);
+			img = imlib_create_image_from_drawable(hints->icon_mask, 0, 0, icon_width, icon_height, 0);
+			imlib_context_set_image(img);
+			unsigned int *data = imlib_image_get_data();
+			if (!data) {
+				return;
 			}
-         XFree(hints);
+			tsk->icon_width = imlib_image_get_width();
+			tsk->icon_height = imlib_image_get_height();
+			tsk->icon_data = malloc (tsk->icon_width * tsk->icon_height * sizeof (DATA32));
+			memcpy (tsk->icon_data, data, tsk->icon_width * tsk->icon_height * sizeof (DATA32));
+			imlib_free_image();
 		}
+		XFree(hints);
    }
+
+	tsk->icon_data_active = malloc (tsk->icon_width * tsk->icon_height * sizeof (DATA32));
+	memcpy (tsk->icon_data_active, tsk->icon_data, tsk->icon_width * tsk->icon_height * sizeof (DATA32));
+
 }
 
 
 void draw_task_icon (Task *tsk, int text_width, int active)
 {
-	if (tsk->icon_data == 0) return;
+	if (tsk->icon_data == 0 || tsk->icon_data_active == 0) return;
 
 	Pixmap *pmap = (active == 0) ? (&tsk->area.pix.pmap) : (&tsk->area.pix_active.pmap);
+	unsigned int *icon_data = (active == 0) ? (tsk->icon_data) : (tsk->icon_data_active);
 
-	/* Find pos */
+	// Find pos
 	int pos_x;
 	Panel *panel = (Panel*)tsk->area.panel;
 	if (panel->g_task.centered) {
@@ -251,12 +259,12 @@ void draw_task_icon (Task *tsk, int text_width, int active)
 	}
 	else pos_x = panel->g_task.area.paddingxlr + panel->g_task.area.pix.border.width;
 
-	/* Render */
+	// Render
 	Imlib_Image icon;
 	Imlib_Color_Modifier cmod;
 	DATA8 red[256], green[256], blue[256], alpha[256];
 
-	icon = imlib_create_image_using_data (tsk->icon_width, tsk->icon_height, tsk->icon_data);
+	icon = imlib_create_image_using_data (tsk->icon_width, tsk->icon_height, icon_data);
 	imlib_context_set_image (icon);
 	imlib_context_set_drawable (*pmap);
 
@@ -327,4 +335,5 @@ void draw_task (void *obj, cairo_t *c, int active)
 		draw_task_icon (tsk, width, active);
 	}
 }
+
 

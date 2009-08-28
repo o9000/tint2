@@ -482,6 +482,7 @@ void event_property_notify (XEvent *e)
 							tsk2->icon_width = tsk->icon_width;
 							tsk2->icon_height = tsk->icon_height;
 							tsk2->icon_data = tsk->icon_data;
+							tsk2->icon_data_active = tsk->icon_data_active;
 							tsk2->area.redraw = 1;
 						}
 					}
