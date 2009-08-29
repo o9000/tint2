@@ -228,14 +228,14 @@ void window_action (Task *tsk, int action)
 			window_maximize_restore (tsk->win);
 			break;
 		case DESKTOP_LEFT:
-			if ( desk == 0 ) break;
+			if ( tsk->desktop == 0 ) break;
 			desk = tsk->desktop - 1;
 			windows_set_desktop(tsk->win, desk);
 			if (desk == server.desktop)
 				set_active(tsk->win);
 			break;
 		case DESKTOP_RIGHT:
-			if (desk == server.nb_desktop ) break;
+			if (tsk->desktop == server.nb_desktop ) break;
 			desk = tsk->desktop + 1;
 			windows_set_desktop(tsk->win, desk);
 			if (desk == server.desktop)
@@ -335,7 +335,7 @@ void event_button_release (XEvent *e)
 
    // switch desktop
    if (panel_mode == MULTI_DESKTOP) {
-      if (tskbar->desktop != server.desktop && action != CLOSE && action != mouse_tilt_left && action != mouse_tilt_right)
+      if (tskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT && action != DESKTOP_RIGHT)
          set_desktop (tskbar->desktop);
 	}
 
