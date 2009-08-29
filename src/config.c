@@ -228,6 +228,10 @@ void get_action (char *event, int *action)
       *action = TOGGLE_ICONIFY;
    else if (strcmp (event, "maximize_restore") == 0)
       *action = MAXIMIZE_RESTORE;
+   else if (strcmp (event, "desktop_left") == 0)
+      *action = DESKTOP_LEFT;
+   else if (strcmp (event, "desktop_right") == 0)
+      *action = DESKTOP_RIGHT;
 }
 
 

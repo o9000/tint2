@@ -200,6 +200,7 @@ int click_clock(Panel *panel, XEvent *e)
 void window_action (Task *tsk, int action)
 {
    if (!tsk) return;
+	int desk;
 	switch (action) {
 		case CLOSE:
 			set_close (tsk->win);
@@ -226,6 +227,19 @@ void window_action (Task *tsk, int action)
 		case RESTORE:
 			window_maximize_restore (tsk->win);
 			break;
+		case DESKTOP_LEFT:
+			if ( desk == 0 ) break;
+			desk = tsk->desktop - 1;
+			windows_set_desktop(tsk->win, desk);
+			if (desk == server.desktop)
+				set_active(tsk->win);
+			break;
+		case DESKTOP_RIGHT:
+			if (desk == server.nb_desktop ) break;
+			desk = tsk->desktop + 1;
+			windows_set_desktop(tsk->win, desk);
+			if (desk == server.desktop)
+				set_active(tsk->win);
 	}
 }
 
@@ -234,23 +248,7 @@ void event_button_press (XEvent *e)
 {
    Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
-/*
-	if (wm_menu) {
-		if ((panel_horizontal && (e->xbutton.x < panel->area.paddingxlr || e->xbutton.x > panel->area.width-panel->area.paddingxlr || e->xbutton.y < panel->area.paddingy || e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) || (!panel_horizontal && (e->xbutton.y < panel->area.paddingxlr || e->xbutton.y > panel->area.height-panel->area.paddingxlr || e->xbutton.x < panel->area.paddingy || e->xbutton.x > panel->area.paddingy+panel->g_taskbar.width))) {
-			// forward the click to the desktop window (thanks conky)
-			XUngrabPointer(server.dsp, e->xbutton.time);
-			e->xbutton.window = server.root_win;
-			// icewm doesn't open under the mouse.
-			// and xfce doesn't open at all.
-			//e->xbutton.x = e->xbutton.x_root;
-			//e->xbutton.y = e->xbutton.y_root;
-			//printf("**** %d, %d\n", e->xbutton.x, e->xbutton.y);
-			XSetInputFocus(server.dsp, e->xbutton.window, RevertToParent, e->xbutton.time);
-			XSendEvent(server.dsp, e->xbutton.window, False, ButtonPressMask, e);
-			return;
-		}
-	}
-*/
+
 	if (panel_mode == MULTI_DESKTOP)
 		task_drag = click_task(panel, e);
 
@@ -267,49 +265,7 @@ void event_button_press (XEvent *e)
 		XSendEvent(server.dsp, e->xbutton.window, False, ButtonPressMask, e);
 		return;
    }
-/*
-	if (e->xbutton.button != 1) return;
-   GSList *l0;
-   Taskbar *tskbar;
-	if (panel_horizontal) {
-		int x = e->xbutton.x;
-		for (l0 = panel->area.list; l0 ; l0 = l0->next) {
-			tskbar = l0->data;
-			if (!tskbar->area.on_screen) continue;
-			if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
-				break;
-		}
-		if (l0) {
-			Task *tsk;
-			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
-				tsk = l0->data;
-				if (x >= tsk->area.posx && x <= (tsk->area.posx + tsk->area.width)) {
-					task_drag = tsk;
-					break;
-				}
-			}
-		}
-	}
-	else {
-		int y = e->xbutton.y;
-		for (l0 = panel->area.list; l0 ; l0 = l0->next) {
-			tskbar = l0->data;
-			if (!tskbar->area.on_screen) continue;
-			if (y >= tskbar->area.posy && y <= (tskbar->area.posy + tskbar->area.height))
-				break;
-		}
-		if (l0) {
-			Task *tsk;
-			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
-				tsk = l0->data;
-				if (y >= tsk->area.posy && y <= (tsk->area.posy + tsk->area.height)) {
-					task_drag = tsk;
-					break;
-				}
-			}
-		}
-	}
-*/
+
    XLowerWindow (server.dsp, panel->main_win);
 }
 
@@ -325,16 +281,6 @@ void event_button_release (XEvent *e)
 			XSendEvent(server.dsp, e->xbutton.window, False, ButtonReleaseMask, e);
 			return;
 	}
-/*
-	if (wm_menu) {
-		if ((panel_horizontal && (e->xbutton.x < panel->area.paddingxlr || e->xbutton.x > panel->area.width-panel->area.paddingxlr || e->xbutton.y < panel->area.paddingy || e->xbutton.y > panel->area.paddingy+panel->g_taskbar.height)) || (!panel_horizontal && (e->xbutton.y < panel->area.paddingxlr || e->xbutton.y > panel->area.height-panel->area.paddingxlr || e->xbutton.x < panel->area.paddingy || e->xbutton.x > panel->area.paddingy+panel->g_taskbar.width))) {
-			// forward the click to the desktop window (thanks conky)
-			e->xbutton.window = server.root_win;
-			XSendEvent(server.dsp, e->xbutton.window, False, ButtonReleaseMask, e);
-			return;
-		}
-	}
-*/
 
    int action = TOGGLE_ICONIFY;
    switch (e->xbutton.button) {
@@ -388,8 +334,8 @@ void event_button_release (XEvent *e)
    }
 
    // switch desktop
-   if (panel_mode == MULTI_DESKTOP && action != mouse_tilt_left && action != mouse_tilt_right) {
-      if (tskbar->desktop != server.desktop && action != CLOSE)
+   if (panel_mode == MULTI_DESKTOP) {
+      if (tskbar->desktop != server.desktop && action != CLOSE && action != mouse_tilt_left && action != mouse_tilt_right)
          set_desktop (tskbar->desktop);
 	}
 
@@ -398,86 +344,6 @@ void event_button_release (XEvent *e)
 
    // to keep window below
    XLowerWindow (server.dsp, panel->main_win);
-/*
-   int x = e->xbutton.x;
-   int y = e->xbutton.y;
-   // search taskbar
-   Taskbar *tskbar;
-   GSList *l0;
-	Clock clk = panel->clock;
-	if (panel_horizontal) {
-		if (clk.area.on_screen && x >= clk.area.posx && x <= (clk.area.posx + clk.area.width))
-			clock_action(e->xbutton.button);
-		else {
-			for (l0 = panel->area.list; l0 ; l0 = l0->next) {
-				tskbar = l0->data;
-				if (!tskbar->area.on_screen) continue;
-				if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
-					goto suite;
-			}
-		}
-	}
-	else {
-		if (clk.area.on_screen && y >= clk.area.posy && y <= (clk.area.posy + clk.area.height))
-			clock_action(e->xbutton.button);
-		else {
-			for (l0 = panel->area.list; l0 ; l0 = l0->next) {
-				tskbar = l0->data;
-				if (!tskbar->area.on_screen) continue;
-				if (y >= tskbar->area.posy && y <= (tskbar->area.posy + tskbar->area.height))
-					goto suite;
-			}
-		}
-	}
-
-   // TODO: check better solution to keep window below
-   XLowerWindow (server.dsp, panel->main_win);
-   task_drag = 0;
-   return;
-
-suite:
-   // drag and drop task
-   if (task_drag) {
-      if (tskbar != task_drag->area.parent && action == TOGGLE_ICONIFY) {
-         if (task_drag->desktop != ALLDESKTOP && panel_mode == MULTI_DESKTOP) {
-            windows_set_desktop(task_drag->win, tskbar->desktop);
-            if (tskbar->desktop == server.desktop)
-               set_active(task_drag->win);
-            task_drag = 0;
-         }
-         return;
-      }
-      else task_drag = 0;
-   }
-
-   // switch desktop
-   if (panel_mode == MULTI_DESKTOP) {
-      if (tskbar->desktop != server.desktop && action != CLOSE)
-         set_desktop (tskbar->desktop);
-	}
-
-   // action on task
-   Task *tsk;
-   GSList *l;
-   for (l = tskbar->area.list ; l ; l = l->next) {
-      tsk = l->data;
-		if (panel_horizontal) {
-			if (x >= tsk->area.posx && x <= (tsk->area.posx + tsk->area.width)) {
-				window_action (tsk, action);
-				break;
-			}
-		}
-		else {
-			if (y >= tsk->area.posy && y <= (tsk->area.posy + tsk->area.height)) {
-				window_action (tsk, action);
-				break;
-			}
-		}
-   }
-
-   // to keep window below
-   XLowerWindow (server.dsp, panel->main_win);
-	*/
 }
 
 
