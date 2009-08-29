@@ -9,6 +9,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+extern char *config_path;
+extern char *thumbnail_path;
 
 void init_config();
 void cleanup_config();

@@ -46,8 +46,19 @@ void signal_handler(int sig)
 }
 
 
-void init ()
+void init (int argc, char *argv[])
 {
+   int c;
+
+	// read options
+   c = getopt (argc, argv, "c:");
+   if (c != -1) {
+		config_path = strdup (optarg);
+	   c = getopt (argc, argv, "j:");
+	   if (c != -1)
+			thumbnail_path = strdup (optarg);
+	}
+
 	// Set signal handler
    signal(SIGUSR1, signal_handler);
 	signal(SIGINT, signal_handler);
@@ -105,6 +116,8 @@ void cleanup()
 #endif
 	if (clock_lclick_command) g_free(clock_lclick_command);
 	if (clock_rclick_command) g_free(clock_rclick_command);
+	if (config_path) g_free(config_path);
+	if (thumbnail_path) g_free(thumbnail_path);
 
    if (server.monitor) free(server.monitor);
    XFreeGC(server.dsp, server.gc);
@@ -618,35 +631,32 @@ int main (int argc, char *argv[])
 {
    XEvent e;
    fd_set fd;
-   int x11_fd, i, c;
+   int x11_fd, i;
    struct timeval tv;
    Panel *panel;
 	GSList *it;
 
-   init ();
+   init (argc, argv);
 
 load_config:
    i = 0;
-   c = getopt (argc, argv, "c:");
 	init_config();
-   if (c != -1) {
-      i = config_read_file (optarg);
-	   c = getopt (argc, argv, "j:");
-	   if (c != -1) {
-			// usage: tint2 [-c] <config_file> -j <file> for internal use
-   	   printf("file %s\n", optarg);
-	      cleanup();
-   	   exit(0);
-		}
+   if (config_path)
+      i = config_read_file (config_path);
+	else
+		i = config_read ();
+	if (!i) {
+		fprintf(stderr, "usage: tint2 [-c] <config_file>\n");
+		cleanup();
+		exit(1);
 	}
-   if (!i)
-      i = config_read ();
-   if (!i) {
-      fprintf(stderr, "usage: tint2 [-c] <config_file>\n");
-      cleanup();
-      exit(1);
-   }
    config_finish();
+	if (thumbnail_path) {
+		// usage: tint2 -j <file> for internal use
+		printf("file %s\n", thumbnail_path);
+		cleanup();
+		exit(0);
+	}
 
    x11_fd = ConnectionNumber(server.dsp);
    XSync(server.dsp, False);

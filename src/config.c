@@ -48,6 +48,9 @@
 #include "battery.h"
 #endif
 
+// global path
+char *config_path = 0;
+char *thumbnail_path = 0;
 
 // --------------------------------------------------
 // backward compatibility
@@ -739,6 +742,7 @@ deb:
    path1 = g_build_filename (g_get_user_config_dir(), "tint2", "tint2rc", NULL);
    if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
 		i = config_read_file (path1);
+		config_path = strdup(path1);
 		g_free(path1);
 	   return i;
 	}
@@ -781,6 +785,7 @@ deb:
 		g_free(path2);
 
 		i = config_read_file (path1);
+		config_path = strdup(path1);
 		g_free(path1);
 		return i;
 	}
