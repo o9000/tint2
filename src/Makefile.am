@@ -10,6 +10,7 @@ bin_PROGRAMS = tint2
 tint2_SOURCES = config.c \
 				util/area.h \
 				util/common.h \
+				util/common.c \
 				util/area.c \
 				util/window.h \
 				util/window.c \
@@ -26,7 +27,7 @@ tint2_SOURCES = config.c \
 				taskbar/taskbar.c \
 				taskbar/task.c \
 				taskbar/taskbar.h \
-				taskbar/task.h 
+				taskbar/task.h
 
 if ENABLE_BATTERY
 DEFS += -DENABLE_BATTERY
