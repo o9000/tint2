@@ -227,6 +227,28 @@ int window_error_handler(Display *d, XErrorEvent *e)
 }
 
 
+static gint compare_traywindows(gconstpointer a, gconstpointer b)
+{
+	const TrayWindow * traywin_a = (TrayWindow*)a;
+	const TrayWindow * traywin_b = (TrayWindow*)b;
+	XTextProperty name_a, name_b;
+
+	if(XGetWMName(server.dsp, traywin_a->id, &name_a) == 0) {
+		return -1;
+	}
+	else if(XGetWMName(server.dsp, traywin_b->id, &name_b) == 0) {
+		XFree(name_a.value);
+		return 1;
+	}
+	else {
+		gint retval = g_ascii_strncasecmp((char*)name_a.value, (char*)name_b.value, -1) * systray.sort;
+		XFree(name_a.value);
+		XFree(name_b.value);
+		return retval;
+	}
+}
+
+
 gboolean add_icon(Window id)
 {
 	TrayWindow *traywin;
@@ -276,7 +298,8 @@ gboolean add_icon(Window id)
 	traywin = g_new0(TrayWindow, 1);
 	traywin->id = id;
 
-	systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
+//	systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
+	systray.list_icons = g_slist_insert_sorted(systray.list_icons, traywin, compare_traywindows);
   	systray.area.resize = 1;
 	systray.area.redraw = 1;
 	//printf("add_icon id %lx, %d\n", id, g_slist_length(systray.list_icons));

@@ -1,3 +1,7 @@
+2009-08-30
+- fixed issue 130 by maato
+  ordered systray icon with config "systray_sort = asc/desc"
+
 2009-08-29
 - fixed issue 134
 

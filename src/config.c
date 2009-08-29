@@ -84,6 +84,7 @@ void init_config()
    list_back = g_slist_append(0, calloc(1, sizeof(Area)));
 
 	panel_config = calloc(1, sizeof(Panel));
+	systray.sort = 1;
 	// window manager's menu default value == false
 	wm_menu = 0;
 	max_tick_urgent = 7;
@@ -557,6 +558,12 @@ void add_entry (char *key, char *value)
       memcpy(&systray.area.pix.back, &a->pix.back, sizeof(Color));
       memcpy(&systray.area.pix.border, &a->pix.border, sizeof(Border));
    }
+	else if (strcmp(key, "systray_sort") == 0) {
+		if (strcmp(value, "desc") == 0)
+			systray.sort = -1;
+		else
+			systray.sort = 1;
+	}
 
    /* Mouse actions */
    else if (strcmp (key, "mouse_middle") == 0)

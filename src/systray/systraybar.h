@@ -24,6 +24,7 @@ typedef struct {
    Area area;
 
 	GSList *list_icons;
+	int sort;
 } Systraybar;
 
 
