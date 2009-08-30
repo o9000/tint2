@@ -85,6 +85,7 @@ void init_config()
 
 	panel_config = calloc(1, sizeof(Panel));
 	systray.sort = 1;
+
 	// window manager's menu default value == false
 	wm_menu = 0;
 	max_tick_urgent = 7;
@@ -475,6 +476,13 @@ void add_entry (char *key, char *value)
       Area *a = g_slist_nth_data(list_back, id);
       memcpy(&panel_config->g_taskbar.pix.back, &a->pix.back, sizeof(Color));
       memcpy(&panel_config->g_taskbar.pix.border, &a->pix.border, sizeof(Border));
+   }
+   else if (strcmp (key, "taskbar_active_background_id") == 0) {
+      int id = atoi (value);
+      Area *a = g_slist_nth_data(list_back, id);
+      memcpy(&panel_config->g_taskbar.pix_active.back, &a->pix.back, sizeof(Color));
+      memcpy(&panel_config->g_taskbar.pix_active.border, &a->pix.border, sizeof(Border));
+		panel_config->g_taskbar.use_active = 1;
    }
 
    /* Task */

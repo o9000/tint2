@@ -388,6 +388,35 @@ void event_property_notify (XEvent *e)
       // Change desktop
       else if (at == server.atom._NET_CURRENT_DESKTOP) {
          server.desktop = server_get_current_desktop ();
+			for (i=0 ; i < nb_panel ; i++) {
+			   Panel *panel = &panel1[i];
+				if (panel_mode == MULTI_DESKTOP && panel->g_taskbar.use_active) {
+					// redraw taskbar
+					panel_refresh = 1;
+					Taskbar *tskbar;
+					Task *tsk;
+					GSList *l;
+					for (j=0 ; j < panel->nb_desktop ; j++) {
+						tskbar = &panel->taskbar[j];
+						if (tskbar->area.is_active) {
+							tskbar->area.is_active = 0;
+							tskbar->area.redraw = 1;
+							for (l = tskbar->area.list; l ; l = l->next) {
+								tsk = l->data;
+								tsk->area.redraw = 1;
+							}
+						}
+						if (j == server.desktop) {
+							tskbar->area.is_active = 1;
+							tskbar->area.redraw = 1;
+							for (l = tskbar->area.list; l ; l = l->next) {
+								tsk = l->data;
+								tsk->area.redraw = 1;
+							}
+						}
+					}
+				}
+			}
          if (panel_mode != MULTI_DESKTOP) {
 				visible_object();
          }

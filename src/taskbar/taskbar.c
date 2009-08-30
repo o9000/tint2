@@ -103,6 +103,8 @@ void init_taskbar()
 			tskbar = &panel->taskbar[j];
 			memcpy(&tskbar->area, &panel->g_taskbar, sizeof(Area));
 			tskbar->desktop = j;
+			if (j == server.desktop && tskbar->area.use_active)
+				tskbar->area.is_active = 1;
 
 			// add taskbar to the panel
 			panel->area.list = g_slist_append(panel->area.list, tskbar);
