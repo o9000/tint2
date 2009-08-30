@@ -1,4 +1,7 @@
 2009-08-30
+- detect pid of process owning the systray
+
+2009-08-30
 - added taskbar_active_background_id to change current desktop background.
   warning : this feature have a price on cpu (tint2 redraw all task) when you switch desktop.
   comment out taskbar_active_background_id if you don't want it.

@@ -171,9 +171,30 @@ void resize_systray(void *obj)
 
 int init_net()
 {
+	Window win = XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN);
+
 	// freedesktop systray specification
-	if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != None) {
-		fprintf(stderr, "tint2 : another systray is running\n");
+	if (win != None) {
+		// search pid
+		Atom _NET_WM_PID, actual_type;
+		int actual_format;
+		unsigned long nitems;
+		unsigned long bytes_after;
+		unsigned char *prop;
+		int pid;
+
+		_NET_WM_PID = XInternAtom(server.dsp, "_NET_WM_PID", True);
+		//atom_name = XGetAtomName (dpy,atom);
+
+		int ret = XGetWindowProperty(server.dsp, win, _NET_WM_PID, 0, 1024, False, AnyPropertyType, &actual_type, &actual_format, &nitems, &bytes_after, &prop);
+
+		fprintf(stderr, "tint2 : another systray is running");
+		if (ret == 0) {
+			pid = prop[1] * 256;
+			pid += prop[0];
+			fprintf(stderr, " pid=%d", pid);
+		}
+		fprintf(stderr, "\n");
 		return 0;
 	}
 
