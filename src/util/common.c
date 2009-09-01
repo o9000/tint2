@@ -30,20 +30,19 @@
 
 
 
-void adjust_hsb(unsigned int *data, int w, int h, float hu, float satur, float bright)
+void adjust_hsb(DATA32 *data, int w, int h, float hu, float satur, float bright)
 {
-	unsigned int *pt = data;
-	int x, y;
+	unsigned int x, y;
 	unsigned int a, r, g, b, argb;
+	unsigned long id;
 	int cmax, cmin;
 	float h2, f, p, q, t;
 	float hue, saturation, brightness;
 	float redc, greenc, bluec;
 
-
 	for(y = 0; y < h; y++) {
-		for(x = 0; x < w; x++) {
-			argb = pt[y * h + x];
+		for(id = y * w, x = 0; x < w; x++, id++) {
+			argb = data[id];
 			a = (argb >> 24) & 0xff;
 			r = (argb >> 16) & 0xff;
 			g = (argb >> 8) & 0xff;
@@ -134,7 +133,7 @@ void adjust_hsb(unsigned int *data, int w, int h, float hu, float satur, float b
 			argb = (argb << 8) + r;
 			argb = (argb << 8) + g;
 			argb = (argb << 8) + b;
-			pt[y * h + x] = argb;
+			data[id] = argb;
 		}
 	}
 }

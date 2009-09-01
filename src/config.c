@@ -348,7 +348,7 @@ void add_entry (char *key, char *value)
 			panel_config->battery.area.on_screen = 1;
 #else
 		if(atoi(value) == 1)
-			printf("tint2 is build without battery support\n");
+			fprintf(stderr, "tint2 is build without battery support\n");
 #endif
    }
    else if (strcmp (key, "battery_low_status") == 0) {

@@ -1,3 +1,6 @@
+2009-09-01
+- fixed segfault
+
 2009-08-30
 - detect pid of process owning the systray
 

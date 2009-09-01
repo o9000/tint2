@@ -9,6 +9,7 @@
 
 #define WM_CLASS_TINT   "panel"
 
+#include <Imlib2.h>
 #include "area.h"
 
 /*
@@ -50,7 +51,7 @@ typedef struct config_color
 
 
 // adjust HSB on an ARGB icon
-void adjust_hsb(unsigned int *data, int w, int h, float hue, float satur, float bright);
+void adjust_hsb(DATA32 *data, int w, int h, float hue, float satur, float bright);
 
 
 

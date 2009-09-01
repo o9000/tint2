@@ -49,8 +49,8 @@ typedef struct {
 	// ARGB icon
 	unsigned int *icon_data;
 	unsigned int *icon_data_active;
-	int icon_width;
-	int icon_height;
+	unsigned int icon_width;
+	unsigned int icon_height;
 	char *title;
 } Task;
 

@@ -193,15 +193,16 @@ void get_icon (Task *tsk)
 		// DATA32 is provided by imlib2
 		tsk->icon_data = malloc (w * h * sizeof (DATA32));
 
+		if (tsk->icon_data) {
 #ifdef __x86_64__
-		int length = tsk->icon_width * tsk->icon_height;
-		int i;
-		for (i = 0; i < length; ++i)
-			tsk->icon_data[i] =  tmp_data[i];
+			int length = tsk->icon_width * tsk->icon_height;
+			int i;
+			for (i = 0; i < length; ++i)
+				tsk->icon_data[i] =  tmp_data[i];
 #else
-		memcpy (tsk->icon_data, tmp_data, w * h * sizeof (DATA32));
+			memcpy (tsk->icon_data, tmp_data, w * h * sizeof (DATA32));
 #endif
-
+		}
 		XFree (data);
    }
    else {
@@ -229,20 +230,23 @@ void get_icon (Task *tsk)
 			tsk->icon_width = imlib_image_get_width();
 			tsk->icon_height = imlib_image_get_height();
 			tsk->icon_data = malloc (tsk->icon_width * tsk->icon_height * sizeof (DATA32));
-			memcpy (tsk->icon_data, data, tsk->icon_width * tsk->icon_height * sizeof (DATA32));
+			if (tsk->icon_data)
+				memcpy (tsk->icon_data, data, tsk->icon_width * tsk->icon_height * sizeof (DATA32));
 			imlib_free_image();
 		}
 		XFree(hints);
    }
 
-	tsk->icon_data_active = malloc (tsk->icon_width * tsk->icon_height * sizeof (DATA32));
-	memcpy (tsk->icon_data_active, tsk->icon_data, tsk->icon_width * tsk->icon_height * sizeof (DATA32));
+	if (tsk->icon_data) {
+		tsk->icon_data_active = malloc (tsk->icon_width * tsk->icon_height * sizeof (DATA32));
+		memcpy (tsk->icon_data_active, tsk->icon_data, tsk->icon_width * tsk->icon_height * sizeof (DATA32));
 
-	if (panel->g_task.hue != 0 || panel->g_task.saturation != 0 || panel->g_task.brightness != 0) {
-		adjust_hsb(tsk->icon_data, tsk->icon_width, tsk->icon_height, (float)panel->g_task.hue/100, (float)panel->g_task.saturation/100, (float)panel->g_task.brightness/100);
-	}
-	if (panel->g_task.hue_active != 0 || panel->g_task.saturation_active != 0 || panel->g_task.brightness_active != 0) {
-		adjust_hsb(tsk->icon_data_active, tsk->icon_width, tsk->icon_height, (float)panel->g_task.hue_active/100, (float)panel->g_task.saturation_active/100, (float)panel->g_task.brightness_active/100);
+		if (panel->g_task.hue != 0 || panel->g_task.saturation != 0 || panel->g_task.brightness != 0) {
+			adjust_hsb(tsk->icon_data, tsk->icon_width, tsk->icon_height, (float)panel->g_task.hue/100, (float)panel->g_task.saturation/100, (float)panel->g_task.brightness/100);
+		}
+		if (panel->g_task.hue_active != 0 || panel->g_task.saturation_active != 0 || panel->g_task.brightness_active != 0) {
+			adjust_hsb(tsk->icon_data_active, tsk->icon_width, tsk->icon_height, (float)panel->g_task.hue_active/100, (float)panel->g_task.saturation_active/100, (float)panel->g_task.brightness_active/100);
+		}
 	}
 }
 
