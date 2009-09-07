@@ -56,9 +56,9 @@ void init_precision()
 
 void init_clock()
 {
-   Panel *panel;
-   Clock *clock;
-   int i, time_height, time_height_ink, date_height, date_height_ink;
+	Panel *panel;
+	Clock *clock;
+	int i, time_height, time_height_ink, date_height, date_height_ink;
 
 	init_precision();
 	// update clock to force update (-time_precision)
@@ -68,8 +68,8 @@ void init_clock()
 	time_clock.tv_sec -= time_clock.tv_sec % time_precision;
 
 	for (i=0 ; i < nb_panel ; i++) {
-	   panel = &panel1[i];
-	   clock = &panel->clock;
+		panel = &panel1[i];
+		clock = &panel->clock;
 
 		if (!clock->area.on_screen) continue;
 
@@ -114,64 +114,64 @@ void init_clock()
 
 void draw_clock (void *obj, cairo_t *c, int active)
 {
-   Clock *clock = obj;
-   PangoLayout *layout;
+	Clock *clock = obj;
+	PangoLayout *layout;
 
-   layout = pango_cairo_create_layout (c);
+	layout = pango_cairo_create_layout (c);
 
-   // draw layout
-   pango_layout_set_font_description (layout, time1_font_desc);
-   pango_layout_set_width (layout, clock->area.width * PANGO_SCALE);
-   pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
-   pango_layout_set_text (layout, buf_time, strlen(buf_time));
+	// draw layout
+	pango_layout_set_font_description (layout, time1_font_desc);
+	pango_layout_set_width (layout, clock->area.width * PANGO_SCALE);
+	pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
+	pango_layout_set_text (layout, buf_time, strlen(buf_time));
 
-   cairo_set_source_rgba (c, clock->font.color[0], clock->font.color[1], clock->font.color[2], clock->font.alpha);
+	cairo_set_source_rgba (c, clock->font.color[0], clock->font.color[1], clock->font.color[2], clock->font.alpha);
 
-   pango_cairo_update_layout (c, layout);
-   cairo_move_to (c, 0, clock->time1_posy);
-   pango_cairo_show_layout (c, layout);
+	pango_cairo_update_layout (c, layout);
+	cairo_move_to (c, 0, clock->time1_posy);
+	pango_cairo_show_layout (c, layout);
 
-   if (time2_format) {
-      pango_layout_set_font_description (layout, time2_font_desc);
-      pango_layout_set_indent(layout, 0);
-      pango_layout_set_text (layout, buf_date, strlen(buf_date));
-      pango_layout_set_width (layout, clock->area.width * PANGO_SCALE);
+	if (time2_format) {
+		pango_layout_set_font_description (layout, time2_font_desc);
+		pango_layout_set_indent(layout, 0);
+		pango_layout_set_text (layout, buf_date, strlen(buf_date));
+		pango_layout_set_width (layout, clock->area.width * PANGO_SCALE);
 
-      pango_cairo_update_layout (c, layout);
-      cairo_move_to (c, 0, clock->time2_posy);
-      pango_cairo_show_layout (c, layout);
-   }
+		pango_cairo_update_layout (c, layout);
+		cairo_move_to (c, 0, clock->time2_posy);
+		pango_cairo_show_layout (c, layout);
+	}
 
-   g_object_unref (layout);
+	g_object_unref (layout);
 }
 
 
 void resize_clock (void *obj)
 {
-   Clock *clock = obj;
-   PangoLayout *layout;
-   int time_width, date_width, new_width;
+	Clock *clock = obj;
+	PangoLayout *layout;
+	int time_width, date_width, new_width;
 
-   clock->area.redraw = 1;
-   time_width = date_width = 0;
-   strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
-   if (time2_format)
-      strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
+	clock->area.redraw = 1;
+	time_width = date_width = 0;
+	strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
+	if (time2_format)
+		strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
 
 	// vertical panel doen't adjust width
 	if (!panel_horizontal) return;
 
-   //printf("  resize_clock\n");
-   cairo_surface_t *cs;
-   cairo_t *c;
+	//printf("  resize_clock\n");
+	cairo_surface_t *cs;
+	cairo_t *c;
 	Pixmap pmap;
 	pmap = XCreatePixmap (server.dsp, server.root_win, clock->area.width, clock->area.height, server.depth);
 
-   cs = cairo_xlib_surface_create (server.dsp, pmap, server.visual, clock->area.width, clock->area.height);
-   c = cairo_create (cs);
-   layout = pango_cairo_create_layout (c);
+	cs = cairo_xlib_surface_create (server.dsp, pmap, server.visual, clock->area.width, clock->area.height);
+	c = cairo_create (cs);
+	layout = pango_cairo_create_layout (c);
 
-   // check width
+	// check width
 	pango_layout_set_font_description (layout, time1_font_desc);
 	pango_layout_set_indent(layout, 0);
 	pango_layout_set_text (layout, buf_time, strlen(buf_time));
@@ -187,28 +187,28 @@ void resize_clock (void *obj)
 	else new_width = date_width;
 	new_width += (2*clock->area.paddingxlr) + (2*clock->area.pix.border.width);
 
-   if (new_width > clock->area.width || new_width < (clock->area.width-6)) {
-      Panel *panel = ((Area*)obj)->panel;
+	if (new_width > clock->area.width || new_width < (clock->area.width-6)) {
+		Panel *panel = ((Area*)obj)->panel;
 
-      // resize clock
-      // we try to limit the number of resize
-      // printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
+		// resize clock
+		// we try to limit the number of resize
+		// printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
 		clock->area.width = new_width + 1;
 		clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.pix.border.width;
 
-      // resize other objects on panel
+		// resize other objects on panel
 		panel->area.resize = 1;
 #ifdef ENABLE_BATTERY
 		panel->battery.area.resize = 1;
 #endif
 		systray.area.resize = 1;
 		panel_refresh = 1;
-   }
+	}
 
-   g_object_unref (layout);
-   cairo_destroy (c);
-   cairo_surface_destroy (cs);
-   XFreePixmap (server.dsp, pmap);
+	g_object_unref (layout);
+	cairo_destroy (c);
+	cairo_surface_destroy (cs);
+	XFreePixmap (server.dsp, pmap);
 }
 
 

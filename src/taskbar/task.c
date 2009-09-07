@@ -204,11 +204,11 @@ void get_icon (Task *tsk)
 #endif
 		}
 		XFree (data);
-   }
-   else {
-      // get Pixmap icon
-      XWMHints *hints = XGetWMHints(server.dsp, tsk->win);
-      if (!hints) return;
+	}
+	else {
+		// get Pixmap icon
+		XWMHints *hints = XGetWMHints(server.dsp, tsk->win);
+		if (!hints) return;
 		if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
 			// get width, height and depth for the pixmap
 			Window root;
@@ -235,7 +235,7 @@ void get_icon (Task *tsk)
 			imlib_free_image();
 		}
 		XFree(hints);
-   }
+	}
 
 	if (tsk->icon_data) {
 		tsk->icon_data_active = malloc (tsk->icon_width * tsk->icon_height * sizeof (DATA32));

@@ -36,8 +36,8 @@
 
 void init_taskbar()
 {
-   Panel *panel;
-   int i, j;
+	Panel *panel;
+	int i, j;
 
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
@@ -115,9 +115,9 @@ void init_taskbar()
 
 void cleanup_taskbar()
 {
-   Panel *panel;
+	Panel *panel;
 	Taskbar *tskbar;
-   int i, j;
+	int i, j;
 	GSList *l0;
 	Task *tsk;
 
@@ -152,11 +152,11 @@ void cleanup_taskbar()
 
 Task *task_get_task (Window win)
 {
-   Task *tsk;
-   GSList *l0;
-   int i, j;
+	Task *tsk;
+	GSList *l0;
+	int i, j;
 
-   for (i=0 ; i < nb_panel ; i++) {
+	for (i=0 ; i < nb_panel ; i++) {
 		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
 			for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
 				tsk = l0->data;
@@ -164,23 +164,23 @@ Task *task_get_task (Window win)
 					return tsk;
 			}
 		}
-   }
-   return 0;
+	}
+	return 0;
 }
 
 
 void task_refresh_tasklist ()
 {
-   Window *win, active_win;
-   int num_results, i, j, k;
-   GSList *l0;
-   Task *tsk;
+	Window *win, active_win;
+	int num_results, i, j, k;
+	GSList *l0;
+	Task *tsk;
 
-   win = server_get_property (server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
-   if (!win) return;
+	win = server_get_property (server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
+	if (!win) return;
 
-   // Remove any old and set active win
-   active_win = window_get_active ();
+	// Remove any old and set active win
+	active_win = window_get_active ();
 	if (task_active) {
 		task_active->area.is_active = 0;
 		task_active = 0;
@@ -205,28 +205,28 @@ void task_refresh_tasklist ()
 				if (k == num_results) remove_task (tsk);
 			}
 		}
-   }
+	}
 
-   // Add any new
-   for (i = 0; i < num_results; i++)
-      if (!task_get_task (win[i]))
-         add_task (win[i]);
+	// Add any new
+	for (i = 0; i < num_results; i++)
+		if (!task_get_task (win[i]))
+			add_task (win[i]);
 
-   XFree (win);
+	XFree (win);
 }
 
 
 void resize_taskbar(void *obj)
 {
 	Taskbar *taskbar = (Taskbar*)obj;
-   Panel *panel = (Panel*)taskbar->area.panel;
-   Task *tsk;
-   GSList *l;
+	Panel *panel = (Panel*)taskbar->area.panel;
+	Task *tsk;
+	GSList *l;
 	int  task_count;
 
-//printf("resize_taskbar : posx et width des taches\n");
+	//printf("resize_taskbar : posx et width des taches\n");
 
-   taskbar->area.redraw = 1;
+	taskbar->area.redraw = 1;
 
 	if (panel_horizontal) {
 		int  pixel_width, modulo_width=0;

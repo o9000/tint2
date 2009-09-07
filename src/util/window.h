@@ -21,6 +21,7 @@ int window_is_iconified (Window win);
 int window_is_urgent (Window win);
 int window_is_hidden (Window win);
 int window_is_active (Window win);
+int window_is_skip_taskbar (Window win);
 int get_icon_count (long *data, int num);
 long *get_best_icon (long *data, int icon_count, int num, int *iw, int *ih, int best_icon_size);
 void window_maximize_restore (Window win);

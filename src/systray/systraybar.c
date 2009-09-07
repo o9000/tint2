@@ -78,14 +78,14 @@ void init_systray()
 
 void cleanup_systray()
 {
-   if (systray.list_icons) {
+	if (systray.list_icons) {
 		// remove_icon change systray.list_icons
 		while(systray.list_icons)
 			remove_icon((TrayWindow*)systray.list_icons->data);
 
-      g_slist_free(systray.list_icons);
-      systray.list_icons = 0;
-   }
+		g_slist_free(systray.list_icons);
+		systray.list_icons = 0;
+	}
 
 	free_area(&systray.area);
 	cleanup_net();
@@ -199,7 +199,7 @@ int init_net()
 	}
 
 	// init systray protocol
-   net_sel_win = XCreateSimpleWindow(server.dsp, server.root_win, -1, -1, 1, 1, 0, 0, 0);
+	net_sel_win = XCreateSimpleWindow(server.dsp, server.root_win, -1, -1, 1, 1, 0, 0, 0);
 
 	// v0.2 trayer specification. tint2 always orizontal.
 	// TODO : vertical panel ??
@@ -210,11 +210,11 @@ int init_net()
 	if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != net_sel_win) {
 		fprintf(stderr, "tint2 : can't get systray manager\n");
 		return 0;
- 	}
+	}
 
-   XClientMessageEvent ev;
+	XClientMessageEvent ev;
 	ev.type = ClientMessage;
-   ev.window = server.root_win;
+	ev.window = server.root_win;
 	ev.message_type = server.atom.MANAGER;
 	ev.format = 32;
 	ev.data.l[0] = CurrentTime;
@@ -230,8 +230,8 @@ int init_net()
 void cleanup_net()
 {
 	if (net_sel_win != None) {
-  		XDestroyWindow(server.dsp, net_sel_win);
-  		net_sel_win = None;
+		XDestroyWindow(server.dsp, net_sel_win);
+		net_sel_win = None;
 	}
 }
 
@@ -319,9 +319,9 @@ gboolean add_icon(Window id)
 	traywin = g_new0(TrayWindow, 1);
 	traywin->id = id;
 
-//	systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
+	//	systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
 	systray.list_icons = g_slist_insert_sorted(systray.list_icons, traywin, compare_traywindows);
-  	systray.area.resize = 1;
+	systray.area.resize = 1;
 	systray.area.redraw = 1;
 	//printf("add_icon id %lx, %d\n", id, g_slist_length(systray.list_icons));
 
@@ -346,7 +346,7 @@ void remove_icon(TrayWindow *traywin)
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
 	g_free(traywin);
-  	systray.area.resize = 1;
+	systray.area.resize = 1;
 	systray.area.redraw = 1;
 	//printf("remove_icon id %lx, %d\n", traywin->id);
 

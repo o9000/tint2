@@ -1,3 +1,7 @@
+2009-09-07
+- fixed issue 117 : support skip_taskbar by Andreas.Fink85
+- cleanup : switch space to tab
+
 2009-09-01
 - fixed segfault
 

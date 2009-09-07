@@ -94,9 +94,9 @@ void init_battery()
 	}
 
 	FILE *fp;
-   Panel *panel;
-   Battery *battery;
-   int i, bat_percentage_height, bat_percentage_height_ink, bat_time_height, bat_time_height_ink;
+	Panel *panel;
+	Battery *battery;
+	int i, bat_percentage_height, bat_percentage_height_ink, bat_time_height, bat_time_height_ink;
 
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
@@ -268,7 +268,7 @@ void draw_battery (void *obj, cairo_t *c, int active)
 
 void resize_battery(void *obj)
 {
-  	Battery *battery = obj;
+	Battery *battery = obj;
 	PangoLayout *layout;
 	int percentage_width, time_width, new_width;
 

@@ -48,52 +48,52 @@ void signal_handler(int sig)
 
 void init (int argc, char *argv[])
 {
-   int c;
+	int c;
 
 	// read options
-   c = getopt (argc, argv, "c:");
-   if (c != -1) {
+	c = getopt (argc, argv, "c:");
+	if (c != -1) {
 		config_path = strdup (optarg);
-	   c = getopt (argc, argv, "j:");
-	   if (c != -1)
+		c = getopt (argc, argv, "j:");
+		if (c != -1)
 			thumbnail_path = strdup (optarg);
 	}
 
 	// Set signal handler
-   signal(SIGUSR1, signal_handler);
+	signal(SIGUSR1, signal_handler);
 	signal(SIGINT, signal_handler);
 	signal(SIGTERM, signal_handler);
 	signal(SIGHUP, signal_handler);
 	signal(SIGCHLD, SIG_IGN);		// don't have to wait() after fork()
 
-   // set global data
-   memset(&server, 0, sizeof(Server_global));
-   memset(&systray, 0, sizeof(Systraybar));
+	// set global data
+	memset(&server, 0, sizeof(Server_global));
+	memset(&systray, 0, sizeof(Systraybar));
 
-   server.dsp = XOpenDisplay (NULL);
-   if (!server.dsp) {
-      fprintf(stderr, "tint2 exit : could not open display.\n");
-      exit(0);
-   }
-   server_init_atoms ();
-   server.screen = DefaultScreen (server.dsp);
+	server.dsp = XOpenDisplay (NULL);
+	if (!server.dsp) {
+		fprintf(stderr, "tint2 exit : could not open display.\n");
+		exit(0);
+	}
+	server_init_atoms ();
+	server.screen = DefaultScreen (server.dsp);
 	server.root_win = RootWindow(server.dsp, server.screen);
-   server.depth = DefaultDepth (server.dsp, server.screen);
-   server.visual = DefaultVisual (server.dsp, server.screen);
-   server.desktop = server_get_current_desktop ();
+	server.depth = DefaultDepth (server.dsp, server.screen);
+	server.visual = DefaultVisual (server.dsp, server.screen);
+	server.desktop = server_get_current_desktop ();
 	XGCValues  gcv;
 	server.gc = XCreateGC (server.dsp, server.root_win, (unsigned long)0, &gcv) ;
 
-   XSetErrorHandler ((XErrorHandler) server_catch_error);
+	XSetErrorHandler ((XErrorHandler) server_catch_error);
 
-   imlib_context_set_display (server.dsp);
-   imlib_context_set_visual (server.visual);
-   imlib_context_set_colormap (DefaultColormap (server.dsp, server.screen));
+	imlib_context_set_display (server.dsp);
+	imlib_context_set_visual (server.visual);
+	imlib_context_set_colormap (DefaultColormap (server.dsp, server.screen));
 
-   /* Catch events */
-   XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
+	/* Catch events */
+	XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
 
-   setlocale (LC_ALL, "");
+	setlocale (LC_ALL, "");
 }
 
 
@@ -101,13 +101,13 @@ void cleanup()
 {
 	cleanup_panel();
 
-   if (time1_font_desc) pango_font_description_free(time1_font_desc);
-   if (time2_font_desc) pango_font_description_free(time2_font_desc);
-   if (time1_format) g_free(time1_format);
-   if (time2_format) g_free(time2_format);
+	if (time1_font_desc) pango_font_description_free(time1_font_desc);
+	if (time2_font_desc) pango_font_description_free(time2_font_desc);
+	if (time1_format) g_free(time1_format);
+	if (time2_format) g_free(time2_format);
 #ifdef ENABLE_BATTERY
-   if (bat1_font_desc) pango_font_description_free(bat1_font_desc);
-   if (bat2_font_desc) pango_font_description_free(bat2_font_desc);
+	if (bat1_font_desc) pango_font_description_free(bat1_font_desc);
+	if (bat2_font_desc) pango_font_description_free(bat2_font_desc);
 	if (battery_low_cmd) g_free(battery_low_cmd);
 	if (path_energy_now) g_free(path_energy_now);
 	if (path_energy_full) g_free(path_energy_full);
@@ -119,9 +119,9 @@ void cleanup()
 	if (config_path) g_free(config_path);
 	if (thumbnail_path) g_free(thumbnail_path);
 
-   if (server.monitor) free(server.monitor);
-   XFreeGC(server.dsp, server.gc);
-   XCloseDisplay(server.dsp);
+	if (server.monitor) free(server.monitor);
+	XFreeGC(server.dsp, server.gc);
+	XCloseDisplay(server.dsp);
 }
 
 
@@ -212,7 +212,7 @@ int click_clock(Panel *panel, XEvent *e)
 
 void window_action (Task *tsk, int action)
 {
-   if (!tsk) return;
+	if (!tsk) return;
 	int desk;
 	switch (action) {
 		case CLOSE:
@@ -259,13 +259,13 @@ void window_action (Task *tsk, int action)
 
 void event_button_press (XEvent *e)
 {
-   Panel *panel = get_panel(e->xany.window);
+	Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
 
 	if (panel_mode == MULTI_DESKTOP)
 		task_drag = click_task(panel, e);
 
-   if (wm_menu && !task_drag && !click_clock(panel, e) && (e->xbutton.button != 1) ) {
+	if (wm_menu && !task_drag && !click_clock(panel, e) && (e->xbutton.button != 1) ) {
 		// forward the click to the desktop window (thanks conky)
 		XUngrabPointer(server.dsp, e->xbutton.time);
 		e->xbutton.window = server.root_win;
@@ -277,15 +277,15 @@ void event_button_press (XEvent *e)
 		XSetInputFocus(server.dsp, e->xbutton.window, RevertToParent, e->xbutton.time);
 		XSendEvent(server.dsp, e->xbutton.window, False, ButtonPressMask, e);
 		return;
-   }
+	}
 
-   XLowerWindow (server.dsp, panel->main_win);
+	XLowerWindow (server.dsp, panel->main_win);
 }
 
 
 void event_button_release (XEvent *e)
 {
-   Panel *panel = get_panel(e->xany.window);
+	Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
 
 	if (wm_menu && click_padding(panel, e)) {
@@ -295,27 +295,27 @@ void event_button_release (XEvent *e)
 			return;
 	}
 
-   int action = TOGGLE_ICONIFY;
-   switch (e->xbutton.button) {
-      case 2:
-         action = mouse_middle;
-         break;
-      case 3:
-         action = mouse_right;
-         break;
-      case 4:
-         action = mouse_scroll_up;
-         break;
-      case 5:
-         action = mouse_scroll_down;
-         break;
-      case 6:
-         action = mouse_tilt_left;
-         break;
-      case 7:
-         action = mouse_tilt_right;
-         break;
-   }
+	int action = TOGGLE_ICONIFY;
+	switch (e->xbutton.button) {
+		case 2:
+			action = mouse_middle;
+			break;
+		case 3:
+			action = mouse_right;
+			break;
+		case 4:
+			action = mouse_scroll_up;
+			break;
+		case 5:
+			action = mouse_scroll_down;
+			break;
+		case 6:
+			action = mouse_tilt_left;
+			break;
+		case 7:
+			action = mouse_tilt_right;
+			break;
+	}
 
 	if ( click_clock(panel, e)) {
 		clock_action(e->xbutton.button);
@@ -332,51 +332,51 @@ void event_button_release (XEvent *e)
 		return;
 	}
 
-   // drag and drop task
-   if (task_drag) {
-      if (tskbar != task_drag->area.parent && action == TOGGLE_ICONIFY) {
-         if (task_drag->desktop != ALLDESKTOP && panel_mode == MULTI_DESKTOP) {
-            windows_set_desktop(task_drag->win, tskbar->desktop);
-            if (tskbar->desktop == server.desktop)
-               set_active(task_drag->win);
-            task_drag = 0;
-         }
-         return;
-      }
-      else task_drag = 0;
-   }
-
-   // switch desktop
-   if (panel_mode == MULTI_DESKTOP) {
-      if (tskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT && action != DESKTOP_RIGHT)
-         set_desktop (tskbar->desktop);
+	// drag and drop task
+	if (task_drag) {
+		if (tskbar != task_drag->area.parent && action == TOGGLE_ICONIFY) {
+			if (task_drag->desktop != ALLDESKTOP && panel_mode == MULTI_DESKTOP) {
+				windows_set_desktop(task_drag->win, tskbar->desktop);
+				if (tskbar->desktop == server.desktop)
+					set_active(task_drag->win);
+				task_drag = 0;
+			}
+			return;
+		}
+		else task_drag = 0;
 	}
 
-   // action on task
-   window_action( click_task(panel, e), action);
+	// switch desktop
+	if (panel_mode == MULTI_DESKTOP) {
+		if (tskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT && action != DESKTOP_RIGHT)
+			set_desktop (tskbar->desktop);
+	}
 
-   // to keep window below
-   XLowerWindow (server.dsp, panel->main_win);
+	// action on task
+	window_action( click_task(panel, e), action);
+
+	// to keep window below
+	XLowerWindow (server.dsp, panel->main_win);
 }
 
 
 void event_property_notify (XEvent *e)
 {
-  	int i, j;
-   Task *tsk;
-   Window win = e->xproperty.window;
-   Atom at = e->xproperty.atom;
+	int i, j;
+	Task *tsk;
+	Window win = e->xproperty.window;
+	Atom at = e->xproperty.atom;
 
-   if (win == server.root_win) {
-      if (!server.got_root_win) {
-         XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
-         server.got_root_win = 1;
-      }
+	if (win == server.root_win) {
+		if (!server.got_root_win) {
+			XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
+			server.got_root_win = 1;
+		}
 
-      // Change number of desktops
-      else if (at == server.atom._NET_NUMBER_OF_DESKTOPS) {
-	      server.nb_desktop = server_get_number_of_desktop ();
-		  	cleanup_taskbar();
+		// Change number of desktops
+		else if (at == server.atom._NET_NUMBER_OF_DESKTOPS) {
+			server.nb_desktop = server_get_number_of_desktop ();
+			cleanup_taskbar();
 			init_taskbar();
 			visible_object();
 			for (i=0 ; i < nb_panel ; i++) {
@@ -384,12 +384,12 @@ void event_property_notify (XEvent *e)
 			}
 			task_refresh_tasklist();
 			panel_refresh = 1;
-      }
-      // Change desktop
-      else if (at == server.atom._NET_CURRENT_DESKTOP) {
-         server.desktop = server_get_current_desktop ();
+		}
+		// Change desktop
+		else if (at == server.atom._NET_CURRENT_DESKTOP) {
+			server.desktop = server_get_current_desktop ();
 			for (i=0 ; i < nb_panel ; i++) {
-			   Panel *panel = &panel1[i];
+				Panel *panel = &panel1[i];
 				if (panel_mode == MULTI_DESKTOP && panel->g_taskbar.use_active) {
 					// redraw taskbar
 					panel_refresh = 1;
@@ -417,72 +417,77 @@ void event_property_notify (XEvent *e)
 					}
 				}
 			}
-         if (panel_mode != MULTI_DESKTOP) {
+			if (panel_mode != MULTI_DESKTOP) {
 				visible_object();
-         }
-      }
-      // Window list
-      else if (at == server.atom._NET_CLIENT_LIST) {
-         task_refresh_tasklist();
-         panel_refresh = 1;
-      }
-      // Change active
-      else if (at == server.atom._NET_ACTIVE_WINDOW) {
-         GSList *l0;
-      	if (task_active) {
+			}
+		}
+		// Window list
+		else if (at == server.atom._NET_CLIENT_LIST) {
+			task_refresh_tasklist();
+			panel_refresh = 1;
+		}
+		// Change active
+		else if (at == server.atom._NET_ACTIVE_WINDOW) {
+			GSList *l0;
+			if (task_active) {
 				for (i=0 ; i < nb_panel ; i++) {
 					for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-                  for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
-                     tsk = l0->data;
-             		   tsk->area.is_active = 0;
-                  }
+						for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
+							tsk = l0->data;
+							tsk->area.is_active = 0;
+						}
 					}
 				}
-         	task_active = 0;
+				task_active = 0;
 			}
-         Window w1 = window_get_active ();
-         Task *t = task_get_task(w1);
-         if (!t) {
-            Window w2;
-            if (XGetTransientForHint(server.dsp, w1, &w2) != 0)
-               if (w2) t = task_get_task(w2);
-         }
+			Window w1 = window_get_active ();
+			Task *t = task_get_task(w1);
+			if (!t) {
+				Window w2;
+				if (XGetTransientForHint(server.dsp, w1, &w2) != 0)
+					if (w2) t = task_get_task(w2);
+			}
 			if (task_urgent == t) {
 				init_precision();
 				task_urgent = 0;
 			}
 			// put active state on all task (multi_desktop)
-         if (t) {
+			if (t) {
 				for (i=0 ; i < nb_panel ; i++) {
 					for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-                  for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
-                     tsk = l0->data;
-                     if (tsk->win == t->win) {
-                  		tsk->area.is_active = 1;
-                  		//printf("active monitor %d, task %s\n", panel1[i].monitor, tsk->title);
-                  	}
-                  }
+						for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
+							tsk = l0->data;
+							if (tsk->win == t->win) {
+								tsk->area.is_active = 1;
+								//printf("active monitor %d, task %s\n", panel1[i].monitor, tsk->title);
+							}
+						}
 					}
 				}
-         	task_active = t;
+				task_active = t;
 			}
-         panel_refresh = 1;
-      }
-      else if (at == server.atom._XROOTPMAP_ID) {
+			panel_refresh = 1;
+		}
+		else if (at == server.atom._XROOTPMAP_ID) {
 			// change Wallpaper
 			for (i=0 ; i < nb_panel ; i++) {
 				set_panel_background(&panel1[i]);
 			}
-         panel_refresh = 1;
-      }
-   }
-   else {
-      tsk = task_get_task (win);
-      if (!tsk) return;
-      //printf("atom root_win = %s, %s\n", XGetAtomName(server.dsp, at), tsk->title);
+			panel_refresh = 1;
+		}
+	}
+	else {
+		tsk = task_get_task (win);
+		if (!tsk) {
+			if ( at != server.atom._NET_WM_STATE)
+				return;
+			else if ( !(tsk = add_task(win)) )
+				return;
+		}
+		//printf("atom root_win = %s, %s\n", XGetAtomName(server.dsp, at), tsk->title);
 
-      // Window title changed
-      if (at == server.atom._NET_WM_VISIBLE_NAME || at == server.atom._NET_WM_NAME || at == server.atom.WM_NAME) {
+		// Window title changed
+		if (at == server.atom._NET_WM_VISIBLE_NAME || at == server.atom._NET_WM_NAME || at == server.atom.WM_NAME) {
 			Task *tsk2;
 			GSList *l0;
 			get_title(tsk);
@@ -498,22 +503,25 @@ void event_property_notify (XEvent *e)
 					}
 				}
 			}
-         panel_refresh = 1;
-      }
+			panel_refresh = 1;
+		}
 		// Demand attention
-      else if (at == server.atom._NET_WM_STATE) {
-         if (window_is_urgent (win)) {
+		else if (at == server.atom._NET_WM_STATE) {
+			if (window_is_urgent (win)) {
 				task_urgent = tsk;
 				tick_urgent = 0;
 				time_precision = 1;
 			}
+			if (window_is_skip_taskbar(win)) {
+				remove_task( tsk );
+			}
 		}
-      else if (at == server.atom.WM_STATE) {
-      	// Iconic state
+		else if (at == server.atom.WM_STATE) {
+			// Iconic state
 			// TODO : try to delete following code
-         if (window_is_iconified (win)) {
-            if (task_active) {
-               if (task_active->win == tsk->win) {
+			if (window_is_iconified (win)) {
+				if (task_active) {
+					if (task_active->win == tsk->win) {
 						Task *tsk2;
 						GSList *l0;
 						for (i=0 ; i < nb_panel ; i++) {
@@ -524,14 +532,14 @@ void event_property_notify (XEvent *e)
 								}
 							}
 						}
-                  task_active = 0;
-               }
-            }
+						task_active = 0;
+					}
+				}
 			}
 		}
-      // Window icon changed
-      else if (at == server.atom._NET_WM_ICON) {
-		   get_icon(tsk);
+		// Window icon changed
+		else if (at == server.atom._NET_WM_ICON) {
+			get_icon(tsk);
 			Task *tsk2;
 			GSList *l0;
 			for (i=0 ; i < nb_panel ; i++) {
@@ -548,10 +556,10 @@ void event_property_notify (XEvent *e)
 					}
 				}
 			}
-         panel_refresh = 1;
-      }
-      // Window desktop changed
-      else if (at == server.atom._NET_WM_DESKTOP) {
+			panel_refresh = 1;
+		}
+		// Window desktop changed
+		else if (at == server.atom._NET_WM_DESKTOP) {
 			int desktop = window_get_desktop (win);
 			int active = tsk->area.is_active;
 			//printf("  Window desktop changed %d, %d\n", tsk->desktop, desktop);
@@ -565,21 +573,21 @@ void event_property_notify (XEvent *e)
 				}
 				panel_refresh = 1;
 			}
-      }
+		}
 
-      if (!server.got_root_win) server.root_win = RootWindow (server.dsp, server.screen);
-   }
+		if (!server.got_root_win) server.root_win = RootWindow (server.dsp, server.screen);
+	}
 }
 
 
 void event_expose (XEvent *e)
 {
-   Panel *panel;
+	Panel *panel;
 
 	panel = get_panel(e->xany.window);
 	if (!panel) return;
 	// TODO : one panel_refresh per panel ?
-   panel_refresh = 1;
+	panel_refresh = 1;
 }
 
 
@@ -593,39 +601,39 @@ void event_configure_notify (Window win)
 		if (traywin->id == win) {
 			//printf("move tray %d\n", traywin->x);
 			XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
-	      panel_refresh = 1;
+			panel_refresh = 1;
 			return;
 		}
 	}
 
 	// check 'win' move in another monitor
-   if (nb_panel == 1) return;
-   if (server.nb_monitor == 1) return;
-   Task *tsk = task_get_task (win);
-   if (!tsk) return;
+	if (nb_panel == 1) return;
+	if (server.nb_monitor == 1) return;
+	Task *tsk = task_get_task (win);
+	if (!tsk) return;
 
-   Panel *p = tsk->area.panel;
-   if (p->monitor != window_get_monitor (win)) {
-      remove_task (tsk);
-      add_task (win);
-      if (win == window_get_active ()) {
-		   Task *tsk = task_get_task (win);
+	Panel *p = tsk->area.panel;
+	if (p->monitor != window_get_monitor (win)) {
+		remove_task (tsk);
+		add_task (win);
+		if (win == window_get_active ()) {
+			Task *tsk = task_get_task (win);
 			tsk->area.is_active = 1;
 			task_active = tsk;
 		}
-      panel_refresh = 1;
-   }
+		panel_refresh = 1;
+	}
 }
 
 
 void event_timer()
 {
-   struct timeval stv;
+	struct timeval stv;
 	int i;
 
-   if (gettimeofday(&stv, 0)) return;
+	if (gettimeofday(&stv, 0)) return;
 
-   if (abs(stv.tv_sec - time_clock.tv_sec) < time_precision) return;
+	if (abs(stv.tv_sec - time_clock.tv_sec) < time_precision) return;
 	time_clock.tv_sec = stv.tv_sec;
 	time_clock.tv_sec -= time_clock.tv_sec % time_precision;
 
@@ -648,9 +656,9 @@ void event_timer()
 #endif
 
 	// update clock
-   if (time1_format) {
+	if (time1_format) {
 		for (i=0 ; i < nb_panel ; i++)
-	   	panel1[i].clock.area.resize = 1;
+			panel1[i].clock.area.resize = 1;
 	}
 	panel_refresh = 1;
 }
@@ -658,20 +666,20 @@ void event_timer()
 
 int main (int argc, char *argv[])
 {
-   XEvent e;
-   fd_set fd;
-   int x11_fd, i;
-   struct timeval tv;
-   Panel *panel;
+	XEvent e;
+	fd_set fd;
+	int x11_fd, i;
+	struct timeval tv;
+	Panel *panel;
 	GSList *it;
 
-   init (argc, argv);
+	init (argc, argv);
 
 load_config:
-   i = 0;
+	i = 0;
 	init_config();
-   if (config_path)
-      i = config_read_file (config_path);
+	if (config_path)
+		i = config_read_file (config_path);
 	else
 		i = config_read ();
 	if (!i) {
@@ -679,7 +687,7 @@ load_config:
 		cleanup();
 		exit(1);
 	}
-   config_finish();
+	config_finish();
 	if (thumbnail_path) {
 		// usage: tint2 -j <file> for internal use
 		printf("file %s\n", thumbnail_path);
@@ -687,46 +695,46 @@ load_config:
 		exit(0);
 	}
 
-   x11_fd = ConnectionNumber(server.dsp);
-   XSync(server.dsp, False);
+	x11_fd = ConnectionNumber(server.dsp);
+	XSync(server.dsp, False);
 
-   while (1) {
-      // thanks to AngryLlama for the timer
-      // Create a File Description Set containing x11_fd
-      FD_ZERO (&fd);
-      FD_SET (x11_fd, &fd);
+	while (1) {
+		// thanks to AngryLlama for the timer
+		// Create a File Description Set containing x11_fd
+		FD_ZERO (&fd);
+		FD_SET (x11_fd, &fd);
 
-      tv.tv_usec = 500000;
-      tv.tv_sec = 0;
+		tv.tv_usec = 500000;
+		tv.tv_sec = 0;
 
-      // Wait for X Event or a Timer
-      if (select(x11_fd+1, &fd, 0, 0, &tv)) {
-         while (XPending (server.dsp)) {
-            XNextEvent(server.dsp, &e);
+		// Wait for X Event or a Timer
+		if (select(x11_fd+1, &fd, 0, 0, &tv)) {
+			while (XPending (server.dsp)) {
+				XNextEvent(server.dsp, &e);
 
-            switch (e.type) {
-               case ButtonPress:
-                  event_button_press (&e);
-                  break;
+				switch (e.type) {
+					case ButtonPress:
+						event_button_press (&e);
+						break;
 
-               case ButtonRelease:
-                  event_button_release(&e);
-                  break;
+					case ButtonRelease:
+						event_button_release(&e);
+						break;
 
-               case Expose:
-               	event_expose(&e);
-                  break;
+					case Expose:
+						event_expose(&e);
+						break;
 
-               case PropertyNotify:
-                  event_property_notify(&e);
-                  break;
+					case PropertyNotify:
+						event_property_notify(&e);
+						break;
 
-               case ConfigureNotify:
-                  if (e.xconfigure.window == server.root_win)
-                     goto load_config;
-                  else
-                     event_configure_notify (e.xconfigure.window);
-                  break;
+					case ConfigureNotify:
+						if (e.xconfigure.window == server.root_win)
+							goto load_config;
+						else
+							event_configure_notify (e.xconfigure.window);
+						break;
 
 					case ReparentNotify:
 						if (!systray.area.on_screen)
@@ -753,24 +761,24 @@ load_config:
 						if (e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
 							net_message(&e.xclient);
 						}
-                  break;
-            }
-         }
-      }
-      event_timer();
+						break;
+				}
+			}
+		}
+		event_timer();
 
 		switch (signal_pending) {
 			case SIGUSR1:
 				signal_pending = 0;
-            goto load_config;
+				goto load_config;
 			case SIGINT:
 			case SIGTERM:
 			case SIGHUP:
-			   cleanup ();
-			   return 0;
-      }
+				cleanup ();
+				return 0;
+		}
 
-      if (panel_refresh) {
+		if (panel_refresh) {
 			panel_refresh = 0;
 
 			if (refresh_systray) {
@@ -783,8 +791,8 @@ load_config:
 				if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
 				panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
 
-			 	refresh(&panel->area);
-			   XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
+				refresh(&panel->area);
+				XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
 			}
 			XFlush (server.dsp);
 
@@ -797,7 +805,7 @@ load_config:
 				refresh_systray_icon();
 			}
 		}
-   }
+	}
 }
 
 
