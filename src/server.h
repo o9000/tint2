@@ -62,6 +62,9 @@ typedef struct Global_atom
 	Atom _NET_SYSTEM_TRAY_ORIENTATION;
 	Atom _XEMBED;
 	Atom _XEMBED_INFO;
+	Atom XdndAware;
+	Atom XdndPosition;
+	Atom XdndStatus;
 } Global_atom;
 
 

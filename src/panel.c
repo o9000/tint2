@@ -376,6 +376,10 @@ void set_panel_properties(Panel *p)
 	// Undecorated
 	long prop[5] = { 2, 0, 0, 0, 0 };
 	XChangeProperty(server.dsp, p->main_win, server.atom._MOTIF_WM_HINTS, server.atom._MOTIF_WM_HINTS, 32, PropModeReplace, (unsigned char *) prop, 5);
+
+	// XdndAware - Register for Xdnd events
+	int version=5;
+	XChangeProperty(server.dsp, p->main_win, server.atom.XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char*)&version, 1);
 }
 
 

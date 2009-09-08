@@ -51,12 +51,19 @@ void init (int argc, char *argv[])
 	int c;
 
 	// read options
-	c = getopt (argc, argv, "c:");
-	if (c != -1) {
-		config_path = strdup (optarg);
-		c = getopt (argc, argv, "j:");
-		if (c != -1)
+	while ((c = getopt(argc , argv, "c:j:v")) != -1) {
+		switch (c) {
+			case 'c':
+			config_path = strdup (optarg);
+			break;
+			case 'j':
 			thumbnail_path = strdup (optarg);
+			break;
+			case 'v':
+			printf("tint2 version 0.7-svn\n");
+			exit(0);
+			break;
+		}
 	}
 
 	// Set signal handler
@@ -125,12 +132,11 @@ void cleanup()
 }
 
 
-Taskbar *click_taskbar (Panel *panel, XEvent *e)
+Taskbar *click_taskbar (Panel *panel, int x, int y)
 {
 	GSList *l0;
 	Taskbar *tskbar = NULL;
 	if (panel_horizontal) {
-		int x = e->xbutton.x;
 		for (l0 = panel->area.list; l0 ; l0 = l0->next) {
 			tskbar = l0->data;
 			if (!tskbar->area.on_screen) continue;
@@ -139,7 +145,6 @@ Taskbar *click_taskbar (Panel *panel, XEvent *e)
 		}
 	}
 	else {
-		int y = e->xbutton.y;
 		for (l0 = panel->area.list; l0 ; l0 = l0->next) {
 			tskbar = l0->data;
 			if (!tskbar->area.on_screen) continue;
@@ -151,14 +156,13 @@ Taskbar *click_taskbar (Panel *panel, XEvent *e)
 }
 
 
-Task *click_task (Panel *panel, XEvent *e)
+Task *click_task (Panel *panel, int x, int y)
 {
 	GSList *l0;
 	Taskbar *tskbar;
 
-	if ( (tskbar = click_taskbar(panel, e)) ) {
+	if ( (tskbar = click_taskbar(panel, x, y)) ) {
 		if (panel_horizontal) {
-			int x = e->xbutton.x;
 			Task *tsk;
 			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
 				tsk = l0->data;
@@ -168,7 +172,6 @@ Task *click_task (Panel *panel, XEvent *e)
 			}
 		}
 		else {
-			int y = e->xbutton.y;
 			Task *tsk;
 			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
 				tsk = l0->data;
@@ -182,28 +185,28 @@ Task *click_task (Panel *panel, XEvent *e)
 }
 
 
-int click_padding(Panel *panel, XEvent *e)
+int click_padding(Panel *panel, int x, int y)
 {
 	if (panel_horizontal) {
-		if (e->xbutton.x < panel->area.paddingxlr || e->xbutton.x > panel->area.width-panel->area.paddingxlr)
+		if (x < panel->area.paddingxlr || x > panel->area.width-panel->area.paddingxlr)
 		return 1;
 	}
 	else {
-		if (e->xbutton.y < panel->area.paddingxlr || e->xbutton.y > panel->area.height-panel->area.paddingxlr)
+		if (y < panel->area.paddingxlr || y > panel->area.height-panel->area.paddingxlr)
 		return 1;
 	}
 	return 0;
 }
 
 
-int click_clock(Panel *panel, XEvent *e)
+int click_clock(Panel *panel, int x, int y)
 {
 	Clock clk = panel->clock;
 	if (panel_horizontal) {
-		if (clk.area.on_screen && e->xbutton.x >= clk.area.posx && e->xbutton.x <= (clk.area.posx + clk.area.width))
+		if (clk.area.on_screen && x >= clk.area.posx && x <= (clk.area.posx + clk.area.width))
 			return TRUE;
 	} else {
-		if (clk.area.on_screen && e->xbutton.y >= clk.area.posy && e->xbutton.y <= (clk.area.posy + clk.area.height))
+		if (clk.area.on_screen && y >= clk.area.posy && y <= (clk.area.posy + clk.area.height))
 			return TRUE;
 	}
 	return FALSE;
@@ -263,9 +266,9 @@ void event_button_press (XEvent *e)
 	if (!panel) return;
 
 	if (panel_mode == MULTI_DESKTOP)
-		task_drag = click_task(panel, e);
+		task_drag = click_task(panel, e->xbutton.x, e->xbutton.y);
 
-	if (wm_menu && !task_drag && !click_clock(panel, e) && (e->xbutton.button != 1) ) {
+	if (wm_menu && !task_drag && !click_clock(panel, e->xbutton.x, e->xbutton.y) && (e->xbutton.button != 1) ) {
 		// forward the click to the desktop window (thanks conky)
 		XUngrabPointer(server.dsp, e->xbutton.time);
 		e->xbutton.window = server.root_win;
@@ -288,7 +291,7 @@ void event_button_release (XEvent *e)
 	Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
 
-	if (wm_menu && click_padding(panel, e)) {
+	if (wm_menu && click_padding(panel, e->xbutton.x, e->xbutton.y)) {
 			// forward the click to the desktop window (thanks conky)
 			e->xbutton.window = server.root_win;
 			XSendEvent(server.dsp, e->xbutton.window, False, ButtonReleaseMask, e);
@@ -317,7 +320,7 @@ void event_button_release (XEvent *e)
 			break;
 	}
 
-	if ( click_clock(panel, e)) {
+	if ( click_clock(panel, e->xbutton.x, e->xbutton.y)) {
 		clock_action(e->xbutton.button);
 		XLowerWindow (server.dsp, panel->main_win);
 		task_drag = 0;
@@ -325,7 +328,7 @@ void event_button_release (XEvent *e)
 	}
 
 	Taskbar *tskbar;
-	if ( !(tskbar = click_taskbar(panel, e)) ) {
+	if ( !(tskbar = click_taskbar(panel, e->xbutton.x, e->xbutton.y)) ) {
 		// TODO: check better solution to keep window below
 		XLowerWindow (server.dsp, panel->main_win);
 		task_drag = 0;
@@ -353,7 +356,7 @@ void event_button_release (XEvent *e)
 	}
 
 	// action on task
-	window_action( click_task(panel, e), action);
+	window_action( click_task(panel, e->xbutton.x, e->xbutton.y), action);
 
 	// to keep window below
 	XLowerWindow (server.dsp, panel->main_win);
@@ -665,6 +668,36 @@ void event_timer()
 }
 
 
+void dnd_message(XClientMessageEvent *e)
+{
+	Panel *panel = get_panel(e->window);
+	int x, y, mapX, mapY;
+	Window child;
+	x = (e->data.l[2] >> 16) & 0xFFFF;
+	y = e->data.l[2] & 0xFFFF;
+	XTranslateCoordinates(server.dsp, server.root_win, e->window, x, y, &mapX, &mapY, &child);
+	Task* task = click_task(panel, mapX, mapY);
+	if (task) {
+		if (task->desktop != server.desktop )
+			set_desktop (task->desktop);
+		window_action(task, TOGGLE);
+	}
+
+	// send XdndStatus event to get more XdndPosition events
+	XClientMessageEvent se;
+	se.type = ClientMessage;
+	se.window = e->data.l[0];
+	se.message_type = server.atom.XdndStatus;
+	se.format = 32;
+	se.data.l[0] = e->window;  // XID of the target window
+	se.data.l[1] = 0;          // bit 0: accept drop    bit 1: send XdndPosition events if inside rectangle
+	se.data.l[2] = 0;          // Rectangle x,y for which no more XdndPosition events
+	se.data.l[3] = (1 << 16) | 1;  // Rectangle w,h for which no more XdndPosition events
+	se.data.l[4] = None;       // None = drop will not be accepted
+	XSendEvent(server.dsp, e->data.l[0], False, NoEventMask, (XEvent*)&se);
+}
+
+
 int main (int argc, char *argv[])
 {
 	XEvent e;
@@ -761,6 +794,9 @@ load_config:
 						if (!systray.area.on_screen) break;
 						if (e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
 							net_message(&e.xclient);
+						}
+						else if (e.xclient.message_type == server.atom.XdndPosition) {
+							dnd_message(&e.xclient);
 						}
 						break;
 				}
