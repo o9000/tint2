@@ -514,6 +514,7 @@ void event_property_notify (XEvent *e)
 			}
 			if (window_is_skip_taskbar(win)) {
 				remove_task( tsk );
+				panel_refresh = 1;
 			}
 		}
 		else if (at == server.atom.WM_STATE) {
