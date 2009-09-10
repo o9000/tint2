@@ -134,25 +134,26 @@ void cleanup()
 
 Taskbar *click_taskbar (Panel *panel, int x, int y)
 {
-	GSList *l0;
-	Taskbar *tskbar = NULL;
+	Taskbar *tskbar;
+	int i;
+
 	if (panel_horizontal) {
-		for (l0 = panel->area.list; l0 ; l0 = l0->next) {
-			tskbar = l0->data;
+		for (i=0; i < panel->nb_desktop ; i++) {
+			tskbar = &panel->taskbar[i];
 			if (!tskbar->area.on_screen) continue;
 			if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
-				break;
+				return tskbar;
 		}
 	}
 	else {
-		for (l0 = panel->area.list; l0 ; l0 = l0->next) {
-			tskbar = l0->data;
+		for (i=0; i < panel->nb_desktop ; i++) {
+			tskbar = &panel->taskbar[i];
 			if (!tskbar->area.on_screen) continue;
 			if (y >= tskbar->area.posy && y <= (tskbar->area.posy + tskbar->area.height))
-				break;
+				return tskbar;
 		}
 	}
-	return tskbar;
+	return NULL;
 }
 
 

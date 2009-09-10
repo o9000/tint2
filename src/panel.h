@@ -81,6 +81,8 @@ typedef struct {
    // --------------------------------------------------
    // taskbar point to the first taskbar in panel.area.list.
    // number of tasbar == nb_desktop
+	// taskbar[i] is used to loop over taskbar,
+	// while panel->area.list is used to loop over all panel's objects
    Taskbar *taskbar;
    int  nb_desktop;
 
