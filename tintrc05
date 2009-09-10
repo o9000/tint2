@@ -32,6 +32,7 @@ panel_padding = 10 3 10
 font_shadow = 0
 panel_background_id = 0
 wm_menu = 1
+panel_dock = 0
 
 #---------------------------------------------
 # TASKBAR

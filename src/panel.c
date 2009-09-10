@@ -43,6 +43,7 @@ int mouse_tilt_right;
 
 int panel_mode;
 int wm_menu;
+int panel_dock=0;  // default not in the dock
 int panel_position;
 int panel_horizontal;
 int panel_refresh;
@@ -369,9 +370,16 @@ void set_panel_properties(Panel *p)
 
 	// Unfocusable
 	XWMHints wmhints;
-	wmhints.flags = InputHint;
-	wmhints.input = False;
-	XChangeProperty (server.dsp, p->main_win, XA_WM_HINTS, XA_WM_HINTS, 32, PropModeReplace, (unsigned char *) &wmhints, sizeof (XWMHints) / 4);
+	if (panel_dock) {
+		wmhints.icon_window = wmhints.window_group = p->main_win;
+		wmhints.flags = StateHint | IconWindowHint;
+		wmhints.initial_state = WithdrawnState;
+	}
+	else {
+		wmhints.flags = InputHint;
+		wmhints.input = False;
+	}
+  XSetWMHints(server.dsp, p->main_win, &wmhints);
 
 	// Undecorated
 	long prop[5] = { 2, 0, 0, 0, 0 };
