@@ -30,6 +30,7 @@
 #include "task.h"
 #include "server.h"
 #include "panel.h"
+#include "tooltip.h"
 
 
 
@@ -139,7 +140,7 @@ void get_title(Task *tsk)
 	Panel *panel = tsk->area.panel;
 	char *title, *name;
 
-	if (!panel->g_task.text) return;
+	if (!panel->g_task.text && !g_tooltip.enabled) return;
 
 	name = server_get_property (tsk->win, server.atom._NET_WM_VISIBLE_NAME, server.atom.UTF8_STRING, 0);
 	if (!name || !strlen(name)) {

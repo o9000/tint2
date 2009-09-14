@@ -148,7 +148,10 @@ void init_panel()
 		// printf("panel : posx %d, posy %d, width %d, height %d\n", p->posx, p->posy, p->area.width, p->area.height);
 
 		// Catch some events
-		XSetWindowAttributes att = { ParentRelative, 0L, 0, 0L, 0, 0, Always, 0L, 0L, False, ExposureMask|ButtonPressMask|ButtonReleaseMask, NoEventMask, False, 0, 0 };
+		long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask;
+		if (g_tooltip.enabled)
+			event_mask |= PointerMotionMask|LeaveWindowMask;
+		XSetWindowAttributes att = { ParentRelative, 0L, 0, 0L, 0, 0, Always, 0L, 0L, False, event_mask, NoEventMask, False, 0, 0 };
 		if (p->main_win) XDestroyWindow(server.dsp, p->main_win);
 		p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
 
@@ -198,6 +201,15 @@ void cleanup_panel()
 
 	if (panel1) free(panel1);
 	panel1 = 0;
+
+	if (g_tooltip.window) {
+		XDestroyWindow(server.dsp, g_tooltip.window);
+		g_tooltip.window = 0;
+	}
+	if (g_tooltip.font_desc) {
+		pango_font_description_free(g_tooltip.font_desc);
+		g_tooltip.font_desc = 0;
+	}
 }
 
 
@@ -371,6 +383,7 @@ void set_panel_properties(Panel *p)
 	// Unfocusable
 	XWMHints wmhints;
 	if (panel_dock) {
+		// TODO: Xdnd feature cannot be used in withdrawn state at the moment (at least GTK apps fail, qt seems to work)
 		wmhints.icon_window = wmhints.window_group = p->main_win;
 		wmhints.flags = StateHint | IconWindowHint;
 		wmhints.initial_state = WithdrawnState;

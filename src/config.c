@@ -43,6 +43,7 @@
 #include "panel.h"
 #include "config.h"
 #include "window.h"
+#include "tooltip.h"
 
 #ifdef ENABLE_BATTERY
 #include "battery.h"
@@ -575,6 +576,43 @@ void add_entry (char *key, char *value)
 			systray.sort = 1;
 	}
 
+	/* Tooltip */
+	else if (strcmp (key, "tooltip") == 0)
+		g_tooltip.enabled = atoi(value);
+	else if (strcmp (key, "tooltip_show_timeout") == 0) {
+		double timeout = atof(value);
+		int sec = (int)timeout;
+		int usec = (timeout-sec)*1e6;
+		g_tooltip.show_timeout.it_value = (struct timeval){.tv_sec=sec, .tv_usec=usec};
+	}
+	else if (strcmp (key, "tooltip_hide_timeout") == 0) {
+		double timeout = atof(value);
+		int sec = (int)timeout;
+		int usec = (timeout-sec)*1e6;
+		g_tooltip.hide_timeout.it_value = (struct timeval){.tv_sec=sec, .tv_usec=usec};
+	}
+	else if (strcmp (key, "tooltip_padding") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		if (value1) g_tooltip.paddingx = atoi(value1);
+		if (value2) g_tooltip.paddingy = atoi(value2);
+	}
+	else if (strcmp (key, "tooltip_background_id") == 0) {
+		int id = atoi (value);
+		Area *a = g_slist_nth_data(list_back, id);
+		memcpy(&g_tooltip.background_color, &a->pix.back, sizeof(Color));
+		memcpy(&g_tooltip.border, &a->pix.border, sizeof(Border));
+	}
+	else if (strcmp (key, "tooltip_font_color") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		get_color(value1, g_tooltip.font_color.color);
+		if (value2) g_tooltip.font_color.alpha = (atoi (value2) / 100.0);
+		else g_tooltip.font_color.alpha = 0.1;
+	}
+	else if (strcmp (key, "tooltip_font") == 0) {
+		if (g_tooltip.font_desc) pango_font_description_free(g_tooltip.font_desc);
+		g_tooltip.font_desc = pango_font_description_from_string(value);
+	}
+
 	/* Mouse actions */
 	else if (strcmp (key, "mouse_middle") == 0)
 		get_action (value, &mouse_middle);
@@ -737,6 +775,7 @@ void config_finish ()
 #endif
 	init_systray();
 	init_taskbar();
+	init_tooltip();
 	visible_object();
 
 	cleanup_config();

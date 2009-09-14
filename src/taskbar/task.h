@@ -26,8 +26,8 @@ typedef struct {
 	int icon_size1;
 	int maximum_width;
 	int maximum_height;
-   int hue, saturation, brightness;
-   int hue_active, saturation_active, brightness_active;
+	int hue, saturation, brightness;
+	int hue_active, saturation_active, brightness_active;
 	// starting position for text ~ task_padding + task_border + icon_size
 	double text_posx, text_posy;
 

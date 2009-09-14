@@ -20,6 +20,12 @@ border_width = 0
 background_color = #cccccc 20
 border_color = #cccccc 40
 
+# tooltip
+rounded = 0
+border_width = 2
+background_color = #030905
+border_color = #ffffff 30
+
 #---------------------------------------------
 # PANEL
 #---------------------------------------------
@@ -85,6 +91,18 @@ bat2_font = sans 7
 battery_font_color = #ffffff 100
 battery_padding = 1 0
 battery_background_id = 0
+
+#---------------------------------------------
+# TOOLTIP
+#---------------------------------------------
+tooltip = 1
+tooltip_padding = 2 2
+tooltip_show_timeout = 1.5
+tooltip_hide_timeout = 0.5
+tooltip_background_id = 4
+tooltip_font_color = #ffffff 80
+tooltip_font = sans 10
+
 
 #---------------------------------------------
 # MOUSE ACTION ON TASK

@@ -37,6 +37,7 @@
 #include "taskbar.h"
 #include "systraybar.h"
 #include "panel.h"
+#include "tooltip.h"
 
 
 void signal_handler(int sig)
@@ -72,6 +73,7 @@ void init (int argc, char *argv[])
 	signal(SIGTERM, signal_handler);
 	signal(SIGHUP, signal_handler);
 	signal(SIGCHLD, SIG_IGN);		// don't have to wait() after fork()
+	signal(SIGALRM, tooltip_sighandler);
 
 	// set global data
 	memset(&server, 0, sizeof(Server_global));
@@ -587,12 +589,15 @@ void event_property_notify (XEvent *e)
 
 void event_expose (XEvent *e)
 {
-	Panel *panel;
-
-	panel = get_panel(e->xany.window);
-	if (!panel) return;
-	// TODO : one panel_refresh per panel ?
-	panel_refresh = 1;
+	if (e->xany.window == g_tooltip.window)
+		tooltip_update();
+	else {
+		Panel *panel;
+		panel = get_panel(e->xany.window);
+		if (!panel) return;
+		// TODO : one panel_refresh per panel ?
+		panel_refresh = 1;
+	}
 }
 
 
@@ -709,7 +714,6 @@ int main (int argc, char *argv[])
 	GSList *it;
 
 	init (argc, argv);
-
 load_config:
 	i = 0;
 	init_config();
@@ -749,11 +753,26 @@ load_config:
 
 				switch (e.type) {
 					case ButtonPress:
+						tooltip_hide();
 						event_button_press (&e);
 						break;
 
 					case ButtonRelease:
 						event_button_release(&e);
+						break;
+
+					case MotionNotify: {
+						Panel* panel = get_panel(e.xmotion.window);
+						Task* task = click_task(panel, e.xmotion.x, e.xmotion.y);
+						if (task)
+							tooltip_trigger_show(task, e.xmotion.x_root, e.xmotion.y_root);
+						else
+							tooltip_trigger_hide();
+						break;
+					}
+
+					case LeaveNotify:
+						tooltip_trigger_hide();
 						break;
 
 					case Expose:
