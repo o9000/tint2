@@ -82,8 +82,10 @@ void tooltip_trigger_show(Task* task, int x_root, int y_root)
 		g_tooltip.current_state = TOOLTIP_ABOUT_TO_SHOW;
 		g_tooltip.task = task;
 		struct timeval t = g_tooltip.show_timeout.it_value;
-		if (t.tv_sec == 0 && t.tv_usec == 0)
+		if (t.tv_sec == 0 && t.tv_usec == 0) {
+			alarm(0);
 			tooltip_show();
+		}
 		else
 			setitimer(ITIMER_REAL, &g_tooltip.show_timeout, 0);
 	}
@@ -229,8 +231,10 @@ void tooltip_trigger_hide(Tooltip* tooltip)
 	if (g_tooltip.mapped) {
 		g_tooltip.current_state = TOOLTIP_ABOUT_TO_HIDE;
 		struct timeval t = g_tooltip.hide_timeout.it_value;
-		if (t.tv_sec == 0 && t.tv_usec == 0)
+		if (t.tv_sec == 0 && t.tv_usec == 0) {
 			tooltip_hide();
+			alarm(0);
+		}
 		else
 			setitimer(ITIMER_REAL, &g_tooltip.hide_timeout, 0);
 	}
