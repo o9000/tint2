@@ -29,6 +29,7 @@
 #include "window.h"
 #include "task.h"
 #include "panel.h"
+#include "tooltip.h"
 
 
 int signal_pending;
