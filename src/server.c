@@ -73,6 +73,7 @@ void server_init_atoms ()
 	server.atom.WM_NAME = XInternAtom(server.dsp, "WM_NAME", False);
 	server.atom.__SWM_VROOT = XInternAtom(server.dsp, "__SWM_VROOT", False);
 	server.atom._MOTIF_WM_HINTS = XInternAtom(server.dsp, "_MOTIF_WM_HINTS", False);
+	server.atom.WM_HINTS = XInternAtom(server.dsp, "WM_HINTS", False);
 
 	// systray protocol
 	name_trayer = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", DefaultScreen(server.dsp));

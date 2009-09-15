@@ -581,6 +581,15 @@ void event_property_notify (XEvent *e)
 				panel_refresh = 1;
 			}
 		}
+		else if (at == server.atom.WM_HINTS) {
+			XWMHints* wmhints = XGetWMHints(server.dsp, win);
+			if (wmhints->flags & XUrgencyHint) {
+				task_urgent = tsk;
+				tick_urgent = 0;
+				time_precision = 1;
+			}
+			XFree(wmhints);
+		}
 
 		if (!server.got_root_win) server.root_win = RootWindow (server.dsp, server.screen);
 	}
