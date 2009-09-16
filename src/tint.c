@@ -583,7 +583,7 @@ void event_property_notify (XEvent *e)
 		}
 		else if (at == server.atom.WM_HINTS) {
 			XWMHints* wmhints = XGetWMHints(server.dsp, win);
-			if (wmhints->flags & XUrgencyHint) {
+			if (wmhints && wmhints->flags & XUrgencyHint) {
 				task_urgent = tsk;
 				tick_urgent = 0;
 				time_precision = 1;

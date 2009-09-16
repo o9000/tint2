@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-* Copyright (C) 2009 Andreas.Fink85 ()
+* Copyright (C) 2009 Andreas.Fink (Andreas.Fink85@gmail.com)
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2
