@@ -16,6 +16,8 @@ examplesdir =
 dist_examples_DATA =
 endif
 
+dist_pkgdata_DATA = default_icon.png
+
 DISTCLEANFILES += configure depcomp config.guess config.sub config.h.in config.h.in~ ltmain.sh missing aclocal.m4 install-sh INSTALL
 
 dist-hook:
