@@ -30,7 +30,7 @@
 
 
 
-void adjust_hsb(DATA32 *data, int w, int h, float hu, float satur, float bright)
+void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright)
 {
 	unsigned int x, y;
 	unsigned int a, r, g, b, argb;
@@ -44,6 +44,8 @@ void adjust_hsb(DATA32 *data, int w, int h, float hu, float satur, float bright)
 		for(id = y * w, x = 0; x < w; x++, id++) {
 			argb = data[id];
 			a = (argb >> 24) & 0xff;
+			// transparent => nothing to do.
+			if (a == 0) continue;
 			r = (argb >> 16) & 0xff;
 			g = (argb >> 8) & 0xff;
 			b = (argb) & 0xff;
@@ -82,9 +84,8 @@ void adjust_hsb(DATA32 *data, int w, int h, float hu, float satur, float bright)
 			brightness += bright;
 			if (brightness < 0.0) brightness = 0.0;
 			if (brightness > 1.0) brightness = 1.0;
-			hue += hu;
-			if (hue < 0.0) hue = 0.0;
-			if (hue > 1.0) hue = 1.0;
+			if (alpha != 100)
+				a = (a * alpha)/100;
 
 			// convert HSB to RGB
 			if (saturation == 0) {
@@ -137,5 +138,4 @@ void adjust_hsb(DATA32 *data, int w, int h, float hu, float satur, float bright)
 		}
 	}
 }
-
 

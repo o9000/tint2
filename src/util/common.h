@@ -50,9 +50,9 @@ typedef struct config_color
 } config_color;
 
 
-// adjust HSB on an ARGB icon
-void adjust_hsb(DATA32 *data, int w, int h, float hue, float satur, float bright);
-
+// adjust Alpha/Saturation/Brightness on an ARGB icon
+// alpha from 0 to 100, satur from 0 to 1, bright from 0 to 1.
+void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright);
 
 
 #endif

@@ -556,8 +556,8 @@ void event_property_notify (XEvent *e)
 						if (tsk->win == tsk2->win && tsk != tsk2) {
 							tsk2->icon_width = tsk->icon_width;
 							tsk2->icon_height = tsk->icon_height;
-							tsk2->icon_data = tsk->icon_data;
-							tsk2->icon_data_active = tsk->icon_data_active;
+							tsk2->icon = tsk->icon;
+							tsk2->icon_active = tsk->icon_active;
 							tsk2->area.redraw = 1;
 						}
 					}

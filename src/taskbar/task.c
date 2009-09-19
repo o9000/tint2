@@ -51,8 +51,7 @@ Task *add_task (Window win)
 	// allocate only one title and one icon
 	// even with task_on_all_desktop and with task_on_all_panel
 	new_tsk.title = 0;
-	new_tsk.icon_data = 0;
-	new_tsk.icon_data_active = 0;
+	new_tsk.icon = new_tsk.icon_active = NULL;
 	get_title(&new_tsk);
 	get_icon(&new_tsk);
 
@@ -74,8 +73,8 @@ Task *add_task (Window win)
 			new_tsk2->win = new_tsk.win;
 			new_tsk2->desktop = new_tsk.desktop;
 			new_tsk2->title = new_tsk.title;
-			new_tsk2->icon_data = new_tsk.icon_data;
-			new_tsk2->icon_data_active = new_tsk.icon_data_active;
+			new_tsk2->icon = new_tsk.icon;
+			new_tsk2->icon_active = new_tsk.icon_active;
 			new_tsk2->icon_width = new_tsk.icon_width;
 			new_tsk2->icon_height = new_tsk.icon_height;
 			tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk2);
@@ -99,9 +98,12 @@ void remove_task (Task *tsk)
 	//printf("remove_task %s %d\n", tsk->title, tsk->desktop);
 	if (tsk->title)
 		free (tsk->title);
-	if (tsk->icon_data) {
-		free (tsk->icon_data);
-		free (tsk->icon_data_active);
+	if (tsk->icon) {
+		imlib_context_set_image(tsk->icon);
+		imlib_free_image();
+		imlib_context_set_image(tsk->icon_active);
+		imlib_free_image();
+		tsk->icon = tsk->icon_active = NULL;
 	}
 
 	int i, j;
@@ -172,43 +174,42 @@ void get_icon (Task *tsk)
 {
 	Panel *panel = tsk->area.panel;
 	if (!panel->g_task.icon) return;
-	int num;
-	long *data;
 
-	if (tsk->icon_data) {
-		free (tsk->icon_data);
-		free (tsk->icon_data_active);
-		tsk->icon_data = tsk->icon_data_active = 0;
+	if (tsk->icon) {
+		imlib_context_set_image(tsk->icon);
+		imlib_free_image();
+		imlib_context_set_image(tsk->icon_active);
+		imlib_free_image();
+		tsk->icon = tsk->icon_active = NULL;
 	}
 	tsk->area.redraw = 1;
 
-	data = server_get_property (tsk->win, server.atom._NET_WM_ICON, XA_CARDINAL, &num);
+	int i;
+	Imlib_Image img = NULL;
+	long *data = server_get_property (tsk->win, server.atom._NET_WM_ICON, XA_CARDINAL, &i);
 	if (data) {
 		// get ARGB icon
 		int w, h;
 		long *tmp_data;
-		tmp_data = get_best_icon (data, get_icon_count (data, num), num, &w, &h, panel->g_task.icon_size1);
 
-		tsk->icon_width = w;
-		tsk->icon_height = h;
-		// DATA32 is provided by imlib2
-		tsk->icon_data = malloc (w * h * sizeof (DATA32));
+		tmp_data = get_best_icon (data, get_icon_count (data, i), i, &w, &h, panel->g_task.icon_size1);
 
-		if (tsk->icon_data) {
 #ifdef __x86_64__
-			int i, length = w * h;
-			for (i = 0; i < length; ++i)
-				tsk->icon_data[i] =  tmp_data[i];
+		DATA32 *icon_data = malloc (w * h * sizeof (DATA32));
+		int length = w * h;
+		for (i = 0; i < length; ++i)
+			icon_data[i] =  tmp_data[i];
+		img = imlib_create_image_using_data (w, h, icon_data);
 #else
-			memcpy (tsk->icon_data, tmp_data, w * h * sizeof (DATA32));
+		img = imlib_create_image_using_data (w, h, (DATA32*)tmp_data);
 #endif
-		}
+		imlib_context_set_image(img);
+		imlib_image_set_has_alpha(1);
 		XFree (data);
 	}
 	else {
 		// get Pixmap icon
 		XWMHints *hints = XGetWMHints(server.dsp, tsk->win);
-		Imlib_Image  img = NULL;
 		if (hints) {
 			if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
 				// get width, height and depth for the pixmap
@@ -217,75 +218,48 @@ void get_icon (Task *tsk)
 				uint border_width, bpp;
 				uint w, h;
 
-				// printf("  get pixmap\n");
+				//printf("  get pixmap\n");
 				XGetGeometry(server.dsp, hints->icon_pixmap, &root, &icon_x, &icon_y, &w, &h, &border_width, &bpp);
 				imlib_context_set_drawable(hints->icon_pixmap);
 				img = imlib_create_image_from_drawable(hints->icon_mask, 0, 0, w, h, 0);
-				imlib_context_set_image(img);
 			}
-			else
-				imlib_context_set_image(default_icon);
 		}
-		else
-			imlib_context_set_image(default_icon);
-		data = imlib_image_get_data();
-		tsk->icon_width = imlib_image_get_width();
-		tsk->icon_height = imlib_image_get_height();
-		tsk->icon_data = malloc (tsk->icon_width * tsk->icon_height * sizeof (DATA32));
-		if (tsk->icon_data)
-			memcpy (tsk->icon_data, data, tsk->icon_width * tsk->icon_height * sizeof (DATA32));
-		if (imlib_context_get_image() == img)
-			imlib_free_image();
 		XFree(hints);
 	}
+	if (img == NULL) {
+		imlib_context_set_image(default_icon);
+		img = imlib_clone_image();
+	}
 
-	// resize, opacity and HSB
-/*
-	Imlib_Image icon;
-	Imlib_Color_Modifier cmod;
-	DATA8 red[256], green[256], blue[256], alpha[256];
+	// transform icons
+	imlib_context_set_image(img);
+	tsk->icon = imlib_create_cropped_scaled_image(0, 0, imlib_image_get_width(), imlib_image_get_height(), panel->g_task.icon_size1, panel->g_task.icon_size1);
+	imlib_free_image();
 
-	icon = imlib_create_image_using_data (tsk->icon_width, tsk->icon_height, icon_data);
-	imlib_context_set_image (icon);
-	imlib_context_set_drawable (*pmap);
+	imlib_context_set_image(tsk->icon);
+	tsk->icon_width = imlib_image_get_width();
+	tsk->icon_height = imlib_image_get_height();
+	tsk->icon_active = imlib_clone_image();
 
-	cmod = imlib_create_color_modifier ();
-	imlib_context_set_color_modifier (cmod);
-	imlib_image_set_has_alpha (1);
-	imlib_get_color_modifier_tables (red, green, blue, alpha);
+	DATA32 *data32;
+	if (panel->g_task.alpha != 100 || panel->g_task.saturation != 0 || panel->g_task.brightness != 0) {
+		data32 = imlib_image_get_data();
+		adjust_asb(data32, tsk->icon_width, tsk->icon_height, panel->g_task.alpha, (float)panel->g_task.saturation/100, (float)panel->g_task.brightness/100);
+		imlib_image_put_back_data(data32);
+	}
 
-	int i, opacity;
-	opacity = (active == 0) ? (255*panel->g_task.font.alpha) : (255*panel->g_task.font_active.alpha);
-	for (i = 127; i < 256; i++) alpha[i] = opacity;
-
-	imlib_set_color_modifier_tables (red, green, blue, alpha);
-
-	//imlib_render_image_on_drawable (pos_x, pos_y);
-	imlib_render_image_on_drawable_at_size (pos_x, panel->g_task.icon_posy, panel->g_task.icon_size1, panel->g_task.icon_size1);
-
-	imlib_free_color_modifier ();
-	imlib_free_image ();
- */
-	if (tsk->icon_data) {
-		tsk->icon_data_active = malloc (tsk->icon_width * tsk->icon_height * sizeof (DATA32));
-		memcpy (tsk->icon_data_active, tsk->icon_data, tsk->icon_width * tsk->icon_height * sizeof (DATA32));
-
-		if (panel->g_task.hue != 0 || panel->g_task.saturation != 0 || panel->g_task.brightness != 0) {
-			adjust_hsb(tsk->icon_data, tsk->icon_width, tsk->icon_height, (float)panel->g_task.hue/100, (float)panel->g_task.saturation/100, (float)panel->g_task.brightness/100);
-		}
-		if (panel->g_task.hue_active != 0 || panel->g_task.saturation_active != 0 || panel->g_task.brightness_active != 0) {
-			adjust_hsb(tsk->icon_data_active, tsk->icon_width, tsk->icon_height, (float)panel->g_task.hue_active/100, (float)panel->g_task.saturation_active/100, (float)panel->g_task.brightness_active/100);
-		}
+	if (panel->g_task.alpha_active != 100 || panel->g_task.saturation_active != 0 || panel->g_task.brightness_active != 0) {
+		imlib_context_set_image(tsk->icon_active);
+		data32 = imlib_image_get_data();
+		adjust_asb(data32, tsk->icon_width, tsk->icon_height, panel->g_task.alpha_active, (float)panel->g_task.saturation_active/100, (float)panel->g_task.brightness_active/100);
+		imlib_image_put_back_data(data32);
 	}
 }
 
 
 void draw_task_icon (Task *tsk, int text_width, int active)
 {
-	if (tsk->icon_data == 0 || tsk->icon_data_active == 0) return;
-
-	Pixmap *pmap = (active == 0) ? (&tsk->area.pix.pmap) : (&tsk->area.pix_active.pmap);
-	unsigned int *icon_data = (active == 0) ? (tsk->icon_data) : (tsk->icon_data_active);
+	if (tsk->icon == NULL || tsk->icon_active == NULL) return;
 
 	// Find pos
 	int pos_x;
@@ -299,30 +273,17 @@ void draw_task_icon (Task *tsk, int text_width, int active)
 	else pos_x = panel->g_task.area.paddingxlr + panel->g_task.area.pix.border.width;
 
 	// Render
-	Imlib_Image icon;
-	Imlib_Color_Modifier cmod;
-	DATA8 red[256], green[256], blue[256], alpha[256];
-
-	icon = imlib_create_image_using_data (tsk->icon_width, tsk->icon_height, icon_data);
-	imlib_context_set_image (icon);
+	Pixmap *pmap;
+	if (active == 0) {
+		imlib_context_set_image (tsk->icon);
+		pmap = &tsk->area.pix.pmap;
+	}
+	else {
+		imlib_context_set_image (tsk->icon_active);
+		pmap = &tsk->area.pix_active.pmap;
+	}
 	imlib_context_set_drawable (*pmap);
-
-	cmod = imlib_create_color_modifier ();
-	imlib_context_set_color_modifier (cmod);
-	imlib_image_set_has_alpha (1);
-	imlib_get_color_modifier_tables (red, green, blue, alpha);
-
-	int i, opacity;
-	opacity = (active == 0) ? (255*panel->g_task.font.alpha) : (255*panel->g_task.font_active.alpha);
-	for (i = 127; i < 256; i++) alpha[i] = opacity;
-
-	imlib_set_color_modifier_tables (red, green, blue, alpha);
-
-	//imlib_render_image_on_drawable (pos_x, pos_y);
-	imlib_render_image_on_drawable_at_size (pos_x, panel->g_task.icon_posy, panel->g_task.icon_size1, panel->g_task.icon_size1);
-
-	imlib_free_color_modifier ();
-	imlib_free_image ();
+	imlib_render_image_on_drawable (pos_x, panel->g_task.icon_posy);
 }
 
 
