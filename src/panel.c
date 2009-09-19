@@ -58,12 +58,24 @@ int  max_tick_urgent;
 Panel *panel1 = 0;
 int  nb_panel;
 
+Imlib_Image default_icon;
 
 
 void init_panel()
 {
 	int i;
 	Panel *p;
+
+	// load default icon
+	char *path;
+	const gchar * const *data_dirs;
+	data_dirs = g_get_system_data_dirs ();
+	for (i = 0; data_dirs[i] != NULL; i++)	{
+		path = g_build_filename(data_dirs[i], "tint2", "default_icon.png", NULL);
+		if (g_file_test (path, G_FILE_TEST_EXISTS))
+			default_icon = imlib_load_image(path);
+		g_free(path);
+	}
 
 	for (i=0 ; i < nb_panel ; i++) {
 		p = &panel1[i];
@@ -174,6 +186,11 @@ void cleanup_panel()
 	task_urgent = 0;
 	cleanup_systray();
 	cleanup_taskbar();
+
+	if (default_icon) {
+		imlib_context_set_image(default_icon);
+		imlib_free_image();
+	}
 
 	// font allocated once
 	if (panel1[0].g_task.font_desc) {

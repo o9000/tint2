@@ -54,6 +54,8 @@ extern Task *task_urgent;
 extern int  tick_urgent;
 extern int  max_tick_urgent;
 
+extern Imlib_Image default_icon;
+
 
 typedef struct {
    // always start with area
