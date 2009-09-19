@@ -172,7 +172,7 @@ void get_icon (Task *tsk)
 {
 	Panel *panel = tsk->area.panel;
 	if (!panel->g_task.icon) return;
-	unsigned int w, h, num;
+	int num;
 	long *data;
 
 	if (tsk->icon_data) {
@@ -185,6 +185,7 @@ void get_icon (Task *tsk)
 	data = server_get_property (tsk->win, server.atom._NET_WM_ICON, XA_CARDINAL, &num);
 	if (data) {
 		// get ARGB icon
+		int w, h;
 		long *tmp_data;
 		tmp_data = get_best_icon (data, get_icon_count (data, num), num, &w, &h, panel->g_task.icon_size1);
 
@@ -207,13 +208,14 @@ void get_icon (Task *tsk)
 	else {
 		// get Pixmap icon
 		XWMHints *hints = XGetWMHints(server.dsp, tsk->win);
-		Imlib_Image  img;
+		Imlib_Image  img = NULL;
 		if (hints) {
 			if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
 				// get width, height and depth for the pixmap
 				Window root;
 				int  icon_x, icon_y;
 				uint border_width, bpp;
+				uint w, h;
 
 				// printf("  get pixmap\n");
 				XGetGeometry(server.dsp, hints->icon_pixmap, &root, &icon_x, &icon_y, &w, &h, &border_width, &bpp);
@@ -237,6 +239,33 @@ void get_icon (Task *tsk)
 		XFree(hints);
 	}
 
+	// resize, opacity and HSB
+/*
+	Imlib_Image icon;
+	Imlib_Color_Modifier cmod;
+	DATA8 red[256], green[256], blue[256], alpha[256];
+
+	icon = imlib_create_image_using_data (tsk->icon_width, tsk->icon_height, icon_data);
+	imlib_context_set_image (icon);
+	imlib_context_set_drawable (*pmap);
+
+	cmod = imlib_create_color_modifier ();
+	imlib_context_set_color_modifier (cmod);
+	imlib_image_set_has_alpha (1);
+	imlib_get_color_modifier_tables (red, green, blue, alpha);
+
+	int i, opacity;
+	opacity = (active == 0) ? (255*panel->g_task.font.alpha) : (255*panel->g_task.font_active.alpha);
+	for (i = 127; i < 256; i++) alpha[i] = opacity;
+
+	imlib_set_color_modifier_tables (red, green, blue, alpha);
+
+	//imlib_render_image_on_drawable (pos_x, pos_y);
+	imlib_render_image_on_drawable_at_size (pos_x, panel->g_task.icon_posy, panel->g_task.icon_size1, panel->g_task.icon_size1);
+
+	imlib_free_color_modifier ();
+	imlib_free_image ();
+ */
 	if (tsk->icon_data) {
 		tsk->icon_data_active = malloc (tsk->icon_width * tsk->icon_height * sizeof (DATA32));
 		memcpy (tsk->icon_data_active, tsk->icon_data, tsk->icon_width * tsk->icon_height * sizeof (DATA32));
