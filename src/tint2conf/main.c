@@ -75,7 +75,7 @@ static const char *fallback_ui_file =
         "      <menuitem action='ThemeAdd'/>"
         "      <menuitem action='ThemeSaveAs'/>"
         "      <separator/>"
-//        "      <menuitem action='ThemeProperties'/>"
+        "      <menuitem action='ThemeProperties'/>"
         "      <menuitem action='ThemeRename'/>"
         "      <separator/>"
         "      <menuitem action='ThemeDelete'/>"
@@ -91,9 +91,9 @@ static const char *fallback_ui_file =
         "    </menu>"
         "  </menubar>"
         "  <toolbar  name='ToolBar'>"
-//        "    <toolitem action='ViewRefreshAll'/>"
-//        "    <separator/>"
-//        "    <toolitem action='ThemeProperties'/>"
+        "    <toolitem action='ViewRefreshAll'/>"
+        "    <separator/>"
+        "    <toolitem action='ThemeProperties'/>"
         "    <toolitem action='ViewApply'/>"
         "  </toolbar>"
         "</ui>";
@@ -233,7 +233,7 @@ static void menuAdd (GtkWindow *parent)
 	if (gtk_dialog_run (GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 		GSList *l, *list = gtk_file_chooser_get_filenames(chooser);
 
-		// remember this folder the next time we use this dialog
+		// TODO: remember this folder the next time we use this dialog
 		//char *folder = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(dialog));
 		//pref_string_set( PREF_KEY_OPEN_DIALOG_FOLDER, folder );
 		//g_free( folder );

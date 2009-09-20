@@ -394,35 +394,52 @@ void event_property_notify (XEvent *e)
 		// Change desktop
 		else if (at == server.atom._NET_CURRENT_DESKTOP) {
 			server.desktop = server_get_current_desktop ();
-			for (i=0 ; i < nb_panel ; i++) {
+			for (i = 0; i < nb_panel; i++) {
 				Panel *panel = &panel1[i];
-				if (panel_mode == MULTI_DESKTOP && panel->g_taskbar.use_active) {
-					// redraw taskbar
-					panel_refresh = 1;
-					Taskbar *tskbar;
+				if (panel_mode == MULTI_DESKTOP) {
+					Taskbar *tskbar, *tskbar_active;
+ 					GSList *l;
 					Task *tsk;
-					GSList *l;
-					for (j=0 ; j < panel->nb_desktop ; j++) {
-						tskbar = &panel->taskbar[j];
-						if (tskbar->area.is_active) {
-							tskbar->area.is_active = 0;
-							tskbar->area.redraw = 1;
-							for (l = tskbar->area.list; l ; l = l->next) {
-								tsk = l->data;
-								tsk->area.redraw = 1;
-							}
-						}
-						if (j == server.desktop) {
-							tskbar->area.is_active = 1;
-							tskbar->area.redraw = 1;
-							for (l = tskbar->area.list; l ; l = l->next) {
-								tsk = l->data;
-								tsk->area.redraw = 1;
-							}
-						}
+					char redraw_tasks;
+
+					tskbar_active = &panel->taskbar[server.desktop];
+					if (panel->g_taskbar.use_active) {
+						tskbar_active->area.is_active = 1;
+						tskbar_active->area.redraw = 1;
 					}
-				}
-			}
+
+					for (j = 0; j < panel->nb_desktop; j++) {
+ 						tskbar = &panel->taskbar[j];
+
+						// need to redraw tasks only on taskbar, which was active, or which became active
+						redraw_tasks = 0;
+						if (panel->g_taskbar.use_active && tskbar->area.is_active && tskbar != tskbar_active) {
+ 							tskbar->area.is_active = 0;
+ 							tskbar->area.redraw = 1;
+							redraw_tasks = 1;
+						} else if (panel->g_taskbar.use_active && tskbar == tskbar_active) {
+							redraw_tasks = 1;
+ 						}
+
+						for (l = tskbar->area.list; l;) {
+							tsk = l->data;
+							l = l->next;
+
+							if (redraw_tasks) tsk->area.redraw = 1;
+
+							if (tsk->desktop == ALLDESKTOP && tskbar != tskbar_active) {
+								// move omnipresent tasks to current taskbar
+								tskbar->area.list = g_slist_remove(tskbar->area.list, tsk);
+								tskbar->area.resize = 1;
+								tsk->area.parent = tskbar_active;
+								tskbar_active->area.list = g_slist_append(tskbar_active->area.list, tsk);
+								tskbar_active->area.resize = 1;
+ 							}
+ 						}
+ 					}
+					panel_refresh = 1;
+ 				}
+ 			}
 			if (panel_mode != MULTI_DESKTOP) {
 				visible_object();
 			}
