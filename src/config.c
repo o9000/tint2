@@ -85,6 +85,8 @@ void init_config()
 	list_back = g_slist_append(0, calloc(1, sizeof(Area)));
 
 	panel_config = calloc(1, sizeof(Panel));
+	panel_config->g_task.alpha = 100;
+	panel_config->g_task.alpha_active = 100;
 	systray.sort = 1;
 
 	// window manager's menu default value == false
