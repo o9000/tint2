@@ -200,11 +200,10 @@ void get_icon (Task *tsk)
 		for (i = 0; i < length; ++i)
 			icon_data[i] =  tmp_data[i];
 		img = imlib_create_image_using_data (w, h, icon_data);
+		free(icon_data);
 #else
 		img = imlib_create_image_using_data (w, h, (DATA32*)tmp_data);
 #endif
-		imlib_context_set_image(img);
-		imlib_image_set_has_alpha(1);
 		XFree (data);
 	}
 	else {
@@ -233,6 +232,7 @@ void get_icon (Task *tsk)
 
 	// transform icons
 	imlib_context_set_image(img);
+	imlib_image_set_has_alpha(1);
 	tsk->icon = imlib_create_cropped_scaled_image(0, 0, imlib_image_get_width(), imlib_image_get_height(), panel->g_task.icon_size1, panel->g_task.icon_size1);
 	imlib_free_image();
 
