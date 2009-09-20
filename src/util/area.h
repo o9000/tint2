@@ -27,58 +27,58 @@
 
 typedef struct
 {
-   double color[3];
-   double alpha;
-   int width;
-   int rounded;
+	double color[3];
+	double alpha;
+	int width;
+	int rounded;
 } Border;
 
 
 typedef struct
 {
-   double color[3];
-   double alpha;
+	double color[3];
+	double alpha;
 } Color;
 
 
 typedef struct
 {
-   Pixmap pmap;
-   Color back;
-   Border border;
+	Pixmap pmap;
+	Color back;
+	Border border;
 } Pmap;
 
 
 typedef struct {
-   // absolute coordinate in panel
-   int posx, posy;
-   // width and height including border
-   int width, height;
-   Pmap pix;
-   Pmap pix_active;
+	// absolute coordinate in panel
+	int posx, posy;
+	// width and height including border
+	int width, height;
+	Pmap pix;
+	Pmap pix_active;
 
-   // list of child : Area object
-   GSList *list;
+	// list of child : Area object
+	GSList *list;
 
 	int on_screen;
 	// need compute position and width
 	int resize;
-   // need redraw Pixmap
-   int redraw;
-   int use_active, is_active;
-   // paddingxlr = horizontal padding left/right
-   // paddingx = horizontal padding between childs
-   int paddingxlr, paddingx, paddingy;
-   // parent Area
-   void *parent;
-   // panel
-   void *panel;
+	// need redraw Pixmap
+	int redraw;
+	int use_active, is_active;
+	// paddingxlr = horizontal padding left/right
+	// paddingx = horizontal padding between childs
+	int paddingxlr, paddingx, paddingy;
+	// parent Area
+	void *parent;
+	// panel
+	void *panel;
 
-   // each object can overwrite following function
-   void (*_draw_foreground)(void *obj, cairo_t *c, int active);
-   void (*_resize)(void *obj);
-   void (*_add_child)(void *obj);
-   int (*_remove_child)(void *obj);
+	// each object can overwrite following function
+	void (*_draw_foreground)(void *obj, cairo_t *c, int active);
+	void (*_resize)(void *obj);
+	void (*_add_child)(void *obj);
+	int (*_remove_child)(void *obj);
 } Area;
 
 

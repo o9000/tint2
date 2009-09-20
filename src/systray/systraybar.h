@@ -20,8 +20,8 @@
 
 
 typedef struct {
-   // always start with area
-   Area area;
+	// always start with area
+	Area area;
 
 	GSList *list_icons;
 	int sort;
@@ -30,9 +30,9 @@ typedef struct {
 
 typedef struct
 {
-   Window id;
-   int x, y;
-   int width, height;
+	Window id;
+	int x, y;
+	int width, height;
 	int hide;
 } TrayWindow;
 

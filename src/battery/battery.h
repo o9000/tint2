@@ -18,12 +18,12 @@
 #include "area.h"
 
 typedef struct Battery {
-   // always start with area
-   Area area;
+	// always start with area
+	Area area;
 
-   config_color font;
-   int bat1_posy;
-   int bat2_posy;
+	config_color font;
+	int bat1_posy;
+	int bat2_posy;
 } Battery;
 
 enum chargestate {

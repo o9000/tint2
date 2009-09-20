@@ -15,12 +15,12 @@
 
 
 typedef struct Clock {
-   // always start with area
-   Area area;
+	// always start with area
+	Area area;
 
-   config_color font;
-   int time1_posy;
-   int time2_posy;
+	config_color font;
+	int time1_posy;
+	int time2_posy;
 } Clock;
 
 

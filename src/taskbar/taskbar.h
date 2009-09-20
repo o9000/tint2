@@ -12,15 +12,15 @@
 
 
 typedef struct {
-   // always start with area
-   Area area;
+	// always start with area
+	Area area;
 
-   int desktop;
+	int desktop;
 
-   // task parameters
-   int task_width;
-   int task_modulo;
-   int text_width;
+	// task parameters
+	int task_width;
+	int task_modulo;
+	int text_width;
 } Taskbar;
 
 

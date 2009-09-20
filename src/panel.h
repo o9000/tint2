@@ -58,39 +58,39 @@ extern Imlib_Image default_icon;
 
 
 typedef struct {
-   // always start with area
-   // area.list own all objects of the panel according to config file
-   Area area;
+	// always start with area
+	// area.list own all objects of the panel according to config file
+	Area area;
 
-   // --------------------------------------------------
-   // panel
-   Window main_win;
-   Pixmap temp_pmap;
+	// --------------------------------------------------
+	// panel
+	Window main_win;
+	Pixmap temp_pmap;
 
-   // position relative to root window
+	// position relative to root window
 	int posx, posy;
-   int marginx, marginy;
-   float initial_width, initial_height;
-   int pourcentx, pourcenty;
-   // location of the panel (monitor number)
-   int monitor;
+	int marginx, marginy;
+	float initial_width, initial_height;
+	int pourcentx, pourcenty;
+	// location of the panel (monitor number)
+	int monitor;
 
-   // --------------------------------------------------
-   // task and taskbar parameter per panel
+	// --------------------------------------------------
+	// task and taskbar parameter per panel
 	Area g_taskbar;
 	Global_task g_task;
 
-   // --------------------------------------------------
-   // taskbar point to the first taskbar in panel.area.list.
-   // number of tasbar == nb_desktop
+	// --------------------------------------------------
+	// taskbar point to the first taskbar in panel.area.list.
+	// number of tasbar == nb_desktop
 	// taskbar[i] is used to loop over taskbar,
 	// while panel->area.list is used to loop over all panel's objects
-   Taskbar *taskbar;
-   int  nb_desktop;
+	Taskbar *taskbar;
+	int  nb_desktop;
 
-   // --------------------------------------------------
-   // clock
-   Clock clock;
+	// --------------------------------------------------
+	// clock
+	Clock clock;
 
 	// --------------------------------------------------
 	// battery

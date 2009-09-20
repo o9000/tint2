@@ -36,17 +36,17 @@ enum { NONE=0, CLOSE, TOGGLE, ICONIFY, SHADE, TOGGLE_ICONIFY, MAXIMIZE_RESTORE, 
 
 typedef struct config_border
 {
-   double color[3];
-   double alpha;
-   int width;
-   int rounded;
+	double color[3];
+	double alpha;
+	int width;
+	int rounded;
 } config_border;
 
 
 typedef struct config_color
 {
-   double color[3];
-   double alpha;
+	double color[3];
+	double alpha;
 } config_color;
 
 
