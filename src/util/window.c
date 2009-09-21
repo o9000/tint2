@@ -79,15 +79,13 @@ int window_is_hidden (Window win)
 	Atom *at;
 	int count, i;
 
-	if (XGetTransientForHint(server.dsp, win, &window) != 0) {
-		if (window) {
-			return 1;
-		}
-	}
-
 	at = server_get_property (win, server.atom._NET_WM_STATE, XA_ATOM, &count);
 	for (i = 0; i < count; i++) {
 		if (at[i] == server.atom._NET_WM_STATE_SKIP_TASKBAR) {
+			XFree(at);
+			return 1;
+		}
+		if (at[i] == server.atom._NET_WM_STATE_MODAL) {
 			XFree(at);
 			return 1;
 		}
