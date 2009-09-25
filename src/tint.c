@@ -810,6 +810,8 @@ load_config:
 						break;
 
 					case ConfigureNotify:
+						//XMoveWindow(dpy, fen, pos_x, pos_y);
+						//XResizeWindow(dpy, fen, largeur, hauteur);
 						if (e.xconfigure.window == server.root_win)
 							goto load_config;
 						else

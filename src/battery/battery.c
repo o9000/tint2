@@ -47,7 +47,7 @@ char *path_energy_now, *path_energy_full, *path_current_now, *path_status;
 void init_battery()
 {
 	// check battery
-	GDir *directory;
+	GDir *directory = 0;
 	GError *error = NULL;
 	const char *entryname;
 	char *battery_dir = 0;
@@ -69,7 +69,9 @@ void init_battery()
 			g_free(path1);
 		}
 	}
-	if (battery_dir != 0) {
+	if (directory)
+		g_dir_close(directory);
+	if (battery_dir) {
 		char *path1 = g_build_filename(battery_dir, "energy_now", NULL);
 		if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
 			path_energy_now = g_build_filename(battery_dir, "energy_now", NULL);
@@ -161,6 +163,9 @@ void init_battery()
 		battery->bat1_posy -= ((bat_time_height_ink + 2) / 2);
 		battery->bat2_posy = battery->bat1_posy + bat_percentage_height + 2 - (bat_percentage_height - bat_percentage_height_ink)/2 - (bat_time_height - bat_time_height_ink)/2;
 	}
+
+	if (battery_dir)
+		g_free(battery_dir);
 }
 
 

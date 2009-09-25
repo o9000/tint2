@@ -180,6 +180,10 @@ void get_icon (Task *tsk)
 {
 	Panel *panel = tsk->area.panel;
 	if (!panel->g_task.icon) return;
+	int i;
+	Imlib_Image img = NULL;
+	XWMHints *hints = 0;
+	long *data = 0;
 
 	if (tsk->icon) {
 		imlib_context_set_image(tsk->icon);
@@ -190,9 +194,7 @@ void get_icon (Task *tsk)
 	}
 	tsk->area.redraw = 1;
 
-	int i;
-	Imlib_Image img = NULL;
-	long *data = server_get_property (tsk->win, server.atom._NET_WM_ICON, XA_CARDINAL, &i);
+	data = server_get_property (tsk->win, server.atom._NET_WM_ICON, XA_CARDINAL, &i);
 	if (data) {
 		// get ARGB icon
 		int w, h;
@@ -210,11 +212,10 @@ void get_icon (Task *tsk)
 #else
 		img = imlib_create_image_using_data (w, h, (DATA32*)tmp_data);
 #endif
-		XFree (data);
 	}
 	else {
 		// get Pixmap icon
-		XWMHints *hints = XGetWMHints(server.dsp, tsk->win);
+		hints = XGetWMHints(server.dsp, tsk->win);
 		if (hints) {
 			if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
 				// get width, height and depth for the pixmap
@@ -229,7 +230,6 @@ void get_icon (Task *tsk)
 				img = imlib_create_image_from_drawable(hints->icon_mask, 0, 0, w, h, 0);
 			}
 		}
-		XFree(hints);
 	}
 	if (img == NULL) {
 		imlib_context_set_image(default_icon);
@@ -239,7 +239,10 @@ void get_icon (Task *tsk)
 	// transform icons
 	imlib_context_set_image(img);
 	imlib_image_set_has_alpha(1);
-	tsk->icon = imlib_create_cropped_scaled_image(0, 0, imlib_image_get_width(), imlib_image_get_height(), panel->g_task.icon_size1, panel->g_task.icon_size1);
+	int w, h;
+	w = imlib_image_get_width();
+	h = imlib_image_get_height();
+	tsk->icon = imlib_create_cropped_scaled_image(0, 0, w, h, panel->g_task.icon_size1, panel->g_task.icon_size1);
 	imlib_free_image();
 
 	imlib_context_set_image(tsk->icon);
@@ -260,6 +263,11 @@ void get_icon (Task *tsk)
 		adjust_asb(data32, tsk->icon_width, tsk->icon_height, panel->g_task.alpha_active, (float)panel->g_task.saturation_active/100, (float)panel->g_task.brightness_active/100);
 		imlib_image_put_back_data(data32);
 	}
+
+	if (hints)
+		XFree(hints);
+	if (data)
+		XFree (data);
 }
 
 
