@@ -68,7 +68,6 @@ void server_init_atoms ()
 	server.atom.UTF8_STRING = XInternAtom (server.dsp, "UTF8_STRING", False);
 	server.atom._NET_SUPPORTING_WM_CHECK = XInternAtom (server.dsp, "_NET_SUPPORTING_WM_CHECK", False);
 	server.atom._NET_SUPPORTING_WM_CHECK = XInternAtom (server.dsp, "_NET_WM_NAME", False);
-	server.atom._WIN_LAYER = XInternAtom (server.dsp, "_WIN_LAYER", False);
 	server.atom._NET_WM_STRUT_PARTIAL = XInternAtom (server.dsp, "_NET_WM_STRUT_PARTIAL", False);
 	server.atom.WM_NAME = XInternAtom(server.dsp, "WM_NAME", False);
 	server.atom.__SWM_VROOT = XInternAtom(server.dsp, "__SWM_VROOT", False);

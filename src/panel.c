@@ -337,7 +337,6 @@ void set_panel_properties(Panel *p)
 {
 	XStoreName (server.dsp, p->main_win, "tint2");
 
-	// TODO: check if the name is really needed for a panel/taskbar ?
 	gsize len;
 	gchar *name = g_locale_to_utf8("tint2", -1, NULL, &len, NULL);
 	if (name != NULL) {
@@ -393,10 +392,12 @@ void set_panel_properties(Panel *p)
 	state[3] = server.atom._NET_WM_STATE_BELOW;
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STATE, XA_ATOM, 32, PropModeReplace, (unsigned char *) state, 4);
 
-	// Fixed position
+	// Fixed position and non-resizable window
 	XSizeHints size_hints;
-	size_hints.flags = PPosition;
-	XChangeProperty (server.dsp, p->main_win, XA_WM_NORMAL_HINTS, XA_WM_SIZE_HINTS, 32, PropModeReplace, (unsigned char *) &size_hints, sizeof (XSizeHints) / 4);
+	size_hints.flags = PPosition|PMinSize|PMaxSize;
+	size_hints.min_width = size_hints.max_width = p->area.width;
+	size_hints.min_height = size_hints.max_height = p->area.height;
+	XSetWMNormalHints(server.dsp, p->main_win, &size_hints);
 
 	// Unfocusable
 	XWMHints wmhints;
@@ -410,7 +411,7 @@ void set_panel_properties(Panel *p)
 		wmhints.flags = InputHint;
 		wmhints.input = False;
 	}
-  XSetWMHints(server.dsp, p->main_win, &wmhints);
+	XSetWMHints(server.dsp, p->main_win, &wmhints);
 
 	// Undecorated
 	long prop[5] = { 2, 0, 0, 0, 0 };

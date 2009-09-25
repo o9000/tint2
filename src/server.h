@@ -50,7 +50,6 @@ typedef struct Global_atom
 	Atom _NET_CLOSE_WINDOW;
 	Atom UTF8_STRING;
 	Atom _NET_SUPPORTING_WM_CHECK;
-	Atom _WIN_LAYER;
 	Atom _NET_WM_STRUT_PARTIAL;
 	Atom WM_NAME;
 	Atom __SWM_VROOT;
