@@ -258,6 +258,7 @@ void resize_taskbar(void *obj)
 		x = taskbar->area.posx + taskbar->area.pix.border.width + taskbar->area.paddingxlr;
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
+			if (!tsk->area.on_screen) continue;
 			tsk->area.posx = x;
 			tsk->area.width = pixel_width;
 			tsk->area.redraw = 1;
@@ -299,6 +300,7 @@ void resize_taskbar(void *obj)
 		y = taskbar->area.posy + taskbar->area.pix.border.width + taskbar->area.paddingxlr;
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
+			if (!tsk->area.on_screen) continue;
 			tsk->area.posy = y;
 			tsk->area.height = pixel_height;
 			tsk->area.redraw = 1;

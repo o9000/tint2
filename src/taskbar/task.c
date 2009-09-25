@@ -61,16 +61,16 @@ Task *add_task (Window win)
 	Taskbar *tskbar;
 	Task *new_tsk2=0;
 	int i, j;
-	for (i = 0; i < nb_panel; i++) {
-		if (nb_panel > 1 && panel1[i].monitor != monitor) continue;
-		for (j = 0; j < panel1[i].nb_desktop; j++) {
-			if ((new_tsk.desktop != ALLDESKTOP && new_tsk.desktop != j)
-			|| (panel_mode == MULTI_DESKTOP && new_tsk.desktop == ALLDESKTOP && server.desktop != j))
-				continue;
-//	for (i=0 ; i < nb_panel ; i++) {
-//		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-//			if (new_tsk.desktop != ALLDESKTOP && new_tsk.desktop != j) continue;
-//			if (nb_panel > 1 && panel1[i].monitor != monitor) continue;
+//	for (i = 0; i < nb_panel; i++) {
+//		if (nb_panel > 1 && panel1[i].monitor != monitor) continue;
+//		for (j = 0; j < panel1[i].nb_desktop; j++) {
+//			if ((new_tsk.desktop != ALLDESKTOP && new_tsk.desktop != j)
+//			|| (panel_mode == MULTI_DESKTOP && new_tsk.desktop == ALLDESKTOP && server.desktop != j))
+//				continue;
+	for (i=0 ; i < nb_panel ; i++) {
+		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
+			if (new_tsk.desktop != ALLDESKTOP && new_tsk.desktop != j) continue;
+			if (nb_panel > 1 && panel1[i].monitor != monitor) continue;
 
 			tskbar = &panel1[i].taskbar[j];
 			new_tsk2 = malloc(sizeof(Task));

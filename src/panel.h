@@ -57,6 +57,7 @@ extern int  max_tick_urgent;
 extern Imlib_Image default_icon;
 
 
+// tint2 use one panel per monitor and one taskbar per desktop.
 typedef struct {
 	// always start with area
 	// area.list own all objects of the panel according to config file
