@@ -61,12 +61,6 @@ Task *add_task (Window win)
 	Taskbar *tskbar;
 	Task *new_tsk2=0;
 	int i, j;
-//	for (i = 0; i < nb_panel; i++) {
-//		if (nb_panel > 1 && panel1[i].monitor != monitor) continue;
-//		for (j = 0; j < panel1[i].nb_desktop; j++) {
-//			if ((new_tsk.desktop != ALLDESKTOP && new_tsk.desktop != j)
-//			|| (panel_mode == MULTI_DESKTOP && new_tsk.desktop == ALLDESKTOP && server.desktop != j))
-//				continue;
 	for (i=0 ; i < nb_panel ; i++) {
 		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
 			if (new_tsk.desktop != ALLDESKTOP && new_tsk.desktop != j) continue;
@@ -78,6 +72,10 @@ Task *add_task (Window win)
 			new_tsk2->area.parent = tskbar;
 			new_tsk2->win = new_tsk.win;
 			new_tsk2->desktop = new_tsk.desktop;
+			if (new_tsk2->desktop == ALLDESKTOP && server.desktop != j) {
+				// hide ALLDESKTOP task on non-current desktop
+				new_tsk2->area.on_screen = 0;
+			}
 			new_tsk2->title = new_tsk.title;
 			new_tsk2->icon = new_tsk.icon;
 			new_tsk2->icon_active = new_tsk.icon_active;

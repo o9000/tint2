@@ -261,7 +261,6 @@ void resize_taskbar(void *obj)
 			if (!tsk->area.on_screen) continue;
 			tsk->area.posx = x;
 			tsk->area.width = pixel_width;
-			tsk->area.redraw = 1;
 			if (modulo_width) {
 				tsk->area.width++;
 				modulo_width--;
@@ -303,7 +302,6 @@ void resize_taskbar(void *obj)
 			if (!tsk->area.on_screen) continue;
 			tsk->area.posy = y;
 			tsk->area.height = pixel_height;
-			tsk->area.redraw = 1;
 			if (modulo_height) {
 				tsk->area.height++;
 				modulo_height--;

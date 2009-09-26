@@ -43,6 +43,11 @@ void refresh (Area *a)
 	// don't draw transparent objects (without foreground and without background)
 	if (a->redraw) {
 		a->redraw = 0;
+		// force redraw of child
+		GSList *l;
+		for (l = a->list ; l ; l = l->next)
+			set_redraw(l->data);
+
 		//printf("draw area posx %d, width %d\n", a->posx, a->width);
 		draw(a, 0);
 		if (a->use_active)

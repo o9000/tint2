@@ -169,7 +169,7 @@ Task *click_task (Panel *panel, int x, int y)
 			Task *tsk;
 			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
 				tsk = l0->data;
-				if (x >= tsk->area.posx && x <= (tsk->area.posx + tsk->area.width)) {
+				if (tsk->area.on_screen && x >= tsk->area.posx && x <= (tsk->area.posx + tsk->area.width)) {
 					return tsk;
 				}
 			}
@@ -178,7 +178,7 @@ Task *click_task (Panel *panel, int x, int y)
 			Task *tsk;
 			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
 				tsk = l0->data;
-				if (y >= tsk->area.posy && y <= (tsk->area.posy + tsk->area.height)) {
+				if (tsk->area.on_screen && y >= tsk->area.posy && y <= (tsk->area.posy + tsk->area.height)) {
 					return tsk;
 				}
 			}
@@ -393,33 +393,37 @@ void event_property_notify (XEvent *e)
 		}
 		// Change desktop
 		else if (at == server.atom._NET_CURRENT_DESKTOP) {
+			int old_desktop = server.desktop;
 			server.desktop = server_get_current_desktop ();
 			for (i=0 ; i < nb_panel ; i++) {
 				Panel *panel = &panel1[i];
 				if (panel_mode == MULTI_DESKTOP && panel->g_taskbar.use_active) {
-					// redraw taskbar
+					// redraw both taskbar
+					panel->taskbar[old_desktop].area.is_active = 0;
+					panel->taskbar[old_desktop].area.redraw = 1;
+					panel->taskbar[server.desktop].area.is_active = 1;
+					panel->taskbar[server.desktop].area.redraw = 1;
 					panel_refresh = 1;
-					Taskbar *tskbar;
-					Task *tsk;
-					GSList *l;
-					for (j=0 ; j < panel->nb_desktop ; j++) {
-						tskbar = &panel->taskbar[j];
-						if (tskbar->area.is_active) {
-							tskbar->area.is_active = 0;
-							tskbar->area.redraw = 1;
-							for (l = tskbar->area.list; l ; l = l->next) {
-								tsk = l->data;
-								tsk->area.redraw = 1;
-							}
-						}
-						if (j == server.desktop) {
-							tskbar->area.is_active = 1;
-							tskbar->area.redraw = 1;
-							for (l = tskbar->area.list; l ; l = l->next) {
-								tsk = l->data;
-								tsk->area.redraw = 1;
-							}
-						}
+				}
+				// check ALLDESKTOP task => resize taskbar
+				Taskbar *tskbar;
+				Task *tsk;
+				GSList *l;
+				tskbar = &panel->taskbar[old_desktop];
+				for (l = tskbar->area.list; l ; l = l->next) {
+					tsk = l->data;
+					if (tsk->desktop == ALLDESKTOP) {
+						tsk->area.on_screen = 0;
+						tskbar->area.resize = 1;
+						panel_refresh = 1;
+					}
+				}
+				tskbar = &panel->taskbar[server.desktop];
+				for (l = tskbar->area.list; l ; l = l->next) {
+					tsk = l->data;
+					if (tsk->desktop == ALLDESKTOP) {
+						tsk->area.on_screen = 1;
+						tskbar->area.resize = 1;
 					}
 				}
 			}
