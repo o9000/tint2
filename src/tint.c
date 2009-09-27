@@ -268,8 +268,7 @@ void event_button_press (XEvent *e)
 	Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
 
-	if (panel_mode == MULTI_DESKTOP)
-		task_drag = click_task(panel, e->xbutton.x, e->xbutton.y);
+	task_drag = click_task(panel, e->xbutton.x, e->xbutton.y);
 
 	if (wm_menu && !task_drag && !click_clock(panel, e->xbutton.x, e->xbutton.y) && (e->xbutton.button != 1) ) {
 		// forward the click to the desktop window (thanks conky)
