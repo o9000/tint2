@@ -88,7 +88,7 @@ void init_config()
 	panel_config = calloc(1, sizeof(Panel));
 	panel_config->g_task.alpha = 100;
 	panel_config->g_task.alpha_active = 100;
-	systray.sort = 1;
+	systray.sort = 3;
 
 	// window manager's menu default value == false
 	wm_menu = wm_menu_open = 0;
@@ -577,8 +577,10 @@ void add_entry (char *key, char *value)
 			systray.sort = -1;
 		else if (strcmp(value, "asc") == 0)
 			systray.sort = 1;
-		else
-			systray.sort = 0;
+		else if (strcmp(value, "left2right") == 0)
+			systray.sort = 2;
+		else  if (strcmp(value, "right2left") == 0)
+			systray.sort = 3;
 	}
 
 	/* Tooltip */
