@@ -142,16 +142,14 @@ Taskbar *click_taskbar (Panel *panel, int x, int y)
 	if (panel_horizontal) {
 		for (i=0; i < panel->nb_desktop ; i++) {
 			tskbar = &panel->taskbar[i];
-			if (!tskbar->area.on_screen) continue;
-			if (x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
+			if (tskbar->area.on_screen && x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
 				return tskbar;
 		}
 	}
 	else {
 		for (i=0; i < panel->nb_desktop ; i++) {
 			tskbar = &panel->taskbar[i];
-			if (!tskbar->area.on_screen) continue;
-			if (y >= tskbar->area.posy && y <= (tskbar->area.posy + tskbar->area.height))
+			if (tskbar->area.on_screen && y >= tskbar->area.posy && y <= (tskbar->area.posy + tskbar->area.height))
 				return tskbar;
 		}
 	}
@@ -615,35 +613,42 @@ void event_expose (XEvent *e)
 
 void event_configure_notify (Window win)
 {
-	// check 'win' move in systray
-	TrayWindow *traywin;
-	GSList *l;
-	for (l = systray.list_icons; l ; l = l->next) {
-		traywin = (TrayWindow*)l->data;
-		if (traywin->id == win) {
-			//printf("move tray %d\n", traywin->x);
-			XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
-			panel_refresh = 1;
-			return;
-		}
+	if (win == server.root_win) {
+		printf("ConfigureNotify on root\n");
+		//XMoveWindow(dpy, fen, pos_x, pos_y);
+		//XResizeWindow(dpy, fen, largeur, hauteur);
 	}
-
-	// check 'win' move in another monitor
-	if (nb_panel == 1) return;
-	if (server.nb_monitor == 1) return;
-	Task *tsk = task_get_task (win);
-	if (!tsk) return;
-
-	Panel *p = tsk->area.panel;
-	if (p->monitor != window_get_monitor (win)) {
-		remove_task (tsk);
-		add_task (win);
-		if (win == window_get_active ()) {
-			Task *tsk = task_get_task (win);
-			tsk->area.is_active = 1;
-			task_active = tsk;
+	else {
+		// check 'win' move in systray
+		TrayWindow *traywin;
+		GSList *l;
+		for (l = systray.list_icons; l ; l = l->next) {
+			traywin = (TrayWindow*)l->data;
+			if (traywin->id == win) {
+				//printf("move tray %d\n", traywin->x);
+				XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
+				panel_refresh = 1;
+				return;
+			}
 		}
-		panel_refresh = 1;
+
+		// check 'win' move in another monitor
+		if (nb_panel == 1) return;
+		if (server.nb_monitor == 1) return;
+		Task *tsk = task_get_task (win);
+		if (!tsk) return;
+
+		Panel *p = tsk->area.panel;
+		if (p->monitor != window_get_monitor (win)) {
+			remove_task (tsk);
+			add_task (win);
+			if (win == window_get_active ()) {
+				Task *tsk = task_get_task (win);
+				tsk->area.is_active = 1;
+				task_active = tsk;
+			}
+			panel_refresh = 1;
+		}
 	}
 }
 
@@ -796,12 +801,7 @@ load_config:
 						break;
 
 					case ConfigureNotify:
-						//XMoveWindow(dpy, fen, pos_x, pos_y);
-						//XResizeWindow(dpy, fen, largeur, hauteur);
-						if (e.xconfigure.window == server.root_win)
-							goto load_config;
-						else
-							event_configure_notify (e.xconfigure.window);
+						event_configure_notify (e.xconfigure.window);
 						break;
 
 					case ReparentNotify:
