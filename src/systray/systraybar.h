@@ -33,6 +33,7 @@ typedef struct
 	Window id;
 	int x, y;
 	int width, height;
+	// TODO: manage icon's show/hide
 	int hide;
 } TrayWindow;
 

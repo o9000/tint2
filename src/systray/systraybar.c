@@ -113,7 +113,12 @@ void resize_systray(void *obj)
 	else
 		icon_size = sysbar->area.width;
 	icon_size = icon_size - (2 * sysbar->area.pix.border.width) - (2 * sysbar->area.paddingy);
-	count = g_slist_length(systray.list_icons);
+	count = 0;
+	for (l = systray.list_icons; l ; l = l->next) {
+		if (!((TrayWindow*)l->data)->hide)
+			count++;
+	}
+	//printf("count %d\n", count);
 
 	if (panel_horizontal) {
 		if (!count) systray.area.width = 0;
@@ -150,6 +155,7 @@ void resize_systray(void *obj)
 	}
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
+		if (traywin->hide) continue;
 
 		traywin->y = posy;
 		traywin->x = posx;
@@ -184,8 +190,6 @@ int init_net()
 		int pid;
 
 		_NET_WM_PID = XInternAtom(server.dsp, "_NET_WM_PID", True);
-		//atom_name = XGetAtomName (dpy,atom);
-
 		int ret = XGetWindowProperty(server.dsp, win, _NET_WM_PID, 0, 1024, False, AnyPropertyType, &actual_type, &actual_format, &nitems, &bytes_after, &prop);
 
 		fprintf(stderr, "tint2 : another systray is running");
@@ -201,8 +205,8 @@ int init_net()
 	// init systray protocol
 	net_sel_win = XCreateSimpleWindow(server.dsp, server.root_win, -1, -1, 1, 1, 0, 0, 0);
 
-	// v0.2 trayer specification. tint2 always orizontal.
-	// TODO : vertical panel ??
+	// v0.2 trayer specification. tint2 always horizontal.
+	// Vertical panel will draw the systray horizontal.
 	int orient = 0;
 	XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_ORIENTATION, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &orient, 1);
 
@@ -275,6 +279,7 @@ gboolean add_icon(Window id)
 	TrayWindow *traywin;
 	XErrorHandler old;
 	Panel *panel = systray.area.panel;
+	int hide = 0;
 
 	error = FALSE;
 	old = XSetErrorHandler(window_error_handler);
@@ -294,8 +299,16 @@ gboolean add_icon(Window id)
 		int ret;
 
 		ret = XGetWindowProperty(server.dsp, id, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data);
-		if (data) XFree(data);
-		if (ret != Success) {
+		if (ret == Success) {
+			if (data) {
+				if (nbitem == 2) {
+					//hide = ((data[1] & XEMBED_MAPPED) == 0);
+					//printf("hide %d\n", hide);
+				}
+				XFree(data);
+			}
+		}
+		else {
 			fprintf(stderr, "tint2 : xembed error\n");
 			return FALSE;
 		}
@@ -318,6 +331,7 @@ gboolean add_icon(Window id)
 
 	traywin = g_new0(TrayWindow, 1);
 	traywin->id = id;
+	traywin->hide = hide;
 
 	if (systray.sort == 3)
 		systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
@@ -333,7 +347,8 @@ gboolean add_icon(Window id)
 	XSelectInput(server.dsp, traywin->id, StructureNotifyMask);
 
 	// show the window
-	XMapRaised(server.dsp, traywin->id);
+	if (!traywin->hide)
+		XMapRaised(server.dsp, traywin->id);
 
 	// changed in systray force resize on panel
 	panel->area.resize = 1;
@@ -345,7 +360,6 @@ gboolean add_icon(Window id)
 void remove_icon(TrayWindow *traywin)
 {
 	XErrorHandler old;
-	Window id = traywin->id;
 
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
@@ -354,13 +368,14 @@ void remove_icon(TrayWindow *traywin)
 	systray.area.redraw = 1;
 	//printf("remove_icon id %lx, %d\n", traywin->id);
 
-	XSelectInput(server.dsp, id, NoEventMask);
+	XSelectInput(server.dsp, traywin->id, NoEventMask);
 
 	// reparent to root
 	error = FALSE;
 	old = XSetErrorHandler(window_error_handler);
-	XUnmapWindow(server.dsp, id);
-	XReparentWindow(server.dsp, id, server.root_win, 0, 0);
+	if (!traywin->hide)
+		XUnmapWindow(server.dsp, traywin->id);
+	XReparentWindow(server.dsp, traywin->id, server.root_win, 0, 0);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
 
@@ -404,6 +419,7 @@ void refresh_systray_icon()
 	GSList *l;
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
+		if (traywin->hide) continue;
 		XClearArea(server.dsp, traywin->id, 0, 0, traywin->width, traywin->height, True);
 	}
 }
