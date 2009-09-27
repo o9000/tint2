@@ -573,9 +573,9 @@ void add_entry (char *key, char *value)
 		memcpy(&systray.area.pix.border, &a->pix.border, sizeof(Border));
 	}
 	else if (strcmp(key, "systray_sort") == 0) {
-		if (strcmp(value, "desc") == 0)
+		if (strcmp(value, "descending") == 0)
 			systray.sort = -1;
-		else if (strcmp(value, "asc") == 0)
+		else if (strcmp(value, "ascending") == 0)
 			systray.sort = 1;
 		else if (strcmp(value, "left2right") == 0)
 			systray.sort = 2;
