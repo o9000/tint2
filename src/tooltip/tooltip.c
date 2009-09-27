@@ -231,6 +231,7 @@ void tooltip_trigger_hide(Tooltip* tooltip)
 	if (g_tooltip.mapped) {
 		g_tooltip.current_state = TOOLTIP_ABOUT_TO_HIDE;
 		struct timeval t = g_tooltip.hide_timeout.it_value;
+		g_tooltip.task = 0;
 		if (t.tv_sec == 0 && t.tv_usec == 0) {
 			tooltip_hide();
 			alarm(0);
@@ -251,5 +252,4 @@ void tooltip_hide()
 		g_tooltip.mapped = False;
 		XUnmapWindow(server.dsp, g_tooltip.window);
 	}
-	g_tooltip.task = 0;
 }

@@ -526,27 +526,27 @@ void event_property_notify (XEvent *e)
 				panel_refresh = 1;
 			}
 		}
-		else if (at == server.atom.WM_STATE) {
-			// Iconic state
-			// TODO : try to delete following code
-			if (window_is_iconified (win)) {
-				if (task_active) {
-					if (task_active->win == tsk->win) {
-						Task *tsk2;
-						GSList *l0;
-						for (i=0 ; i < nb_panel ; i++) {
-							for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-								for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
-									tsk2 = l0->data;
-									tsk2->area.is_active = 0;
-								}
-							}
-						}
-						task_active = 0;
-					}
-				}
-			}
-		}
+//		else if (at == server.atom.WM_STATE) {
+//			// Iconic state
+//			// TODO : try to delete following code
+//			if (window_is_iconified (win)) {
+//				if (task_active) {
+//					if (task_active->win == tsk->win) {
+//						Task *tsk2;
+//						GSList *l0;
+//						for (i=0 ; i < nb_panel ; i++) {
+//							for (j=0 ; j < panel1[i].nb_desktop ; j++) {
+//								for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
+//									tsk2 = l0->data;
+//									tsk2->area.is_active = 0;
+//								}
+//							}
+//						}
+//						task_active = 0;
+//					}
+//				}
+//			}
+//		}
 		// Window icon changed
 		else if (at == server.atom._NET_WM_ICON) {
 			get_icon(tsk);
