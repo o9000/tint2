@@ -575,8 +575,10 @@ void add_entry (char *key, char *value)
 	else if (strcmp(key, "systray_sort") == 0) {
 		if (strcmp(value, "desc") == 0)
 			systray.sort = -1;
-		else
+		else if (strcmp(value, "asc") == 0)
 			systray.sort = 1;
+		else
+			systray.sort = 0;
 	}
 
 	/* Tooltip */

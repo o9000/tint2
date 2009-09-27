@@ -319,8 +319,10 @@ gboolean add_icon(Window id)
 	traywin = g_new0(TrayWindow, 1);
 	traywin->id = id;
 
-	//	systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
-	systray.list_icons = g_slist_insert_sorted(systray.list_icons, traywin, compare_traywindows);
+	if (systray.sort == 0)
+		systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
+	else
+		systray.list_icons = g_slist_insert_sorted(systray.list_icons, traywin, compare_traywindows);
 	systray.area.resize = 1;
 	systray.area.redraw = 1;
 	//printf("add_icon id %lx, %d\n", id, g_slist_length(systray.list_icons));
