@@ -115,7 +115,8 @@ void server_init_atoms ();
 void get_root_pixmap();
 
 // detect monitors and desktops
-void get_monitors_and_desktops();
+void get_monitors();
+void get_desktops();
 
 
 #endif

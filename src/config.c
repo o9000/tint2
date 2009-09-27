@@ -79,7 +79,8 @@ void init_config()
 	cleanup_panel();
 
 	// get monitor and desktop config
-	get_monitors_and_desktops();
+	get_monitors();
+	get_desktops();
 
 	// append full transparency background
 	list_back = g_slist_append(0, calloc(1, sizeof(Area)));
@@ -90,7 +91,7 @@ void init_config()
 	systray.sort = 1;
 
 	// window manager's menu default value == false
-	wm_menu = 0;
+	wm_menu = wm_menu_open = 0;
 	max_tick_urgent = 7;
 }
 
@@ -742,7 +743,7 @@ int parse_line (const char *line)
 void config_finish ()
 {
 	if (panel_config->monitor > (server.nb_monitor-1)) {
-		// server.nb_monitor minimum value is 1 (see get_monitors_and_desktops())
+		// server.nb_monitor minimum value is 1 (see get_monitors())
 		// and panel_config->monitor is higher
 		fprintf(stderr, "warning : monitor not found. tint2 default to monitor 1.\n");
 		panel_config->monitor = 0;

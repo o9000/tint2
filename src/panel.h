@@ -38,7 +38,7 @@ extern int mouse_tilt_right;
 //panel mode
 enum { SINGLE_DESKTOP=0, MULTI_DESKTOP };
 extern int panel_mode;
-extern int wm_menu;
+extern int wm_menu, wm_menu_open;
 extern int panel_dock;
 
 //panel position
@@ -106,6 +106,7 @@ extern int  nb_panel;
 
 
 void init_panel();
+void init_panel_size_and_position(Panel *panel);
 void cleanup_panel();
 void resize_panel(void *obj);
 

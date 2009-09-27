@@ -270,6 +270,7 @@ void event_button_press (XEvent *e)
 
 	if (wm_menu && !task_drag && !click_clock(panel, e->xbutton.x, e->xbutton.y) && (e->xbutton.button != 1) ) {
 		// forward the click to the desktop window (thanks conky)
+		wm_menu_open = 1;
 		XUngrabPointer(server.dsp, e->xbutton.time);
 		e->xbutton.window = server.root_win;
 		// icewm doesn't open under the mouse.
@@ -291,11 +292,12 @@ void event_button_release (XEvent *e)
 	Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
 
-	if (wm_menu && click_padding(panel, e->xbutton.x, e->xbutton.y)) {
-			// forward the click to the desktop window (thanks conky)
-			e->xbutton.window = server.root_win;
-			XSendEvent(server.dsp, e->xbutton.window, False, ButtonReleaseMask, e);
-			return;
+	if (wm_menu && wm_menu_open) {
+		// forward the click to the desktop window (thanks conky)
+		wm_menu_open = 0;
+		e->xbutton.window = server.root_win;
+		XSendEvent(server.dsp, e->xbutton.window, False, ButtonReleaseMask, e);
+		return;
 	}
 
 	int action = TOGGLE_ICONIFY;
@@ -613,42 +615,59 @@ void event_expose (XEvent *e)
 
 void event_configure_notify (Window win)
 {
+	// change in root window (xrandr)
 	if (win == server.root_win) {
-		printf("ConfigureNotify on root\n");
-		//XMoveWindow(dpy, fen, pos_x, pos_y);
-		//XResizeWindow(dpy, fen, largeur, hauteur);
+		int i, old_monitor = server.nb_monitor;
+
+		get_monitors();
+		if (old_monitor != server.nb_monitor) {
+		}
+		for (i=0 ; i < nb_panel ; i++) {
+			Panel *panel = &panel1[i];
+
+			init_panel_size_and_position(panel);
+			XMoveResizeWindow(server.dsp, panel->main_win, panel->posx, panel->posy, panel->area.width, panel->area.height);
+			set_panel_background(panel);
+
+			// force the resize of childs
+			GSList *l0;
+			panel->area.resize = 1;
+			for (l0 = panel->area.list; l0 ; l0 = l0->next)
+				((Area*)l0->data)->resize = 1;
+		}
+		panel_refresh = 1;
+		//printf("ConfigureNotify on root width=%d, height=%d\n", server.monitor[0].width, server.monitor[0].height);
+		return;
 	}
-	else {
-		// check 'win' move in systray
-		TrayWindow *traywin;
-		GSList *l;
-		for (l = systray.list_icons; l ; l = l->next) {
-			traywin = (TrayWindow*)l->data;
-			if (traywin->id == win) {
-				//printf("move tray %d\n", traywin->x);
-				XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
-				panel_refresh = 1;
-				return;
-			}
-		}
 
-		// check 'win' move in another monitor
-		if (nb_panel == 1) return;
-		if (server.nb_monitor == 1) return;
-		Task *tsk = task_get_task (win);
-		if (!tsk) return;
-
-		Panel *p = tsk->area.panel;
-		if (p->monitor != window_get_monitor (win)) {
-			remove_task (tsk);
-			add_task (win);
-			if (win == window_get_active ()) {
-				Task *tsk = task_get_task (win);
-				tsk->area.is_active = 1;
-				task_active = tsk;
-			}
+	// 'win' is a trayer icon
+	TrayWindow *traywin;
+	GSList *l;
+	for (l = systray.list_icons; l ; l = l->next) {
+		traywin = (TrayWindow*)l->data;
+		if (traywin->id == win) {
+			//printf("move tray %d\n", traywin->x);
+			XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
 			panel_refresh = 1;
+			return;
 		}
+	}
+
+	// 'win' move in another monitor
+	if (nb_panel == 1) return;
+	Task *tsk = task_get_task (win);
+	if (!tsk) return;
+
+	Panel *p = tsk->area.panel;
+	if (p->monitor != window_get_monitor (win)) {
+		remove_task (tsk);
+		add_task (win);
+		if (win == window_get_active ()) {
+			Task *tsk = task_get_task (win);
+			tsk->area.is_active = 1;
+			task_active = tsk;
+		}
+		panel_refresh = 1;
 	}
 }
 

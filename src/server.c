@@ -219,15 +219,13 @@ int compareMonitor(const void *monitor1, const void *monitor2)
 }
 
 
-void get_monitors_and_desktops()
+void get_monitors()
 {
-	int i;
-
 	if (server.monitor) free(server.monitor);
 	server.nb_monitor = 0;
 	server.monitor = 0;
 
-	int nb_monitor;
+	int i, nb_monitor;
 	if (XineramaIsActive(server.dsp)) {
 		XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &nb_monitor);
 
@@ -274,6 +272,12 @@ next:
 		server.monitor[0].width = DisplayWidth (server.dsp, server.screen);
 		server.monitor[0].height = DisplayHeight (server.dsp, server.screen);
 	}
+}
+
+
+void get_desktops()
+{
+	int i;
 
 	// detect number of desktops
 	// wait 15s to leave some time for window manager startup

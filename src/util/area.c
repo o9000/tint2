@@ -72,13 +72,16 @@ void size (Area *a)
 
 	if (a->resize) {
 		a->resize = 0;
-		for (l = a->list; l ; l = l->next)
-			size(l->data);
+		// force the resize of childs
+		for (l = a->list; l ; l = l->next) {
+			Area *area = (Area*)l->data;
+			area->resize = 1;
+			size(area);
+		}
 
 		// resize can generate a redraw
-		if (a->_resize) {
+		if (a->_resize)
 			a->_resize(a);
-		}
 	}
 }
 

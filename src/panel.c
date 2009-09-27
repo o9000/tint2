@@ -43,7 +43,7 @@ int mouse_tilt_left;
 int mouse_tilt_right;
 
 int panel_mode;
-int wm_menu;
+int wm_menu, wm_menu_open;
 int panel_dock=0;  // default not in the dock
 int panel_position;
 int panel_horizontal;
@@ -106,59 +106,7 @@ void init_panel()
 			p->pourcentx = 1;
 		}
 
-		// detect panel size
-		if (panel_horizontal) {
-			if (p->pourcentx)
-				p->area.width = (float)server.monitor[p->monitor].width * p->initial_width / 100;
-			else
-				p->area.width = p->initial_width;
-			if (p->pourcenty)
-				p->area.height = (float)server.monitor[p->monitor].height * p->initial_height / 100;
-			else
-				p->area.height = p->initial_height;
-			if (p->area.pix.border.rounded > p->area.height/2)
-				p->area.pix.border.rounded = p->area.height/2;
-		}
-		else {
-			if (p->pourcentx)
-				p->area.height = (float)server.monitor[p->monitor].height * p->initial_width / 100;
-			else
-				p->area.height = p->initial_width;
-			if (p->pourcenty)
-				p->area.width = (float)server.monitor[p->monitor].width * p->initial_height / 100;
-			else
-				p->area.width = p->initial_height;
-			if (p->area.pix.border.rounded > p->area.width/2)
-				p->area.pix.border.rounded = p->area.width/2;
-		}
-
-		/* panel position determined here */
-		if (panel_position & LEFT) {
-			p->posx = server.monitor[p->monitor].x + p->marginx;
-		}
-		else {
-			if (panel_position & RIGHT) {
-				p->posx = server.monitor[p->monitor].x + server.monitor[p->monitor].width - p->area.width - p->marginx;
-			}
-			else {
-				if (panel_horizontal)
-					p->posx = server.monitor[p->monitor].x + ((server.monitor[p->monitor].width - p->area.width) / 2);
-				else
-					p->posx = server.monitor[p->monitor].x + p->marginx;
-			}
-		}
-		if (panel_position & TOP) {
-			p->posy = server.monitor[p->monitor].y + p->marginy;
-		}
-		else {
-			if (panel_position & BOTTOM) {
-				p->posy = server.monitor[p->monitor].y + server.monitor[p->monitor].height - p->area.height - p->marginy;
-			}
-			else {
-				p->posy = server.monitor[p->monitor].y + ((server.monitor[p->monitor].height - p->area.height) / 2);
-			}
-		}
-		// printf("panel : posx %d, posy %d, width %d, height %d\n", p->posx, p->posy, p->area.width, p->area.height);
+		init_panel_size_and_position(p);
 
 		// Catch some events
 		long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask;
@@ -174,6 +122,64 @@ void init_panel()
 		XMapWindow (server.dsp, p->main_win);
 	}
 	panel_refresh = 1;
+}
+
+
+void init_panel_size_and_position(Panel *panel)
+{
+	// detect panel size
+	if (panel_horizontal) {
+		if (panel->pourcentx)
+			panel->area.width = (float)server.monitor[panel->monitor].width * panel->initial_width / 100;
+		else
+			panel->area.width = panel->initial_width;
+		if (panel->pourcenty)
+			panel->area.height = (float)server.monitor[panel->monitor].height * panel->initial_height / 100;
+		else
+			panel->area.height = panel->initial_height;
+		if (panel->area.pix.border.rounded > panel->area.height/2)
+			panel->area.pix.border.rounded = panel->area.height/2;
+	}
+	else {
+		if (panel->pourcentx)
+			panel->area.height = (float)server.monitor[panel->monitor].height * panel->initial_width / 100;
+		else
+			panel->area.height = panel->initial_width;
+		if (panel->pourcenty)
+			panel->area.width = (float)server.monitor[panel->monitor].width * panel->initial_height / 100;
+		else
+			panel->area.width = panel->initial_height;
+		if (panel->area.pix.border.rounded > panel->area.width/2)
+			panel->area.pix.border.rounded = panel->area.width/2;
+	}
+
+	// panel position determined here
+	if (panel_position & LEFT) {
+		panel->posx = server.monitor[panel->monitor].x + panel->marginx;
+	}
+	else {
+		if (panel_position & RIGHT) {
+			panel->posx = server.monitor[panel->monitor].x + server.monitor[panel->monitor].width - panel->area.width - panel->marginx;
+		}
+		else {
+			if (panel_horizontal)
+				panel->posx = server.monitor[panel->monitor].x + ((server.monitor[panel->monitor].width - panel->area.width) / 2);
+			else
+				panel->posx = server.monitor[panel->monitor].x + panel->marginx;
+		}
+	}
+	if (panel_position & TOP) {
+		panel->posy = server.monitor[panel->monitor].y + panel->marginy;
+	}
+	else {
+		if (panel_position & BOTTOM) {
+			panel->posy = server.monitor[panel->monitor].y + server.monitor[panel->monitor].height - panel->area.height - panel->marginy;
+		}
+		else {
+			panel->posy = server.monitor[panel->monitor].y + ((server.monitor[panel->monitor].height - panel->area.height) / 2);
+		}
+	}
+	// printf("panel : posx %d, posy %d, width %d, height %d\n", panel->posx, panel->posy, panel->area.width, panel->area.height);
 }
 
 
