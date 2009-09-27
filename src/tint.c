@@ -636,7 +636,6 @@ void event_configure_notify (Window win)
 				((Area*)l0->data)->resize = 1;
 		}
 		panel_refresh = 1;
-		//printf("ConfigureNotify on root width=%d, height=%d\n", server.monitor[0].width, server.monitor[0].height);
 		return;
 	}
 

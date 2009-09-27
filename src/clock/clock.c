@@ -187,14 +187,14 @@ void resize_clock (void *obj)
 	else new_width = date_width;
 	new_width += (2*clock->area.paddingxlr) + (2*clock->area.pix.border.width);
 
-	if (new_width > clock->area.width || new_width < (clock->area.width-6)) {
-		Panel *panel = ((Area*)obj)->panel;
+	Panel *panel = ((Area*)obj)->panel;
+	clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.pix.border.width;
 
+	if (new_width > clock->area.width || new_width < (clock->area.width-6)) {
 		// resize clock
 		// we try to limit the number of resize
 		// printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
 		clock->area.width = new_width + 1;
-		clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.pix.border.width;
 
 		// resize other objects on panel
 		panel->area.resize = 1;

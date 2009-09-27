@@ -49,6 +49,7 @@ void resize_systray(void *obj);
 
 
 // systray protocol
+// many tray icon doesn't manage stop/restart of the systray manager
 int init_net();
 void cleanup_net();
 void net_message(XClientMessageEvent *e);
