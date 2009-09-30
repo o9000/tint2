@@ -201,12 +201,11 @@ void get_icon (Task *tsk)
 		tmp_data = get_best_icon (data, get_icon_count (data, i), i, &w, &h, panel->g_task.icon_size1);
 
 #ifdef __x86_64__
-		DATA32 *icon_data = malloc (w * h * sizeof (DATA32));
+		DATA32 icon_data[w * h];
 		int length = w * h;
 		for (i = 0; i < length; ++i)
 			icon_data[i] =  tmp_data[i];
-		img = imlib_create_image_using_copied_data (w, h, icon_data);
-		free(icon_data);
+		img = imlib_create_image_using_data (w, h, icon_data);
 #else
 		img = imlib_create_image_using_data (w, h, (DATA32*)tmp_data);
 #endif
