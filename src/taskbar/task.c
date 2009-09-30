@@ -205,7 +205,7 @@ void get_icon (Task *tsk)
 		int length = w * h;
 		for (i = 0; i < length; ++i)
 			icon_data[i] =  tmp_data[i];
-		img = imlib_create_image_using_data (w, h, icon_data);
+		img = imlib_create_image_using_copied_data (w, h, icon_data);
 		free(icon_data);
 #else
 		img = imlib_create_image_using_data (w, h, (DATA32*)tmp_data);
