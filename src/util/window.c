@@ -33,6 +33,7 @@
 #include "window.h"
 #include "server.h"
 #include "panel.h"
+#include "taskbar.h"
 
 
 
@@ -86,8 +87,11 @@ int window_is_hidden (Window win)
 			return 1;
 		}
 		if (at[i] == server.atom._NET_WM_STATE_MODAL) {
-			XFree(at);
-			return 1;
+			// do not add modal windows if the transient window is already in the taskbar
+			if ( XGetTransientForHint(server.dsp, win, &window) && task_get_task(window) ) {
+				XFree(at);
+				return 1;
+			}
 		}
 	}
 	XFree(at);
