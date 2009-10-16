@@ -38,7 +38,7 @@ extern int mouse_tilt_right;
 //panel mode
 enum { SINGLE_DESKTOP=0, MULTI_DESKTOP };
 extern int panel_mode;
-extern int wm_menu, wm_menu_open;
+extern int wm_menu;
 extern int panel_dock;
 
 //panel position

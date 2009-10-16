@@ -91,7 +91,7 @@ void init_config()
 	systray.sort = 3;
 
 	// window manager's menu default value == false
-	wm_menu = wm_menu_open = 0;
+	wm_menu = 0;
 	max_tick_urgent = 7;
 }
 

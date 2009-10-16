@@ -270,7 +270,6 @@ void event_button_press (XEvent *e)
 
 	if (wm_menu && !task_drag && !click_clock(panel, e->xbutton.x, e->xbutton.y) && (e->xbutton.button != 1) ) {
 		// forward the click to the desktop window (thanks conky)
-		wm_menu_open = 1;
 		XUngrabPointer(server.dsp, e->xbutton.time);
 		e->xbutton.window = server.root_win;
 		// icewm doesn't open under the mouse.
@@ -291,14 +290,6 @@ void event_button_release (XEvent *e)
 {
 	Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
-
-	if (wm_menu && wm_menu_open) {
-		// forward the click to the desktop window (thanks conky)
-		wm_menu_open = 0;
-		e->xbutton.window = server.root_win;
-		XSendEvent(server.dsp, e->xbutton.window, False, ButtonReleaseMask, e);
-		return;
-	}
 
 	int action = TOGGLE_ICONIFY;
 	switch (e->xbutton.button) {

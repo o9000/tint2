@@ -43,7 +43,7 @@ int mouse_tilt_left;
 int mouse_tilt_right;
 
 int panel_mode;
-int wm_menu, wm_menu_open;
+int wm_menu;
 int panel_dock=0;  // default not in the dock
 int panel_position;
 int panel_horizontal;
