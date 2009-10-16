@@ -43,10 +43,13 @@ Task *add_task (Window win)
 
 	Task new_tsk;
 	new_tsk.win = win;
-	new_tsk.area.panel = &panel1[0];
 	new_tsk.desktop = window_get_desktop (win);
-	if (nb_panel > 1) monitor = window_get_monitor (win);
+	if (nb_panel > 1) {
+		monitor = window_get_monitor (win);
+		if (monitor >= nb_panel) monitor = 0;
+	}
 	else monitor = 0;
+	new_tsk.area.panel = &panel1[monitor];
 
 	// allocate only one title and one icon
 	// even with task_on_all_desktop and with task_on_all_panel
