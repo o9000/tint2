@@ -100,6 +100,12 @@ void remove_task (Task *tsk)
 	Window win = tsk->win;
 	int desktop = tsk->desktop;
 
+	if (g_tooltip.task == tsk) {
+		tooltip_hide();
+		alarm(0);
+		g_tooltip.task = 0;
+	}
+
 	// free title and icon just for the first task
 	// even with task_on_all_desktop and with task_on_all_panel
 	//printf("remove_task %s %d\n", tsk->title, tsk->desktop);
@@ -150,6 +156,12 @@ void get_title(Task *tsk)
 	char *title, *name;
 
 	if (!panel->g_task.text && !g_tooltip.enabled) return;
+
+	if (g_tooltip.task == tsk) {
+		tooltip_hide();
+		alarm(0);
+		g_tooltip.task = 0;
+	}
 
 	name = server_get_property (tsk->win, server.atom._NET_WM_VISIBLE_NAME, server.atom.UTF8_STRING, 0);
 	if (!name || !strlen(name)) {
