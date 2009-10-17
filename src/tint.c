@@ -517,6 +517,9 @@ void event_property_notify (XEvent *e)
 				panel_refresh = 1;
 			}
 		}
+// We do not check for the iconified state, since it only unsets our active window
+// but in openbox a shaded window is considered iconified. So we would loose the active window
+// property on unshading it again (commented 01.10.2009)
 //		else if (at == server.atom.WM_STATE) {
 //			// Iconic state
 //			// TODO : try to delete following code
