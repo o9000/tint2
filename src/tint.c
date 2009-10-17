@@ -103,13 +103,38 @@ void init (int argc, char *argv[])
 	XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
 
 	setlocale (LC_ALL, "");
+
+	// load default icon
+	int i;
+	char *path;
+	const gchar * const *data_dirs;
+	data_dirs = g_get_system_data_dirs ();
+	for (i = 0; data_dirs[i] != NULL; i++)	{
+		path = g_build_filename(data_dirs[i], "tint2", "default_icon.png", NULL);
+		if (g_file_test (path, G_FILE_TEST_EXISTS))
+			default_icon = imlib_load_image(path);
+		g_free(path);
+	}
 }
 
 
 void cleanup()
 {
+	cleanup_systray();
 	cleanup_panel();
 
+	if (default_icon) {
+		imlib_context_set_image(default_icon);
+		imlib_free_image();
+	}
+	if (g_tooltip.window) {
+		XDestroyWindow(server.dsp, g_tooltip.window);
+		g_tooltip.window = 0;
+	}
+	if (g_tooltip.font_desc) {
+		pango_font_description_free(g_tooltip.font_desc);
+		g_tooltip.font_desc = 0;
+	}
 	if (time1_font_desc) pango_font_description_free(time1_font_desc);
 	if (time2_font_desc) pango_font_description_free(time2_font_desc);
 	if (time1_format) g_free(time1_format);
@@ -611,12 +636,20 @@ void event_configure_notify (Window win)
 {
 	// change in root window (xrandr)
 	if (win == server.root_win) {
-		int i, old_monitor = server.nb_monitor;
+		int i, old_nb_panel = nb_panel;
 
 		get_monitors();
-		if (old_monitor != server.nb_monitor) {
+		if (panel_config.monitor >= 0)
+			nb_panel = 1;
+		else
+			nb_panel = server.nb_monitor;
+
+		if (old_nb_panel != nb_panel) {
+			// changed number of panel
+			printf("changed number of panel\n");
+			//realloc(panel1, nb_panel * sizeof(Panel));
 		}
-		for (i=0 ; i < nb_panel ; i++) {
+		for (i=0 ; i < nb_panel && i < old_nb_panel ; i++) {
 			Panel *panel = &panel1[i];
 
 			init_panel_size_and_position(panel);
@@ -743,7 +776,7 @@ int main (int argc, char *argv[])
 	GSList *it;
 
 	init (argc, argv);
-load_config:
+
 	i = 0;
 	init_config();
 	if (config_path)
@@ -853,7 +886,7 @@ load_config:
 		switch (signal_pending) {
 			case SIGUSR1:
 				signal_pending = 0;
-				goto load_config;
+				return 0;
 			case SIGINT:
 			case SIGTERM:
 			case SIGHUP:

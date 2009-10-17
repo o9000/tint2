@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -61,7 +62,8 @@ Panel panel_config;
 Panel *panel1 = 0;
 int  nb_panel;
 
-Imlib_Image default_icon;
+Imlib_Image default_icon = NULL;
+
 
 
 void init_panel()
@@ -69,19 +71,6 @@ void init_panel()
 	int i;
 	Panel *p;
 
-	// load default icon
-	char *path;
-	const gchar * const *data_dirs;
-	data_dirs = g_get_system_data_dirs ();
-	for (i = 0; data_dirs[i] != NULL; i++)	{
-		path = g_build_filename(data_dirs[i], "tint2", "default_icon.png", NULL);
-		if (g_file_test (path, G_FILE_TEST_EXISTS))
-			default_icon = imlib_load_image(path);
-		g_free(path);
-	}
-
-	//if (panel1)
-	//	free(panel1);
 	// alloc panels (one monitor or all monitors)
 	if (panel_config.monitor >= 0)
 		nb_panel = 1;
@@ -204,13 +193,7 @@ void cleanup_panel()
 	task_active = 0;
 	task_drag = 0;
 	task_urgent = 0;
-	cleanup_systray();
 	cleanup_taskbar();
-
-	if (default_icon) {
-		imlib_context_set_image(default_icon);
-		imlib_free_image();
-	}
 
 	// font allocated once
 	if (panel1[0].g_task.font_desc) {
@@ -224,8 +207,6 @@ void cleanup_panel()
 		p = &panel1[i];
 
 		free_area(&p->area);
-		free_area(&p->g_task.area);
-		free_area(&p->g_taskbar);
 
 		if (p->temp_pmap) {
 			XFreePixmap(server.dsp, p->temp_pmap);
@@ -239,15 +220,6 @@ void cleanup_panel()
 
 	if (panel1) free(panel1);
 	panel1 = 0;
-
-	if (g_tooltip.window) {
-		XDestroyWindow(server.dsp, g_tooltip.window);
-		g_tooltip.window = 0;
-	}
-	if (g_tooltip.font_desc) {
-		pango_font_description_free(g_tooltip.font_desc);
-		g_tooltip.font_desc = 0;
-	}
 }
 
 

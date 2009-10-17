@@ -105,7 +105,6 @@ extern Panel panel_config;
 extern Panel *panel1;
 extern int  nb_panel;
 
-
 void init_panel();
 void init_panel_size_and_position(Panel *panel);
 void cleanup_panel();

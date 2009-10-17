@@ -74,8 +74,6 @@ static GSList *list_back;
 
 void init_config()
 {
-	cleanup_panel();
-
 	// get monitor and desktop config
 	get_monitors();
 	get_desktops();
