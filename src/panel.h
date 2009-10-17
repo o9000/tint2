@@ -101,6 +101,7 @@ typedef struct {
 } Panel;
 
 
+extern Panel panel_config;
 extern Panel *panel1;
 extern int  nb_panel;
 

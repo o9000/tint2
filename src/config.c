@@ -67,11 +67,9 @@ static char *old_bat1_font;
 static char *old_bat2_font;
 #endif
 
-// temporary panel
-static Panel *panel_config = 0;
-
 // temporary list of background
 static GSList *list_back;
+
 
 
 void init_config()
@@ -85,9 +83,9 @@ void init_config()
 	// append full transparency background
 	list_back = g_slist_append(0, calloc(1, sizeof(Area)));
 
-	panel_config = calloc(1, sizeof(Panel));
-	panel_config->g_task.alpha = 100;
-	panel_config->g_task.alpha_active = 100;
+	memset(&panel_config, 0, sizeof(Panel));
+	panel_config.g_task.alpha = 100;
+	panel_config.g_task.alpha_active = 100;
 	systray.sort = 3;
 
 	// window manager's menu default value == false
@@ -98,9 +96,6 @@ void init_config()
 
 void cleanup_config()
 {
-	free(panel_config);
-	panel_config = 0;
-
 	// cleanup background list
 	GSList *l0;
 	for (l0 = list_back; l0 ; l0 = l0->next) {
@@ -276,10 +271,10 @@ void add_entry (char *key, char *value)
 
 	/* Panel */
 	else if (strcmp (key, "panel_monitor") == 0) {
-		if (strcmp (value, "all") == 0) panel_config->monitor = -1;
+		if (strcmp (value, "all") == 0) panel_config.monitor = -1;
 		else {
-			panel_config->monitor = atoi (value);
-			if (panel_config->monitor > 0) panel_config->monitor -= 1;
+			panel_config.monitor = atoi (value);
+			if (panel_config.monitor > 0) panel_config.monitor -= 1;
 		}
 	}
 	else if (strcmp (key, "panel_size") == 0) {
@@ -288,27 +283,27 @@ void add_entry (char *key, char *value)
 		char *b;
 		if ((b = strchr (value1, '%'))) {
 			b[0] = '\0';
-			panel_config->pourcentx = 1;
+			panel_config.pourcentx = 1;
 		}
-		panel_config->initial_width = atof(value1);
+		panel_config.initial_width = atof(value1);
 		if (value2) {
 			if ((b = strchr (value2, '%'))) {
 				b[0] = '\0';
-				panel_config->pourcenty = 1;
+				panel_config.pourcenty = 1;
 			}
-			panel_config->initial_height = atof(value2);
+			panel_config.initial_height = atof(value2);
 		}
 	}
 	else if (strcmp (key, "panel_margin") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		panel_config->marginx = atoi (value1);
-		if (value2) panel_config->marginy = atoi (value2);
+		panel_config.marginx = atoi (value1);
+		if (value2) panel_config.marginy = atoi (value2);
 	}
 	else if (strcmp (key, "panel_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		panel_config->area.paddingxlr = panel_config->area.paddingx = atoi (value1);
-		if (value2) panel_config->area.paddingy = atoi (value2);
-		if (value3) panel_config->area.paddingx = atoi (value3);
+		panel_config.area.paddingxlr = panel_config.area.paddingx = atoi (value1);
+		if (value2) panel_config.area.paddingy = atoi (value2);
+		if (value3) panel_config.area.paddingx = atoi (value3);
 	}
 	else if (strcmp (key, "panel_position") == 0) {
 		extract_values(value, &value1, &value2, &value3);
@@ -333,12 +328,12 @@ void add_entry (char *key, char *value)
 		}
 	}
 	else if (strcmp (key, "font_shadow") == 0)
-		panel_config->g_task.font_shadow = atoi (value);
+		panel_config.g_task.font_shadow = atoi (value);
 	else if (strcmp (key, "panel_background_id") == 0) {
 		int id = atoi (value);
 		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config->area.pix.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config->area.pix.border, &a->pix.border, sizeof(Border));
+		memcpy(&panel_config.area.pix.back, &a->pix.back, sizeof(Color));
+		memcpy(&panel_config.area.pix.border, &a->pix.border, sizeof(Border));
 	}
 	else if (strcmp (key, "wm_menu") == 0)
 		wm_menu = atoi (value);
@@ -351,7 +346,7 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "battery") == 0) {
 #ifdef ENABLE_BATTERY
 		if(atoi(value) == 1)
-			panel_config->battery.area.on_screen = 1;
+			panel_config.battery.area.on_screen = 1;
 #else
 		if(atoi(value) == 1)
 			fprintf(stderr, "tint2 is build without battery support\n");
@@ -388,25 +383,25 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "battery_font_color") == 0) {
 #ifdef ENABLE_BATTERY
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, panel_config->battery.font.color);
-		if (value2) panel_config->battery.font.alpha = (atoi (value2) / 100.0);
-		else panel_config->battery.font.alpha = 0.5;
+		get_color (value1, panel_config.battery.font.color);
+		if (value2) panel_config.battery.font.alpha = (atoi (value2) / 100.0);
+		else panel_config.battery.font.alpha = 0.5;
 #endif
 	}
 	else if (strcmp (key, "battery_padding") == 0) {
 #ifdef ENABLE_BATTERY
 		extract_values(value, &value1, &value2, &value3);
-		panel_config->battery.area.paddingxlr = panel_config->battery.area.paddingx = atoi (value1);
-		if (value2) panel_config->battery.area.paddingy = atoi (value2);
-		if (value3) panel_config->battery.area.paddingx = atoi (value3);
+		panel_config.battery.area.paddingxlr = panel_config.battery.area.paddingx = atoi (value1);
+		if (value2) panel_config.battery.area.paddingy = atoi (value2);
+		if (value3) panel_config.battery.area.paddingx = atoi (value3);
 #endif
 	}
 	else if (strcmp (key, "battery_background_id") == 0) {
 #ifdef ENABLE_BATTERY
 		int id = atoi (value);
 		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config->battery.area.pix.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config->battery.area.pix.border, &a->pix.border, sizeof(Border));
+		memcpy(&panel_config.battery.area.pix.back, &a->pix.back, sizeof(Color));
+		memcpy(&panel_config.battery.area.pix.border, &a->pix.border, sizeof(Border));
 #endif
 	}
 
@@ -415,11 +410,11 @@ void add_entry (char *key, char *value)
 		if (time1_format) g_free(time1_format);
 		if (strlen(value) > 0) {
 			time1_format = strdup (value);
-			panel_config->clock.area.on_screen = 1;
+			panel_config.clock.area.on_screen = 1;
 		}
 		else {
 			time1_format = 0;
-			panel_config->clock.area.on_screen = 0;
+			panel_config.clock.area.on_screen = 0;
 		}
 	}
 	else if (strcmp (key, "time2_format") == 0) {
@@ -439,21 +434,21 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "clock_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, panel_config->clock.font.color);
-		if (value2) panel_config->clock.font.alpha = (atoi (value2) / 100.0);
-		else panel_config->clock.font.alpha = 0.5;
+		get_color (value1, panel_config.clock.font.color);
+		if (value2) panel_config.clock.font.alpha = (atoi (value2) / 100.0);
+		else panel_config.clock.font.alpha = 0.5;
 	}
 	else if (strcmp (key, "clock_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		panel_config->clock.area.paddingxlr = panel_config->clock.area.paddingx = atoi (value1);
-		if (value2) panel_config->clock.area.paddingy = atoi (value2);
-		if (value3) panel_config->clock.area.paddingx = atoi (value3);
+		panel_config.clock.area.paddingxlr = panel_config.clock.area.paddingx = atoi (value1);
+		if (value2) panel_config.clock.area.paddingy = atoi (value2);
+		if (value3) panel_config.clock.area.paddingx = atoi (value3);
 	}
 	else if (strcmp (key, "clock_background_id") == 0) {
 		int id = atoi (value);
 		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config->clock.area.pix.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config->clock.area.pix.border, &a->pix.border, sizeof(Border));
+		memcpy(&panel_config.clock.area.pix.back, &a->pix.back, sizeof(Color));
+		memcpy(&panel_config.clock.area.pix.border, &a->pix.border, sizeof(Border));
 	}
 	else if (strcmp(key, "clock_lclick_command") == 0) {
 		if (clock_lclick_command) g_free(clock_lclick_command);
@@ -473,89 +468,89 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "taskbar_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		panel_config->g_taskbar.paddingxlr = panel_config->g_taskbar.paddingx = atoi (value1);
-		if (value2) panel_config->g_taskbar.paddingy = atoi (value2);
-		if (value3) panel_config->g_taskbar.paddingx = atoi (value3);
+		panel_config.g_taskbar.paddingxlr = panel_config.g_taskbar.paddingx = atoi (value1);
+		if (value2) panel_config.g_taskbar.paddingy = atoi (value2);
+		if (value3) panel_config.g_taskbar.paddingx = atoi (value3);
 	}
 	else if (strcmp (key, "taskbar_background_id") == 0) {
 		int id = atoi (value);
 		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config->g_taskbar.pix.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config->g_taskbar.pix.border, &a->pix.border, sizeof(Border));
+		memcpy(&panel_config.g_taskbar.pix.back, &a->pix.back, sizeof(Color));
+		memcpy(&panel_config.g_taskbar.pix.border, &a->pix.border, sizeof(Border));
 	}
 	else if (strcmp (key, "taskbar_active_background_id") == 0) {
 		int id = atoi (value);
 		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config->g_taskbar.pix_active.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config->g_taskbar.pix_active.border, &a->pix.border, sizeof(Border));
-		panel_config->g_taskbar.use_active = 1;
+		memcpy(&panel_config.g_taskbar.pix_active.back, &a->pix.back, sizeof(Color));
+		memcpy(&panel_config.g_taskbar.pix_active.border, &a->pix.border, sizeof(Border));
+		panel_config.g_taskbar.use_active = 1;
 	}
 
 	/* Task */
 	else if (strcmp (key, "task_text") == 0)
-		panel_config->g_task.text = atoi (value);
+		panel_config.g_task.text = atoi (value);
 	else if (strcmp (key, "task_icon") == 0)
-		panel_config->g_task.icon = atoi (value);
+		panel_config.g_task.icon = atoi (value);
 	else if (strcmp (key, "task_centered") == 0)
-		panel_config->g_task.centered = atoi (value);
+		panel_config.g_task.centered = atoi (value);
 	else if (strcmp (key, "task_width") == 0) {
 		// old parameter : just for backward compatibility
-		panel_config->g_task.maximum_width = atoi (value);
-		panel_config->g_task.maximum_height = 30;
+		panel_config.g_task.maximum_width = atoi (value);
+		panel_config.g_task.maximum_height = 30;
 	}
 	else if (strcmp (key, "task_maximum_size") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		panel_config->g_task.maximum_width = atoi (value1);
-		panel_config->g_task.maximum_height = 30;
+		panel_config.g_task.maximum_width = atoi (value1);
+		panel_config.g_task.maximum_height = 30;
 		if (value2)
-			panel_config->g_task.maximum_height = atoi (value2);
+			panel_config.g_task.maximum_height = atoi (value2);
 	}
 	else if (strcmp (key, "task_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		panel_config->g_task.area.paddingxlr = panel_config->g_task.area.paddingx = atoi (value1);
-		if (value2) panel_config->g_task.area.paddingy = atoi (value2);
-		if (value3) panel_config->g_task.area.paddingx = atoi (value3);
+		panel_config.g_task.area.paddingxlr = panel_config.g_task.area.paddingx = atoi (value1);
+		if (value2) panel_config.g_task.area.paddingy = atoi (value2);
+		if (value3) panel_config.g_task.area.paddingx = atoi (value3);
 	}
 	else if (strcmp (key, "task_font") == 0) {
 		if (save_file_config) old_task_font = strdup (value);
-		if (panel_config->g_task.font_desc) pango_font_description_free(panel_config->g_task.font_desc);
-		panel_config->g_task.font_desc = pango_font_description_from_string (value);
+		if (panel_config.g_task.font_desc) pango_font_description_free(panel_config.g_task.font_desc);
+		panel_config.g_task.font_desc = pango_font_description_from_string (value);
 	}
 	else if (strcmp (key, "task_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, panel_config->g_task.font.color);
-		if (value2) panel_config->g_task.font.alpha = (atoi (value2) / 100.0);
-		else panel_config->g_task.font.alpha = 0.1;
+		get_color (value1, panel_config.g_task.font.color);
+		if (value2) panel_config.g_task.font.alpha = (atoi (value2) / 100.0);
+		else panel_config.g_task.font.alpha = 0.1;
 	}
 	else if (strcmp (key, "task_active_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, panel_config->g_task.font_active.color);
-		if (value2) panel_config->g_task.font_active.alpha = (atoi (value2) / 100.0);
-		else panel_config->g_task.font_active.alpha = 0.1;
+		get_color (value1, panel_config.g_task.font_active.color);
+		if (value2) panel_config.g_task.font_active.alpha = (atoi (value2) / 100.0);
+		else panel_config.g_task.font_active.alpha = 0.1;
 	}
 	else if (strcmp (key, "task_icon_asb") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		panel_config->g_task.alpha = atoi(value1);
-		panel_config->g_task.saturation = atoi(value2);
-		panel_config->g_task.brightness = atoi(value3);
+		panel_config.g_task.alpha = atoi(value1);
+		panel_config.g_task.saturation = atoi(value2);
+		panel_config.g_task.brightness = atoi(value3);
 	}
 	else if (strcmp (key, "task_active_icon_asb") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		panel_config->g_task.alpha_active = atoi(value1);
-		panel_config->g_task.saturation_active = atoi(value2);
-		panel_config->g_task.brightness_active = atoi(value3);
+		panel_config.g_task.alpha_active = atoi(value1);
+		panel_config.g_task.saturation_active = atoi(value2);
+		panel_config.g_task.brightness_active = atoi(value3);
 	}
 	else if (strcmp (key, "task_background_id") == 0) {
 		int id = atoi (value);
 		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config->g_task.area.pix.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config->g_task.area.pix.border, &a->pix.border, sizeof(Border));
+		memcpy(&panel_config.g_task.area.pix.back, &a->pix.back, sizeof(Color));
+		memcpy(&panel_config.g_task.area.pix.border, &a->pix.border, sizeof(Border));
 	}
 	else if (strcmp (key, "task_active_background_id") == 0) {
 		int id = atoi (value);
 		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config->g_task.area.pix_active.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config->g_task.area.pix_active.border, &a->pix.border, sizeof(Border));
+		memcpy(&panel_config.g_task.area.pix_active.back, &a->pix.back, sizeof(Color));
+		memcpy(&panel_config.g_task.area.pix_active.border, &a->pix.border, sizeof(Border));
 	}
 
 	/* Systray */
@@ -661,10 +656,10 @@ void add_entry (char *key, char *value)
 		else a->pix.border.alpha = 0.5;
 	}
 	else if (strcmp (key, "task_text_centered") == 0)
-		panel_config->g_task.centered = atoi (value);
+		panel_config.g_task.centered = atoi (value);
 	else if (strcmp (key, "task_margin") == 0) {
-		panel_config->g_taskbar.paddingxlr = 0;
-		panel_config->g_taskbar.paddingx = atoi (value);
+		panel_config.g_taskbar.paddingxlr = 0;
+		panel_config.g_taskbar.paddingx = atoi (value);
 	}
 	else if (strcmp (key, "task_icon_size") == 0)
 		old_task_icon_size = atoi (value);
@@ -746,31 +741,11 @@ int parse_line (const char *line)
 
 void config_finish ()
 {
-	if (panel_config->monitor > (server.nb_monitor-1)) {
+	if (panel_config.monitor > (server.nb_monitor-1)) {
 		// server.nb_monitor minimum value is 1 (see get_monitors())
 		// and panel_config->monitor is higher
-		fprintf(stderr, "warning : monitor not found. tint2 default to monitor 1.\n");
-		panel_config->monitor = 0;
-	}
-
-	// alloc panels
-	int i;
-	if (panel_config->monitor >= 0) {
-		// one monitor
-		nb_panel = 1;
-		panel1 = calloc(nb_panel, sizeof(Panel));
-		memcpy(panel1, panel_config, sizeof(Panel));
-		panel1->monitor = panel_config->monitor;
-	}
-	else {
-		// all monitors
-		nb_panel = server.nb_monitor;
-		panel1 = calloc(nb_panel, sizeof(Panel));
-
-		for (i=0 ; i < nb_panel ; i++) {
-			memcpy(&panel1[i], panel_config, sizeof(Panel));
-			panel1[i].monitor = i;
-		}
+		fprintf(stderr, "warning : monitor not found. tint2 default to all monitors.\n");
+		panel_config.monitor = 0;
 	}
 
 	// TODO: user can configure layout => ordered objects in panel.area.list
@@ -898,7 +873,7 @@ void save_config ()
 	FILE *fp;
 
 	if (old_task_icon_size) {
-		panel_config->g_task.area.paddingy = ((int)panel_config->initial_height - (2 * panel_config->area.paddingy) - old_task_icon_size) / 2;
+		panel_config.g_task.area.paddingy = ((int)panel_config.initial_height - (2 * panel_config.area.paddingy) - old_task_icon_size) / 2;
 	}
 
 	dir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
@@ -938,10 +913,10 @@ void save_config ()
 	if (panel_position & LEFT) fputs(" left horizontal\n", fp);
 	else if (panel_position & RIGHT) fputs(" right horizontal\n", fp);
 	else fputs(" center horizontal\n", fp);
-	fprintf(fp, "panel_size = %d %d\n", (int)panel_config->initial_width, (int)panel_config->initial_height);
-	fprintf(fp, "panel_margin = %d %d\n", panel_config->marginx, panel_config->marginy);
-	fprintf(fp, "panel_padding = %d %d %d\n", panel_config->area.paddingxlr, panel_config->area.paddingy, panel_config->area.paddingx);
-	fprintf(fp, "font_shadow = %d\n", panel_config->g_task.font_shadow);
+	fprintf(fp, "panel_size = %d %d\n", (int)panel_config.initial_width, (int)panel_config.initial_height);
+	fprintf(fp, "panel_margin = %d %d\n", panel_config.marginx, panel_config.marginy);
+	fprintf(fp, "panel_padding = %d %d %d\n", panel_config.area.paddingxlr, panel_config.area.paddingy, panel_config.area.paddingx);
+	fprintf(fp, "font_shadow = %d\n", panel_config.g_task.font_shadow);
 	fputs("panel_background_id = 1\n", fp);
 	fputs("wm_menu = 0\n", fp);
 
@@ -950,7 +925,7 @@ void save_config ()
 	fputs("#---------------------------------------------\n", fp);
 	if (panel_mode == MULTI_DESKTOP) fputs("taskbar_mode = multi_desktop\n", fp);
 	else fputs("taskbar_mode = single_desktop\n", fp);
-	fprintf(fp, "taskbar_padding = 0 0 %d\n", panel_config->g_taskbar.paddingx);
+	fprintf(fp, "taskbar_padding = 0 0 %d\n", panel_config.g_taskbar.paddingx);
 	fputs("taskbar_background_id = 0\n", fp);
 
 	fputs("\n#---------------------------------------------\n", fp);
@@ -959,12 +934,12 @@ void save_config ()
 	if (old_task_icon_size) fputs("task_icon = 1\n", fp);
 	else fputs("task_icon = 0\n", fp);
 	fputs("task_text = 1\n", fp);
-	fprintf(fp, "task_maximum_size = %d %d\n", panel_config->g_task.maximum_width, panel_config->g_task.maximum_height);
-	fprintf(fp, "task_centered = %d\n", panel_config->g_task.centered);
-	fprintf(fp, "task_padding = %d %d\n", panel_config->g_task.area.paddingx, panel_config->g_task.area.paddingy);
+	fprintf(fp, "task_maximum_size = %d %d\n", panel_config.g_task.maximum_width, panel_config.g_task.maximum_height);
+	fprintf(fp, "task_centered = %d\n", panel_config.g_task.centered);
+	fprintf(fp, "task_padding = %d %d\n", panel_config.g_task.area.paddingx, panel_config.g_task.area.paddingy);
 	fprintf(fp, "task_font = %s\n", old_task_font);
-	fprintf(fp, "task_font_color = #%02x%02x%02x %d\n", (int)(panel_config->g_task.font.color[0]*255), (int)(panel_config->g_task.font.color[1]*255), (int)(panel_config->g_task.font.color[2]*255), (int)(panel_config->g_task.font.alpha*100));
-	fprintf(fp, "task_active_font_color = #%02x%02x%02x %d\n", (int)(panel_config->g_task.font_active.color[0]*255), (int)(panel_config->g_task.font_active.color[1]*255), (int)(panel_config->g_task.font_active.color[2]*255), (int)(panel_config->g_task.font_active.alpha*100));
+	fprintf(fp, "task_font_color = #%02x%02x%02x %d\n", (int)(panel_config.g_task.font.color[0]*255), (int)(panel_config.g_task.font.color[1]*255), (int)(panel_config.g_task.font.color[2]*255), (int)(panel_config.g_task.font.alpha*100));
+	fprintf(fp, "task_active_font_color = #%02x%02x%02x %d\n", (int)(panel_config.g_task.font_active.color[0]*255), (int)(panel_config.g_task.font_active.color[1]*255), (int)(panel_config.g_task.font_active.color[2]*255), (int)(panel_config.g_task.font_active.alpha*100));
 	fputs("task_background_id = 2\n", fp);
 	fputs("task_active_background_id = 3\n", fp);
 
@@ -983,7 +958,7 @@ void save_config ()
 	if (time2_format) fprintf(fp, "time2_format = %s\n", time2_format);
 	else fputs("#time2_format = %A %d %B\n", fp);
 	fprintf(fp, "time2_font = %s\n", old_time2_font);
-	fprintf(fp, "clock_font_color = #%02x%02x%02x %d\n", (int)(panel_config->clock.font.color[0]*255), (int)(panel_config->clock.font.color[1]*255), (int)(panel_config->clock.font.color[2]*255), (int)(panel_config->clock.font.alpha*100));
+	fprintf(fp, "clock_font_color = #%02x%02x%02x %d\n", (int)(panel_config.clock.font.color[0]*255), (int)(panel_config.clock.font.color[1]*255), (int)(panel_config.clock.font.color[2]*255), (int)(panel_config.clock.font.alpha*100));
 	fputs("clock_padding = 2 2\n", fp);
 	fputs("clock_background_id = 0\n", fp);
 	fputs("#clock_lclick_command = xclock\n", fp);
@@ -993,12 +968,12 @@ void save_config ()
 	fputs("\n#---------------------------------------------\n", fp);
 	fputs("# BATTERY\n", fp);
 	fputs("#---------------------------------------------\n", fp);
-	fprintf(fp, "battery = %d\n", panel_config->battery.area.on_screen);
+	fprintf(fp, "battery = %d\n", panel_config.battery.area.on_screen);
 	fprintf(fp, "battery_low_status = %d\n", battery_low_status);
 	fprintf(fp, "battery_low_cmd = %s\n", battery_low_cmd);
 	fprintf(fp, "bat1_font = %s\n", old_bat1_font);
 	fprintf(fp, "bat2_font = %s\n", old_bat2_font);
-	fprintf(fp, "battery_font_color = #%02x%02x%02x %d\n", (int)(panel_config->battery.font.color[0]*255), (int)(panel_config->battery.font.color[1]*255), (int)(panel_config->battery.font.color[2]*255), (int)(panel_config->battery.font.alpha*100));
+	fprintf(fp, "battery_font_color = #%02x%02x%02x %d\n", (int)(panel_config.battery.font.color[0]*255), (int)(panel_config.battery.font.color[1]*255), (int)(panel_config.battery.font.color[2]*255), (int)(panel_config.battery.font.alpha*100));
 	fputs("battery_padding = 2 2\n", fp);
 	fputs("battery_background_id = 0\n", fp);
 #endif

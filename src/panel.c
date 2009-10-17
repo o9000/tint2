@@ -55,6 +55,9 @@ Task *task_urgent;
 int  tick_urgent;
 int  max_tick_urgent;
 
+// panel's initial config
+Panel panel_config;
+// panels (one panel per monitor)
 Panel *panel1 = 0;
 int  nb_panel;
 
@@ -77,9 +80,20 @@ void init_panel()
 		g_free(path);
 	}
 
+	//if (panel1)
+	//	free(panel1);
+	// alloc panels (one monitor or all monitors)
+	if (panel_config.monitor >= 0)
+		nb_panel = 1;
+	else
+		nb_panel = server.nb_monitor;
+	panel1 = malloc(nb_panel * sizeof(Panel));
+
 	for (i=0 ; i < nb_panel ; i++) {
 		p = &panel1[i];
 
+		memcpy(p, &panel_config, sizeof(Panel));
+		p->monitor = i;
 		p->area.parent = p;
 		p->area.panel = p;
 		p->area.on_screen = 1;
