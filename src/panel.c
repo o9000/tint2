@@ -59,8 +59,8 @@ int  max_tick_urgent;
 // panel's initial config
 Panel panel_config;
 // panels (one panel per monitor)
-Panel *panel1 = 0;
-int  nb_panel;
+Panel *panel1 = NULL;
+int  nb_panel = 0;
 
 Imlib_Image default_icon = NULL;
 
@@ -68,20 +68,40 @@ Imlib_Image default_icon = NULL;
 
 void init_panel()
 {
-	int i;
-	Panel *p;
+	int i, old_nb_panel;
+	Panel *new_panel, *p;
+
+	cleanup_taskbar();
+	for (i=0 ; i < nb_panel ; i++) {
+		free_area(&panel1[i].area);
+	}
 
 	// alloc panels (one monitor or all monitors)
+	old_nb_panel = nb_panel;
 	if (panel_config.monitor >= 0)
 		nb_panel = 1;
 	else
 		nb_panel = server.nb_monitor;
-	panel1 = malloc(nb_panel * sizeof(Panel));
+	fprintf(stderr, "tint2 : nb monitor %d, nb desktop %d\n", nb_panel, server.nb_desktop);
+
+/*	if (nb_panel < old_nb_panel) {
+		// freed old panels
+		for (i=nb_panel ; i < old_nb_panel ; i++) {
+		}
+	}*/
+
+	if (nb_panel != old_nb_panel)
+		new_panel = realloc(panel1, nb_panel * sizeof(Panel));
+	else
+		new_panel = panel1;
 
 	for (i=0 ; i < nb_panel ; i++) {
-		p = &panel1[i];
+		p = &new_panel[i];
 
-		memcpy(p, &panel_config, sizeof(Panel));
+		if (i >= old_nb_panel) {
+			// new panel
+			memcpy(p, &panel_config, sizeof(Panel));
+		}
 		p->monitor = i;
 		p->area.parent = p;
 		p->area.panel = p;
@@ -91,17 +111,24 @@ void init_panel()
 		p->g_taskbar.parent = p;
 		p->g_taskbar.panel = p;
 		p->g_task.area.panel = p;
+		init_panel_size_and_position(p);
 
 		// add childs
-		if (p->clock.area.on_screen)
+		if (p->clock.area.on_screen) {
+			init_clock_panel(p);
 			p->area.list = g_slist_append(p->area.list, &p->clock);
+		}
 #ifdef ENABLE_BATTERY
-		if (p->battery.area.on_screen)
+		if (p->battery.area.on_screen) {
+			init_battery_panel(p);
 			p->area.list = g_slist_append(p->area.list, &p->battery);
+		}
 #endif
 		// systray only on first panel
-		if (systray.area.on_screen && i == 0)
+		if (systray.area.on_screen && i == 0) {
+			init_systray_panel(p);
 			p->area.list = g_slist_append(p->area.list, &systray);
+		}
 
 		// full width mode
 		if (!p->initial_width) {
@@ -109,22 +136,35 @@ void init_panel()
 			p->pourcentx = 1;
 		}
 
-		init_panel_size_and_position(p);
+		if (i >= old_nb_panel) {
+			// new panel
+			//printf("new window\n");
 
-		// Catch some events
-		long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask;
-		if (g_tooltip.enabled)
-			event_mask |= PointerMotionMask|LeaveWindowMask;
-		XSetWindowAttributes att = { ParentRelative, 0L, 0, 0L, 0, 0, Always, 0L, 0L, False, event_mask, NoEventMask, False, 0, 0 };
-		if (p->main_win) XDestroyWindow(server.dsp, p->main_win);
-		p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
+			// Catch some events
+			long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask;
+			if (g_tooltip.enabled)
+				event_mask |= PointerMotionMask|LeaveWindowMask;
+			XSetWindowAttributes att = { ParentRelative, 0L, 0, 0L, 0, 0, Always, 0L, 0L, False, event_mask, NoEventMask, False, 0, 0 };
+			if (p->main_win) XDestroyWindow(server.dsp, p->main_win);
+			p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
 
-		set_panel_properties(p);
-		set_panel_background(p);
-
-		XMapWindow (server.dsp, p->main_win);
+			set_panel_properties(p);
+			set_panel_background(p);
+			XMapWindow (server.dsp, p->main_win);
+		}
+		else {
+			// old panel
+			//printf("move old window\n");
+			XMoveResizeWindow(server.dsp, p->main_win, p->posx, p->posy, p->area.width, p->area.height);
+			set_panel_background(p);
+		}
 	}
+
+	panel1 = new_panel;
 	panel_refresh = 1;
+	init_taskbar();
+	visible_object();
+	task_refresh_tasklist();
 }
 
 

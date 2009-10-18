@@ -47,24 +47,24 @@ int refresh_systray;
 
 void init_systray()
 {
-	Panel *panel = &panel1[0];
-
 	if (systray.area.on_screen)
 		systray.area.on_screen = init_net();
 
 	if (!systray.area.on_screen)
 		return;
 
-	systray.area.parent = panel;
-	systray.area.panel = panel;
 	systray.area._draw_foreground = draw_systray;
 	systray.area._resize = resize_systray;
 	systray.area.resize = 1;
 	systray.area.redraw = 1;
 	refresh_systray = 0;
+}
 
-	// configure systray
-	// draw only one systray (even with multi panel)
+
+void init_systray_panel(void *p)
+{
+	Panel *panel =(Panel*)p;
+
 	if (panel_horizontal) {
 		systray.area.posy = panel->area.pix.border.width + panel->area.paddingy;
 		systray.area.height = panel->area.height - (2 * systray.area.posy);
@@ -73,6 +73,8 @@ void init_systray()
 		systray.area.posx = panel->area.pix.border.width + panel->area.paddingy;
 		systray.area.width = panel->area.width - (2 * panel->area.pix.border.width) - (2 * panel->area.paddingy);
 	}
+	systray.area.parent = p;
+	systray.area.panel = p;
 }
 
 

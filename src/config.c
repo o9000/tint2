@@ -36,11 +36,11 @@
 
 #include "common.h"
 #include "server.h"
+#include "panel.h"
 #include "task.h"
 #include "taskbar.h"
 #include "systraybar.h"
 #include "clock.h"
-#include "panel.h"
 #include "config.h"
 #include "window.h"
 #include "tooltip.h"
@@ -748,19 +748,15 @@ void config_finish ()
 
 	// TODO: user can configure layout => ordered objects in panel.area.list
 	// clock and systray before taskbar because resize(clock) can resize others object ??
-	init_panel();
+	init_tooltip();
 	init_clock();
 #ifdef ENABLE_BATTERY
 	init_battery();
 #endif
 	init_systray();
-	init_taskbar();
-	init_tooltip();
-	visible_object();
+	init_panel();
 
 	cleanup_config();
-
-	task_refresh_tasklist();
 }
 
 

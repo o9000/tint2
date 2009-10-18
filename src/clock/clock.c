@@ -26,9 +26,9 @@
 
 #include "window.h"
 #include "server.h"
-#include "taskbar.h"
-#include "panel.h"
 #include "area.h"
+#include "panel.h"
+#include "taskbar.h"
 #include "clock.h"
 
 
@@ -56,58 +56,56 @@ void init_precision()
 
 void init_clock()
 {
-	Panel *panel;
-	Clock *clock;
-	int i, time_height, time_height_ink, date_height, date_height_ink;
-
 	init_precision();
+
 	// update clock to force update (-time_precision)
 	struct timeval stv;
 	gettimeofday(&stv, 0);
 	time_clock.tv_sec = stv.tv_sec - time_precision;
 	time_clock.tv_sec -= time_clock.tv_sec % time_precision;
+}
 
-	for (i=0 ; i < nb_panel ; i++) {
-		panel = &panel1[i];
-		clock = &panel->clock;
 
-		if (!clock->area.on_screen) continue;
+void init_clock_panel(void *p)
+{
+	Panel *panel =(Panel*)p;
+	Clock *clock = &panel->clock;
+	int i, time_height, time_height_ink, date_height, date_height_ink;
 
-		clock->area.parent = panel;
-		clock->area.panel = panel;
-		clock->area._draw_foreground = draw_clock;
-		clock->area._resize = resize_clock;
-		clock->area.resize = 1;
-		clock->area.redraw = 1;
+	clock->area.parent = p;
+	clock->area.panel = p;
+	clock->area._draw_foreground = draw_clock;
+	clock->area._resize = resize_clock;
+	clock->area.resize = 1;
+	clock->area.redraw = 1;
 
-		strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
-		get_text_size(time1_font_desc, &time_height_ink, &time_height, panel->area.height, buf_time, strlen(buf_time));
-		if (time2_format) {
-			strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
-			get_text_size(time2_font_desc, &date_height_ink, &date_height, panel->area.height, buf_date, strlen(buf_date));
-		}
+	strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
+	get_text_size(time1_font_desc, &time_height_ink, &time_height, panel->area.height, buf_time, strlen(buf_time));
+	if (time2_format) {
+		strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
+		get_text_size(time2_font_desc, &date_height_ink, &date_height, panel->area.height, buf_date, strlen(buf_date));
+	}
 
-		if (panel_horizontal) {
-			// panel horizonal => fixed height and posy
-			clock->area.posy = panel->area.pix.border.width + panel->area.paddingy;
-			clock->area.height = panel->area.height - (2 * clock->area.posy);
-		}
-		else {
-			// panel vertical => fixed width, height, posy and posx
-			clock->area.posy = panel->area.pix.border.width + panel->area.paddingxlr;
-			clock->area.height = (2 * clock->area.paddingxlr) + (time_height + date_height);
-			clock->area.posx = panel->area.pix.border.width + panel->area.paddingy;
-			clock->area.width = panel->area.width - (2 * panel->area.pix.border.width) - (2 * panel->area.paddingy);
-		}
+	if (panel_horizontal) {
+		// panel horizonal => fixed height and posy
+		clock->area.posy = panel->area.pix.border.width + panel->area.paddingy;
+		clock->area.height = panel->area.height - (2 * clock->area.posy);
+	}
+	else {
+		// panel vertical => fixed width, height, posy and posx
+		clock->area.posy = panel->area.pix.border.width + panel->area.paddingxlr;
+		clock->area.height = (2 * clock->area.paddingxlr) + (time_height + date_height);
+		clock->area.posx = panel->area.pix.border.width + panel->area.paddingy;
+		clock->area.width = panel->area.width - (2 * panel->area.pix.border.width) - (2 * panel->area.paddingy);
+	}
 
-		clock->time1_posy = (clock->area.height - time_height) / 2;
-		if (time2_format) {
-			strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
-			get_text_size(time2_font_desc, &date_height_ink, &date_height, panel->area.height, buf_date, strlen(buf_date));
+	clock->time1_posy = (clock->area.height - time_height) / 2;
+	if (time2_format) {
+		strftime(buf_date, sizeof(buf_date), time2_format, localtime(&time_clock.tv_sec));
+		get_text_size(time2_font_desc, &date_height_ink, &date_height, panel->area.height, buf_date, strlen(buf_date));
 
-			clock->time1_posy -= ((date_height_ink + 2) / 2);
-			clock->time2_posy = clock->time1_posy + time_height + 2 - (time_height - time_height_ink)/2 - (date_height - date_height_ink)/2;
-		}
+		clock->time1_posy -= ((date_height_ink + 2) / 2);
+		clock->time2_posy = clock->time1_posy + time_height + 2 - (time_height - time_height_ink)/2 - (date_height - date_height_ink)/2;
 	}
 }
 

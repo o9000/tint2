@@ -44,6 +44,7 @@ extern int refresh_systray;
 
 
 void init_systray();
+void init_systray_panel(void *p);
 void cleanup_systray();
 void draw_systray(void *obj, cairo_t *c, int active);
 void resize_systray(void *obj);

@@ -105,7 +105,10 @@ extern Panel panel_config;
 extern Panel *panel1;
 extern int  nb_panel;
 
+// realloc panels according to number of monitor
+// it's used on initial config and when new monitor added
 void init_panel();
+
 void init_panel_size_and_position(Panel *panel);
 void cleanup_panel();
 void resize_panel(void *obj);

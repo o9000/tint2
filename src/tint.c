@@ -636,33 +636,8 @@ void event_configure_notify (Window win)
 {
 	// change in root window (xrandr)
 	if (win == server.root_win) {
-		int i, old_nb_panel = nb_panel;
-
 		get_monitors();
-		if (panel_config.monitor >= 0)
-			nb_panel = 1;
-		else
-			nb_panel = server.nb_monitor;
-
-		if (old_nb_panel != nb_panel) {
-			// changed number of panel
-			printf("changed number of panel\n");
-			//realloc(panel1, nb_panel * sizeof(Panel));
-		}
-		for (i=0 ; i < nb_panel && i < old_nb_panel ; i++) {
-			Panel *panel = &panel1[i];
-
-			init_panel_size_and_position(panel);
-			XMoveResizeWindow(server.dsp, panel->main_win, panel->posx, panel->posy, panel->area.width, panel->area.height);
-			set_panel_background(panel);
-
-			// force the resize of childs
-			GSList *l0;
-			panel->area.resize = 1;
-			for (l0 = panel->area.list; l0 ; l0 = l0->next)
-				((Area*)l0->data)->resize = 1;
-		}
-		panel_refresh = 1;
+		init_panel();
 		return;
 	}
 

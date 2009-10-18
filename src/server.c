@@ -290,7 +290,6 @@ void get_desktops()
 		server.nb_desktop = 1;
 		fprintf(stderr, "warning : WM doesn't respect NETWM specs. tint2 default to 1 desktop.\n");
 	}
-	fprintf(stderr, "tint2 : nb monitor %d, nb desktop %d\n", server.nb_monitor, server.nb_desktop);
 }
 
 

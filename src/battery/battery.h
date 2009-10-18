@@ -17,6 +17,7 @@
 #include "common.h"
 #include "area.h"
 
+
 typedef struct Battery {
 	// always start with area
 	Area area;
@@ -57,6 +58,7 @@ extern char *path_energy_now, *path_energy_full, *path_current_now, *path_status
 void update_battery();
 
 void init_battery();
+void init_battery_panel(void *panel);
 
 void draw_battery(void *obj, cairo_t *c, int active);
 

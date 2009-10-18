@@ -26,9 +26,9 @@
 
 #include "window.h"
 #include "server.h"
-#include "taskbar.h"
-#include "panel.h"
 #include "area.h"
+#include "panel.h"
+#include "taskbar.h"
 #include "battery.h"
 #include "clock.h"
 
@@ -95,77 +95,77 @@ void init_battery()
 		g_free(path1);
 	}
 
-	FILE *fp;
-	Panel *panel;
-	Battery *battery;
-	int i, bat_percentage_height, bat_percentage_height_ink, bat_time_height, bat_time_height_ink;
-
-	for (i=0 ; i < nb_panel ; i++) {
-		panel = &panel1[i];
-		battery = &panel->battery;
-
-		if (battery_dir == 0) battery->area.on_screen = 0;
-		if (!battery->area.on_screen) continue;
-
-		battery->area.parent = panel;
-		battery->area.panel = panel;
-		battery->area._draw_foreground = draw_battery;
-		battery->area._resize = resize_battery;
-		battery->area.resize = 1;
-		battery->area.redraw = 1;
-
-		if((fp = fopen(path_energy_now, "r")) == NULL) {
-			fprintf(stderr, "ERROR: battery applet can't open energy_now\n");
-			panel->battery.area.on_screen = 0;
-			continue;
-		}
-		fclose(fp);
-		if((fp = fopen(path_energy_full, "r")) == NULL) {
-			fprintf(stderr, "ERROR: battery applet can't open energy_full\n");
-			panel->battery.area.on_screen = 0;
-			continue;
-		}
-		fclose(fp);
-		if((fp = fopen(path_current_now, "r")) == NULL) {
-			fprintf(stderr, "ERROR: battery applet can't open current_now\n");
-			panel->battery.area.on_screen = 0;
-			continue;
-		}
-		fclose(fp);
-		if((fp = fopen(path_status, "r")) == NULL) {
-			fprintf(stderr, "ERROR: battery applet can't open status");
-			panel->battery.area.on_screen = 0;
-			continue;
-		}
-		fclose(fp);
-
-		update_battery(&battery_state);
-		snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
-		snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
-
-		get_text_size(bat1_font_desc, &bat_percentage_height_ink, &bat_percentage_height, panel->area.height, buf_bat_percentage, strlen(buf_bat_percentage));
-		get_text_size(bat2_font_desc, &bat_time_height_ink, &bat_time_height, panel->area.height, buf_bat_time, strlen(buf_bat_time));
-
-		if (panel_horizontal) {
-			// panel horizonal => fixed height and posy
-			battery->area.posy = panel->area.pix.border.width + panel->area.paddingy;
-			battery->area.height = panel->area.height - (2 * battery->area.posy);
-		}
-		else {
-			// panel vertical => fixed width, height, posy and posx
-			battery->area.posy = panel->clock.area.posy + panel->clock.area.height + panel->area.paddingx;
-			battery->area.height = (2 * battery->area.paddingxlr) + (bat_time_height + bat_percentage_height);
-			battery->area.posx = panel->area.pix.border.width + panel->area.paddingy;
-			battery->area.width = panel->area.width - (2 * panel->area.pix.border.width) - (2 * panel->area.paddingy);
-		}
-
-		battery->bat1_posy = (battery->area.height - bat_percentage_height) / 2;
-		battery->bat1_posy -= ((bat_time_height_ink + 2) / 2);
-		battery->bat2_posy = battery->bat1_posy + bat_percentage_height + 2 - (bat_percentage_height - bat_percentage_height_ink)/2 - (bat_time_height - bat_time_height_ink)/2;
-	}
-
 	if (battery_dir)
 		g_free(battery_dir);
+}
+
+
+void init_battery_panel(void *p)
+{
+	Panel *panel = (Panel*)p;
+	Battery *battery = &panel->battery;
+	FILE *fp;
+	int bat_percentage_height, bat_percentage_height_ink, bat_time_height, bat_time_height_ink;
+	char *battery_dir = 0;
+
+	if (battery_dir == 0) battery->area.on_screen = 0;
+	if (!battery->area.on_screen) return;
+
+	battery->area.parent = p;
+	battery->area.panel = p;
+	battery->area._draw_foreground = draw_battery;
+	battery->area._resize = resize_battery;
+	battery->area.resize = 1;
+	battery->area.redraw = 1;
+
+	if((fp = fopen(path_energy_now, "r")) == NULL) {
+		fprintf(stderr, "ERROR: battery applet can't open energy_now\n");
+		panel->battery.area.on_screen = 0;
+		return;
+	}
+	fclose(fp);
+	if((fp = fopen(path_energy_full, "r")) == NULL) {
+		fprintf(stderr, "ERROR: battery applet can't open energy_full\n");
+		panel->battery.area.on_screen = 0;
+		return;
+	}
+	fclose(fp);
+	if((fp = fopen(path_current_now, "r")) == NULL) {
+		fprintf(stderr, "ERROR: battery applet can't open current_now\n");
+		panel->battery.area.on_screen = 0;
+		return;
+	}
+	fclose(fp);
+	if((fp = fopen(path_status, "r")) == NULL) {
+		fprintf(stderr, "ERROR: battery applet can't open status");
+		panel->battery.area.on_screen = 0;
+		return;
+	}
+	fclose(fp);
+
+	update_battery(&battery_state);
+	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
+	snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
+
+	get_text_size(bat1_font_desc, &bat_percentage_height_ink, &bat_percentage_height, panel->area.height, buf_bat_percentage, strlen(buf_bat_percentage));
+	get_text_size(bat2_font_desc, &bat_time_height_ink, &bat_time_height, panel->area.height, buf_bat_time, strlen(buf_bat_time));
+
+	if (panel_horizontal) {
+		// panel horizonal => fixed height and posy
+		battery->area.posy = panel->area.pix.border.width + panel->area.paddingy;
+		battery->area.height = panel->area.height - (2 * battery->area.posy);
+	}
+	else {
+		// panel vertical => fixed width, height, posy and posx
+		battery->area.posy = panel->clock.area.posy + panel->clock.area.height + panel->area.paddingx;
+		battery->area.height = (2 * battery->area.paddingxlr) + (bat_time_height + bat_percentage_height);
+		battery->area.posx = panel->area.pix.border.width + panel->area.paddingy;
+		battery->area.width = panel->area.width - (2 * panel->area.pix.border.width) - (2 * panel->area.paddingy);
+	}
+
+	battery->bat1_posy = (battery->area.height - bat_percentage_height) / 2;
+	battery->bat1_posy -= ((bat_time_height_ink + 2) / 2);
+	battery->bat2_posy = battery->bat1_posy + bat_percentage_height + 2 - (bat_percentage_height - bat_percentage_height_ink)/2 - (bat_time_height - bat_time_height_ink)/2;
 }
 
 
