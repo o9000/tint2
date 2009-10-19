@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
+#include <unistd.h>
 
 #include "window.h"
 #include "task.h"
