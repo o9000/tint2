@@ -861,7 +861,10 @@ int main (int argc, char *argv[])
 		switch (signal_pending) {
 			case SIGUSR1:
 				signal_pending = 0;
-				return 0;
+				printf("SIGUSR1\n");
+				config_read_file (config_path);
+				init_panel();
+				break;
 			case SIGINT:
 			case SIGTERM:
 			case SIGHUP:

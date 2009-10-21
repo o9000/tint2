@@ -138,7 +138,7 @@ void init_panel()
 
 		if (i >= old_nb_panel) {
 			// new panel
-			//printf("new window\n");
+			printf("new panel %d, %d, %d, %d\n", p->posx, p->posy, p->area.width, p->area.height);
 
 			// Catch some events
 			long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask;
@@ -154,7 +154,7 @@ void init_panel()
 		}
 		else {
 			// old panel
-			//printf("move old window\n");
+			printf("old panel %d, %d, %d, %d\n", p->posx, p->posy, p->area.width, p->area.height);
 			XMoveResizeWindow(server.dsp, p->main_win, p->posx, p->posy, p->area.width, p->area.height);
 			set_panel_background(p);
 		}

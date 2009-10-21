@@ -193,7 +193,7 @@ void get_root_pixmap()
 }
 
 
-int compareMonitor(const void *monitor1, const void *monitor2)
+int compareMonitorPos(const void *monitor1, const void *monitor2)
 {
 	Monitor *m1 = (Monitor*)monitor1;
 	Monitor *m2 = (Monitor*)monitor2;
@@ -201,21 +201,33 @@ int compareMonitor(const void *monitor1, const void *monitor2)
 	if (m1->x < m2->x) {
 		return -1;
 	}
-	else
-		if (m1->x > m2->x) {
-			return 1;
-		}
-		else
-			if (m1->width < m2->width) {
-				return 1;
-			}
-			else
-				if (m1->width > m2->width) {
-					return -1;
-				}
-				else {
-					return 0;
-				}
+	else if (m1->x > m2->x) {
+		return 1;
+	}
+	else if (m1->y < m2->y) {
+		return -1;
+	}
+	else if (m1->y > m2->y) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+
+int compareMonitorIncluded(const void *monitor1, const void *monitor2)
+{
+	Monitor *m1 = (Monitor*)monitor1;
+	Monitor *m2 = (Monitor*)monitor2;
+
+	if (m1->x >= m2->x && m1->y >= m2->y && (m1->x+m1->width) <= (m2->x+m2->width) && (m1->y+m1->height) <= (m2->y+m2->height)) {
+		// m1 included inside m2
+		return 1;
+	}
+	else {
+		return -1;
+	}
 }
 
 
@@ -225,49 +237,44 @@ void get_monitors()
 	server.nb_monitor = 0;
 	server.monitor = 0;
 
-	int i, nb_monitor;
+	int i, j, nbmonitor;
 	if (XineramaIsActive(server.dsp)) {
-		XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &nb_monitor);
+		XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &nbmonitor);
 
-		if (info) {
-			int nb=0, j;
-
-			i = 0;
-			server.monitor = calloc(nb_monitor, sizeof(Monitor));
-			while (i < nb_monitor) {
-				for (j = 0; j < i; j++) {
-					if (info[i].x_org >= info[j].x_org && info[i].y_org >= info[j].y_org && (info[i].x_org+info[i].width) <= (info[j].x_org+info[j].width) && (info[i].y_org+info[i].height) <= (info[j].y_org+info[j].height)) {
-						if (info[i].x_org == info[j].x_org && info[i].y_org == info[j].y_org && info[i].width == info[j].width && info[i].height == info[j].height && nb == 0) {
-							// add the first monitor
-							break;
-						}
-						else {
-							// doesn't count monitor 'i' because it's included into another one
-							//fprintf(stderr, "monitor %d included into another one\n", i);
-							goto next;
-						}
-					}
-				}
-
-				server.monitor[nb].x = info[i].x_org;
-				server.monitor[nb].y = info[i].y_org;
-				server.monitor[nb].width = info[i].width;
-				server.monitor[nb].height = info[i].height;
-				nb++;
-next:
-				i++;
+		if (info && nbmonitor > 0) {
+			server.monitor = malloc(nbmonitor * sizeof(Monitor));
+			for (i=0 ; i < nbmonitor ; i++) {
+				server.monitor[i].x = info[i].x_org;
+				server.monitor[i].y = info[i].y_org;
+				server.monitor[i].width = info[i].width;
+				server.monitor[i].height = info[i].height;
 			}
 			XFree(info);
-			server.nb_monitor = nb;
 
-			// ordered monitor according to coordinate
-			qsort(server.monitor, server.nb_monitor, sizeof(Monitor), compareMonitor);
+			// ordered monitor
+			qsort(server.monitor, nbmonitor, sizeof(Monitor), compareMonitorIncluded);
+
+			// remove monitor included into another one
+			i = 0;
+			while (i < nbmonitor) {
+				for (j=0; j < i ; j++) {
+					if (compareMonitorIncluded(&server.monitor[i], &server.monitor[j]) > 0) {
+						goto next;
+					}
+				}
+				i++;
+			}
+next:
+			server.nb_monitor = i;
+			server.monitor = realloc(server.monitor, server.nb_monitor * sizeof(Monitor));			
+			//printf("  nbmonitor %d\n", server.nb_monitor);
+			qsort(server.monitor, server.nb_monitor, sizeof(Monitor), compareMonitorPos);
 		}
 	}
 
 	if (!server.nb_monitor) {
 		server.nb_monitor = 1;
-		server.monitor = calloc(server.nb_monitor, sizeof(Monitor));
+		server.monitor = malloc(sizeof(Monitor));
 		server.monitor[0].x = server.monitor[0].y = 0;
 		server.monitor[0].width = DisplayWidth (server.dsp, server.screen);
 		server.monitor[0].height = DisplayHeight (server.dsp, server.screen);
