@@ -1,5 +1,6 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
+AC_PREREQ([2.61])
 AC_INIT([tint2], [0.7.9-svn], [http://code.google.com/p/tint2/issues])
 
 AM_INIT_AUTOMAKE
@@ -97,7 +98,8 @@ AC_TYPE_PID_T
 # Checks for library functions.
 AC_FUNC_FORK
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([gettimeofday memset select setlocale strcasecmp strchr strdup])
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([alarm gettimeofday memset select setlocale strcasecmp strchr strdup])
 
 # tint2conf (experimental)
 if test "x$tint2conf" = xtrue;
