@@ -80,30 +80,32 @@ void init_panel()
 		}
 	}
 
-	// alloc panels (one monitor or all monitors)
+	// number of panels
 	old_nb_panel = nb_panel;
 	if (panel_config.monitor >= 0)
 		nb_panel = 1;
 	else
 		nb_panel = server.nb_monitor;
 
-	if (nb_panel < old_nb_panel) {
-		// freed old panels
-		for (i=nb_panel ; i < old_nb_panel ; i++) {
-			if (panel1[i].main_win)
-				XDestroyWindow(server.dsp, panel1[i].main_win);
-		}
-		new_panel = realloc(panel1, nb_panel * sizeof(Panel));
-	}
-	else if (nb_panel > old_nb_panel) {
-		new_panel = realloc(panel1, nb_panel * sizeof(Panel));
-		// init new panel
-		for (i=old_nb_panel ; i < nb_panel ; i++) {
-			memcpy(&new_panel[i], &panel_config, sizeof(Panel));
+	// freed old panels
+	for (i=nb_panel ; i < old_nb_panel ; i++) {
+		if (panel1[i].main_win) {
+			XDestroyWindow(server.dsp, panel1[i].main_win);
+			panel1[i].main_win = 0;
 		}
 	}
+
+	// alloc & init new panel
+	Window old_win;
+	if (nb_panel != old_nb_panel)
+		new_panel = realloc(panel1, nb_panel * sizeof(Panel));
 	else
 		new_panel = panel1;
+	for (i=0 ; i < nb_panel ; i++) {
+		old_win = new_panel[i].main_win;
+		memcpy(&new_panel[i], &panel_config, sizeof(Panel));
+		new_panel[i].main_win = old_win;
+	}
 
 	fprintf(stderr, "tint2 : nb monitor %d, nb desktop %d\n", nb_panel, server.nb_desktop);
 	for (i=0 ; i < nb_panel ; i++) {
@@ -145,7 +147,7 @@ void init_panel()
 
 		if (i >= old_nb_panel) {
 			// new panel
-			printf("new panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
+			//printf("new panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
 
 			// Catch some events
 			long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask;
@@ -161,7 +163,7 @@ void init_panel()
 		}
 		else {
 			// old panel
-			printf("old panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
+			//printf("old panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
 			XMoveResizeWindow(server.dsp, p->main_win, p->posx, p->posy, p->area.width, p->area.height);
 			set_panel_background(p);
 		}

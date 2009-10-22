@@ -70,7 +70,7 @@ void init_clock_panel(void *p)
 {
 	Panel *panel =(Panel*)p;
 	Clock *clock = &panel->clock;
-	int i, time_height, time_height_ink, date_height, date_height_ink;
+	int time_height, time_height_ink, date_height, date_height_ink;
 
 	clock->area.parent = p;
 	clock->area.panel = p;
