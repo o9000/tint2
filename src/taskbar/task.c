@@ -364,3 +364,48 @@ void draw_task (void *obj, cairo_t *c, int active)
 }
 
 
+void active_task()
+{
+	GSList *l0;
+	int i, j;
+	Task *tsk1, *tsk2;
+
+	if (task_active) {
+		for (i=0 ; i < nb_panel ; i++) {
+			for (j=0 ; j < panel1[i].nb_desktop ; j++) {
+				for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
+					tsk1 = l0->data;
+					tsk1->area.is_active = 0;
+				}
+			}
+		}
+		task_active = 0;
+	}
+
+	Window w1 = window_get_active ();
+	tsk2 = task_get_task(w1);
+	if (!tsk2) {
+		Window w2;
+		if (XGetTransientForHint(server.dsp, w1, &w2) != 0)
+			if (w2) tsk2 = task_get_task(w2);
+	}
+	if (task_urgent == tsk2) {
+		init_precision();
+		task_urgent = 0;
+	}
+	// put active state on all task (multi_desktop)
+	if (tsk2) {
+		for (i=0 ; i < nb_panel ; i++) {
+			for (j=0 ; j < panel1[i].nb_desktop ; j++) {
+				for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
+					tsk1 = l0->data;
+					if (tsk1->win == tsk2->win) {
+						tsk1->area.is_active = 1;
+					}
+				}
+			}
+		}
+		task_active = tsk2;
+	}
+}
+

@@ -62,7 +62,7 @@ void draw_task (void *obj, cairo_t *c, int active);
 
 void get_icon (Task *tsk);
 void get_title(Task *tsk);
-
+void active_task();
 
 #endif
 

@@ -457,44 +457,7 @@ void event_property_notify (XEvent *e)
 		}
 		// Change active
 		else if (at == server.atom._NET_ACTIVE_WINDOW) {
-			GSList *l0;
-			if (task_active) {
-				for (i=0 ; i < nb_panel ; i++) {
-					for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-						for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
-							tsk = l0->data;
-							tsk->area.is_active = 0;
-						}
-					}
-				}
-				task_active = 0;
-			}
-			Window w1 = window_get_active ();
-			Task *t = task_get_task(w1);
-			if (!t) {
-				Window w2;
-				if (XGetTransientForHint(server.dsp, w1, &w2) != 0)
-					if (w2) t = task_get_task(w2);
-			}
-			if (task_urgent == t) {
-				init_precision();
-				task_urgent = 0;
-			}
-			// put active state on all task (multi_desktop)
-			if (t) {
-				for (i=0 ; i < nb_panel ; i++) {
-					for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-						for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
-							tsk = l0->data;
-							if (tsk->win == t->win) {
-								tsk->area.is_active = 1;
-								//printf("active monitor %d, task %s\n", panel1[i].monitor, tsk->title);
-							}
-						}
-					}
-				}
-				task_active = t;
-			}
+			active_task();
 			panel_refresh = 1;
 		}
 		else if (at == server.atom._XROOTPMAP_ID) {

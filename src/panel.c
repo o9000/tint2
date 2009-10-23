@@ -168,6 +168,7 @@ void init_panel()
 	init_taskbar();
 	visible_object();
 	task_refresh_tasklist();
+	active_task();
 }
 
 
