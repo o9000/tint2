@@ -383,6 +383,8 @@ void active_task()
 	}
 
 	Window w1 = window_get_active ();
+	//printf("Change active task %ld\n", w1);
+
 	tsk2 = task_get_task(w1);
 	if (!tsk2) {
 		Window w2;

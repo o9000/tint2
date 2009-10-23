@@ -137,6 +137,7 @@ void init_panel()
 		if (systray.area.on_screen && i == 0) {
 			init_systray_panel(p);
 			p->area.list = g_slist_append(p->area.list, &systray);
+			refresh_systray = 1;
 		}
 
 		if (i >= old_nb_panel) {
@@ -164,7 +165,6 @@ void init_panel()
 
 	panel1 = new_panel;
 	panel_refresh = 1;
-	refresh_systray = 1;
 	init_taskbar();
 	visible_object();
 	task_refresh_tasklist();

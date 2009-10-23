@@ -303,10 +303,10 @@ void event_button_press (XEvent *e)
 		e->xbutton.window = server.root_win;
 		// icewm doesn't open under the mouse.
 		// and xfce doesn't open at all.
-		//e->xbutton.x = e->xbutton.x_root;
-		//e->xbutton.y = e->xbutton.y_root;
+		e->xbutton.x = e->xbutton.x_root;
+		e->xbutton.y = e->xbutton.y_root;
 		//printf("**** %d, %d\n", e->xbutton.x, e->xbutton.y);
-		XSetInputFocus(server.dsp, e->xbutton.window, RevertToParent, e->xbutton.time);
+		//XSetInputFocus(server.dsp, e->xbutton.window, RevertToParent, e->xbutton.time);
 		XSendEvent(server.dsp, e->xbutton.window, False, ButtonPressMask, e);
 		return;
 	}
