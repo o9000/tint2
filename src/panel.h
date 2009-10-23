@@ -71,7 +71,6 @@ typedef struct {
 	// position relative to root window
 	int posx, posy;
 	int marginx, marginy;
-	float initial_width, initial_height;
 	int pourcentx, pourcenty;
 	// location of the panel (monitor number)
 	int monitor;

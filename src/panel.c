@@ -139,33 +139,26 @@ void init_panel()
 			p->area.list = g_slist_append(p->area.list, &systray);
 		}
 
-		// full width mode
-		if (!p->initial_width) {
-			p->initial_width = 100;
-			p->pourcentx = 1;
-		}
-
 		if (i >= old_nb_panel) {
-			// new panel
-			//printf("new panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
-
-			// Catch some events
+			// new panel : catch some events
 			long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask;
 			if (g_tooltip.enabled)
 				event_mask |= PointerMotionMask|LeaveWindowMask;
 			XSetWindowAttributes att = { ParentRelative, 0L, 0, 0L, 0, 0, Always, 0L, 0L, False, event_mask, NoEventMask, False, 0, 0 };
 			if (p->main_win) XDestroyWindow(server.dsp, p->main_win);
 			p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
-
-			set_panel_properties(p);
-			set_panel_background(p);
-			XMapWindow (server.dsp, p->main_win);
 		}
 		else {
 			// old panel
-			//printf("old panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
 			XMoveResizeWindow(server.dsp, p->main_win, p->posx, p->posy, p->area.width, p->area.height);
-			set_panel_background(p);
+		}
+
+		//printf("panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
+		set_panel_properties(p);
+		set_panel_background(p);
+		if (i >= old_nb_panel) {
+			// map new panel
+			XMapWindow (server.dsp, p->main_win);
 		}
 	}
 
@@ -183,25 +176,22 @@ void init_panel_size_and_position(Panel *panel)
 	// detect panel size
 	if (panel_horizontal) {
 		if (panel->pourcentx)
-			panel->area.width = (float)server.monitor[panel->monitor].width * panel->initial_width / 100;
-		else
-			panel->area.width = panel->initial_width;
+			panel->area.width = (float)server.monitor[panel->monitor].width * panel->area.width / 100;
 		if (panel->pourcenty)
-			panel->area.height = (float)server.monitor[panel->monitor].height * panel->initial_height / 100;
-		else
-			panel->area.height = panel->initial_height;
+			panel->area.height = (float)server.monitor[panel->monitor].height * panel->area.height / 100;
 		if (panel->area.pix.border.rounded > panel->area.height/2)
 			panel->area.pix.border.rounded = panel->area.height/2;
 	}
 	else {
+		int old_panel_height = panel->area.height;
 		if (panel->pourcentx)
-			panel->area.height = (float)server.monitor[panel->monitor].height * panel->initial_width / 100;
+			panel->area.height = (float)server.monitor[panel->monitor].height * panel->area.width / 100;
 		else
-			panel->area.height = panel->initial_width;
+			panel->area.height = panel->area.width;
 		if (panel->pourcenty)
-			panel->area.width = (float)server.monitor[panel->monitor].width * panel->initial_height / 100;
+			panel->area.width = (float)server.monitor[panel->monitor].width * old_panel_height / 100;
 		else
-			panel->area.width = panel->initial_height;
+			panel->area.width = old_panel_height;
 		if (panel->area.pix.border.rounded > panel->area.width/2)
 			panel->area.pix.border.rounded = panel->area.width/2;
 	}
@@ -390,6 +380,38 @@ void set_panel_properties(Panel *p)
 	long val = server.atom._NET_WM_WINDOW_TYPE_DOCK;
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &val, 1);
 
+	// Sticky and below other window
+	val = 0xFFFFFFFF;
+	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_DESKTOP, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &val, 1);
+	Atom state[4];
+	state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;
+	state[1] = server.atom._NET_WM_STATE_SKIP_TASKBAR;
+	state[2] = server.atom._NET_WM_STATE_STICKY;
+	state[3] = server.atom._NET_WM_STATE_BELOW;
+	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STATE, XA_ATOM, 32, PropModeReplace, (unsigned char *) state, 4);
+
+	// Unfocusable
+	XWMHints wmhints;
+	if (panel_dock) {
+		// TODO: Xdnd feature cannot be used in withdrawn state at the moment (at least GTK apps fail, qt seems to work)
+		wmhints.icon_window = wmhints.window_group = p->main_win;
+		wmhints.flags = StateHint | IconWindowHint;
+		wmhints.initial_state = WithdrawnState;
+	}
+	else {
+		wmhints.flags = InputHint;
+		wmhints.input = False;
+	}
+	XSetWMHints(server.dsp, p->main_win, &wmhints);
+
+	// Undecorated
+	long prop[5] = { 2, 0, 0, 0, 0 };
+	XChangeProperty(server.dsp, p->main_win, server.atom._MOTIF_WM_HINTS, server.atom._MOTIF_WM_HINTS, 32, PropModeReplace, (unsigned char *) prop, 5);
+
+	// XdndAware - Register for Xdnd events
+	int version=5;
+	XChangeProperty(server.dsp, p->main_win, server.atom.XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char*)&version, 1);
+
 	// Reserved space
 	long   struts [12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	if (panel_horizontal) {
@@ -424,44 +446,13 @@ void set_panel_properties(Panel *p)
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STRUT, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &struts, 4);
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STRUT_PARTIAL, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &struts, 12);
 
-	// Sticky and below other window
-	val = 0xFFFFFFFF;
-	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_DESKTOP, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &val, 1);
-	Atom state[4];
-	state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;
-	state[1] = server.atom._NET_WM_STATE_SKIP_TASKBAR;
-	state[2] = server.atom._NET_WM_STATE_STICKY;
-	state[3] = server.atom._NET_WM_STATE_BELOW;
-	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STATE, XA_ATOM, 32, PropModeReplace, (unsigned char *) state, 4);
-
 	// Fixed position and non-resizable window
+	// Allow panel move and resize when tint2 reload config file
 	XSizeHints size_hints;
 	size_hints.flags = PPosition|PMinSize|PMaxSize;
 	size_hints.min_width = size_hints.max_width = p->area.width;
 	size_hints.min_height = size_hints.max_height = p->area.height;
 	XSetWMNormalHints(server.dsp, p->main_win, &size_hints);
-
-	// Unfocusable
-	XWMHints wmhints;
-	if (panel_dock) {
-		// TODO: Xdnd feature cannot be used in withdrawn state at the moment (at least GTK apps fail, qt seems to work)
-		wmhints.icon_window = wmhints.window_group = p->main_win;
-		wmhints.flags = StateHint | IconWindowHint;
-		wmhints.initial_state = WithdrawnState;
-	}
-	else {
-		wmhints.flags = InputHint;
-		wmhints.input = False;
-	}
-	XSetWMHints(server.dsp, p->main_win, &wmhints);
-
-	// Undecorated
-	long prop[5] = { 2, 0, 0, 0, 0 };
-	XChangeProperty(server.dsp, p->main_win, server.atom._MOTIF_WM_HINTS, server.atom._MOTIF_WM_HINTS, 32, PropModeReplace, (unsigned char *) prop, 5);
-
-	// XdndAware - Register for Xdnd events
-	int version=5;
-	XChangeProperty(server.dsp, p->main_win, server.atom.XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char*)&version, 1);
 }
 
 

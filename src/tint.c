@@ -115,6 +115,10 @@ void init (int argc, char *argv[])
 			default_icon = imlib_load_image(path);
 		g_free(path);
 	}
+
+	// get monitor and desktop config
+	get_monitors();
+	get_desktops();
 }
 
 
@@ -859,11 +863,12 @@ int main (int argc, char *argv[])
 		event_timer();
 
 		switch (signal_pending) {
-			case SIGUSR1:
+			case SIGUSR1: // reload config file
 				signal_pending = 0;
 				init_config();
 				config_read_file (config_path);
 				init_panel();
+				cleanup_config();
 				break;
 			case SIGINT:
 			case SIGTERM:

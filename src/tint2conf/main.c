@@ -129,7 +129,7 @@ int main (int argc, char ** argv)
 
 	// define main layout : container, menubar, toolbar, themeView
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), _("Tint2 theme"));
+	gtk_window_set_title(GTK_WINDOW(window), _("Panel theming"));
 	gtk_window_set_default_size(GTK_WINDOW(window), 600, 350);
 	g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (menuQuit), NULL);
 	vBox = gtk_vbox_new (FALSE, 0);

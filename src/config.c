@@ -74,10 +74,6 @@ static GSList *list_back;
 
 void init_config()
 {
-	// get monitor and desktop config
-	get_monitors();
-	get_desktops();
-
 	// append full transparency background
 	list_back = g_slist_append(0, calloc(1, sizeof(Area)));
 
@@ -283,13 +279,18 @@ void add_entry (char *key, char *value)
 			b[0] = '\0';
 			panel_config.pourcentx = 1;
 		}
-		panel_config.initial_width = atof(value1);
+		panel_config.area.width = atoi(value1);
+		if (panel_config.area.width == 0) {
+			// full width mode
+			panel_config.area.width = 100;
+			panel_config.pourcentx = 1;
+		}
 		if (value2) {
 			if ((b = strchr (value2, '%'))) {
 				b[0] = '\0';
 				panel_config.pourcenty = 1;
 			}
-			panel_config.initial_height = atof(value2);
+			panel_config.area.height = atoi(value2);
 		}
 	}
 	else if (strcmp (key, "panel_margin") == 0) {
@@ -867,7 +868,7 @@ void save_config ()
 	FILE *fp;
 
 	if (old_task_icon_size) {
-		panel_config.g_task.area.paddingy = ((int)panel_config.initial_height - (2 * panel_config.area.paddingy) - old_task_icon_size) / 2;
+		panel_config.g_task.area.paddingy = ((int)panel_config.area.height - (2 * panel_config.area.paddingy) - old_task_icon_size) / 2;
 	}
 
 	dir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
@@ -907,7 +908,7 @@ void save_config ()
 	if (panel_position & LEFT) fputs(" left horizontal\n", fp);
 	else if (panel_position & RIGHT) fputs(" right horizontal\n", fp);
 	else fputs(" center horizontal\n", fp);
-	fprintf(fp, "panel_size = %d %d\n", (int)panel_config.initial_width, (int)panel_config.initial_height);
+	fprintf(fp, "panel_size = %d %d\n", panel_config.area.width, panel_config.area.height);
 	fprintf(fp, "panel_margin = %d %d\n", panel_config.marginx, panel_config.marginy);
 	fprintf(fp, "panel_padding = %d %d %d\n", panel_config.area.paddingxlr, panel_config.area.paddingy, panel_config.area.paddingx);
 	fprintf(fp, "font_shadow = %d\n", panel_config.g_task.font_shadow);
