@@ -24,6 +24,8 @@
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
 
+#include "common.h"
+
 
 // TODO
 // ** add, saveas
@@ -75,6 +77,9 @@ static void init_list(GtkWidget *list);
 static void add_to_list(GtkWidget *list, const gchar *str);
 void on_changed(GtkWidget *widget, gpointer label);
 
+void read_config(char **defaultTheme);
+void write_config(char *defaultTheme);
+void check_theme();
 
 
 // define menubar and toolbar
@@ -136,7 +141,7 @@ int main (int argc, char ** argv)
 
 	gtk_init (&argc, &argv);
 	g_thread_init( NULL );
-	checkConfig();
+	check_theme();
 
 	// define main layout : container, menubar, toolbar
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -314,7 +319,6 @@ static void menuDelete (void)
 
 static void menuProperties (void)
 {
-	printf("menuProperties\n");
 	system("python /home/thil/Desktop/tintwizard/tintwizard.py");
 }
 
@@ -355,9 +359,11 @@ static void menuApply (void)
 		gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
 		name1 = g_build_filename (g_get_user_config_dir(), "tint2", value, NULL);
 		name2 = g_strdup_printf("%s.tint2rc", name1);
-		copy_file(name2, pathConfig);
-		g_free(value);
 		g_free(name1);
+
+		copy_file(name2, pathConfig);
+		write_config(value);
+		g_free(value);
 		g_free(name2);
 
 		// restart panel
@@ -395,12 +401,64 @@ static void loadTheme(GtkWidget *list)
 		}
 	}
 	g_dir_close(dir);
+
+	// search default theme
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	name = NULL;
+	read_config(&name);
+	if (name) {
+		printf("defaultTheme %s\n", name);
+		//gtk_tree_selection_select_iter(GtkTreeSelection *selection, GtkTreeIter *iter);
+	}
 }
 
 
-// config file management
+// theme file management
+void read_config(char **defaultTheme)
+{
+	char *path;
 
-void checkConfig()
+	path = g_build_filename (g_get_user_config_dir(), "tint2", "tint2confrc", NULL);
+	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
+		FILE *fp;
+		char line[80];
+		char *key, *value;
+		if ((fp = fopen(path, "r")) != NULL) {
+			while (fgets(line, sizeof(line), fp) != NULL) {
+				if (parse_line(line, &key, &value)) {
+					if (strcmp (key, "default_theme") == 0) {
+						*defaultTheme = strdup (value);
+					}
+					free (key);
+					free (value);
+				}
+			}
+			fclose (fp);
+		}
+	}
+	g_free(path);
+}
+
+
+void write_config(char *defaultTheme)
+{
+	char *path;
+	FILE *fp;
+
+	path = g_build_filename (g_get_user_config_dir(), "tint2", "tint2confrc", NULL);
+	fp = fopen(path, "w");
+	if (fp != NULL) {
+		fputs("#---------------------------------------------\n", fp);
+		fputs("# TINT2CONF CONFIG FILE\n", fp);
+		fprintf(fp, "default_theme = %s\n\n", defaultTheme);
+		fclose (fp);
+	}
+	g_free(path);
+}
+
+
+void check_theme()
 {
 	pathDir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
 	if (!g_file_test (pathDir, G_FILE_TEST_IS_DIR))
@@ -408,25 +466,6 @@ void checkConfig()
 
 	pathConfig = g_build_filename (g_get_user_config_dir(), "tint2", "tint2rc", NULL);
 
-}
-
-
-void copy_file(const char *pathSrc, const char *pathDest)
-{
-	FILE *fileSrc, *fileDest;
-	char line[100];
-	int  nb;
-
-	fileSrc = fopen(pathSrc, "rb");
-	if (fileSrc == NULL) return;
-
-	fileDest = fopen(pathDest, "wb");
-	if (fileDest == NULL) return;
-
-	while ((nb = fread(line, 1, 100, fileSrc)) > 0) fwrite(line, 1, nb, fileDest);
-
-	fclose (fileDest);
-	fclose (fileSrc);
 }
 
 

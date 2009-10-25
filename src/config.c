@@ -100,25 +100,6 @@ void cleanup_config()
 }
 
 
-void copy_file(const char *pathSrc, const char *pathDest)
-{
-	FILE *fileSrc, *fileDest;
-	char line[100];
-	int  nb;
-
-	fileSrc = fopen(pathSrc, "rb");
-	if (fileSrc == NULL) return;
-
-	fileDest = fopen(pathDest, "wb");
-	if (fileDest == NULL) return;
-
-	while ((nb = fread(line, 1, 100, fileSrc)) > 0) fwrite(line, 1, nb, fileDest);
-
-	fclose (fileDest);
-	fclose (fileSrc);
-}
-
-
 void extract_values (const char *value, char **value1, char **value2, char **value3)
 {
 	char *b=0, *c=0;
@@ -155,58 +136,6 @@ void extract_values (const char *value, char **value1, char **value2, char **val
 		*value3 = strdup (c);
 		g_strstrip(*value3);
 	}
-}
-
-
-int hex_char_to_int (char c)
-{
-	int r;
-
-	if (c >= '0' && c <= '9')  r = c - '0';
-	else if (c >= 'a' && c <= 'f')  r = c - 'a' + 10;
-	else if (c >= 'A' && c <= 'F')  r = c - 'A' + 10;
-	else  r = 0;
-
-	return r;
-}
-
-
-int hex_to_rgb (char *hex, int *r, int *g, int *b)
-{
-	int len;
-
-	if (hex == NULL || hex[0] != '#') return (0);
-
-	len = strlen (hex);
-	if (len == 3 + 1) {
-		*r = hex_char_to_int (hex[1]);
-		*g = hex_char_to_int (hex[2]);
-		*b = hex_char_to_int (hex[3]);
-	}
-	else if (len == 6 + 1) {
-		*r = hex_char_to_int (hex[1]) * 16 + hex_char_to_int (hex[2]);
-		*g = hex_char_to_int (hex[3]) * 16 + hex_char_to_int (hex[4]);
-		*b = hex_char_to_int (hex[5]) * 16 + hex_char_to_int (hex[6]);
-	}
-	else if (len == 12 + 1) {
-		*r = hex_char_to_int (hex[1]) * 16 + hex_char_to_int (hex[2]);
-		*g = hex_char_to_int (hex[5]) * 16 + hex_char_to_int (hex[6]);
-		*b = hex_char_to_int (hex[9]) * 16 + hex_char_to_int (hex[10]);
-	}
-	else return 0;
-
-	return 1;
-}
-
-
-void get_color (char *hex, double *rgb)
-{
-	int r, g, b;
-	hex_to_rgb (hex, &r, &g, &b);
-
-	rgb[0] = (r / 255.0);
-	rgb[1] = (g / 255.0);
-	rgb[2] = (b / 255.0);
 }
 
 
@@ -709,35 +638,6 @@ void add_entry (char *key, char *value)
 }
 
 
-int parse_line (const char *line)
-{
-	char *a, *b, *key, *value;
-
-	/* Skip useless lines */
-	if ((line[0] == '#') || (line[0] == '\n')) return 0;
-	if (!(a = strchr (line, '='))) return 0;
-
-	/* overwrite '=' with '\0' */
-	a[0] = '\0';
-	key = strdup (line);
-	a++;
-
-	/* overwrite '\n' with '\0' if '\n' present */
-	if ((b = strchr (a, '\n'))) b[0] = '\0';
-
-	value = strdup (a);
-
-	g_strstrip(key);
-	g_strstrip(value);
-
-	add_entry (key, value);
-
-	free (key);
-	free (value);
-	return 1;
-}
-
-
 void config_finish ()
 {
 	if (panel_config.monitor > (server.nb_monitor-1)) {
@@ -830,15 +730,20 @@ int config_read_file (const char *path)
 {
 	FILE *fp;
 	char line[80];
+	char *key, *value;
 
 	if ((fp = fopen(path, "r")) == NULL) return 0;
 	old_task_font = 0;
 	old_time1_font = 0;
 	old_time2_font = 0;
 
-	while (fgets(line, sizeof(line), fp) != NULL)
-		parse_line (line);
-
+	while (fgets(line, sizeof(line), fp) != NULL) {
+		if (parse_line(line, &key, &value)) {
+			add_entry (key, value);
+			free (key);
+			free (value);
+		}
+	}
 	fclose (fp);
 
 	if (save_file_config)
