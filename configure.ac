@@ -144,6 +144,7 @@ AC_SUBST(DISTCLEANFILES)
 
 AC_CONFIG_FILES([Makefile
 				 doc/Makefile
+				 sample/Makefile
 				 src/Makefile
 				 src/tint2conf/Makefile])
 

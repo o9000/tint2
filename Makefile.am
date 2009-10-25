@@ -1,20 +1,8 @@
-rcdir = $(sysconfdir)/xdg/$(PACKAGE_NAME)
-
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = doc src
+SUBDIRS = doc sample src
 dist_doc_DATA = AUTHORS ChangeLog NEWS README
 EXTRA_DIST = autogen.sh README.source
-
-dist_rc_DATA = tint2rc
-
-if INSTALL_EXAMPLES
-examplesdir = $(docdir)/examples
-dist_examples_DATA = tintrc01 tintrc02 tintrc03 tintrc04 tintrc05 tintrc06
-else
-examplesdir =
-dist_examples_DATA =
-endif
 
 dist_pkgdata_DATA = default_icon.png
 
