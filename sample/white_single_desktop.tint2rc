@@ -99,3 +99,4 @@ mouse_middle = none
 mouse_right = close
 mouse_scroll_up = toggle
 mouse_scroll_down = iconify
+

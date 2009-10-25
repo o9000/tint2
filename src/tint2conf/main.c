@@ -315,6 +315,7 @@ static void menuDelete (void)
 static void menuProperties (void)
 {
 	printf("menuProperties\n");
+	system("python /home/thil/Desktop/tintwizard/tintwizard.py");
 }
 
 

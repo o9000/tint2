@@ -8,7 +8,7 @@
 rounded = 5
 border_width = 1
 background_color = #44475D 45
-border_color =  #44475D 100
+border_color = #44475D 100
 
 rounded = 5
 border_width = 1
@@ -76,3 +76,4 @@ mouse_middle = none
 mouse_right = close
 mouse_scroll_up = toggle
 mouse_scroll_down = iconify
+
