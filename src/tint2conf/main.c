@@ -313,7 +313,29 @@ static void menuSaveAs (GtkWindow *parent)
 
 static void menuDelete (void)
 {
-	printf("menuDelete\n");
+	GtkTreeSelection *sel;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	char *value, *name1, *name2;
+
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(themeView));
+	//model = GTK_TREE_MODEL(window->liststore);
+	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
+		gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
+		name1 = g_build_filename (g_get_user_config_dir(), "tint2", value, NULL);
+		name2 = g_strdup_printf("%s.tint2rc", name1);
+		g_free(name1);
+
+		//g_remove(name2);
+/*
+		GtkListStore *store;
+		GtkTreeIter iter;
+		store = GTK_LIST_STORE(model);
+		gtk_list_store_remove(store, &iter);
+*/
+		g_free(value);
+		g_free(name2);
+	}
 }
 
 
@@ -326,6 +348,7 @@ static void menuProperties (void)
 static void menuRename (void)
 {
 	printf("menuRename\n");
+	// g_rename
 }
 
 
@@ -382,7 +405,7 @@ static void onPopupMenu(GtkWidget *self, GdkEventButton *event)
 
 static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data)
 {
-    //action_activate("show-torrent-properties");
+	menuApply();
 }
 
 
