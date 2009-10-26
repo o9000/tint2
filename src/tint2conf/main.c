@@ -17,6 +17,7 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <locale.h>
@@ -50,12 +51,12 @@ enum { LIST_ITEM = 0, N_COLUMNS };
 char *pathConfig = 0;
 char *pathDir = 0;
 
-GtkWidget *themeView;
+GtkWidget *g_theme_view;
+GtkListStore *g_store;
 
-static GtkUIManager *myUIManager = NULL;
+static GtkUIManager *globalUIManager = NULL;
 
 static void menuAddWidget (GtkUIManager *, GtkWidget *, GtkContainer *);
-static void viewPopup(GtkWidget *wid,GdkEventButton *event,GtkWidget *menu);
 
 // action on menus
 static void menuAdd (GtkWindow * parent);
@@ -69,7 +70,8 @@ static void menuRefreshAll (void);
 static void menuApply (void);
 static void menuAbout(GtkWindow * parent);
 
-static void onPopupMenu(GtkWidget *self, GdkEventButton *event);
+static gboolean view_onPopupMenu (GtkWidget *treeview, gpointer userdata);
+static gboolean view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer userdata);
 static void viewRowActivated( GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data);
 
 // TreeView
@@ -83,8 +85,8 @@ void write_config(char *defaultTheme);
 void check_theme();
 
 
-// define menubar and toolbar
-static const char *fallback_ui_file =
+// define menubar, toolbar and popup
+static const char *global_ui =
 	"<ui>"
 	"  <menubar name='MenuBar'>"
 	"    <menu action='ThemeMenu'>"
@@ -112,7 +114,14 @@ static const char *fallback_ui_file =
 	"    <toolitem action='ThemeProperties'/>"
 	"    <toolitem action='ViewApply'/>"
 	"  </toolbar>"
+	"  <popup  name='ThemePopup'>"
+	"    <menuitem action='ThemeProperties'/>"
+	"    <menuitem action='ThemeRename'/>"
+	"    <separator/>"
+	"    <menuitem action='ThemeDelete'/>"
+	"  </popup>"
 	"</ui>";
+
 
 // define menubar and toolbar action
 static GtkActionEntry entries[] = {
@@ -134,10 +143,9 @@ static GtkActionEntry entries[] = {
 
 int main (int argc, char ** argv)
 {
-	GtkWidget *window, *popup, *item;
+	GtkWidget *window;
 	GtkWidget *vBox = NULL;
 	GtkActionGroup *actionGroup;
-	GtkTreeViewColumn *col;
 	GtkTreeSelection *sel;
 
 	gtk_init (&argc, &argv);
@@ -154,49 +162,36 @@ int main (int argc, char ** argv)
 
 	actionGroup = gtk_action_group_new ("menuActionGroup");
    gtk_action_group_add_actions (actionGroup, entries, G_N_ELEMENTS (entries), NULL);
-	myUIManager = gtk_ui_manager_new();
-   gtk_ui_manager_insert_action_group (myUIManager, actionGroup, 0);
-	gtk_ui_manager_add_ui_from_string ( myUIManager, fallback_ui_file, -1, NULL );
-	g_signal_connect(myUIManager, "add_widget", G_CALLBACK (menuAddWidget), vBox);
-	gtk_ui_manager_ensure_update(myUIManager);
+	globalUIManager = gtk_ui_manager_new();
+   gtk_ui_manager_insert_action_group (globalUIManager, actionGroup, 0);
+	gtk_ui_manager_add_ui_from_string (globalUIManager, global_ui, -1, NULL );
+	g_signal_connect(globalUIManager, "add_widget", G_CALLBACK (menuAddWidget), vBox);
+	gtk_ui_manager_ensure_update(globalUIManager);
 
 	// define tree view
-	themeView = gtk_tree_view_new();
-	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(themeView), FALSE);
-	//gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(themeView), TRUE);
+	g_theme_view = gtk_tree_view_new();
+	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(g_theme_view), FALSE);
+	//gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(g_theme_view), TRUE);
 	//col = GTK_TREE_VIEW_COLUMN (g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Theme"), "resizable", TRUE, "sizing", GTK_TREE_VIEW_COLUMN_FIXED, NULL));
-	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(themeView));
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	gtk_tree_selection_set_mode(GTK_TREE_SELECTION(sel), GTK_SELECTION_SINGLE);
-   gtk_box_pack_start(GTK_BOX(vBox), themeView, TRUE, TRUE, 0);
-   gtk_widget_show(themeView);
-	g_signal_connect(themeView, "popup-menu", G_CALLBACK(onPopupMenu), NULL);
-	g_signal_connect(themeView, "row-activated", G_CALLBACK(viewRowActivated), NULL);
+   gtk_box_pack_start(GTK_BOX(vBox), g_theme_view, TRUE, TRUE, 0);
+   gtk_widget_show(g_theme_view);
+	g_signal_connect(g_theme_view, "button-press-event", (GCallback)view_onButtonPressed, NULL);
+	g_signal_connect(g_theme_view, "popup-menu", (GCallback)view_onPopupMenu, NULL);
+	g_signal_connect(g_theme_view, "row-activated", G_CALLBACK(viewRowActivated), NULL);
 	g_signal_connect(sel, "changed",	G_CALLBACK(on_changed), NULL);
-	//g_signal_connect(themeView, "button-press-event", G_CALLBACK(onViewButtonPressed), (void *)onViewButtonPressed);
-	//g_signal_connect(themeView, "button-release-event", G_CALLBACK(onViewButtonReleased), NULL);
 
 	GtkCellRenderer *renderer;
 	GtkTreeViewColumn *column;
-	GtkListStore *store;
 	renderer = gtk_cell_renderer_text_new();
 	column = gtk_tree_view_column_new_with_attributes("List Items", renderer, "text", LIST_ITEM, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(themeView), column);
-	store = gtk_list_store_new(N_COLUMNS, G_TYPE_STRING);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(themeView), GTK_TREE_MODEL(store));
-	g_object_unref(store);
-
-	// popup menu
-	// all you need to do is add the GDK_BUTTON_PRESS_MASK to the window's events
-	gtk_widget_add_events(window, GDK_BUTTON_PRESS_MASK);
-	popup = gtk_menu_new();
-	item = gtk_menu_item_new_with_label("victory");
-	gtk_menu_shell_append(GTK_MENU_SHELL(popup), item);
-	gtk_menu_attach_to_widget(GTK_MENU(popup), window, NULL);
-	gtk_widget_show_all(popup);
-	g_signal_connect(G_OBJECT(window),"button-press-event", G_CALLBACK(viewPopup), (gpointer)popup);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(g_theme_view), column);
+	g_store = gtk_list_store_new(N_COLUMNS, G_TYPE_STRING);
+	gtk_tree_view_set_model(GTK_TREE_VIEW(g_theme_view), GTK_TREE_MODEL(g_store));
 
    // load themes
-	loadTheme(themeView);
+	loadTheme(g_theme_view);
 
 	// rig up idle/thread routines
 	//Glib::Thread::create(sigc::mem_fun(window.view, &Thumbview::load_cache_images), true);
@@ -212,14 +207,6 @@ static void menuAddWidget (GtkUIManager * p_uiManager, GtkWidget * p_widget, Gtk
 {
    gtk_box_pack_start(GTK_BOX(p_box), p_widget, FALSE, FALSE, 0);
    gtk_widget_show(p_widget);
-}
-
-
-static void viewPopup(GtkWidget *wid, GdkEventButton *event, GtkWidget *menu)
-{
-    if((event->button == 3) && (event->type == GDK_BUTTON_PRESS)) {
-        gtk_menu_popup(GTK_MENU(menu),NULL,NULL,NULL,NULL,event->button,event->time);
-    }
 }
 
 
@@ -267,20 +254,19 @@ static void menuAdd (GtkWindow *parent)
 			if (pt1) {
 				pt1++;
 				if (*pt1) {
-					name = strndup(pt1, 65000);
+					name = strdup(pt1);
 					path = g_build_filename (g_get_user_config_dir(), "tint2", name, NULL);
 					copy_file(file, path);
 					g_free(path);
 					pt1 = strstr(name, ".tint2rc");
 					if (pt1) {
 						file = strndup(name, pt1-name);
-						add_to_list(themeView, file);
+						add_to_list(g_theme_view, file);
 						g_free(file);
 					}
 					g_free(name);
 				}
 			}
-			//tr_core_torrents_added( core );
 		}
 
 		g_slist_foreach(list, (GFunc)g_free, NULL);
@@ -319,14 +305,14 @@ static void menuDelete (void)
 	GtkTreeModel *model;
 	char *value, *name1, *name2;
 
-	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(themeView));
-	//model = GTK_TREE_MODEL(window->liststore);
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
 		name1 = g_build_filename (g_get_user_config_dir(), "tint2", value, NULL);
 		name2 = g_strdup_printf("%s.tint2rc", name1);
 		g_free(name1);
 
+		printf("selected row %s\n", value);
 		//g_remove(name2);
 /*
 		GtkListStore *store;
@@ -355,6 +341,7 @@ static void menuRename (void)
 
 static void menuQuit (void)
 {
+	g_object_unref(g_store);
    gtk_main_quit ();
 }
 
@@ -378,7 +365,7 @@ static void menuApply (void)
 	GtkTreeModel *model;
 	char *value, *name1, *name2;
 
-	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(themeView));
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
 		name1 = g_build_filename (g_get_user_config_dir(), "tint2", value, NULL);
@@ -396,11 +383,50 @@ static void menuApply (void)
 }
 
 
-static void onPopupMenu(GtkWidget *self, GdkEventButton *event)
+static void view_popup_menu(GtkWidget *treeview, GdkEventButton *event, gpointer userdata)
 {
-	//GtkWidget *menu = action_get_widget("/main-window-popup");
+	GtkWidget *w = gtk_ui_manager_get_widget(globalUIManager, "/ThemePopup");
 
-	//gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, (event ? event->button : 0), (event ? event->time : 0));
+	gtk_menu_popup(GTK_MENU(w), NULL, NULL, NULL, NULL, (event != NULL) ? event->button : 0, gdk_event_get_time((GdkEvent*)event));
+}
+
+
+static gboolean view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer userdata)
+{
+	/* single click with the right mouse button? */
+	if (event->type == GDK_BUTTON_PRESS  &&  event->button == 3) {
+		/* optional: select row if no row is selected or only
+		 *  one other row is selected (will only do something
+		 *  if you set a tree selection mode as described later
+		 *  in the tutorial) */
+		GtkTreeSelection *selection;
+
+		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+
+		/* Note: gtk_tree_selection_count_selected_rows() does not
+		*   exist in gtk+-2.0, only in gtk+ >= v2.2 ! */
+		if (gtk_tree_selection_count_selected_rows(selection)  <= 1) {
+			GtkTreePath *path;
+
+			/* Get tree path for row that was clicked */
+			if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview), (gint) event->x, (gint) event->y, &path, NULL, NULL, NULL)) {
+				gtk_tree_selection_unselect_all(selection);
+				gtk_tree_selection_select_path(selection, path);
+				gtk_tree_path_free(path);
+			}
+		}
+
+		view_popup_menu(treeview, event, userdata);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+
+static gboolean view_onPopupMenu (GtkWidget *treeview, gpointer userdata)
+{
+	view_popup_menu(treeview, NULL, userdata);
+	return TRUE;
 }
 
 
