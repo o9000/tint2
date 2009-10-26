@@ -308,20 +308,17 @@ static void menuDelete (void)
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
+		gtk_tree_selection_unselect_all(sel);
+		// remove from the gui
+		gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+
 		name1 = g_build_filename (g_get_user_config_dir(), "tint2", value, NULL);
 		name2 = g_strdup_printf("%s.tint2rc", name1);
-		g_free(name1);
+		g_remove(name2);
 
-		printf("selected row %s\n", value);
-		//g_remove(name2);
-/*
-		GtkListStore *store;
-		GtkTreeIter iter;
-		store = GTK_LIST_STORE(model);
-		gtk_list_store_remove(store, &iter);
-*/
-		g_free(value);
+		g_free(name1);
 		g_free(name2);
+		g_free(value);
 	}
 }
 
@@ -393,22 +390,16 @@ static void view_popup_menu(GtkWidget *treeview, GdkEventButton *event, gpointer
 
 static gboolean view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer userdata)
 {
-	/* single click with the right mouse button? */
+	// single click with the right mouse button?
 	if (event->type == GDK_BUTTON_PRESS  &&  event->button == 3) {
-		/* optional: select row if no row is selected or only
-		 *  one other row is selected (will only do something
-		 *  if you set a tree selection mode as described later
-		 *  in the tutorial) */
 		GtkTreeSelection *selection;
 
 		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 
-		/* Note: gtk_tree_selection_count_selected_rows() does not
-		*   exist in gtk+-2.0, only in gtk+ >= v2.2 ! */
 		if (gtk_tree_selection_count_selected_rows(selection)  <= 1) {
 			GtkTreePath *path;
 
-			/* Get tree path for row that was clicked */
+			// Get tree path for row that was clicked
 			if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview), (gint) event->x, (gint) event->y, &path, NULL, NULL, NULL)) {
 				gtk_tree_selection_unselect_all(selection);
 				gtk_tree_selection_select_path(selection, path);
