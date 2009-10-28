@@ -30,7 +30,8 @@ typedef struct Battery {
 enum chargestate {
 	BATTERY_UNKNOWN,
 	BATTERY_CHARGING,
-	BATTERY_DISCHARGING
+	BATTERY_DISCHARGING,
+	BATTERY_FULL
 };
 
 typedef struct battime {

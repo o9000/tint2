@@ -145,7 +145,11 @@ void init_battery_panel(void *p)
 
 	update_battery(&battery_state);
 	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
-	snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
+	if(battery_state.state == BATTERY_FULL) {
+		strcpy(buf_bat_time, "Full");
+	} else {
+		snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
+	}
 
 	get_text_size(bat1_font_desc, &bat_percentage_height_ink, &bat_percentage_height, panel->area.height, buf_bat_percentage, strlen(buf_bat_percentage));
 	get_text_size(bat2_font_desc, &bat_time_height_ink, &bat_time_height, panel->area.height, buf_bat_time, strlen(buf_bat_time));
@@ -206,6 +210,7 @@ void update_battery() {
 	battery_state.state = BATTERY_UNKNOWN;
 	if(strcasecmp(tmp, "Charging\n")==0) battery_state.state = BATTERY_CHARGING;
 	if(strcasecmp(tmp, "Discharging\n")==0) battery_state.state = BATTERY_DISCHARGING;
+	if(strcasecmp(tmp, "Full\n")==0) battery_state.state = BATTERY_FULL;
 
 	if(current_now > 0) {
 		switch(battery_state.state) {
@@ -236,6 +241,11 @@ void update_battery() {
 	}
 
 	battery_state.percentage = new_percentage;
+
+	// clamp percentage to 100 in case battery is misreporting that its current charge is more than its max
+	if(battery_state.percentage > 100) {
+		battery_state.percentage = 100;
+	}
 }
 
 
@@ -281,7 +291,11 @@ void resize_battery(void *obj)
 	battery->area.redraw = 1;
 
 	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
-	snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
+	if(battery_state.state == BATTERY_FULL) {
+		strcpy(buf_bat_time, "Full");
+	} else {
+		snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
+	}
 	// vertical panel doen't adjust width
 	if (!panel_horizontal) return;
 
