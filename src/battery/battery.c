@@ -35,6 +35,7 @@
 PangoFontDescription *bat1_font_desc;
 PangoFontDescription *bat2_font_desc;
 struct batstate battery_state;
+int battery_enabled;
 
 static char buf_bat_percentage[10];
 static char buf_bat_time[20];
@@ -51,6 +52,8 @@ void init_battery()
 	GError *error = NULL;
 	const char *entryname;
 	char *battery_dir = 0;
+
+	if (!battery_enabled) return;
 
 	path_energy_now = path_energy_full = path_current_now = path_status = 0;
 	directory = g_dir_open("/sys/class/power_supply", 0, &error);
@@ -71,32 +74,55 @@ void init_battery()
 	}
 	if (directory)
 		g_dir_close(directory);
-	if (battery_dir) {
-		char *path1 = g_build_filename(battery_dir, "energy_now", NULL);
-		if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
-			path_energy_now = g_build_filename(battery_dir, "energy_now", NULL);
-			path_energy_full = g_build_filename(battery_dir, "energy_full", NULL);
-		}
-		else {
-			char *path2 = g_build_filename(battery_dir, "charge_now", NULL);
-			if (g_file_test (path2, G_FILE_TEST_EXISTS)) {
-				path_energy_now = g_build_filename(battery_dir, "charge_now", NULL);
-				path_energy_full = g_build_filename(battery_dir, "charge_full", NULL);
-			}
-			else {
-				g_free(battery_dir);
-				battery_dir = 0;
-				fprintf(stderr, "ERROR: can't found energy_* or charge_*\n");
-			}
-			g_free(path2);
-		}
-		path_current_now = g_build_filename(battery_dir, "current_now", NULL);
-		path_status = g_build_filename(battery_dir, "status", NULL);
-		g_free(path1);
+	if (!battery_dir) {
+		battery_enabled = 0;
+		fprintf(stderr, "ERROR: battery applet can't found power_supply\n");
+		return;
 	}
 
-	if (battery_dir)
-		g_free(battery_dir);
+	char *path1 = g_build_filename(battery_dir, "energy_now", NULL);
+	if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
+		path_energy_now = g_build_filename(battery_dir, "energy_now", NULL);
+		path_energy_full = g_build_filename(battery_dir, "energy_full", NULL);
+	}
+	else {
+		char *path2 = g_build_filename(battery_dir, "charge_now", NULL);
+		if (g_file_test (path2, G_FILE_TEST_EXISTS)) {
+			path_energy_now = g_build_filename(battery_dir, "charge_now", NULL);
+			path_energy_full = g_build_filename(battery_dir, "charge_full", NULL);
+		}
+		else {
+			fprintf(stderr, "ERROR: can't found energy_* or charge_*\n");
+		}
+		g_free(path2);
+	}
+	if (path_energy_now && path_energy_full) {
+		path_current_now = g_build_filename(battery_dir, "current_now", NULL);
+		path_status = g_build_filename(battery_dir, "status", NULL);
+
+		// check file
+		FILE *fp1, *fp2, *fp3, *fp4;
+		fp1 = fopen(path_energy_now, "r");
+		fp2 = fopen(path_energy_full, "r");
+		fp3 = fopen(path_current_now, "r");
+		fp4 = fopen(path_status, "r");
+		if (fp1 == NULL || fp2 == NULL || fp3 == NULL || fp4 == NULL) {
+			battery_enabled = 0;
+			fprintf(stderr, "ERROR: battery applet can't open energy_now\n");
+			g_free(path_energy_now);
+			g_free(path_energy_full);
+			g_free(path_current_now);
+			g_free(path_status);
+			path_energy_now = path_energy_full = path_current_now = path_status = 0;
+		}
+		fclose(fp1);
+		fclose(fp2);
+		fclose(fp3);
+		fclose(fp4);
+	}
+
+	g_free(path1);
+	g_free(battery_dir);
 }
 
 
@@ -106,10 +132,9 @@ void init_battery_panel(void *p)
 	Battery *battery = &panel->battery;
 	FILE *fp;
 	int bat_percentage_height, bat_percentage_height_ink, bat_time_height, bat_time_height_ink;
-	char *battery_dir = 0;
 
-	if (battery_dir == 0) battery->area.on_screen = 0;
-	if (!battery->area.on_screen) return;
+	if (!battery_enabled)
+		return;
 
 	battery->area.parent = p;
 	battery->area.panel = p;
@@ -117,39 +142,11 @@ void init_battery_panel(void *p)
 	battery->area._resize = resize_battery;
 	battery->area.resize = 1;
 	battery->area.redraw = 1;
-
-	if((fp = fopen(path_energy_now, "r")) == NULL) {
-		fprintf(stderr, "ERROR: battery applet can't open energy_now\n");
-		panel->battery.area.on_screen = 0;
-		return;
-	}
-	fclose(fp);
-	if((fp = fopen(path_energy_full, "r")) == NULL) {
-		fprintf(stderr, "ERROR: battery applet can't open energy_full\n");
-		panel->battery.area.on_screen = 0;
-		return;
-	}
-	fclose(fp);
-	if((fp = fopen(path_current_now, "r")) == NULL) {
-		fprintf(stderr, "ERROR: battery applet can't open current_now\n");
-		panel->battery.area.on_screen = 0;
-		return;
-	}
-	fclose(fp);
-	if((fp = fopen(path_status, "r")) == NULL) {
-		fprintf(stderr, "ERROR: battery applet can't open status");
-		panel->battery.area.on_screen = 0;
-		return;
-	}
-	fclose(fp);
+	battery->area.on_screen = 1;
 
 	update_battery(&battery_state);
 	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
-	if(battery_state.state == BATTERY_FULL) {
-		strcpy(buf_bat_time, "Full");
-	} else {
-		snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
-	}
+	snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
 
 	get_text_size(bat1_font_desc, &bat_percentage_height_ink, &bat_percentage_height, panel->area.height, buf_bat_percentage, strlen(buf_bat_percentage));
 	get_text_size(bat2_font_desc, &bat_time_height_ink, &bat_time_height, panel->area.height, buf_bat_time, strlen(buf_bat_time));
@@ -177,8 +174,22 @@ void update_battery() {
 	FILE *fp;
 	char tmp[25];
 	int64_t energy_now = 0, energy_full = 0, current_now = 0;
-	int seconds = 0;
+	int i, seconds = 0;
 	int8_t new_percentage = 0;
+
+	fp = fopen(path_status, "r");
+	if(fp != NULL) {
+		fgets(tmp, sizeof tmp, fp);
+		fclose(fp);
+	}
+	battery_state.state = BATTERY_UNKNOWN;
+	if(strcasecmp(tmp, "Charging\n")==0) battery_state.state = BATTERY_CHARGING;
+	if(strcasecmp(tmp, "Discharging\n")==0) battery_state.state = BATTERY_DISCHARGING;
+	if(strcasecmp(tmp, "Full\n")==0) battery_state.state = BATTERY_FULL;
+	if (battery_state.state == BATTERY_DISCHARGING) {
+	}
+	else {
+	}
 
 	fp = fopen(path_energy_now, "r");
 	if(fp != NULL) {
@@ -200,17 +211,6 @@ void update_battery() {
 		current_now = atoi(tmp);
 		fclose(fp);
 	}
-
-	fp = fopen(path_status, "r");
-	if(fp != NULL) {
-		fgets(tmp, sizeof tmp, fp);
-		fclose(fp);
-	}
-
-	battery_state.state = BATTERY_UNKNOWN;
-	if(strcasecmp(tmp, "Charging\n")==0) battery_state.state = BATTERY_CHARGING;
-	if(strcasecmp(tmp, "Discharging\n")==0) battery_state.state = BATTERY_DISCHARGING;
-	if(strcasecmp(tmp, "Full\n")==0) battery_state.state = BATTERY_FULL;
 
 	if(current_now > 0) {
 		switch(battery_state.state) {

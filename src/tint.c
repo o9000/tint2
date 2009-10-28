@@ -662,7 +662,7 @@ void event_timer()
 
 	// update battery
 #ifdef ENABLE_BATTERY
-	if (panel1[0].battery.area.on_screen) {
+	if (battery_enabled) {
 		update_battery();
 		for (i=0 ; i < nb_panel ; i++)
 			panel1[i].battery.area.resize = 1;

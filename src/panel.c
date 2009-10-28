@@ -128,7 +128,7 @@ void init_panel()
 			p->area.list = g_slist_append(p->area.list, &p->clock);
 		}
 #ifdef ENABLE_BATTERY
-		if (p->battery.area.on_screen) {
+		if (battery_enabled) {
 			init_battery_panel(p);
 			p->area.list = g_slist_append(p->area.list, &p->battery);
 		}

@@ -18,6 +18,7 @@
 #include "area.h"
 
 
+// battery drawing parameter (per panel)
 typedef struct Battery {
 	// always start with area
 	Area area;
@@ -49,6 +50,7 @@ typedef struct batstate {
 extern struct batstate battery_state;
 extern PangoFontDescription *bat1_font_desc;
 extern PangoFontDescription *bat2_font_desc;
+extern int battery_enabled;
 
 extern int8_t battery_low_status;
 extern char *battery_low_cmd;
