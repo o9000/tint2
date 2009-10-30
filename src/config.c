@@ -77,6 +77,13 @@ void init_config()
 	// append full transparency background
 	list_back = g_slist_append(0, calloc(1, sizeof(Area)));
 
+	// tint2 could reload config, so we cleanup objects
+	cleanup_systray();
+	cleanup_battery();
+	cleanup_clock();
+	cleanup_tooltip();
+
+	// panel's default value
 	memset(&panel_config, 0, sizeof(Panel));
 	panel_config.g_task.alpha = 100;
 	panel_config.g_task.alpha_active = 100;
@@ -199,6 +206,11 @@ void add_entry (char *key, char *value)
 			panel_config.monitor = atoi (value);
 			if (panel_config.monitor > 0) panel_config.monitor -= 1;
 		}
+		if (panel_config.monitor > (server.nb_monitor-1)) {
+			// server.nb_monitor minimum value is 1 (see get_monitors())
+			fprintf(stderr, "warning : monitor not found. tint2 default to all monitors.\n");
+			panel_config.monitor = 0;
+		}
 	}
 	else if (strcmp (key, "panel_size") == 0) {
 		extract_values(value, &value1, &value2, &value3);
@@ -289,9 +301,8 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "battery_low_cmd") == 0) {
 #ifdef ENABLE_BATTERY
-		if (battery_low_cmd) g_free(battery_low_cmd);
-		if (strlen(value) > 0) battery_low_cmd = strdup (value);
-		else battery_low_cmd = 0;
+		if (strlen(value) > 0)
+			battery_low_cmd = strdup (value);
 #endif
 	}
 	else if (strcmp (key, "bat1_font") == 0) {
@@ -335,20 +346,14 @@ void add_entry (char *key, char *value)
 
 	/* Clock */
 	else if (strcmp (key, "time1_format") == 0) {
-		if (time1_format) g_free(time1_format);
 		if (strlen(value) > 0) {
 			time1_format = strdup (value);
-			panel_config.clock.area.on_screen = 1;
-		}
-		else {
-			time1_format = 0;
-			panel_config.clock.area.on_screen = 0;
+			clock_enabled = 1;
 		}
 	}
 	else if (strcmp (key, "time2_format") == 0) {
-		if (time2_format) g_free(time2_format);
-		if (strlen(value) > 0) time2_format = strdup (value);
-		else time2_format = 0;
+		if (strlen(value) > 0)
+			time2_format = strdup (value);
 	}
 	else if (strcmp (key, "time1_font") == 0) {
 		if (save_file_config) old_time1_font = strdup (value);
@@ -379,14 +384,12 @@ void add_entry (char *key, char *value)
 		memcpy(&panel_config.clock.area.pix.border, &a->pix.border, sizeof(Border));
 	}
 	else if (strcmp(key, "clock_lclick_command") == 0) {
-		if (clock_lclick_command) g_free(clock_lclick_command);
-		if (strlen(value) > 0) clock_lclick_command = strdup(value);
-		else clock_lclick_command = 0;
+		if (strlen(value) > 0)
+			clock_lclick_command = strdup(value);
 	}
 	else if (strcmp(key, "clock_rclick_command") == 0) {
-		if (clock_rclick_command) g_free(clock_rclick_command);
-		if (strlen(value) > 0) clock_rclick_command = strdup(value);
-		else clock_rclick_command = 0;
+		if (strlen(value) > 0)
+			clock_rclick_command = strdup(value);
 	}
 
 	/* Taskbar */
@@ -482,12 +485,15 @@ void add_entry (char *key, char *value)
 	}
 
 	/* Systray */
+	else if (strcmp (key, "systray") == 0) {
+		if(atoi(value) == 1)
+			systray_enabled = 1;
+	}
 	else if (strcmp (key, "systray_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		systray.area.paddingxlr = systray.area.paddingx = atoi (value1);
 		if (value2) systray.area.paddingy = atoi (value2);
 		if (value3) systray.area.paddingx = atoi (value3);
-		systray.area.on_screen = 1;
 	}
 	else if (strcmp (key, "systray_background_id") == 0) {
 		int id = atoi (value);
@@ -635,29 +641,6 @@ void add_entry (char *key, char *value)
 	if (value1) free (value1);
 	if (value2) free (value2);
 	if (value3) free (value3);
-}
-
-
-void config_finish ()
-{
-	if (panel_config.monitor > (server.nb_monitor-1)) {
-		// server.nb_monitor minimum value is 1 (see get_monitors())
-		// and panel_config->monitor is higher
-		fprintf(stderr, "warning : monitor not found. tint2 default to all monitors.\n");
-		panel_config.monitor = 0;
-	}
-
-	// TODO: user can configure layout => ordered objects in panel.area.list
-	// clock and systray before taskbar because resize(clock) can resize others object ??
-	init_tooltip();
-	init_clock();
-#ifdef ENABLE_BATTERY
-	init_battery();
-#endif
-	init_systray();
-	init_panel();
-
-	cleanup_config();
 }
 
 

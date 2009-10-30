@@ -32,8 +32,8 @@
 #include "battery.h"
 #include "clock.h"
 
-PangoFontDescription *bat1_font_desc;
-PangoFontDescription *bat2_font_desc;
+PangoFontDescription *bat1_font_desc=0;
+PangoFontDescription *bat2_font_desc=0;
 struct batstate battery_state;
 int battery_enabled;
 
@@ -41,8 +41,11 @@ static char buf_bat_percentage[10];
 static char buf_bat_time[20];
 
 int8_t battery_low_status;
-char *battery_low_cmd;
-char *path_energy_now, *path_energy_full, *path_current_now, *path_status;
+char *battery_low_cmd=0;
+char *path_energy_now=0;
+char *path_energy_full=0;
+char *path_current_now=0;
+char *path_status=0;
 
 
 void init_battery()
@@ -55,7 +58,6 @@ void init_battery()
 
 	if (!battery_enabled) return;
 
-	path_energy_now = path_energy_full = path_current_now = path_status = 0;
 	directory = g_dir_open("/sys/class/power_supply", 0, &error);
 	if (error)
 		g_error_free(error);
@@ -75,7 +77,7 @@ void init_battery()
 	if (directory)
 		g_dir_close(directory);
 	if (!battery_dir) {
-		battery_enabled = 0;
+		cleanup_battery();
 		fprintf(stderr, "ERROR: battery applet can't found power_supply\n");
 		return;
 	}
@@ -107,13 +109,8 @@ void init_battery()
 		fp3 = fopen(path_current_now, "r");
 		fp4 = fopen(path_status, "r");
 		if (fp1 == NULL || fp2 == NULL || fp3 == NULL || fp4 == NULL) {
-			battery_enabled = 0;
+			cleanup_battery();
 			fprintf(stderr, "ERROR: battery applet can't open energy_now\n");
-			g_free(path_energy_now);
-			g_free(path_energy_full);
-			g_free(path_current_now);
-			g_free(path_status);
-			path_energy_now = path_energy_full = path_current_now = path_status = 0;
 		}
 		fclose(fp1);
 		fclose(fp2);
@@ -123,6 +120,29 @@ void init_battery()
 
 	g_free(path1);
 	g_free(battery_dir);
+}
+
+
+void cleanup_battery()
+{
+	battery_enabled = 0;
+	if (bat1_font_desc)
+		pango_font_description_free(bat1_font_desc);
+	if (bat2_font_desc)
+		pango_font_description_free(bat2_font_desc);
+	if (path_energy_now)
+		g_free(path_energy_now);
+	if (path_energy_full)
+		g_free(path_energy_full);
+	if (path_current_now)
+		g_free(path_current_now);
+	if (path_status)
+		g_free(path_status);
+	if (battery_low_cmd)
+		g_free(battery_low_cmd);
+
+	battery_low_cmd = path_energy_now = path_energy_full = path_current_now = path_status = 0;
+	bat1_font_desc = bat2_font_desc = 0;
 }
 
 

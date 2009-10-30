@@ -71,6 +71,13 @@ void init_panel()
 	int i, old_nb_panel;
 	Panel *new_panel, *p;
 
+	init_tooltip();
+	init_systray();
+	init_clock();
+#ifdef ENABLE_BATTERY
+	init_battery();
+#endif
+
 	cleanup_taskbar();
 	for (i=0 ; i < nb_panel ; i++) {
 		free_area(&panel1[i].area);
@@ -123,7 +130,7 @@ void init_panel()
 		init_panel_size_and_position(p);
 
 		// add childs
-		if (p->clock.area.on_screen) {
+		if (clock_enabled) {
 			init_clock_panel(p);
 			p->area.list = g_slist_append(p->area.list, &p->clock);
 		}

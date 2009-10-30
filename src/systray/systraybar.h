@@ -38,10 +38,11 @@ typedef struct
 } TrayWindow;
 
 
+// net_sel_win != None when protocol started
 extern Window net_sel_win;
 extern Systraybar systray;
 extern int refresh_systray;
-
+extern int systray_enabled;
 
 void init_systray();
 void init_systray_panel(void *p);
@@ -52,8 +53,8 @@ void resize_systray(void *obj);
 
 // systray protocol
 // many tray icon doesn't manage stop/restart of the systray manager
-int init_net();
-void cleanup_net();
+void start_net();
+void stop_net();
 void net_message(XClientMessageEvent *e);
 
 gboolean add_icon(Window id);

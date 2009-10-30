@@ -47,6 +47,7 @@ extern Tooltip g_tooltip;
 
 
 void init_tooltip();
+void cleanup_tooltip();
 void tooltip_sighandler(int sig);
 void tooltip_trigger_show(Task* task, int x, int y);
 void tooltip_show();

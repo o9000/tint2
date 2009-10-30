@@ -62,6 +62,7 @@ void update_battery();
 
 void init_battery();
 void init_battery_panel(void *panel);
+void cleanup_battery();
 
 void draw_battery(void *obj, cairo_t *c, int active);
 

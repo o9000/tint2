@@ -32,16 +32,17 @@
 #include "clock.h"
 
 
-char *time1_format;
-char *time2_format;
-char *clock_lclick_command;
-char *clock_rclick_command;
+char *time1_format=0;
+char *time2_format=0;
+char *clock_lclick_command=0;
+char *clock_rclick_command=0;
 struct timeval time_clock;
 int  time_precision;
-PangoFontDescription *time1_font_desc;
-PangoFontDescription *time2_font_desc;
+PangoFontDescription *time1_font_desc=0;
+PangoFontDescription *time2_font_desc=0;
 static char buf_time[40];
 static char buf_date[40];
+int clock_enabled;
 
 
 void init_precision()
@@ -78,6 +79,7 @@ void init_clock_panel(void *p)
 	clock->area._resize = resize_clock;
 	clock->area.resize = 1;
 	clock->area.redraw = 1;
+	clock->area.on_screen = 1;
 
 	strftime(buf_time, sizeof(buf_time), time1_format, localtime(&time_clock.tv_sec));
 	get_text_size(time1_font_desc, &time_height_ink, &time_height, panel->area.height, buf_time, strlen(buf_time));
@@ -107,6 +109,27 @@ void init_clock_panel(void *p)
 		clock->time1_posy -= ((date_height_ink + 2) / 2);
 		clock->time2_posy = clock->time1_posy + time_height + 2 - (time_height - time_height_ink)/2 - (date_height - date_height_ink)/2;
 	}
+}
+
+
+void cleanup_clock()
+{
+	clock_enabled = 0;
+	if (time1_font_desc)
+		pango_font_description_free(time1_font_desc);
+	if (time2_font_desc)
+		pango_font_description_free(time2_font_desc);
+	if (time1_format)
+		g_free(time1_format);
+	if (time2_format)
+		g_free(time2_format);
+	if (clock_lclick_command)
+		g_free(clock_lclick_command);
+	if (clock_rclick_command)
+		g_free(clock_rclick_command);
+	time1_font_desc = time2_font_desc = 0;
+	time1_format = time2_format = 0;
+	clock_lclick_command = clock_rclick_command = 0;
 }
 
 

@@ -32,12 +32,14 @@ extern PangoFontDescription *time1_font_desc;
 extern PangoFontDescription *time2_font_desc;
 extern char *clock_lclick_command;
 extern char *clock_rclick_command;
+extern int clock_enabled;
 
 
 // initialize clock : y position, precision, ...
 void init_clock();
 void init_clock_panel(void *panel);
 void init_precision();
+void cleanup_clock();
 
 void draw_clock (void *obj, cairo_t *c, int active);
 

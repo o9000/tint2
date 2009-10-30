@@ -59,6 +59,25 @@ void init_tooltip()
 }
 
 
+void cleanup_tooltip()
+{
+	tooltip_hide();
+	g_tooltip.enabled = False;
+	if (g_tooltip.task) {
+		alarm(0);
+		g_tooltip.task = 0;
+	}
+	if (g_tooltip.window) {
+		XDestroyWindow(server.dsp, g_tooltip.window);
+		g_tooltip.window = 0;
+	}
+	if (g_tooltip.font_desc) {
+		pango_font_description_free(g_tooltip.font_desc);
+		g_tooltip.font_desc = 0;
+	}
+}
+
+
 void tooltip_sighandler(int sig)
 {
 	if (g_tooltip.current_state == TOOLTIP_ABOUT_TO_SHOW)

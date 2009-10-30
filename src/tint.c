@@ -125,35 +125,18 @@ void init (int argc, char *argv[])
 void cleanup()
 {
 	cleanup_systray();
+	stop_net();
 	cleanup_panel();
+	cleanup_tooltip();
+	cleanup_clock();
+#ifdef ENABLE_BATTERY
+	cleanup_battery();
+#endif
 
 	if (default_icon) {
 		imlib_context_set_image(default_icon);
 		imlib_free_image();
 	}
-	if (g_tooltip.window) {
-		XDestroyWindow(server.dsp, g_tooltip.window);
-		g_tooltip.window = 0;
-	}
-	if (g_tooltip.font_desc) {
-		pango_font_description_free(g_tooltip.font_desc);
-		g_tooltip.font_desc = 0;
-	}
-	if (time1_font_desc) pango_font_description_free(time1_font_desc);
-	if (time2_font_desc) pango_font_description_free(time2_font_desc);
-	if (time1_format) g_free(time1_format);
-	if (time2_format) g_free(time2_format);
-#ifdef ENABLE_BATTERY
-	if (bat1_font_desc) pango_font_description_free(bat1_font_desc);
-	if (bat2_font_desc) pango_font_description_free(bat2_font_desc);
-	if (battery_low_cmd) g_free(battery_low_cmd);
-	if (path_energy_now) g_free(path_energy_now);
-	if (path_energy_full) g_free(path_energy_full);
-	if (path_current_now) g_free(path_current_now);
-	if (path_status) g_free(path_status);
-#endif
-	if (clock_lclick_command) g_free(clock_lclick_command);
-	if (clock_rclick_command) g_free(clock_rclick_command);
 	if (config_path) g_free(config_path);
 	if (thumbnail_path) g_free(thumbnail_path);
 
@@ -730,7 +713,8 @@ int main (int argc, char *argv[])
 		cleanup();
 		exit(1);
 	}
-	config_finish();
+	init_panel();
+	cleanup_config();
 	if (thumbnail_path) {
 		// usage: tint2 -j <file> for internal use
 		printf("file %s\n", thumbnail_path);

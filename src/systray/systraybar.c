@@ -43,20 +43,21 @@ Window net_sel_win = None, hint_win = None;
 // freedesktop specification doesn't allow multi systray
 Systraybar systray;
 int refresh_systray;
+int systray_enabled;
 
 
 void init_systray()
 {
-	if (systray.area.on_screen)
-		systray.area.on_screen = init_net();
+	start_net();
 
-	if (!systray.area.on_screen)
+	if (!systray_enabled)
 		return;
 
 	systray.area._draw_foreground = draw_systray;
 	systray.area._resize = resize_systray;
 	systray.area.resize = 1;
 	systray.area.redraw = 1;
+	systray.area.on_screen = 1;
 	refresh_systray = 0;
 }
 
@@ -80,17 +81,9 @@ void init_systray_panel(void *p)
 
 void cleanup_systray()
 {
-	if (systray.list_icons) {
-		// remove_icon change systray.list_icons
-		while(systray.list_icons)
-			remove_icon((TrayWindow*)systray.list_icons->data);
-
-		g_slist_free(systray.list_icons);
-		systray.list_icons = 0;
-	}
-
+	systray_enabled = 0;
+	systray.area.on_screen = 0;
 	free_area(&systray.area);
-	cleanup_net();
 }
 
 
@@ -177,8 +170,18 @@ void resize_systray(void *obj)
 // ***********************************************
 // systray protocol
 
-int init_net()
+void start_net()
 {
+	if (net_sel_win) {
+		// protocol already started
+		if (!systray_enabled)
+			stop_net();
+		return;
+	}
+	else
+		if (!systray_enabled)
+			return;
+
 	Window win = XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN);
 
 	// freedesktop systray specification
@@ -201,7 +204,7 @@ int init_net()
 			fprintf(stderr, " pid=%d", pid);
 		}
 		fprintf(stderr, "\n");
-		return 0;
+		return;
 	}
 
 	// init systray protocol
@@ -214,10 +217,12 @@ int init_net()
 
 	XSetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN, net_sel_win, CurrentTime);
 	if (XGetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN) != net_sel_win) {
+		stop_net();
 		fprintf(stderr, "tint2 : can't get systray manager\n");
-		return 0;
+		return;
 	}
 
+	//fprintf(stderr, "tint2 : systray started\n");
 	XClientMessageEvent ev;
 	ev.type = ClientMessage;
 	ev.window = server.root_win;
@@ -229,12 +234,21 @@ int init_net()
 	ev.data.l[3] = 0;
 	ev.data.l[4] = 0;
 	XSendEvent(server.dsp, server.root_win, False, StructureNotifyMask, (XEvent*)&ev);
-	return 1;
 }
 
 
-void cleanup_net()
+void stop_net()
 {
+	//fprintf(stderr, "tint2 : systray stopped\n");
+	if (systray.list_icons) {
+		// remove_icon change systray.list_icons
+		while(systray.list_icons)
+			remove_icon((TrayWindow*)systray.list_icons->data);
+
+		g_slist_free(systray.list_icons);
+		systray.list_icons = 0;
+	}
+
 	if (net_sel_win != None) {
 		XDestroyWindow(server.dsp, net_sel_win);
 		net_sel_win = None;
