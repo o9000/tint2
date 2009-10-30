@@ -55,17 +55,12 @@ char *thumbnail_path = 0;
 
 // --------------------------------------------------
 // backward compatibility
-static int save_file_config;
 static int old_task_icon_size;
 static char *old_task_font;
 static char *old_time1_font;
 static char *old_time2_font;
 static Area *area_task, *area_task_active;
 
-#ifdef ENABLE_BATTERY
-static char *old_bat1_font;
-static char *old_bat2_font;
-#endif
 
 // temporary list of background
 static GSList *list_back;
@@ -307,15 +302,11 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "bat1_font") == 0) {
 #ifdef ENABLE_BATTERY
-		if (save_file_config) old_bat1_font = strdup (value);
-		if (bat1_font_desc) pango_font_description_free(bat1_font_desc);
 		bat1_font_desc = pango_font_description_from_string (value);
 #endif
 	}
 	else if (strcmp (key, "bat2_font") == 0) {
 #ifdef ENABLE_BATTERY
-		if (save_file_config) old_bat2_font = strdup (value);
-		if (bat2_font_desc) pango_font_description_free(bat2_font_desc);
 		bat2_font_desc = pango_font_description_from_string (value);
 #endif
 	}
@@ -356,13 +347,9 @@ void add_entry (char *key, char *value)
 			time2_format = strdup (value);
 	}
 	else if (strcmp (key, "time1_font") == 0) {
-		if (save_file_config) old_time1_font = strdup (value);
-		if (time1_font_desc) pango_font_description_free(time1_font_desc);
 		time1_font_desc = pango_font_description_from_string (value);
 	}
 	else if (strcmp (key, "time2_font") == 0) {
-		if (save_file_config) old_time2_font = strdup (value);
-		if (time2_font_desc) pango_font_description_free(time2_font_desc);
 		time2_font_desc = pango_font_description_from_string (value);
 	}
 	else if (strcmp (key, "clock_font_color") == 0) {
@@ -443,8 +430,6 @@ void add_entry (char *key, char *value)
 		if (value3) panel_config.g_task.area.paddingx = atoi (value3);
 	}
 	else if (strcmp (key, "task_font") == 0) {
-		if (save_file_config) old_task_font = strdup (value);
-		if (panel_config.g_task.font_desc) pango_font_description_free(panel_config.g_task.font_desc);
 		panel_config.g_task.font_desc = pango_font_description_from_string (value);
 	}
 	else if (strcmp (key, "task_font_color") == 0) {
@@ -545,7 +530,6 @@ void add_entry (char *key, char *value)
 		else g_tooltip.font_color.alpha = 0.1;
 	}
 	else if (strcmp (key, "tooltip_font") == 0) {
-		if (g_tooltip.font_desc) pango_font_description_free(g_tooltip.font_desc);
 		g_tooltip.font_desc = pango_font_description_from_string(value);
 	}
 
@@ -562,7 +546,6 @@ void add_entry (char *key, char *value)
 
 	/* Read tint-0.6 config for backward compatibility */
 	else if (strcmp (key, "panel_mode") == 0) {
-		save_file_config = 1;
 		if (strcmp (value, "single_desktop") == 0) panel_mode = SINGLE_DESKTOP;
 		else panel_mode = MULTI_DESKTOP;
 	}
@@ -650,10 +633,7 @@ int config_read ()
 	char *path1;
 	gint i;
 
-	save_file_config = 0;
-
 	// follow XDG specification
-deb:
 	// check tint2rc in user directory
 	path1 = g_build_filename (g_get_user_config_dir(), "tint2", "tint2rc", NULL);
 	if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
@@ -662,21 +642,7 @@ deb:
 		g_free(path1);
 		return i;
 	}
-
 	g_free(path1);
-	if (save_file_config) {
-		fprintf(stderr, "tint2 exit : enable to write $HOME/.config/tint2/tint2rc\n");
-		exit(0);
-	}
-
-	// check old tintrc config file
-	path1 = g_build_filename (g_get_user_config_dir(), "tint", "tintrc", NULL);
-	if (g_file_test (path1, G_FILE_TEST_EXISTS)) {
-		save_file_config = 1;
-		config_read_file (path1);
-		g_free(path1);
-		goto deb;
-	}
 
 	// copy tint2rc from system directory to user directory
 	g_free(path1);
@@ -729,9 +695,9 @@ int config_read_file (const char *path)
 	}
 	fclose (fp);
 
-	if (save_file_config)
-		save_config();
-
+	if (old_task_icon_size) {
+		panel_config.g_task.area.paddingy = ((int)panel_config.area.height - (2 * panel_config.area.paddingy) - old_task_icon_size) / 2;
+	}
 	if (old_task_font) {
 		g_free(old_task_font);
 		old_task_font = 0;
@@ -748,151 +714,4 @@ int config_read_file (const char *path)
 }
 
 
-void save_config ()
-{
-	fprintf(stderr, "tint2 : convert user's config file\n");
-
-	char *path, *dir;
-	FILE *fp;
-
-	if (old_task_icon_size) {
-		panel_config.g_task.area.paddingy = ((int)panel_config.area.height - (2 * panel_config.area.paddingy) - old_task_icon_size) / 2;
-	}
-
-	dir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
-	if (!g_file_test (dir, G_FILE_TEST_IS_DIR)) g_mkdir(dir, 0777);
-	g_free(dir);
-
-	path = g_build_filename (g_get_user_config_dir(), "tint2", "tint2rc", NULL);
-	fp = fopen(path, "w");
-	g_free(path);
-	if (fp == NULL) return;
-
-	fputs("#---------------------------------------------\n", fp);
-	fputs("# TINT2 CONFIG FILE\n", fp);
-	fputs("#---------------------------------------------\n\n", fp);
-	fputs("#---------------------------------------------\n", fp);
-	fputs("# BACKGROUND AND BORDER\n", fp);
-	fputs("#---------------------------------------------\n", fp);
-	GSList *l0;
-	Area *a;
-	l0 = list_back->next;
-	while (l0) {
-		a = l0->data;
-		fprintf(fp, "rounded = %d\n", a->pix.border.rounded);
-		fprintf(fp, "border_width = %d\n", a->pix.border.width);
-		fprintf(fp, "background_color = #%02x%02x%02x %d\n", (int)(a->pix.back.color[0]*255), (int)(a->pix.back.color[1]*255), (int)(a->pix.back.color[2]*255), (int)(a->pix.back.alpha*100));
-		fprintf(fp, "border_color = #%02x%02x%02x %d\n\n", (int)(a->pix.border.color[0]*255), (int)(a->pix.border.color[1]*255), (int)(a->pix.border.color[2]*255), (int)(a->pix.border.alpha*100));
-
-		l0 = l0->next;
-	}
-
-	fputs("#---------------------------------------------\n", fp);
-	fputs("# PANEL\n", fp);
-	fputs("#---------------------------------------------\n", fp);
-	fputs("panel_monitor = all\n", fp);
-	if (panel_position & BOTTOM) fputs("panel_position = bottom", fp);
-	else fputs("panel_position = top", fp);
-	if (panel_position & LEFT) fputs(" left horizontal\n", fp);
-	else if (panel_position & RIGHT) fputs(" right horizontal\n", fp);
-	else fputs(" center horizontal\n", fp);
-	fprintf(fp, "panel_size = %d %d\n", panel_config.area.width, panel_config.area.height);
-	fprintf(fp, "panel_margin = %d %d\n", panel_config.marginx, panel_config.marginy);
-	fprintf(fp, "panel_padding = %d %d %d\n", panel_config.area.paddingxlr, panel_config.area.paddingy, panel_config.area.paddingx);
-	fprintf(fp, "font_shadow = %d\n", panel_config.g_task.font_shadow);
-	fputs("panel_background_id = 1\n", fp);
-	fputs("wm_menu = 0\n", fp);
-
-	fputs("\n#---------------------------------------------\n", fp);
-	fputs("# TASKBAR\n", fp);
-	fputs("#---------------------------------------------\n", fp);
-	if (panel_mode == MULTI_DESKTOP) fputs("taskbar_mode = multi_desktop\n", fp);
-	else fputs("taskbar_mode = single_desktop\n", fp);
-	fprintf(fp, "taskbar_padding = 0 0 %d\n", panel_config.g_taskbar.paddingx);
-	fputs("taskbar_background_id = 0\n", fp);
-
-	fputs("\n#---------------------------------------------\n", fp);
-	fputs("# TASK\n", fp);
-	fputs("#---------------------------------------------\n", fp);
-	if (old_task_icon_size) fputs("task_icon = 1\n", fp);
-	else fputs("task_icon = 0\n", fp);
-	fputs("task_text = 1\n", fp);
-	fprintf(fp, "task_maximum_size = %d %d\n", panel_config.g_task.maximum_width, panel_config.g_task.maximum_height);
-	fprintf(fp, "task_centered = %d\n", panel_config.g_task.centered);
-	fprintf(fp, "task_padding = %d %d\n", panel_config.g_task.area.paddingx, panel_config.g_task.area.paddingy);
-	fprintf(fp, "task_font = %s\n", old_task_font);
-	fprintf(fp, "task_font_color = #%02x%02x%02x %d\n", (int)(panel_config.g_task.font.color[0]*255), (int)(panel_config.g_task.font.color[1]*255), (int)(panel_config.g_task.font.color[2]*255), (int)(panel_config.g_task.font.alpha*100));
-	fprintf(fp, "task_active_font_color = #%02x%02x%02x %d\n", (int)(panel_config.g_task.font_active.color[0]*255), (int)(panel_config.g_task.font_active.color[1]*255), (int)(panel_config.g_task.font_active.color[2]*255), (int)(panel_config.g_task.font_active.alpha*100));
-	fputs("task_background_id = 2\n", fp);
-	fputs("task_active_background_id = 3\n", fp);
-
-	fputs("\n#---------------------------------------------\n", fp);
-	fputs("# SYSTRAYBAR\n", fp);
-	fputs("#---------------------------------------------\n", fp);
-	fputs("systray_padding = 4 3 4\n", fp);
-	fputs("systray_background_id = 0\n", fp);
-
-	fputs("\n#---------------------------------------------\n", fp);
-	fputs("# CLOCK\n", fp);
-	fputs("#---------------------------------------------\n", fp);
-	if (time1_format) fprintf(fp, "time1_format = %s\n", time1_format);
-	else fputs("#time1_format = %H:%M\n", fp);
-	fprintf(fp, "time1_font = %s\n", old_time1_font);
-	if (time2_format) fprintf(fp, "time2_format = %s\n", time2_format);
-	else fputs("#time2_format = %A %d %B\n", fp);
-	fprintf(fp, "time2_font = %s\n", old_time2_font);
-	fprintf(fp, "clock_font_color = #%02x%02x%02x %d\n", (int)(panel_config.clock.font.color[0]*255), (int)(panel_config.clock.font.color[1]*255), (int)(panel_config.clock.font.color[2]*255), (int)(panel_config.clock.font.alpha*100));
-	fputs("clock_padding = 2 2\n", fp);
-	fputs("clock_background_id = 0\n", fp);
-	fputs("#clock_lclick_command = xclock\n", fp);
-	fputs("clock_rclick_command = orage\n", fp);
-
-#ifdef ENABLE_BATTERY
-	fputs("\n#---------------------------------------------\n", fp);
-	fputs("# BATTERY\n", fp);
-	fputs("#---------------------------------------------\n", fp);
-	fprintf(fp, "battery = %d\n", panel_config.battery.area.on_screen);
-	fprintf(fp, "battery_low_status = %d\n", battery_low_status);
-	fprintf(fp, "battery_low_cmd = %s\n", battery_low_cmd);
-	fprintf(fp, "bat1_font = %s\n", old_bat1_font);
-	fprintf(fp, "bat2_font = %s\n", old_bat2_font);
-	fprintf(fp, "battery_font_color = #%02x%02x%02x %d\n", (int)(panel_config.battery.font.color[0]*255), (int)(panel_config.battery.font.color[1]*255), (int)(panel_config.battery.font.color[2]*255), (int)(panel_config.battery.font.alpha*100));
-	fputs("battery_padding = 2 2\n", fp);
-	fputs("battery_background_id = 0\n", fp);
-#endif
-
-	fputs("\n#---------------------------------------------\n", fp);
-	fputs("# MOUSE ACTION ON TASK\n", fp);
-	fputs("#---------------------------------------------\n", fp);
-	if (mouse_middle == NONE) fputs("mouse_middle = none\n", fp);
-	else if (mouse_middle == CLOSE) fputs("mouse_middle = close\n", fp);
-	else if (mouse_middle == TOGGLE) fputs("mouse_middle = toggle\n", fp);
-	else if (mouse_middle == ICONIFY) fputs("mouse_middle = iconify\n", fp);
-	else if (mouse_middle == SHADE) fputs("mouse_middle = shade\n", fp);
-	else fputs("mouse_middle = toggle_iconify\n", fp);
-
-	if (mouse_right == NONE) fputs("mouse_right = none\n", fp);
-	else if (mouse_right == CLOSE) fputs("mouse_right = close\n", fp);
-	else if (mouse_right == TOGGLE) fputs("mouse_right = toggle\n", fp);
-	else if (mouse_right == ICONIFY) fputs("mouse_right = iconify\n", fp);
-	else if (mouse_right == SHADE) fputs("mouse_right = shade\n", fp);
-	else fputs("mouse_right = toggle_iconify\n", fp);
-
-	if (mouse_scroll_up == NONE) fputs("mouse_scroll_up = none\n", fp);
-	else if (mouse_scroll_up == CLOSE) fputs("mouse_scroll_up = close\n", fp);
-	else if (mouse_scroll_up == TOGGLE) fputs("mouse_scroll_up = toggle\n", fp);
-	else if (mouse_scroll_up == ICONIFY) fputs("mouse_scroll_up = iconify\n", fp);
-	else if (mouse_scroll_up == SHADE) fputs("mouse_scroll_up = shade\n", fp);
-	else fputs("mouse_scroll_up = toggle_iconify\n", fp);
-
-	if (mouse_scroll_down == NONE) fputs("mouse_scroll_down = none\n", fp);
-	else if (mouse_scroll_down == CLOSE) fputs("mouse_scroll_down = close\n", fp);
-	else if (mouse_scroll_down == TOGGLE) fputs("mouse_scroll_down = toggle\n", fp);
-	else if (mouse_scroll_down == ICONIFY) fputs("mouse_scroll_down = iconify\n", fp);
-	else if (mouse_scroll_down == SHADE) fputs("mouse_scroll_down = shade\n", fp);
-	else fputs("mouse_scroll_down = toggle_iconify\n", fp);
-
-	fputs("\n\n", fp);
-	fclose (fp);
-}
 
