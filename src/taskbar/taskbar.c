@@ -121,8 +121,6 @@ void cleanup_taskbar()
 	GSList *l0;
 	Task *tsk;
 
-	if (panel_config.g_task.font_desc)
-		pango_font_description_free(panel_config.g_task.font_desc);
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
 

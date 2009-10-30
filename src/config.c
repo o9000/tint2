@@ -56,10 +56,8 @@ char *thumbnail_path = 0;
 // --------------------------------------------------
 // backward compatibility
 static int old_task_icon_size;
-static char *old_task_font;
-static char *old_time1_font;
-static char *old_time2_font;
-static Area *area_task, *area_task_active;
+static Area *area_task;
+static Area *area_task_active;
 
 
 // temporary list of background
@@ -79,6 +77,9 @@ void init_config()
 	cleanup_tooltip();
 
 	// panel's default value
+	if (panel_config.g_task.font_desc) {
+		pango_font_description_free(panel_config.g_task.font_desc);
+	}
 	memset(&panel_config, 0, sizeof(Panel));
 	panel_config.g_task.alpha = 100;
 	panel_config.g_task.alpha_active = 100;
@@ -645,7 +646,6 @@ int config_read ()
 	g_free(path1);
 
 	// copy tint2rc from system directory to user directory
-	g_free(path1);
 	char *path2 = 0;
 	system_dirs = g_get_system_config_dirs();
 	for (i = 0; system_dirs[i]; i++) {
@@ -682,9 +682,6 @@ int config_read_file (const char *path)
 	char *key, *value;
 
 	if ((fp = fopen(path, "r")) == NULL) return 0;
-	old_task_font = 0;
-	old_time1_font = 0;
-	old_time2_font = 0;
 
 	while (fgets(line, sizeof(line), fp) != NULL) {
 		if (parse_line(line, &key, &value)) {
@@ -697,18 +694,6 @@ int config_read_file (const char *path)
 
 	if (old_task_icon_size) {
 		panel_config.g_task.area.paddingy = ((int)panel_config.area.height - (2 * panel_config.area.paddingy) - old_task_icon_size) / 2;
-	}
-	if (old_task_font) {
-		g_free(old_task_font);
-		old_task_font = 0;
-	}
-	if (old_time1_font) {
-		g_free(old_time1_font);
-		old_time1_font = 0;
-	}
-	if (old_time2_font) {
-		g_free(old_time2_font);
-		old_time2_font = 0;
 	}
 	return 1;
 }

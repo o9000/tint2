@@ -379,7 +379,6 @@ void remove_icon(TrayWindow *traywin)
 
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
-	g_free(traywin);
 	systray.area.resize = 1;
 	systray.area.redraw = 1;
 	//printf("remove_icon id %lx, %d\n", traywin->id);
@@ -394,6 +393,7 @@ void remove_icon(TrayWindow *traywin)
 	XReparentWindow(server.dsp, traywin->id, server.root_win, 0, 0);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
+	g_free(traywin);
 
 	// changed in systray force resize on panel
 	Panel *panel = systray.area.panel;

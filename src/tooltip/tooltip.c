@@ -63,6 +63,7 @@ void cleanup_tooltip()
 {
 	tooltip_hide();
 	g_tooltip.enabled = False;
+	g_tooltip.current_state = TOOLTIP_ABOUT_TO_HIDE;
 	if (g_tooltip.task) {
 		alarm(0);
 		g_tooltip.task = 0;

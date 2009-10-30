@@ -587,7 +587,10 @@ void event_configure_notify (Window win)
 	// change in root window (xrandr)
 	if (win == server.root_win) {
 		get_monitors();
+		init_config();
+		config_read_file (config_path);
 		init_panel();
+		cleanup_config();
 		return;
 	}
 
@@ -750,6 +753,7 @@ int main (int argc, char *argv[])
 						break;
 
 					case MotionNotify: {
+						if (!g_tooltip.enabled) break;
 						Panel* panel = get_panel(e.xmotion.window);
 						Task* task = click_task(panel, e.xmotion.x, e.xmotion.y);
 						if (task)

@@ -153,7 +153,6 @@ void init_panel()
 			if (g_tooltip.enabled)
 				event_mask |= PointerMotionMask|LeaveWindowMask;
 			XSetWindowAttributes att = { ParentRelative, 0L, 0, 0L, 0, 0, Always, 0L, 0L, False, event_mask, NoEventMask, False, 0, 0 };
-			if (p->main_win) XDestroyWindow(server.dsp, p->main_win);
 			p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
 		}
 		else {
@@ -242,12 +241,6 @@ void cleanup_panel()
 	task_drag = 0;
 	task_urgent = 0;
 	cleanup_taskbar();
-
-	// font allocated once
-	if (panel1[0].g_task.font_desc) {
-		pango_font_description_free(panel1[0].g_task.font_desc);
-		panel1[0].g_task.font_desc = 0;
-	}
 
 	int i;
 	Panel *p;
