@@ -117,7 +117,7 @@ void tooltip_show()
 	if (!g_tooltip.mapped) {
 		g_tooltip.mapped = True;
 		XMapWindow(server.dsp, g_tooltip.window);
-		tooltip_update();
+		//tooltip_update();
 		alarm(0);
 	}
 }
@@ -147,9 +147,7 @@ void tooltip_update_geometry()
 		x = panel->posx + panel->area.width;
 	else
 		x = panel->posx - width;
-			
-	//printf("tooltip_update_geometry x_root %d, y_root %d\n", x, y);
-	//printf("  panel posx %d, posy %d\n", panel->posx, panel->posy);
+
 	g_object_unref(layout);
 	cairo_destroy(c);
 	cairo_surface_destroy(cs);
@@ -200,7 +198,6 @@ void tooltip_adjust_geometry()
 		y=min_y;
 	if (height>max_height)
 		height=max_height;
-	//printf("tooltip_adjust_geometry x_root %d, y_root %d\n", x, y);
 }
 
 void tooltip_update()
@@ -210,6 +207,7 @@ void tooltip_update()
 		return;
 	}
 
+	//printf("tooltip_update\n");
 	tooltip_update_geometry();
 	tooltip_adjust_geometry();
 	XMoveResizeWindow(server.dsp, g_tooltip.window, x, y, width, height);
