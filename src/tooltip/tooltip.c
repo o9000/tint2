@@ -146,7 +146,10 @@ void tooltip_update_geometry()
 	else if (panel_position & LEFT)
 		x = panel->posx + panel->area.width;
 	else
-			x = panel->posx - width;
+		x = panel->posx - width;
+			
+	//printf("tooltip_update_geometry x_root %d, y_root %d\n", x, y);
+	//printf("  panel posx %d, posy %d\n", panel->posx, panel->posy);
 	g_object_unref(layout);
 	cairo_destroy(c);
 	cairo_surface_destroy(cs);
@@ -160,8 +163,8 @@ void tooltip_adjust_geometry()
 
 	int min_x, min_y, max_width, max_height;
 	Panel* panel = g_tooltip.task->area.panel;
-	int screen_width = server.monitor[panel->monitor].width;
-	int screen_height = server.monitor[panel->monitor].height;
+	int screen_width = server.monitor[panel->monitor].x + server.monitor[panel->monitor].width;
+	int screen_height = server.monitor[panel->monitor].y + server.monitor[panel->monitor].height;
 	if ( x+width <= screen_width && y+height <= screen_height && x>=0 && y>=0)
 		return;    // no adjustment needed
 
@@ -184,10 +187,10 @@ void tooltip_adjust_geometry()
 			min_x=0;
 	}
 
-	if (x+width > server.monitor[panel->monitor].width)
-		x = server.monitor[panel->monitor].width-width;
-	if ( y+height>server.monitor[panel->monitor].height)
-		y = server.monitor[panel->monitor].height-height;
+	if (x+width > server.monitor[panel->monitor].x + server.monitor[panel->monitor].width)
+		x = server.monitor[panel->monitor].x + server.monitor[panel->monitor].width - width;
+	if ( y+height > server.monitor[panel->monitor].y + server.monitor[panel->monitor].height)
+		y = server.monitor[panel->monitor].y + server.monitor[panel->monitor].height - height;
 
 	if (x<min_x)
 		x=min_x;
@@ -197,6 +200,7 @@ void tooltip_adjust_geometry()
 		y=min_y;
 	if (height>max_height)
 		height=max_height;
+	//printf("tooltip_adjust_geometry x_root %d, y_root %d\n", x, y);
 }
 
 void tooltip_update()
