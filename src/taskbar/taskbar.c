@@ -222,11 +222,15 @@ void resize_taskbar(void *obj)
 	Panel *panel = (Panel*)taskbar->area.panel;
 	Task *tsk;
 	GSList *l;
-	int  task_count;
+	int  task_count, border_width;
 
 	//printf("resize_taskbar : posx et width des taches\n");
-
 	taskbar->area.redraw = 1;
+
+	if (taskbar->area.is_active && taskbar->area.use_active)
+		border_width = taskbar->area.pix_active.border.width;
+	else
+		border_width = taskbar->area.pix.border.width;
 
 	if (panel_horizontal) {
 		int  pixel_width, modulo_width=0;
@@ -236,7 +240,7 @@ void resize_taskbar(void *obj)
 		task_count = g_slist_length(taskbar->area.list);
 		if (!task_count) pixel_width = panel->g_task.maximum_width;
 		else {
-			taskbar_width = taskbar->area.width - (2 * panel->g_taskbar.pix.border.width) - (2 * panel->g_taskbar.paddingxlr);
+			taskbar_width = taskbar->area.width - (2 * border_width) - (2 * panel->g_taskbar.paddingxlr);
 			if (task_count>1) taskbar_width -= ((task_count-1) * panel->g_taskbar.paddingx);
 
 			pixel_width = taskbar_width / task_count;
@@ -246,16 +250,12 @@ void resize_taskbar(void *obj)
 				modulo_width = taskbar_width % task_count;
 		}
 
-		if ((taskbar->task_width == pixel_width) && (taskbar->task_modulo == modulo_width)) {
-		}
-		else {
-			taskbar->task_width = pixel_width;
-			taskbar->task_modulo = modulo_width;
-			taskbar->text_width = pixel_width - panel->g_task.text_posx - panel->g_task.area.pix.border.width - panel->g_task.area.paddingx;
-		}
+		taskbar->task_width = pixel_width;
+		taskbar->task_modulo = modulo_width;
+		taskbar->text_width = pixel_width - panel->g_task.text_posx - panel->g_task.area.pix.border.width - panel->g_task.area.paddingx;
 
 		// change pos_x and width for all tasks
-		x = taskbar->area.posx + taskbar->area.pix.border.width + taskbar->area.paddingxlr;
+		x = taskbar->area.posx + border_width + taskbar->area.paddingxlr;
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
@@ -277,7 +277,7 @@ void resize_taskbar(void *obj)
 		task_count = g_slist_length(taskbar->area.list);
 		if (!task_count) pixel_height = panel->g_task.maximum_height;
 		else {
-			taskbar_height = taskbar->area.height - (2 * panel->g_taskbar.pix.border.width) - (2 * panel->g_taskbar.paddingxlr);
+			taskbar_height = taskbar->area.height - (2 * border_width) - (2 * panel->g_taskbar.paddingxlr);
 			if (task_count>1) taskbar_height -= ((task_count-1) * panel->g_taskbar.paddingx);
 
 			pixel_height = taskbar_height / task_count;
@@ -287,16 +287,12 @@ void resize_taskbar(void *obj)
 				modulo_height = taskbar_height % task_count;
 		}
 
-		if ((taskbar->task_width == pixel_height) && (taskbar->task_modulo == modulo_height)) {
-		}
-		else {
-			taskbar->task_width = pixel_height;
-			taskbar->task_modulo = modulo_height;
-			taskbar->text_width = taskbar->area.width - (2 * panel->g_taskbar.paddingy) - panel->g_task.text_posx - panel->g_task.area.pix.border.width - panel->g_task.area.paddingx;
-		}
+		taskbar->task_width = pixel_height;
+		taskbar->task_modulo = modulo_height;
+		taskbar->text_width = taskbar->area.width - (2 * panel->g_taskbar.paddingy) - panel->g_task.text_posx - panel->g_task.area.pix.border.width - panel->g_task.area.paddingx;
 
 		// change pos_y and height for all tasks
-		y = taskbar->area.posy + taskbar->area.pix.border.width + taskbar->area.paddingxlr;
+		y = taskbar->area.posy + border_width + taskbar->area.paddingxlr;
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;

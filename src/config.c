@@ -32,6 +32,7 @@
 #include <ctype.h>
 #include <glib/gstdio.h>
 #include <pango/pangocairo.h>
+#include <pango/pangoxft.h>
 #include <Imlib2.h>
 
 #include "common.h"
@@ -88,6 +89,11 @@ void init_config()
 	// window manager's menu default value == false
 	wm_menu = 0;
 	max_tick_urgent = 7;
+
+	// flush pango cache if possible
+	//pango_xft_shutdown_display(server.dsp, server.screen);
+	//PangoFontMap *font_map = pango_xft_get_font_map(server.dsp, server.screen);
+	//pango_fc_font_map_shutdown(font_map);
 }
 
 

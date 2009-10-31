@@ -402,9 +402,9 @@ void event_property_notify (XEvent *e)
 				if (panel_mode == MULTI_DESKTOP && panel->g_taskbar.use_active) {
 					// redraw both taskbar
 					panel->taskbar[old_desktop].area.is_active = 0;
-					panel->taskbar[old_desktop].area.redraw = 1;
+					panel->taskbar[old_desktop].area.resize = 1;
 					panel->taskbar[server.desktop].area.is_active = 1;
-					panel->taskbar[server.desktop].area.redraw = 1;
+					panel->taskbar[server.desktop].area.resize = 1;
 					panel_refresh = 1;
 				}
 				// check ALLDESKTOP task => resize taskbar
@@ -780,7 +780,7 @@ int main (int argc, char *argv[])
 						break;
 
 					case ReparentNotify:
-						if (!systray.area.on_screen)
+						if (!systray_enabled)
 							break;
 						panel = (Panel*)systray.area.panel;
 						if (e.xany.window == panel->main_win) // reparented to us
