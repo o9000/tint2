@@ -73,7 +73,9 @@ void init_config()
 
 	// tint2 could reload config, so we cleanup objects
 	cleanup_systray();
+#ifdef ENABLE_BATTERY
 	cleanup_battery();
+#endif
 	cleanup_clock();
 	cleanup_tooltip();
 
