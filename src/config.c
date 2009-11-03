@@ -59,7 +59,9 @@ char *thumbnail_path = 0;
 static int old_task_icon_size;
 static Area *area_task;
 static Area *area_task_active;
-
+// detect if it's an old config file
+// ==1
+static int old_config_file;
 
 // temporary list of background
 static GSList *list_back;
@@ -87,6 +89,7 @@ void init_config()
 	panel_config.g_task.alpha = 100;
 	panel_config.g_task.alpha_active = 100;
 	systray.sort = 3;
+	old_config_file = 1;
 
 	// window manager's menu default value == false
 	wm_menu = 0;
@@ -480,10 +483,13 @@ void add_entry (char *key, char *value)
 
 	/* Systray */
 	else if (strcmp (key, "systray") == 0) {
-		if(atoi(value) == 1)
-			systray_enabled = 1;
+		systray_enabled = atoi(value);
+		// systray is latest option added. files without 'systray' are old.
+		old_config_file = 0;
 	}
 	else if (strcmp (key, "systray_padding") == 0) {
+		if (old_config_file)
+			systray_enabled = 1;
 		extract_values(value, &value1, &value2, &value3);
 		systray.area.paddingxlr = systray.area.paddingx = atoi (value1);
 		if (value2) systray.area.paddingy = atoi (value2);
