@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <locale.h>
+#include <X11/Xlib.h>
+#include <gdk/gdkx.h>
 #include <gtk/gtk.h>
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -48,9 +50,13 @@
 enum { LIST_ITEM = 0, N_COLUMNS };
 
 // default config file and directory
-char *pathConfig = 0;
-char *pathDir = 0;
+char *g_path_config = 0;
+char *g_path_dir = 0;
+char *g_default_theme = 0;
+int g_width;
+int g_height;
 
+GtkWidget *g_window;
 GtkWidget *g_theme_view;
 GtkListStore *g_store;
 
@@ -80,8 +86,8 @@ static void init_list(GtkWidget *list);
 static void add_to_list(GtkWidget *list, const gchar *str);
 void on_changed(GtkWidget *widget, gpointer label);
 
-void read_config(char **defaultTheme);
-void write_config(char *defaultTheme);
+void read_config();
+void write_config();
 void check_theme();
 
 
@@ -143,22 +149,22 @@ static GtkActionEntry entries[] = {
 
 int main (int argc, char ** argv)
 {
-	GtkWidget *window;
 	GtkWidget *vBox = NULL;
 	GtkActionGroup *actionGroup;
 	GtkTreeSelection *sel;
 
 	gtk_init (&argc, &argv);
 	g_thread_init( NULL );
+	read_config();
 	check_theme();
 
 	// define main layout : container, menubar, toolbar
-	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), _("Panel theming"));
-	gtk_window_set_default_size(GTK_WINDOW(window), 600, 350);
-	g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (menuQuit), NULL);
+	g_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(g_window), _("Panel theming"));
+	gtk_window_resize(GTK_WINDOW(g_window), g_width, g_height);
+	g_signal_connect (G_OBJECT (g_window), "destroy", G_CALLBACK (menuQuit), NULL);
 	vBox = gtk_vbox_new (FALSE, 0);
-   gtk_container_add (GTK_CONTAINER(window), vBox);
+   gtk_container_add (GTK_CONTAINER(g_window), vBox);
 
 	actionGroup = gtk_action_group_new ("menuActionGroup");
    gtk_action_group_add_actions (actionGroup, entries, G_N_ELEMENTS (entries), NULL);
@@ -171,6 +177,7 @@ int main (int argc, char ** argv)
 	// define tree view
 	g_theme_view = gtk_tree_view_new();
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(g_theme_view), FALSE);
+	//gtk_widget_set_size_request(g_theme_view, g_width, g_height);
 	//gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(g_theme_view), TRUE);
 	//col = GTK_TREE_VIEW_COLUMN (g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Theme"), "resizable", TRUE, "sizing", GTK_TREE_VIEW_COLUMN_FIXED, NULL));
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
@@ -197,7 +204,7 @@ int main (int argc, char ** argv)
 	//Glib::Thread::create(sigc::mem_fun(window.view, &Thumbview::load_cache_images), true);
 	//Glib::Thread::create(sigc::mem_fun(window.view, &Thumbview::create_cache_images), true);
 
-	gtk_widget_show_all(window);
+	gtk_widget_show_all(g_window);
 	gtk_main ();
 	return 0;
 }
@@ -212,12 +219,12 @@ static void menuAddWidget (GtkUIManager * p_uiManager, GtkWidget * p_widget, Gtk
 
 static void menuAbout(GtkWindow * parent)
 {
-	const char *authors[] = { "Thierry Lorthiois", "Christian Ruppert (Build system)", NULL };
+	const char *authors[] = { "Thierry Lorthiois", "Christian Ruppert (Build system)", "Euan Freeman <euan04@gmail.com> (tintwizard)\nSee http://code.google.com/p/tintwizard/", NULL };
 
 	gtk_show_about_dialog( parent, "name", g_get_application_name( ),
 								"comments", _("Theming tool for tint2 panel"),
 								"version", LONG_VERSION_STRING,
-								"copyright", _("Copyright 2009 tint2 team\nLicense GNU GPL version 2"),
+								"copyright", _("Copyright 2009 tint2 team\nTint2 License GNU GPL version 2\nTintwizard License GNU GPL version 3"),
 								"logo-icon-name", NULL, "authors", authors,
 								/* Translators: translate "translator-credits" as
 									your name to have it appear in the credits in the "About"
@@ -325,7 +332,26 @@ static void menuDelete (void)
 
 static void menuProperties (void)
 {
-	system("python /home/thil/Desktop/tintwizard/tintwizard.py");
+	GtkTreeSelection *sel;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	char *value, *name1, *name2, *cmd;
+
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
+	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
+		gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
+
+		name1 = g_build_filename (g_get_user_config_dir(), "tint2", value, NULL);
+		name2 = g_strdup_printf("%s.tint2rc", name1);
+
+		cmd = g_strdup_printf("tintwizard.py %s", name2);
+		system(cmd);
+		g_free(cmd);
+
+		g_free(name1);
+		g_free(name2);
+		g_free(value);
+	}
 }
 
 
@@ -338,6 +364,8 @@ static void menuRename (void)
 
 static void menuQuit (void)
 {
+	write_config();
+
 	g_object_unref(g_store);
    gtk_main_quit ();
 }
@@ -369,8 +397,8 @@ static void menuApply (void)
 		name2 = g_strdup_printf("%s.tint2rc", name1);
 		g_free(name1);
 
-		copy_file(name2, pathConfig);
-		write_config(value);
+		copy_file(name2, g_path_config);
+		write_config();
 		g_free(value);
 		g_free(name2);
 
@@ -432,7 +460,7 @@ static void loadTheme(GtkWidget *list)
 	GDir *dir;
 	gchar *file, *pt1, *name;
 
-	dir = g_dir_open(pathDir, 0, NULL);
+	dir = g_dir_open(g_path_dir, 0, NULL);
 	while ((file = g_dir_read_name(dir))) {
 		pt1 = strstr(file, ".tint2rc");
 		if (pt1) {
@@ -446,20 +474,23 @@ static void loadTheme(GtkWidget *list)
 	// search default theme
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	name = NULL;
-	read_config(&name);
-	if (name) {
-		printf("defaultTheme %s\n", name);
+	if (g_default_theme) {
+		printf("defaultTheme %s\n", g_default_theme);
 		//gtk_tree_selection_select_iter(GtkTreeSelection *selection, GtkTreeIter *iter);
 	}
 }
 
 
 // theme file management
-void read_config(char **defaultTheme)
+void read_config()
 {
 	char *path;
 
+	if (g_default_theme)
+		g_free(g_default_theme);
+
+	g_width = 600;
+	g_height = 350;
 	path = g_build_filename (g_get_user_config_dir(), "tint2", "tint2confrc", NULL);
 	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
 		FILE *fp;
@@ -468,9 +499,12 @@ void read_config(char **defaultTheme)
 		if ((fp = fopen(path, "r")) != NULL) {
 			while (fgets(line, sizeof(line), fp) != NULL) {
 				if (parse_line(line, &key, &value)) {
-					if (strcmp (key, "default_theme") == 0) {
-						*defaultTheme = strdup (value);
-					}
+					if (strcmp (key, "default_theme") == 0)
+						g_default_theme = strdup (value);
+					else if (strcmp (key, "width") == 0)
+						g_width = atoi(value);
+					else if (strcmp (key, "height") == 0)
+						g_height = atoi(value);
 					free (key);
 					free (value);
 				}
@@ -482,17 +516,41 @@ void read_config(char **defaultTheme)
 }
 
 
-void write_config(char *defaultTheme)
+void write_config()
 {
 	char *path;
 	FILE *fp;
+	GtkRequisition req;
+	int x, y, width, height, depth;
+	int top, bottom, left, right;
+	GdkRectangle rect;
 
+	gtk_window_get_size(GTK_WINDOW(g_window), &width, &height);
+	printf("write_config %d, %d\n", width, height);
+
+	// GTK incapacity to return (width, height) of the window is really annoying
+	gdk_window_get_geometry(GTK_WIDGET(g_window)->window, &x, &y, &width, &height, &depth);
+	printf("  write_config %d, %d, %d, %d\n", x, y, width, height);
+
+	//Window xid = GDK_WINDOW_XWINDOW(GTK_WIDGET(g_window)->window);
+	//gdk_window_get_frame_extentsGTK_WINDOW(g_window), &rect);
+	//printf("  write_config %d, %d\n", rec.width, rec.height);
+
+/*
+	path = gtk_tree_path_new_from_indices( playlist_pos, -1 );
+	sel = gtk_tree_view_get_selection( (GtkTreeView*)list_view );
+	gtk_tree_selection_select_path( sel, path );
+	gtk_tree_path_free( path );
+ */
 	path = g_build_filename (g_get_user_config_dir(), "tint2", "tint2confrc", NULL);
 	fp = fopen(path, "w");
 	if (fp != NULL) {
 		fputs("#---------------------------------------------\n", fp);
 		fputs("# TINT2CONF CONFIG FILE\n", fp);
-		fprintf(fp, "default_theme = %s\n\n", defaultTheme);
+		fprintf(fp, "default_theme = %s\n", g_default_theme);
+		fprintf(fp, "width = %d\n", g_width);
+		fprintf(fp, "height = %d\n", g_height);
+		fputs("\n", fp);
 		fclose (fp);
 	}
 	g_free(path);
@@ -501,11 +559,11 @@ void write_config(char *defaultTheme)
 
 void check_theme()
 {
-	pathDir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
-	if (!g_file_test (pathDir, G_FILE_TEST_IS_DIR))
-		g_mkdir(pathDir, 0777);
+	g_path_dir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
+	if (!g_file_test (g_path_dir, G_FILE_TEST_IS_DIR))
+		g_mkdir(g_path_dir, 0777);
 
-	pathConfig = g_build_filename (g_get_user_config_dir(), "tint2", "tint2rc", NULL);
+	g_path_config = g_build_filename (g_get_user_config_dir(), "tint2", "tint2rc", NULL);
 
 }
 
