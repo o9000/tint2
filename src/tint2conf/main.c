@@ -341,8 +341,8 @@ static void menuProperties (void)
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
 
-		name1 = g_build_filename (g_get_user_config_dir(), "tint2", value, NULL);
-		name2 = g_strdup_printf("%s.tint2rc", name1);
+		name1 = g_build_filename ("\'", g_get_user_config_dir(), "tint2", value, NULL);
+		name2 = g_strdup_printf("%s.tint2rc\'", name1);
 
 		cmd = g_strdup_printf("tintwizard.py %s", name2);
 		system(cmd);
