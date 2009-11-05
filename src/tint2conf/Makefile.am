@@ -1,5 +1,6 @@
 if ENABLE_TINT2CONF
 bin_PROGRAMS = tint2conf
+dist_bin_SCRIPTS = tintwizard.py
 tint2conf_SOURCES = main.c ../util/common.c
 INCLUDES = -I../util
 
