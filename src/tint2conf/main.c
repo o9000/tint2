@@ -219,7 +219,7 @@ static void menuAddWidget (GtkUIManager * p_uiManager, GtkWidget * p_widget, Gtk
 
 static void menuAbout(GtkWindow * parent)
 {
-	const char *authors[] = { "Thierry Lorthiois", "Christian Ruppert (Build system)", "Euan Freeman <euan04@gmail.com> (tintwizard)\nSee http://code.google.com/p/tintwizard/", NULL };
+	const char *authors[] = { "Thierry Lorthiois <lorthiois@bbsoft.fr>", "Andreas Fink <andreas.fink85@googlemail.com>", "Christian Ruppert <Spooky85@gmail.com> (Build system)", "Euan Freeman <euan04@gmail.com> (tintwizard)\n  See http://code.google.com/p/tintwizard/", NULL };
 
 	gtk_show_about_dialog( parent, "name", g_get_application_name( ),
 								"comments", _("Theming tool for tint2 panel"),
