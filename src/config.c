@@ -52,7 +52,7 @@
 
 // global path
 char *config_path = 0;
-char *thumbnail_path = 0;
+char *snapshot_path = 0;
 
 // --------------------------------------------------
 // backward compatibility

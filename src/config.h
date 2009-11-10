@@ -10,7 +10,7 @@
 #define CONFIG_H
 
 extern char *config_path;
-extern char *thumbnail_path;
+extern char *snapshot_path;
 
 void init_config();
 void cleanup_config();

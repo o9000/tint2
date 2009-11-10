@@ -49,21 +49,27 @@ void signal_handler(int sig)
 
 void init (int argc, char *argv[])
 {
-	int c;
+	int i;
 
 	// read options
-	while ((c = getopt(argc , argv, "c:j:v")) != -1) {
-		switch (c) {
-			case 'c':
-			config_path = strdup (optarg);
-			break;
-			case 'j':
-			thumbnail_path = strdup (optarg);
-			break;
-			case 'v':
-			printf("tint2 version 0.7-svn\n");
+	for (i = 1; i < argc; ++i) {
+		if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help"))	{
+			printf("Usage: tint2 [-c] <config_file>\n");
 			exit(0);
-			break;
+		}
+		if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--version"))	{
+			printf("tint2 version 0.7.svn\n");
+			exit(0);
+		}
+		if (!strcmp(argv[i], "-c"))	{
+			i++;
+			if (i < argc)
+				config_path = strdup(argv[i]);
+		}
+		if (!strcmp(argv[i], "-s"))	{
+			i++;
+			if (i < argc)
+				snapshot_path = strdup(argv[i]);
 		}
 	}
 
@@ -91,7 +97,7 @@ void init (int argc, char *argv[])
 	server.visual = DefaultVisual (server.dsp, server.screen);
 	server.desktop = server_get_current_desktop ();
 	XGCValues  gcv;
-	server.gc = XCreateGC (server.dsp, server.root_win, (unsigned long)0, &gcv) ;
+	server.gc = XCreateGC (server.dsp, server.root_win, (unsigned long)0, &gcv);
 
 	XSetErrorHandler ((XErrorHandler) server_catch_error);
 
@@ -105,7 +111,6 @@ void init (int argc, char *argv[])
 	setlocale (LC_ALL, "");
 
 	// load default icon
-	int i;
 	char *path;
 	const gchar * const *data_dirs;
 	data_dirs = g_get_system_data_dirs ();
@@ -138,11 +143,29 @@ void cleanup()
 		imlib_free_image();
 	}
 	if (config_path) g_free(config_path);
-	if (thumbnail_path) g_free(thumbnail_path);
+	if (snapshot_path) g_free(snapshot_path);
 
 	if (server.monitor) free(server.monitor);
 	XFreeGC(server.dsp, server.gc);
 	XCloseDisplay(server.dsp);
+}
+
+
+void get_snapshot(const char *path)
+{
+	Panel *panel = &panel1[0];
+
+	if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
+	panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
+
+	refresh(&panel->area);
+
+	Imlib_Image img = NULL;
+	imlib_context_set_drawable(panel->temp_pmap);
+	img = imlib_create_image_from_drawable(0, 0, 0, panel->area.width, panel->area.height, 0);
+
+	imlib_context_set_image(img);
+	imlib_save_image(path);
 }
 
 
@@ -718,9 +741,8 @@ int main (int argc, char *argv[])
 	}
 	init_panel();
 	cleanup_config();
-	if (thumbnail_path) {
-		// usage: tint2 -j <file> for internal use
-		printf("file %s\n", thumbnail_path);
+	if (snapshot_path) {
+		get_snapshot(snapshot_path);
 		cleanup();
 		exit(0);
 	}
