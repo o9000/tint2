@@ -59,6 +59,7 @@ int g_height;
 GtkWidget *g_window;
 GtkWidget *g_theme_view;
 GtkListStore *g_store;
+GtkCellRenderer *g_renderer;
 
 static GtkUIManager *globalUIManager = NULL;
 
@@ -149,7 +150,7 @@ static GtkActionEntry entries[] = {
 
 int main (int argc, char ** argv)
 {
-	GtkWidget *vBox = NULL;
+	GtkWidget *vBox = NULL, *scrollbar = NULL;
 	GtkActionGroup *actionGroup;
 	GtkTreeSelection *sel;
 
@@ -157,6 +158,8 @@ int main (int argc, char ** argv)
 	g_thread_init( NULL );
 	read_config();
 	check_theme();
+	g_width = 300;
+	g_height = 400;
 
 	// define main layout : container, menubar, toolbar
 	g_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -173,16 +176,26 @@ int main (int argc, char ** argv)
 	gtk_ui_manager_add_ui_from_string (globalUIManager, global_ui, -1, NULL );
 	g_signal_connect(globalUIManager, "add_widget", G_CALLBACK (menuAddWidget), vBox);
 	gtk_ui_manager_ensure_update(globalUIManager);
+	scrollbar = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_box_pack_start(GTK_BOX(vBox), scrollbar, TRUE, TRUE, 0);
 
 	// define tree view
 	g_theme_view = gtk_tree_view_new();
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(g_theme_view), FALSE);
+	//gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(g_theme_view), TRUE);
+
+	//g_renderer = (GtkCellRenderer *)g_object_new(TORRENT_CELL_RENDERER_TYPE, NULL);
+
+	//GtkTreeViewColumn *col = GTK_TREE_VIEW_COLUMN (g_object_new(GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Torrent"), "resizable", TRUE, "sizing", GTK_TREE_VIEW_COLUMN_FIXED, NULL));
+
+
 	//gtk_widget_set_size_request(g_theme_view, g_width, g_height);
 	//gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(g_theme_view), TRUE);
 	//col = GTK_TREE_VIEW_COLUMN (g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Theme"), "resizable", TRUE, "sizing", GTK_TREE_VIEW_COLUMN_FIXED, NULL));
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	gtk_tree_selection_set_mode(GTK_TREE_SELECTION(sel), GTK_SELECTION_SINGLE);
-   gtk_box_pack_start(GTK_BOX(vBox), g_theme_view, TRUE, TRUE, 0);
+	gtk_container_add(GTK_CONTAINER(scrollbar), g_theme_view);
    gtk_widget_show(g_theme_view);
 	g_signal_connect(g_theme_view, "button-press-event", (GCallback)view_onButtonPressed, NULL);
 	g_signal_connect(g_theme_view, "popup-menu", (GCallback)view_onPopupMenu, NULL);
