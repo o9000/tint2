@@ -166,6 +166,7 @@ void get_snapshot(const char *path)
 
 	imlib_context_set_image(img);
 	imlib_save_image(path);
+	imlib_free_image();
 }
 
 
