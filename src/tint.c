@@ -480,14 +480,19 @@ void event_property_notify (XEvent *e)
 	else {
 		tsk = task_get_task (win);
 		if (!tsk) {
-			// some stupid wm send _NET_WM_STATE after the window was minimized to tray???
 			if (at != server.atom._NET_WM_STATE)
 				return;
-			else if (!window_is_skip_taskbar(win)) {
-				if (tsk = add_task(win))
-					panel_refresh = 1;
-				else
-					return;
+			else {
+				// xfce4 sends _NET_WM_STATE after minimized to tray, so we need to check if window is mapped
+				// if it is mapped and not set as skip_taskbar, we must add it to our task list
+				XWindowAttributes wa;
+				XGetWindowAttributes(server.dsp, win, &wa);
+				if (wa.map_state == IsViewable && !window_is_skip_taskbar(win)) {
+					if ( (tsk = add_task(win)) )
+						panel_refresh = 1;
+					else
+						return;
+				}
 			}
 		}
 		//printf("atom root_win = %s, %s\n", XGetAtomName(server.dsp, at), tsk->title);
