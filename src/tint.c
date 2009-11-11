@@ -519,9 +519,7 @@ void event_property_notify (XEvent *e)
 		// Demand attention
 		else if (at == server.atom._NET_WM_STATE) {
 			if (window_is_urgent (win)) {
-				task_urgent = tsk;
-				tick_urgent = 0;
-				time_precision = 1;
+				add_urgent(tsk);
 			}
 			if (window_is_skip_taskbar(win)) {
 				remove_task( tsk );
@@ -592,9 +590,7 @@ void event_property_notify (XEvent *e)
 		else if (at == server.atom.WM_HINTS) {
 			XWMHints* wmhints = XGetWMHints(server.dsp, win);
 			if (wmhints && wmhints->flags & XUrgencyHint) {
-				task_urgent = tsk;
-				tick_urgent = 0;
-				time_precision = 1;
+				add_urgent(tsk);
 			}
 			XFree(wmhints);
 		}
@@ -674,12 +670,15 @@ void event_timer()
 	time_clock.tv_sec -= time_clock.tv_sec % time_precision;
 
 	// urgent task
-	if (task_urgent) {
-		if (tick_urgent < max_tick_urgent) {
-			task_urgent->area.is_active = !task_urgent->area.is_active;
-			task_urgent->area.redraw = 1;
-			tick_urgent++;
+	GSList* urgent_task = urgent_list;
+	while (urgent_task) {
+		Task_urgent* t = urgent_task->data;
+		if ( t->tick < max_tick_urgent) {
+			t->tsk->area.is_active = !t->tsk->area.is_active;
+			t->tsk->area.redraw = 1;
+			t->tick++;
 		}
+		urgent_task = urgent_task->next;
 	}
 
 	// update battery

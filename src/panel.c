@@ -52,8 +52,7 @@ int panel_refresh;
 
 Task *task_active;
 Task *task_drag;
-Task *task_urgent;
-int  tick_urgent;
+GSList *urgent_list;
 int  max_tick_urgent;
 
 // panel's initial config
@@ -239,7 +238,7 @@ void cleanup_panel()
 
 	task_active = 0;
 	task_drag = 0;
-	task_urgent = 0;
+	urgent_list = 0;
 	cleanup_taskbar();
 
 	int i;

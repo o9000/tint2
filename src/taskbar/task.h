@@ -70,5 +70,9 @@ void get_icon (Task *tsk);
 void get_title(Task *tsk);
 void active_task();
 
+void add_urgent(Task *tsk);
+void del_urgent(Task *tsk);
+int is_urgent(Task *tsk);
+
 #endif
 

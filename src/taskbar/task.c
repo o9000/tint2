@@ -391,9 +391,8 @@ void active_task()
 		if (XGetTransientForHint(server.dsp, w1, &w2) != 0)
 			if (w2) tsk2 = task_get_task(w2);
 	}
-	if (task_urgent == tsk2) {
-		init_precision();
-		task_urgent = 0;
+	if ( is_urgent(tsk2) ) {
+		del_urgent(tsk2);
 	}
 	// put active state on all task (multi_desktop)
 	if (tsk2) {
@@ -411,3 +410,55 @@ void active_task()
 	}
 }
 
+
+void add_urgent(Task *tsk)
+{
+	// first check if task is already in the list and reset the counter
+	GSList* urgent_task = urgent_list;
+	while (urgent_task) {
+		Task_urgent* t = urgent_task->data;
+		if (t->tsk == tsk) {
+			t->tick = 0;
+			return;
+		}
+		urgent_task = urgent_task->next;
+	}
+
+	// not yet in the list, so we have to add it
+	Task_urgent* t = malloc(sizeof(Task_urgent));
+	if (!t)
+		return;
+	t->tsk = tsk;
+	t->tick = 0;
+	urgent_list = g_slist_prepend(urgent_list, t);
+	time_precision = 1;
+}
+
+
+void del_urgent(Task *tsk)
+{
+	GSList* urgent_task = urgent_list;
+	while (urgent_task) {
+		Task_urgent* t = urgent_task->data;
+		if (t->tsk == tsk) {
+			urgent_list = g_slist_remove(urgent_list, t);
+			free(t);
+			if (!urgent_list)
+				init_precision();
+			return;
+		}
+		urgent_task = urgent_task->next;
+	}
+}
+
+int is_urgent(Task *tsk)
+{
+	GSList* urgent_task = urgent_list;
+	while (urgent_task) {
+		Task_urgent* t = urgent_task->data;
+		if (t->tsk == tsk)
+			return 1;
+		urgent_task = urgent_task->next;
+	}
+	return 0;
+}
