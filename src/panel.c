@@ -238,7 +238,12 @@ void cleanup_panel()
 
 	task_active = 0;
 	task_drag = 0;
-	urgent_list = 0;
+	while (urgent_list) {
+		Task_urgent* t = urgent_list->data;
+		urgent_list = g_slist_remove(urgent_list, urgent_list->data);
+		free(t);
+	}
+
 	cleanup_taskbar();
 
 	int i;
