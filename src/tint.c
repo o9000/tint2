@@ -265,8 +265,10 @@ void window_action (Task *tsk, int action)
 			XIconifyWindow (server.dsp, tsk->win, server.screen);
 			break;
 		case TOGGLE_ICONIFY:
-			if (tsk == task_active) XIconifyWindow (server.dsp, tsk->win, server.screen);
-			else set_active (tsk->win);
+			if (task_active && tsk->win == task_active->win)
+				XIconifyWindow (server.dsp, tsk->win, server.screen);
+			else
+				set_active (tsk->win);
 			break;
 		case SHADE:
 			window_toggle_shade (tsk->win);
@@ -478,10 +480,15 @@ void event_property_notify (XEvent *e)
 	else {
 		tsk = task_get_task (win);
 		if (!tsk) {
-			if ( at != server.atom._NET_WM_STATE)
+			// some stupid wm send _NET_WM_STATE after the window was minimized to tray???
+			if (at != server.atom._NET_WM_STATE)
 				return;
-			else if ( !(tsk = add_task(win)) )
-				return;
+			else if (!window_is_skip_taskbar(win)) {
+				if (tsk = add_task(win))
+					panel_refresh = 1;
+				else
+					return;
+			}
 		}
 		//printf("atom root_win = %s, %s\n", XGetAtomName(server.dsp, at), tsk->title);
 

@@ -150,7 +150,6 @@ void init_battery_panel(void *p)
 {
 	Panel *panel = (Panel*)p;
 	Battery *battery = &panel->battery;
-	FILE *fp;
 	int bat_percentage_height, bat_percentage_height_ink, bat_time_height, bat_time_height_ink;
 
 	if (!battery_enabled)
@@ -194,7 +193,7 @@ void update_battery() {
 	FILE *fp;
 	char tmp[25];
 	int64_t energy_now = 0, energy_full = 0, current_now = 0;
-	int i, seconds = 0;
+	int seconds = 0;
 	int8_t new_percentage = 0;
 
 	fp = fopen(path_status, "r");

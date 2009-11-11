@@ -54,6 +54,12 @@ typedef struct {
 } Task;
 
 
+typedef struct {
+	Task* tsk;
+	int tick;
+} Task_urgent;
+
+
 
 Task *add_task (Window win);
 void remove_task (Task *tsk);
