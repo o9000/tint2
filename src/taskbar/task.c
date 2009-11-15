@@ -32,8 +32,9 @@
 #include "server.h"
 #include "panel.h"
 #include "tooltip.h"
+#include "timer.h"
 
-
+static int urgent_timer = 0;
 
 Task *add_task (Window win)
 {
@@ -411,6 +412,21 @@ void active_task()
 }
 
 
+void blink_urgent()
+{
+	GSList* urgent_task = urgent_list;
+	while (urgent_task) {
+		Task_urgent* t = urgent_task->data;
+		if ( t->tick < max_tick_urgent) {
+			t->tsk->area.is_active = !t->tsk->area.is_active;
+			t->tsk->area.redraw = 1;
+			t->tick++;
+		}
+		urgent_task = urgent_task->next;
+	}
+}
+
+
 void add_urgent(Task *tsk)
 {
 	// first check if task is already in the list and reset the counter
@@ -431,7 +447,11 @@ void add_urgent(Task *tsk)
 	t->tsk = tsk;
 	t->tick = 0;
 	urgent_list = g_slist_prepend(urgent_list, t);
-	time_precision = 1;
+
+	if (urgent_timer == 0)
+		urgent_timer = install_timer(0, 1000000, 1, 0, blink_urgent);
+	else
+		reset_timer(urgent_timer, 0, 1000000, 1, 0);
 }
 
 
@@ -444,7 +464,7 @@ void del_urgent(Task *tsk)
 			urgent_list = g_slist_remove(urgent_list, t);
 			free(t);
 			if (!urgent_list)
-				init_precision();
+				reset_timer(urgent_timer, 0, 0, 0, 0);
 			return;
 		}
 		urgent_task = urgent_task->next;

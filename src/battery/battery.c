@@ -31,6 +31,7 @@
 #include "taskbar.h"
 #include "battery.h"
 #include "clock.h"
+#include "timer.h"
 
 PangoFontDescription *bat1_font_desc=0;
 PangoFontDescription *bat2_font_desc=0;
@@ -46,6 +47,14 @@ char *path_energy_now=0;
 char *path_energy_full=0;
 char *path_current_now=0;
 char *path_status=0;
+
+void update_batterys()
+{
+	int i;
+	update_battery();
+	for (i=0 ; i < nb_panel ; i++)
+		panel1[i].battery.area.resize = 1;
+}
 
 
 void init_battery()
@@ -120,6 +129,9 @@ void init_battery()
 
 	g_free(path1);
 	g_free(battery_dir);
+
+	if (battery_enabled)
+		install_timer(0, 1000000, 3, 0, update_batterys);
 }
 
 

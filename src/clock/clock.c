@@ -30,6 +30,7 @@
 #include "panel.h"
 #include "taskbar.h"
 #include "clock.h"
+#include "timer.h"
 
 
 char *time1_format=0;
@@ -37,7 +38,6 @@ char *time2_format=0;
 char *clock_lclick_command=0;
 char *clock_rclick_command=0;
 struct timeval time_clock;
-int  time_precision;
 PangoFontDescription *time1_font_desc=0;
 PangoFontDescription *time2_font_desc=0;
 static char buf_time[40];
@@ -45,25 +45,25 @@ static char buf_date[40];
 int clock_enabled;
 
 
-void init_precision()
+void update_clocks()
 {
-	if (!time1_format) time_precision = 60;
-	else if (strchr(time1_format, 'S')) time_precision = 1;
-	else if (strchr(time1_format, 'T')) time_precision = 1;
-	else if (strchr(time1_format, 'r')) time_precision = 1;
-	else time_precision = 60;
+	gettimeofday(&time_clock, 0);
+	int i;
+	if (time1_format) {
+		for (i=0 ; i < nb_panel ; i++)
+			panel1[i].clock.area.resize = 1;
+	}
+	panel_refresh = 1;
 }
 
 
 void init_clock()
 {
-	init_precision();
-
-	// update clock to force update (-time_precision)
-	struct timeval stv;
-	gettimeofday(&stv, 0);
-	time_clock.tv_sec = stv.tv_sec - time_precision;
-	time_clock.tv_sec -= time_clock.tv_sec % time_precision;
+	if(time1_format) {
+		if (strchr(time1_format, 'S') || strchr(time1_format, 'T') || strchr(time1_format, 'r'))
+			install_timer(0, 1000000, 1, 0, update_clocks);
+		else install_timer(0, 1000000, 60, 0, update_clocks);
+	}
 }
 
 

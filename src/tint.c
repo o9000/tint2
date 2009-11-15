@@ -19,10 +19,10 @@
 **************************************************************************/
 
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -38,7 +38,7 @@
 #include "systraybar.h"
 #include "panel.h"
 #include "tooltip.h"
-
+#include "timer.h"
 
 void signal_handler(int sig)
 {
@@ -74,12 +74,21 @@ void init (int argc, char *argv[])
 	}
 
 	// Set signal handler
-	signal(SIGUSR1, signal_handler);
-	signal(SIGINT, signal_handler);
-	signal(SIGTERM, signal_handler);
-	signal(SIGHUP, signal_handler);
+	struct sigaction sa = { .sa_handler = signal_handler };
+	sigaction(SIGUSR1, &sa, 0);
+	sigaction(SIGINT, &sa, 0);
+	sigaction(SIGTERM, &sa, 0);
+	sigaction(SIGHUP, &sa, 0);
 	signal(SIGCHLD, SIG_IGN);		// don't have to wait() after fork()
 	signal(SIGALRM, tooltip_sighandler);
+	// block all signals, such that no race conditions occur before pselect in our main loop
+	sigset_t block_mask;
+	sigaddset(&block_mask, SIGINT);
+	sigaddset(&block_mask, SIGTERM);
+	sigaddset(&block_mask, SIGHUP);
+	sigaddset(&block_mask, SIGUSR1);
+	sigprocmask(SIG_BLOCK, &block_mask, 0);
+
 
 	// set global data
 	memset(&server, 0, sizeof(Server_global));
@@ -111,7 +120,7 @@ void init (int argc, char *argv[])
 	setlocale (LC_ALL, "");
 
 	// load default icon
-	char *path;
+	gchar *path;
 	const gchar * const *data_dirs;
 	data_dirs = g_get_system_data_dirs ();
 	for (i = 0; data_dirs[i] != NULL; i++)	{
@@ -660,42 +669,6 @@ void event_configure_notify (Window win)
 
 void event_timer()
 {
-	struct timeval stv;
-	int i;
-
-	if (gettimeofday(&stv, 0)) return;
-
-	if (abs(stv.tv_sec - time_clock.tv_sec) < time_precision) return;
-	time_clock.tv_sec = stv.tv_sec;
-	time_clock.tv_sec -= time_clock.tv_sec % time_precision;
-
-	// urgent task
-	GSList* urgent_task = urgent_list;
-	while (urgent_task) {
-		Task_urgent* t = urgent_task->data;
-		if ( t->tick < max_tick_urgent) {
-			t->tsk->area.is_active = !t->tsk->area.is_active;
-			t->tsk->area.redraw = 1;
-			t->tick++;
-		}
-		urgent_task = urgent_task->next;
-	}
-
-	// update battery
-#ifdef ENABLE_BATTERY
-	if (battery_enabled) {
-		update_battery();
-		for (i=0 ; i < nb_panel ; i++)
-			panel1[i].battery.area.resize = 1;
-	}
-#endif
-
-	// update clock
-	if (time1_format) {
-		for (i=0 ; i < nb_panel ; i++)
-			panel1[i].clock.area.resize = 1;
-	}
-	panel_refresh = 1;
 }
 
 
@@ -732,11 +705,12 @@ void dnd_message(XClientMessageEvent *e)
 int main (int argc, char *argv[])
 {
 	XEvent e;
-	fd_set fd;
+	fd_set fd_set;
 	int x11_fd, i;
-	struct timeval tv;
 	Panel *panel;
 	GSList *it;
+	GSList* timer_iter;
+	struct timer* timer;
 
 	init (argc, argv);
 
@@ -762,17 +736,25 @@ int main (int argc, char *argv[])
 	x11_fd = ConnectionNumber(server.dsp);
 	XSync(server.dsp, False);
 
+	sigset_t empty_mask;
+	sigemptyset(&empty_mask);
+
 	while (1) {
 		// thanks to AngryLlama for the timer
-		// Create a File Description Set containing x11_fd
-		FD_ZERO (&fd);
-		FD_SET (x11_fd, &fd);
-
-		tv.tv_usec = 500000;
-		tv.tv_sec = 0;
+		// Create a File Description Set containing x11_fd, and every timer_fd
+		FD_ZERO (&fd_set);
+		FD_SET (x11_fd, &fd_set);
+		int max_fd = x11_fd;
+		timer_iter = timer_list;
+		while (timer_iter) {
+			timer = timer_iter->data;
+			max_fd = timer->id > max_fd ? timer->id : max_fd;
+			FD_SET(timer->id, &fd_set);
+			timer_iter = timer_iter->next;
+		}
 
 		// Wait for X Event or a Timer
-		if (select(x11_fd+1, &fd, 0, 0, &tv)) {
+		if (pselect(max_fd+1, &fd_set, 0, 0, 0, &empty_mask) > 0) {
 			while (XPending (server.dsp)) {
 				XNextEvent(server.dsp, &e);
 
@@ -844,22 +826,32 @@ int main (int argc, char *argv[])
 						break;
 				}
 			}
+
+			timer_iter = timer_list;
+			while (timer_iter) {
+				timer = timer_iter->data;
+				if (FD_ISSET(timer->id, &fd_set)) {
+					uint64_t dummy;
+					read(timer->id, &dummy, sizeof(uint64_t));
+					timer->_callback();
+				}
+				timer_iter = timer_iter->next;
+			}
 		}
-		event_timer();
 
 		switch (signal_pending) {
-			case SIGUSR1: // reload config file
-				signal_pending = 0;
-				init_config();
-				config_read_file (config_path);
-				init_panel();
-				cleanup_config();
-				break;
-			case SIGINT:
-			case SIGTERM:
-			case SIGHUP:
-				cleanup ();
-				return 0;
+		case SIGUSR1: // reload config file
+			signal_pending = 0;
+			init_config();
+			config_read_file (config_path);
+			init_panel();
+			cleanup_config();
+			break;
+		case SIGINT:
+		case SIGTERM:
+		case SIGHUP:
+			cleanup ();
+			return 0;
 		}
 
 		if (panel_refresh) {

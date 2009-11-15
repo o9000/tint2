@@ -64,6 +64,5 @@ void get_color (char *hex, double *rgb);
 // adjust Alpha/Saturation/Brightness on an ARGB icon
 // alpha from 0 to 100, satur from 0 to 1, bright from 0 to 1.
 void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright);
-
 #endif
 

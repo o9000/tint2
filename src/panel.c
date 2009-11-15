@@ -265,6 +265,11 @@ void cleanup_panel()
 
 	if (panel1) free(panel1);
 	panel1 = 0;
+
+	if (panel_config.g_task.font_desc) {
+		pango_font_description_free(panel_config.g_task.font_desc);
+		panel_config.g_task.font_desc = 0;
+	}
 }
 
 

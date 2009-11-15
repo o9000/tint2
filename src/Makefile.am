@@ -14,6 +14,8 @@ tint2_SOURCES = config.c \
 				util/area.c \
 				util/window.h \
 				util/window.c \
+				util/timer.h \
+				util/timer.c \
 				panel.h \
 				clock/clock.c \
 				clock/clock.h \
