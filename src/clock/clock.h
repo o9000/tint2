@@ -26,6 +26,7 @@ typedef struct Clock {
 
 extern char *time1_format;
 extern char *time2_format;
+extern char *time_tooltip_format;
 extern PangoFontDescription *time1_font_desc;
 extern PangoFontDescription *time2_font_desc;
 extern char *clock_lclick_command;

@@ -23,6 +23,7 @@
 #include <cairo-xlib.h>
 #include <pango/pangocairo.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "window.h"
 #include "server.h"
@@ -61,6 +62,7 @@ void update_clocks()
 
 const char* clock_get_tooltip(void* obj)
 {
+	strftime(buf_tooltip, sizeof(buf_tooltip), time_tooltip_format, localtime(&time_clock.tv_sec));
 	return buf_tooltip;
 }
 
@@ -261,7 +263,11 @@ void clock_action(int button)
 	}
 	if (command) {
 		pid_t pid;
+		sigset_t sigset;
+		sigprocmask(SIG_SETMASK, &sigset, 0);
+		sigprocmask(SIG_UNBLOCK, &sigset, 0);
 		pid = fork();
+		sigprocmask(SIG_BLOCK, &sigset, 0);
 		if (pid == 0) {
 			execl("/bin/sh", "/bin/sh", "-c", command, NULL);
 			_exit(0);

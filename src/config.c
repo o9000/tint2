@@ -382,6 +382,10 @@ void add_entry (char *key, char *value)
 		memcpy(&panel_config.clock.area.pix.back, &a->pix.back, sizeof(Color));
 		memcpy(&panel_config.clock.area.pix.border, &a->pix.border, sizeof(Border));
 	}
+	else if (strcmp(key, "clock_tooltip") == 0) {
+		if (strlen(value) > 0)
+			time_tooltip_format = strdup (value);
+	}
 	else if (strcmp(key, "clock_lclick_command") == 0) {
 		if (strlen(value) > 0)
 			clock_lclick_command = strdup(value);
