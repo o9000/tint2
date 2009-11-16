@@ -512,3 +512,109 @@ Panel *get_panel(Window win)
 	return 0;
 }
 
+
+Taskbar *click_taskbar (Panel *panel, int x, int y)
+{
+	Taskbar *tskbar;
+	int i;
+
+	if (panel_horizontal) {
+		for (i=0; i < panel->nb_desktop ; i++) {
+			tskbar = &panel->taskbar[i];
+			if (tskbar->area.on_screen && x >= tskbar->area.posx && x <= (tskbar->area.posx + tskbar->area.width))
+				return tskbar;
+		}
+	}
+	else {
+		for (i=0; i < panel->nb_desktop ; i++) {
+			tskbar = &panel->taskbar[i];
+			if (tskbar->area.on_screen && y >= tskbar->area.posy && y <= (tskbar->area.posy + tskbar->area.height))
+				return tskbar;
+		}
+	}
+	return NULL;
+}
+
+
+Task *click_task (Panel *panel, int x, int y)
+{
+	GSList *l0;
+	Taskbar *tskbar;
+
+	if ( (tskbar = click_taskbar(panel, x, y)) ) {
+		if (panel_horizontal) {
+			Task *tsk;
+			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
+				tsk = l0->data;
+				if (tsk->area.on_screen && x >= tsk->area.posx && x <= (tsk->area.posx + tsk->area.width)) {
+					return tsk;
+				}
+			}
+		}
+		else {
+			Task *tsk;
+			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
+				tsk = l0->data;
+				if (tsk->area.on_screen && y >= tsk->area.posy && y <= (tsk->area.posy + tsk->area.height)) {
+					return tsk;
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
+
+int click_padding(Panel *panel, int x, int y)
+{
+	if (panel_horizontal) {
+		if (x < panel->area.paddingxlr || x > panel->area.width-panel->area.paddingxlr)
+		return 1;
+	}
+	else {
+		if (y < panel->area.paddingxlr || y > panel->area.height-panel->area.paddingxlr)
+		return 1;
+	}
+	return 0;
+}
+
+
+int click_clock(Panel *panel, int x, int y)
+{
+	Clock clk = panel->clock;
+	if (panel_horizontal) {
+		if (clk.area.on_screen && x >= clk.area.posx && x <= (clk.area.posx + clk.area.width))
+			return TRUE;
+	} else {
+		if (clk.area.on_screen && y >= clk.area.posy && y <= (clk.area.posy + clk.area.height))
+			return TRUE;
+	}
+	return FALSE;
+}
+
+
+Area* click_area(Panel *panel, int x, int y)
+{
+	Area* result = &panel->area;
+	Area* new_result = result;
+	do {
+		result = new_result;
+		GSList* it = result->list;
+		while (it) {
+			Area* a = it->data;
+			if (panel_horizontal) {
+				if (a->on_screen && x >= a->posx && x <= (a->posx + a->width)) {
+					new_result = a;
+					break;
+				}
+			} else {
+				if (a->on_screen && y >= a->posy && y <= (a->posy + a->height)) {
+					new_result = a;
+					break;
+				}
+			}
+			it = it->next;
+		}
+	} while (new_result != result);
+	return result;
+}

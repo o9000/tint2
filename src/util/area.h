@@ -79,6 +79,7 @@ typedef struct {
 	void (*_resize)(void *obj);
 	void (*_add_child)(void *obj);
 	int (*_remove_child)(void *obj);
+	const char* (*_get_tooltip_text)(void *obj);
 } Area;
 
 
@@ -101,6 +102,5 @@ void free_area (Area *a);
 
 // draw rounded rectangle
 void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
-
 #endif
 

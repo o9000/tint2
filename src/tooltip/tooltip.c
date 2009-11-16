@@ -34,7 +34,8 @@ void stop_timeouts();
 
 // give the tooltip some reasonable default values
 Tooltip g_tooltip = {
-	.task = 0,
+	.area = 0,
+	.panel = 0,
 	.window = 0,
 	.show_timeout = { 0, 0 },
 	.hide_timeout = { 0, 0 },
@@ -73,9 +74,7 @@ void cleanup_tooltip()
 	stop_timeouts();
 	tooltip_hide();
 	g_tooltip.enabled = False;
-	if (g_tooltip.task) {
-		g_tooltip.task = 0;
-	}
+	g_tooltip.area = 0;
 	if (g_tooltip.window) {
 		XDestroyWindow(server.dsp, g_tooltip.window);
 		g_tooltip.window = 0;
@@ -87,18 +86,17 @@ void cleanup_tooltip()
 }
 
 
-void tooltip_trigger_show(Task* task, int x_root, int y_root)
+void tooltip_trigger_show(Area* area, Panel* p, int x_root, int y_root)
 {
 	x = x_root;
 	y = y_root;
-
-	if (g_tooltip.mapped && g_tooltip.task != task) {
-		g_tooltip.task = task;
+	g_tooltip.panel = p;
+	if (g_tooltip.mapped && g_tooltip.area != area) {
+		g_tooltip.area = area;
 		tooltip_update();
 		stop_timeouts();
 	}
 	else if (!g_tooltip.mapped) {
-		g_tooltip.task = task;
 		start_show_timeout();
 	}
 }
@@ -106,8 +104,10 @@ void tooltip_trigger_show(Task* task, int x_root, int y_root)
 
 void tooltip_show()
 {
+	Area* area = click_area(g_tooltip.panel, x, y);
 	stop_timeouts();
-	if (!g_tooltip.mapped) {
+	if (!g_tooltip.mapped && area->_get_tooltip_text) {
+		g_tooltip.area = area;
 		g_tooltip.mapped = True;
 		XMapWindow(server.dsp, g_tooltip.window);
 		XFlush(server.dsp);
@@ -124,13 +124,13 @@ void tooltip_update_geometry()
 	c = cairo_create(cs);
 	layout = pango_cairo_create_layout(c);
 	pango_layout_set_font_description(layout, g_tooltip.font_desc);
-	pango_layout_set_text(layout, g_tooltip.task->title, -1);
+	pango_layout_set_text(layout, g_tooltip.area->_get_tooltip_text(g_tooltip.area), -1);
 	PangoRectangle r1, r2;
 	pango_layout_get_pixel_extents(layout, &r1, &r2);
 	width = 2*g_tooltip.border.width + 2*g_tooltip.paddingx + r2.width;
 	height = 2*g_tooltip.border.width + 2*g_tooltip.paddingy + r2.height;
 
-	Panel* panel = g_tooltip.task->area.panel;
+	Panel* panel = g_tooltip.panel;
 	if (panel_horizontal && panel_position & BOTTOM)
 		y = panel->posy-height;
 	else if (panel_horizontal && panel_position & TOP)
@@ -152,7 +152,7 @@ void tooltip_adjust_geometry()
 	// it seems quite impossible that the height needs to be adjusted, but we do it anyway.
 
 	int min_x, min_y, max_width, max_height;
-	Panel* panel = g_tooltip.task->area.panel;
+	Panel* panel = g_tooltip.panel;
 	int screen_width = server.monitor[panel->monitor].x + server.monitor[panel->monitor].width;
 	int screen_height = server.monitor[panel->monitor].y + server.monitor[panel->monitor].height;
 	if ( x+width <= screen_width && y+height <= screen_height && x>=0 && y>=0)
@@ -194,7 +194,7 @@ void tooltip_adjust_geometry()
 
 void tooltip_update()
 {
-	if (!g_tooltip.task) {
+	if (!g_tooltip.area->_get_tooltip_text) {
 		tooltip_hide();
 		return;
 	}
@@ -224,7 +224,7 @@ void tooltip_update()
 	cairo_set_source_rgba(c, fc.color[0], fc.color[1], fc.color[2], fc.alpha);
 	layout = pango_cairo_create_layout(c);
 	pango_layout_set_font_description(layout, g_tooltip.font_desc);
-	pango_layout_set_text(layout, g_tooltip.task->title, -1);
+	pango_layout_set_text(layout, g_tooltip.area->_get_tooltip_text(g_tooltip.area), -1);
 	PangoRectangle r1, r2;
 	pango_layout_get_pixel_extents(layout, &r1, &r2);
 	pango_layout_set_width(layout, width*PANGO_SCALE);
@@ -243,7 +243,7 @@ void tooltip_update()
 void tooltip_trigger_hide(Tooltip* tooltip)
 {
 	if (g_tooltip.mapped) {
-		g_tooltip.task = 0;
+		g_tooltip.area = 0;
 		start_hide_timeout();
 	}
 	else {

@@ -120,5 +120,10 @@ void set_panel_background(Panel *p);
 // detect witch panel
 Panel *get_panel(Window win);
 
-#endif
+Taskbar *click_taskbar (Panel *panel, int x, int y);
+Task *click_task (Panel *panel, int x, int y);
+int click_padding(Panel *panel, int x, int y);
+int click_clock(Panel *panel, int x, int y);
+Area* click_area(Panel *panel, int x, int y);
 
+#endif

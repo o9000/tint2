@@ -21,10 +21,12 @@
 #include <sys/time.h>
 
 #include "task.h"
+#include "panel.h"
 
 
 typedef struct {
-	Task* task;
+	Area* area;
+	Panel* panel;
 	Window window;
 	struct timespec show_timeout;
 	struct timespec hide_timeout;
@@ -44,7 +46,7 @@ extern Tooltip g_tooltip;
 
 void init_tooltip();
 void cleanup_tooltip();
-void tooltip_trigger_show(Task* task, int x, int y);
+void tooltip_trigger_show(Area* area, Panel* p, int x, int y);
 void tooltip_show();
 void tooltip_update();
 void tooltip_trigger_hide();

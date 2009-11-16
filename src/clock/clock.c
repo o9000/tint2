@@ -35,6 +35,7 @@
 
 char *time1_format=0;
 char *time2_format=0;
+char *time_tooltip_format=0;
 char *clock_lclick_command=0;
 char *clock_rclick_command=0;
 struct timeval time_clock;
@@ -42,6 +43,7 @@ PangoFontDescription *time1_font_desc=0;
 PangoFontDescription *time2_font_desc=0;
 static char buf_time[40];
 static char buf_date[40];
+static char buf_tooltip[40];
 int clock_enabled;
 
 
@@ -54,6 +56,12 @@ void update_clocks()
 			panel1[i].clock.area.resize = 1;
 	}
 	panel_refresh = 1;
+}
+
+
+const char* clock_get_tooltip(void* obj)
+{
+	return buf_tooltip;
 }
 
 
@@ -109,6 +117,11 @@ void init_clock_panel(void *p)
 		clock->time1_posy -= ((date_height_ink + 2) / 2);
 		clock->time2_posy = clock->time1_posy + time_height + 2 - (time_height - time_height_ink)/2 - (date_height - date_height_ink)/2;
 	}
+
+	if (time_tooltip_format) {
+		clock->area._get_tooltip_text = clock_get_tooltip;
+		strftime(buf_tooltip, sizeof(buf_tooltip), time_tooltip_format, localtime(&time_clock.tv_sec));
+	}
 }
 
 
@@ -123,6 +136,8 @@ void cleanup_clock()
 		g_free(time1_format);
 	if (time2_format)
 		g_free(time2_format);
+	if (time_tooltip_format)
+		g_free(time_tooltip_format);
 	if (clock_lclick_command)
 		g_free(clock_lclick_command);
 	if (clock_rclick_command)
