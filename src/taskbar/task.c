@@ -424,6 +424,7 @@ void blink_urgent()
 		}
 		urgent_task = urgent_task->next;
 	}
+	panel_refresh = 1;
 }
 
 

@@ -610,15 +610,11 @@ void event_property_notify (XEvent *e)
 
 void event_expose (XEvent *e)
 {
-	if (e->xany.window == g_tooltip.window)
-		tooltip_update();
-	else {
-		Panel *panel;
-		panel = get_panel(e->xany.window);
-		if (!panel) return;
-		// TODO : one panel_refresh per panel ?
-		panel_refresh = 1;
-	}
+	Panel *panel;
+	panel = get_panel(e->xany.window);
+	if (!panel) return;
+	// TODO : one panel_refresh per panel ?
+	panel_refresh = 1;
 }
 
 
@@ -663,11 +659,6 @@ void event_configure_notify (Window win)
 		}
 		panel_refresh = 1;
 	}
-}
-
-
-void event_timer()
-{
 }
 
 
@@ -739,6 +730,34 @@ int main (int argc, char *argv[])
 	sigemptyset(&empty_mask);
 
 	while (1) {
+		if (panel_refresh) {
+			panel_refresh = 0;
+
+			if (refresh_systray) {
+				panel = (Panel*)systray.area.panel;
+				XSetWindowBackgroundPixmap (server.dsp, panel->main_win, None);
+			}
+			for (i=0 ; i < nb_panel ; i++) {
+				panel = &panel1[i];
+
+				if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
+				panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
+
+				refresh(&panel->area);
+				XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
+			}
+			XFlush (server.dsp);
+
+			if (refresh_systray) {
+				refresh_systray = 0;
+				panel = (Panel*)systray.area.panel;
+				// tint2 doen't draw systray icons. it just redraw background.
+				XSetWindowBackgroundPixmap (server.dsp, panel->main_win, panel->temp_pmap);
+				// force icon's refresh
+				refresh_systray_icon();
+			}
+		}
+
 		// thanks to AngryLlama for the timer
 		// Create a File Description Set containing x11_fd, and every timer_fd
 		FD_ZERO (&fdset);
@@ -786,6 +805,12 @@ int main (int argc, char *argv[])
 						event_expose(&e);
 						break;
 
+					case MapNotify:
+						if (e.xany.window == g_tooltip.window)
+							tooltip_update();
+						break;
+
+
 					case PropertyNotify:
 						event_property_notify(&e);
 						break;
@@ -804,7 +829,7 @@ int main (int argc, char *argv[])
 						break;
 					case UnmapNotify:
 					case DestroyNotify:
-						if (!systray.area.on_screen)
+						if (e.xany.window == g_tooltip.window || !systray.area.on_screen)
 							break;
 						for (it = systray.list_icons; it; it = g_slist_next(it)) {
 							if (((TrayWindow*)it->data)->id == e.xany.window) {
@@ -853,34 +878,6 @@ int main (int argc, char *argv[])
 		case SIGHUP:
 			cleanup ();
 			return 0;
-		}
-
-		if (panel_refresh) {
-			panel_refresh = 0;
-
-			if (refresh_systray) {
-				panel = (Panel*)systray.area.panel;
-				XSetWindowBackgroundPixmap (server.dsp, panel->main_win, None);
-			}
-			for (i=0 ; i < nb_panel ; i++) {
-				panel = &panel1[i];
-
-				if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
-				panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
-
-				refresh(&panel->area);
-				XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
-			}
-			XFlush (server.dsp);
-
-			if (refresh_systray) {
-				refresh_systray = 0;
-				panel = (Panel*)systray.area.panel;
-				// tint2 doen't draw systray icons. it just redraw background.
-				XSetWindowBackgroundPixmap (server.dsp, panel->main_win, panel->temp_pmap);
-				// force icon's refresh
-				refresh_systray_icon();
-			}
 		}
 	}
 }

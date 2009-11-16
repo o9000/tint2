@@ -62,7 +62,7 @@ void init_tooltip()
 
 	XSetWindowAttributes attr;
 	attr.override_redirect = True;
-	attr.event_mask = ExposureMask;
+	attr.event_mask = StructureNotifyMask;
 	if (g_tooltip.window) XDestroyWindow(server.dsp, g_tooltip.window);
 	g_tooltip.window = XCreateWindow(server.dsp, server.root_win, 0, 0, 100, 20, 0, server.depth, InputOutput, CopyFromParent, CWOverrideRedirect|CWEventMask, &attr);
 }
@@ -106,10 +106,11 @@ void tooltip_trigger_show(Task* task, int x_root, int y_root)
 
 void tooltip_show()
 {
+	stop_timeouts();
 	if (!g_tooltip.mapped) {
 		g_tooltip.mapped = True;
 		XMapWindow(server.dsp, g_tooltip.window);
-		//tooltip_update();
+		XFlush(server.dsp);
 	}
 }
 
@@ -198,7 +199,7 @@ void tooltip_update()
 		return;
 	}
 
-	//printf("tooltip_update\n");
+//	printf("tooltip_update\n");
 	tooltip_update_geometry();
 	tooltip_adjust_geometry();
 	XMoveResizeWindow(server.dsp, g_tooltip.window, x, y, width, height);
@@ -254,9 +255,11 @@ void tooltip_trigger_hide(Tooltip* tooltip)
 
 void tooltip_hide()
 {
+	stop_timeouts();
 	if (g_tooltip.mapped) {
 		g_tooltip.mapped = False;
 		XUnmapWindow(server.dsp, g_tooltip.window);
+		XFlush(server.dsp);
 	}
 }
 

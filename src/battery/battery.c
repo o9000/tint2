@@ -131,7 +131,7 @@ void init_battery()
 	g_free(battery_dir);
 
 	if (battery_enabled)
-		install_timer(0, 1000000, 3, 0, update_batterys);
+		install_timer(0, 1000000, 5, 0, update_batterys);
 }
 
 
