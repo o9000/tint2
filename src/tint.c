@@ -80,7 +80,6 @@ void init (int argc, char *argv[])
 	sigaction(SIGTERM, &sa, 0);
 	sigaction(SIGHUP, &sa, 0);
 	signal(SIGCHLD, SIG_IGN);		// don't have to wait() after fork()
-	signal(SIGALRM, tooltip_sighandler);
 	// block all signals, such that no race conditions occur before pselect in our main loop
 	sigset_t block_mask;
 	sigaddset(&block_mask, SIGINT);
@@ -827,6 +826,8 @@ int main (int argc, char *argv[])
 				}
 			}
 
+			// we need to iterate over the whole timer list, since fd_set can only be checked with the
+			// brute force method FD_ISSET for every possible timer
 			timer_iter = timer_list;
 			while (timer_iter) {
 				timer = timer_iter->data;

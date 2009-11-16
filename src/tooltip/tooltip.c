@@ -23,33 +23,42 @@
 #include "server.h"
 #include "tooltip.h"
 #include "panel.h"
-
-// TODO: Use timer_create instead of setitimer, because SIGALRM is not the right signal for this...
-// Reason: If we want to implement autohide we have to use another signal...
+#include "timer.h"
 
 static int x, y, width, height;
+
+// the next functions are helper functions for tooltip handling
+void start_show_timeout();
+void start_hide_timeout();
+void stop_timeouts();
 
 // give the tooltip some reasonable default values
 Tooltip g_tooltip = {
 	.task = 0,
 	.window = 0,
-	.show_timeout = { .it_interval={0, 0}, .it_value={0, 0} },
-	.hide_timeout = { .it_interval={0, 0}, .it_value={0, 0} },
+	.show_timeout = { 0, 0 },
+	.hide_timeout = { 0, 0 },
 	.enabled = False,
-	.current_state = TOOLTIP_ABOUT_TO_HIDE,
 	.mapped = False,
 	.paddingx = 0,
 	.paddingy = 0,
 	.font_color = { .color={1, 1, 1}, .alpha=1 },
 	.background_color = { .color={0.5, 0.4, 0.5}, .alpha=1 },
 	.border = { .color={0, 0, 0}, .alpha=1,  .width=1, .rounded=0 },
-	.font_desc = 0
+	.font_desc = 0,
+	.show_timer_id = 0,
+	.hide_timer_id = 0
 };
 
 void init_tooltip()
 {
 	if (!g_tooltip.font_desc)
 		g_tooltip.font_desc = pango_font_description_from_string("sans 10");
+
+	if (g_tooltip.show_timer_id == 0)
+		g_tooltip.show_timer_id = install_timer(0, 0, 0, 0, tooltip_show);
+	if (g_tooltip.hide_timer_id == 0)
+		g_tooltip.hide_timer_id = install_timer(0, 0, 0, 0, tooltip_hide);
 
 	XSetWindowAttributes attr;
 	attr.override_redirect = True;
@@ -61,10 +70,9 @@ void init_tooltip()
 
 void cleanup_tooltip()
 {
-	alarm(0);
+	stop_timeouts();
 	tooltip_hide();
 	g_tooltip.enabled = False;
-	g_tooltip.current_state = TOOLTIP_ABOUT_TO_HIDE;
 	if (g_tooltip.task) {
 		g_tooltip.task = 0;
 	}
@@ -79,15 +87,6 @@ void cleanup_tooltip()
 }
 
 
-void tooltip_sighandler(int sig)
-{
-	if (g_tooltip.current_state == TOOLTIP_ABOUT_TO_SHOW)
-		tooltip_show();
-	else if (g_tooltip.current_state == TOOLTIP_ABOUT_TO_HIDE)
-		tooltip_hide();
-}
-
-
 void tooltip_trigger_show(Task* task, int x_root, int y_root)
 {
 	x = x_root;
@@ -96,18 +95,11 @@ void tooltip_trigger_show(Task* task, int x_root, int y_root)
 	if (g_tooltip.mapped && g_tooltip.task != task) {
 		g_tooltip.task = task;
 		tooltip_update();
-		alarm(0);
+		stop_timeouts();
 	}
 	else if (!g_tooltip.mapped) {
-		g_tooltip.current_state = TOOLTIP_ABOUT_TO_SHOW;
 		g_tooltip.task = task;
-		struct timeval t = g_tooltip.show_timeout.it_value;
-		if (t.tv_sec == 0 && t.tv_usec == 0) {
-			alarm(0);
-			tooltip_show();
-		}
-		else
-			setitimer(ITIMER_REAL, &g_tooltip.show_timeout, 0);
+		start_show_timeout();
 	}
 }
 
@@ -118,7 +110,6 @@ void tooltip_show()
 		g_tooltip.mapped = True;
 		XMapWindow(server.dsp, g_tooltip.window);
 		//tooltip_update();
-		alarm(0);
 	}
 }
 
@@ -251,19 +242,12 @@ void tooltip_update()
 void tooltip_trigger_hide(Tooltip* tooltip)
 {
 	if (g_tooltip.mapped) {
-		g_tooltip.current_state = TOOLTIP_ABOUT_TO_HIDE;
-		struct timeval t = g_tooltip.hide_timeout.it_value;
 		g_tooltip.task = 0;
-		if (t.tv_sec == 0 && t.tv_usec == 0) {
-			tooltip_hide();
-			alarm(0);
-		}
-		else
-			setitimer(ITIMER_REAL, &g_tooltip.hide_timeout, 0);
+		start_hide_timeout();
 	}
 	else {
-		// tooltip not visible yet, but maybe an alarm is still pending
-		alarm(0);
+		// tooltip not visible yet, but maybe a timeout is still pending
+		stop_timeouts();
 	}
 }
 
@@ -274,4 +258,32 @@ void tooltip_hide()
 		g_tooltip.mapped = False;
 		XUnmapWindow(server.dsp, g_tooltip.window);
 	}
+}
+
+
+void start_show_timeout()
+{
+	reset_timer(g_tooltip.hide_timer_id, 0, 0, 0, 0);
+	struct timespec t = g_tooltip.show_timeout;
+	if (t.tv_sec == 0 && t.tv_nsec == 0)
+		tooltip_show();
+	else
+		reset_timer(g_tooltip.show_timer_id, t.tv_sec, t.tv_nsec, 0, 0);
+}
+
+
+void start_hide_timeout()
+{
+	reset_timer(g_tooltip.show_timer_id, 0, 0, 0, 0);
+	struct timespec t = g_tooltip.hide_timeout;
+	if (t.tv_sec == 0 && t.tv_nsec == 0)
+		tooltip_hide();
+	else
+		reset_timer(g_tooltip.hide_timer_id, t.tv_sec, t.tv_nsec, 0, 0);
+}
+
+void stop_timeouts()
+{
+	reset_timer(g_tooltip.show_timer_id, 0, 0, 0, 0);
+	reset_timer(g_tooltip.hide_timer_id, 0, 0, 0, 0);
 }

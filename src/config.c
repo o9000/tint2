@@ -518,14 +518,18 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "tooltip_show_timeout") == 0) {
 		double timeout = atof(value);
 		int sec = (int)timeout;
-		int usec = (timeout-sec)*1e6;
-		g_tooltip.show_timeout.it_value = (struct timeval){.tv_sec=sec, .tv_usec=usec};
+		int nsec = (timeout-sec)*1e9;
+		if (nsec < 0)  // can happen because of double is not precise such that (sec > timeout)==TRUE
+			nsec = 0;
+		g_tooltip.show_timeout = (struct timespec){.tv_sec=sec, .tv_nsec=nsec};
 	}
 	else if (strcmp (key, "tooltip_hide_timeout") == 0) {
 		double timeout = atof(value);
 		int sec = (int)timeout;
-		int usec = (timeout-sec)*1e6;
-		g_tooltip.hide_timeout.it_value = (struct timeval){.tv_sec=sec, .tv_usec=usec};
+		int nsec = (timeout-sec)*1e9;
+		if (nsec < 0)  // can happen because of double is not precise such that (sec > timeout)==TRUE
+			nsec = 0;
+		g_tooltip.hide_timeout = (struct timespec){.tv_sec=sec, .tv_nsec=nsec};
 	}
 	else if (strcmp (key, "tooltip_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
