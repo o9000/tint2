@@ -704,7 +704,7 @@ void dnd_message(XClientMessageEvent *e)
 int main (int argc, char *argv[])
 {
 	XEvent e;
-	fd_set fd_set;
+	fd_set fdset;
 	int x11_fd, i;
 	Panel *panel;
 	GSList *it;
@@ -741,19 +741,19 @@ int main (int argc, char *argv[])
 	while (1) {
 		// thanks to AngryLlama for the timer
 		// Create a File Description Set containing x11_fd, and every timer_fd
-		FD_ZERO (&fd_set);
-		FD_SET (x11_fd, &fd_set);
+		FD_ZERO (&fdset);
+		FD_SET (x11_fd, &fdset);
 		int max_fd = x11_fd;
 		timer_iter = timer_list;
 		while (timer_iter) {
 			timer = timer_iter->data;
 			max_fd = timer->id > max_fd ? timer->id : max_fd;
-			FD_SET(timer->id, &fd_set);
+			FD_SET(timer->id, &fdset);
 			timer_iter = timer_iter->next;
 		}
 
 		// Wait for X Event or a Timer
-		if (pselect(max_fd+1, &fd_set, 0, 0, 0, &empty_mask) > 0) {
+		if (pselect(max_fd+1, &fdset, 0, 0, 0, &empty_mask) > 0) {
 			while (XPending (server.dsp)) {
 				XNextEvent(server.dsp, &e);
 
@@ -831,7 +831,7 @@ int main (int argc, char *argv[])
 			timer_iter = timer_list;
 			while (timer_iter) {
 				timer = timer_iter->data;
-				if (FD_ISSET(timer->id, &fd_set)) {
+				if (FD_ISSET(timer->id, &fdset)) {
 					uint64_t dummy;
 					read(timer->id, &dummy, sizeof(uint64_t));
 					timer->_callback();

@@ -29,25 +29,11 @@
 #include <glib/gi18n.h>
 
 #include "common.h"
-
-
-// TODO
-// ** add, saveas
-// - liste de fichiers tint2rc*
-// - menu contextuel dans liste
-// - double clic dans liste
-// - données globales
-// - delete
-// - rename
-// - apply
-// - sauvegarde et lecture taille de fenetre
-// - activation des menus sur sélection dans la liste
-// - dialogue propriétés ...
+#include "theme_view.h"
 
 
 #define LONG_VERSION_STRING "0.7"
 
-enum { LIST_ITEM = 0, N_COLUMNS };
 
 // default config file and directory
 char *g_path_config = 0;
@@ -58,7 +44,6 @@ int g_height;
 
 GtkWidget *g_window;
 GtkWidget *g_theme_view;
-GtkListStore *g_store;
 GtkCellRenderer *g_renderer;
 
 static GtkUIManager *globalUIManager = NULL;
@@ -81,15 +66,12 @@ static gboolean view_onPopupMenu (GtkWidget *treeview, gpointer userdata);
 static gboolean view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer userdata);
 static void viewRowActivated( GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data);
 
-// TreeView
-static void loadTheme();
-static void init_list(GtkWidget *list);
-static void add_to_list(GtkWidget *list, const gchar *str);
-void on_changed(GtkWidget *widget, gpointer label);
 
-void read_config();
-void write_config();
-void check_theme();
+// theme files
+static void load_theme();
+static void read_config();
+static void write_config();
+static void check_theme();
 
 
 // define menubar, toolbar and popup
@@ -152,7 +134,6 @@ int main (int argc, char ** argv)
 {
 	GtkWidget *vBox = NULL, *scrollbar = NULL;
 	GtkActionGroup *actionGroup;
-	GtkTreeSelection *sel;
 
 	gtk_init (&argc, &argv);
 	g_thread_init( NULL );
@@ -180,38 +161,16 @@ int main (int argc, char ** argv)
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_box_pack_start(GTK_BOX(vBox), scrollbar, TRUE, TRUE, 0);
 
-	// define tree view
-	g_theme_view = gtk_tree_view_new();
-	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(g_theme_view), FALSE);
-	//gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(g_theme_view), TRUE);
-
-	//g_renderer = (GtkCellRenderer *)g_object_new(TORRENT_CELL_RENDERER_TYPE, NULL);
-
-	//GtkTreeViewColumn *col = GTK_TREE_VIEW_COLUMN (g_object_new(GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Torrent"), "resizable", TRUE, "sizing", GTK_TREE_VIEW_COLUMN_FIXED, NULL));
-
-
-	//gtk_widget_set_size_request(g_theme_view, g_width, g_height);
-	//gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(g_theme_view), TRUE);
-	//col = GTK_TREE_VIEW_COLUMN (g_object_new (GTK_TYPE_TREE_VIEW_COLUMN, "title", _("Theme"), "resizable", TRUE, "sizing", GTK_TREE_VIEW_COLUMN_FIXED, NULL));
-	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
-	gtk_tree_selection_set_mode(GTK_TREE_SELECTION(sel), GTK_SELECTION_SINGLE);
+	// define theme view
+	g_theme_view = create_view_and_model();
 	gtk_container_add(GTK_CONTAINER(scrollbar), g_theme_view);
    gtk_widget_show(g_theme_view);
 	g_signal_connect(g_theme_view, "button-press-event", (GCallback)view_onButtonPressed, NULL);
 	g_signal_connect(g_theme_view, "popup-menu", (GCallback)view_onPopupMenu, NULL);
 	g_signal_connect(g_theme_view, "row-activated", G_CALLBACK(viewRowActivated), NULL);
-	g_signal_connect(sel, "changed",	G_CALLBACK(on_changed), NULL);
-
-	GtkCellRenderer *renderer;
-	GtkTreeViewColumn *column;
-	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("List Items", renderer, "text", LIST_ITEM, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(g_theme_view), column);
-	g_store = gtk_list_store_new(N_COLUMNS, G_TYPE_STRING);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(g_theme_view), GTK_TREE_MODEL(g_store));
 
    // load themes
-	loadTheme(g_theme_view);
+	load_theme(g_theme_view);
 
 	// rig up idle/thread routines
 	//Glib::Thread::create(sigc::mem_fun(window.view, &Thumbview::load_cache_images), true);
@@ -327,7 +286,7 @@ static void menuDelete (void)
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
-		gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
+		gtk_tree_model_get(model, &iter, COL_TEXT, &value,  -1);
 		gtk_tree_selection_unselect_all(sel);
 		// remove from the gui
 		gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
@@ -352,7 +311,7 @@ static void menuProperties (void)
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
-		gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
+		gtk_tree_model_get(model, &iter, COL_TEXT, &value,  -1);
 
 		name1 = g_build_filename ("\'", g_get_user_config_dir(), "tint2", value, NULL);
 		name2 = g_strdup_printf("%s.tint2rc\'", name1);
@@ -405,7 +364,7 @@ static void menuApply (void)
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
-		gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
+		gtk_tree_model_get(model, &iter, COL_TEXT, &value,  -1);
 		name1 = g_build_filename (g_get_user_config_dir(), "tint2", value, NULL);
 		name2 = g_strdup_printf("%s.tint2rc", name1);
 		g_free(name1);
@@ -468,7 +427,7 @@ static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeV
 }
 
 
-static void loadTheme(GtkWidget *list)
+static void load_theme(GtkWidget *list)
 {
 	GDir *dir;
 	gchar *file, *pt1, *name;
@@ -580,31 +539,5 @@ void check_theme()
 
 }
 
-
-static void add_to_list(GtkWidget *list, const gchar *str)
-{
-	GtkListStore *store;
-	GtkTreeIter iter;
-
-	store = GTK_LIST_STORE(gtk_tree_view_get_model (GTK_TREE_VIEW(list)));
-
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, LIST_ITEM, str, -1);
-}
-
-
-void on_changed(GtkWidget *widget, gpointer label)
-{
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-	char *value;
-
-	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(widget), &model, &iter)) {
-		gtk_tree_model_get(model, &iter, LIST_ITEM, &value,  -1);
-		//gtk_label_set_text(GTK_LABEL(label), value);
-		g_free(value);
-	}
-
-}
 
 
