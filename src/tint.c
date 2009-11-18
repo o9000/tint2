@@ -223,6 +223,20 @@ void window_action (Task *tsk, int action)
 			windows_set_desktop(tsk->win, desk);
 			if (desk == server.desktop)
 				set_active(tsk->win);
+			break;
+		case NEXT_TASK:
+			if (task_active) {
+				Task *tsk1;
+				tsk1 = next_task(task_active);
+				set_active(tsk1->win);
+			}
+			break;
+		case PREV_TASK:
+			if (task_active) {
+				Task *tsk1;
+				tsk1 = prev_task(task_active);
+				set_active(tsk1->win);
+			}
 	}
 }
 

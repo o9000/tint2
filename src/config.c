@@ -173,6 +173,10 @@ void get_action (char *event, int *action)
 		*action = DESKTOP_LEFT;
 	else if (strcmp (event, "desktop_right") == 0)
 		*action = DESKTOP_RIGHT;
+	else if (strcmp (event, "next_task") == 0)
+		*action = NEXT_TASK;
+	else if (strcmp (event, "prev_task") == 0)
+		*action = PREV_TASK;
 }
 
 

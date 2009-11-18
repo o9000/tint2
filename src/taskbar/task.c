@@ -361,6 +361,55 @@ void draw_task (void *obj, cairo_t *c, int active)
 }
 
 
+Task *next_task(Task *tsk)
+{
+	GSList *l0;
+	int i, j;
+	Task *tsk1;
+
+	for (i=0 ; i < nb_panel ; i++) {
+		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
+			for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
+				tsk1 = l0->data;
+				if (tsk1 == tsk) {
+					if (l0->next == NULL) l0 = panel1[i].taskbar[j].area.list;
+					else l0 = l0->next;
+					return l0->data;
+				}
+			}
+		}
+	}
+
+	return NULL;
+}
+
+Task *prev_task(Task *tsk)
+{
+	GSList *l0;
+	int i, j;
+	Task *tsk1, *tsk2;
+
+	for (i=0 ; i < nb_panel ; i++) {
+		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
+			tsk2 = NULL;
+			for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
+				tsk1 = l0->data;
+				if (tsk1 == tsk) {
+					if (l0 == panel1[i].taskbar[j].area.list) {
+						l0 = g_slist_last ( l0 );
+						tsk2 = l0->data;
+					}
+					return tsk2;
+				}
+				tsk2 = tsk1;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+
 void active_task()
 {
 	GSList *l0;
