@@ -25,7 +25,8 @@
 
 
 typedef struct {
-	Area* area;
+	Area* area;    // never ever use the area attribut if you are not 100% sure that this area was not freed
+	char* tooltip_text;
 	Panel* panel;
 	Window window;
 	struct timespec show_timeout;

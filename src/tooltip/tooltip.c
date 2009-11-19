@@ -17,6 +17,8 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
 #include <cairo.h>
 #include <cairo-xlib.h>
 
@@ -31,9 +33,11 @@ static int x, y, width, height;
 void start_show_timeout();
 void start_hide_timeout();
 void stop_timeouts();
+void tooltip_copy_text(Area* area);
 
 // give the tooltip some reasonable default values
 Tooltip g_tooltip = {
+	.tooltip_text = 0,
 	.area = 0,
 	.panel = 0,
 	.window = 0,
@@ -74,7 +78,7 @@ void cleanup_tooltip()
 	stop_timeouts();
 	tooltip_hide();
 	g_tooltip.enabled = False;
-	g_tooltip.area = 0;
+	tooltip_copy_text(0);
 	if (g_tooltip.window) {
 		XDestroyWindow(server.dsp, g_tooltip.window);
 		g_tooltip.window = 0;
@@ -92,7 +96,7 @@ void tooltip_trigger_show(Area* area, Panel* p, int x_root, int y_root)
 	y = y_root;
 	g_tooltip.panel = p;
 	if (g_tooltip.mapped && g_tooltip.area != area) {
-		g_tooltip.area = area;
+		tooltip_copy_text(area);
 		tooltip_update();
 		stop_timeouts();
 	}
@@ -107,7 +111,7 @@ void tooltip_show()
 	Area* area = click_area(g_tooltip.panel, x, y);
 	stop_timeouts();
 	if (!g_tooltip.mapped && area->_get_tooltip_text) {
-		g_tooltip.area = area;
+		tooltip_copy_text(area);
 		g_tooltip.mapped = True;
 		XMapWindow(server.dsp, g_tooltip.window);
 		XFlush(server.dsp);
@@ -124,7 +128,7 @@ void tooltip_update_geometry()
 	c = cairo_create(cs);
 	layout = pango_cairo_create_layout(c);
 	pango_layout_set_font_description(layout, g_tooltip.font_desc);
-	pango_layout_set_text(layout, g_tooltip.area->_get_tooltip_text(g_tooltip.area), -1);
+	pango_layout_set_text(layout, g_tooltip.tooltip_text, -1);
 	PangoRectangle r1, r2;
 	pango_layout_get_pixel_extents(layout, &r1, &r2);
 	width = 2*g_tooltip.border.width + 2*g_tooltip.paddingx + r2.width;
@@ -194,7 +198,7 @@ void tooltip_adjust_geometry()
 
 void tooltip_update()
 {
-	if (!g_tooltip.area->_get_tooltip_text) {
+	if (!g_tooltip.tooltip_text) {
 		tooltip_hide();
 		return;
 	}
@@ -224,7 +228,7 @@ void tooltip_update()
 	cairo_set_source_rgba(c, fc.color[0], fc.color[1], fc.color[2], fc.alpha);
 	layout = pango_cairo_create_layout(c);
 	pango_layout_set_font_description(layout, g_tooltip.font_desc);
-	pango_layout_set_text(layout, g_tooltip.area->_get_tooltip_text(g_tooltip.area), -1);
+	pango_layout_set_text(layout, g_tooltip.tooltip_text, -1);
 	PangoRectangle r1, r2;
 	pango_layout_get_pixel_extents(layout, &r1, &r2);
 	pango_layout_set_width(layout, width*PANGO_SCALE);
@@ -243,7 +247,7 @@ void tooltip_update()
 void tooltip_trigger_hide(Tooltip* tooltip)
 {
 	if (g_tooltip.mapped) {
-		g_tooltip.area = 0;
+		tooltip_copy_text(0);
 		start_hide_timeout();
 	}
 	else {
@@ -289,4 +293,15 @@ void stop_timeouts()
 {
 	reset_timer(g_tooltip.show_timer_id, 0, 0, 0, 0);
 	reset_timer(g_tooltip.hide_timer_id, 0, 0, 0, 0);
+}
+
+
+void tooltip_copy_text(Area* area)
+{
+	free(g_tooltip.tooltip_text);
+	if (area && area->_get_tooltip_text)
+		g_tooltip.tooltip_text = strdup(area->_get_tooltip_text(area));
+	else
+		g_tooltip.tooltip_text = 0;
+	g_tooltip.area = area;
 }

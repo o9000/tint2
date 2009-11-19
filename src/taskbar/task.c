@@ -143,6 +143,8 @@ void remove_task (Task *tsk)
 						task_active = 0;
 					if (tsk2 == task_drag)
 						task_drag = 0;
+					if (is_urgent(tsk2))
+						del_urgent(tsk2);
 
 					XFreePixmap (server.dsp, tsk2->area.pix.pmap);
 					XFreePixmap (server.dsp, tsk2->area.pix_active.pmap);

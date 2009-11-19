@@ -25,7 +25,7 @@ GSList* timer_list = 0;
 
 int install_timer(int value_sec, int value_nsec, int interval_sec, int interval_nsec, void (*_callback)())
 {
-	if ( value_sec < 0 || interval_sec < 0 )
+	if ( value_sec < 0 || interval_sec < 0 || _callback == 0 )
 		return -1;
 
 	int timer_fd;
