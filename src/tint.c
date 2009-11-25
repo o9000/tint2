@@ -435,6 +435,8 @@ void event_property_notify (XEvent *e)
 					else
 						return;
 				}
+				else
+					return;
 			}
 		}
 		//printf("atom root_win = %s, %s\n", XGetAtomName(server.dsp, at), tsk->title);
@@ -792,8 +794,11 @@ int main (int argc, char *argv[])
 				timer = timer_iter->data;
 				if (FD_ISSET(timer->id, &fdset)) {
 					uint64_t dummy;
+//printf("reading from timer->id=%d\n", timer->id);
 					read(timer->id, &dummy, sizeof(uint64_t));
+//printf("Callback timer->_callback\n");
 					timer->_callback();
+//printf("Timer callback finished\n");
 				}
 				timer_iter = timer_iter->next;
 			}
