@@ -477,6 +477,13 @@ void blink_urgent()
 
 void add_urgent(Task *tsk)
 {
+	if (!tsk)
+		return;
+
+	// some programs set urgency hint although they are active
+	if ( task_active && task_active->win == tsk->win )
+		return;
+
 	// first check if task is already in the list and reset the counter
 	GSList* urgent_task = urgent_list;
 	while (urgent_task) {
