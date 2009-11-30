@@ -709,6 +709,19 @@ int main (int argc, char *argv[])
 
 		// Wait for X Event or a Timer
 		if (pselect(max_fd+1, &fdset, 0, 0, 0, &empty_mask) > 0) {
+			// we need to iterate over the whole timer list, since fd_set can only be checked with the
+			// brute force method FD_ISSET for every possible timer
+			timer_iter = timer_list;
+			while (timer_iter) {
+				timer = timer_iter->data;
+				if (FD_ISSET(timer->id, &fdset)) {
+					uint64_t dummy;
+					if ( -1  != read(timer->id, &dummy, sizeof(uint64_t)) )
+						timer->_callback();
+				}
+				timer_iter = timer_iter->next;
+			}
+
 			while (XPending (server.dsp)) {
 				XNextEvent(server.dsp, &e);
 
@@ -785,22 +798,6 @@ int main (int argc, char *argv[])
 						}
 						break;
 				}
-			}
-
-			// we need to iterate over the whole timer list, since fd_set can only be checked with the
-			// brute force method FD_ISSET for every possible timer
-			timer_iter = timer_list;
-			while (timer_iter) {
-				timer = timer_iter->data;
-				if (FD_ISSET(timer->id, &fdset)) {
-					uint64_t dummy;
-//printf("reading from timer->id=%d\n", timer->id);
-					read(timer->id, &dummy, sizeof(uint64_t));
-//printf("Callback timer->_callback\n");
-					timer->_callback();
-//printf("Timer callback finished\n");
-				}
-				timer_iter = timer_iter->next;
 			}
 		}
 

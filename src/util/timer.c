@@ -18,6 +18,7 @@
 #include <sys/timerfd.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "timer.h"
 
@@ -38,6 +39,11 @@ int install_timer(int value_sec, int value_nsec, int interval_sec, int interval_
 	t->id=timer_fd;
 	t->_callback = _callback;
 	timer_list = g_slist_prepend(timer_list, t);
+
+	int flags = fcntl( timer_fd, F_GETFL, 0 );
+	if( flags != -1 )
+		fcntl( timer_fd, F_SETFL, flags | O_NONBLOCK );
+
 	return timer_fd;
 }
 
