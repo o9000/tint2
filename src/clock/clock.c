@@ -263,12 +263,12 @@ void clock_action(int button)
 	}
 	if (command) {
 		pid_t pid;
-		sigset_t sigset;
-		sigprocmask(SIG_SETMASK, &sigset, 0);
-		sigprocmask(SIG_UNBLOCK, &sigset, 0);
 		pid = fork();
-		sigprocmask(SIG_BLOCK, &sigset, 0);
 		if (pid == 0) {
+			// change for the fork the signal mask
+			sigset_t sigset;
+			sigprocmask(SIG_SETMASK, &sigset, 0);
+			sigprocmask(SIG_UNBLOCK, &sigset, 0);
 			execl("/bin/sh", "/bin/sh", "-c", command, NULL);
 			_exit(0);
 		}
