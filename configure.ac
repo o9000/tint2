@@ -31,12 +31,12 @@ AM_CONDITIONAL([INSTALL_EXAMPLES], [test x$examples = xtrue])
 
 # tint2conf
 AC_ARG_ENABLE([tint2conf],
-	[AS_HELP_STRING([--disable-tint2conf], [Disable tint2conf build, a GTK+2 theme switcher for tint2])],
+	[AS_HELP_STRING([--enable-tint2conf], [Enable tint2conf build, a GTK+2 theme switcher for tint2])],
 		[case "${enableval}" in
 			yes) tint2conf=true ;;
 			no)  tint2conf=false ;;
-			*) AC_MSG_ERROR([bad value ${enableval} for --disable-tint2conf]) ;;
-		esac],[tint2conf=true])
+			*) AC_MSG_ERROR([bad value ${enableval} for --enable-tint2conf]) ;;
+		esac],[tint2conf=false])
 AM_CONDITIONAL([ENABLE_TINT2CONF], [test x$tint2conf = xtrue])
 #
 
