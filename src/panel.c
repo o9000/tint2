@@ -58,7 +58,7 @@ int  max_tick_urgent;
 // panel's initial config
 Panel panel_config;
 // panels (one panel per monitor)
-Panel *panel1 = NULL;
+Panel *panel1 = 0;
 int  nb_panel = 0;
 
 Imlib_Image default_icon = NULL;
@@ -113,11 +113,12 @@ void init_panel()
 		new_panel[i].main_win = old_win;
 	}
 
-	fprintf(stderr, "tint2 : nb monitor %d, nb desktop %d\n", nb_panel, server.nb_desktop);
+	fprintf(stderr, "tint2 : nb monitor %d, nb monitor used %d, nb desktop %d\n", server.nb_monitor, nb_panel, server.nb_desktop);
 	for (i=0 ; i < nb_panel ; i++) {
 		p = &new_panel[i];
 
-		p->monitor = i;
+		if (panel_config.monitor < 0)
+			p->monitor = i;
 		p->area.parent = p;
 		p->area.panel = p;
 		p->area.on_screen = 1;
@@ -263,8 +264,11 @@ void cleanup_panel()
 		}
 	}
 
-	if (panel1) free(panel1);
-	panel1 = 0;
+	if (panel1) {
+		free(panel1);
+		panel1 = 0;
+		nb_panel = 0;
+	}
 
 	if (panel_config.g_task.font_desc) {
 		pango_font_description_free(panel_config.g_task.font_desc);

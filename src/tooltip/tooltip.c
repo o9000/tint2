@@ -102,6 +102,7 @@ void tooltip_trigger_show(Area* area, Panel* p, int x_root, int y_root)
 	}
 	else if (!g_tooltip.mapped) {
 		start_show_timeout();
+		//printf("!g_tooltip.mapped %d %d\n", x, y);
 	}
 }
 
@@ -272,10 +273,12 @@ void start_show_timeout()
 {
 	reset_timer(g_tooltip.hide_timer_id, 0, 0, 0, 0);
 	struct timespec t = g_tooltip.show_timeout;
-	if (t.tv_sec == 0 && t.tv_nsec == 0)
+	if (t.tv_sec == 0 && t.tv_nsec == 0) {
 		tooltip_show();
-	else
+	}
+	else {
 		reset_timer(g_tooltip.show_timer_id, t.tv_sec, t.tv_nsec, 0, 0);
+	}
 }
 
 

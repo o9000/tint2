@@ -739,9 +739,8 @@ int main (int argc, char *argv[])
 						if (!g_tooltip.enabled) break;
 						Panel* panel = get_panel(e.xmotion.window);
 						Area* area = click_area(panel, e.xmotion.x, e.xmotion.y);
-						if (area->_get_tooltip_text) {
+						if (area->_get_tooltip_text)
 							tooltip_trigger_show(area, panel, e.xmotion.x_root, e.xmotion.y_root);
-						}
 						else
 							tooltip_trigger_hide();
 						break;

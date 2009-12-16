@@ -266,8 +266,7 @@ void get_monitors()
 			}
 next:
 			server.nb_monitor = i;
-			server.monitor = realloc(server.monitor, server.nb_monitor * sizeof(Monitor));			
-			//printf("  nbmonitor %d\n", server.nb_monitor);
+			server.monitor = realloc(server.monitor, server.nb_monitor * sizeof(Monitor));
 			qsort(server.monitor, server.nb_monitor, sizeof(Monitor), compareMonitorPos);
 		}
 	}
