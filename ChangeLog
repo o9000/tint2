@@ -1,3 +1,28 @@
+
+
+2009-12-16
+- Scrolling through tasks by schattenprinz (added action next_task and prev_task)
+- Andreas : *add* setting tooltip on clock
+- Andreas : *add* changed everything to kernel timer for easier integration with new timer
+- Andreas : *add* multiple tasks can be urgent now
+- Thierry : panel snapshot
+- patch for FULL battery by peter.ebden
+- Thierry : work on tint2conf. not ready for release yet.
+- Thierry : killall -SIGUSR1 tint2 will reload config file cleanly
+- Thierry : improved multi-monitor detection
+- Thierry : added left2right and right2left value to systray_sort option
+- Andreas : *add* option for ascending/descending/unsorted systray
+- Thierry : EWMH non-resizable panel
+- less disturbing omnipresent task by dmitry medvinsky
+- Thierry : lower cpu use with icon. replace HUE by ALPHA on icon (see task_icon_asb)
+- Thierry : add default icon on task
+- Andreas : *add* tooltips
+- Andreas : added possibility to put tint2 into the windowmanagers dock
+- Andreas : Drag n drop over Task bring Focus
+- Andreas : support skip_taskbar
+- Thierry : detect pid of process owning the systray
+- Andreas : added possibility to put tint2 into the windowmanagers dock
+
 2009-09-08
 - Drag n drop over Task bring Focus by Andreas.Fink85
 
