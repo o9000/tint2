@@ -108,7 +108,10 @@ void tooltip_trigger_show(Area* area, Panel* p, int x_root, int y_root)
 
 void tooltip_show()
 {
-	Area* area = click_area(g_tooltip.panel, x, y);
+  int mx, my;
+  Window w;
+  XTranslateCoordinates( server.dsp, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
+  Area* area = click_area(g_tooltip.panel, mx, my);
 	stop_timeouts();
 	if (!g_tooltip.mapped && area->_get_tooltip_text) {
 		tooltip_copy_text(area);

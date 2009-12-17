@@ -43,6 +43,7 @@ static char buf_bat_time[20];
 
 int8_t battery_low_status;
 char *battery_low_cmd=0;
+unsigned char battery_low_cmd_send=0;
 char *path_energy_now=0;
 char *path_energy_full=0;
 char *path_current_now=0;
@@ -266,10 +267,15 @@ void update_battery() {
 	if(energy_full > 0)
 		new_percentage = (energy_now*100)/energy_full;
 
-	if(battery_low_status != 0 && battery_low_status == new_percentage && battery_state.percentage > new_percentage) {
-		//printf("battery low, executing: %s\n", battery_low_cmd);
-		if (battery_low_cmd) system(battery_low_cmd);
+  if(battery_low_status > new_percentage && battery_state.state == BATTERY_DISCHARGING && !battery_low_cmd_send) {
+    printf("battery low, executing: %s\n", battery_low_cmd);
+    if (battery_low_cmd)
+      system(battery_low_cmd);
+    battery_low_cmd_send = 1;
 	}
+  if(battery_low_status < new_percentage && battery_state.state == BATTERY_CHARGING && battery_low_cmd_send) {
+    battery_low_cmd_send = 0;
+  }
 
 	battery_state.percentage = new_percentage;
 
