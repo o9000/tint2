@@ -50,7 +50,7 @@ typedef struct
 
 
 typedef struct {
-	// absolute coordinate in panel
+	// coordinate relative to panel window
 	int posx, posy;
 	// width and height including border
 	int width, height;

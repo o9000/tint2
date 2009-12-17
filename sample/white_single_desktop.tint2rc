@@ -43,7 +43,7 @@ panel_background_id = 3
 #---------------------------------------------
 task_icon = 0
 task_text = 1
-task_width = 100
+task_maximum_size = 100
 task_centered = 1
 task_margin = 4
 task_padding = 5
@@ -66,19 +66,22 @@ taskbar_active_background_id = 0
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
+systray = 1
 systray_padding = 4 2 3
 systray_background_id = 0
+systray_sort = left2right
 
 #---------------------------------------------
 # CLOCK
 #---------------------------------------------
-time1_format = %H:%M / %a %d %b
+time1_format = %H:%M
 #time1_font = Museo 8
-time1_font = AvantGardeLTMedium 8
+time1_font = AvantGardeLTMedium 9 bold
 #time2_format = %A %d %B
 #time2_font = Monospace 6
 clock_font_color = #151515 60
 clock_padding = 4 0
+clock_tooltip = %A %d %B
 
 #---------------------------------------------
 # BATTERY
@@ -91,6 +94,17 @@ bat2_font = sans 6
 battery_font_color = #151515 60
 battery_padding = 1 0
 battery_background_id = 0
+
+#---------------------------------------------
+# TOOLTIP
+#---------------------------------------------
+tooltip = 1
+tooltip_padding = 2 2
+tooltip_show_timeout = 0.7
+tooltip_hide_timeout = 0.3
+tooltip_background_id = 1
+tooltip_font_color = #OOOOOO 80
+tooltip_font = sans 10
 
 #---------------------------------------------
 # MOUSE ACTION ON TASK

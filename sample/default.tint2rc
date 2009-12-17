@@ -70,6 +70,7 @@ task_active_background_id = 3
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
+systray = 1
 systray_padding = 8 4 5
 systray_background_id = 1
 systray_sort = left2right
@@ -98,6 +99,7 @@ clock_padding = 1 0
 clock_background_id = 1
 #clock_lclick_command = xclock
 clock_rclick_command = orage
+#clock_tooltip = %A %d %B
 
 #---------------------------------------------
 # TOOLTIP

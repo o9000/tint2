@@ -2,7 +2,7 @@
 
 2009-12-16
 - Scrolling through tasks by schattenprinz (added action next_task and prev_task)
-- Andreas : *add* setting tooltip on clock
+- Andreas : *add* setting tooltip on clock with 'clock_tooltip = format'
 - Andreas : *add* changed everything to kernel timer for easier integration with new timer
 - Andreas : *add* multiple tasks can be urgent now
 - Thierry : panel snapshot

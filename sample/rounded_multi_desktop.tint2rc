@@ -65,9 +65,33 @@ task_active_background_id = 0
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
+systray = 1
 systray_padding = 6 5 5
 systray_background_id =2
+systray_sort = left2right
 
+#---------------------------------------------
+# BATTERY
+#---------------------------------------------
+battery = 0
+battery_low_status = 7
+battery_low_cmd = notify-send "battery low"
+bat1_font = sans 8
+bat2_font = sans 6
+battery_font_color = #ffffff 76
+battery_padding = 1 0
+battery_background_id = 2
+
+#---------------------------------------------
+# TOOLTIP
+#---------------------------------------------
+tooltip = 1
+tooltip_padding = 2 2
+tooltip_show_timeout = 0.7
+tooltip_hide_timeout = 0.3
+tooltip_background_id = 3
+tooltip_font_color = #OOOOOO 80
+tooltip_font = sans 10
 
 #---------------------------------------------
 # MOUSE ACTION ON TASK

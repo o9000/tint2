@@ -68,6 +68,7 @@ task_active_background_id = 3
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
+systray = 1
 systray_padding = 8 6 5
 systray_background_id = 0
 systray_sort = left2right
@@ -96,6 +97,7 @@ clock_padding = 2 0
 clock_background_id = 0
 #clock_lclick_command = xclock
 clock_rclick_command = orage
+#clock_tooltip = %A %d %B
 
 #---------------------------------------------
 # TOOLTIP
@@ -104,7 +106,7 @@ tooltip = 1
 tooltip_padding = 2 2
 tooltip_show_timeout = 0.7
 tooltip_hide_timeout = 0.3
-tooltip_background_id = 4
+tooltip_background_id = 1
 tooltip_font_color = #OOOOOO 80
 tooltip_font = sans 10
 

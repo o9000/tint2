@@ -102,7 +102,6 @@ void tooltip_trigger_show(Area* area, Panel* p, int x_root, int y_root)
 	}
 	else if (!g_tooltip.mapped) {
 		start_show_timeout();
-		//printf("!g_tooltip.mapped %d %d\n", x, y);
 	}
 }
 
