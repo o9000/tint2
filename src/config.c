@@ -45,6 +45,7 @@
 #include "config.h"
 #include "window.h"
 #include "tooltip.h"
+#include "timer.h"
 
 #ifdef ENABLE_BATTERY
 #include "battery.h"
@@ -74,6 +75,7 @@ void init_config()
 	list_back = g_slist_append(0, calloc(1, sizeof(Area)));
 
 	// tint2 could reload config, so we cleanup objects
+	uninstall_all_timer();
 	cleanup_systray();
 #ifdef ENABLE_BATTERY
 	cleanup_battery();

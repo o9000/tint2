@@ -45,4 +45,7 @@ void reset_timer(int id, int value_sec, int value_nsec, int interval_sec, int in
 /** uninstalls a timer with the given 'id'. If no timer is installed with this id nothing happens **/
 void uninstall_timer(int id);
 
+/** uninstalls all timer. Calls uninstall_timer for all available id's **/
+void uninstall_all_timer();
+
 #endif // TIMER_H

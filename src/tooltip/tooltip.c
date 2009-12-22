@@ -60,10 +60,8 @@ void init_tooltip()
 	if (!g_tooltip.font_desc)
 		g_tooltip.font_desc = pango_font_description_from_string("sans 10");
 
-	if (g_tooltip.show_timer_id == 0)
-		g_tooltip.show_timer_id = install_timer(0, 0, 0, 0, tooltip_show);
-	if (g_tooltip.hide_timer_id == 0)
-		g_tooltip.hide_timer_id = install_timer(0, 0, 0, 0, tooltip_hide);
+	g_tooltip.show_timer_id = install_timer(0, 0, 0, 0, tooltip_show);
+	g_tooltip.hide_timer_id = install_timer(0, 0, 0, 0, tooltip_hide);
 
 	XSetWindowAttributes attr;
 	attr.override_redirect = True;

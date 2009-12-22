@@ -427,16 +427,21 @@ void set_panel_properties(Panel *p)
 	XChangeProperty(server.dsp, p->main_win, server.atom.XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char*)&version, 1);
 
 	// Reserved space
+	unsigned int d1, screen_width, screen_height;
+	Window d2;
+	int d3;
+	XGetGeometry(server.dsp, server.root_win, &d2, &d3, &d3, &screen_width, &screen_height, &d1, &d1);
+	Monitor monitor = server.monitor[p->monitor];
 	long   struts [12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	if (panel_horizontal) {
 		if (panel_position & TOP) {
-			struts[2] = p->area.height + p->marginy;
+			struts[2] = p->area.height + p->marginy + monitor.y;
 			struts[8] = p->posx;
 			// p->area.width - 1 allowed full screen on monitor 2
 			struts[9] = p->posx + p->area.width - 1;
 		}
 		else {
-			struts[3] = p->area.height + p->marginy;
+			struts[3] = p->area.height + p->marginy + screen_height - monitor.y - monitor.height;
 			struts[10] = p->posx;
 			// p->area.width - 1 allowed full screen on monitor 2
 			struts[11] = p->posx + p->area.width - 1;
@@ -444,13 +449,13 @@ void set_panel_properties(Panel *p)
 	}
 	else {
 		if (panel_position & LEFT) {
-			struts[0] = p->area.width + p->marginx;
+			struts[0] = p->area.width + p->marginx + monitor.x;
 			struts[4] = p->posy;
 			// p->area.width - 1 allowed full screen on monitor 2
 			struts[5] = p->posy + p->area.height - 1;
 		}
 		else {
-			struts[1] = p->area.width + p->marginx;
+			struts[1] = p->area.width + p->marginx + screen_width - monitor.x - monitor.width;
 			struts[6] = p->posy;
 			// p->area.width - 1 allowed full screen on monitor 2
 			struts[7] = p->posy + p->area.height - 1;

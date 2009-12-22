@@ -71,3 +71,12 @@ void uninstall_timer(int id)
 		timer_iter = timer_iter->next;
 	}
 }
+
+
+void uninstall_all_timer()
+{
+	while (timer_list) {
+		struct timer* t = timer_list->data;
+		uninstall_timer(t->id);
+	}
+}
