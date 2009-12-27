@@ -21,31 +21,32 @@
 
 #include <glib.h>
 
-extern GSList* timer_list;
+extern GSList* timeout_list;
+extern struct timespec next_timeout;
 
 
-struct timer {
-	int id;
+struct timeout {
+	int interval_msec;
+	struct timespec timeout_expires;
 	void (*_callback)();
 };
 
 
 // timer functions
-/** installs a timer with the first timeout 'value_sec' and then a periodic timeout with interval_sec
-	* '_callback' is the callback function when the timer reaches the timeout.
-	* If 'value_sec' == 0 then the timer is disabled (but not uninstalled)
-	* If 'interval_sec' == 0 the timer is a single shot timer, ie. no periodic timeout occur
-	* returns the 'id' of the timer, which is needed for uninstalling the timer **/
-int install_timer(int value_sec, int value_nsec, int interval_sec, int interval_nsec, void (*_callback)());
+/** installs a timeout with the first timeout of 'value_msec' and then a periodic timeout with
+	* 'interval_msec'. '_callback' is the callback function when the timer reaches the timeout.
+	* returns a pointer to the timeout, which is needed for stopping it again **/
+const struct timeout* add_timeout(int value_msec, int interval_msec, void (*_callback)());
 
-/** resets a timer to the new values. If 'id' does not exist nothing happens.
-	* If value_sec == 0 the timer is stopped **/
-void reset_timer(int id, int value_sec, int value_nsec, int interval_sec, int interval_nsec);
+void change_timeout(const struct timeout* t, int value_msec, int interval_msec, void (*_callback)());
 
-/** uninstalls a timer with the given 'id'. If no timer is installed with this id nothing happens **/
-void uninstall_timer(int id);
+/** stops the timeout 't' **/
+void stop_timeout(const struct timeout* t);
 
-/** uninstalls all timer. Calls uninstall_timer for all available id's **/
-void uninstall_all_timer();
+/** stops all timeouts **/
+void stop_all_timeouts();
+
+void update_next_timeout();
+void callback_timeout_expired();
 
 #endif // TIMER_H

@@ -32,7 +32,7 @@ static int x, y, width, height;
 // the next functions are helper functions for tooltip handling
 void start_show_timeout();
 void start_hide_timeout();
-void stop_timeouts();
+void stop_tooltip_timeout();
 void tooltip_copy_text(Area* area);
 
 // give the tooltip some reasonable default values
@@ -41,8 +41,8 @@ Tooltip g_tooltip = {
 	.area = 0,
 	.panel = 0,
 	.window = 0,
-	.show_timeout = { 0, 0 },
-	.hide_timeout = { 0, 0 },
+	.show_timeout_msec = 0,
+	.hide_timeout_msec = 0,
 	.enabled = False,
 	.mapped = False,
 	.paddingx = 0,
@@ -51,17 +51,13 @@ Tooltip g_tooltip = {
 	.background_color = { .color={0.5, 0.4, 0.5}, .alpha=1 },
 	.border = { .color={0, 0, 0}, .alpha=1,  .width=1, .rounded=0 },
 	.font_desc = 0,
-	.show_timer_id = 0,
-	.hide_timer_id = 0
+	.timeout = 0
 };
 
 void init_tooltip()
 {
 	if (!g_tooltip.font_desc)
 		g_tooltip.font_desc = pango_font_description_from_string("sans 10");
-
-	g_tooltip.show_timer_id = install_timer(0, 0, 0, 0, tooltip_show);
-	g_tooltip.hide_timer_id = install_timer(0, 0, 0, 0, tooltip_hide);
 
 	XSetWindowAttributes attr;
 	attr.override_redirect = True;
@@ -73,7 +69,7 @@ void init_tooltip()
 
 void cleanup_tooltip()
 {
-	stop_timeouts();
+	stop_tooltip_timeout();
 	tooltip_hide();
 	g_tooltip.enabled = False;
 	tooltip_copy_text(0);
@@ -96,7 +92,7 @@ void tooltip_trigger_show(Area* area, Panel* p, int x_root, int y_root)
 	if (g_tooltip.mapped && g_tooltip.area != area) {
 		tooltip_copy_text(area);
 		tooltip_update();
-		stop_timeouts();
+		stop_tooltip_timeout();
 	}
 	else if (!g_tooltip.mapped) {
 		start_show_timeout();
@@ -110,7 +106,7 @@ void tooltip_show()
   Window w;
   XTranslateCoordinates( server.dsp, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
   Area* area = click_area(g_tooltip.panel, mx, my);
-	stop_timeouts();
+	stop_tooltip_timeout();
 	if (!g_tooltip.mapped && area->_get_tooltip_text) {
 		tooltip_copy_text(area);
 		g_tooltip.mapped = True;
@@ -204,7 +200,6 @@ void tooltip_update()
 		return;
 	}
 
-//	printf("tooltip_update\n");
 	tooltip_update_geometry();
 	tooltip_adjust_geometry();
 	XMoveResizeWindow(server.dsp, g_tooltip.window, x, y, width, height);
@@ -253,14 +248,14 @@ void tooltip_trigger_hide(Tooltip* tooltip)
 	}
 	else {
 		// tooltip not visible yet, but maybe a timeout is still pending
-		stop_timeouts();
+		stop_tooltip_timeout();
 	}
 }
 
 
 void tooltip_hide()
 {
-	stop_timeouts();
+	stop_tooltip_timeout();
 	if (g_tooltip.mapped) {
 		g_tooltip.mapped = False;
 		XUnmapWindow(server.dsp, g_tooltip.window);
@@ -271,31 +266,28 @@ void tooltip_hide()
 
 void start_show_timeout()
 {
-	reset_timer(g_tooltip.hide_timer_id, 0, 0, 0, 0);
-	struct timespec t = g_tooltip.show_timeout;
-	if (t.tv_sec == 0 && t.tv_nsec == 0) {
-		tooltip_show();
-	}
-	else {
-		reset_timer(g_tooltip.show_timer_id, t.tv_sec, t.tv_nsec, 0, 0);
-	}
+	if (g_tooltip.timeout)
+		change_timeout(g_tooltip.timeout, g_tooltip.show_timeout_msec, 0, tooltip_show);
+	else
+		g_tooltip.timeout = add_timeout(g_tooltip.show_timeout_msec, 0, tooltip_show);
 }
 
 
 void start_hide_timeout()
 {
-	reset_timer(g_tooltip.show_timer_id, 0, 0, 0, 0);
-	struct timespec t = g_tooltip.hide_timeout;
-	if (t.tv_sec == 0 && t.tv_nsec == 0)
-		tooltip_hide();
+	if (g_tooltip.timeout)
+		change_timeout(g_tooltip.timeout, g_tooltip.hide_timeout_msec, 0, tooltip_hide);
 	else
-		reset_timer(g_tooltip.hide_timer_id, t.tv_sec, t.tv_nsec, 0, 0);
+		g_tooltip.timeout = add_timeout(g_tooltip.hide_timeout_msec, 0, tooltip_hide);
 }
 
-void stop_timeouts()
+
+void stop_tooltip_timeout()
 {
-	reset_timer(g_tooltip.show_timer_id, 0, 0, 0, 0);
-	reset_timer(g_tooltip.hide_timer_id, 0, 0, 0, 0);
+	if (g_tooltip.timeout) {
+		stop_timeout(g_tooltip.timeout);
+		g_tooltip.timeout = 0;
+	}
 }
 
 

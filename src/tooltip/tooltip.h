@@ -18,10 +18,9 @@
 #ifndef TOOLTIP_H
 #define TOOLTIP_H
 
-#include <sys/time.h>
-
 #include "task.h"
 #include "panel.h"
+#include "timer.h"
 
 
 typedef struct {
@@ -29,8 +28,8 @@ typedef struct {
 	char* tooltip_text;
 	Panel* panel;
 	Window window;
-	struct timespec show_timeout;
-	struct timespec hide_timeout;
+	int show_timeout_msec;
+	int hide_timeout_msec;
 	Bool enabled;
 	Bool mapped;
 	int paddingx;
@@ -39,8 +38,7 @@ typedef struct {
 	config_color font_color;
 	Color background_color;
 	Border border;
-	int show_timer_id;
-	int hide_timer_id;
+	const struct timeout* timeout;
 } Tooltip;
 
 extern Tooltip g_tooltip;

@@ -75,7 +75,6 @@ void init_config()
 	list_back = g_slist_append(0, calloc(1, sizeof(Area)));
 
 	// tint2 could reload config, so we cleanup objects
-	uninstall_all_timer();
 	cleanup_systray();
 #ifdef ENABLE_BATTERY
 	cleanup_battery();
@@ -526,20 +525,12 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "tooltip") == 0)
 		g_tooltip.enabled = atoi(value);
 	else if (strcmp (key, "tooltip_show_timeout") == 0) {
-		double timeout = atof(value);
-		int sec = (int)timeout;
-		int nsec = (timeout-sec)*1e9;
-		if (nsec < 0)  // can happen because of double is not precise such that (sec > timeout)==TRUE
-			nsec = 0;
-		g_tooltip.show_timeout = (struct timespec){.tv_sec=sec, .tv_nsec=nsec};
+		int timeout_msec = 1000*atof(value);
+		g_tooltip.show_timeout_msec = timeout_msec;
 	}
 	else if (strcmp (key, "tooltip_hide_timeout") == 0) {
-		double timeout = atof(value);
-		int sec = (int)timeout;
-		int nsec = (timeout-sec)*1e9;
-		if (nsec < 0)  // can happen because of double is not precise such that (sec > timeout)==TRUE
-			nsec = 0;
-		g_tooltip.hide_timeout = (struct timespec){.tv_sec=sec, .tv_nsec=nsec};
+		int timeout_msec = 1000*atof(value);
+		g_tooltip.hide_timeout_msec = timeout_msec;
 	}
 	else if (strcmp (key, "tooltip_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);

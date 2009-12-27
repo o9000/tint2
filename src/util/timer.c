@@ -15,68 +15,152 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
-#include <sys/timerfd.h>
+#include <time.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
 
 #include "timer.h"
 
-GSList* timer_list = 0;
+GSList* timeout_list = 0;
+struct timespec next_timeout;
 
-int install_timer(int value_sec, int value_nsec, int interval_sec, int interval_nsec, void (*_callback)())
+void add_timeout_intern(int value_msec, int interval_msec, void(*_callback)(), struct timeout* t);
+gint compare_timeouts(gconstpointer t1, gconstpointer t2);
+gint compare_timespecs(const struct timespec* t1, const struct timespec* t2);
+int timespec_subtract(struct timespec* result, struct timespec* x, struct timespec* y);
+
+
+const struct timeout* add_timeout(int value_msec, int interval_msec, void (*_callback)())
 {
-	if ( value_sec < 0 || interval_sec < 0 || _callback == 0 )
-		return -1;
-
-	int timer_fd;
-	struct itimerspec timer;
-	timer.it_value = (struct timespec){ .tv_sec=value_sec, .tv_nsec=value_nsec };
-	timer.it_interval = (struct timespec){ .tv_sec=interval_sec, .tv_nsec=interval_nsec };
-	timer_fd = timerfd_create(CLOCK_MONOTONIC, 0);
-	timerfd_settime(timer_fd, 0, &timer, 0);
-	struct timer* t = malloc(sizeof(struct timer));
-	t->id=timer_fd;
-	t->_callback = _callback;
-	timer_list = g_slist_prepend(timer_list, t);
-
-	int flags = fcntl( timer_fd, F_GETFL, 0 );
-	if( flags != -1 )
-		fcntl( timer_fd, F_SETFL, flags | O_NONBLOCK );
-
-	return timer_fd;
+	struct timeout* t = malloc(sizeof(struct timeout));
+	add_timeout_intern(value_msec, interval_msec, _callback, t);
+	return t;
 }
 
 
-void reset_timer(int id, int value_sec, int value_nsec, int interval_sec, int interval_nsec)
+void change_timeout(const struct timeout *t, int value_msec, int interval_msec, void(*_callback)())
 {
-	struct itimerspec timer;
-	timer.it_value = (struct timespec){ .tv_sec=value_sec, .tv_nsec=value_nsec };
-	timer.it_interval = (struct timespec){ .tv_sec=interval_sec, .tv_nsec=interval_nsec };
-	timerfd_settime(id, 0, &timer, 0);
+	timeout_list = g_slist_remove(timeout_list, t);
+	add_timeout_intern(value_msec, interval_msec, _callback, (struct timeout*)t);
 }
 
 
-void uninstall_timer(int id)
+void update_next_timeout()
 {
-	close(id);
-	GSList* timer_iter = timer_list;
-	while (timer_iter) {
-		struct timer* t = timer_iter->data;
-		if (t->id == id) {
-			timer_list = g_slist_remove(timer_list, t);
-			free(t);
-			return;
+	if (timeout_list) {
+		struct timeout* t = timeout_list->data;
+		struct timespec cur_time;
+		clock_gettime(CLOCK_MONOTONIC, &cur_time);
+		if (timespec_subtract(&next_timeout, &t->timeout_expires, &cur_time)) {
+			next_timeout.tv_sec = 0;
+			next_timeout.tv_nsec = 0;
 		}
-		timer_iter = timer_iter->next;
+	}
+	else
+		next_timeout.tv_sec = -1;
+}
+
+
+void callback_timeout_expired()
+{
+	struct timespec cur_time;
+	struct timeout* t;
+	while (timeout_list) {
+		clock_gettime(CLOCK_MONOTONIC, &cur_time);
+		t = timeout_list->data;
+		if (compare_timespecs(&t->timeout_expires, &cur_time) <= 0) {
+			// it's time for the callback function
+			t->_callback();
+			if (g_slist_find(timeout_list, t)) {
+				// if _callback() calls stop_timeout(t) the timeout 't' does not exist anymore
+				timeout_list = g_slist_remove(timeout_list, t);
+				if (t->interval_msec > 0)
+					add_timeout_intern(t->interval_msec, t->interval_msec, t->_callback, t);
+				else
+					free(t);
+			}
+		}
+		else
+			return;
 	}
 }
 
 
-void uninstall_all_timer()
+void stop_timeout(const struct timeout* t)
 {
-	while (timer_list) {
-		struct timer* t = timer_list->data;
-		uninstall_timer(t->id);
+	if (g_slist_find(timeout_list, t)) {
+		timeout_list = g_slist_remove(timeout_list, t);
+		free((void*)t);
 	}
+}
+
+
+void stop_all_timeouts()
+{
+	while (timeout_list) {
+		free(timeout_list->data);
+		timeout_list = g_slist_remove(timeout_list, timeout_list->data);
+	}
+}
+
+
+void add_timeout_intern(int value_msec, int interval_msec, void(*_callback)(), struct timeout *t)
+{
+	t->interval_msec = interval_msec;
+	t->_callback = _callback;
+	struct timespec expire;
+	clock_gettime(CLOCK_MONOTONIC, &expire);
+	expire.tv_sec += value_msec / 1000;
+	expire.tv_nsec += (value_msec % 1000)*1000000;
+	if (expire.tv_nsec >= 1000000000) {  // 10^9
+		expire.tv_sec++;
+		expire.tv_nsec -= 1000000000;
+	}
+	t->timeout_expires = expire;
+	timeout_list = g_slist_insert_sorted(timeout_list, t, compare_timeouts);
+}
+
+
+gint compare_timeouts(gconstpointer t1, gconstpointer t2)
+{
+	return compare_timespecs(&((const struct timeout*)t1)->timeout_expires,
+													 &((const struct timeout*)t2)->timeout_expires);
+}
+
+
+gint compare_timespecs(const struct timespec* t1, const struct timespec* t2)
+{
+	if (t1->tv_sec < t2->tv_sec)
+		return -1;
+	else if (t1->tv_sec == t2->tv_sec) {
+		if (t1->tv_nsec < t2->tv_nsec)
+			return -1;
+		else if (t1->tv_nsec == t2->tv_nsec)
+			return 0;
+		else
+			return 1;
+	}
+	else
+		return 1;
+}
+
+int timespec_subtract(struct timespec* result, struct timespec* x, struct timespec* y)
+{
+	/* Perform the carry for the later subtraction by updating y. */
+	if (x->tv_nsec < y->tv_nsec) {
+		int nsec = (y->tv_nsec - x->tv_nsec) / 1000000000 + 1;
+		y->tv_nsec -= 1000000000 * nsec;
+		y->tv_sec += nsec;
+	}
+	if (x->tv_nsec - y->tv_nsec > 1000000000) {
+		int nsec = (x->tv_nsec - y->tv_nsec) / 1000000000;
+		y->tv_nsec += 1000000000 * nsec;
+		y->tv_sec -= nsec;
+	}
+
+	/* Compute the time remaining to wait. tv_nsec is certainly positive. */
+	result->tv_sec = x->tv_sec - y->tv_sec;
+	result->tv_nsec = x->tv_nsec - y->tv_nsec;
+
+	/* Return 1 if result is negative. */
+	return x->tv_sec < y->tv_sec;
 }

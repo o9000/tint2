@@ -37,6 +37,7 @@ PangoFontDescription *bat1_font_desc=0;
 PangoFontDescription *bat2_font_desc=0;
 struct batstate battery_state;
 int battery_enabled;
+static const struct timeout* battery_timeout=0;
 
 static char buf_bat_percentage[10];
 static char buf_bat_time[20];
@@ -131,8 +132,8 @@ void init_battery()
 	g_free(path1);
 	g_free(battery_dir);
 
-	if (battery_enabled)
-		install_timer(0, 1000000, 5, 0, update_batterys);
+	if (battery_enabled && battery_timeout==0)
+		battery_timeout = add_timeout(10, 5000, update_batterys);
 }
 
 

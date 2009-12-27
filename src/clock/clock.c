@@ -46,6 +46,7 @@ static char buf_time[40];
 static char buf_date[40];
 static char buf_tooltip[40];
 int clock_enabled;
+static const struct timeout* clock_timeout=0;
 
 
 void update_clocks()
@@ -69,10 +70,11 @@ const char* clock_get_tooltip(void* obj)
 
 void init_clock()
 {
-	if(time1_format) {
+	if(time1_format && clock_timeout==0) {
 		if (strchr(time1_format, 'S') || strchr(time1_format, 'T') || strchr(time1_format, 'r'))
-			install_timer(0, 1000000, 1, 0, update_clocks);
-		else install_timer(0, 1000000, 60, 0, update_clocks);
+			clock_timeout = add_timeout(10, 1000, update_clocks);
+		else
+			clock_timeout = add_timeout(10, 60000, update_clocks);
 	}
 }
 

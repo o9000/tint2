@@ -34,7 +34,7 @@
 #include "tooltip.h"
 #include "timer.h"
 
-static int urgent_timer = 0;
+static const struct timeout* urgent_timeout = 0;
 
 const char* task_get_tooltip(void* obj)
 {
@@ -99,6 +99,8 @@ Task *add_task (Window win)
 			//printf("add_task panel %d, desktop %d, task %s\n", i, j, new_tsk2->title);
 		}
 	}
+	if (window_is_urgent(win))
+		add_urgent(new_tsk2);
 	return new_tsk2;
 }
 
@@ -503,10 +505,8 @@ void add_urgent(Task *tsk)
 	t->tick = 0;
 	urgent_list = g_slist_prepend(urgent_list, t);
 
-	if (urgent_timer == 0)
-		urgent_timer = install_timer(0, 1000000, 1, 0, blink_urgent);
-	else
-		reset_timer(urgent_timer, 0, 1000000, 1, 0);
+	if (urgent_timeout == 0)
+		urgent_timeout = add_timeout(10, 1000, blink_urgent);
 }
 
 
@@ -518,8 +518,10 @@ void del_urgent(Task *tsk)
 		if (t->tsk == tsk) {
 			urgent_list = g_slist_remove(urgent_list, t);
 			free(t);
-			if (!urgent_list)
-				reset_timer(urgent_timer, 0, 0, 0, 0);
+			if (!urgent_list) {
+				stop_timeout(urgent_timeout);
+				urgent_timeout = 0;
+			}
 			return;
 		}
 		urgent_task = urgent_task->next;
@@ -528,6 +530,8 @@ void del_urgent(Task *tsk)
 
 int is_urgent(Task *tsk)
 {
+	if (!tsk)
+		return;
 	GSList* urgent_task = urgent_list;
 	while (urgent_task) {
 		Task_urgent* t = urgent_task->data;
