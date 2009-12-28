@@ -697,7 +697,7 @@ int config_read ()
 int config_read_file (const char *path)
 {
 	FILE *fp;
-	char line[80];
+	char line[512];
 	char *key, *value;
 
 	if ((fp = fopen(path, "r")) == NULL) return 0;
