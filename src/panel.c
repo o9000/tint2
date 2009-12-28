@@ -472,6 +472,13 @@ void set_panel_properties(Panel *p)
 	size_hints.min_width = size_hints.max_width = p->area.width;
 	size_hints.min_height = size_hints.max_height = p->area.height;
 	XSetWMNormalHints(server.dsp, p->main_win, &size_hints);
+
+	// Set WM_CLASS
+	XClassHint* classhint = XAllocClassHint();
+	classhint->res_name = "tint2";
+	classhint->res_class = "Tint2";
+	XSetClassHint(server.dsp, p->main_win, classhint);
+	XFree(classhint);
 }
 
 
