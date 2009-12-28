@@ -29,6 +29,15 @@ gint compare_timespecs(const struct timespec* t1, const struct timespec* t2);
 int timespec_subtract(struct timespec* result, struct timespec* x, struct timespec* y);
 
 
+/** Implementation notes for timeouts: The timeouts are kept in a GSList sorted by their
+	* expiration time.
+	* That means that update_next_timeout() only have to consider the first timeout in the list,
+	* and callback_timeout_expired() only have to consider the timeouts as long as the expiration time
+	* is in the past to the current time.
+	* As time measurement we use clock_gettime(CLOCK_MONOTONIC) because this refers to a timer, which
+	* reference point lies somewhere in the past and cannot be changed, but just queried.
+**/
+
 const struct timeout* add_timeout(int value_msec, int interval_msec, void (*_callback)())
 {
 	struct timeout* t = malloc(sizeof(struct timeout));
@@ -71,7 +80,7 @@ void callback_timeout_expired()
 			// it's time for the callback function
 			t->_callback();
 			if (g_slist_find(timeout_list, t)) {
-				// if _callback() calls stop_timeout(t) the timeout 't' does not exist anymore
+				// if _callback() calls stop_timeout(t) the timeout 't' was freed and is not in the timeout_list
 				timeout_list = g_slist_remove(timeout_list, t);
 				if (t->interval_msec > 0)
 					add_timeout_intern(t->interval_msec, t->interval_msec, t->_callback, t);
@@ -87,6 +96,7 @@ void callback_timeout_expired()
 
 void stop_timeout(const struct timeout* t)
 {
+	// if not in the list, it was deleted in callback_timeout_expired
 	if (g_slist_find(timeout_list, t)) {
 		timeout_list = g_slist_remove(timeout_list, t);
 		free((void*)t);

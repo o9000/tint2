@@ -531,7 +531,7 @@ void del_urgent(Task *tsk)
 int is_urgent(Task *tsk)
 {
 	if (!tsk)
-		return;
+		return 0;
 	GSList* urgent_task = urgent_list;
 	while (urgent_task) {
 		Task_urgent* t = urgent_task->data;

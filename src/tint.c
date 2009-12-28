@@ -241,26 +241,61 @@ void window_action (Task *tsk, int action)
 }
 
 
+int tint2_handles_click(Panel* panel, XButtonEvent* e)
+{
+	Task* task = click_task(panel, e->x, e->y);
+	if (task) {
+		if(   (e->button == 1)
+			 || (e->button == 2 && mouse_middle != 0)
+			 || (e->button == 3 && mouse_right != 0)
+			 || (e->button == 4 && mouse_scroll_up != 0)
+			 || (e->button == 5 && mouse_scroll_down !=0) )
+		{
+			return 1;
+		}
+		else
+			return 0;
+	}
+	// no task clicked --> check if taskbar clicked
+	Taskbar *tskbar = click_taskbar(panel, e->x, e->y);
+	if (tskbar && e->button == 1 && panel_mode == MULTI_DESKTOP)
+		return 1;
+	if (click_clock(panel, e->x, e->y)) {
+		if ( (e->button == 1 && clock_lclick_command) || (e->button == 2 && clock_rclick_command) )
+			return 1;
+		else
+			return 0;
+	}
+	return 0;
+}
+
+
+void forward_click(XEvent* e)
+{
+	// forward the click to the desktop window (thanks conky)
+	XUngrabPointer(server.dsp, e->xbutton.time);
+	e->xbutton.window = server.root_win;
+	// icewm doesn't open under the mouse.
+	// and xfce doesn't open at all.
+	e->xbutton.x = e->xbutton.x_root;
+	e->xbutton.y = e->xbutton.y_root;
+	//printf("**** %d, %d\n", e->xbutton.x, e->xbutton.y);
+	//XSetInputFocus(server.dsp, e->xbutton.window, RevertToParent, e->xbutton.time);
+	XSendEvent(server.dsp, e->xbutton.window, False, ButtonPressMask, e);
+}
+
+
 void event_button_press (XEvent *e)
 {
 	Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
 
-	task_drag = click_task(panel, e->xbutton.x, e->xbutton.y);
 
-	if (wm_menu && !task_drag && !click_clock(panel, e->xbutton.x, e->xbutton.y) && (e->xbutton.button != 1) ) {
-		// forward the click to the desktop window (thanks conky)
-		XUngrabPointer(server.dsp, e->xbutton.time);
-		e->xbutton.window = server.root_win;
-		// icewm doesn't open under the mouse.
-		// and xfce doesn't open at all.
-		e->xbutton.x = e->xbutton.x_root;
-		e->xbutton.y = e->xbutton.y_root;
-		//printf("**** %d, %d\n", e->xbutton.x, e->xbutton.y);
-		//XSetInputFocus(server.dsp, e->xbutton.window, RevertToParent, e->xbutton.time);
-		XSendEvent(server.dsp, e->xbutton.window, False, ButtonPressMask, e);
+	if (wm_menu && !tint2_handles_click(panel, &e->xbutton) ) {
+		forward_click(e);
 		return;
 	}
+	task_drag = click_task(panel, e->xbutton.x, e->xbutton.y);
 
 	XLowerWindow (server.dsp, panel->main_win);
 }
@@ -270,6 +305,12 @@ void event_button_release (XEvent *e)
 {
 	Panel *panel = get_panel(e->xany.window);
 	if (!panel) return;
+
+	if (wm_menu && !tint2_handles_click(panel, &e->xbutton)) {
+		forward_click(e);
+		task_drag = 0;
+		return;
+	}
 
 	int action = TOGGLE_ICONIFY;
 	switch (e->xbutton.button) {
