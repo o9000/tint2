@@ -169,6 +169,25 @@ Task *task_get_task (Window win)
 }
 
 
+GSList* task_get_tasks(Window win)
+{
+	GSList* l = 0;
+	GSList* it;
+	Task* tsk;
+	int i, j;
+	for (i=0; i<nb_panel; ++i) {
+		for (j=0; j<panel1[i].nb_desktop; ++j) {
+			for (it=panel1[i].taskbar[j].area.list; it; it=it->next) {
+				tsk = it->data;
+				if (win == tsk->win)
+					l = g_slist_prepend(l, tsk);
+			}
+		}
+	}
+	return l;
+}
+
+
 void task_refresh_tasklist ()
 {
 	Window *win, active_win;
@@ -180,11 +199,7 @@ void task_refresh_tasklist ()
 	if (!win) return;
 
 	// Remove any old and set active win
-	active_win = window_get_active ();
-	if (task_active) {
-		task_active->area.is_active = 0;
-		task_active = 0;
-	}
+	active_task();
 
 	for (i=0 ; i < nb_panel ; i++) {
 		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
@@ -192,11 +207,6 @@ void task_refresh_tasklist ()
 			while (l0) {
 				tsk = l0->data;
 				l0 = l0->next;
-
-				if (tsk->win == active_win) {
-					tsk->area.is_active = 1;
-					task_active = tsk;
-				}
 
 				for (k = 0; k < num_results; k++) {
 					if (tsk->win == win[k]) break;

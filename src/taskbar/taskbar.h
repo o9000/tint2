@@ -29,6 +29,7 @@ void init_taskbar();
 void cleanup_taskbar();
 
 Task *task_get_task (Window win);
+GSList* task_get_tasks(Window win);
 void task_refresh_tasklist ();
 
 void resize_taskbar(void *obj);

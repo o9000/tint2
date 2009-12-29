@@ -400,6 +400,7 @@ void event_property_notify (XEvent *e)
 				panel1[i].area.resize = 1;
 			}
 			task_refresh_tasklist();
+			active_task();
 			panel_refresh = 1;
 		}
 		// Change desktop
@@ -559,16 +560,12 @@ void event_property_notify (XEvent *e)
 		// Window desktop changed
 		else if (at == server.atom._NET_WM_DESKTOP) {
 			int desktop = window_get_desktop (win);
-			int active = tsk->area.is_active;
 			//printf("  Window desktop changed %d, %d\n", tsk->desktop, desktop);
 			// bug in windowmaker : send unecessary 'desktop changed' when focus changed
 			if (desktop != tsk->desktop) {
 				remove_task (tsk);
 				tsk = add_task (win);
-				if (tsk && active) {
-					tsk->area.is_active = 1;
-					task_active = tsk;
-				}
+				active_task();
 				panel_refresh = 1;
 			}
 		}
@@ -630,9 +627,13 @@ void event_configure_notify (Window win)
 		remove_task (tsk);
 		add_task (win);
 		if (win == window_get_active ()) {
-			Task *tsk = task_get_task (win);
-			tsk->area.is_active = 1;
-			task_active = tsk;
+			GSList* task_list = task_get_tasks(win);
+			while (task_list) {
+				Task *tsk = task_list->data;
+				tsk->area.is_active = 1;
+				task_active = tsk;
+				task_list = task_list->next;
+			}
 		}
 		panel_refresh = 1;
 	}

@@ -29,12 +29,14 @@
 
 #include "window.h"
 #include "task.h"
+#include "taskbar.h"
 #include "server.h"
 #include "panel.h"
 #include "tooltip.h"
 #include "timer.h"
 
 static const struct timeout* urgent_timeout = 0;
+static GSList* urgent_list = 0;
 
 const char* task_get_tooltip(void* obj)
 {
@@ -145,7 +147,7 @@ void remove_task (Task *tsk)
 						task_active = 0;
 					if (tsk2 == task_drag)
 						task_drag = 0;
-					if (is_urgent(tsk2))
+					if (g_slist_find(urgent_list, tsk2))
 						del_urgent(tsk2);
 
 					XFreePixmap (server.dsp, tsk2->area.pix.pmap);
@@ -441,7 +443,7 @@ void active_task()
 		if (XGetTransientForHint(server.dsp, w1, &w2) != 0)
 			if (w2) tsk2 = task_get_task(w2);
 	}
-	if ( is_urgent(tsk2) ) {
+	if ( g_slist_find(urgent_list, tsk2) ) {
 		del_urgent(tsk2);
 	}
 	// put active state on all task (multi_desktop)
@@ -465,11 +467,11 @@ void blink_urgent()
 {
 	GSList* urgent_task = urgent_list;
 	while (urgent_task) {
-		Task_urgent* t = urgent_task->data;
-		if ( t->tick < max_tick_urgent) {
-			t->tsk->area.is_active = !t->tsk->area.is_active;
-			t->tsk->area.redraw = 1;
-			t->tick++;
+		Task* t = urgent_task->data;
+		if ( t->urgent_tick < max_tick_urgent) {
+			t->area.is_active = !t->area.is_active;
+			t->area.redraw = 1;
+			t->urgent_tick++;
 		}
 		urgent_task = urgent_task->next;
 	}
@@ -486,24 +488,20 @@ void add_urgent(Task *tsk)
 	if ( task_active && task_active->win == tsk->win )
 		return;
 
-	// first check if task is already in the list and reset the counter
-	GSList* urgent_task = urgent_list;
-	while (urgent_task) {
-		Task_urgent* t = urgent_task->data;
-		if (t->tsk == tsk) {
-			t->tick = 0;
-			return;
-		}
-		urgent_task = urgent_task->next;
+	// reset counter to 0, remove tasks which are already in the list
+	GSList* urgent_add = task_get_tasks(tsk->win);
+	GSList* it = urgent_add;
+	Task* tsk2;
+	while (it) {
+		tsk2 = it->data;
+		tsk2->urgent_tick = 0;
+		it = it->next;
+		if (g_slist_find(urgent_list, tsk2))
+			urgent_add = g_slist_remove(urgent_add, tsk2);
 	}
 
 	// not yet in the list, so we have to add it
-	Task_urgent* t = malloc(sizeof(Task_urgent));
-	if (!t)
-		return;
-	t->tsk = tsk;
-	t->tick = 0;
-	urgent_list = g_slist_prepend(urgent_list, t);
+	urgent_list = g_slist_concat(urgent_add, urgent_list);
 
 	if (urgent_timeout == 0)
 		urgent_timeout = add_timeout(10, 1000, blink_urgent);
@@ -512,32 +510,17 @@ void add_urgent(Task *tsk)
 
 void del_urgent(Task *tsk)
 {
-	GSList* urgent_task = urgent_list;
-	while (urgent_task) {
-		Task_urgent* t = urgent_task->data;
-		if (t->tsk == tsk) {
-			urgent_list = g_slist_remove(urgent_list, t);
-			free(t);
-			if (!urgent_list) {
-				stop_timeout(urgent_timeout);
-				urgent_timeout = 0;
-			}
-			return;
-		}
-		urgent_task = urgent_task->next;
-	}
-}
-
-int is_urgent(Task *tsk)
-{
 	if (!tsk)
-		return 0;
-	GSList* urgent_task = urgent_list;
-	while (urgent_task) {
-		Task_urgent* t = urgent_task->data;
-		if (t->tsk == tsk)
-			return 1;
-		urgent_task = urgent_task->next;
+		return;
+	
+	GSList* urgent_del = task_get_tasks(tsk->win);
+	GSList* it = urgent_del;
+	while(it) {
+		urgent_list = g_slist_remove(urgent_list, it->data);
+		it = it->next;
 	}
-	return 0;
+	if (!urgent_list) {
+		stop_timeout(urgent_timeout);
+		urgent_timeout = 0;
+	}
 }

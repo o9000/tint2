@@ -50,7 +50,6 @@ extern int panel_refresh;
 
 extern Task *task_active;
 extern Task *task_drag;
-extern GSList *urgent_list;
 extern int  max_tick_urgent;
 
 extern Imlib_Image default_icon;

@@ -51,14 +51,8 @@ typedef struct {
 	unsigned int icon_width;
 	unsigned int icon_height;
 	char *title;
+	int urgent_tick;
 } Task;
-
-
-typedef struct {
-	Task* tsk;
-	int tick;
-} Task_urgent;
-
 
 
 Task *add_task (Window win);
@@ -75,7 +69,6 @@ Task *prev_task (Task *tsk);
 
 void add_urgent(Task *tsk);
 void del_urgent(Task *tsk);
-int is_urgent(Task *tsk);
 
 #endif
 
