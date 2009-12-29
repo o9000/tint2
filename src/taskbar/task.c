@@ -75,6 +75,7 @@ Task *add_task (Window win)
 	Taskbar *tskbar;
 	Task *new_tsk2=0;
 	int i, j;
+	// QUESTION: Do we need to iterate over nb_panel (we know the monitor, why not taking panel1[monitor]???
 	for (i=0 ; i < nb_panel ; i++) {
 		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
 			if (new_tsk.desktop != ALLDESKTOP && new_tsk.desktop != j) continue;

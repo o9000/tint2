@@ -411,8 +411,11 @@ void event_property_notify (XEvent *e)
 				Panel *panel = &panel1[i];
 				if (panel_mode == MULTI_DESKTOP && panel->g_taskbar.use_active) {
 					// redraw both taskbar
-					panel->taskbar[old_desktop].area.is_active = 0;
-					panel->taskbar[old_desktop].area.resize = 1;
+					if (server.nb_desktop > old_desktop) {
+						// can happen if last desktop is deleted and we've been on the last desktop
+						panel->taskbar[old_desktop].area.is_active = 0;
+						panel->taskbar[old_desktop].area.resize = 1;
+					}
 					panel->taskbar[server.desktop].area.is_active = 1;
 					panel->taskbar[server.desktop].area.resize = 1;
 					panel_refresh = 1;
@@ -421,13 +424,15 @@ void event_property_notify (XEvent *e)
 				Taskbar *tskbar;
 				Task *tsk;
 				GSList *l;
-				tskbar = &panel->taskbar[old_desktop];
-				for (l = tskbar->area.list; l ; l = l->next) {
-					tsk = l->data;
-					if (tsk->desktop == ALLDESKTOP) {
-						tsk->area.on_screen = 0;
-						tskbar->area.resize = 1;
-						panel_refresh = 1;
+				if (server.nb_desktop > old_desktop) {
+					tskbar = &panel->taskbar[old_desktop];
+					for (l = tskbar->area.list; l ; l = l->next) {
+						tsk = l->data;
+						if (tsk->desktop == ALLDESKTOP) {
+							tsk->area.on_screen = 0;
+							tskbar->area.resize = 1;
+							panel_refresh = 1;
+						}
 					}
 				}
 				tskbar = &panel->taskbar[server.desktop];
@@ -710,6 +715,7 @@ int main (int argc, char *argv[])
 		if (panel_refresh) {
 			panel_refresh = 0;
 
+			// QUESTION: do we need this first refresh_systray, because we check refresh_systray once again later...
 			if (refresh_systray) {
 				panel = (Panel*)systray.area.panel;
 				XSetWindowBackgroundPixmap (server.dsp, panel->main_win, None);
