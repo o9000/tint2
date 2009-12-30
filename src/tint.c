@@ -101,17 +101,15 @@ void init (int argc, char *argv[])
 	server_init_atoms ();
 	server.screen = DefaultScreen (server.dsp);
 	server.root_win = RootWindow(server.dsp, server.screen);
-	server.depth = DefaultDepth (server.dsp, server.screen);
-	server.visual = DefaultVisual (server.dsp, server.screen);
 	server.desktop = server_get_current_desktop ();
 	XGCValues  gcv;
 	server.gc = XCreateGC (server.dsp, server.root_win, (unsigned long)0, &gcv);
-
+	server_init_visual();
 	XSetErrorHandler ((XErrorHandler) server_catch_error);
 
 	imlib_context_set_display (server.dsp);
 	imlib_context_set_visual (server.visual);
-	imlib_context_set_colormap (DefaultColormap (server.dsp, server.screen));
+	imlib_context_set_colormap (server.colormap);
 
 	/* Catch events */
 	XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);

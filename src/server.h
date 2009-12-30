@@ -95,6 +95,7 @@ typedef struct
 	// root background
 	Pixmap root_pmap;
 	GC gc;
+	Colormap colormap;
 	Global_atom atom;
 } Server_global;
 
@@ -110,6 +111,7 @@ void server_refresh_root_pixmap ();
 void server_refresh_main_pixmap ();
 void server_catch_error (Display *d, XErrorEvent *ev);
 void server_init_atoms ();
+void server_init_visual();
 
 // detect root background
 void get_root_pixmap();

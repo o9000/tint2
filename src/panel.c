@@ -151,8 +151,9 @@ void init_panel()
 			long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask;
 			if (g_tooltip.enabled)
 				event_mask |= PointerMotionMask|LeaveWindowMask;
-			XSetWindowAttributes att = { ParentRelative, 0L, 0, 0L, 0, 0, Always, 0L, 0L, False, event_mask, NoEventMask, False, 0, 0 };
-			p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, CopyFromParent, CWEventMask, &att);
+			XSetWindowAttributes att = { .event_mask=event_mask, .colormap=server.colormap, .background_pixel=0, .border_pixel=0 };
+			unsigned long mask = CWEventMask|CWColormap|CWBackPixel|CWBorderPixel;
+			p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, server.visual, mask, &att);
 		}
 		else {
 			// old panel

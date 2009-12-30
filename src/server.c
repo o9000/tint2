@@ -18,6 +18,8 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
+#include <X11/extensions/Xrender.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -94,6 +96,7 @@ void server_init_atoms ()
 void cleanup_server()
 {
 	if (name_trayer) free(name_trayer);
+	XFreeColormap(server.dsp, server.colormap);
 }
 
 
@@ -299,3 +302,38 @@ void get_desktops()
 }
 
 
+void server_init_visual()
+{
+	int real_transparency = 0;
+	XVisualInfo *xvi;
+	XVisualInfo templ = { .screen=server.screen, .depth=32, .class=TrueColor };
+	int nvi;
+	xvi = XGetVisualInfo(server.dsp, VisualScreenMask|VisualDepthMask|VisualClassMask, &templ, &nvi);
+
+	Visual *visual = 0;
+	if (xvi) {
+		int i;
+		XRenderPictFormat *format;
+		for (i = 0; i < nvi; i++) {
+			format = XRenderFindVisualFormat(server.dsp, xvi[i].visual);
+			if (format->type == PictTypeDirect && format->direct.alphaMask) {
+				visual = xvi[i].visual;
+				break;
+			}
+		}
+	}
+	XFree (xvi);
+
+	if (visual && real_transparency) {
+		printf("real transparency on... depth: %d\n", server.depth);
+		server.depth = 32;
+		server.colormap = XCreateColormap(server.dsp, server.root_win, visual, AllocNone);
+		server.visual = visual;
+	}
+	else {
+		server.depth = DefaultDepth(server.dsp, server.screen);
+		printf("real transparency off.... depth: %d\n", server.depth);
+		server.colormap = DefaultColormap(server.dsp, server.screen);
+		server.visual = DefaultVisual(server.dsp, server.screen);
+	}
+}

@@ -62,8 +62,12 @@ void init_tooltip()
 	XSetWindowAttributes attr;
 	attr.override_redirect = True;
 	attr.event_mask = StructureNotifyMask;
+	attr.colormap = server.colormap;
+	attr.background_pixel = 0;
+	attr.border_pixel = 0;
+	unsigned long mask = CWEventMask|CWColormap|CWBorderPixel|CWBackPixel|CWOverrideRedirect;
 	if (g_tooltip.window) XDestroyWindow(server.dsp, g_tooltip.window);
-	g_tooltip.window = XCreateWindow(server.dsp, server.root_win, 0, 0, 100, 20, 0, server.depth, InputOutput, CopyFromParent, CWOverrideRedirect|CWEventMask, &attr);
+	g_tooltip.window = XCreateWindow(server.dsp, server.root_win, 0, 0, 100, 20, 0, server.depth, InputOutput, server.visual, mask, &attr);
 }
 
 
@@ -212,7 +216,7 @@ void tooltip_update()
 	c = cairo_create(cs);
 	Color bc = g_tooltip.background_color;
 	cairo_rectangle(c, 0, 0, width, height);
-	cairo_set_source_rgb(c, bc.color[0], bc.color[1], bc.color[2]);
+	cairo_set_source_rgba(c, bc.color[0], bc.color[1], bc.color[2], bc.alpha);
 	cairo_fill(c);
 	Border b = g_tooltip.border;
 	cairo_set_source_rgba(c, b.color[0], b.color[1], b.color[2], b.alpha);

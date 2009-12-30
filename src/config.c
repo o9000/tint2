@@ -366,6 +366,14 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "time1_font") == 0) {
 		time1_font_desc = pango_font_description_from_string (value);
 	}
+	else if (strcmp(key, "time1_timezone") == 0) {
+		if (strlen(value) > 0)
+			time1_timezone = strdup(value);
+	}
+	else if (strcmp(key, "time2_timezone") == 0) {
+		if (strlen(value) > 0)
+			time2_timezone = strdup(value);
+	}
 	else if (strcmp (key, "time2_font") == 0) {
 		time2_font_desc = pango_font_description_from_string (value);
 	}
@@ -390,6 +398,10 @@ void add_entry (char *key, char *value)
 	else if (strcmp(key, "clock_tooltip") == 0) {
 		if (strlen(value) > 0)
 			time_tooltip_format = strdup (value);
+	}
+	else if (strcmp(key, "clock_tooltip_timezone") == 0) {
+		if (strlen(value) > 0)
+			time_tooltip_timezone = strdup(value);
 	}
 	else if (strcmp(key, "clock_lclick_command") == 0) {
 		if (strlen(value) > 0)
