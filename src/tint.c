@@ -61,7 +61,7 @@ void init (int argc, char *argv[])
 			printf("tint2 version 0.8\n");
 			exit(0);
 		}
-		if (!strcmp(argv[i], "-c"))	{
+		if (!strcmp(argv[i], "-c")) {
 			i++;
 			if (i < argc)
 				config_path = strdup(argv[i]);
@@ -91,7 +91,7 @@ void init (int argc, char *argv[])
 
 	// set global data
 	memset(&server, 0, sizeof(Server_global));
-	memset(&systray, 0, sizeof(Systraybar));
+//	memset(&systray, 0, sizeof(Systraybar));
 
 	server.dsp = XOpenDisplay (NULL);
 	if (!server.dsp) {
@@ -679,10 +679,8 @@ int main (int argc, char *argv[])
 	GSList *it;
 	const struct timespec* timeout;
 
-	init (argc, argv);
-
-	i = 0;
 	init_config();
+	i = 0;
 	if (config_path)
 		i = config_read_file (config_path);
 	else
@@ -692,6 +690,9 @@ int main (int argc, char *argv[])
 		cleanup();
 		exit(1);
 	}
+
+	init (argc, argv);
+
 	init_panel();
 	cleanup_config();
 	if (snapshot_path) {

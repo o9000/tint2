@@ -215,13 +215,20 @@ void tooltip_update()
 	cs = cairo_xlib_surface_create(server.dsp, g_tooltip.window, server.visual, width, height);
 	c = cairo_create(cs);
 	Color bc = g_tooltip.background_color;
-	cairo_rectangle(c, 0, 0, width, height);
-	cairo_set_source_rgba(c, bc.color[0], bc.color[1], bc.color[2], bc.alpha);
-	cairo_fill(c);
 	Border b = g_tooltip.border;
-	cairo_set_source_rgba(c, b.color[0], b.color[1], b.color[2], b.alpha);
+	if (real_transparency) {
+		draw_rect(c, b.width, b.width, width-2*b.width, height-2*b.width, b.rounded-b.width/1.571);
+		cairo_set_source_rgba(c, bc.color[0], bc.color[1], bc.color[2], bc.alpha);
+	}
+	else {
+		cairo_rectangle(c, 0., 0, width, height);
+		cairo_set_source_rgb(c, bc.color[0], bc.color[1], bc.color[2]);
+	}
+	cairo_fill(c);
 	cairo_set_line_width(c, b.width);
-	cairo_rectangle(c, b.width/2.0, b.width/2.0, width-b.width, height-b.width);
+	if (real_transparency) draw_rect(c, b.width/2.0, b.width/2.0, width - b.width, height - b.width, b.rounded);
+	else cairo_rectangle(c, b.width/2.0, b.width/2.0, width-b.width, height-b.width);
+	cairo_set_source_rgba(c, b.color[0], b.color[1], b.color[2], b.alpha);
 	cairo_stroke(c);
 
 	config_color fc = g_tooltip.font_color;

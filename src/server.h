@@ -41,6 +41,7 @@ typedef struct Global_atom
 	Atom _NET_WM_STATE_MAXIMIZED_HORZ;
 	Atom _NET_WM_STATE_SHADED;
 	Atom _NET_WM_STATE_BELOW;
+	Atom _NET_WM_STATE_ABOVE;
 	Atom _NET_WM_STATE_MODAL;
 	Atom _NET_CLIENT_LIST;
 	Atom _NET_WM_NAME;

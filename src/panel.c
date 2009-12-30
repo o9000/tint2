@@ -46,6 +46,7 @@ int mouse_tilt_right;
 int panel_mode;
 int wm_menu;
 int panel_dock=0;  // default not in the dock
+int panel_layer=BOTTOM_LAYER;  // default is bottom layer
 int panel_position;
 int panel_horizontal;
 int panel_refresh;
@@ -162,10 +163,7 @@ void init_panel()
 
 		if (!server.gc) {
 			XGCValues  gcv;
-			if (real_transparency)
-				server.gc = XCreateGC(server.dsp, p->main_win, 0, &gcv);
-			else
-				server.gc = XCreateGC (server.dsp, server.root_win, (unsigned long)0, &gcv);
+			server.gc = XCreateGC(server.dsp, p->main_win, 0, &gcv);
 		}
 		//printf("panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
 		set_panel_properties(p);
@@ -397,14 +395,14 @@ void set_panel_properties(Panel *p)
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &val, 1);
 
 	// Sticky and below other window
-	val = 0xFFFFFFFF;
+	val = ALLDESKTOP;
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_DESKTOP, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &val, 1);
 	Atom state[4];
 	state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;
 	state[1] = server.atom._NET_WM_STATE_SKIP_TASKBAR;
 	state[2] = server.atom._NET_WM_STATE_STICKY;
-	state[3] = server.atom._NET_WM_STATE_BELOW;
-	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STATE, XA_ATOM, 32, PropModeReplace, (unsigned char *) state, 4);
+	state[3] = panel_layer == BOTTOM_LAYER ? server.atom._NET_WM_STATE_BELOW : server.atom._NET_WM_STATE_ABOVE;
+	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STATE, XA_ATOM, 32, PropModeReplace, (unsigned char *) state, panel_layer == NORMAL_LAYER ? 3 : 4);
 
 	// Unfocusable
 	XWMHints wmhints;
@@ -490,15 +488,8 @@ void set_panel_background(Panel *p)
 	p->area.pix.pmap = XCreatePixmap (server.dsp, server.root_win, p->area.width, p->area.height, server.depth);
 
 	if (real_transparency) {
-		cairo_surface_t *tmp = cairo_xlib_surface_create (server.dsp, p->area.pix.pmap, server.visual, p->area.width, p->area.height);
-		cairo_t *cr = cairo_create(tmp);
-		cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-		cairo_rectangle(cr, 0, 0, p->area.width, p->area.height);
-		cairo_set_source_rgba(cr, 1, 1, 1, 0);
-		cairo_paint (cr);
-		cairo_destroy (cr);
-		cairo_surface_destroy (tmp);
-		return;
+		clear_pixmap(p->area.pix.pmap, 0, 0, p->area.width, p->area.height);
+		return;  // no need for background pixmap, a transparent one is enough
 	}
 
 	get_root_pixmap();

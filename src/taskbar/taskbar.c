@@ -190,7 +190,7 @@ GSList* task_get_tasks(Window win)
 
 void task_refresh_tasklist ()
 {
-	Window *win, active_win;
+	Window *win;
 	int num_results, i, j, k;
 	GSList *l0;
 	Task *tsk;

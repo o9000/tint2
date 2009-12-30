@@ -61,6 +61,7 @@ void server_init_atoms ()
 	server.atom._NET_WM_STATE_MAXIMIZED_HORZ = XInternAtom (server.dsp, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
 	server.atom._NET_WM_STATE_SHADED = XInternAtom (server.dsp, "_NET_WM_STATE_SHADED", False);
 	server.atom._NET_WM_STATE_BELOW = XInternAtom (server.dsp, "_NET_WM_STATE_BELOW", False);
+	server.atom._NET_WM_STATE_ABOVE = XInternAtom (server.dsp, "_NET_WM_STATE_ABOVE", False);
 	server.atom._NET_WM_STATE_MODAL = XInternAtom (server.dsp, "_NET_WM_STATE_MODAL", False);
 	server.atom._NET_CLIENT_LIST = XInternAtom (server.dsp, "_NET_CLIENT_LIST", False);
 	server.atom._NET_WM_VISIBLE_NAME = XInternAtom (server.dsp, "_NET_WM_VISIBLE_NAME", False);
@@ -307,6 +308,7 @@ void get_desktops()
 
 void server_init_visual()
 {
+	// inspired by freedesktops fdclock ;)
 	XVisualInfo *xvi;
 	XVisualInfo templ = { .screen=server.screen, .depth=32, .class=TrueColor };
 	int nvi;

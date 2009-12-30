@@ -107,17 +107,9 @@ void draw (Area *a, int active)
 	if (*pmap) XFreePixmap (server.dsp, *pmap);
 	*pmap = XCreatePixmap (server.dsp, server.root_win, a->width, a->height, server.depth);
 
-	// add layer of root pixmap
-	if (real_transparency) {
-		cairo_surface_t *tmp = cairo_xlib_surface_create (server.dsp, *pmap, server.visual, a->width, a->height);
-		cairo_t *cr = cairo_create(tmp);
-		cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-		cairo_rectangle(cr, 0, 0, a->width, a->height);
-		cairo_set_source_rgba(cr, 1, 1, 1, 0);
-		cairo_paint (cr);
-		cairo_destroy (cr);
-		cairo_surface_destroy (tmp);
-	}
+	// add layer of root pixmap (or clear pixmap if real_transparency==true)
+	if (real_transparency)
+		clear_pixmap(*pmap, 0 ,0, a->width, a->height);
 	else
 		XCopyArea (server.dsp, ((Panel *)a->panel)->temp_pmap, *pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
 
@@ -259,3 +251,15 @@ void draw_rect(cairo_t *c, double x, double y, double w, double h, double r)
 }
 
 
+void clear_pixmap(Pixmap p, int x, int y, int w, int h)
+{
+	cairo_surface_t *tmp = cairo_xlib_surface_create (server.dsp, p, server.visual, w, h);
+	cairo_t *cr = cairo_create(tmp);
+	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	cairo_rectangle(cr, x, y, w, h);
+	cairo_set_source_rgba(cr, 1, 1, 1, 0);
+	cairo_fill(cr);
+	cairo_destroy(cr);
+	cairo_surface_destroy (tmp);
+
+}
