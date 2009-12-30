@@ -32,6 +32,7 @@ void server_catch_error (Display *d, XErrorEvent *ev){}
 
 static char *name_trayer = 0;
 
+int real_transparency = 0;
 
 void server_init_atoms ()
 {
@@ -97,6 +98,8 @@ void cleanup_server()
 {
 	if (name_trayer) free(name_trayer);
 	XFreeColormap(server.dsp, server.colormap);
+	free(server.monitor);
+	XFreeGC(server.dsp, server.gc);
 }
 
 
@@ -304,7 +307,6 @@ void get_desktops()
 
 void server_init_visual()
 {
-	int real_transparency = 0;
 	XVisualInfo *xvi;
 	XVisualInfo templ = { .screen=server.screen, .depth=32, .class=TrueColor };
 	int nvi;
@@ -325,8 +327,8 @@ void server_init_visual()
 	XFree (xvi);
 
 	if (visual && real_transparency) {
-		printf("real transparency on... depth: %d\n", server.depth);
 		server.depth = 32;
+		printf("real transparency on... depth: %d\n", server.depth);
 		server.colormap = XCreateColormap(server.dsp, server.root_win, visual, AllocNone);
 		server.visual = visual;
 	}

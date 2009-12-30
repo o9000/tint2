@@ -13,7 +13,7 @@
 #include <X11/Xatom.h>
 #include <X11/extensions/Xinerama.h>
 
-
+extern int real_transparency;
 typedef struct Global_atom
 {
 	Atom _XROOTPMAP_ID;
@@ -112,6 +112,7 @@ void server_refresh_main_pixmap ();
 void server_catch_error (Display *d, XErrorEvent *ev);
 void server_init_atoms ();
 void server_init_visual();
+void cleanup_server();
 
 // detect root background
 void get_root_pixmap();

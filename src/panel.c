@@ -160,6 +160,13 @@ void init_panel()
 			XMoveResizeWindow(server.dsp, p->main_win, p->posx, p->posy, p->area.width, p->area.height);
 		}
 
+		if (!server.gc) {
+			XGCValues  gcv;
+			if (real_transparency)
+				server.gc = XCreateGC(server.dsp, p->main_win, 0, &gcv);
+			else
+				server.gc = XCreateGC (server.dsp, server.root_win, (unsigned long)0, &gcv);
+		}
 		//printf("panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
 		set_panel_properties(p);
 		set_panel_background(p);
@@ -479,10 +486,22 @@ void set_panel_properties(Panel *p)
 
 void set_panel_background(Panel *p)
 {
-	get_root_pixmap();
-
 	if (p->area.pix.pmap) XFreePixmap (server.dsp, p->area.pix.pmap);
 	p->area.pix.pmap = XCreatePixmap (server.dsp, server.root_win, p->area.width, p->area.height, server.depth);
+
+	if (real_transparency) {
+		cairo_surface_t *tmp = cairo_xlib_surface_create (server.dsp, p->area.pix.pmap, server.visual, p->area.width, p->area.height);
+		cairo_t *cr = cairo_create(tmp);
+		cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+		cairo_rectangle(cr, 0, 0, p->area.width, p->area.height);
+		cairo_set_source_rgba(cr, 1, 1, 1, 0);
+		cairo_paint (cr);
+		cairo_destroy (cr);
+		cairo_surface_destroy (tmp);
+		return;
+	}
+
+	get_root_pixmap();
 
 	// copy background (server.root_pmap) in panel.area.pix.pmap
 	Window dummy;

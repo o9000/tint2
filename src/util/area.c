@@ -29,6 +29,10 @@
 #include "server.h"
 #include "panel.h"
 
+// QUESTION: Why do we need Pixmaps for drawing? Can't we draw directly in the Window???
+// Parent could pass a cairo_surface_t to the children, and children use it, for drawing...
+
+
 // 1) resize child
 // 2) resize parent
 // 3) redraw parent
@@ -55,9 +59,9 @@ void refresh (Area *a)
 	}
 
 	// draw current Area
-	Pixmap *pmap = (a->is_active == 0) ? (&a->pix.pmap) : (&a->pix_active.pmap);
-	if (*pmap == 0) printf("empty area posx %d, width %d\n", a->posx, a->width);
-	XCopyArea (server.dsp, *pmap, ((Panel *)a->panel)->temp_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
+	Pixmap pmap = (a->is_active == 0) ? (a->pix.pmap) : (a->pix_active.pmap);
+	if (pmap == 0) printf("empty area posx %d, width %d\n", a->posx, a->width);
+	XCopyArea (server.dsp, pmap, ((Panel *)a->panel)->temp_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
 
 	// and then refresh child object
 	GSList *l;
@@ -104,7 +108,18 @@ void draw (Area *a, int active)
 	*pmap = XCreatePixmap (server.dsp, server.root_win, a->width, a->height, server.depth);
 
 	// add layer of root pixmap
-	XCopyArea (server.dsp, ((Panel *)a->panel)->temp_pmap, *pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+	if (real_transparency) {
+		cairo_surface_t *tmp = cairo_xlib_surface_create (server.dsp, *pmap, server.visual, a->width, a->height);
+		cairo_t *cr = cairo_create(tmp);
+		cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+		cairo_rectangle(cr, 0, 0, a->width, a->height);
+		cairo_set_source_rgba(cr, 1, 1, 1, 0);
+		cairo_paint (cr);
+		cairo_destroy (cr);
+		cairo_surface_destroy (tmp);
+	}
+	else
+		XCopyArea (server.dsp, ((Panel *)a->panel)->temp_pmap, *pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
 
 	cairo_surface_t *cs;
 	cairo_t *c;

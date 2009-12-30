@@ -102,8 +102,6 @@ void init (int argc, char *argv[])
 	server.screen = DefaultScreen (server.dsp);
 	server.root_win = RootWindow(server.dsp, server.screen);
 	server.desktop = server_get_current_desktop ();
-	XGCValues  gcv;
-	server.gc = XCreateGC (server.dsp, server.root_win, (unsigned long)0, &gcv);
 	server_init_visual();
 	XSetErrorHandler ((XErrorHandler) server_catch_error);
 
@@ -151,8 +149,7 @@ void cleanup()
 	if (config_path) g_free(config_path);
 	if (snapshot_path) g_free(snapshot_path);
 
-	if (server.monitor) free(server.monitor);
-	XFreeGC(server.dsp, server.gc);
+	cleanup_server();
 	XCloseDisplay(server.dsp);
 }
 
