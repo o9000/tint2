@@ -301,6 +301,15 @@ gboolean add_icon(Window id)
 
 	error = FALSE;
 	old = XSetErrorHandler(window_error_handler);
+	XWindowAttributes attr;
+	XGetWindowAttributes(server.dsp, id, &attr);
+	if ( attr.depth != server.depth ) {
+		XSetWindowAttributes a;
+		a.background_pixmap = None;  // set to none, otherwise XReparentWindow fails...
+		a.background_pixel = 0;      // set background pixel to 0. Looks ugly, but at least the icon appears
+		// TODO: maybe the XShape extension can be used, to clip the icon
+		XChangeWindowAttributes(server.dsp, id, CWBackPixmap|CWBackPixel, &a);
+	}
 	XReparentWindow(server.dsp, id, panel->main_win, 0, 0);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);

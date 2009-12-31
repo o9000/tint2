@@ -217,6 +217,7 @@ void tooltip_update()
 	Color bc = g_tooltip.background_color;
 	Border b = g_tooltip.border;
 	if (real_transparency) {
+		clear_pixmap(g_tooltip.window, 0, 0, width, height);
 		draw_rect(c, b.width, b.width, width-2*b.width, height-2*b.width, b.rounded-b.width/1.571);
 		cairo_set_source_rgba(c, bc.color[0], bc.color[1], bc.color[2], bc.alpha);
 	}
