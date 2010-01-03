@@ -514,7 +514,7 @@ void refresh_systray_icon()
 		traywin = (TrayWindow*)l->data;
 		if (traywin->hide) continue;
 		if (real_transparency) systray_render_icons(traywin);
-		else XClearArea(server.dsp, traywin->id, 0, 0, traywin->width, traywin->height, False);
+		else XClearArea(server.dsp, traywin->id, 0, 0, traywin->width, traywin->height, True);
 	}
 	if (real_transparency)
 		XFlush(server.dsp);

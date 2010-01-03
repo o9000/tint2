@@ -110,8 +110,7 @@ void draw (Area *a, int active)
 	// add layer of root pixmap (or clear pixmap if real_transparency==true)
 	if (real_transparency)
 		clear_pixmap(*pmap, 0 ,0, a->width, a->height);
-	else
-		XCopyArea (server.dsp, ((Panel *)a->panel)->temp_pmap, *pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+	XCopyArea (server.dsp, ((Panel *)a->panel)->temp_pmap, *pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
 
 	cairo_surface_t *cs;
 	cairo_t *c;

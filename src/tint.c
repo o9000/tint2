@@ -830,6 +830,7 @@ int main (int argc, char *argv[])
 
 					default:
 						if (e.type == XDamageNotify+damage_event)
+							// TODO: update only the damaged icon, not all of them
 							systray.area.redraw = 1;
 				}
 			}

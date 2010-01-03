@@ -488,17 +488,16 @@ void set_panel_background(Panel *p)
 
 	if (real_transparency) {
 		clear_pixmap(p->area.pix.pmap, 0, 0, p->area.width, p->area.height);
-		return;  // no need for background pixmap, a transparent one is enough
 	}
-
-	get_root_pixmap();
-
-	// copy background (server.root_pmap) in panel.area.pix.pmap
-	Window dummy;
-	int  x, y;
-	XTranslateCoordinates(server.dsp, p->main_win, server.root_win, 0, 0, &x, &y, &dummy);
-	XSetTSOrigin(server.dsp, server.gc, -x, -y) ;
-	XFillRectangle(server.dsp, p->area.pix.pmap, server.gc, 0, 0, p->area.width, p->area.height);
+	else {
+		get_root_pixmap();
+		// copy background (server.root_pmap) in panel.area.pix.pmap
+		Window dummy;
+		int  x, y;
+		XTranslateCoordinates(server.dsp, p->main_win, server.root_win, 0, 0, &x, &y, &dummy);
+		XSetTSOrigin(server.dsp, server.gc, -x, -y) ;
+		XFillRectangle(server.dsp, p->area.pix.pmap, server.gc, 0, 0, p->area.width, p->area.height);
+	}
 
 	// draw background panel
 	cairo_surface_t *cs;
