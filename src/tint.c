@@ -73,7 +73,6 @@ void init (int argc, char *argv[])
 				snapshot_path = strdup(argv[i]);
 		}
 	}
-
 	// Set signal handler
 	struct sigaction sa = { .sa_handler = signal_handler };
 	sigaction(SIGUSR1, &sa, 0);
@@ -89,11 +88,13 @@ void init (int argc, char *argv[])
 	sigaddset(&block_mask, SIGUSR1);
 	sigprocmask(SIG_BLOCK, &block_mask, 0);
 
-
 	// set global data
 	memset(&server, 0, sizeof(Server_global));
-//	memset(&systray, 0, sizeof(Systraybar));
+	memset(&systray, 0, sizeof(Systraybar));
+}
 
+void init_X11()
+{
 	server.dsp = XOpenDisplay (NULL);
 	if (!server.dsp) {
 		fprintf(stderr, "tint2 exit : could not open display.\n");
@@ -119,6 +120,7 @@ void init (int argc, char *argv[])
 	gchar *path;
 	const gchar * const *data_dirs;
 	data_dirs = g_get_system_data_dirs ();
+	int i;
 	for (i = 0; data_dirs[i] != NULL; i++)	{
 		path = g_build_filename(data_dirs[i], "tint2", "default_icon.png", NULL);
 		if (g_file_test (path, G_FILE_TEST_EXISTS))
@@ -681,6 +683,7 @@ int main (int argc, char *argv[])
 	GSList *it;
 	const struct timespec* timeout;
 
+	init (argc, argv);
 	init_config();
 	i = 0;
 	if (config_path)
@@ -693,8 +696,7 @@ int main (int argc, char *argv[])
 		exit(1);
 	}
 
-	init (argc, argv);
-
+	init_X11();
 	init_panel();
 	cleanup_config();
 	if (snapshot_path) {

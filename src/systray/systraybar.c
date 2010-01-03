@@ -47,6 +47,7 @@ Window net_sel_win = None, hint_win = None;
 Systraybar systray;
 int refresh_systray;
 int systray_enabled;
+int systray_max_icon_size = 0;
 
 
 void init_systray()
@@ -111,6 +112,8 @@ void resize_systray(void *obj)
 	else
 		icon_size = sysbar->area.width;
 	icon_size = icon_size - (2 * sysbar->area.pix.border.width) - (2 * sysbar->area.paddingy);
+	if (systray_max_icon_size > 0 && icon_size > systray_max_icon_size)
+		icon_size = systray_max_icon_size;
 	count = 0;
 	for (l = systray.list_icons; l ; l = l->next) {
 		if (!((TrayWindow*)l->data)->hide)
@@ -120,7 +123,11 @@ void resize_systray(void *obj)
 
 	if (panel_horizontal) {
 		if (!count) systray.area.width = 0;
-		else systray.area.width = (2 * systray.area.pix.border.width) + (2 * systray.area.paddingxlr) + (icon_size * count) + ((count-1) * systray.area.paddingx);
+		else {
+			int icons_per_column = (sysbar->area.height - 2*sysbar->area.pix.border.width - 2*sysbar->area.paddingy + sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
+			int row_count = count / icons_per_column + (count%icons_per_column != 0);
+			systray.area.width = (2 * systray.area.pix.border.width) + (2 * systray.area.paddingxlr) + (icon_size * row_count) + ((row_count-1) * systray.area.paddingx);
+		}
 
 		systray.area.posx = panel->area.width - panel->area.pix.border.width - panel->area.paddingxlr - systray.area.width;
 		if (panel->clock.area.on_screen)
@@ -132,7 +139,11 @@ void resize_systray(void *obj)
 	}
 	else {
 		if (!count) systray.area.height = 0;
-		else systray.area.height = (2 * systray.area.pix.border.width) + (2 * systray.area.paddingxlr) + (icon_size * count) + ((count-1) * systray.area.paddingx);
+		else {
+			int icons_per_row = (sysbar->area.width - 2*sysbar->area.pix.border.width - 2*sysbar->area.paddingy + sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
+			int column_count = count / icons_per_row+ (count%icons_per_row != 0);
+			systray.area.height = (2 * systray.area.pix.border.width) + (2 * systray.area.paddingxlr) + (icon_size * column_count) + ((column_count-1) * systray.area.paddingx);
+		}
 
 		systray.area.posy = panel->area.pix.border.width + panel->area.paddingxlr;
 		if (panel->clock.area.on_screen)
@@ -143,14 +154,18 @@ void resize_systray(void *obj)
 #endif
 	}
 
+	int max_line_pos;
 	if (panel_horizontal) {
+		max_line_pos = sysbar->area.posy+sysbar->area.height - sysbar->area.pix.border.width - sysbar->area.paddingy - icon_size;
 		posy = panel->area.pix.border.width + panel->area.paddingy + systray.area.pix.border.width + systray.area.paddingy;
 		posx = systray.area.posx + systray.area.pix.border.width + systray.area.paddingxlr;
 	}
 	else {
+		max_line_pos = sysbar->area.posx+sysbar->area.width - sysbar->area.pix.border.width - sysbar->area.paddingy - icon_size;
 		posx = panel->area.pix.border.width + panel->area.paddingy + systray.area.pix.border.width + systray.area.paddingy;
 		posy = systray.area.posy + systray.area.pix.border.width + systray.area.paddingxlr;
 	}
+
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
 		if (traywin->hide) continue;
@@ -159,10 +174,22 @@ void resize_systray(void *obj)
 		traywin->x = posx;
 		traywin->width = icon_size;
 		traywin->height = icon_size;
-		if (panel_horizontal)
-			posx += (icon_size + systray.area.paddingx);
-		else
-			posy += (icon_size + systray.area.paddingx);
+		if (panel_horizontal) {
+			if (posy + icon_size + sysbar->area.paddingxlr < max_line_pos)
+				posy += icon_size + sysbar->area.paddingx;
+			else {
+				posx += (icon_size + systray.area.paddingx);
+				posy = panel->area.pix.border.width + panel->area.paddingy + systray.area.pix.border.width + systray.area.paddingy;
+			}
+		}
+		else {
+			if (posx + icon_size + sysbar->area.paddingxlr < max_line_pos)
+				posx += icon_size + systray.area.paddingx;
+			else {
+				posy += (icon_size + systray.area.paddingx);
+				posx = panel->area.pix.border.width + panel->area.paddingy + systray.area.pix.border.width + systray.area.paddingy;
+			}
+		}
 
 		// position and size the icon window
 		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
@@ -305,7 +332,6 @@ gboolean add_icon(Window id)
 
 	error = FALSE;
 	int wrong_format = 0;
-	old = XSetErrorHandler(window_error_handler);
 	XWindowAttributes attr;
 	XGetWindowAttributes(server.dsp, id, &attr);
 	XSetWindowAttributes set_attr;
@@ -319,6 +345,7 @@ gboolean add_icon(Window id)
 		parent_window = XCreateWindow(server.dsp, panel->main_win, 0, 0, 30, 30, 0, attr.depth, InputOutput, attr.visual, mask, &set_attr);
 	else
 		parent_window = panel->main_win;
+	old = XSetErrorHandler(window_error_handler);
 	XReparentWindow(server.dsp, id, parent_window, 0, 0);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);

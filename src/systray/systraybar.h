@@ -45,6 +45,7 @@ extern Window net_sel_win;
 extern Systraybar systray;
 extern int refresh_systray;
 extern int systray_enabled;
+extern int systray_max_icon_size;
 
 void init_systray();
 void init_systray_panel(void *p);

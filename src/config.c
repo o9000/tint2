@@ -542,6 +542,9 @@ void add_entry (char *key, char *value)
 		else  if (strcmp(value, "right2left") == 0)
 			systray.sort = 3;
 	}
+	else if (strcmp(key, "systray_icon_size") == 0) {
+		systray_max_icon_size = atoi(value);
+	}
 
 	/* Tooltip */
 	else if (strcmp (key, "tooltip") == 0)

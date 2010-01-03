@@ -77,6 +77,7 @@ systray = 1
 systray_padding = 8 4 5
 systray_background_id = 1
 systray_sort = left2right
+systray_icon_size = 0
 
 #---------------------------------------------
 # BATTERY

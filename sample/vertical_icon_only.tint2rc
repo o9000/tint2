@@ -65,6 +65,7 @@ systray = 1
 systray_padding = 2 8 0
 systray_background_id = 1
 systray_sort = left2right
+systray_icon_size = 0
 
 #---------------------------------------------
 # CLOCK
