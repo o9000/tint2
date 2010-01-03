@@ -36,6 +36,10 @@ panel_margin = 0 0
 panel_padding = 3 3 3 3
 font_shadow = 0
 panel_background_id = 3
+wm_menu = 1
+panel_dock = 0
+real_transparency = 0
+panel_layer = bottom
 
 
 #---------------------------------------------
@@ -82,6 +86,9 @@ time1_font = AvantGardeLTMedium 9 bold
 clock_font_color = #151515 60
 clock_padding = 4 0
 clock_tooltip = %A %d %B
+#time1_timezone = :US/Hawaii
+#time2_timezone = :Europe/Berlin
+#clock_tooltip_timezone = :/usr/share/zoneinfo/Europe/Paris
 
 #---------------------------------------------
 # BATTERY

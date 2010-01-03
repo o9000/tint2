@@ -40,6 +40,9 @@ panel_padding = 7 2 7
 font_shadow = 0
 panel_background_id = 0
 wm_menu = 1
+panel_dock = 0
+real_transparency = 0
+panel_layer = bottom
 
 #---------------------------------------------
 # TASKBAR
@@ -100,6 +103,9 @@ clock_background_id = 1
 #clock_lclick_command = xclock
 clock_rclick_command = orage
 #clock_tooltip = %A %d %B
+#time1_timezone = :US/Hawaii
+#time2_timezone = :Europe/Berlin
+#clock_tooltip_timezone = :/usr/share/zoneinfo/Europe/Paris
 
 #---------------------------------------------
 # TOOLTIP

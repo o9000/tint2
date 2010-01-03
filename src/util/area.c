@@ -261,5 +261,4 @@ void clear_pixmap(Pixmap p, int x, int y, int w, int h)
 	cairo_fill(cr);
 	cairo_destroy(cr);
 	cairo_surface_destroy (tmp);
-
 }

@@ -31,10 +31,12 @@ typedef struct {
 typedef struct
 {
 	Window id;
+	Window tray_id;
 	int x, y;
 	int width, height;
 	// TODO: manage icon's show/hide
 	int hide;
+	int wrong_format;
 } TrayWindow;
 
 

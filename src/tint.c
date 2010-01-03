@@ -27,6 +27,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/Xlocale.h>
+#include <X11/extensions/Xdamage.h>
 #include <Imlib2.h>
 #include <signal.h>
 
@@ -609,9 +610,10 @@ void event_configure_notify (Window win)
 	GSList *l;
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
-		if (traywin->id == win) {
+		if (traywin->tray_id == win) {
 			//printf("move tray %d\n", traywin->x);
 			XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
+			XResizeWindow(server.dsp, traywin->tray_id, traywin->width, traywin->height);
 			panel_refresh = 1;
 			return;
 		}
@@ -701,6 +703,8 @@ int main (int argc, char *argv[])
 		exit(0);
 	}
 
+	int damage_event, damage_error;
+	XDamageQueryExtension(server.dsp, &damage_event, &damage_error);
 	x11_fd = ConnectionNumber(server.dsp);
 	XSync(server.dsp, False);
 
@@ -807,7 +811,7 @@ int main (int argc, char *argv[])
 						if (e.xany.window == g_tooltip.window || !systray.area.on_screen)
 							break;
 						for (it = systray.list_icons; it; it = g_slist_next(it)) {
-							if (((TrayWindow*)it->data)->id == e.xany.window) {
+							if (((TrayWindow*)it->data)->tray_id == e.xany.window) {
 								remove_icon((TrayWindow*)it->data);
 								break;
 							}
@@ -823,6 +827,10 @@ int main (int argc, char *argv[])
 							dnd_message(&e.xclient);
 						}
 						break;
+
+					default:
+						if (e.type == XDamageNotify+damage_event)
+							systray.area.redraw = 1;
 				}
 			}
 		}

@@ -407,7 +407,6 @@ void set_panel_properties(Panel *p)
 	// Unfocusable
 	XWMHints wmhints;
 	if (panel_dock) {
-		// TODO: Xdnd feature cannot be used in withdrawn state at the moment (at least GTK apps fail, qt seems to work)
 		wmhints.icon_window = wmhints.window_group = p->main_win;
 		wmhints.flags = StateHint | IconWindowHint;
 		wmhints.initial_state = WithdrawnState;

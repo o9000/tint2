@@ -234,3 +234,18 @@ void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright
 	}
 }
 
+
+void createHeuristicMask(DATA32* data, int w, int h)
+{
+	unsigned char* udata = (unsigned char*)data;
+	int b = udata[0];
+	int g = udata[1];
+	int r = udata[2];
+	int i;
+	for (i=0; i<h*w; ++i) {
+		if ( abs(b-*udata)<5 && abs(g-*(udata+1))<5 && abs(r-*(udata+2))<5 ) {
+			*(udata+3) = 0;
+		}
+		udata += 4;
+	}
+}
