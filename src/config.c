@@ -89,6 +89,7 @@ void init_config()
 	memset(&panel_config, 0, sizeof(Panel));
 	panel_config.g_task.alpha = 100;
 	panel_config.g_task.alpha_active = 100;
+	systray.alpha = 100;
 	systray.sort = 3;
 	old_config_file = 1;
 
@@ -544,6 +545,12 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp(key, "systray_icon_size") == 0) {
 		systray_max_icon_size = atoi(value);
+	}
+	else if (strcmp(key, "systray_icon_asb") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		systray.alpha = atoi(value1);
+		systray.saturation = atoi(value2);
+		systray.brightness = atoi(value3);
 	}
 
 	/* Tooltip */

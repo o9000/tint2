@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "area.h"
+#include <X11/extensions/Xdamage.h>
 
 // XEMBED messages
 #define XEMBED_EMBEDDED_NOTIFY		0
@@ -25,6 +26,7 @@ typedef struct {
 
 	GSList *list_icons;
 	int sort;
+	int alpha, saturation, brightness;
 } Systraybar;
 
 
@@ -36,7 +38,8 @@ typedef struct
 	int width, height;
 	// TODO: manage icon's show/hide
 	int hide;
-	int wrong_format;
+	int depth;
+	Damage damage;
 } TrayWindow;
 
 

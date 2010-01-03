@@ -331,20 +331,22 @@ gboolean add_icon(Window id)
 	int hide = 0;
 
 	error = FALSE;
-	int wrong_format = 0;
 	XWindowAttributes attr;
 	XGetWindowAttributes(server.dsp, id, &attr);
+	unsigned long mask = 0;
 	XSetWindowAttributes set_attr;
-	wrong_format = (attr.depth != server.depth);
-	set_attr.colormap = attr.colormap;
-	set_attr.background_pixel = 0;
-	set_attr.border_pixel = 0;
-	unsigned long mask = CWColormap|CWBackPixel|CWBorderPixel;
+	if (attr.depth != server.depth || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0 ) {
+		set_attr.colormap = attr.colormap;
+		set_attr.background_pixel = 0;
+		set_attr.border_pixel = 0;
+		mask = CWColormap|CWBackPixel|CWBorderPixel;
+	}
+	else {
+		set_attr.background_pixmap = ParentRelative;
+		mask = CWBackPixmap;
+	}
 	Window parent_window;
-	if (real_transparency)
-		parent_window = XCreateWindow(server.dsp, panel->main_win, 0, 0, 30, 30, 0, attr.depth, InputOutput, attr.visual, mask, &set_attr);
-	else
-		parent_window = panel->main_win;
+	parent_window = XCreateWindow(server.dsp, panel->main_win, 0, 0, 30, 30, 0, attr.depth, InputOutput, attr.visual, mask, &set_attr);
 	old = XSetErrorHandler(window_error_handler);
 	XReparentWindow(server.dsp, id, parent_window, 0, 0);
 	XSync(server.dsp, False);
@@ -393,13 +395,11 @@ gboolean add_icon(Window id)
 	}
 
 	traywin = g_new0(TrayWindow, 1);
-	if (real_transparency)
-		traywin->id = parent_window;
-	else
-		traywin->id = id;
+	traywin->id = parent_window;
 	traywin->tray_id = id;
 	traywin->hide = hide;
-	traywin->wrong_format = wrong_format;
+	traywin->depth = attr.depth;
+	traywin->damage = 0;
 
 	if (systray.sort == 3)
 		systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
@@ -413,15 +413,15 @@ gboolean add_icon(Window id)
 
 	// watch for the icon trying to resize itself!
 	XSelectInput(server.dsp, traywin->tray_id, StructureNotifyMask);
-	if (real_transparency) {
-		XDamageCreate(server.dsp, traywin->id, XDamageReportRawRectangles);
+	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+		traywin->damage = XDamageCreate(server.dsp, traywin->id, XDamageReportRawRectangles);
 		XCompositeRedirectWindow(server.dsp, traywin->id, CompositeRedirectManual);
 	}
 
 	// show the window
 	if (!traywin->hide) {
-		XMapRaised(server.dsp, traywin->id);
 		XMapRaised(server.dsp, traywin->tray_id);
+		XMapRaised(server.dsp, traywin->id);
 	}
 
 	// changed in systray force resize on panel
@@ -442,6 +442,8 @@ void remove_icon(TrayWindow *traywin)
 	//printf("remove_icon id %lx, %d\n", traywin->id);
 
 	XSelectInput(server.dsp, traywin->tray_id, NoEventMask);
+	if (traywin->damage)
+		XDamageDestroy(server.dsp, traywin->damage);
 
 	// reparent to root
 	error = FALSE;
@@ -449,8 +451,7 @@ void remove_icon(TrayWindow *traywin)
 	if (!traywin->hide)
 		XUnmapWindow(server.dsp, traywin->id);
 	XReparentWindow(server.dsp, traywin->tray_id, server.root_win, 0, 0);
-	if (traywin->id != traywin->tray_id)
-		XDestroyWindow(server.dsp, traywin->id);
+	XDestroyWindow(server.dsp, traywin->id);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
 	g_free(traywin);
@@ -491,45 +492,42 @@ void net_message(XClientMessageEvent *e)
 
 void systray_render_icons(TrayWindow* traywin)
 {
-	// most systray icons support 32 bit depth, but some icons are still 24 bit.
+	// good systray icons support 32 bit depth, but some icons are still 24 bit.
 	// We create a heuristic mask for these icons, i.e. we get the rgb value in the top left corner, and
 	// mask out all pixel with the same rgb value
-
-	Picture picture_systray, picture_tray, picture_panel;
-	Drawable mask, tray_pixmap;
 	Panel* panel = systray.area.panel;
-	XWindowAttributes attr;
-	XGetWindowAttributes(server.dsp, traywin->id, &attr);
-	XRenderPictFormat *format = XRenderFindVisualFormat(server.dsp, attr.visual);
-	XRenderPictFormat *panel_format = XRenderFindVisualFormat(server.dsp, server.visual);
-	if (traywin->wrong_format) {
-		imlib_context_set_drawable(traywin->id);
-		Imlib_Image image = imlib_create_image_from_drawable(0, 0, 0, traywin->width, traywin->height, 0);
-		imlib_context_set_image(image);
-		imlib_image_set_has_alpha(1);
-		DATA32* data = imlib_image_get_data();
+	imlib_context_set_drawable(traywin->id);
+	Imlib_Image image = imlib_create_image_from_drawable(0, 0, 0, traywin->width, traywin->height, 0);
+	imlib_context_set_image(image);
+	imlib_image_set_has_alpha(1);
+	DATA32* data = imlib_image_get_data();
+	if (traywin->depth == 24) {
 		createHeuristicMask(data, traywin->width, traywin->height);
-		imlib_image_put_back_data(data);
-		imlib_render_pixmaps_for_whole_image(&tray_pixmap, &mask);
-		picture_tray = XRenderCreatePicture( server.dsp, tray_pixmap, panel_format, 0, 0);
-		Picture mask2 = XRenderCreatePicture( server.dsp, mask, XRenderFindStandardFormat(server.dsp, PictStandardA1), 0, 0);
-		picture_systray = XRenderCreatePicture( server.dsp, systray.area.pix.pmap, panel_format, 0, 0);
-		picture_panel = XRenderCreatePicture(server.dsp, panel->main_win, panel_format, 0, 0);
-		XRenderComposite(server.dsp, PictOpOver, picture_tray, mask2, picture_systray, 0, 0, 0, 0, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height);
-		XRenderComposite(server.dsp, PictOpOver, picture_tray, mask2, picture_panel, 0, 0, 0, 0, traywin->x, traywin->y, traywin->width, traywin->height);
-		imlib_free_pixmap_and_mask(tray_pixmap);
-		imlib_free_image();
 	}
-	else {
-		picture_tray = XRenderCreatePicture( server.dsp, traywin->id, format, 0, 0);
-		picture_systray = XRenderCreatePicture( server.dsp, systray.area.pix.pmap, panel_format, 0, 0);
-		picture_panel = XRenderCreatePicture(server.dsp, panel->main_win, panel_format, 0, 0);
-		XRenderComposite(server.dsp, PictOpOver, picture_tray, None, picture_systray, 0, 0, 0, 0, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height);
-		XRenderComposite(server.dsp, PictOpOver, picture_tray, None, picture_panel, 0, 0, 0, 0, traywin->x, traywin->y, traywin->width, traywin->height);
-	}
-	XRenderFreePicture(server.dsp, picture_systray);
-	XRenderFreePicture(server.dsp, picture_tray);
-	XRenderFreePicture(server.dsp, picture_panel);
+	if (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
+		adjust_asb(data, traywin->width, traywin->height, systray.alpha, (float)systray.saturation/100, (float)systray.brightness/100);
+	imlib_image_put_back_data(data);
+	imlib_context_set_drawable(panel->main_win);
+	imlib_render_image_on_drawable(traywin->x, traywin->y);
+	imlib_context_set_drawable(systray.area.pix.pmap);
+	imlib_render_image_on_drawable(traywin->x-systray.area.posx, traywin->y-systray.area.posy);
+
+	//TODO: in real_transparency mode imlib_render_image_on_drawable does not the right thing, because
+	// it overlays the pixmap with the background of the systray, which is itself transparent. Therefore
+	// the icons are not opaque, although they should be...
+	// A better solution would be to render them with XRenderComposite and PixtOpOver, but then completely
+	// transparent icons do not appear transparent (i do not know why)
+//	imlib_free_pixmap_and_mask(pix_image);
+//	Picture pict_image = XRenderCreatePicture(server.dsp, test, XRenderFindStandardFormat(server.dsp, PictStandardARGB32), 0, 0);
+//	Picture pict_panel = XRenderCreatePicture(server.dsp, panel->main_win, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
+//	Picture pict_systray = XRenderCreatePicture(server.dsp, systray.area.pix.pmap, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
+//	XRenderComposite(server.dsp, PictOpOver, pict_image, None, pict_panel, 0, 0, 0, 0, traywin->x, traywin->y, traywin->width, traywin->height);
+//	XRenderComposite(server.dsp, PictOpOver, pict_image, None, pict_systray, 0, 0, 0, 0, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height);
+//	XFreePixmap(server.dsp, test);
+//	XRenderFreePicture(server.dsp, pict_image);
+//	XRenderFreePicture(server.dsp, pict_panel);
+//	XRenderFreePicture(server.dsp, pict_systray);
+	imlib_free_image();
 }
 
 
@@ -540,9 +538,11 @@ void refresh_systray_icon()
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
 		if (traywin->hide) continue;
-		if (real_transparency) systray_render_icons(traywin);
-		else XClearArea(server.dsp, traywin->id, 0, 0, traywin->width, traywin->height, True);
+		if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
+			systray_render_icons(traywin);
+		else
+			XClearArea(server.dsp, traywin->id, 0, 0, traywin->width, traywin->height, True);
 	}
-	if (real_transparency)
+	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
 		XFlush(server.dsp);
 }
