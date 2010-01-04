@@ -26,7 +26,6 @@
 #include <glib.h>
 #include <Imlib2.h>
 #include <X11/extensions/Xdamage.h>
-#include <X11/extensions/Xrender.h>
 #include <X11/extensions/Xcomposite.h>
 
 #include "systraybar.h"
@@ -507,26 +506,16 @@ void systray_render_icons(TrayWindow* traywin)
 	if (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
 		adjust_asb(data, traywin->width, traywin->height, systray.alpha, (float)systray.saturation/100, (float)systray.brightness/100);
 	imlib_image_put_back_data(data);
-	imlib_context_set_drawable(panel->main_win);
-	imlib_render_image_on_drawable(traywin->x, traywin->y);
-	imlib_context_set_drawable(systray.area.pix.pmap);
-	imlib_render_image_on_drawable(traywin->x-systray.area.posx, traywin->y-systray.area.posy);
-
-	//TODO: in real_transparency mode imlib_render_image_on_drawable does not the right thing, because
-	// it overlays the pixmap with the background of the systray, which is itself transparent. Therefore
-	// the icons are not opaque, although they should be...
-	// A better solution would be to render them with XRenderComposite and PixtOpOver, but then completely
-	// transparent icons do not appear transparent (i do not know why)
-//	imlib_free_pixmap_and_mask(pix_image);
-//	Picture pict_image = XRenderCreatePicture(server.dsp, test, XRenderFindStandardFormat(server.dsp, PictStandardARGB32), 0, 0);
-//	Picture pict_panel = XRenderCreatePicture(server.dsp, panel->main_win, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
-//	Picture pict_systray = XRenderCreatePicture(server.dsp, systray.area.pix.pmap, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
-//	XRenderComposite(server.dsp, PictOpOver, pict_image, None, pict_panel, 0, 0, 0, 0, traywin->x, traywin->y, traywin->width, traywin->height);
-//	XRenderComposite(server.dsp, PictOpOver, pict_image, None, pict_systray, 0, 0, 0, 0, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height);
-//	XFreePixmap(server.dsp, test);
-//	XRenderFreePicture(server.dsp, pict_image);
-//	XRenderFreePicture(server.dsp, pict_panel);
-//	XRenderFreePicture(server.dsp, pict_systray);
+	if ( !real_transparency ) {
+		imlib_context_set_drawable(panel->main_win);
+		imlib_render_image_on_drawable(traywin->x, traywin->y);
+		imlib_context_set_drawable(systray.area.pix.pmap);
+		imlib_render_image_on_drawable(traywin->x-systray.area.posx, traywin->y-systray.area.posy);
+	}
+	else {
+		render_image(panel->main_win, traywin->x, traywin->y, traywin->width, traywin->height);
+		render_image(systray.area.pix.pmap, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height);
+	}
 	imlib_free_image();
 }
 

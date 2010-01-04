@@ -313,8 +313,13 @@ void draw_task_icon (Task *tsk, int text_width, int active)
 		imlib_context_set_image (tsk->icon_active);
 		pmap = &tsk->area.pix_active.pmap;
 	}
-	imlib_context_set_drawable (*pmap);
-	imlib_render_image_on_drawable (pos_x, panel->g_task.icon_posy);
+	if (real_transparency) {
+		render_image(*pmap, pos_x, panel->g_task.icon_posy, imlib_image_get_width(), imlib_image_get_height() );
+	}
+	else {
+		imlib_context_set_drawable (*pmap);
+		imlib_render_image_on_drawable (pos_x, panel->g_task.icon_posy);
+	}
 }
 
 

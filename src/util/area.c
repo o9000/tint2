@@ -20,6 +20,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <X11/extensions/Xrender.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -252,12 +253,7 @@ void draw_rect(cairo_t *c, double x, double y, double w, double h, double r)
 
 void clear_pixmap(Pixmap p, int x, int y, int w, int h)
 {
-	cairo_surface_t *tmp = cairo_xlib_surface_create (server.dsp, p, server.visual, w, h);
-	cairo_t *cr = cairo_create(tmp);
-	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-	cairo_rectangle(cr, x, y, w, h);
-	cairo_set_source_rgba(cr, 1, 1, 1, 0);
-	cairo_fill(cr);
-	cairo_destroy(cr);
-	cairo_surface_destroy (tmp);
+	Picture pict = XRenderCreatePicture(server.dsp, p, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
+	XRenderColor col = { .red=0, .green=0, .blue=0, .alpha=0 };
+	XRenderFillRectangle(server.dsp, PictOpSrc, pict, &col, x, y, w, h);
 }

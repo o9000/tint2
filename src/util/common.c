@@ -21,12 +21,14 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <X11/extensions/Xrender.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 
 #include "common.h"
+#include "server.h"
 
 
 
@@ -248,4 +250,24 @@ void createHeuristicMask(DATA32* data, int w, int h)
 		}
 		udata += 4;
 	}
+}
+
+
+void render_image(Drawable d, int x, int y, int w, int h)
+{
+	// in real_transparency mode imlib_render_image_on_drawable does not the right thing, because
+	// the operation is IMLIB_OP_COPY, but we would need IMLIB_OP_OVER (which does not exist)
+	// Therefore we have to do it with the XRender extension (i.e. copy what imlib is doing internally)
+	// But first we need to render the image onto itself with PictOpIn to adjust the colors to the alpha channel
+	Pixmap pmap_tmp = XCreatePixmap(server.dsp, server.root_win, w, h, 32);
+	imlib_context_set_drawable(pmap_tmp);
+	imlib_context_set_blend(0);
+	imlib_render_image_on_drawable(0, 0);
+	Picture pict_image = XRenderCreatePicture(server.dsp, pmap_tmp, XRenderFindStandardFormat(server.dsp, PictStandardARGB32), 0, 0);
+	Picture pict_drawable = XRenderCreatePicture(server.dsp, d, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
+	XRenderComposite(server.dsp, PictOpIn, pict_image, None, pict_image, 0, 0, 0, 0, 0, 0, w, h);
+	XRenderComposite(server.dsp, PictOpOver, pict_image, None, pict_drawable, 0, 0, 0, 0, x, y, w, h);
+	XFreePixmap(server.dsp, pmap_tmp);
+	XRenderFreePicture(server.dsp, pict_image);
+	XRenderFreePicture(server.dsp, pict_drawable);
 }
