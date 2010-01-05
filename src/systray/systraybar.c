@@ -516,7 +516,7 @@ void systray_render_icons(TrayWindow* traywin)
 		render_image(panel->main_win, traywin->x, traywin->y, traywin->width, traywin->height);
 		render_image(systray.area.pix.pmap, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height);
 	}
-	imlib_free_image();
+	imlib_free_image_and_decache();
 }
 
 

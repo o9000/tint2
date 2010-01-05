@@ -66,6 +66,7 @@ static int old_config_file;
 
 // temporary list of background
 static GSList *list_back;
+static int back_count;
 
 
 
@@ -73,6 +74,7 @@ void init_config()
 {
 	// append full transparency background
 	list_back = g_slist_append(0, calloc(1, sizeof(Area)));
+	back_count = 1;
 
 	// tint2 could reload config, so we cleanup objects
 	cleanup_systray();
@@ -192,6 +194,7 @@ void add_entry (char *key, char *value)
 		Area *a = calloc(1, sizeof(Area));
 		a->pix.border.rounded = atoi (value);
 		list_back = g_slist_append(list_back, a);
+		back_count++;
 	}
 	else if (strcmp (key, "border_width") == 0) {
 		Area *a = g_slist_last(list_back)->data;
@@ -284,6 +287,7 @@ void add_entry (char *key, char *value)
 		panel_config.g_task.font_shadow = atoi (value);
 	else if (strcmp (key, "panel_background_id") == 0) {
 		int id = atoi (value);
+		id = id < back_count ? id : 0;
 		Area *a = g_slist_nth_data(list_back, id);
 		memcpy(&panel_config.area.pix.back, &a->pix.back, sizeof(Color));
 		memcpy(&panel_config.area.pix.border, &a->pix.border, sizeof(Border));
@@ -357,6 +361,7 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "battery_background_id") == 0) {
 #ifdef ENABLE_BATTERY
 		int id = atoi (value);
+		id = id < back_count ? id : 0;
 		Area *a = g_slist_nth_data(list_back, id);
 		memcpy(&panel_config.battery.area.pix.back, &a->pix.back, sizeof(Color));
 		memcpy(&panel_config.battery.area.pix.border, &a->pix.border, sizeof(Border));
@@ -402,6 +407,7 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "clock_background_id") == 0) {
 		int id = atoi (value);
+		id = id < back_count ? id : 0;
 		Area *a = g_slist_nth_data(list_back, id);
 		memcpy(&panel_config.clock.area.pix.back, &a->pix.back, sizeof(Color));
 		memcpy(&panel_config.clock.area.pix.border, &a->pix.border, sizeof(Border));
@@ -436,12 +442,14 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "taskbar_background_id") == 0) {
 		int id = atoi (value);
+		id = id < back_count ? id : 0;
 		Area *a = g_slist_nth_data(list_back, id);
 		memcpy(&panel_config.g_taskbar.pix.back, &a->pix.back, sizeof(Color));
 		memcpy(&panel_config.g_taskbar.pix.border, &a->pix.border, sizeof(Border));
 	}
 	else if (strcmp (key, "taskbar_active_background_id") == 0) {
 		int id = atoi (value);
+		id = id < back_count ? id : 0;
 		Area *a = g_slist_nth_data(list_back, id);
 		memcpy(&panel_config.g_taskbar.pix_active.back, &a->pix.back, sizeof(Color));
 		memcpy(&panel_config.g_taskbar.pix_active.border, &a->pix.border, sizeof(Border));
@@ -502,12 +510,14 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "task_background_id") == 0) {
 		int id = atoi (value);
+		id = id < back_count ? id : 0;
 		Area *a = g_slist_nth_data(list_back, id);
 		memcpy(&panel_config.g_task.area.pix.back, &a->pix.back, sizeof(Color));
 		memcpy(&panel_config.g_task.area.pix.border, &a->pix.border, sizeof(Border));
 	}
 	else if (strcmp (key, "task_active_background_id") == 0) {
 		int id = atoi (value);
+		id = id < back_count ? id : 0;
 		Area *a = g_slist_nth_data(list_back, id);
 		memcpy(&panel_config.g_task.area.pix_active.back, &a->pix.back, sizeof(Color));
 		memcpy(&panel_config.g_task.area.pix_active.border, &a->pix.border, sizeof(Border));
@@ -529,6 +539,7 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "systray_background_id") == 0) {
 		int id = atoi (value);
+		id = id < back_count ? id : 0;
 		Area *a = g_slist_nth_data(list_back, id);
 		memcpy(&systray.area.pix.back, &a->pix.back, sizeof(Color));
 		memcpy(&systray.area.pix.border, &a->pix.border, sizeof(Border));
@@ -571,6 +582,7 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "tooltip_background_id") == 0) {
 		int id = atoi (value);
+		id = id < back_count ? id : 0;
 		Area *a = g_slist_nth_data(list_back, id);
 		memcpy(&g_tooltip.background_color, &a->pix.back, sizeof(Color));
 		memcpy(&g_tooltip.border, &a->pix.border, sizeof(Border));
