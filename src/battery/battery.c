@@ -50,7 +50,7 @@ char *path_energy_full=0;
 char *path_current_now=0;
 char *path_status=0;
 
-void update_batterys()
+void update_batterys(void* arg)
 {
 	int i;
 	update_battery();
@@ -133,7 +133,7 @@ void init_battery()
 	g_free(battery_dir);
 
 	if (battery_enabled && battery_timeout==0)
-		battery_timeout = add_timeout(10, 5000, update_batterys);
+		battery_timeout = add_timeout(10, 5000, update_batterys, 0);
 }
 
 

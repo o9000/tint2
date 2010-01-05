@@ -46,9 +46,9 @@ extern Tooltip g_tooltip;
 void init_tooltip();
 void cleanup_tooltip();
 void tooltip_trigger_show(Area* area, Panel* p, int x, int y);
-void tooltip_show();
+void tooltip_show(void* /*arg*/);
 void tooltip_update();
 void tooltip_trigger_hide();
-void tooltip_hide();
+void tooltip_hide(void* /*arg*/);
 
 #endif // TOOLTIP_H

@@ -50,6 +50,14 @@ extern int panel_horizontal;
 
 extern int panel_refresh;
 
+//panel autohide
+enum { STRUT_MINIMUM, STRUT_FOLLOW_SIZE };
+extern int panel_autohide;
+extern int panel_autohide_show_timeout;
+extern int panel_autohide_hide_timeout;
+extern int panel_autohide_height;  // for vertical panels this is of course the width
+extern int panel_strut_policy;
+
 extern Task *task_active;
 extern Task *task_drag;
 extern int  max_tick_urgent;
@@ -97,6 +105,10 @@ typedef struct {
 #ifdef ENABLE_BATTERY
 	Battery battery;
 #endif
+	int is_hidden;
+	int hidden_width, hidden_height;
+	Pixmap hidden_pixmap;
+	const struct timeout* autohide_timeout;
 } Panel;
 
 
@@ -126,5 +138,8 @@ Task *click_task (Panel *panel, int x, int y);
 int click_padding(Panel *panel, int x, int y);
 int click_clock(Panel *panel, int x, int y);
 Area* click_area(Panel *panel, int x, int y);
+
+void autohide_trigger_show();
+void autohide_trigger_hide();
 
 #endif

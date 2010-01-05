@@ -607,6 +607,22 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "mouse_scroll_down") == 0)
 		get_action (value, &mouse_scroll_down);
 
+	/* autohide options */
+	else if (strcmp(key, "autohide") == 0)
+		panel_autohide = atoi(value);
+	else if (strcmp(key, "autohide_show_timeout") == 0)
+		panel_autohide_show_timeout = 1000*atof(value);
+	else if (strcmp(key, "autohide_hide_timeout") == 0)
+		panel_autohide_hide_timeout = 1000*atof(value);
+	else if (strcmp(key, "strut_policy") == 0) {
+		if (strcmp(value, "follow_size") == 0)
+			panel_strut_policy = STRUT_FOLLOW_SIZE;
+		else
+			panel_strut_policy = STRUT_MINIMUM;
+	}
+	else if (strcmp(key, "autohide_height") == 0)
+		panel_autohide_height = atoi(value);
+
 
 	/* Read tint-0.6 config for backward compatibility */
 	else if (strcmp (key, "panel_mode") == 0) {

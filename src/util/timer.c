@@ -21,9 +21,9 @@
 #include "timer.h"
 
 GSList* timeout_list = 0;
-struct timespec next_timeout;
+struct timeval next_timeout;
 
-void add_timeout_intern(int value_msec, int interval_msec, void(*_callback)(), struct timeout* t);
+void add_timeout_intern(int value_msec, int interval_msec, void(*_callback)(void*), void* arg, struct timeout* t);
 gint compare_timeouts(gconstpointer t1, gconstpointer t2);
 gint compare_timespecs(const struct timespec* t1, const struct timespec* t2);
 int timespec_subtract(struct timespec* result, struct timespec* x, struct timespec* y);
@@ -36,20 +36,27 @@ int timespec_subtract(struct timespec* result, struct timespec* x, struct timesp
 	* is in the past to the current time.
 	* As time measurement we use clock_gettime(CLOCK_MONOTONIC) because this refers to a timer, which
 	* reference point lies somewhere in the past and cannot be changed, but just queried.
+	* If a single shot timer is installed it will be automatically deleted. I.e. the returned value
+	* of add_timeout will not be valid anymore. You do not need to call stop_timeout for these timeouts,
+	* however it's save to call it.
 **/
 
-const struct timeout* add_timeout(int value_msec, int interval_msec, void (*_callback)())
+const struct timeout* add_timeout(int value_msec, int interval_msec, void (*_callback)(void*), void* arg)
 {
 	struct timeout* t = malloc(sizeof(struct timeout));
-	add_timeout_intern(value_msec, interval_msec, _callback, t);
+	add_timeout_intern(value_msec, interval_msec, _callback, arg, t);
 	return t;
 }
 
 
-void change_timeout(const struct timeout *t, int value_msec, int interval_msec, void(*_callback)())
+void change_timeout(const struct timeout *t, int value_msec, int interval_msec, void(*_callback)(), void* arg)
 {
-	timeout_list = g_slist_remove(timeout_list, t);
-	add_timeout_intern(value_msec, interval_msec, _callback, (struct timeout*)t);
+	if ( g_slist_find(timeout_list, t) == 0 )
+		printf("timeout already deleted...");
+	else {
+		timeout_list = g_slist_remove(timeout_list, t);
+		add_timeout_intern(value_msec, interval_msec, _callback, arg, (struct timeout*)t);
+	}
 }
 
 
@@ -58,10 +65,15 @@ void update_next_timeout()
 	if (timeout_list) {
 		struct timeout* t = timeout_list->data;
 		struct timespec cur_time;
+		struct timespec next_timeout2 = { .tv_sec=next_timeout.tv_sec, .tv_nsec=next_timeout.tv_usec*1000 };
 		clock_gettime(CLOCK_MONOTONIC, &cur_time);
-		if (timespec_subtract(&next_timeout, &t->timeout_expires, &cur_time)) {
+		if (timespec_subtract(&next_timeout2, &t->timeout_expires, &cur_time)) {
 			next_timeout.tv_sec = 0;
-			next_timeout.tv_nsec = 0;
+			next_timeout.tv_usec = 0;
+		}
+		else {
+			next_timeout.tv_sec = next_timeout2.tv_sec;
+			next_timeout.tv_usec = next_timeout2.tv_nsec/1000;
 		}
 	}
 	else
@@ -78,12 +90,12 @@ void callback_timeout_expired()
 		t = timeout_list->data;
 		if (compare_timespecs(&t->timeout_expires, &cur_time) <= 0) {
 			// it's time for the callback function
-			t->_callback();
+			t->_callback(t->arg);
 			if (g_slist_find(timeout_list, t)) {
 				// if _callback() calls stop_timeout(t) the timeout 't' was freed and is not in the timeout_list
 				timeout_list = g_slist_remove(timeout_list, t);
 				if (t->interval_msec > 0)
-					add_timeout_intern(t->interval_msec, t->interval_msec, t->_callback, t);
+					add_timeout_intern(t->interval_msec, t->interval_msec, t->_callback, t->arg, t);
 				else
 					free(t);
 			}
@@ -113,10 +125,11 @@ void stop_all_timeouts()
 }
 
 
-void add_timeout_intern(int value_msec, int interval_msec, void(*_callback)(), struct timeout *t)
+void add_timeout_intern(int value_msec, int interval_msec, void(*_callback)(), void* arg, struct timeout *t)
 {
 	t->interval_msec = interval_msec;
 	t->_callback = _callback;
+	t->arg = arg;
 	struct timespec expire;
 	clock_gettime(CLOCK_MONOTONIC, &expire);
 	expire.tv_sec += value_msec / 1000;

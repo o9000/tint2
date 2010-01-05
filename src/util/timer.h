@@ -22,13 +22,14 @@
 #include <glib.h>
 
 extern GSList* timeout_list;
-extern struct timespec next_timeout;
+extern struct timeval next_timeout;
 
 
 struct timeout {
 	int interval_msec;
 	struct timespec timeout_expires;
 	void (*_callback)();
+	void* arg;
 };
 
 
@@ -36,9 +37,9 @@ struct timeout {
 /** installs a timeout with the first timeout of 'value_msec' and then a periodic timeout with
 	* 'interval_msec'. '_callback' is the callback function when the timer reaches the timeout.
 	* returns a pointer to the timeout, which is needed for stopping it again **/
-const struct timeout* add_timeout(int value_msec, int interval_msec, void (*_callback)());
+const struct timeout* add_timeout(int value_msec, int interval_msec, void (*_callback)(void*), void* arg);
 
-void change_timeout(const struct timeout* t, int value_msec, int interval_msec, void (*_callback)());
+void change_timeout(const struct timeout* t, int value_msec, int interval_msec, void (*_callback)(void*), void* arg);
 
 /** stops the timeout 't' **/
 void stop_timeout(const struct timeout* t);

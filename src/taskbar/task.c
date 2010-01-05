@@ -469,7 +469,7 @@ void active_task()
 }
 
 
-void blink_urgent()
+void blink_urgent(void* arg)
 {
 	GSList* urgent_task = urgent_list;
 	while (urgent_task) {
@@ -510,7 +510,7 @@ void add_urgent(Task *tsk)
 	urgent_list = g_slist_concat(urgent_add, urgent_list);
 
 	if (urgent_timeout == 0)
-		urgent_timeout = add_timeout(10, 1000, blink_urgent);
+		urgent_timeout = add_timeout(10, 1000, blink_urgent, 0);
 }
 
 

@@ -80,13 +80,16 @@ void init (int argc, char *argv[])
 	sigaction(SIGTERM, &sa, 0);
 	sigaction(SIGHUP, &sa, 0);
 	signal(SIGCHLD, SIG_IGN);		// don't have to wait() after fork()
+
+	// BSD is too stupid to support pselect(), therefore we have to use select and hope that we do not
+	// end up in a race condition there
 	// block all signals, such that no race conditions occur before pselect in our main loop
-	sigset_t block_mask;
-	sigaddset(&block_mask, SIGINT);
-	sigaddset(&block_mask, SIGTERM);
-	sigaddset(&block_mask, SIGHUP);
-	sigaddset(&block_mask, SIGUSR1);
-	sigprocmask(SIG_BLOCK, &block_mask, 0);
+//	sigset_t block_mask;
+//	sigaddset(&block_mask, SIGINT);
+//	sigaddset(&block_mask, SIGTERM);
+//	sigaddset(&block_mask, SIGHUP);
+//	sigaddset(&block_mask, SIGUSR1);
+//	sigprocmask(SIG_BLOCK, &block_mask, 0);
 
 	// set global data
 	memset(&server, 0, sizeof(Server_global));
@@ -681,7 +684,7 @@ int main (int argc, char *argv[])
 	int x11_fd, i;
 	Panel *panel;
 	GSList *it;
-	const struct timespec* timeout;
+	struct timeval* timeout;
 
 	init (argc, argv);
 	init_config();
@@ -710,8 +713,8 @@ int main (int argc, char *argv[])
 	x11_fd = ConnectionNumber(server.dsp);
 	XSync(server.dsp, False);
 
-	sigset_t empty_mask;
-	sigemptyset(&empty_mask);
+//	sigset_t empty_mask;
+//	sigemptyset(&empty_mask);
 
 	while (1) {
 		if (panel_refresh) {
@@ -725,15 +728,19 @@ int main (int argc, char *argv[])
 			for (i=0 ; i < nb_panel ; i++) {
 				panel = &panel1[i];
 
-				if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
-				panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
-
-				refresh(&panel->area);
-				XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
+				if (panel->is_hidden)
+					XCopyArea(server.dsp, panel->hidden_pixmap, panel->main_win, server.gc, 0, 0, panel->hidden_width, panel->hidden_height, 0, 0);
+				else {
+					if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
+					panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
+					refresh(&panel->area);
+					XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
+				}
 			}
 			XFlush (server.dsp);
 
-			if (refresh_systray) {
+			panel = (Panel*)systray.area.panel;
+			if (refresh_systray && !panel->is_hidden) {
 				refresh_systray = 0;
 				panel = (Panel*)systray.area.panel;
 				// tint2 doen't draw systray icons. it just redraw background.
@@ -748,19 +755,29 @@ int main (int argc, char *argv[])
 		FD_ZERO (&fdset);
 		FD_SET (x11_fd, &fdset);
 		update_next_timeout();
-		if (next_timeout.tv_sec >= 0 && next_timeout.tv_nsec >= 0)
+		if (next_timeout.tv_sec >= 0 && next_timeout.tv_usec >= 0)
 			timeout = &next_timeout;
 		else
 			timeout = 0;
 
 		// Wait for X Event or a Timer
-		if (pselect(x11_fd+1, &fdset, 0, 0, timeout, &empty_mask) > 0) {
+		if (select(x11_fd+1, &fdset, 0, 0, timeout) > 0) {
 			while (XPending (server.dsp)) {
 				XNextEvent(server.dsp, &e);
 
+				panel = get_panel(e.xany.window);
+				if (panel && panel_autohide) {
+					if (e.type == EnterNotify)
+						autohide_trigger_show(panel);
+					else if (e.type == LeaveNotify)
+						autohide_trigger_hide(panel);
+					if (panel->is_hidden)
+						continue;   // discard further processing of this event because the panel is not visible yet
+				}
+
 				switch (e.type) {
 					case ButtonPress:
-						tooltip_hide();
+						tooltip_hide(0);
 						event_button_press (&e);
 						break;
 
@@ -780,7 +797,8 @@ int main (int argc, char *argv[])
 					}
 
 					case LeaveNotify:
-						tooltip_trigger_hide();
+						if (g_tooltip.enabled)
+							tooltip_trigger_hide();
 						break;
 
 					case Expose:

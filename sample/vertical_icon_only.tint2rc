@@ -114,3 +114,13 @@ mouse_middle = none
 mouse_right = close
 mouse_scroll_up = toggle
 mouse_scroll_down = iconify
+
+#---------------------------------------------
+# AUTOHIDE OPTIONS
+#---------------------------------------------
+autohide = 0
+autohide_show_timeout = 0.3
+autohide_hide_timeout = 2
+autohide_height = 4
+strut_policy = minimum
+

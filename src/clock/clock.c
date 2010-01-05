@@ -53,7 +53,7 @@ int clock_enabled;
 static const struct timeout* clock_timeout=0;
 
 
-void update_clocks()
+void update_clocks(void* arg)
 {
 	gettimeofday(&time_clock, 0);
 	int i;
@@ -87,9 +87,9 @@ void init_clock()
 {
 	if(time1_format && clock_timeout==0) {
 		if (strchr(time1_format, 'S') || strchr(time1_format, 'T') || strchr(time1_format, 'r'))
-			clock_timeout = add_timeout(10, 1000, update_clocks);
+			clock_timeout = add_timeout(10, 1000, update_clocks, 0);
 		else
-			clock_timeout = add_timeout(10, 60000, update_clocks);
+			clock_timeout = add_timeout(10, 60000, update_clocks, 0);
 	}
 }
 
@@ -282,9 +282,9 @@ void clock_action(int button)
 		pid = fork();
 		if (pid == 0) {
 			// change for the fork the signal mask
-			sigset_t sigset;
-			sigprocmask(SIG_SETMASK, &sigset, 0);
-			sigprocmask(SIG_UNBLOCK, &sigset, 0);
+//			sigset_t sigset;
+//			sigprocmask(SIG_SETMASK, &sigset, 0);
+//			sigprocmask(SIG_UNBLOCK, &sigset, 0);
 			execl("/bin/sh", "/bin/sh", "-c", command, NULL);
 			_exit(0);
 		}

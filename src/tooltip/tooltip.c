@@ -74,7 +74,7 @@ void init_tooltip()
 void cleanup_tooltip()
 {
 	stop_tooltip_timeout();
-	tooltip_hide();
+	tooltip_hide(0);
 	g_tooltip.enabled = False;
 	tooltip_copy_text(0);
 	if (g_tooltip.window) {
@@ -104,7 +104,7 @@ void tooltip_trigger_show(Area* area, Panel* p, int x_root, int y_root)
 }
 
 
-void tooltip_show()
+void tooltip_show(void* arg)
 {
   int mx, my;
   Window w;
@@ -200,7 +200,7 @@ void tooltip_adjust_geometry()
 void tooltip_update()
 {
 	if (!g_tooltip.tooltip_text) {
-		tooltip_hide();
+		tooltip_hide(0);
 		return;
 	}
 
@@ -265,7 +265,7 @@ void tooltip_trigger_hide(Tooltip* tooltip)
 }
 
 
-void tooltip_hide()
+void tooltip_hide(void* arg)
 {
 	stop_tooltip_timeout();
 	if (g_tooltip.mapped) {
@@ -279,18 +279,18 @@ void tooltip_hide()
 void start_show_timeout()
 {
 	if (g_tooltip.timeout)
-		change_timeout(g_tooltip.timeout, g_tooltip.show_timeout_msec, 0, tooltip_show);
+		change_timeout(g_tooltip.timeout, g_tooltip.show_timeout_msec, 0, tooltip_show, 0);
 	else
-		g_tooltip.timeout = add_timeout(g_tooltip.show_timeout_msec, 0, tooltip_show);
+		g_tooltip.timeout = add_timeout(g_tooltip.show_timeout_msec, 0, tooltip_show, 0);
 }
 
 
 void start_hide_timeout()
 {
 	if (g_tooltip.timeout)
-		change_timeout(g_tooltip.timeout, g_tooltip.hide_timeout_msec, 0, tooltip_hide);
+		change_timeout(g_tooltip.timeout, g_tooltip.hide_timeout_msec, 0, tooltip_hide, 0);
 	else
-		g_tooltip.timeout = add_timeout(g_tooltip.hide_timeout_msec, 0, tooltip_hide);
+		g_tooltip.timeout = add_timeout(g_tooltip.hide_timeout_msec, 0, tooltip_hide, 0);
 }
 
 
