@@ -12,6 +12,7 @@
 
 #include "common.h"
 #include "area.h"
+#include "timer.h"
 #include <X11/extensions/Xdamage.h>
 
 // XEMBED messages
@@ -40,6 +41,7 @@ typedef struct
 	int hide;
 	int depth;
 	Damage damage;
+	const struct timeout* render_timeout;
 } TrayWindow;
 
 

@@ -498,9 +498,10 @@ void net_message(XClientMessageEvent *e)
 	}
 }
 
-
-void systray_render_icon(TrayWindow* traywin)
+void systray_render_icon_now(TrayWindow* traywin)
 {
+	traywin->render_timeout = 0;
+
 	// good systray icons support 32 bit depth, but some icons are still 24 bit.
 	// We create a heuristic mask for these icons, i.e. we get the rgb value in the top left corner, and
 	// mask out all pixel with the same rgb value
@@ -529,6 +530,15 @@ void systray_render_icon(TrayWindow* traywin)
 	}
 	XCopyArea(server.dsp, systray.area.pix.pmap, panel->main_win, server.gc, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height, traywin->x, traywin->y);
 	imlib_free_image_and_decache();
+
+	XFlush(server.dsp);
+}
+
+void systray_render_icon(TrayWindow* traywin)
+{
+	// wine tray icons update whenever mouse is over them, so we limit the updates to 50 ms
+	if (traywin->render_timeout == 0)
+		traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin);
 }
 
 
@@ -544,4 +554,7 @@ void refresh_systray_icon()
 		else
 			XClearArea(server.dsp, traywin->id, 0, 0, traywin->width, traywin->height, True);
 	}
+//
+//	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
+//		XFlush(server.dsp);
 }
