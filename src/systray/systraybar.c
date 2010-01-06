@@ -48,6 +48,9 @@ int refresh_systray;
 int systray_enabled;
 int systray_max_icon_size = 0;
 
+// background pixmap if we render ourselves the icons
+static Pixmap render_background = 0;
+
 
 void init_systray()
 {
@@ -87,12 +90,19 @@ void cleanup_systray()
 	systray_enabled = 0;
 	systray.area.on_screen = 0;
 	free_area(&systray.area);
+	if (render_background) XFreePixmap(server.dsp, render_background);
 }
 
 
 void draw_systray(void *obj, cairo_t *c, int active)
 {
-	// tint2 don't draw systray icons. just the background.
+	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+		if (render_background) XFreePixmap(server.dsp, render_background);
+		render_background = XCreatePixmap(server.dsp, server.root_win, systray.area.width, systray.area.height, server.depth);
+		XCopyArea(server.dsp, systray.area.pix.pmap, render_background, server.gc, 0, 0, systray.area.width, systray.area.height, 0, 0);
+	}
+
+		// tint2 don't draw systray icons. just the background.
 	refresh_systray = 1;
 }
 
@@ -489,7 +499,7 @@ void net_message(XClientMessageEvent *e)
 }
 
 
-void systray_render_icons(TrayWindow* traywin)
+void systray_render_icon(TrayWindow* traywin)
 {
 	// good systray icons support 32 bit depth, but some icons are still 24 bit.
 	// We create a heuristic mask for these icons, i.e. we get the rgb value in the top left corner, and
@@ -497,6 +507,9 @@ void systray_render_icons(TrayWindow* traywin)
 	Panel* panel = systray.area.panel;
 	imlib_context_set_drawable(traywin->id);
 	Imlib_Image image = imlib_create_image_from_drawable(0, 0, 0, traywin->width, traywin->height, 0);
+	if (image == 0)
+		return;
+
 	imlib_context_set_image(image);
 	imlib_image_set_has_alpha(1);
 	DATA32* data = imlib_image_get_data();
@@ -506,16 +519,15 @@ void systray_render_icons(TrayWindow* traywin)
 	if (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
 		adjust_asb(data, traywin->width, traywin->height, systray.alpha, (float)systray.saturation/100, (float)systray.brightness/100);
 	imlib_image_put_back_data(data);
+	XCopyArea(server.dsp, render_background, systray.area.pix.pmap, server.gc, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height, traywin->x-systray.area.posx, traywin->y-systray.area.posy);
 	if ( !real_transparency ) {
-		imlib_context_set_drawable(panel->main_win);
-		imlib_render_image_on_drawable(traywin->x, traywin->y);
 		imlib_context_set_drawable(systray.area.pix.pmap);
 		imlib_render_image_on_drawable(traywin->x-systray.area.posx, traywin->y-systray.area.posy);
 	}
 	else {
-		render_image(panel->main_win, traywin->x, traywin->y, traywin->width, traywin->height);
 		render_image(systray.area.pix.pmap, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height);
 	}
+	XCopyArea(server.dsp, systray.area.pix.pmap, panel->main_win, server.gc, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height, traywin->x, traywin->y);
 	imlib_free_image_and_decache();
 }
 
@@ -528,10 +540,8 @@ void refresh_systray_icon()
 		traywin = (TrayWindow*)l->data;
 		if (traywin->hide) continue;
 		if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
-			systray_render_icons(traywin);
+			systray_render_icon(traywin);
 		else
 			XClearArea(server.dsp, traywin->id, 0, 0, traywin->width, traywin->height, True);
 	}
-	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
-		XFlush(server.dsp);
 }

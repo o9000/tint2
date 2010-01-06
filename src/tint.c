@@ -849,9 +849,18 @@ int main (int argc, char *argv[])
 						break;
 
 					default:
-						if (e.type == XDamageNotify+damage_event)
-							// TODO: update only the damaged icon, not all of them
-							systray.area.redraw = 1;
+						if (e.type == XDamageNotify+damage_event) {
+							TrayWindow *traywin;
+							GSList *l;
+							XDamageNotifyEvent* de = (XDamageNotifyEvent*)&e;
+							for (l = systray.list_icons; l ; l = l->next) {
+								traywin = (TrayWindow*)l->data;
+								if ( traywin->id == de->drawable ) {
+									systray_render_icon(traywin);
+									break;
+								}
+							}
+						}
 				}
 			}
 		}
