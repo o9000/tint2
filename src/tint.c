@@ -139,6 +139,7 @@ void init_X11()
 
 void cleanup()
 {
+	stop_all_timeouts();
 	cleanup_systray();
 	stop_net();
 	cleanup_panel();

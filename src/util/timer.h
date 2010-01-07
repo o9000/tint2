@@ -28,8 +28,9 @@ extern struct timeval next_timeout;
 struct timeout {
 	int interval_msec;
 	struct timespec timeout_expires;
-	void (*_callback)();
+	void (*_callback)(void*);
 	void* arg;
+	void* multi_timeout;
 };
 
 

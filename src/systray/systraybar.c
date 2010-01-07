@@ -423,7 +423,7 @@ gboolean add_icon(Window id)
 	// watch for the icon trying to resize itself!
 	XSelectInput(server.dsp, traywin->tray_id, StructureNotifyMask);
 	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
-		traywin->damage = XDamageCreate(server.dsp, traywin->id, XDamageReportRawRectangles);
+		traywin->damage = XDamageCreate(server.dsp, traywin->id, XDamageReportNonEmpty);
 		XCompositeRedirectWindow(server.dsp, traywin->id, CompositeRedirectManual);
 	}
 
@@ -498,8 +498,9 @@ void net_message(XClientMessageEvent *e)
 	}
 }
 
-void systray_render_icon_now(TrayWindow* traywin)
+void systray_render_icon_now(void* t)
 {
+	TrayWindow* traywin = t;
 	traywin->render_timeout = 0;
 
 	// good systray icons support 32 bit depth, but some icons are still 24 bit.
@@ -531,6 +532,7 @@ void systray_render_icon_now(TrayWindow* traywin)
 	XCopyArea(server.dsp, systray.area.pix.pmap, panel->main_win, server.gc, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height, traywin->x, traywin->y);
 	imlib_free_image_and_decache();
 
+	XDamageSubtract(server.dsp, traywin->damage, None, None);
 	XFlush(server.dsp);
 }
 
@@ -554,7 +556,4 @@ void refresh_systray_icon()
 		else
 			XClearArea(server.dsp, traywin->id, 0, 0, traywin->width, traywin->height, True);
 	}
-//
-//	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
-//		XFlush(server.dsp);
 }
