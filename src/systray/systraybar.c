@@ -40,7 +40,7 @@ GSList *icons;
 #define SYSTEM_TRAY_CANCEL_MESSAGE  2
 
 // selection window
-Window net_sel_win = None, hint_win = None;
+Window net_sel_win = None;
 
 // freedesktop specification doesn't allow multi systray
 Systraybar systray;
@@ -250,7 +250,7 @@ void start_net()
 	// init systray protocol
 	net_sel_win = XCreateSimpleWindow(server.dsp, server.root_win, -1, -1, 1, 1, 0, 0, 0);
 
-	// v0.2 trayer specification. tint2 always horizontal.
+	// v0.3 trayer specification. tint2 always horizontal.
 	// Vertical panel will draw the systray horizontal.
 	int orient = 0;
 	XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_ORIENTATION, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &orient, 1);
@@ -536,6 +536,7 @@ void systray_render_icon_now(void* t)
 	XFlush(server.dsp);
 }
 
+
 void systray_render_icon(TrayWindow* traywin)
 {
 	// wine tray icons update whenever mouse is over them, so we limit the updates to 50 ms
@@ -554,6 +555,6 @@ void refresh_systray_icon()
 		if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
 			systray_render_icon(traywin);
 		else
-			XClearArea(server.dsp, traywin->id, 0, 0, traywin->width, traywin->height, True);
+			XClearArea(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height, True);
 	}
 }
