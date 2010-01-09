@@ -90,17 +90,19 @@ Task *add_task (Window win)
 			new_tsk2->area.parent = tskbar;
 			new_tsk2->win = new_tsk.win;
 			new_tsk2->desktop = new_tsk.desktop;
-			set_task_state(new_tsk2, new_tsk.current_state);
 			if (new_tsk2->desktop == ALLDESKTOP && server.desktop != j) {
 				// hide ALLDESKTOP task on non-current desktop
 				new_tsk2->area.on_screen = 0;
 			}
 			new_tsk2->title = new_tsk.title;
 			new_tsk2->area._get_tooltip_text = task_get_tooltip;
-			for (k=0; k<TASK_STATE_COUNT; ++k)
+			for (k=0; k<TASK_STATE_COUNT; ++k) {
 				new_tsk2->icon[k] = new_tsk.icon[k];
+				new_tsk2->state_pix[k] = 0;
+			}
 			new_tsk2->icon_width = new_tsk.icon_width;
 			new_tsk2->icon_height = new_tsk.icon_height;
+			set_task_state(new_tsk2, new_tsk.current_state);
 			tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk2);
 			tskbar->area.resize = 1;
 			//printf("add_task panel %d, desktop %d, task %s\n", i, j, new_tsk2->title);
@@ -130,6 +132,7 @@ void remove_task (Task *tsk)
 			imlib_context_set_image(tsk->icon[k]);
 			imlib_free_image();
 			tsk->icon[k] = 0;
+			if (tsk->state_pix[k]) XFreePixmap(server.dsp, tsk->state_pix[k]);
 		}
 	}
 
@@ -191,7 +194,7 @@ void get_title(Task *tsk)
 	strcat(title, name);
 	if (name) XFree (name);
 
-	tsk->area.redraw = 1;
+	set_task_redraw(tsk);
 	if (tsk->title)
 		free(tsk->title);
 	tsk->title = title;
@@ -215,7 +218,7 @@ void get_icon (Task *tsk)
 			tsk->icon[k] = 0;
 		}
 	}
-	tsk->area.redraw = 1;
+	set_task_redraw(tsk);
 
 	data = server_get_property (tsk->win, server.atom._NET_WM_ICON, XA_CARDINAL, &i);
 	if (data) {
@@ -321,6 +324,7 @@ void draw_task_icon (Task *tsk, int text_width)
 void draw_task (void *obj, cairo_t *c)
 {
 	Task *tsk = obj;
+	tsk->state_pix[tsk->current_state] = tsk->area.pix;
 	PangoLayout *layout;
 	Color *config_text;
 	int width=0, height;
@@ -466,8 +470,24 @@ void active_task()
 
 void set_task_state(Task *tsk, int state)
 {
-	tsk->current_state = state;
-	tsk->area.bg = panel1[0].g_task.background[state];
+	if (tsk->current_state != state) {
+		tsk->current_state = state;
+		tsk->area.bg = panel1[0].g_task.background[state];
+		tsk->area.pix = tsk->state_pix[state];
+		if (tsk->state_pix[state] == 0)
+			tsk->area.redraw = 1;
+		panel_refresh = 1;
+	}
+}
+
+
+void set_task_redraw(Task* tsk) {
+	int k;
+	for (k=0; k<TASK_STATE_COUNT; ++k) {
+		if (tsk->state_pix[k]) XFreePixmap(server.dsp, tsk->state_pix[k]);
+		tsk->state_pix[k] = 0;
+	}
+	tsk->area.pix = 0;
 	tsk->area.redraw = 1;
 }
 

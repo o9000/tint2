@@ -54,6 +54,7 @@ typedef struct {
 	int  desktop;
 	int current_state;
 	Imlib_Image icon[TASK_STATE_COUNT];
+	Pixmap state_pix[TASK_STATE_COUNT];
 	unsigned int icon_width;
 	unsigned int icon_height;
 	char *title;
@@ -70,6 +71,7 @@ void get_icon (Task *tsk);
 void get_title(Task *tsk);
 void active_task();
 void set_task_state(Task* tsk, int state);
+void set_task_redraw(Task* tsk);
 
 Task *next_task (Task *tsk);
 Task *prev_task (Task *tsk);

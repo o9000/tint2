@@ -502,7 +502,7 @@ void event_property_notify (XEvent *e)
 						tsk2 = l0->data;
 						if (tsk->win == tsk2->win && tsk != tsk2) {
 							tsk2->title = tsk->title;
-							tsk2->area.redraw = 1;
+							set_task_redraw(tsk2);
 						}
 					}
 				}
@@ -521,7 +521,7 @@ void event_property_notify (XEvent *e)
 		}
 		else if (at == server.atom.WM_STATE) {
 			// Iconic state
-			int state = task_active == tsk ? TASK_ACTIVE : TASK_NORMAL;
+			int state = tsk->current_state;
 			if (window_is_iconified(win))
 				state = TASK_ICONIFIED;
 			GSList* task_list = task_get_tasks(win);
@@ -548,7 +548,7 @@ void event_property_notify (XEvent *e)
 					int k=0;
 					for ( ; k<TASK_STATE_COUNT; ++k)
 						tsk2->icon[k] = tsk->icon[k];
-					tsk2->area.redraw = 1;
+					set_task_redraw(tsk2);
 				}
 				l0 = l0->next;
 			}
@@ -630,7 +630,7 @@ void event_configure_notify (Window win)
 			GSList* it = task_list;
 			while (it) {
 				Task *tsk = it->data;
-				tsk->current_state = TASK_ACTIVE;
+				set_task_state(tsk, TASK_ACTIVE);
 				task_active = tsk;
 				it = task_list->next;
 			}
