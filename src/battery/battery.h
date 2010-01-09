@@ -23,7 +23,7 @@ typedef struct Battery {
 	// always start with area
 	Area area;
 
-	config_color font;
+	Color font;
 	int bat1_posy;
 	int bat2_posy;
 } Battery;
@@ -64,7 +64,7 @@ void init_battery();
 void init_battery_panel(void *panel);
 void cleanup_battery();
 
-void draw_battery(void *obj, cairo_t *c, int active);
+void draw_battery(void *obj, cairo_t *c);
 
 void resize_battery(void *obj);
 

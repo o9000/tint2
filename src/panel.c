@@ -67,6 +67,8 @@ Panel panel_config;
 Panel *panel1 = 0;
 int  nb_panel = 0;
 
+GArray* backgrounds = 0;
+
 Imlib_Image default_icon = NULL;
 
 
@@ -133,11 +135,10 @@ void init_panel()
 		p->area.on_screen = 1;
 		p->area.resize = 1;
 		p->area._resize = resize_panel;
-		p->g_taskbar.parent = p;
-		p->g_taskbar.panel = p;
+		p->g_taskbar.area.parent = p;
+		p->g_taskbar.area.panel = p;
 		p->g_task.area.panel = p;
 		init_panel_size_and_position(p);
-
 		// add childs
 		if (clock_enabled) {
 			init_clock_panel(p);
@@ -205,8 +206,12 @@ void init_panel_size_and_position(Panel *panel)
 			panel->area.width = (float)server.monitor[panel->monitor].width * panel->area.width / 100;
 		if (panel->pourcenty)
 			panel->area.height = (float)server.monitor[panel->monitor].height * panel->area.height / 100;
-		if (panel->area.pix.border.rounded > panel->area.height/2)
-			panel->area.pix.border.rounded = panel->area.height/2;
+		if (panel->area.bg->border.rounded > panel->area.height/2) {
+			printf("panel_background_id rounded is too big... please fix your tint2rc\n");
+			g_array_append_val(backgrounds, *panel->area.bg);
+			panel->area.bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
+			panel->area.bg->border.rounded = panel->area.height/2;
+		}
 	}
 	else {
 		int old_panel_height = panel->area.height;
@@ -218,8 +223,12 @@ void init_panel_size_and_position(Panel *panel)
 			panel->area.width = (float)server.monitor[panel->monitor].width * old_panel_height / 100;
 		else
 			panel->area.width = old_panel_height;
-		if (panel->area.pix.border.rounded > panel->area.width/2)
-			panel->area.pix.border.rounded = panel->area.width/2;
+		if (panel->area.bg->border.rounded > panel->area.width/2) {
+			printf("panel_background_id rounded is too big... please fix your tint2rc\n");
+			g_array_append_val(backgrounds, *panel->area.bg);
+			panel->area.bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
+			panel->area.bg->border.rounded = panel->area.width/2;
+		}
 	}
 
 	// panel position determined here
@@ -313,7 +322,7 @@ void resize_panel(void *obj)
 	if (panel_horizontal) {
 		int taskbar_width, modulo_width = 0;
 
-		taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
+		taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.bg->border.width);
 		if (panel->clock.area.on_screen && panel->clock.area.width)
 			taskbar_width -= (panel->clock.area.width + panel->area.paddingx);
 	#ifdef ENABLE_BATTERY
@@ -332,7 +341,7 @@ void resize_panel(void *obj)
 
 		// change posx and width for all taskbar
 		int i, posx;
-		posx = panel->area.pix.border.width + panel->area.paddingxlr;
+		posx = panel->area.bg->border.width + panel->area.paddingxlr;
 		for (i=0 ; i < panel->nb_desktop ; i++) {
 			panel->taskbar[i].area.posx = posx;
 			panel->taskbar[i].area.width = taskbar_width;
@@ -350,7 +359,7 @@ void resize_panel(void *obj)
 		int taskbar_height, modulo_height = 0;
 		int i, posy;
 
-		taskbar_height = panel->area.height - (2 * panel->area.paddingxlr) - (2 * panel->area.pix.border.width);
+		taskbar_height = panel->area.height - (2 * panel->area.paddingxlr) - (2 * panel->area.bg->border.width);
 		if (panel->clock.area.on_screen && panel->clock.area.height)
 			taskbar_height -= (panel->clock.area.height + panel->area.paddingx);
 	#ifdef ENABLE_BATTERY
@@ -361,7 +370,7 @@ void resize_panel(void *obj)
 		if (systray.area.on_screen && systray.area.height && panel == &panel1[0])
 			taskbar_height -= (systray.area.height + panel->area.paddingx);
 
-		posy = panel->area.height - panel->area.pix.border.width - panel->area.paddingxlr - taskbar_height;
+		posy = panel->area.height - panel->area.bg->border.width - panel->area.paddingxlr - taskbar_height;
 		if (panel_mode == MULTI_DESKTOP) {
 			int height = taskbar_height - ((panel->nb_desktop-1) * panel->area.paddingx);
 			taskbar_height = height / panel->nb_desktop;
@@ -528,28 +537,28 @@ void set_panel_properties(Panel *p)
 
 void set_panel_background(Panel *p)
 {
-	if (p->area.pix.pmap) XFreePixmap (server.dsp, p->area.pix.pmap);
-	p->area.pix.pmap = XCreatePixmap (server.dsp, server.root_win, p->area.width, p->area.height, server.depth);
+	if (p->area.pix) XFreePixmap (server.dsp, p->area.pix);
+	p->area.pix = XCreatePixmap (server.dsp, server.root_win, p->area.width, p->area.height, server.depth);
 
 	if (real_transparency) {
-		clear_pixmap(p->area.pix.pmap, 0, 0, p->area.width, p->area.height);
+		clear_pixmap(p->area.pix, 0, 0, p->area.width, p->area.height);
 	}
 	else {
 		get_root_pixmap();
-		// copy background (server.root_pmap) in panel.area.pix.pmap
+		// copy background (server.root_pmap) in panel.area.pix
 		Window dummy;
 		int  x, y;
 		XTranslateCoordinates(server.dsp, p->main_win, server.root_win, 0, 0, &x, &y, &dummy);
 		XSetTSOrigin(server.dsp, server.gc, -x, -y) ;
-		XFillRectangle(server.dsp, p->area.pix.pmap, server.gc, 0, 0, p->area.width, p->area.height);
+		XFillRectangle(server.dsp, p->area.pix, server.gc, 0, 0, p->area.width, p->area.height);
 	}
 
 	// draw background panel
 	cairo_surface_t *cs;
 	cairo_t *c;
-	cs = cairo_xlib_surface_create (server.dsp, p->area.pix.pmap, server.visual, p->area.width, p->area.height);
+	cs = cairo_xlib_surface_create (server.dsp, p->area.pix, server.visual, p->area.width, p->area.height);
 	c = cairo_create (cs);
-	draw_background(&p->area, c, 0);
+	draw_background(&p->area, c);
 	cairo_destroy (c);
 	cairo_surface_destroy (cs);
 
@@ -561,7 +570,7 @@ void set_panel_background(Panel *p)
 			yoff = p->area.height-p->hidden_height;
 		else if (!panel_horizontal && panel_position & RIGHT)
 			xoff = p->area.width-p->hidden_width;
-		XCopyArea(server.dsp, p->area.pix.pmap, p->hidden_pixmap, server.gc, xoff, yoff, p->hidden_width, p->hidden_height, 0, 0);
+		XCopyArea(server.dsp, p->area.pix, p->hidden_pixmap, server.gc, xoff, yoff, p->hidden_width, p->hidden_height, 0, 0);
 	}
 
 	// redraw panel's object

@@ -35,10 +35,9 @@ typedef struct {
 	int paddingx;
 	int paddingy;
 	PangoFontDescription* font_desc;
-	config_color font_color;
-	Color background_color;
-	Border border;
-	const struct timeout* timeout;
+	Color font_color;
+	Background* bg;
+	timeout* timeout;
 } Tooltip;
 
 extern Tooltip g_tooltip;

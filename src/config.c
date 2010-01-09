@@ -58,23 +58,23 @@ char *snapshot_path = 0;
 // --------------------------------------------------
 // backward compatibility
 static int old_task_icon_size;
-static Area *area_task;
-static Area *area_task_active;
+static int bg_task;
+static int bg_task_active;
 // detect if it's an old config file
 // ==1
 static int old_config_file;
 
-// temporary list of background
-static GSList *list_back;
-static int back_count;
-
-
 
 void init_config()
 {
+	if (backgrounds)
+		g_array_free(backgrounds, 1);
+	backgrounds = g_array_new(0, 0, sizeof(Background));
+
 	// append full transparency background
-	list_back = g_slist_append(0, calloc(1, sizeof(Area)));
-	back_count = 1;
+	Background transparent_bg;
+	memset(&transparent_bg, 0, sizeof(Background));
+	g_array_append_val(backgrounds, transparent_bg);
 
 	// tint2 could reload config, so we cleanup objects
 	cleanup_systray();
@@ -89,8 +89,9 @@ void init_config()
 		pango_font_description_free(panel_config.g_task.font_desc);
 	}
 	memset(&panel_config, 0, sizeof(Panel));
-	panel_config.g_task.alpha = 100;
-	panel_config.g_task.alpha_active = 100;
+	int i;
+	for (i=0; i<TASK_STATE_COUNT; ++i)
+		panel_config.g_task.alpha[i] = 100;
 	systray.alpha = 100;
 	systray.sort = 3;
 	old_config_file = 1;
@@ -108,13 +109,6 @@ void init_config()
 
 void cleanup_config()
 {
-	// cleanup background list
-	GSList *l0;
-	for (l0 = list_back; l0 ; l0 = l0->next) {
-		free(l0->data);
-	}
-	g_slist_free(list_back);
-	list_back = NULL;
 }
 
 
@@ -184,6 +178,18 @@ void get_action (char *event, int *action)
 }
 
 
+int get_task_status(char* status)
+{
+	if (strcmp(status, "active") == 0)
+		return TASK_ACTIVE;
+	if (strcmp(status, "iconified") == 0)
+		return TASK_ICONIFIED;
+	if (strcmp(status, "urgent") == 0)
+		return TASK_URGENT;
+	return TASK_NORMAL;
+}
+
+
 void add_entry (char *key, char *value)
 {
 	char *value1=0, *value2=0, *value3=0;
@@ -191,28 +197,26 @@ void add_entry (char *key, char *value)
 	/* Background and border */
 	if (strcmp (key, "rounded") == 0) {
 		// 'rounded' is the first parameter => alloc a new background
-		Area *a = calloc(1, sizeof(Area));
-		a->pix.border.rounded = atoi (value);
-		list_back = g_slist_append(list_back, a);
-		back_count++;
+		Background bg;
+		bg.border.rounded = atoi(value);
+		g_array_append_val(backgrounds, bg);
 	}
 	else if (strcmp (key, "border_width") == 0) {
-		Area *a = g_slist_last(list_back)->data;
-		a->pix.border.width = atoi (value);
+		g_array_index(backgrounds, Background, backgrounds->len-1).border.width = atoi(value);
 	}
 	else if (strcmp (key, "background_color") == 0) {
-		Area *a = g_slist_last(list_back)->data;
+		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, a->pix.back.color);
-		if (value2) a->pix.back.alpha = (atoi (value2) / 100.0);
-		else a->pix.back.alpha = 0.5;
+		get_color (value1, bg->back.color);
+		if (value2) bg->back.alpha = (atoi (value2) / 100.0);
+		else bg->back.alpha = 0.5;
 	}
 	else if (strcmp (key, "border_color") == 0) {
-		Area *a = g_slist_last(list_back)->data;
+		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, a->pix.border.color);
-		if (value2) a->pix.border.alpha = (atoi (value2) / 100.0);
-		else a->pix.border.alpha = 0.5;
+		get_color (value1, bg->border.color);
+		if (value2) bg->border.alpha = (atoi (value2) / 100.0);
+		else bg->border.alpha = 0.5;
 	}
 
 	/* Panel */
@@ -287,10 +291,8 @@ void add_entry (char *key, char *value)
 		panel_config.g_task.font_shadow = atoi (value);
 	else if (strcmp (key, "panel_background_id") == 0) {
 		int id = atoi (value);
-		id = (id < back_count && id >= 0) ? id : 0;
-		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config.area.pix.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config.area.pix.border, &a->pix.border, sizeof(Border));
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		panel_config.area.bg = &g_array_index(backgrounds, Background, id);
 	}
 	else if (strcmp (key, "wm_menu") == 0)
 		wm_menu = atoi (value);
@@ -361,10 +363,8 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "battery_background_id") == 0) {
 #ifdef ENABLE_BATTERY
 		int id = atoi (value);
-		id = (id < back_count && id >= 0) ? id : 0;
-		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config.battery.area.pix.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config.battery.area.pix.border, &a->pix.border, sizeof(Border));
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		panel_config.battery.area.bg = &g_array_index(backgrounds, Background, id);
 #endif
 	}
 
@@ -407,10 +407,8 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "clock_background_id") == 0) {
 		int id = atoi (value);
-		id = (id < back_count && id >= 0) ? id : 0;
-		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config.clock.area.pix.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config.clock.area.pix.border, &a->pix.border, sizeof(Border));
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		panel_config.clock.area.bg = &g_array_index(backgrounds, Background, id);
 	}
 	else if (strcmp(key, "clock_tooltip") == 0) {
 		if (strlen(value) > 0)
@@ -436,23 +434,20 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "taskbar_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		panel_config.g_taskbar.paddingxlr = panel_config.g_taskbar.paddingx = atoi (value1);
-		if (value2) panel_config.g_taskbar.paddingy = atoi (value2);
-		if (value3) panel_config.g_taskbar.paddingx = atoi (value3);
+		panel_config.g_taskbar.area.paddingxlr = panel_config.g_taskbar.area.paddingx = atoi (value1);
+		if (value2) panel_config.g_taskbar.area.paddingy = atoi (value2);
+		if (value3) panel_config.g_taskbar.area.paddingx = atoi (value3);
 	}
 	else if (strcmp (key, "taskbar_background_id") == 0) {
 		int id = atoi (value);
-		id = (id < back_count && id >= 0) ? id : 0;
-		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config.g_taskbar.pix.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config.g_taskbar.pix.border, &a->pix.border, sizeof(Border));
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		panel_config.g_taskbar.bg = &g_array_index(backgrounds, Background, id);
+		panel_config.g_taskbar.area.bg = panel_config.g_taskbar.bg;
 	}
 	else if (strcmp (key, "taskbar_active_background_id") == 0) {
 		int id = atoi (value);
-		id = (id < back_count && id >= 0) ? id : 0;
-		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config.g_taskbar.pix_active.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config.g_taskbar.pix_active.border, &a->pix.border, sizeof(Border));
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		panel_config.g_taskbar.bg_active = &g_array_index(backgrounds, Background, id);
 		panel_config.g_taskbar.use_active = 1;
 	}
 
@@ -484,43 +479,36 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "task_font") == 0) {
 		panel_config.g_task.font_desc = pango_font_description_from_string (value);
 	}
-	else if (strcmp (key, "task_font_color") == 0) {
+	else if (g_regex_match_simple("task.*_font_color", key, 0, 0)) {
+		gchar** split = g_regex_split_simple("_", key, 0, 0);
+		int status = get_task_status(split[1]);
+		g_strfreev(split);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, panel_config.g_task.font.color);
-		if (value2) panel_config.g_task.font.alpha = (atoi (value2) / 100.0);
-		else panel_config.g_task.font.alpha = 0.1;
+		float alpha = 1;
+		if (value2) alpha = (atoi (value2) / 100.0);
+		get_color (value1, panel_config.g_task.font[status].color);
+		panel_config.g_task.font[status].alpha = alpha;
+		panel_config.g_task.config_font_mask |= (1<<status);
 	}
-	else if (strcmp (key, "task_active_font_color") == 0) {
+	else if (g_regex_match_simple("task.*_icon_asb", key, 0, 0)) {
+		gchar** split = g_regex_split_simple("_", key, 0, 0);
+		int status = get_task_status(split[1]);
+		g_strfreev(split);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, panel_config.g_task.font_active.color);
-		if (value2) panel_config.g_task.font_active.alpha = (atoi (value2) / 100.0);
-		else panel_config.g_task.font_active.alpha = 0.1;
+		panel_config.g_task.alpha[status] = atoi(value1);
+		panel_config.g_task.saturation[status] = atoi(value2);
+		panel_config.g_task.brightness[status] = atoi(value3);
+		panel_config.g_task.config_asb_mask |= (1<<status);
 	}
-	else if (strcmp (key, "task_icon_asb") == 0) {
-		extract_values(value, &value1, &value2, &value3);
-		panel_config.g_task.alpha = atoi(value1);
-		panel_config.g_task.saturation = atoi(value2);
-		panel_config.g_task.brightness = atoi(value3);
-	}
-	else if (strcmp (key, "task_active_icon_asb") == 0) {
-		extract_values(value, &value1, &value2, &value3);
-		panel_config.g_task.alpha_active = atoi(value1);
-		panel_config.g_task.saturation_active = atoi(value2);
-		panel_config.g_task.brightness_active = atoi(value3);
-	}
-	else if (strcmp (key, "task_background_id") == 0) {
+	else if (g_regex_match_simple("task.*_background_id", key, 0, 0)) {
+		gchar** split = g_regex_split_simple("_", key, 0, 0);
+		int status = get_task_status(split[1]);
+		g_strfreev(split);
 		int id = atoi (value);
-		id = (id < back_count && id >= 0) ? id : 0;
-		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config.g_task.area.pix.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config.g_task.area.pix.border, &a->pix.border, sizeof(Border));
-	}
-	else if (strcmp (key, "task_active_background_id") == 0) {
-		int id = atoi (value);
-		id = (id < back_count && id >= 0) ? id : 0;
-		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&panel_config.g_task.area.pix_active.back, &a->pix.back, sizeof(Color));
-		memcpy(&panel_config.g_task.area.pix_active.border, &a->pix.border, sizeof(Border));
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		panel_config.g_task.background[status] = &g_array_index(backgrounds, Background, id);
+		panel_config.g_task.config_background_mask |= (1<<status);
+		if (status == TASK_NORMAL) panel_config.g_task.area.bg = panel_config.g_task.background[TASK_NORMAL];
 	}
 
 	/* Systray */
@@ -539,10 +527,8 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "systray_background_id") == 0) {
 		int id = atoi (value);
-		id = (id < back_count && id >= 0) ? id : 0;
-		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&systray.area.pix.back, &a->pix.back, sizeof(Color));
-		memcpy(&systray.area.pix.border, &a->pix.border, sizeof(Border));
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		systray.area.bg = &g_array_index(backgrounds, Background, id);
 	}
 	else if (strcmp(key, "systray_sort") == 0) {
 		if (strcmp(value, "descending") == 0)
@@ -582,10 +568,8 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "tooltip_background_id") == 0) {
 		int id = atoi (value);
-		id = (id < back_count && id >= 0) ? id : 0;
-		Area *a = g_slist_nth_data(list_back, id);
-		memcpy(&g_tooltip.background_color, &a->pix.back, sizeof(Color));
-		memcpy(&g_tooltip.border, &a->pix.border, sizeof(Border));
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		g_tooltip.bg = &g_array_index(backgrounds, Background, id);
 	}
 	else if (strcmp (key, "tooltip_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
@@ -624,78 +608,83 @@ void add_entry (char *key, char *value)
 		panel_autohide_height = atoi(value);
 
 
+	// QUESTION: Do we still need backwards compatibility???
 	/* Read tint-0.6 config for backward compatibility */
 	else if (strcmp (key, "panel_mode") == 0) {
 		if (strcmp (value, "single_desktop") == 0) panel_mode = SINGLE_DESKTOP;
 		else panel_mode = MULTI_DESKTOP;
 	}
 	else if (strcmp (key, "panel_rounded") == 0) {
-		Area *a = calloc(1, sizeof(Area));
-		a->pix.border.rounded = atoi (value);
-		list_back = g_slist_append(list_back, a);
+		Background bg;
+		bg.border.rounded = atoi(value);
+		g_array_append_val(backgrounds, bg);
 	}
 	else if (strcmp (key, "panel_border_width") == 0) {
-		Area *a = g_slist_last(list_back)->data;
-		a->pix.border.width = atoi (value);
+		g_array_index(backgrounds, Background, backgrounds->len-1).border.width = atoi(value);
 	}
 	else if (strcmp (key, "panel_background_color") == 0) {
-		Area *a = g_slist_last(list_back)->data;
+		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, a->pix.back.color);
-		if (value2) a->pix.back.alpha = (atoi (value2) / 100.0);
-		else a->pix.back.alpha = 0.5;
+		get_color (value1, bg->back.color);
+		if (value2) bg->back.alpha = (atoi (value2) / 100.0);
+		else bg->back.alpha = 0.5;
 	}
 	else if (strcmp (key, "panel_border_color") == 0) {
-		Area *a = g_slist_last(list_back)->data;
+		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, a->pix.border.color);
-		if (value2) a->pix.border.alpha = (atoi (value2) / 100.0);
-		else a->pix.border.alpha = 0.5;
+		get_color (value1, bg->border.color);
+		if (value2) bg->border.alpha = (atoi (value2) / 100.0);
+		else bg->border.alpha = 0.5;
 	}
 	else if (strcmp (key, "task_text_centered") == 0)
 		panel_config.g_task.centered = atoi (value);
 	else if (strcmp (key, "task_margin") == 0) {
-		panel_config.g_taskbar.paddingxlr = 0;
-		panel_config.g_taskbar.paddingx = atoi (value);
+		panel_config.g_taskbar.area.paddingxlr = 0;
+		panel_config.g_taskbar.area.paddingx = atoi (value);
 	}
 	else if (strcmp (key, "task_icon_size") == 0)
 		old_task_icon_size = atoi (value);
 	else if (strcmp (key, "task_rounded") == 0) {
-		area_task = calloc(1, sizeof(Area));
-		area_task->pix.border.rounded = atoi (value);
-		list_back = g_slist_append(list_back, area_task);
-
-		area_task_active = calloc(1, sizeof(Area));
-		area_task_active->pix.border.rounded = atoi (value);
-		list_back = g_slist_append(list_back, area_task_active);
+		Background bg;
+		bg.border.rounded = atoi(value);
+		g_array_append_val(backgrounds, bg);
+		g_array_append_val(backgrounds, bg);
+		bg_task = backgrounds->len-2;
+		bg_task_active = backgrounds->len-1;
 	}
 	else if (strcmp (key, "task_background_color") == 0) {
+		Background* bg = &g_array_index(backgrounds, Background, bg_task);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, area_task->pix.back.color);
-		if (value2) area_task->pix.back.alpha = (atoi (value2) / 100.0);
-		else area_task->pix.back.alpha = 0.5;
+		get_color (value1, bg->back.color);
+		if (value2) bg->back.alpha = (atoi (value2) / 100.0);
+		else bg->back.alpha = 0.5;
 	}
 	else if (strcmp (key, "task_active_background_color") == 0) {
+		Background* bg = &g_array_index(backgrounds, Background, bg_task_active);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, area_task_active->pix.back.color);
-		if (value2) area_task_active->pix.back.alpha = (atoi (value2) / 100.0);
-		else area_task_active->pix.back.alpha = 0.5;
+		get_color (value1, bg->back.color);
+		if (value2) bg->back.alpha = (atoi (value2) / 100.0);
+		else bg->back.alpha = 0.5;
 	}
 	else if (strcmp (key, "task_border_width") == 0) {
-		area_task->pix.border.width = atoi (value);
-		area_task_active->pix.border.width = atoi (value);
+		Background* bg = &g_array_index(backgrounds, Background, bg_task);
+		bg->border.width = atoi (value);
+		bg = &g_array_index(backgrounds, Background, bg_task_active);
+		bg->border.width = atoi (value);
 	}
 	else if (strcmp (key, "task_border_color") == 0) {
+		Background* bg = &g_array_index(backgrounds, Background, bg_task);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, area_task->pix.border.color);
-		if (value2) area_task->pix.border.alpha = (atoi (value2) / 100.0);
-		else area_task->pix.border.alpha = 0.5;
+		get_color (value1, bg->border.color);
+		if (value2) bg->border.alpha = (atoi (value2) / 100.0);
+		else bg->border.alpha = 0.5;
 	}
 	else if (strcmp (key, "task_active_border_color") == 0) {
+		Background* bg = &g_array_index(backgrounds, Background, bg_task_active);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, area_task_active->pix.border.color);
-		if (value2) area_task_active->pix.border.alpha = (atoi (value2) / 100.0);
-		else area_task_active->pix.border.alpha = 0.5;
+		get_color (value1, bg->border.color);
+		if (value2) bg->border.alpha = (atoi (value2) / 100.0);
+		else bg->border.alpha = 0.5;
 	}
 
 	else

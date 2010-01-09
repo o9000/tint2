@@ -24,6 +24,13 @@ typedef struct {
 } Taskbar;
 
 
+typedef struct {
+	//always start with area
+	Area area;
+	Background* bg;
+	Background* bg_active;
+	int use_active;
+} Global_taskbar;
 
 void init_taskbar();
 void cleanup_taskbar();

@@ -37,7 +37,7 @@ PangoFontDescription *bat1_font_desc=0;
 PangoFontDescription *bat2_font_desc=0;
 struct batstate battery_state;
 int battery_enabled;
-static const struct timeout* battery_timeout=0;
+static timeout* battery_timeout=0;
 
 static char buf_bat_percentage[10];
 static char buf_bat_time[20];
@@ -186,15 +186,15 @@ void init_battery_panel(void *p)
 
 	if (panel_horizontal) {
 		// panel horizonal => fixed height and posy
-		battery->area.posy = panel->area.pix.border.width + panel->area.paddingy;
+		battery->area.posy = panel->area.bg->border.width + panel->area.paddingy;
 		battery->area.height = panel->area.height - (2 * battery->area.posy);
 	}
 	else {
 		// panel vertical => fixed width, height, posy and posx
 		battery->area.posy = panel->clock.area.posy + panel->clock.area.height + panel->area.paddingx;
 		battery->area.height = (2 * battery->area.paddingxlr) + (bat_time_height + bat_percentage_height);
-		battery->area.posx = panel->area.pix.border.width + panel->area.paddingy;
-		battery->area.width = panel->area.width - (2 * panel->area.pix.border.width) - (2 * panel->area.paddingy);
+		battery->area.posx = panel->area.bg->border.width + panel->area.paddingy;
+		battery->area.width = panel->area.width - (2 * panel->area.bg->border.width) - (2 * panel->area.paddingy);
 	}
 
 	battery->bat1_posy = (battery->area.height - bat_percentage_height) / 2;
@@ -287,7 +287,7 @@ void update_battery() {
 }
 
 
-void draw_battery (void *obj, cairo_t *c, int active)
+void draw_battery (void *obj, cairo_t *c)
 {
 	Battery *battery = obj;
 	PangoLayout *layout;
@@ -360,13 +360,13 @@ void resize_battery(void *obj)
 	if(percentage_width > time_width) new_width = percentage_width;
 	else new_width = time_width;
 
-	new_width += (2*battery->area.paddingxlr) + (2*battery->area.pix.border.width);
+	new_width += (2*battery->area.paddingxlr) + (2*battery->area.bg->border.width);
 
 	int old_width = battery->area.width;
 
 	Panel *panel = ((Area*)obj)->panel;
 	battery->area.width = new_width + 1;
-	battery->area.posx = panel->area.width - battery->area.width - panel->area.paddingxlr - panel->area.pix.border.width;
+	battery->area.posx = panel->area.width - battery->area.width - panel->area.paddingxlr - panel->area.bg->border.width;
 	if (panel->clock.area.on_screen)
 		battery->area.posx -= (panel->clock.area.width + panel->area.paddingx);
 

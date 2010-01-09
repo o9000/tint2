@@ -18,7 +18,7 @@ typedef struct Clock {
 	// always start with area
 	Area area;
 
-	config_color font;
+	Color font;
 	int time1_posy;
 	int time2_posy;
 } Clock;
@@ -42,7 +42,7 @@ void init_clock();
 void init_clock_panel(void *panel);
 void cleanup_clock();
 
-void draw_clock (void *obj, cairo_t *c, int active);
+void draw_clock (void *obj, cairo_t *c);
 
 void resize_clock (void *obj);
 

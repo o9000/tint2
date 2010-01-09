@@ -41,7 +41,7 @@ typedef struct
 	int hide;
 	int depth;
 	Damage damage;
-	const struct timeout* render_timeout;
+	timeout* render_timeout;
 } TrayWindow;
 
 
@@ -55,7 +55,7 @@ extern int systray_max_icon_size;
 void init_systray();
 void init_systray_panel(void *p);
 void cleanup_systray();
-void draw_systray(void *obj, cairo_t *c, int active);
+void draw_systray(void *obj, cairo_t *c);
 void resize_systray(void *obj);
 
 

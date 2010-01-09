@@ -50,7 +50,7 @@ static char buf_time[40];
 static char buf_date[40];
 static char buf_tooltip[40];
 int clock_enabled;
-static const struct timeout* clock_timeout=0;
+static timeout* clock_timeout=0;
 
 
 void update_clocks(void* arg)
@@ -117,15 +117,15 @@ void init_clock_panel(void *p)
 
 	if (panel_horizontal) {
 		// panel horizonal => fixed height and posy
-		clock->area.posy = panel->area.pix.border.width + panel->area.paddingy;
+		clock->area.posy = panel->area.bg->border.width + panel->area.paddingy;
 		clock->area.height = panel->area.height - (2 * clock->area.posy);
 	}
 	else {
 		// panel vertical => fixed width, height, posy and posx
-		clock->area.posy = panel->area.pix.border.width + panel->area.paddingxlr;
+		clock->area.posy = panel->area.bg->border.width + panel->area.paddingxlr;
 		clock->area.height = (2 * clock->area.paddingxlr) + (time_height + date_height);
-		clock->area.posx = panel->area.pix.border.width + panel->area.paddingy;
-		clock->area.width = panel->area.width - (2 * panel->area.pix.border.width) - (2 * panel->area.paddingy);
+		clock->area.posx = panel->area.bg->border.width + panel->area.paddingy;
+		clock->area.width = panel->area.width - (2 * panel->area.bg->border.width) - (2 * panel->area.paddingy);
 	}
 
 	clock->time1_posy = (clock->area.height - time_height) / 2;
@@ -166,7 +166,7 @@ void cleanup_clock()
 }
 
 
-void draw_clock (void *obj, cairo_t *c, int active)
+void draw_clock (void *obj, cairo_t *c)
 {
 	Clock *clock = obj;
 	PangoLayout *layout;
@@ -239,10 +239,10 @@ void resize_clock (void *obj)
 
 	if (time_width > date_width) new_width = time_width;
 	else new_width = date_width;
-	new_width += (2*clock->area.paddingxlr) + (2*clock->area.pix.border.width);
+	new_width += (2*clock->area.paddingxlr) + (2*clock->area.bg->border.width);
 
 	Panel *panel = ((Area*)obj)->panel;
-	clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.pix.border.width;
+	clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.bg->border.width;
 
 	if (new_width > clock->area.width || new_width < (clock->area.width-6)) {
 		// resize clock

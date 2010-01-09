@@ -13,6 +13,8 @@
 #include "common.h"
 
 
+enum { TASK_NORMAL, TASK_ACTIVE, TASK_ICONIFIED, TASK_URGENT, TASK_STATE_COUNT };
+
 // --------------------------------------------------
 // global task parameter
 typedef struct {
@@ -26,15 +28,19 @@ typedef struct {
 	int icon_size1;
 	int maximum_width;
 	int maximum_height;
-	int alpha, saturation, brightness;
-	int alpha_active, saturation_active, brightness_active;
+	int alpha[TASK_STATE_COUNT];
+	int saturation[TASK_STATE_COUNT];
+	int brightness[TASK_STATE_COUNT];
+	int config_asb_mask;
+	Background* background[TASK_STATE_COUNT];
+	int config_background_mask;
 	// starting position for text ~ task_padding + task_border + icon_size
 	double text_posx, text_posy;
 
 	int font_shadow;
 	PangoFontDescription *font_desc;
-	config_color font;
-	config_color font_active;
+	Color font[TASK_STATE_COUNT];
+	int config_font_mask;
 } Global_task;
 
 
@@ -46,8 +52,8 @@ typedef struct {
 	// TODO: group task with list of windows here
 	Window win;
 	int  desktop;
-	Imlib_Image icon;
-	Imlib_Image icon_active;
+	int current_state;
+	Imlib_Image icon[TASK_STATE_COUNT];
 	unsigned int icon_width;
 	unsigned int icon_height;
 	char *title;
@@ -58,11 +64,12 @@ typedef struct {
 Task *add_task (Window win);
 void remove_task (Task *tsk);
 
-void draw_task (void *obj, cairo_t *c, int active);
+void draw_task (void *obj, cairo_t *c);
 
 void get_icon (Task *tsk);
 void get_title(Task *tsk);
 void active_task();
+void set_task_state(Task* tsk, int state);
 
 Task *next_task (Task *tsk);
 Task *prev_task (Task *tsk);

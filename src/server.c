@@ -30,8 +30,6 @@
 
 void server_catch_error (Display *d, XErrorEvent *ev){}
 
-static char *name_trayer = 0;
-
 int real_transparency = 0;
 
 void server_init_atoms ()
@@ -79,7 +77,7 @@ void server_init_atoms ()
 	server.atom.WM_HINTS = XInternAtom(server.dsp, "WM_HINTS", False);
 
 	// systray protocol
-	name_trayer = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", DefaultScreen(server.dsp));
+	char *name_trayer = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", DefaultScreen(server.dsp));
 	server.atom._NET_SYSTEM_TRAY_SCREEN = XInternAtom(server.dsp, name_trayer, False);
 	server.atom._NET_SYSTEM_TRAY_OPCODE = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_OPCODE", False);
 	server.atom.MANAGER = XInternAtom(server.dsp, "MANAGER", False);
@@ -97,7 +95,6 @@ void server_init_atoms ()
 
 void cleanup_server()
 {
-	if (name_trayer) free(name_trayer);
 	XFreeColormap(server.dsp, server.colormap);
 	free(server.monitor);
 	XFreeGC(server.dsp, server.gc);

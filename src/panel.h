@@ -62,6 +62,8 @@ extern Task *task_active;
 extern Task *task_drag;
 extern int  max_tick_urgent;
 
+extern GArray* backgrounds;
+
 extern Imlib_Image default_icon;
 
 
@@ -85,7 +87,7 @@ typedef struct {
 
 	// --------------------------------------------------
 	// task and taskbar parameter per panel
-	Area g_taskbar;
+	Global_taskbar g_taskbar;
 	Global_task g_task;
 
 	// --------------------------------------------------
@@ -105,10 +107,12 @@ typedef struct {
 #ifdef ENABLE_BATTERY
 	Battery battery;
 #endif
+
+	// autohide
 	int is_hidden;
 	int hidden_width, hidden_height;
 	Pixmap hidden_pixmap;
-	const struct timeout* autohide_timeout;
+	timeout* autohide_timeout;
 } Panel;
 
 

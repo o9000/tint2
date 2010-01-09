@@ -30,9 +30,6 @@
 #include "server.h"
 #include "panel.h"
 
-// QUESTION: Why do we need Pixmaps for drawing? Can't we draw directly in the Window???
-// Parent could pass a cairo_surface_t to the children, and children use it, for drawing...
-
 
 // 1) resize child
 // 2) resize parent
@@ -54,15 +51,12 @@ void refresh (Area *a)
 			set_redraw(l->data);
 
 		//printf("draw area posx %d, width %d\n", a->posx, a->width);
-		draw(a, 0);
-		if (a->use_active)
-			draw(a, 1);
+		draw(a);
 	}
 
 	// draw current Area
-	Pixmap pmap = (a->is_active == 0) ? (a->pix.pmap) : (a->pix_active.pmap);
-	if (pmap == 0) printf("empty area posx %d, width %d\n", a->posx, a->width);
-	XCopyArea (server.dsp, pmap, ((Panel *)a->panel)->temp_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
+	if (a->pix == 0) printf("empty area posx %d, width %d\n", a->posx, a->width);
+	XCopyArea (server.dsp, a->pix, ((Panel *)a->panel)->temp_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
 
 	// and then refresh child object
 	GSList *l;
@@ -101,51 +95,46 @@ void set_redraw (Area *a)
 }
 
 
-void draw (Area *a, int active)
+void draw (Area *a)
 {
-	Pixmap *pmap = (active == 0) ? (&a->pix.pmap) : (&a->pix_active.pmap);
-
-	if (*pmap) XFreePixmap (server.dsp, *pmap);
-	*pmap = XCreatePixmap (server.dsp, server.root_win, a->width, a->height, server.depth);
+	if (a->pix) XFreePixmap (server.dsp, a->pix);
+	a->pix = XCreatePixmap (server.dsp, server.root_win, a->width, a->height, server.depth);
 
 	// add layer of root pixmap (or clear pixmap if real_transparency==true)
 	if (real_transparency)
-		clear_pixmap(*pmap, 0 ,0, a->width, a->height);
-	XCopyArea (server.dsp, ((Panel *)a->panel)->temp_pmap, *pmap, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+		clear_pixmap(a->pix, 0 ,0, a->width, a->height);
+	XCopyArea (server.dsp, ((Panel *)a->panel)->temp_pmap, a->pix, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
 
 	cairo_surface_t *cs;
 	cairo_t *c;
 
-	cs = cairo_xlib_surface_create (server.dsp, *pmap, server.visual, a->width, a->height);
+	cs = cairo_xlib_surface_create (server.dsp, a->pix, server.visual, a->width, a->height);
 	c = cairo_create (cs);
 
-	draw_background (a, c, active);
+	draw_background (a, c);
 
 	if (a->_draw_foreground)
-		a->_draw_foreground(a, c, active);
+		a->_draw_foreground(a, c);
 
 	cairo_destroy (c);
 	cairo_surface_destroy (cs);
 }
 
 
-void draw_background (Area *a, cairo_t *c, int active)
+void draw_background (Area *a, cairo_t *c)
 {
-	Pmap *pix = (active == 0) ? (&a->pix) : (&a->pix_active);
-
-	if (pix->back.alpha > 0.0) {
+	if (a->bg->back.alpha > 0.0) {
 		//printf("    draw_background (%d %d) RGBA (%lf, %lf, %lf, %lf)\n", a->posx, a->posy, pix->back.color[0], pix->back.color[1], pix->back.color[2], pix->back.alpha);
-		draw_rect(c, pix->border.width, pix->border.width, a->width-(2.0 * pix->border.width), a->height-(2.0*pix->border.width), pix->border.rounded - pix->border.width/1.571);
-		cairo_set_source_rgba(c, pix->back.color[0], pix->back.color[1], pix->back.color[2], pix->back.alpha);
-
+		draw_rect(c, a->bg->border.width, a->bg->border.width, a->width-(2.0 * a->bg->border.width), a->height-(2.0*a->bg->border.width), a->bg->border.rounded - a->bg->border.width/1.571);
+		cairo_set_source_rgba(c, a->bg->back.color[0], a->bg->back.color[1], a->bg->back.color[2], a->bg->back.alpha);
 		cairo_fill(c);
 	}
 
-	if (pix->border.width > 0 && pix->border.alpha > 0.0) {
-		cairo_set_line_width (c, pix->border.width);
+	if (a->bg->border.width > 0 && a->bg->border.alpha > 0.0) {
+		cairo_set_line_width (c, a->bg->border.width);
 
 		// draw border inside (x, y, width, height)
-		draw_rect(c, pix->border.width/2.0, pix->border.width/2.0, a->width - pix->border.width, a->height - pix->border.width, pix->border.rounded);
+		draw_rect(c, a->bg->border.width/2.0, a->bg->border.width/2.0, a->width - a->bg->border.width, a->height - a->bg->border.width, a->bg->border.rounded);
 		/*
 		// convert : radian = degre * M_PI/180
 		// définir le dégradé dans un carré de (0,0) (100,100)
@@ -182,7 +171,7 @@ void draw_background (Area *a, cairo_t *c, int active)
 		cairo_pattern_add_color_stop_rgba (linpat, 1, a->border.color[0], a->border.color[1], a->border.color[2], 0);
 		cairo_set_source (c, linpat);
 		*/
-		cairo_set_source_rgba (c, pix->border.color[0], pix->border.color[1], pix->border.color[2], pix->border.alpha);
+		cairo_set_source_rgba (c, a->bg->border.color[0], a->bg->border.color[1], a->bg->border.color[2], a->bg->border.alpha);
 
 		cairo_stroke (c);
 		//cairo_pattern_destroy (linpat);
@@ -220,13 +209,9 @@ void free_area (Area *a)
 		g_slist_free(a->list);
 		a->list = 0;
 	}
-	if (a->pix.pmap) {
-		XFreePixmap (server.dsp, a->pix.pmap);
-		a->pix.pmap = 0;
-	}
-	if (a->pix_active.pmap) {
-		XFreePixmap (server.dsp, a->pix_active.pmap);
-		a->pix_active.pmap = 0;
+	if (a->pix) {
+		XFreePixmap (server.dsp, a->pix);
+		a->pix = 0;
 	}
 }
 

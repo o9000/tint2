@@ -415,10 +415,10 @@ void event_property_notify (XEvent *e)
 					// redraw both taskbar
 					if (server.nb_desktop > old_desktop) {
 						// can happen if last desktop is deleted and we've been on the last desktop
-						panel->taskbar[old_desktop].area.is_active = 0;
+						panel->taskbar[old_desktop].area.bg = panel->g_taskbar.bg;
 						panel->taskbar[old_desktop].area.resize = 1;
 					}
-					panel->taskbar[server.desktop].area.is_active = 1;
+					panel->taskbar[server.desktop].area.bg = panel->g_taskbar.bg_active;
 					panel->taskbar[server.desktop].area.resize = 1;
 					panel_refresh = 1;
 				}
@@ -519,49 +519,40 @@ void event_property_notify (XEvent *e)
 				panel_refresh = 1;
 			}
 		}
-// We do not check for the iconified state, since it only unsets our active window
-// but in openbox a shaded window is considered iconified. So we would loose the active window
-// property on unshading it again (commented 01.10.2009)
-//		else if (at == server.atom.WM_STATE) {
-//			// Iconic state
-//			// TODO : try to delete following code
-//			if (window_is_iconified (win)) {
-//				if (task_active) {
-//					if (task_active->win == tsk->win) {
-//						Task *tsk2;
-//						GSList *l0;
-//						for (i=0 ; i < nb_panel ; i++) {
-//							for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-//								for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
-//									tsk2 = l0->data;
-//									tsk2->area.is_active = 0;
-//								}
-//							}
-//						}
-//						task_active = 0;
-//					}
-//				}
-//			}
-//		}
+		else if (at == server.atom.WM_STATE) {
+			// Iconic state
+			int state = task_active == tsk ? TASK_ACTIVE : TASK_NORMAL;
+			if (window_is_iconified(win))
+				state = TASK_ICONIFIED;
+			GSList* task_list = task_get_tasks(win);
+			GSList* it = task_list;
+			while (it) {
+				Task* t = it->data;
+				set_task_state(t, state);
+				it = it->next;
+			}
+			g_slist_free(task_list);
+			panel_refresh = 1;
+		}
 		// Window icon changed
 		else if (at == server.atom._NET_WM_ICON) {
 			get_icon(tsk);
 			Task *tsk2;
-			GSList *l0;
-			for (i=0 ; i < nb_panel ; i++) {
-				for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-					for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
-						tsk2 = l0->data;
-						if (tsk->win == tsk2->win && tsk != tsk2) {
-							tsk2->icon_width = tsk->icon_width;
-							tsk2->icon_height = tsk->icon_height;
-							tsk2->icon = tsk->icon;
-							tsk2->icon_active = tsk->icon_active;
-							tsk2->area.redraw = 1;
-						}
-					}
+			GSList* task_list = task_get_tasks(tsk->win);
+			GSList *l0 = task_list;
+			while (l0) {
+				tsk2 = l0->data;
+				if (tsk2 !=  tsk) {
+					tsk2->icon_width = tsk->icon_width;
+					tsk2->icon_height = tsk->icon_height;
+					int k=0;
+					for ( ; k<TASK_STATE_COUNT; ++k)
+						tsk2->icon[k] = tsk->icon[k];
+					tsk2->area.redraw = 1;
 				}
+				l0 = l0->next;
 			}
+			g_slist_free(task_list);
 			panel_refresh = 1;
 		}
 		// Window desktop changed
@@ -636,12 +627,14 @@ void event_configure_notify (Window win)
 		add_task (win);
 		if (win == window_get_active ()) {
 			GSList* task_list = task_get_tasks(win);
-			while (task_list) {
-				Task *tsk = task_list->data;
-				tsk->area.is_active = 1;
+			GSList* it = task_list;
+			while (it) {
+				Task *tsk = it->data;
+				tsk->current_state = TASK_ACTIVE;
 				task_active = tsk;
-				task_list = task_list->next;
+				it = task_list->next;
 			}
+			g_slist_free(task_list);
 		}
 		panel_refresh = 1;
 	}

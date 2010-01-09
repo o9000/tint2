@@ -5,7 +5,7 @@
 * Area is at the begining of each object (&object == &area).
 *
 * Area manage the background and border drawing, size and padding.
-* Each Area have 2 Pixmap (pix and pix_active).
+* Each Area has one Pixmap (pix).
 *
 * Area manage the tree of all objects. Parent object drawn before child object.
 *   panel -> taskbars -> tasks
@@ -40,13 +40,12 @@ typedef struct
 	double alpha;
 } Color;
 
-
 typedef struct
 {
-	Pixmap pmap;
 	Color back;
 	Border border;
-} Pmap;
+} Background;
+
 
 
 typedef struct {
@@ -54,8 +53,8 @@ typedef struct {
 	int posx, posy;
 	// width and height including border
 	int width, height;
-	Pmap pix;
-	Pmap pix_active;
+	Pixmap pix;
+	Background *bg;
 
 	// list of child : Area object
 	GSList *list;
@@ -65,7 +64,6 @@ typedef struct {
 	int resize;
 	// need redraw Pixmap
 	int redraw;
-	int use_active, is_active;
 	// paddingxlr = horizontal padding left/right
 	// paddingx = horizontal padding between childs
 	int paddingxlr, paddingx, paddingy;
@@ -75,7 +73,7 @@ typedef struct {
 	void *panel;
 
 	// each object can overwrite following function
-	void (*_draw_foreground)(void *obj, cairo_t *c, int active);
+	void (*_draw_foreground)(void *obj, cairo_t *c);
 	void (*_resize)(void *obj);
 	void (*_add_child)(void *obj);
 	int (*_remove_child)(void *obj);
@@ -92,9 +90,9 @@ void size (Area *a);
 // set 'redraw' on an area and childs
 void set_redraw (Area *a);
 
-// draw pixmap and pixmap_active
-void draw (Area *a, int active);
-void draw_background (Area *a, cairo_t *c, int active);
+// draw pixmap
+void draw (Area *a);
+void draw_background (Area *a, cairo_t *c);
 
 void remove_area (Area *a);
 void add_area (Area *a);
