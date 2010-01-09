@@ -381,7 +381,7 @@ void event_button_release (XEvent *e)
 
 void event_property_notify (XEvent *e)
 {
-	int i, j;
+	int i;
 	Task *tsk;
 	Window win = e->xproperty.window;
 	Atom at = e->xproperty.atom;
@@ -492,21 +492,7 @@ void event_property_notify (XEvent *e)
 
 		// Window title changed
 		if (at == server.atom._NET_WM_VISIBLE_NAME || at == server.atom._NET_WM_NAME || at == server.atom.WM_NAME) {
-			Task *tsk2;
-			GSList *l0;
 			get_title(tsk);
-			// changed other tsk->title
-			for (i=0 ; i < nb_panel ; i++) {
-				for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-					for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
-						tsk2 = l0->data;
-						if (tsk->win == tsk2->win && tsk != tsk2) {
-							tsk2->title = tsk->title;
-							set_task_redraw(tsk2);
-						}
-					}
-				}
-			}
 			panel_refresh = 1;
 		}
 		// Demand attention
@@ -521,38 +507,15 @@ void event_property_notify (XEvent *e)
 		}
 		else if (at == server.atom.WM_STATE) {
 			// Iconic state
-			int state = tsk->current_state;
+			int state = (task_active && tsk->win == task_active->win ? TASK_ACTIVE : TASK_NORMAL);
 			if (window_is_iconified(win))
 				state = TASK_ICONIFIED;
-			GSList* task_list = task_get_tasks(win);
-			GSList* it = task_list;
-			while (it) {
-				Task* t = it->data;
-				set_task_state(t, state);
-				it = it->next;
-			}
-			g_slist_free(task_list);
+			set_task_state(tsk, state);
 			panel_refresh = 1;
 		}
 		// Window icon changed
 		else if (at == server.atom._NET_WM_ICON) {
 			get_icon(tsk);
-			Task *tsk2;
-			GSList* task_list = task_get_tasks(tsk->win);
-			GSList *l0 = task_list;
-			while (l0) {
-				tsk2 = l0->data;
-				if (tsk2 !=  tsk) {
-					tsk2->icon_width = tsk->icon_width;
-					tsk2->icon_height = tsk->icon_height;
-					int k=0;
-					for ( ; k<TASK_STATE_COUNT; ++k)
-						tsk2->icon[k] = tsk->icon[k];
-					set_task_redraw(tsk2);
-				}
-				l0 = l0->next;
-			}
-			g_slist_free(task_list);
 			panel_refresh = 1;
 		}
 		// Window desktop changed
@@ -626,15 +589,8 @@ void event_configure_notify (Window win)
 		remove_task (tsk);
 		add_task (win);
 		if (win == window_get_active ()) {
-			GSList* task_list = task_get_tasks(win);
-			GSList* it = task_list;
-			while (it) {
-				Task *tsk = it->data;
-				set_task_state(tsk, TASK_ACTIVE);
-				task_active = tsk;
-				it = task_list->next;
-			}
-			g_slist_free(task_list);
+			set_task_state(tsk, TASK_ACTIVE);
+			task_active = tsk;
 		}
 		panel_refresh = 1;
 	}

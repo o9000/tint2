@@ -10,6 +10,7 @@
 
 #include "task.h"
 
+extern GHashTable* win_to_task_table;
 // tint2 use one taskbar per desktop.
 typedef struct {
 	// always start with area
@@ -36,7 +37,7 @@ void init_taskbar();
 void cleanup_taskbar();
 
 Task *task_get_task (Window win);
-GSList* task_get_tasks(Window win);
+GPtrArray* task_get_tasks(Window win);
 void task_refresh_tasklist ();
 
 void resize_taskbar(void *obj);

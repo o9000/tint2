@@ -81,6 +81,12 @@ void init_panel()
 	int i, old_nb_panel;
 	Panel *new_panel, *p;
 
+	if (panel_config.monitor > (server.nb_monitor-1)) {
+		// server.nb_monitor minimum value is 1 (see get_monitors())
+		fprintf(stderr, "warning : monitor not found. tint2 default to all monitors.\n");
+		panel_config.monitor = 0;
+	}
+
 	init_tooltip();
 	init_systray();
 	init_clock();

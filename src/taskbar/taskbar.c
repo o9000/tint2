@@ -33,11 +33,19 @@
 #include "panel.h"
 
 
+GHashTable* win_to_task_table = 0;
+
+guint win_hash(gconstpointer key) { return (guint)*((Window*)key); }
+gboolean win_compare(gconstpointer a, gconstpointer b) { return (*((Window*)a) == *((Window*)b)); }
+
 
 void init_taskbar()
 {
 	Panel *panel;
 	int i, j;
+
+	if (win_to_task_table == 0)
+		win_to_task_table = g_hash_table_new_full(win_hash, win_compare, free, g_ptr_array_unref);
 
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
@@ -138,110 +146,73 @@ void init_taskbar()
 	}
 }
 
-
+void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data) {remove_task(task_get_task(*(Window*)key)); }
 void cleanup_taskbar()
 {
 	Panel *panel;
 	Taskbar *tskbar;
 	int i, j;
-	GSList *l0;
-	Task *tsk;
 
+	if (win_to_task_table) g_hash_table_foreach(win_to_task_table, taskbar_remove_task, 0);
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
-
 		for (j=0 ; j < panel->nb_desktop ; j++) {
 			tskbar = &panel->taskbar[j];
-			l0 = tskbar->area.list;
-			while (l0) {
-				tsk = l0->data;
-				l0 = l0->next;
-				// careful : remove_task change l0->next
-				remove_task (tsk);
-			}
 			free_area (&tskbar->area);
-
 			// remove taskbar from the panel
 			panel->area.list = g_slist_remove(panel->area.list, tskbar);
 		}
-	}
-
-	for (i=0 ; i < nb_panel ; i++) {
-		panel = &panel1[i];
 		if (panel->taskbar) {
 			free(panel->taskbar);
 			panel->taskbar = 0;
 		}
+	}
+
+	if (win_to_task_table) {
+		g_hash_table_destroy(win_to_task_table);
+		win_to_task_table = 0;
 	}
 }
 
 
 Task *task_get_task (Window win)
 {
-	Task *tsk;
-	GSList *l0;
-	int i, j;
-
-	for (i=0 ; i < nb_panel ; i++) {
-		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-			for (l0 = panel1[i].taskbar[j].area.list; l0 ; l0 = l0->next) {
-				tsk = l0->data;
-				if (win == tsk->win)
-					return tsk;
-			}
-		}
-	}
-	return 0;
+	GPtrArray* task_group = task_get_tasks(win);
+	if (task_group)
+		return g_ptr_array_index(task_group, 0);
+	else
+		return 0;
 }
 
 
-GSList* task_get_tasks(Window win)
+GPtrArray* task_get_tasks(Window win)
 {
-	GSList* l = 0;
-	GSList* it;
-	Task* tsk;
-	int i, j;
-	for (i=0; i<nb_panel; ++i) {
-		for (j=0; j<panel1[i].nb_desktop; ++j) {
-			for (it=panel1[i].taskbar[j].area.list; it; it=it->next) {
-				tsk = it->data;
-				if (win == tsk->win)
-					l = g_slist_prepend(l, tsk);
-			}
-		}
-	}
-	return l;
+	return g_hash_table_lookup(win_to_task_table, &win);
 }
 
 
 void task_refresh_tasklist ()
 {
 	Window *win;
-	int num_results, i, j, k;
-	GSList *l0;
-	Task *tsk;
+	int num_results, i;
 
 	win = server_get_property (server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
 	if (!win) return;
 
 	// Remove any old and set active win
-	active_task();
+	// remark from Andreas: This seems unneccessary...
+//	active_task();
 
-	for (i=0 ; i < nb_panel ; i++) {
-		for (j=0 ; j < panel1[i].nb_desktop ; j++) {
-			l0 = panel1[i].taskbar[j].area.list;
-			while (l0) {
-				tsk = l0->data;
-				l0 = l0->next;
-
-				for (k = 0; k < num_results; k++) {
-					if (tsk->win == win[k]) break;
-				}
-				// careful : remove_task change l0->next
-				if (k == num_results) remove_task (tsk);
-			}
-		}
+	GList* win_list = g_hash_table_get_keys(win_to_task_table);
+	GList* it;
+	for (it=win_list; it; it=it->next) {
+		for (i = 0; i < num_results; i++)
+			if (*((Window*)it->data) == win[i])
+				break;
+		if (i == num_results)
+			taskbar_remove_task(it->data, 0, 0);
 	}
+	g_list_free(win_list);
 
 	// Add any new
 	for (i = 0; i < num_results; i++)
@@ -293,6 +264,7 @@ void resize_taskbar(void *obj)
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
 			tsk->area.posx = x;
+			if (tsk->area.width != pixel_width) set_task_redraw(tsk);
 			tsk->area.width = pixel_width;
 			if (modulo_width) {
 				tsk->area.width++;
@@ -330,6 +302,7 @@ void resize_taskbar(void *obj)
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
 			tsk->area.posy = y;
+			if (tsk->area.height != pixel_height) set_task_redraw(tsk);
 			tsk->area.height = pixel_height;
 			if (modulo_height) {
 				tsk->area.height++;
@@ -340,6 +313,3 @@ void resize_taskbar(void *obj)
 		}
 	}
 }
-
-
-

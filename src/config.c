@@ -226,11 +226,6 @@ void add_entry (char *key, char *value)
 			panel_config.monitor = atoi (value);
 			if (panel_config.monitor > 0) panel_config.monitor -= 1;
 		}
-		if (panel_config.monitor > (server.nb_monitor-1)) {
-			// server.nb_monitor minimum value is 1 (see get_monitors())
-			fprintf(stderr, "warning : monitor not found. tint2 default to all monitors.\n");
-			panel_config.monitor = 0;
-		}
 	}
 	else if (strcmp (key, "panel_size") == 0) {
 		extract_values(value, &value1, &value2, &value3);
