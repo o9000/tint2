@@ -125,10 +125,10 @@ then
 	AC_CHECK_LIB([gthread-2.0], [g_thread_init], [],
 				 [AC_MSG_ERROR([libgthread-2.0 is missing, usually provided by glib-2.x])])
 
-	TINT2CONF_LIBS="${LIBS} ${PTHREAD_LIB} ${GLIB2_LIB} ${GOBJECT2_LIB}"
+	TINT2CONF_LIBS="${LIBS} ${PTHREAD_LIB} ${GLIB2_LIB} ${GOBJECT2_LIB} ${IMLIB2_LIBS}"
 	LIBS=$LIBS_SAVED
 
-	TINT2CONF_CFLAGS="$(${PKG_CONFIG} --cflags gtk+-x11-2.0 glib-2.0 gobject-2.0 gthread-2.0)"
+	TINT2CONF_CFLAGS="$(${PKG_CONFIG} --cflags gtk+-x11-2.0 glib-2.0 gobject-2.0 gthread-2.0) ${IMLIB2_CFLAGS}"
 	AC_SUBST(TINT2CONF_CFLAGS)
 	AC_SUBST(TINT2CONF_LIBS)
 
