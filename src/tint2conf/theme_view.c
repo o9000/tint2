@@ -1,4 +1,4 @@
-
+#include <string.h>
 #include "theme_view.h"
 
 

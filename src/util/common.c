@@ -28,7 +28,7 @@
 
 
 #include "common.h"
-#include "server.h"
+#include "../server.h"
 
 
 
