@@ -318,6 +318,11 @@ void cleanup_panel()
 		pango_font_description_free(panel_config.g_task.font_desc);
 		panel_config.g_task.font_desc = 0;
 	}
+
+	if (backgrounds) {
+		g_array_free(backgrounds, 1);
+		backgrounds = 0;
+	}
 }
 
 

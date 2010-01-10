@@ -87,6 +87,7 @@ time1_font = AvantGardeLTMedium 9 bold
 clock_font_color = #151515 60
 clock_padding = 4 0
 clock_tooltip = %A %d %B
+clock_background_id = 1
 #time1_timezone = :US/Hawaii
 #time2_timezone = :Europe/Berlin
 #clock_tooltip_timezone = :/usr/share/zoneinfo/Europe/Paris

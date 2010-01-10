@@ -67,8 +67,10 @@ Task *add_task (Window win)
 	// even with task_on_all_desktop and with task_on_all_panel
 	new_tsk.title = 0;
 	int k;
-	for (k=0; k<TASK_STATE_COUNT; ++k)
+	for (k=0; k<TASK_STATE_COUNT; ++k) {
 		new_tsk.icon[k] = 0;
+		new_tsk.state_pix[k] = 0;
+	}
 	get_title(&new_tsk);
 	get_icon(&new_tsk);
 

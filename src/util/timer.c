@@ -300,7 +300,9 @@ void create_multi_timeout(timeout* t1, timeout* t2)
 
 	t1->multi_timeout = mt1;
 	t2->multi_timeout = mt2;
-	real_timeout->multi_timeout = real_timeout;
+	// set real_timeout->multi_timeout to something, such that we see in add_timeout_intern that
+	// it is already a multi_timeout (we never use it, except of checking for 0 ptr)
+	real_timeout->multi_timeout = (void*)real_timeout;
 
 	timeout_list = g_slist_remove(timeout_list, t1);
 	timeout_list = g_slist_remove(timeout_list, t2);
@@ -411,10 +413,11 @@ void stop_multi_timeout(timeout* t)
 	multi_timeout_handler* mth = g_hash_table_lookup(multi_timeouts, t);
 	g_hash_table_remove(multi_timeouts, mth->parent_timeout);
 	while (mth->timeout_list) {
-		timeout* t = mth->timeout_list->data;
-		mth->timeout_list = g_slist_remove(mth->timeout_list, t);
-		g_hash_table_remove(multi_timeouts, t);
-		free(t);
+		timeout* t1 = mth->timeout_list->data;
+		mth->timeout_list = g_slist_remove(mth->timeout_list, t1);
+		g_hash_table_remove(multi_timeouts, t1);
+		free(t1->multi_timeout);
+		free(t1);
 	}
 	free(mth);
 }

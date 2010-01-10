@@ -212,36 +212,30 @@ void update_battery() {
 
 	fp = fopen(path_status, "r");
 	if(fp != NULL) {
-		fgets(tmp, sizeof tmp, fp);
+		if (fgets(tmp, sizeof tmp, fp)) {
+			battery_state.state = BATTERY_UNKNOWN;
+			if(strcasecmp(tmp, "Charging\n")==0) battery_state.state = BATTERY_CHARGING;
+			if(strcasecmp(tmp, "Discharging\n")==0) battery_state.state = BATTERY_DISCHARGING;
+			if(strcasecmp(tmp, "Full\n")==0) battery_state.state = BATTERY_FULL;
+		}
 		fclose(fp);
-	}
-	battery_state.state = BATTERY_UNKNOWN;
-	if(strcasecmp(tmp, "Charging\n")==0) battery_state.state = BATTERY_CHARGING;
-	if(strcasecmp(tmp, "Discharging\n")==0) battery_state.state = BATTERY_DISCHARGING;
-	if(strcasecmp(tmp, "Full\n")==0) battery_state.state = BATTERY_FULL;
-	if (battery_state.state == BATTERY_DISCHARGING) {
-	}
-	else {
 	}
 
 	fp = fopen(path_energy_now, "r");
 	if(fp != NULL) {
-		fgets(tmp, sizeof tmp, fp);
-		energy_now = atoi(tmp);
+		if (fgets(tmp, sizeof tmp, fp)) energy_now = atoi(tmp);
 		fclose(fp);
 	}
 
 	fp = fopen(path_energy_full, "r");
 	if(fp != NULL) {
-		fgets(tmp, sizeof tmp, fp);
-		energy_full = atoi(tmp);
+		if (fgets(tmp, sizeof tmp, fp)) energy_full = atoi(tmp);
 		fclose(fp);
 	}
 
 	fp = fopen(path_current_now, "r");
 	if(fp != NULL) {
-		fgets(tmp, sizeof tmp, fp);
-		current_now = atoi(tmp);
+		if (fgets(tmp, sizeof tmp, fp)) current_now = atoi(tmp);
 		fclose(fp);
 	}
 
@@ -268,15 +262,14 @@ void update_battery() {
 	if(energy_full > 0)
 		new_percentage = (energy_now*100)/energy_full;
 
-  if(battery_low_status > new_percentage && battery_state.state == BATTERY_DISCHARGING && !battery_low_cmd_send) {
-    printf("battery low, executing: %s\n", battery_low_cmd);
-    if (battery_low_cmd)
-      system(battery_low_cmd);
-    battery_low_cmd_send = 1;
+	if(battery_low_status > new_percentage && battery_state.state == BATTERY_DISCHARGING && !battery_low_cmd_send) {
+		if (battery_low_cmd)
+			if (-1 != system(battery_low_cmd))
+				battery_low_cmd_send = 1;
 	}
-  if(battery_low_status < new_percentage && battery_state.state == BATTERY_CHARGING && battery_low_cmd_send) {
-    battery_low_cmd_send = 0;
-  }
+	if(battery_low_status < new_percentage && battery_state.state == BATTERY_CHARGING && battery_low_cmd_send) {
+		battery_low_cmd_send = 0;
+	}
 
 	battery_state.percentage = new_percentage;
 

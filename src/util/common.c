@@ -44,7 +44,9 @@ void copy_file(const char *pathSrc, const char *pathDest)
 	fileDest = fopen(pathDest, "wb");
 	if (fileDest == NULL) return;
 
-	while ((nb = fread(line, 1, 100, fileSrc)) > 0) fwrite(line, 1, nb, fileDest);
+	while ((nb = fread(line, 1, 100, fileSrc)) > 0)
+		if ( nb != fwrite(line, 1, nb, fileDest))
+			printf("Error while copying file %s to %s\n", pathSrc, pathDest);
 
 	fclose (fileDest);
 	fclose (fileSrc);

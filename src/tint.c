@@ -157,7 +157,7 @@ void cleanup()
 	if (snapshot_path) g_free(snapshot_path);
 
 	cleanup_server();
-	XCloseDisplay(server.dsp);
+	if (server.dsp) XCloseDisplay(server.dsp);
 }
 
 
@@ -801,9 +801,11 @@ int main (int argc, char *argv[])
 
 					default:
 						if (e.type == XDamageNotify+damage_event) {
+							// union needed to avoid strict-aliasing warnings by gcc
+							union { XEvent e; XDamageNotifyEvent de; } event_union = {.e=e};
 							TrayWindow *traywin;
 							GSList *l;
-							XDamageNotifyEvent* de = (XDamageNotifyEvent*)&e;
+							XDamageNotifyEvent* de = &event_union.de;
 							for (l = systray.list_icons; l ; l = l->next) {
 								traywin = (TrayWindow*)l->data;
 								if ( traywin->id == de->drawable && !de->more ) {

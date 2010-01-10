@@ -85,6 +85,7 @@ void server_init_atoms ()
 	server.atom._NET_SYSTEM_TRAY_ORIENTATION = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_ORIENTATION", False);
 	server.atom._XEMBED = XInternAtom(server.dsp, "_XEMBED", False);
 	server.atom._XEMBED_INFO = XInternAtom(server.dsp, "_XEMBED_INFO", False);
+	g_free(name_trayer);
 
 	// drag 'n' drop
 	server.atom.XdndAware = XInternAtom(server.dsp, "XdndAware", False);
@@ -95,9 +96,9 @@ void server_init_atoms ()
 
 void cleanup_server()
 {
-	XFreeColormap(server.dsp, server.colormap);
-	free(server.monitor);
-	XFreeGC(server.dsp, server.gc);
+	if (server.colormap) XFreeColormap(server.dsp, server.colormap);
+	if (server.monitor) free(server.monitor);
+	if (server.gc) XFreeGC(server.dsp, server.gc);
 }
 
 
