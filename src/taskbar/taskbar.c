@@ -33,11 +33,15 @@
 #include "panel.h"
 
 
+/* win_to_task_table holds for every Window an array of tasks. Usually the array contains only one
+   element. However for omnipresent windows (windows which are visible in every taskbar) the array
+   contains to every Task* on each panel a pointer (i.e. GPtrArray.len == server.nb_desktop)
+*/
 GHashTable* win_to_task_table = 0;
 
 guint win_hash(gconstpointer key) { return (guint)*((Window*)key); }
 gboolean win_compare(gconstpointer a, gconstpointer b) { return (*((Window*)a) == *((Window*)b)); }
-void free_ptr_array(gpointer* data) { g_ptr_array_free(data, 1); }
+void free_ptr_array(gpointer data) { g_ptr_array_free(data, 1); }
 
 void init_taskbar()
 {
