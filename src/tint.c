@@ -310,6 +310,7 @@ void event_button_release (XEvent *e)
 
 	if (wm_menu && !tint2_handles_click(panel, &e->xbutton)) {
 		forward_click(e);
+		XLowerWindow (server.dsp, panel->main_win);
 		task_drag = 0;
 		return;
 	}
@@ -587,7 +588,7 @@ void event_configure_notify (Window win)
 	Panel *p = tsk->area.panel;
 	if (p->monitor != window_get_monitor (win)) {
 		remove_task (tsk);
-		add_task (win);
+		tsk = add_task (win);
 		if (win == window_get_active ()) {
 			set_task_state(tsk, TASK_ACTIVE);
 			task_active = tsk;

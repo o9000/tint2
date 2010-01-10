@@ -443,7 +443,7 @@ void active_task()
 	if (w1) {
 		Window w2;
 		if (XGetTransientForHint(server.dsp, w1, &w2) != 0)
-			if (w2) w1 = w2;
+			if (w2 && !task_get_tasks(w1)) w1 = w2;
 		set_task_state((task_active = task_get_task(w1)), TASK_ACTIVE);
 	}
 }
@@ -456,18 +456,20 @@ void set_task_state(Task *tsk, int state)
 
 	if (tsk->current_state != state) {
 		GPtrArray* task_group = task_get_tasks(tsk->win);
-		int i;
-		for (i=0; i<task_group->len; ++i) {
-			Task* tsk1 = g_ptr_array_index(task_group, i);
-			tsk1->current_state = state;
-			tsk1->area.bg = panel1[0].g_task.background[state];
-			tsk1->area.pix = tsk1->state_pix[state];
-			if (tsk1->state_pix[state] == 0)
-				tsk1->area.redraw = 1;
-			if (state == TASK_ACTIVE && g_slist_find(urgent_list, tsk1))
-				del_urgent(tsk1);
+		if (task_group) {
+			int i;
+			for (i=0; i<task_group->len; ++i) {
+				Task* tsk1 = g_ptr_array_index(task_group, i);
+				tsk1->current_state = state;
+				tsk1->area.bg = panel1[0].g_task.background[state];
+				tsk1->area.pix = tsk1->state_pix[state];
+				if (tsk1->state_pix[state] == 0)
+					tsk1->area.redraw = 1;
+				if (state == TASK_ACTIVE && g_slist_find(urgent_list, tsk1))
+					del_urgent(tsk1);
+			}
+			panel_refresh = 1;
 		}
-		panel_refresh = 1;
 	}
 }
 

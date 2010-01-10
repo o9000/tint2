@@ -88,7 +88,7 @@ int window_is_hidden (Window win)
 		}
 		if (at[i] == server.atom._NET_WM_STATE_MODAL) {
 			// do not add modal windows if the transient window is already in the taskbar
-			if ( XGetTransientForHint(server.dsp, win, &window) && task_get_task(window) ) {
+			if ( XGetTransientForHint(server.dsp, win, &window) && task_get_tasks(window) ) {
 				XFree(at);
 				return 1;
 			}

@@ -37,7 +37,7 @@ GHashTable* win_to_task_table = 0;
 
 guint win_hash(gconstpointer key) { return (guint)*((Window*)key); }
 gboolean win_compare(gconstpointer a, gconstpointer b) { return (*((Window*)a) == *((Window*)b)); }
-
+void free_ptr_array(gpointer* data) { g_ptr_array_free(data, 1); }
 
 void init_taskbar()
 {
@@ -45,7 +45,7 @@ void init_taskbar()
 	int i, j;
 
 	if (win_to_task_table == 0)
-		win_to_task_table = g_hash_table_new_full(win_hash, win_compare, free, g_ptr_array_unref);
+		win_to_task_table = g_hash_table_new_full(win_hash, win_compare, free, free_ptr_array);
 
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];

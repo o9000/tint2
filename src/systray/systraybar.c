@@ -102,7 +102,6 @@ void draw_systray(void *obj, cairo_t *c)
 		XCopyArea(server.dsp, systray.area.pix, render_background, server.gc, 0, 0, systray.area.width, systray.area.height, 0, 0);
 	}
 
-		// tint2 don't draw systray icons. just the background.
 	refresh_systray = 1;
 }
 
