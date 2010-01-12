@@ -730,7 +730,7 @@ void autohide_show(void* p)
 	if (panel_strut_policy == STRUT_FOLLOW_SIZE)
 		update_strut(p);
 
-	XMapSubwindows(server.dsp, panel->main_win);
+	XMapSubwindows(server.dsp, panel->main_win);  // systray windows
 	if (panel_horizontal) {
 		if (panel_position & TOP)
 			XResizeWindow(server.dsp, panel->main_win, panel->area.width, panel->area.height);
@@ -755,7 +755,7 @@ void autohide_hide(void* p)
 	if (panel_strut_policy == STRUT_FOLLOW_SIZE)
 		update_strut(p);
 
-	XUnmapSubwindows(server.dsp, panel->main_win);
+	XUnmapSubwindows(server.dsp, panel->main_win);  // systray windows
 	int diff = (panel_horizontal ? panel->area.height : panel->area.width) - panel_autohide_height;
 	if (panel_horizontal) {
 		if (panel_position & TOP)

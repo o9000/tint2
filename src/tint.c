@@ -679,8 +679,10 @@ int main (int argc, char *argv[])
 			for (i=0 ; i < nb_panel ; i++) {
 				panel = &panel1[i];
 
-				if (panel->is_hidden)
+				if (panel->is_hidden) {
 					XCopyArea(server.dsp, panel->hidden_pixmap, panel->main_win, server.gc, 0, 0, panel->hidden_width, panel->hidden_height, 0, 0);
+					XSetWindowBackgroundPixmap(server.dsp, panel->main_win, panel->hidden_pixmap);
+				}
 				else {
 					if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
 					panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
