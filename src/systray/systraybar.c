@@ -361,6 +361,7 @@ gboolean add_icon(Window id)
 	XSetErrorHandler(old);
 	if (error != FALSE) {
 		fprintf(stderr, "tint2 : not icon_swallow\n");
+		XDestroyWindow(server.dsp, parent_window);
 		return FALSE;
 	}
 
@@ -383,6 +384,7 @@ gboolean add_icon(Window id)
 		}
 		else {
 			fprintf(stderr, "tint2 : xembed error\n");
+			XDestroyWindow(server.dsp, parent_window);
 			return FALSE;
 		}
 	}
