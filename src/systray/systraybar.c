@@ -112,8 +112,8 @@ void resize_systray(void *obj)
 	Panel *panel = sysbar->area.panel;
 	TrayWindow *traywin;
 	GSList *l;
-	int count, posx, posy;
-	int icon_size;
+	int count, icon_size;
+	int icons_per_column, icons_per_row, marging;
 
 	if (panel_horizontal)
 		icon_size = sysbar->area.height;
@@ -132,9 +132,16 @@ void resize_systray(void *obj)
 	if (panel_horizontal) {
 		if (!count) systray.area.width = 0;
 		else {
-			int icons_per_column = (sysbar->area.height - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy + sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
-			int row_count = count / icons_per_column + (count%icons_per_column != 0);
-			systray.area.width = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * row_count) + ((row_count-1) * systray.area.paddingx);
+			int height = sysbar->area.height - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
+			icons_per_column = height / (icon_size+sysbar->area.paddingx);
+			if (icons_per_column)
+				marging = height - (icons_per_column-1)*(icon_size+sysbar->area.paddingx) - icon_size;
+			else {
+				marging = height - icon_size;
+				icons_per_column = 1;
+			}
+			icons_per_row = count / icons_per_column + (count%icons_per_column != 0);
+			systray.area.width = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_row) + ((icons_per_row-1) * systray.area.paddingx);
 		}
 
 		systray.area.posx = panel->area.width - panel->area.bg->border.width - panel->area.paddingxlr - systray.area.width;
@@ -148,9 +155,16 @@ void resize_systray(void *obj)
 	else {
 		if (!count) systray.area.height = 0;
 		else {
-			int icons_per_row = (sysbar->area.width - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy + sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
-			int column_count = count / icons_per_row+ (count%icons_per_row != 0);
-			systray.area.height = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * column_count) + ((column_count-1) * systray.area.paddingx);
+			int width = sysbar->area.width - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
+			icons_per_row = width / (icon_size+sysbar->area.paddingx);
+			if (icons_per_row)
+				marging = width - (icons_per_row-1)*(icon_size+sysbar->area.paddingx) - icon_size;
+			else {
+				marging = width - icon_size;
+				icons_per_row = 1;
+			}
+			icons_per_column = count / icons_per_row+ (count%icons_per_row != 0);
+			systray.area.height = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_column) + ((icons_per_column-1) * systray.area.paddingx);
 		}
 
 		systray.area.posy = panel->area.bg->border.width + panel->area.paddingxlr;
@@ -162,19 +176,17 @@ void resize_systray(void *obj)
 #endif
 	}
 
-	int max_line_pos;
+	int i, posx, posy;
 	if (panel_horizontal) {
-		max_line_pos = sysbar->area.posy+sysbar->area.height - sysbar->area.bg->border.width - sysbar->area.paddingy - icon_size;
-		posy = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy;
+		posy = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +marging/2;
 		posx = systray.area.posx + systray.area.bg->border.width + systray.area.paddingxlr;
 	}
 	else {
-		max_line_pos = sysbar->area.posx+sysbar->area.width - sysbar->area.bg->border.width - sysbar->area.paddingy - icon_size;
-		posx = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy;
+		posx = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +marging/2;
 		posy = systray.area.posy + systray.area.bg->border.width + systray.area.paddingxlr;
 	}
 
-	for (l = systray.list_icons; l ; l = l->next) {
+	for (i=1, l = systray.list_icons; l ; i++, l = l->next) {
 		traywin = (TrayWindow*)l->data;
 		if (traywin->hide) continue;
 
@@ -183,19 +195,19 @@ void resize_systray(void *obj)
 		traywin->width = icon_size;
 		traywin->height = icon_size;
 		if (panel_horizontal) {
-			if (posy + icon_size + sysbar->area.paddingxlr < max_line_pos)
+			if (i % icons_per_column)
 				posy += icon_size + sysbar->area.paddingx;
 			else {
+				posy = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +marging/2;
 				posx += (icon_size + systray.area.paddingx);
-				posy = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy;
 			}
 		}
 		else {
-			if (posx + icon_size + sysbar->area.paddingxlr < max_line_pos)
+			if (i % icons_per_row)
 				posx += icon_size + systray.area.paddingx;
 			else {
+				posx = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +marging/2;
 				posy += (icon_size + systray.area.paddingx);
-				posx = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy;
 			}
 		}
 
