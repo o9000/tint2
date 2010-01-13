@@ -1,3 +1,16 @@
+2010-01-13
+- calculate right struts for multiple monitors
+- New timer implementation (works for *BSD too)
+- Changed behaviour for forwarding clicks to the window manager
+- Tint2 sets a class name, such that it can be identified by window managers
+- better omnipresent task handling
+- clock timezone support
+- real transparency
+- adjustable systray icons
+- systray: several icons in one line
+- autohide
+- more task states (active/urgent/iconified)
+- and some minor bugfixes which nobody recognized yet ;)
 
 
 2009-12-16
