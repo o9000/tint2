@@ -133,13 +133,9 @@ void resize_systray(void *obj)
 		if (!count) systray.area.width = 0;
 		else {
 			int height = sysbar->area.height - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
-			icons_per_column = height / (icon_size+sysbar->area.paddingx);
-			if (icons_per_column)
-				marging = height - (icons_per_column-1)*(icon_size+sysbar->area.paddingx) - icon_size;
-			else {
-				marging = height - icon_size;
-				icons_per_column = 1;
-			}
+			// here icons_per_column always higher than 0
+			icons_per_column = (height+sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
+			marging = height - (icons_per_column-1)*(icon_size+sysbar->area.paddingx) - icon_size;
 			icons_per_row = count / icons_per_column + (count%icons_per_column != 0);
 			systray.area.width = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_row) + ((icons_per_row-1) * systray.area.paddingx);
 		}
@@ -156,13 +152,9 @@ void resize_systray(void *obj)
 		if (!count) systray.area.height = 0;
 		else {
 			int width = sysbar->area.width - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
-			icons_per_row = width / (icon_size+sysbar->area.paddingx);
-			if (icons_per_row)
-				marging = width - (icons_per_row-1)*(icon_size+sysbar->area.paddingx) - icon_size;
-			else {
-				marging = width - icon_size;
-				icons_per_row = 1;
-			}
+			// here icons_per_row always higher than 0
+			icons_per_row = (width+sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
+			marging = width - (icons_per_row-1)*(icon_size+sysbar->area.paddingx) - icon_size;
 			icons_per_column = count / icons_per_row+ (count%icons_per_row != 0);
 			systray.area.height = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_column) + ((icons_per_column-1) * systray.area.paddingx);
 		}
@@ -177,12 +169,13 @@ void resize_systray(void *obj)
 	}
 
 	int i, posx, posy;
+	int start = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +marging/2;
 	if (panel_horizontal) {
-		posy = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +marging/2;
+		posy = start;
 		posx = systray.area.posx + systray.area.bg->border.width + systray.area.paddingxlr;
 	}
 	else {
-		posx = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +marging/2;
+		posx = start;
 		posy = systray.area.posy + systray.area.bg->border.width + systray.area.paddingxlr;
 	}
 
@@ -198,7 +191,7 @@ void resize_systray(void *obj)
 			if (i % icons_per_column)
 				posy += icon_size + sysbar->area.paddingx;
 			else {
-				posy = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +marging/2;
+				posy = start;
 				posx += (icon_size + systray.area.paddingx);
 			}
 		}
@@ -206,7 +199,7 @@ void resize_systray(void *obj)
 			if (i % icons_per_row)
 				posx += icon_size + systray.area.paddingx;
 			else {
-				posx = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +marging/2;
+				posx = start;
 				posy += (icon_size + systray.area.paddingx);
 			}
 		}
