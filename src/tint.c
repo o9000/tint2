@@ -758,11 +758,6 @@ int main (int argc, char *argv[])
 						event_expose(&e);
 						break;
 
-					case MapNotify:
-						if (e.xany.window == g_tooltip.window)
-							tooltip_update();
-						break;
-
 					case PropertyNotify:
 						event_property_notify(&e);
 						break;

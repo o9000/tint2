@@ -114,6 +114,7 @@ void tooltip_show(void* arg)
 		tooltip_copy_text(area);
 		g_tooltip.mapped = True;
 		XMapWindow(server.dsp, g_tooltip.window);
+		tooltip_update();
 		XFlush(server.dsp);
 	}
 }
