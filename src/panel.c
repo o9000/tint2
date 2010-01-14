@@ -551,6 +551,12 @@ void set_panel_background(Panel *p)
 	if (p->area.pix) XFreePixmap (server.dsp, p->area.pix);
 	p->area.pix = XCreatePixmap (server.dsp, server.root_win, p->area.width, p->area.height, server.depth);
 
+	int xoff=0, yoff=0;
+	if (panel_horizontal && panel_position & BOTTOM)
+		yoff = p->area.height-p->hidden_height;
+	else if (!panel_horizontal && panel_position & RIGHT)
+		xoff = p->area.width-p->hidden_width;
+
 	if (real_transparency) {
 		clear_pixmap(p->area.pix, 0, 0, p->area.width, p->area.height);
 	}
@@ -560,7 +566,12 @@ void set_panel_background(Panel *p)
 		Window dummy;
 		int  x, y;
 		XTranslateCoordinates(server.dsp, p->main_win, server.root_win, 0, 0, &x, &y, &dummy);
-		XSetTSOrigin(server.dsp, server.gc, -x, -y) ;
+		if (panel_autohide && p->is_hidden) {
+			x -= xoff;
+			y -= yoff;
+		}
+		//printf("x %d, y %d\n", x, y);
+		XSetTSOrigin(server.dsp, server.gc, -x, -y);
 		XFillRectangle(server.dsp, p->area.pix, server.gc, 0, 0, p->area.width, p->area.height);
 	}
 
@@ -576,11 +587,6 @@ void set_panel_background(Panel *p)
 	if (panel_autohide) {
 		if (p->hidden_pixmap) XFreePixmap(server.dsp, p->hidden_pixmap);
 		p->hidden_pixmap = XCreatePixmap(server.dsp, server.root_win, p->hidden_width, p->hidden_height, server.depth);
-		int xoff=0, yoff=0;
-		if (panel_horizontal && panel_position & BOTTOM)
-			yoff = p->area.height-p->hidden_height;
-		else if (!panel_horizontal && panel_position & RIGHT)
-			xoff = p->area.width-p->hidden_width;
 		XCopyArea(server.dsp, p->area.pix, p->hidden_pixmap, server.gc, xoff, yoff, p->hidden_width, p->hidden_height, 0, 0);
 	}
 

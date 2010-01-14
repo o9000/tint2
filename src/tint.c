@@ -263,6 +263,7 @@ int tint2_handles_click(Panel* panel, XButtonEvent* e)
 	if (tskbar && e->button == 1 && panel_mode == MULTI_DESKTOP)
 		return 1;
 	if (click_clock(panel, e->x, e->y)) {
+		printf("ici 1 : %d\n", e->button);
 		if ( (e->button == 1 && clock_lclick_command) || (e->button == 3 && clock_rclick_command) )
 			return 1;
 		else
