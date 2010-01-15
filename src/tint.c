@@ -31,6 +31,7 @@
 #include <Imlib2.h>
 #include <signal.h>
 
+#include "version.h"
 #include "server.h"
 #include "window.h"
 #include "config.h"
@@ -59,7 +60,7 @@ void init (int argc, char *argv[])
 			exit(0);
 		}
 		if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--version"))	{
-			printf("tint2 version 0.8\n");
+			printf("tint2 version %s\n", VERSION_STRING);
 			exit(0);
 		}
 		if (!strcmp(argv[i], "-c")) {

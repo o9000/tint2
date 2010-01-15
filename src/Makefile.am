@@ -31,7 +31,8 @@ tint2_SOURCES = config.c \
 				taskbar/taskbar.h \
 				taskbar/task.h \
 				tooltip/tooltip.c \
-				tooltip/tooltip.h
+				tooltip/tooltip.h \
+				version.h
 
 if ENABLE_BATTERY
 DEFS += -DENABLE_BATTERY

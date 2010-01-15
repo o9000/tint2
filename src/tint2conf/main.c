@@ -28,11 +28,10 @@
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
 
+#include "version.h"
 #include "common.h"
 #include "theme_view.h"
 
-
-#define LONG_VERSION_STRING "0.7"
 
 
 // default config file and directory
@@ -195,7 +194,7 @@ static void menuAbout(GtkWindow * parent)
 
 	gtk_show_about_dialog( parent, "name", g_get_application_name( ),
 								"comments", _("Theming tool for tint2 panel"),
-								"version", LONG_VERSION_STRING,
+								"version", VERSION_STRING,
 								"copyright", _("Copyright 2009 tint2 team\nTint2 License GNU GPL version 2\nTintwizard License GNU GPL version 3"),
 								"logo-icon-name", NULL, "authors", authors,
 								/* Translators: translate "translator-credits" as

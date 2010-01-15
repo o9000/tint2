@@ -570,7 +570,6 @@ void set_panel_background(Panel *p)
 			x -= xoff;
 			y -= yoff;
 		}
-		//printf("x %d, y %d\n", x, y);
 		XSetTSOrigin(server.dsp, server.gc, -x, -y);
 		XFillRectangle(server.dsp, p->area.pix, server.gc, 0, 0, p->area.width, p->area.height);
 	}
