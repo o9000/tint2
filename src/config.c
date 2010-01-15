@@ -295,8 +295,6 @@ void add_entry (char *key, char *value)
 		panel_dock = atoi (value);
 	else if (strcmp (key, "urgent_nb_of_blink") == 0)
 		max_tick_urgent = (atoi (value) * 2) + 1;
-	else if (strcmp (key, "real_transparency") == 0)
-		real_transparency = atoi(value);
 	else if (strcmp (key, "panel_layer") == 0) {
 		if (strcmp(value, "bottom") == 0)
 			panel_layer = BOTTOM_LAYER;

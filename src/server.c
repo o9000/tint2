@@ -69,6 +69,7 @@ void server_init_atoms ()
 	server.atom._NET_CLOSE_WINDOW = XInternAtom (server.dsp, "_NET_CLOSE_WINDOW", False);
 	server.atom.UTF8_STRING = XInternAtom (server.dsp, "UTF8_STRING", False);
 	server.atom._NET_SUPPORTING_WM_CHECK = XInternAtom (server.dsp, "_NET_SUPPORTING_WM_CHECK", False);
+	server.atom._NET_WM_CM_S0 = XInternAtom (server.dsp, "_NET_WM_CM_S0", False);
 	server.atom._NET_SUPPORTING_WM_CHECK = XInternAtom (server.dsp, "_NET_WM_NAME", False);
 	server.atom._NET_WM_STRUT_PARTIAL = XInternAtom (server.dsp, "_NET_WM_STRUT_PARTIAL", False);
 	server.atom.WM_NAME = XInternAtom(server.dsp, "WM_NAME", False);
@@ -325,6 +326,12 @@ void server_init_visual()
 		}
 	}
 	XFree (xvi);
+
+	// check composite manager
+	if (XGetSelectionOwner(server.dsp, server.atom._NET_WM_CM_S0) == None)
+		real_transparency = 0;
+	else
+		real_transparency = 1;
 
 	if (visual && real_transparency) {
 		server.depth = 32;
