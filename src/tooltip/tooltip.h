@@ -49,5 +49,6 @@ void tooltip_show(void* /*arg*/);
 void tooltip_update();
 void tooltip_trigger_hide();
 void tooltip_hide(void* /*arg*/);
+void tooltip_copy_text(Area* area);
 
 #endif // TOOLTIP_H

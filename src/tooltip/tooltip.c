@@ -33,7 +33,6 @@ static int x, y, width, height;
 void start_show_timeout();
 void start_hide_timeout();
 void stop_tooltip_timeout();
-void tooltip_copy_text(Area* area);
 
 // give the tooltip some reasonable default values
 Tooltip g_tooltip = {

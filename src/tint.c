@@ -494,6 +494,10 @@ void event_property_notify (XEvent *e)
 		// Window title changed
 		if (at == server.atom._NET_WM_VISIBLE_NAME || at == server.atom._NET_WM_NAME || at == server.atom.WM_NAME) {
 			get_title(tsk);
+			if (g_tooltip.mapped && (g_tooltip.area == (Area*)tsk)) {
+				tooltip_copy_text((Area*)tsk);
+				tooltip_update();
+			}
 			panel_refresh = 1;
 		}
 		// Demand attention
