@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.61])
-AC_INIT([tint2], [0.8], [http://code.google.com/p/tint2/issues])
+AC_INIT([tint2], [0.9rc1], [http://code.google.com/p/tint2/issues])
 
 AM_INIT_AUTOMAKE
 
@@ -156,6 +156,7 @@ AC_CONFIG_FILES([Makefile
 				 doc/Makefile
 				 sample/Makefile
 				 src/Makefile
-				 src/tint2conf/Makefile])
+				 src/tint2conf/Makefile
+				 src/version.h])
 
 AC_OUTPUT
