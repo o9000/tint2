@@ -28,7 +28,7 @@
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
 
-#include "version.h"
+#include "../version.h"
 #include "common.h"
 #include "theme_view.h"
 
