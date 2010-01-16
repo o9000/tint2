@@ -464,7 +464,7 @@ void remove_icon(TrayWindow *traywin)
 	error = FALSE;
 	old = XSetErrorHandler(window_error_handler);
 	if (!traywin->hide)
-		XUnmapWindow(server.dsp, traywin->id);
+		XUnmapWindow(server.dsp, traywin->tray_id);
 	XReparentWindow(server.dsp, traywin->tray_id, server.root_win, 0, 0);
 	XDestroyWindow(server.dsp, traywin->id);
 	XSync(server.dsp, False);
