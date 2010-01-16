@@ -553,6 +553,7 @@ void systray_render_icon(TrayWindow* traywin)
 
 void refresh_systray_icon()
 {
+	Panel* panel = systray.area.panel;
 	TrayWindow *traywin;
 	GSList *l;
 	for (l = systray.list_icons; l ; l = l->next) {
@@ -560,7 +561,11 @@ void refresh_systray_icon()
 		if (traywin->hide) continue;
 		if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
 			systray_render_icon(traywin);
-		else
+		else {
+			Pixmap pix = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
+			XCopyArea(server.dsp, panel->temp_pmap, pix, server.gc, traywin->x, traywin->y, traywin->width, traywin->height, 0, 0);
 			XClearArea(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height, True);
+			XSetWindowBackgroundPixmap(server.dsp, traywin->id, pix);
+		}
 	}
 }
