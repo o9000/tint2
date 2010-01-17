@@ -92,6 +92,10 @@ void server_init_atoms ()
 	server.atom.XdndAware = XInternAtom(server.dsp, "XdndAware", False);
 	server.atom.XdndPosition = XInternAtom(server.dsp, "XdndPosition", False);
 	server.atom.XdndStatus = XInternAtom(server.dsp, "XdndStatus", False);
+
+	server.colormap = 0;
+	server.monitor = 0;
+	server.gc = 0;
 }
 
 
@@ -328,18 +332,23 @@ void server_init_visual()
 	XFree (xvi);
 
 	// check composite manager
-	if (XGetSelectionOwner(server.dsp, server.atom._NET_WM_CM_S0) == None)
-		real_transparency = 0;
-	else
-		real_transparency = 1;
+	server.composite_manager = XGetSelectionOwner(server.dsp, server.atom._NET_WM_CM_S0);
+	if (server.colormap)
+		XFreeColormap(server.dsp, server.colormap);
 
-	if (visual && real_transparency) {
+	if (visual && server.composite_manager != None) {
+		XSetWindowAttributes attrs;
+		attrs.event_mask = StructureNotifyMask;
+		XChangeWindowAttributes (server.dsp, server.composite_manager, CWEventMask, &attrs);
+
+		real_transparency = 1;
 		server.depth = 32;
 		printf("real transparency on... depth: %d\n", server.depth);
 		server.colormap = XCreateColormap(server.dsp, server.root_win, visual, AllocNone);
 		server.visual = visual;
 	}
 	else {
+		real_transparency = 0;
 		server.depth = DefaultDepth(server.dsp, server.screen);
 		printf("real transparency off.... depth: %d\n", server.depth);
 		server.colormap = DefaultColormap(server.dsp, server.screen);
