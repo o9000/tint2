@@ -748,6 +748,7 @@ void autohide_show(void* p)
 		else
 			XMoveResizeWindow(server.dsp, panel->main_win, panel->posx, panel->posy, panel->area.width, panel->area.height);
 	}
+	refresh_systray = 1;   // ugly hack, because we actually only need to call XSetBackgroundPixmap
 	panel_refresh = 1;
 }
 

@@ -434,10 +434,10 @@ gboolean add_icon(Window id)
 	}
 
 	// show the window
-	if (!traywin->hide) {
+	if (!traywin->hide)
 		XMapRaised(server.dsp, traywin->tray_id);
+	if (!traywin->hide && !panel->is_hidden)
 		XMapRaised(server.dsp, traywin->id);
-	}
 
 	// changed in systray force resize on panel
 	panel->area.resize = 1;
@@ -553,7 +553,6 @@ void systray_render_icon(TrayWindow* traywin)
 
 void refresh_systray_icon()
 {
-	Panel* panel = systray.area.panel;
 	TrayWindow *traywin;
 	GSList *l;
 	for (l = systray.list_icons; l ; l = l->next) {
@@ -562,10 +561,13 @@ void refresh_systray_icon()
 		if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
 			systray_render_icon(traywin);
 		else {
-			Pixmap pix = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
-			XCopyArea(server.dsp, panel->temp_pmap, pix, server.gc, traywin->x, traywin->y, traywin->width, traywin->height, 0, 0);
+			// comment by andreas: I'm still not sure, what exactly we need to do here... Somehow trayicons which do not
+			// offer the same depth as tint2 does, need to draw a background pixmap, but this cannot be done with
+			// XCopyArea... So we actually need XRenderComposite???
+//			Pixmap pix = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
+//			XCopyArea(server.dsp, panel->temp_pmap, pix, server.gc, traywin->x, traywin->y, traywin->width, traywin->height, 0, 0);
+//			XSetWindowBackgroundPixmap(server.dsp, traywin->id, pix);
 			XClearArea(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height, True);
-			XSetWindowBackgroundPixmap(server.dsp, traywin->id, pix);
 		}
 	}
 }

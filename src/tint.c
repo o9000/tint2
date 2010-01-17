@@ -703,7 +703,6 @@ int main (int argc, char *argv[])
 			panel = (Panel*)systray.area.panel;
 			if (refresh_systray && !panel->is_hidden) {
 				refresh_systray = 0;
-				panel = (Panel*)systray.area.panel;
 				// tint2 doen't draw systray icons. it just redraw background.
 				XSetWindowBackgroundPixmap (server.dsp, panel->main_win, panel->temp_pmap);
 				// force icon's refresh
