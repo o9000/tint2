@@ -58,8 +58,6 @@ char *snapshot_path = 0;
 // --------------------------------------------------
 // backward compatibility
 static int old_task_icon_size;
-static int bg_task;
-static int bg_task_active;
 // detect if it's an old config file
 // ==1
 static int old_config_file;
@@ -599,86 +597,6 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp(key, "autohide_height") == 0)
 		panel_autohide_height = atoi(value);
-
-
-	// QUESTION: Do we still need backwards compatibility???
-	/* Read tint-0.6 config for backward compatibility */
-	else if (strcmp (key, "panel_mode") == 0) {
-		if (strcmp (value, "single_desktop") == 0) panel_mode = SINGLE_DESKTOP;
-		else panel_mode = MULTI_DESKTOP;
-	}
-	else if (strcmp (key, "panel_rounded") == 0) {
-		Background bg;
-		bg.border.rounded = atoi(value);
-		g_array_append_val(backgrounds, bg);
-	}
-	else if (strcmp (key, "panel_border_width") == 0) {
-		g_array_index(backgrounds, Background, backgrounds->len-1).border.width = atoi(value);
-	}
-	else if (strcmp (key, "panel_background_color") == 0) {
-		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
-		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->back.color);
-		if (value2) bg->back.alpha = (atoi (value2) / 100.0);
-		else bg->back.alpha = 0.5;
-	}
-	else if (strcmp (key, "panel_border_color") == 0) {
-		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
-		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->border.color);
-		if (value2) bg->border.alpha = (atoi (value2) / 100.0);
-		else bg->border.alpha = 0.5;
-	}
-	else if (strcmp (key, "task_text_centered") == 0)
-		panel_config.g_task.centered = atoi (value);
-	else if (strcmp (key, "task_margin") == 0) {
-		panel_config.g_taskbar.area.paddingxlr = 0;
-		panel_config.g_taskbar.area.paddingx = atoi (value);
-	}
-	else if (strcmp (key, "task_icon_size") == 0)
-		old_task_icon_size = atoi (value);
-	else if (strcmp (key, "task_rounded") == 0) {
-		Background bg;
-		bg.border.rounded = atoi(value);
-		g_array_append_val(backgrounds, bg);
-		g_array_append_val(backgrounds, bg);
-		bg_task = backgrounds->len-2;
-		bg_task_active = backgrounds->len-1;
-	}
-	else if (strcmp (key, "task_background_color") == 0) {
-		Background* bg = &g_array_index(backgrounds, Background, bg_task);
-		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->back.color);
-		if (value2) bg->back.alpha = (atoi (value2) / 100.0);
-		else bg->back.alpha = 0.5;
-	}
-	else if (strcmp (key, "task_active_background_color") == 0) {
-		Background* bg = &g_array_index(backgrounds, Background, bg_task_active);
-		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->back.color);
-		if (value2) bg->back.alpha = (atoi (value2) / 100.0);
-		else bg->back.alpha = 0.5;
-	}
-	else if (strcmp (key, "task_border_width") == 0) {
-		Background* bg = &g_array_index(backgrounds, Background, bg_task);
-		bg->border.width = atoi (value);
-		bg = &g_array_index(backgrounds, Background, bg_task_active);
-		bg->border.width = atoi (value);
-	}
-	else if (strcmp (key, "task_border_color") == 0) {
-		Background* bg = &g_array_index(backgrounds, Background, bg_task);
-		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->border.color);
-		if (value2) bg->border.alpha = (atoi (value2) / 100.0);
-		else bg->border.alpha = 0.5;
-	}
-	else if (strcmp (key, "task_active_border_color") == 0) {
-		Background* bg = &g_array_index(backgrounds, Background, bg_task_active);
-		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->border.color);
-		if (value2) bg->border.alpha = (atoi (value2) / 100.0);
-		else bg->border.alpha = 0.5;
-	}
 
 	else
 		fprintf(stderr, "tint2 : invalid option \"%s\", correct your config file\n", key);

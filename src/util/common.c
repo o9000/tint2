@@ -241,15 +241,27 @@ void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright
 
 void createHeuristicMask(DATA32* data, int w, int h)
 {
+	// first we need to find the mask color, therefore we check all 4 edge pixel and take the color which
+	// appears most often (we only need to check three edges, the 4th is implicitly clear)
+	unsigned int topLeft = data[0], topRight = data[w-1], bottomLeft = data[w*h-w], bottomRight = data[w*h-1];
+	int max = (topLeft == topRight) + (topLeft == bottomLeft) + (topLeft == bottomRight);
+	int maskPos = 0;
+	if ( max < (topRight == topLeft) + (topRight == bottomLeft) + (topRight == bottomRight) ) {
+		max = (topRight == topLeft) + (topRight == bottomLeft) + (topRight == bottomRight);
+		maskPos = w-1;
+	}
+	if ( max < (bottomLeft == topRight) + (bottomLeft == topLeft) + (bottomLeft == bottomRight) )
+		maskPos = w*h-w;
+
+	// now mask out every pixel which has the same color as the edge pixels
 	unsigned char* udata = (unsigned char*)data;
-	int b = udata[0];
-	int g = udata[1];
-	int r = udata[2];
+	unsigned char b = udata[4*maskPos];
+	unsigned char g = udata[4*maskPos+1];
+	unsigned char r = udata[4*maskPos+1];
 	int i;
 	for (i=0; i<h*w; ++i) {
-		if ( abs(b-*udata)<5 && abs(g-*(udata+1))<5 && abs(r-*(udata+2))<5 ) {
-			*(udata+3) = 0;
-		}
+		if ( b-udata[0] == 0 && g-udata[1] == 0 && r-udata[2] == 0 )
+			udata[3] = 0;
 		udata += 4;
 	}
 }

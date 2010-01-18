@@ -677,13 +677,6 @@ int main (int argc, char *argv[])
 		if (panel_refresh) {
 			panel_refresh = 0;
 
-			// QUESTION: do we need this first refresh_systray, because we check refresh_systray once again later...
-			// ANSWER: yes, panel->temp_pmap is freeded in the loop.
-			// we change background to None to avoid tray icon using freeded pixmap.
-			if (refresh_systray) {
-				panel = (Panel*)systray.area.panel;
-				XSetWindowBackgroundPixmap (server.dsp, panel->main_win, None);
-			}
 			for (i=0 ; i < nb_panel ; i++) {
 				panel = &panel1[i];
 
@@ -799,7 +792,7 @@ int main (int argc, char *argv[])
 					break;
 
 					case ClientMessage:
-						ev = &e;
+						ev = &e.xclient;
 						if (ev->data.l[1] == server.atom._NET_WM_CM_S0) {
 							if (ev->data.l[2] == None)
 								// TODO: Stop real_transparency

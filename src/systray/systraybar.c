@@ -113,7 +113,7 @@ void resize_systray(void *obj)
 	TrayWindow *traywin;
 	GSList *l;
 	int count, icon_size;
-	int icons_per_column, icons_per_row, marging;
+	int icons_per_column=1, icons_per_row=1, marging=0;
 
 	if (panel_horizontal)
 		icon_size = sysbar->area.height;
