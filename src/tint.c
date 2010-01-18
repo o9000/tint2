@@ -784,9 +784,8 @@ int main (int argc, char *argv[])
 					case UnmapNotify:
 					case DestroyNotify:
 						if (e.xany.window == server.composite_manager) {
-							printf("Stop composite.\n");
+							// TODO: Stop real_transparency
 							//signal_pending = SIGUSR2;
-							server_init_visual();
 							break;
 						}
 						if (e.xany.window == g_tooltip.window || !systray.area.on_screen)
@@ -803,11 +802,13 @@ int main (int argc, char *argv[])
 						ev = &e;
 						if (ev->data.l[1] == server.atom._NET_WM_CM_S0) {
 							if (ev->data.l[2] == None)
-								printf("Stop composite 2.\n");
+								// TODO: Stop real_transparency
+								//signal_pending = SIGUSR2;
+								;
 							else
-								printf("Start composite.\n");
-							server_init_visual();
-							//signal_pending = SIGUSR2;
+								// TODO: Start real_transparency
+								//signal_pending = SIGUSR2;
+								;
 						}
 						if (!systray.area.on_screen) break;
 						if (e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
