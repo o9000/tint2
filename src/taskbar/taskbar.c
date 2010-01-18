@@ -268,7 +268,7 @@ void resize_taskbar(void *obj)
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
 			tsk->area.posx = x;
-			if (tsk->area.width != pixel_width) set_task_redraw(tsk);
+			set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.width = pixel_width;
 			if (modulo_width) {
 				tsk->area.width++;
@@ -306,7 +306,7 @@ void resize_taskbar(void *obj)
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
 			tsk->area.posy = y;
-			if (tsk->area.height != pixel_height) set_task_redraw(tsk);
+			set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.height = pixel_height;
 			if (modulo_height) {
 				tsk->area.height++;
