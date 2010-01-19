@@ -97,6 +97,7 @@ clock_rclick_command = orage
 # BATTERY
 #---------------------------------------------
 battery = 0
+battery_hide = 98
 battery_low_status = 10
 battery_low_cmd = notify-send "battery low"
 bat1_font = sans 8

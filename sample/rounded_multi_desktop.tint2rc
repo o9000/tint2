@@ -78,6 +78,7 @@ systray_icon_size = 0
 # BATTERY
 #---------------------------------------------
 battery = 0
+battery_hide = 98
 battery_low_status = 7
 battery_low_cmd = notify-send "battery low"
 bat1_font = sans 8
