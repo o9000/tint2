@@ -51,6 +51,7 @@ extern struct batstate battery_state;
 extern PangoFontDescription *bat1_font_desc;
 extern PangoFontDescription *bat2_font_desc;
 extern int battery_enabled;
+extern int percentage_hide;
 
 extern int8_t battery_low_status;
 extern char *battery_low_cmd;

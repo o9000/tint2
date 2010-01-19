@@ -37,6 +37,7 @@ PangoFontDescription *bat1_font_desc=0;
 PangoFontDescription *bat2_font_desc=0;
 struct batstate battery_state;
 int battery_enabled;
+int percentage_hide = 101;
 static timeout* battery_timeout=0;
 
 static char buf_bat_percentage[10];
@@ -54,8 +55,26 @@ void update_batterys(void* arg)
 {
 	int i;
 	update_battery();
-	for (i=0 ; i < nb_panel ; i++)
+	for (i=0 ; i < nb_panel ; i++) {
+		if (battery_state.percentage >= percentage_hide) {
+			if (panel1[i].battery.area.on_screen == 1) {
+				panel1[i].battery.area.on_screen = 0;
+				// force resize on panel
+				panel1[i].area.resize = 1;
+				panel_refresh = 1;
+			}
+			continue;
+		}
+		else {
+			if (panel1[i].battery.area.on_screen == 0) {
+				panel1[i].battery.area.on_screen = 1;
+				// force resize on panel
+				panel1[i].area.resize = 1;
+				panel_refresh = 1;
+			}
+		}
 		panel1[i].battery.area.resize = 1;
+	}
 }
 
 
@@ -133,7 +152,7 @@ void init_battery()
 	g_free(battery_dir);
 
 	if (battery_enabled && battery_timeout==0)
-		battery_timeout = add_timeout(10, 5000, update_batterys, 0);
+		battery_timeout = add_timeout(10, 10000, update_batterys, 0);
 }
 
 

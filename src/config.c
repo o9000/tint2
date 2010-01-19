@@ -358,6 +358,13 @@ void add_entry (char *key, char *value)
 		panel_config.battery.area.bg = &g_array_index(backgrounds, Background, id);
 #endif
 	}
+	else if (strcmp (key, "battery_hide") == 0) {
+#ifdef ENABLE_BATTERY
+		percentage_hide = atoi (value);
+		if (percentage_hide == 0)
+			percentage_hide = 101;
+#endif
+	}
 
 	/* Clock */
 	else if (strcmp (key, "time1_format") == 0) {
