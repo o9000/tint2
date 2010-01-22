@@ -345,7 +345,17 @@ gboolean add_icon(Window id)
 
 	error = FALSE;
 	XWindowAttributes attr;
+/*	GSList *l;
+	printf("add_icon\n");
+	for (l = systray.list_icons; l ; l = l->next) {
+		traywin = (TrayWindow*)l->data;
+		//if (traywin->hide) continue;
+
+		XGetWindowAttributes(server.dsp, traywin->tray_id, &attr);
+		printf("  icon %lx, depth %d, width %d, height %d\n", traywin->tray_id, attr.depth, attr.width, attr.height);
+	}*/
 	XGetWindowAttributes(server.dsp, id, &attr);
+	//printf("last icon %lx, depth %d, width %d, height %d\n", id, attr.depth, attr.width, attr.height);
 	unsigned long mask = 0;
 	XSetWindowAttributes set_attr;
 	if (attr.depth != server.depth || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0 ) {

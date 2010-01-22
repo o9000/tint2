@@ -596,6 +596,15 @@ void set_panel_background(Panel *p)
 		a = l0->data;
 		set_redraw(a);
 	}
+	// reset task 'state_pix'
+	int i;
+	Taskbar *tskbar;
+	for (i=0 ; i < p->nb_desktop ; i++) {
+		tskbar = &p->taskbar[i];
+		for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
+			set_task_redraw((Task *)l0->data);
+		}
+	}
 }
 
 
