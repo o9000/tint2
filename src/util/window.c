@@ -146,20 +146,18 @@ int window_get_monitor (Window win)
 
 int window_is_iconified (Window win)
 {
-	if (IconicState == get_property32(win, server.atom.WM_STATE, server.atom.WM_STATE)) {
-		// openbox sets on shaded windows the IconicState, however we do not consider these windows iconified
-		Atom *at;
-		int count, i;
-		at = server_get_property (win, server.atom._NET_WM_STATE, XA_ATOM, &count);
-		for (i = 0; i < count; i++) {
-			if (at[i] == server.atom._NET_WM_STATE_SHADED) {
-				XFree(at);
-				return 0;
-			}
+	// EWMH specification : minimization of windows use _NET_WM_STATE_HIDDEN.
+	// WM_STATE is not accurate for shaded window and in multi_desktop mode.
+	Atom *at;
+	int count, i;
+	at = server_get_property (win, server.atom._NET_WM_STATE, XA_ATOM, &count);
+	for (i = 0; i < count; i++) {
+		if (at[i] == server.atom._NET_WM_STATE_HIDDEN) {
+			XFree(at);
+			return 1;
 		}
-		XFree(at);
-		return 1;
 	}
+	XFree(at);
 	return 0;
 }
 
