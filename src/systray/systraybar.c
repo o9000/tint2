@@ -208,6 +208,8 @@ void resize_systray(void *obj)
 		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
 		XResizeWindow(server.dsp, traywin->tray_id, icon_size, icon_size);
 	}
+	// resize force the redraw
+	systray.area.redraw = 1;
 }
 
 
@@ -423,7 +425,6 @@ gboolean add_icon(Window id)
 	else
 		systray.list_icons = g_slist_insert_sorted(systray.list_icons, traywin, compare_traywindows);
 	systray.area.resize = 1;
-	systray.area.redraw = 1;
 	//printf("add_icon id %lx, %d\n", id, g_slist_length(systray.list_icons));
 
 	// watch for the icon trying to resize itself!
@@ -453,7 +454,6 @@ void remove_icon(TrayWindow *traywin)
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
 	systray.area.resize = 1;
-	systray.area.redraw = 1;
 	//printf("remove_icon id %lx, %d\n", traywin->id);
 
 	XSelectInput(server.dsp, traywin->tray_id, NoEventMask);
@@ -538,7 +538,8 @@ void systray_render_icon_now(void* t)
 	XCopyArea(server.dsp, systray.area.pix, panel->main_win, server.gc, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height, traywin->x, traywin->y);
 	imlib_free_image_and_decache();
 
-	XDamageSubtract(server.dsp, traywin->damage, None, None);
+	if (traywin->damage)
+		XDamageSubtract(server.dsp, traywin->damage, None, None);
 	XFlush(server.dsp);
 }
 
