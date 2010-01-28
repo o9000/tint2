@@ -1,3 +1,9 @@
+2010-01-28
+- Battery hide option
+- bugfixes in task redrawing
+- traywindow and autohide bugfix
+
+
 2010-01-13
 - calculate right struts for multiple monitors
 - New timer implementation (works for *BSD too)

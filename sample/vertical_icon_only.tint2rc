@@ -32,7 +32,6 @@ font_shadow = 0
 panel_background_id = 0
 wm_menu = 0
 panel_dock = 0
-real_transparency = 0
 panel_layer = bottom
 
 #---------------------------------------------
