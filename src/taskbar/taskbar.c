@@ -59,6 +59,15 @@ void init_taskbar()
 			panel->taskbar = 0;
 		}
 
+		if (panel->g_taskbar.bg == 0) {
+			panel->g_taskbar.bg = &g_array_index(backgrounds, Background, 0);
+			panel->g_taskbar.area.bg = panel->g_taskbar.bg;
+		}
+		if (panel->g_taskbar.bg_active == 0)
+			panel->g_taskbar.bg_active = &g_array_index(backgrounds, Background, 0);
+		if (panel->g_task.area.bg == 0)
+			panel->g_task.area.bg = &g_array_index(backgrounds, Background, 0);
+
 		// taskbar
 		panel->g_taskbar.area._resize = resize_taskbar;
 		panel->g_taskbar.area.redraw = 1;
@@ -76,6 +85,11 @@ void init_taskbar()
 		panel->g_task.area._draw_foreground = draw_task;
 		panel->g_task.area.redraw = 1;
 		panel->g_task.area.on_screen = 1;
+		if (panel->g_task.config_asb_mask & (1<<TASK_NORMAL)) {
+			panel->g_task.alpha[TASK_NORMAL] = 0;
+			panel->g_task.saturation[TASK_NORMAL] = 0;
+			panel->g_task.brightness[TASK_NORMAL] = 0;
+		}
 		if ((panel->g_task.config_asb_mask & (1<<TASK_ACTIVE)) == 0) {
 			panel->g_task.alpha[TASK_ACTIVE] = panel->g_task.alpha[TASK_NORMAL];
 			panel->g_task.saturation[TASK_ACTIVE] = panel->g_task.saturation[TASK_NORMAL];
@@ -91,9 +105,11 @@ void init_taskbar()
 			panel->g_task.saturation[TASK_URGENT] = panel->g_task.saturation[TASK_ACTIVE];
 			panel->g_task.brightness[TASK_URGENT] = panel->g_task.brightness[TASK_ACTIVE];
 		}
+		if ((panel->g_task.config_font_mask & (1<<TASK_NORMAL)) == 0) panel->g_task.font[TASK_NORMAL] = (Color){{0, 0, 0}, 0};
 		if ((panel->g_task.config_font_mask & (1<<TASK_ACTIVE)) == 0) panel->g_task.font[TASK_ACTIVE] = panel->g_task.font[TASK_NORMAL];
 		if ((panel->g_task.config_font_mask & (1<<TASK_ICONIFIED)) == 0) panel->g_task.font[TASK_ICONIFIED] = panel->g_task.font[TASK_NORMAL];
 		if ((panel->g_task.config_font_mask & (1<<TASK_URGENT)) == 0) panel->g_task.font[TASK_URGENT] = panel->g_task.font[TASK_ACTIVE];
+		if ((panel->g_task.config_font_mask & (1<<TASK_NORMAL)) == 0) panel->g_task.background[TASK_NORMAL] = &g_array_index(backgrounds, Background, 0);
 		if ((panel->g_task.config_background_mask & (1<<TASK_ACTIVE)) == 0) panel->g_task.background[TASK_ACTIVE] = panel->g_task.background[TASK_NORMAL];
 		if ((panel->g_task.config_background_mask & (1<<TASK_ICONIFIED)) == 0) panel->g_task.background[TASK_ICONIFIED] = panel->g_task.background[TASK_NORMAL];
 		if ((panel->g_task.config_background_mask & (1<<TASK_URGENT)) == 0) panel->g_task.background[TASK_URGENT] = panel->g_task.background[TASK_ACTIVE];
@@ -111,7 +127,7 @@ void init_taskbar()
 		int k;
 		for (k=0; k<TASK_STATE_COUNT; ++k) {
 			if (panel->g_task.background[k]->border.rounded > panel->g_task.area.height/2) {
-				printf("task%sbackground_id is too big. Please fix your tint2rc\n", k==0 ? "_" : k==1 ? "_active_" : k==2 ? "_iconified_" : "_urgent_");
+				printf("task%sbackground_id has a too large rounded value. Please fix your tint2rc\n", k==0 ? "_" : k==1 ? "_active_" : k==2 ? "_iconified_" : "_urgent_");
 				g_array_append_val(backgrounds, *panel->g_task.background[k]);
 				panel->g_task.background[k] = &g_array_index(backgrounds, Background, backgrounds->len-1);
 				panel->g_task.background[k]->border.rounded = panel->g_task.area.height/2;
