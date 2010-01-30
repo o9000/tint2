@@ -64,7 +64,7 @@ void init_taskbar()
 			panel->g_taskbar.area.bg = panel->g_taskbar.bg;
 		}
 		if (panel->g_taskbar.bg_active == 0)
-			panel->g_taskbar.bg_active = &g_array_index(backgrounds, Background, 0);
+			panel->g_taskbar.bg_active = panel->g_taskbar.bg;
 		if (panel->g_task.area.bg == 0)
 			panel->g_task.area.bg = &g_array_index(backgrounds, Background, 0);
 

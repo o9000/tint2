@@ -821,7 +821,7 @@ int main (int argc, char *argv[])
 							XDamageNotifyEvent* de = &event_union.de;
 							for (l = systray.list_icons; l ; l = l->next) {
 								traywin = (TrayWindow*)l->data;
-								if ( traywin->id == de->drawable && !de->more ) {
+								if ( traywin->id == de->drawable ) {
 									systray_render_icon(traywin);
 									break;
 								}

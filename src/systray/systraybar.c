@@ -546,9 +546,20 @@ void systray_render_icon_now(void* t)
 
 void systray_render_icon(TrayWindow* traywin)
 {
-	// wine tray icons update whenever mouse is over them, so we limit the updates to 50 ms
-	if (traywin->render_timeout == 0)
-		traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin);
+	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+		// wine tray icons update whenever mouse is over them, so we limit the updates to 50 ms
+		if (traywin->render_timeout == 0)
+			traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin);
+	}
+	else {
+		// comment by andreas: I'm still not sure, what exactly we need to do here... Somehow trayicons which do not
+		// offer the same depth as tint2 does, need to draw a background pixmap, but this cannot be done with
+		// XCopyArea... So we actually need XRenderComposite???
+//			Pixmap pix = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
+//			XCopyArea(server.dsp, panel->temp_pmap, pix, server.gc, traywin->x, traywin->y, traywin->width, traywin->height, 0, 0);
+//			XSetWindowBackgroundPixmap(server.dsp, traywin->id, pix);
+		XClearArea(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height, True);
+	}
 }
 
 
@@ -559,16 +570,6 @@ void refresh_systray_icon()
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
 		if (traywin->hide) continue;
-		if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
-			systray_render_icon(traywin);
-		else {
-			// comment by andreas: I'm still not sure, what exactly we need to do here... Somehow trayicons which do not
-			// offer the same depth as tint2 does, need to draw a background pixmap, but this cannot be done with
-			// XCopyArea... So we actually need XRenderComposite???
-//			Pixmap pix = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
-//			XCopyArea(server.dsp, panel->temp_pmap, pix, server.gc, traywin->x, traywin->y, traywin->width, traywin->height, 0, 0);
-//			XSetWindowBackgroundPixmap(server.dsp, traywin->id, pix);
-			XClearArea(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height, True);
-		}
+		systray_render_icon(traywin);
 	}
 }

@@ -87,9 +87,6 @@ void init_config()
 		pango_font_description_free(panel_config.g_task.font_desc);
 	}
 	memset(&panel_config, 0, sizeof(Panel));
-	int i;
-	for (i=0; i<TASK_STATE_COUNT; ++i)
-		panel_config.g_task.alpha[i] = 100;
 	systray.alpha = 100;
 	systray.sort = 3;
 	old_config_file = 1;
