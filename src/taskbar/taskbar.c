@@ -85,7 +85,7 @@ void init_taskbar()
 		panel->g_task.area._draw_foreground = draw_task;
 		panel->g_task.area.redraw = 1;
 		panel->g_task.area.on_screen = 1;
-		if (panel->g_task.config_asb_mask & (1<<TASK_NORMAL)) {
+		if ((panel->g_task.config_asb_mask & (1<<TASK_NORMAL)) == 0) {
 			panel->g_task.alpha[TASK_NORMAL] = 100;
 			panel->g_task.saturation[TASK_NORMAL] = 0;
 			panel->g_task.brightness[TASK_NORMAL] = 0;
