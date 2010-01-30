@@ -97,7 +97,6 @@ void init_config()
 	// window manager's menu default value == false
 	wm_menu = 0;
 	max_tick_urgent = 7;
-	panel_config.g_taskbar.bg = panel_config.g_taskbar.bg_active = 0;
 
 	// flush pango cache if possible
 	//pango_xft_shutdown_display(server.dsp, server.screen);
