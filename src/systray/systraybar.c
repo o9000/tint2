@@ -27,6 +27,8 @@
 #include <Imlib2.h>
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xrender.h>
+
 
 #include "systraybar.h"
 #include "server.h"
@@ -513,8 +515,25 @@ void systray_render_icon_now(void* t)
 	// We create a heuristic mask for these icons, i.e. we get the rgb value in the top left corner, and
 	// mask out all pixel with the same rgb value
 	Panel* panel = systray.area.panel;
-	imlib_context_set_drawable(traywin->id);
-	Imlib_Image image = imlib_create_image_from_drawable(0, 0, 0, traywin->width, traywin->height, 0);
+
+	// Very ugly hack, but somehow imlib2 is not able to get the image from the traywindow itself,
+	// so we first render the tray window onto a pixmap, and then we tell imlib2 to use this pixmap as
+	// drawable. If someone knows why it does not work with the traywindow itself, please tell me ;)
+	Pixmap tmp_pmap = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
+	XRenderPictFormat* f;
+	if (traywin->depth == 24)
+		f = XRenderFindVisualFormat(server.dsp, DefaultVisual(server.dsp, 0));
+	else
+		f = XRenderFindVisualFormat(server.dsp, server.visual);
+	Picture pict_image = XRenderCreatePicture(server.dsp, traywin->tray_id, f, 0, 0);
+	Picture pict_drawable = XRenderCreatePicture(server.dsp, tmp_pmap, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
+	XRenderComposite(server.dsp, PictOpSrc, pict_image, None, pict_drawable, 0, 0, 0, 0, 0, 0, traywin->width, traywin->height);
+	XRenderFreePicture(server.dsp, pict_image);
+	XRenderFreePicture(server.dsp, pict_drawable);
+	// end of the ugly hack and we can continue as before
+
+	imlib_context_set_drawable(tmp_pmap);
+	Imlib_Image image = imlib_create_image_from_drawable(0, 0, 0, traywin->width, traywin->height, 1);
 	if (image == 0)
 		return;
 
@@ -537,6 +556,7 @@ void systray_render_icon_now(void* t)
 	}
 	XCopyArea(server.dsp, systray.area.pix, panel->main_win, server.gc, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height, traywin->x, traywin->y);
 	imlib_free_image_and_decache();
+	XFreePixmap(server.dsp, tmp_pmap);
 
 	if (traywin->damage)
 		XDamageSubtract(server.dsp, traywin->damage, None, None);
