@@ -55,7 +55,7 @@ task_font = sans 7
 task_font_color = #ffffff 70
 task_background_id = 3
 task_icon_asb = 100 0 0
-# replace STATUS by 'urgent', 'active' or 'iconfied'
+# replace STATUS by 'urgent', 'active' or 'iconified'
 #task_STATUS_background_id = 2
 #task_STATUS_font_color = #ffffff 85
 #task_STATUS_icon_asb = 100 0 0
