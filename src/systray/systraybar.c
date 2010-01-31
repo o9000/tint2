@@ -522,9 +522,13 @@ void systray_render_icon_now(void* t)
 	Pixmap tmp_pmap = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
 	XRenderPictFormat* f;
 	if (traywin->depth == 24)
-		f = XRenderFindVisualFormat(server.dsp, DefaultVisual(server.dsp, 0));
-	else
+		f = XRenderFindStandardFormat(server.dsp, PictStandardRGB24);
+	else if (traywin->depth == 32)
 		f = XRenderFindStandardFormat(server.dsp, PictStandardARGB32);
+	else {
+		printf("Strange tray icon found...\n");
+		return;
+	}
 	Picture pict_image = XRenderCreatePicture(server.dsp, traywin->tray_id, f, 0, 0);
 	Picture pict_drawable = XRenderCreatePicture(server.dsp, tmp_pmap, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
 	XRenderComposite(server.dsp, PictOpSrc, pict_image, None, pict_drawable, 0, 0, 0, 0, 0, 0, traywin->width, traywin->height);

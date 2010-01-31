@@ -694,7 +694,7 @@ int main (int argc, char *argv[])
 			XFlush (server.dsp);
 
 			panel = (Panel*)systray.area.panel;
-			if (refresh_systray && !panel->is_hidden) {
+			if (refresh_systray && panel && !panel->is_hidden) {
 				refresh_systray = 0;
 				// tint2 doen't draw systray icons. it just redraw background.
 				XSetWindowBackgroundPixmap (server.dsp, panel->main_win, panel->temp_pmap);
