@@ -524,7 +524,7 @@ void systray_render_icon_now(void* t)
 	if (traywin->depth == 24)
 		f = XRenderFindVisualFormat(server.dsp, DefaultVisual(server.dsp, 0));
 	else
-		f = XRenderFindVisualFormat(server.dsp, server.visual);
+		f = XRenderFindStandardFormat(server.dsp, PictStandardARGB32);
 	Picture pict_image = XRenderCreatePicture(server.dsp, traywin->tray_id, f, 0, 0);
 	Picture pict_drawable = XRenderCreatePicture(server.dsp, tmp_pmap, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
 	XRenderComposite(server.dsp, PictOpSrc, pict_image, None, pict_drawable, 0, 0, 0, 0, 0, 0, traywin->width, traywin->height);
@@ -540,7 +540,7 @@ void systray_render_icon_now(void* t)
 	imlib_context_set_image(image);
 	imlib_image_set_has_alpha(1);
 	DATA32* data = imlib_image_get_data();
-	if (traywin->depth == 24 && server.depth != 24) {
+	if (traywin->depth == 24) {
 		createHeuristicMask(data, traywin->width, traywin->height);
 	}
 	if (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
