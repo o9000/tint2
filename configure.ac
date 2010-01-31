@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.61])
-AC_INIT([tint2], [0.9rc1], [http://code.google.com/p/tint2/issues])
+AC_INIT([tint2], [0.9-svn], [http://code.google.com/p/tint2/issues])
 
 AM_INIT_AUTOMAKE
 
@@ -66,27 +66,26 @@ PKG_CHECK_MODULES([GOBJECT2], [gobject-2.0])
 AC_SUBST(GOBJECT2_CFLAGS)
 AC_SUBST(GOBJECT2_LIBS)
 
-PKG_CHECK_MODULES([X11], [x11 xdamage xcomposite])
+PKG_CHECK_MODULES([X11], [x11 xcomposite xdamage xinerama xrender])
 AC_SUBST(X11_CFLAGS)
 AC_SUBST(X11_LIBS)
-
-PKG_CHECK_MODULES([XINERAMA], [xinerama])
-AC_SUBST(XINERAMA_CFLAGS)
-AC_SUBST(XINERAMA_LIBS)
 
 PKG_CHECK_MODULES([IMLIB2], [imlib2])
 AC_SUBST(IMLIB2_CFLAGS)
 AC_SUBST(IMLIB2_LIBS)
 
-# Ensure that Imlib2 has been built with X support and reset LIBS since AC_CHECK_LIB adds -lImlib2 on success.
+# Reset LIBS since AC_CHECK_LIB adds -lmylib on success
 LIBS_SAVED=$LIBS
+# Ensure that Imlib2 has been built with X support.
 AC_CHECK_LIB([Imlib2], [imlib_context_set_display], [],
 			 AC_MSG_ERROR([Imlib2 must be built with X support]))
+
+AC_CHECK_LIB([rt], [clock_gettime])
 LIBS=$LIBS_SAVED
 
 # Checks for header files.
 AC_PATH_X
-AC_CHECK_HEADERS([fcntl.h locale.h stdlib.h string.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h locale.h stdint.h stdlib.h string.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -99,7 +98,7 @@ AC_TYPE_PID_T
 AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([alarm gettimeofday memset select setlocale strcasecmp strchr strdup])
+AC_CHECK_FUNCS([clock_gettime gettimeofday memset select setenv setlocale strcasecmp strchr strdup strstr])
 
 # tint2conf (experimental)
 if test "x$tint2conf" = xtrue;
@@ -109,7 +108,7 @@ then
 	# even if we don't need them.
 	# Sorry if that might be confusing %-)
 
-	AC_CHECK_FUNCS([strndup strrchr strstr])
+	AC_CHECK_FUNCS([strndup strrchr])
 	# Save LIBS value and clear the variable, AC_CHECK_LIB will append all libs to LIBS on success.
 	LIBS_SAVED=$LIBS
 	LIBS=
