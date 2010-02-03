@@ -53,7 +53,7 @@ int clock_enabled;
 static timeout* clock_timeout=0;
 
 
-void update_clocks(void* arg)
+void update_clocks_sec(void* arg)
 {
 	gettimeofday(&time_clock, 0);
 	int i;
@@ -62,6 +62,19 @@ void update_clocks(void* arg)
 			panel1[i].clock.area.resize = 1;
 	}
 	panel_refresh = 1;
+}
+
+void update_clocks_min(void* arg)
+{
+	gettimeofday(&time_clock, 0);
+	if (time_clock.tv_sec % 60 == 0) {
+		int i;
+		if (time1_format) {
+			for (i=0 ; i < nb_panel ; i++)
+				panel1[i].clock.area.resize = 1;
+		}
+		panel_refresh = 1;
+	}
 }
 
 struct tm* clock_gettime_for_tz(const char* timezone) {
@@ -87,9 +100,9 @@ void init_clock()
 {
 	if(time1_format && clock_timeout==0) {
 		if (strchr(time1_format, 'S') || strchr(time1_format, 'T') || strchr(time1_format, 'r'))
-			clock_timeout = add_timeout(10, 1000, update_clocks, 0);
+			clock_timeout = add_timeout(10, 1000, update_clocks_sec, 0);
 		else
-			clock_timeout = add_timeout(10, 60000, update_clocks, 0);
+			clock_timeout = add_timeout(10, 1000, update_clocks_min, 0);
 	}
 }
 
