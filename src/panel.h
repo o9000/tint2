@@ -49,6 +49,7 @@ extern int panel_position;
 extern int panel_horizontal;
 
 extern int panel_refresh;
+extern int task_dragged;
 
 //panel autohide
 enum { STRUT_MINIMUM, STRUT_FOLLOW_SIZE };

@@ -66,8 +66,11 @@ void update_clocks_sec(void* arg)
 
 void update_clocks_min(void* arg)
 {
+	// remember old_sec because after suspend/hibernate the clock should be updated directly, and not
+	// on next minute change
+	time_t old_sec = time_clock.tv_sec;
 	gettimeofday(&time_clock, 0);
-	if (time_clock.tv_sec % 60 == 0) {
+	if (time_clock.tv_sec % 60 == 0 || time_clock.tv_sec - old_sec > 60) {
 		int i;
 		if (time1_format) {
 			for (i=0 ; i < nb_panel ; i++)

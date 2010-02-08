@@ -50,6 +50,7 @@ int panel_layer=BOTTOM_LAYER;  // default is bottom layer
 int panel_position;
 int panel_horizontal;
 int panel_refresh;
+int task_dragged=0;
 
 int panel_autohide = 0;
 int panel_autohide_show_timeout = 0;
@@ -96,6 +97,7 @@ void init_panel()
 
 	cleanup_taskbar();
 	for (i=0 ; i < nb_panel ; i++) {
+		autohide_show(&panel1[i]);
 		free_area(&panel1[i].area);
 		if (panel1[i].temp_pmap) {
 			XFreePixmap(server.dsp, panel1[i].temp_pmap);
@@ -165,12 +167,7 @@ void init_panel()
 
 		if (i >= old_nb_panel) {
 			// new panel : catch some events
-			long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask;
-			if (g_tooltip.enabled)
-				event_mask |= PointerMotionMask|LeaveWindowMask;
-			if (panel_autohide)
-				event_mask |= LeaveWindowMask|EnterWindowMask;
-			XSetWindowAttributes att = { .event_mask=event_mask, .colormap=server.colormap, .background_pixel=0, .border_pixel=0 };
+			XSetWindowAttributes att = { .colormap=server.colormap, .background_pixel=0, .border_pixel=0 };
 			unsigned long mask = CWEventMask|CWColormap|CWBackPixel|CWBorderPixel;
 			p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, server.visual, mask, &att);
 		}
@@ -178,6 +175,13 @@ void init_panel()
 			// old panel
 			XMoveResizeWindow(server.dsp, p->main_win, p->posx, p->posy, p->area.width, p->area.height);
 		}
+
+		long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
+		if (g_tooltip.enabled)
+			event_mask |= PointerMotionMask|LeaveWindowMask;
+		if (panel_autohide)
+			event_mask |= LeaveWindowMask|EnterWindowMask;
+		XChangeWindowAttributes(server.dsp, p->main_win, CWEventMask, &(XSetWindowAttributes){.event_mask=event_mask});
 
 		if (!server.gc) {
 			XGCValues  gcv;

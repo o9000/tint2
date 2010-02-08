@@ -282,9 +282,8 @@ void update_battery() {
 		new_percentage = (energy_now*100)/energy_full;
 
 	if(battery_low_status > new_percentage && battery_state.state == BATTERY_DISCHARGING && !battery_low_cmd_send) {
-		if (battery_low_cmd)
-			if (-1 != system(battery_low_cmd))
-				battery_low_cmd_send = 1;
+			system(battery_low_cmd);  // return value == -1, since we've set SIGCHLD to SIGIGN
+			battery_low_cmd_send = 1;
 	}
 	if(battery_low_status < new_percentage && battery_state.state == BATTERY_CHARGING && battery_low_cmd_send) {
 		battery_low_cmd_send = 0;

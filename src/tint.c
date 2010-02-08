@@ -303,6 +303,60 @@ void event_button_press (XEvent *e)
 	XLowerWindow (server.dsp, panel->main_win);
 }
 
+void event_button_motion_notify (XEvent *e)
+{
+	Panel * panel = get_panel(e->xany.window);
+	if(!panel || !task_drag)
+		return;
+ 
+	// Find the taskbar on the event's location
+	Taskbar * event_taskbar = click_taskbar(panel, e->xbutton.x, e->xbutton.y);
+	if(event_taskbar == NULL)
+		return;
+
+	// Find the task on the event's location
+	Task * event_task = click_task(panel, e->xbutton.x, e->xbutton.y);
+
+	// If the event takes place on the same taskbar as the task being dragged
+	if(event_taskbar == task_drag->area.parent)	{
+		// Swap the task_drag with the task on the event's location (if they differ)
+		if(event_task && event_task != task_drag) {
+			GSList * drag_iter = g_slist_find(event_taskbar->area.list, task_drag);
+			GSList * task_iter = g_slist_find(event_taskbar->area.list, event_task);
+			if(drag_iter && task_iter) {
+				gpointer temp = task_iter->data;
+				task_iter->data = drag_iter->data;
+				drag_iter->data = temp;
+				event_taskbar->area.resize = 1;
+				panel_refresh = 1;
+				task_dragged = 1;
+			}
+		}
+	}
+	else { // The event is on another taskbar than the task being dragged
+		if(task_drag->desktop == ALLDESKTOP || panel_mode != MULTI_DESKTOP)
+			return;
+
+		Taskbar * drag_taskbar = (Taskbar*)task_drag->area.parent;
+		drag_taskbar->area.list = g_slist_remove(drag_taskbar->area.list, task_drag);
+
+		if(event_taskbar->area.posx > drag_taskbar->area.posx || event_taskbar->area.posy > drag_taskbar->area.posy)
+			event_taskbar->area.list = g_slist_prepend(event_taskbar->area.list, task_drag);
+		else
+			event_taskbar->area.list = g_slist_append(event_taskbar->area.list, task_drag);
+
+		// Move task to other desktop (but avoid the 'Window desktop changed' code in 'event_property_notify')
+		task_drag->area.parent = event_taskbar;
+		task_drag->desktop = event_taskbar->desktop;
+
+		windows_set_desktop(task_drag->win, event_taskbar->desktop);
+
+		event_taskbar->area.resize = 1;
+		drag_taskbar->area.resize = 1;
+		task_dragged = 1;
+		panel_refresh = 1;
+	}
+}
 
 void event_button_release (XEvent *e)
 {
@@ -353,24 +407,17 @@ void event_button_release (XEvent *e)
 		return;
 	}
 
-	// drag and drop task
-	if (task_drag) {
-		if (tskbar != task_drag->area.parent && action == TOGGLE_ICONIFY) {
-			if (task_drag->desktop != ALLDESKTOP && panel_mode == MULTI_DESKTOP) {
-				windows_set_desktop(task_drag->win, tskbar->desktop);
-				if (tskbar->desktop == server.desktop)
-					set_active(task_drag->win);
-				task_drag = 0;
-			}
-			return;
-		}
-		else task_drag = 0;
-	}
-
 	// switch desktop
 	if (panel_mode == MULTI_DESKTOP) {
 		if (tskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT && action != DESKTOP_RIGHT)
 			set_desktop (tskbar->desktop);
+	}
+
+	// drag and drop task
+	if (task_dragged) {
+		task_drag = 0;
+		task_dragged = 0;
+		return;
 	}
 
 	// action on task
@@ -739,6 +786,10 @@ int main (int argc, char *argv[])
 						break;
 
 					case MotionNotify: {
+						unsigned int button_mask = Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask;
+						if (e.xmotion.state & button_mask)
+							event_button_motion_notify (&e);
+						
 						if (!g_tooltip.enabled) break;
 						Panel* panel = get_panel(e.xmotion.window);
 						Area* area = click_area(panel, e.xmotion.x, e.xmotion.y);
