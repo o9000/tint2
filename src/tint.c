@@ -308,7 +308,7 @@ void event_button_motion_notify (XEvent *e)
 	Panel * panel = get_panel(e->xany.window);
 	if(!panel || !task_drag)
 		return;
- 
+
 	// Find the taskbar on the event's location
 	Taskbar * event_taskbar = click_taskbar(panel, e->xbutton.x, e->xbutton.y);
 	if(event_taskbar == NULL)
@@ -407,17 +407,17 @@ void event_button_release (XEvent *e)
 		return;
 	}
 
-	// switch desktop
-	if (panel_mode == MULTI_DESKTOP) {
-		if (tskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT && action != DESKTOP_RIGHT)
-			set_desktop (tskbar->desktop);
-	}
-
 	// drag and drop task
 	if (task_dragged) {
 		task_drag = 0;
 		task_dragged = 0;
 		return;
+	}
+
+	// switch desktop
+	if (panel_mode == MULTI_DESKTOP) {
+		if (tskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT && action != DESKTOP_RIGHT)
+			set_desktop (tskbar->desktop);
 	}
 
 	// action on task
@@ -789,7 +789,7 @@ int main (int argc, char *argv[])
 						unsigned int button_mask = Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask;
 						if (e.xmotion.state & button_mask)
 							event_button_motion_notify (&e);
-						
+
 						if (!g_tooltip.enabled) break;
 						Panel* panel = get_panel(e.xmotion.window);
 						Area* area = click_area(panel, e.xmotion.x, e.xmotion.y);
