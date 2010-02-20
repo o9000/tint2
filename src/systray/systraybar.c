@@ -352,6 +352,7 @@ gboolean add_icon(Window id)
 	XGetWindowAttributes(server.dsp, id, &attr);
 	unsigned long mask = 0;
 	XSetWindowAttributes set_attr;
+//	printf("icon with depth: %d\n", attr.depth);
 	if (attr.depth != server.depth || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0 ) {
 		set_attr.colormap = attr.colormap;
 		set_attr.background_pixel = 0;
@@ -508,6 +509,7 @@ void net_message(XClientMessageEvent *e)
 
 void systray_render_icon_now(void* t)
 {
+	// we end up in this function only in real transparency mode or if systray_task_asb != 100 0 0
 	TrayWindow* traywin = t;
 	traywin->render_timeout = 0;
 
@@ -526,7 +528,7 @@ void systray_render_icon_now(void* t)
 	else if (traywin->depth == 32)
 		f = XRenderFindStandardFormat(server.dsp, PictStandardARGB32);
 	else {
-		printf("Strange tray icon found...\n");
+		printf("Strange tray icon found with depth: %d\n", traywin->depth);
 		return;
 	}
 	Picture pict_image = XRenderCreatePicture(server.dsp, traywin->tray_id, f, 0, 0);

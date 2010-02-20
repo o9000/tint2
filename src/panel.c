@@ -433,6 +433,12 @@ void visible_object()
 
 void update_strut(Panel* p)
 {
+	if (panel_strut_policy == STRUT_NONE) {
+		XDeleteProperty(server.dsp, p->main_win, server.atom._NET_WM_STRUT);
+		XDeleteProperty(server.dsp, p->main_win, server.atom._NET_WM_STRUT_PARTIAL);
+		return;
+	}
+
 	// Reserved space
 	unsigned int d1, screen_width, screen_height;
 	Window d2;

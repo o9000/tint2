@@ -596,6 +596,8 @@ void add_entry (char *key, char *value)
 	else if (strcmp(key, "strut_policy") == 0) {
 		if (strcmp(value, "follow_size") == 0)
 			panel_strut_policy = STRUT_FOLLOW_SIZE;
+		else if (strcmp(value, "none") == 0)
+			panel_strut_policy = STRUT_NONE;
 		else
 			panel_strut_policy = STRUT_MINIMUM;
 	}

@@ -52,7 +52,7 @@ extern int panel_refresh;
 extern int task_dragged;
 
 //panel autohide
-enum { STRUT_MINIMUM, STRUT_FOLLOW_SIZE };
+enum { STRUT_MINIMUM, STRUT_FOLLOW_SIZE, STRUT_NONE };
 extern int panel_autohide;
 extern int panel_autohide_show_timeout;
 extern int panel_autohide_hide_timeout;
