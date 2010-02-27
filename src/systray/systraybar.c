@@ -353,7 +353,7 @@ gboolean add_icon(Window id)
 	unsigned long mask = 0;
 	XSetWindowAttributes set_attr;
 //	printf("icon with depth: %d\n", attr.depth);
-	if (attr.depth != server.depth || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0 ) {
+	if (attr.depth != server.depth ) {
 		set_attr.colormap = attr.colormap;
 		set_attr.background_pixel = 0;
 		set_attr.border_pixel = 0;
@@ -546,7 +546,7 @@ void systray_render_icon_now(void* t)
 	imlib_context_set_image(image);
 	imlib_image_set_has_alpha(1);
 	DATA32* data = imlib_image_get_data();
-	if (traywin->depth == 24) {
+	if (traywin->depth == 24 && server.depth != 24) {
 		createHeuristicMask(data, traywin->width, traywin->height);
 	}
 	if (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
