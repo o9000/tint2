@@ -96,10 +96,12 @@ typedef struct
 	Monitor *monitor;
 	int got_root_win;
 	Visual *visual;
+	Visual *visual32;
 	// root background
 	Pixmap root_pmap;
 	GC gc;
 	Colormap colormap;
+	Colormap colormap32;
 	Global_atom atom;
 } Server_global;
 

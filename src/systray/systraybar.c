@@ -61,6 +61,11 @@ void init_systray()
 	if (!systray_enabled)
 		return;
 
+	if (!server.visual32 && (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)) {
+		printf("No 32 bit visual for your X implementation. 'systray_asb = 100 0 0' will be forced\n");
+		systray.alpha = 100;
+		systray.brightness = systray.saturation = 0;
+	}
 	systray.area._draw_foreground = draw_systray;
 	systray.area._resize = resize_systray;
 	systray.area.resize = 1;
@@ -262,7 +267,11 @@ void start_net()
 	// Vertical panel will draw the systray horizontal.
 	int orient = 0;
 	XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_ORIENTATION, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &orient, 1);
-	VisualID vid = XVisualIDFromVisual(server.visual);
+	VisualID vid;
+	if (server.visual32 && (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0))
+		vid = XVisualIDFromVisual(server.visual32);
+	else
+		vid = XVisualIDFromVisual(server.visual);
 	XChangeProperty(server.dsp, net_sel_win, XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_VISUAL", False), XA_VISUALID, 32, PropModeReplace, (unsigned char*)&vid, 1);
 
 	XSetSelectionOwner(server.dsp, server.atom._NET_SYSTEM_TRAY_SCREEN, net_sel_win, CurrentTime);
@@ -352,8 +361,8 @@ gboolean add_icon(Window id)
 	XGetWindowAttributes(server.dsp, id, &attr);
 	unsigned long mask = 0;
 	XSetWindowAttributes set_attr;
-//	printf("icon with depth: %d\n", attr.depth);
-	if (attr.depth != server.depth ) {
+	printf("icon with depth: %d\n", attr.depth);
+	if (attr.depth != server.depth || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		set_attr.colormap = attr.colormap;
 		set_attr.background_pixel = 0;
 		set_attr.border_pixel = 0;
@@ -433,7 +442,7 @@ gboolean add_icon(Window id)
 	// watch for the icon trying to resize itself!
 	XSelectInput(server.dsp, traywin->tray_id, StructureNotifyMask);
 	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
-		traywin->damage = XDamageCreate(server.dsp, traywin->id, XDamageReportNonEmpty);
+		traywin->damage = XDamageCreate(server.dsp, traywin->id, XDamageReportRawRectangles);
 		XCompositeRedirectWindow(server.dsp, traywin->id, CompositeRedirectManual);
 	}
 
@@ -472,6 +481,8 @@ void remove_icon(TrayWindow *traywin)
 	XDestroyWindow(server.dsp, traywin->id);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
+	if (traywin->render_timeout)
+		stop_timeout(traywin->render_timeout);
 	g_free(traywin);
 
 	// changed in systray force resize on panel
@@ -510,6 +521,7 @@ void net_message(XClientMessageEvent *e)
 void systray_render_icon_now(void* t)
 {
 	// we end up in this function only in real transparency mode or if systray_task_asb != 100 0 0
+	// we made also sure, that we always have a 32 bit visual, i.e. we can safely create 32 bit pixmaps here
 	TrayWindow* traywin = t;
 	traywin->render_timeout = 0;
 
@@ -521,7 +533,7 @@ void systray_render_icon_now(void* t)
 	// Very ugly hack, but somehow imlib2 is not able to get the image from the traywindow itself,
 	// so we first render the tray window onto a pixmap, and then we tell imlib2 to use this pixmap as
 	// drawable. If someone knows why it does not work with the traywindow itself, please tell me ;)
-	Pixmap tmp_pmap = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
+	Pixmap tmp_pmap = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, 32);
 	XRenderPictFormat* f;
 	if (traywin->depth == 24)
 		f = XRenderFindStandardFormat(server.dsp, PictStandardRGB24);
@@ -532,12 +544,14 @@ void systray_render_icon_now(void* t)
 		return;
 	}
 	Picture pict_image = XRenderCreatePicture(server.dsp, traywin->tray_id, f, 0, 0);
-	Picture pict_drawable = XRenderCreatePicture(server.dsp, tmp_pmap, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
+	Picture pict_drawable = XRenderCreatePicture(server.dsp, tmp_pmap, XRenderFindVisualFormat(server.dsp, server.visual32), 0, 0);
 	XRenderComposite(server.dsp, PictOpSrc, pict_image, None, pict_drawable, 0, 0, 0, 0, 0, 0, traywin->width, traywin->height);
 	XRenderFreePicture(server.dsp, pict_image);
 	XRenderFreePicture(server.dsp, pict_drawable);
 	// end of the ugly hack and we can continue as before
 
+	imlib_context_set_visual(server.visual32);
+	imlib_context_set_colormap(server.colormap32);
 	imlib_context_set_drawable(tmp_pmap);
 	Imlib_Image image = imlib_create_image_from_drawable(0, 0, 0, traywin->width, traywin->height, 1);
 	if (image == 0)
@@ -546,23 +560,19 @@ void systray_render_icon_now(void* t)
 	imlib_context_set_image(image);
 	imlib_image_set_has_alpha(1);
 	DATA32* data = imlib_image_get_data();
-	if (traywin->depth == 24 && server.depth != 24) {
+	if (traywin->depth == 24) {
 		createHeuristicMask(data, traywin->width, traywin->height);
 	}
 	if (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
 		adjust_asb(data, traywin->width, traywin->height, systray.alpha, (float)systray.saturation/100, (float)systray.brightness/100);
 	imlib_image_put_back_data(data);
 	XCopyArea(server.dsp, render_background, systray.area.pix, server.gc, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height, traywin->x-systray.area.posx, traywin->y-systray.area.posy);
-	if ( !real_transparency ) {
-		imlib_context_set_drawable(systray.area.pix);
-		imlib_render_image_on_drawable(traywin->x-systray.area.posx, traywin->y-systray.area.posy);
-	}
-	else {
-		render_image(systray.area.pix, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height);
-	}
+	render_image(systray.area.pix, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height);
 	XCopyArea(server.dsp, systray.area.pix, panel->main_win, server.gc, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height, traywin->x, traywin->y);
 	imlib_free_image_and_decache();
 	XFreePixmap(server.dsp, tmp_pmap);
+	imlib_context_set_visual(server.visual);
+	imlib_context_set_colormap(server.colormap);
 
 	if (traywin->damage)
 		XDamageSubtract(server.dsp, traywin->damage, None, None);

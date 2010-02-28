@@ -103,6 +103,7 @@ void server_init_atoms ()
 void cleanup_server()
 {
 	if (server.colormap) XFreeColormap(server.dsp, server.colormap);
+	if (server.colormap32) XFreeColormap(server.dsp, server.colormap32);
 	if (server.monitor) free(server.monitor);
 	if (server.gc) XFreeGC(server.dsp, server.gc);
 }
@@ -336,6 +337,13 @@ void server_init_visual()
 	server.composite_manager = XGetSelectionOwner(server.dsp, server.atom._NET_WM_CM_S0);
 	if (server.colormap)
 		XFreeColormap(server.dsp, server.colormap);
+	if (server.colormap32)
+		XFreeColormap(server.dsp, server.colormap32);
+
+	if (visual) {
+		server.visual32 = visual;
+		server.colormap32 = XCreateColormap(server.dsp, server.root_win, visual, AllocNone);
+	}
 
 	if (visual && server.composite_manager != None) {
 		XSetWindowAttributes attrs;
