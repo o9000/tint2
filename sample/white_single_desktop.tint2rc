@@ -39,7 +39,7 @@ panel_background_id = 3
 wm_menu = 1
 panel_dock = 0
 panel_layer = bottom
-
+strut_policy = minimum
 
 #---------------------------------------------
 # TASKS
@@ -56,7 +56,6 @@ task_font_color = #151515 60
 task_active_font_color = #ffffff 70
 task_background_id = 1
 task_active_background_id = 2
-
 
 #---------------------------------------------
 # TASKBAR
@@ -130,5 +129,4 @@ autohide = 0
 autohide_show_timeout = 0.3
 autohide_hide_timeout = 2
 autohide_height = 4
-strut_policy = minimum
 

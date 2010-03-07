@@ -33,6 +33,7 @@ panel_background_id = 1
 wm_menu = 0
 panel_dock = 0
 panel_layer = bottom
+strut_policy = minimum
 
 #---------------------------------------------
 # TASKBAR
@@ -131,4 +132,3 @@ autohide = 0
 autohide_show_timeout = 0.3
 autohide_hide_timeout = 2
 autohide_height = 4
-strut_policy = minimum

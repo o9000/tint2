@@ -17,7 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #*************************************************************************/
-# Last modified: 6th March 2010
+# Last modified: 7th March 2010
 
 import pygtk
 pygtk.require('2.0')
@@ -32,7 +32,7 @@ import shutil
 # Project information
 NAME = "tintwizard"
 AUTHORS = ["Euan Freeman <euan04@gmail.com>"]
-VERSION = "0.3"
+VERSION = "0.3.1"
 COMMENTS = "tintwizard generates config files for the lightweight panel replacement tint2"
 WEBSITE = "http://code.google.com/p/tintwizard/"
 
@@ -92,6 +92,7 @@ TOOLTIP_PADDING_Y = "0"
 TOOLTIP_SHOW_TIMEOUT = "0"
 TOOLTIP_HIDE_TIMEOUT = "0"
 BATTERY_LOW = "20"
+BATTERY_HIDE = "90"
 BATTERY_ACTION = 'notify-send "battery low"'
 BATTERY_PADDING_X = "0"
 BATTERY_PADDING_Y = "0"
@@ -1446,64 +1447,73 @@ class TintWizardGUI(gtk.Window):
 		self.batteryLowAction.set_text(BATTERY_ACTION)
 		self.batteryLowAction.connect("changed", self.changeOccurred)
 		self.tableBattery.attach(self.batteryLowAction, 1, 3, 2, 3, xoptions=gtk.EXPAND)
+		
+		temp = gtk.Label("Battery Hide (0 to 100)")
+		temp.set_alignment(0, 0.5)
+		self.tableBattery.attach(temp, 0, 1, 3, 4, xpadding=10)
+		self.batteryHide = gtk.Entry(6)
+		self.batteryHide.set_width_chars(8)
+		self.batteryHide.set_text(BATTERY_HIDE)
+		self.batteryHide.connect("changed", self.changeOccurred)
+		self.tableBattery.attach(self.batteryHide, 1, 2, 3, 4, xoptions=gtk.EXPAND)
 
 		temp = gtk.Label("Battery 1 Font")
 		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 3, 4, xpadding=10)
+		self.tableBattery.attach(temp, 0, 1, 4, 5, xpadding=10)
 		self.bat1FontButton = gtk.FontButton()
 		self.bat1FontButton.set_font_name(self.defaults["font"])
 		self.bat1FontButton.connect("font-set", self.changeOccurred)
-		self.tableBattery.attach(self.bat1FontButton, 1, 2, 3, 4, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		self.tableBattery.attach(self.bat1FontButton, 1, 2, 4, 5, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
 		temp = gtk.Label("Battery 2 Font")
 		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 4, 5, xpadding=10)
+		self.tableBattery.attach(temp, 0, 1, 5, 6, xpadding=10)
 		self.bat2FontButton = gtk.FontButton()
 		self.bat2FontButton.set_font_name(self.defaults["font"])
 		self.bat2FontButton.connect("font-set", self.changeOccurred)
-		self.tableBattery.attach(self.bat2FontButton, 1, 2, 4, 5, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		self.tableBattery.attach(self.bat2FontButton, 1, 2, 5, 6, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
 		temp = gtk.Label("Battery Font Color")
 		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 5, 6, xpadding=10)
+		self.tableBattery.attach(temp, 0, 1, 6, 7, xpadding=10)
 		self.batteryFontCol = gtk.Entry(7)
 		self.batteryFontCol.set_width_chars(9)
 		self.batteryFontCol.set_name("batteryFontCol")
 		self.batteryFontCol.connect("activate", self.colorTyped)
-		self.tableBattery.attach(self.batteryFontCol, 1, 2, 5, 6, xoptions=gtk.EXPAND)
+		self.tableBattery.attach(self.batteryFontCol, 1, 2, 6, 7, xoptions=gtk.EXPAND)
 		self.batteryFontColButton = gtk.ColorButton(gtk.gdk.color_parse(self.defaults["fgColor"]))
 		self.batteryFontColButton.set_use_alpha(True)
 		self.batteryFontColButton.set_name("batteryFontCol")
 		self.batteryFontColButton.connect("color-set", self.colorChange)
-		self.tableBattery.attach(self.batteryFontColButton, 2, 3, 5, 6, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		self.tableBattery.attach(self.batteryFontColButton, 2, 3, 6, 7, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 		self.batteryFontCol.set_text(self.defaults["fgColor"])
 		# Add this AFTER we set color to avoid "changed" event
 		self.batteryFontCol.connect("changed", self.changeOccurred)
 
 		temp = gtk.Label("Padding (x, y)")
 		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 6, 7, xpadding=10)
+		self.tableBattery.attach(temp, 0, 1, 7, 8, xpadding=10)
 		self.batteryPadX = gtk.Entry(6)
 		self.batteryPadX.set_width_chars(8)
 		self.batteryPadX.set_text(BATTERY_PADDING_X)
 		self.batteryPadX.connect("changed", self.changeOccurred)
-		self.tableBattery.attach(self.batteryPadX, 1, 2, 6, 7, xoptions=gtk.EXPAND)
+		self.tableBattery.attach(self.batteryPadX, 1, 2, 7, 8, xoptions=gtk.EXPAND)
 		self.batteryPadY = gtk.Entry(6)
 		self.batteryPadY.set_width_chars(8)
 		self.batteryPadY.set_text(BATTERY_PADDING_Y)
 		self.batteryPadY.connect("changed", self.changeOccurred)
-		self.tableBattery.attach(self.batteryPadY, 2, 3, 6, 7, xoptions=gtk.EXPAND)
+		self.tableBattery.attach(self.batteryPadY, 2, 3, 7, 8, xoptions=gtk.EXPAND)
 
 		temp = gtk.Label("Battery Background ID")
 		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 7, 8, xpadding=10)
+		self.tableBattery.attach(temp, 0, 1, 8, 9, xpadding=10)
 		self.batteryBg = gtk.combo_box_new_text()
 		self.batteryBg.append_text("0 (fully transparent)")
 		for i in range(len(self.bgs)):
 			self.batteryBg.append_text(str(i+1))
 		self.batteryBg.set_active(0)
 		self.batteryBg.connect("changed", self.changeOccurred)
-		self.tableBattery.attach(self.batteryBg, 1, 2, 7, 8, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		self.tableBattery.attach(self.batteryBg, 1, 2, 8, 9, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
 		# View Config
 		self.configArea = gtk.ScrolledWindow()
@@ -1655,6 +1665,7 @@ class TintWizardGUI(gtk.Window):
 			"battery": self.batteryCheckButton,
 			"battery_low_status": self.batteryLow,
 			"battery_low_cmd": self.batteryLowAction,
+			"battery_hide": self.batteryHide,
 			"bat1_font": self.bat1FontButton,
 			"bat2_font": self.bat2FontButton,
 			"battery_font_color": (self.batteryFontCol, self.batteryFontColButton),
@@ -2129,6 +2140,7 @@ class TintWizardGUI(gtk.Window):
 		self.configBuf.insert(self.configBuf.get_end_iter(), "battery = %s\n" % int(self.batteryCheckButton.get_active()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "battery_low_status = %s\n" % (self.batteryLow.get_text() if self.batteryLow.get_text() else BATTERY_LOW))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "battery_low_cmd = %s\n" % (self.batteryLowAction.get_text() if self.batteryLowAction.get_text() else BATTERY_ACTION))
+		self.configBuf.insert(self.configBuf.get_end_iter(), "battery_hide = %s\n" % (self.batteryHide.get_text() if self.batteryHide.get_text() else BATTERY_HIDE))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "bat1_font = %s\n" % (self.bat1FontButton.get_font_name()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "bat2_font = %s\n" % (self.bat2FontButton.get_font_name()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "battery_font_color = %s %s\n" % (self.getHexFromWidget(self.batteryFontColButton),
@@ -2620,6 +2632,7 @@ class TintWizardGUI(gtk.Window):
 		self.batteryCheckButton.set_active(False)
 		self.batteryLow.set_text(BATTERY_LOW)
 		self.batteryLowAction.set_text(BATTERY_ACTION)
+		self.batteryHide.set_text(BATTERY_HIDE)
 		self.bat1FontButton.set_font_name(self.defaults["font"])
 		self.bat2FontButton.set_font_name(self.defaults["font"])
 		self.batteryFontColButton.set_alpha(65535)
