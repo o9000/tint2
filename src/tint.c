@@ -692,6 +692,8 @@ int main (int argc, char *argv[])
 
 	init (argc, argv);
 	init_config();
+	init_X11();
+
 	i = 0;
 	if (config_path)
 		i = config_read_file (config_path);
@@ -703,7 +705,6 @@ int main (int argc, char *argv[])
 		exit(1);
 	}
 
-	init_X11();
 	init_panel();
 	cleanup_config();
 	if (snapshot_path) {

@@ -19,6 +19,8 @@
 **************************************************************************/
 
 #include <X11/extensions/Xrender.h>
+#include <X11/extensions/Xrandr.h>
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -104,7 +106,12 @@ void cleanup_server()
 {
 	if (server.colormap) XFreeColormap(server.dsp, server.colormap);
 	if (server.colormap32) XFreeColormap(server.dsp, server.colormap32);
-	if (server.monitor) free(server.monitor);
+	if (server.monitor) {
+		int i;
+		for (i=0; i<server.nb_monitor; ++i)
+			g_strfreev(server.monitor[i].names);
+		free(server.monitor);
+	}
 	if (server.gc) XFreeGC(server.dsp, server.gc);
 }
 
@@ -245,42 +252,75 @@ int compareMonitorIncluded(const void *monitor1, const void *monitor2)
 
 void get_monitors()
 {
-	if (server.monitor) free(server.monitor);
+	if (server.monitor) {
+		int i;
+		for (i=0; i<server.nb_monitor; ++i)
+			g_strfreev(server.monitor[i].names);
+		free(server.monitor);
+	}
 	server.nb_monitor = 0;
 	server.monitor = 0;
 
 	int i, j, nbmonitor;
 	if (XineramaIsActive(server.dsp)) {
 		XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &nbmonitor);
+		XRRScreenResources *res = XRRGetScreenResourcesCurrent(server.dsp, server.root_win);
 
-		if (info && nbmonitor > 0) {
+		if (res->ncrtc >= nbmonitor) {
+			// use xrandr to identify monitors (does not work with proprietery nvidia drivers)
+			printf("xRandr: Found crtc's: %d\n", res->ncrtc );
+			server.monitor = malloc(res->ncrtc * sizeof(Monitor));
+			for (i=0; i<res->ncrtc; ++i) {
+				XRRCrtcInfo* crtc_info = XRRGetCrtcInfo(server.dsp, res, res->crtcs[i]);
+				server.monitor[i].x = crtc_info->x;
+				server.monitor[i].y = crtc_info->y;
+				server.monitor[i].width = crtc_info->width;
+				server.monitor[i].height = crtc_info->height;
+				server.monitor[i].names = malloc((crtc_info->noutput+1) * sizeof(char*));
+				for (j=0; j<crtc_info->noutput; ++j) {
+					XRROutputInfo* output_info = XRRGetOutputInfo(server.dsp, res, crtc_info->outputs[j]);
+					printf("xRandr: Linking output %s with crtc %d\n", output_info->name, i);
+					server.monitor[i].names[j] = g_strdup(output_info->name);
+					XRRFreeOutputInfo(output_info);
+				}
+				server.monitor[i].names[j] = 0;
+				XRRFreeCrtcInfo(crtc_info);
+			}
+			nbmonitor = res->ncrtc;
+		}
+		else if (info && nbmonitor > 0) {
 			server.monitor = malloc(nbmonitor * sizeof(Monitor));
 			for (i=0 ; i < nbmonitor ; i++) {
 				server.monitor[i].x = info[i].x_org;
 				server.monitor[i].y = info[i].y_org;
 				server.monitor[i].width = info[i].width;
 				server.monitor[i].height = info[i].height;
+				server.monitor[i].names = 0;
 			}
-			XFree(info);
-
-			// ordered monitor
-			qsort(server.monitor, nbmonitor, sizeof(Monitor), compareMonitorIncluded);
-
-			// remove monitor included into another one
-			i = 0;
-			while (i < nbmonitor) {
-				for (j=0; j < i ; j++) {
-					if (compareMonitorIncluded(&server.monitor[i], &server.monitor[j]) > 0) {
-						goto next;
-					}
-				}
-				i++;
-			}
-next:
-			server.nb_monitor = i;
-			server.monitor = realloc(server.monitor, server.nb_monitor * sizeof(Monitor));
-			qsort(server.monitor, server.nb_monitor, sizeof(Monitor), compareMonitorPos);
 		}
+
+		// ordered monitor
+		qsort(server.monitor, nbmonitor, sizeof(Monitor), compareMonitorIncluded);
+
+		// remove monitor included into another one
+		i = 0;
+		while (i < nbmonitor) {
+			for (j=0; j < i ; j++) {
+				if (compareMonitorIncluded(&server.monitor[i], &server.monitor[j]) > 0) {
+					goto next;
+				}
+			}
+			i++;
+		}
+next:
+		for (j=i; j<server.nb_monitor; ++j)
+			g_strfreev(server.monitor[j].names);
+		server.nb_monitor = i;
+		server.monitor = realloc(server.monitor, server.nb_monitor * sizeof(Monitor));
+		qsort(server.monitor, server.nb_monitor, sizeof(Monitor), compareMonitorPos);
+
+		XRRFreeScreenResources(res);
+		XFree(info);
 	}
 
 	if (!server.nb_monitor) {

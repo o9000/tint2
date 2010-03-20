@@ -185,6 +185,30 @@ int get_task_status(char* status)
 }
 
 
+int config_get_monitor(char* monitor)
+{
+	if (strcmp(monitor, "all") == 0)
+		return -1;
+	else {
+		char* endptr;
+		int ret_int = strtol(monitor, &endptr, 10);
+		if (*endptr == 0)
+			return ret_int-1;
+		else {
+			// monitor specified by name, not by index
+			int i, j;
+			for (i=0; i<server.nb_monitor; ++i) {
+				j = 0;
+				while (server.monitor[i].names[j] != 0) {
+					if (strcmp(monitor, server.monitor[i].names[j++]) == 0)
+						return i;
+				}
+			}
+		}
+	}
+	return -1;
+}
+
 void add_entry (char *key, char *value)
 {
 	char *value1=0, *value2=0, *value3=0;
@@ -216,11 +240,7 @@ void add_entry (char *key, char *value)
 
 	/* Panel */
 	else if (strcmp (key, "panel_monitor") == 0) {
-		if (strcmp (value, "all") == 0) panel_config.monitor = -1;
-		else {
-			panel_config.monitor = atoi (value);
-			if (panel_config.monitor > 0) panel_config.monitor -= 1;
-		}
+		panel_config.monitor = config_get_monitor(value);
 	}
 	else if (strcmp (key, "panel_size") == 0) {
 		extract_values(value, &value1, &value2, &value3);
