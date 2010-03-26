@@ -27,6 +27,7 @@
 #include <pango/pangocairo.h>
 
 #include "server.h"
+#include "config.h"
 #include "window.h"
 #include "task.h"
 #include "panel.h"
@@ -190,8 +191,8 @@ void init_panel()
 		//printf("panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
 		set_panel_properties(p);
 		set_panel_background(p);
-		if (i >= old_nb_panel) {
-			// map new panel
+		if (i >= old_nb_panel && snapshot_path == 0) {
+			// if we are not in 'snapshot' mode then map new panel
 			XMapWindow (server.dsp, p->main_win);
 		}
 

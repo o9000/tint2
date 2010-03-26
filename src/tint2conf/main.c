@@ -35,9 +35,9 @@
 
 
 // default config file and directory
-char *g_path_config = 0;
-char *g_path_dir = 0;
-char *g_default_theme = 0;
+char *g_path_config = NULL;
+char *g_path_dir = NULL;
+char *g_default_theme = NULL;
 int g_width;
 int g_height;
 
@@ -51,13 +51,13 @@ static void menuAddWidget (GtkUIManager *, GtkWidget *, GtkContainer *);
 
 // action on menus
 static void menuAdd (GtkWindow * parent);
-//static void menuSaveAs (GtkWindow *parent);
+static void menuSaveAs (GtkWindow *parent);
 static void menuDelete (void);
 static void menuProperties (void);
-static void menuRename (void);
 static void menuQuit (void);
 static void menuRefresh (void);
 static void menuRefreshAll (void);
+static void menuPreferences (void);
 static void menuApply (void);
 static void menuAbout(GtkWindow * parent);
 
@@ -79,32 +79,31 @@ static const char *global_ui =
 	"  <menubar name='MenuBar'>"
 	"    <menu action='ThemeMenu'>"
 	"      <menuitem action='ThemeAdd'/>"
-//	"      <menuitem action='ThemeSaveAs'/>"
+	"      <menuitem action='ThemeSaveAs'/>"
 	"      <separator/>"
 	"      <menuitem action='ThemeDelete'/>"
 	"      <separator/>"
 	"      <menuitem action='ThemeProperties'/>"
-	"      <menuitem action='ThemeRename'/>"
 	"      <separator/>"
 	"      <menuitem action='ThemeQuit'/>"
 	"    </menu>"
-	"    <menu action='ViewMenu'>"
-	"      <menuitem action='ViewRefresh'/>"
-	"      <menuitem action='ViewRefreshAll'/>"
+	"    <menu action='EditMenu'>"
+	"      <menuitem action='EditRefresh'/>"
+	"      <menuitem action='EditRefreshAll'/>"
+//	"      <separator/>"
+//	"      <menuitem action='EditPreferences'/>"
 	"    </menu>"
 	"    <menu action='HelpMenu'>"
 	"      <menuitem action='HelpAbout'/>"
 	"    </menu>"
 	"  </menubar>"
 	"  <toolbar  name='ToolBar'>"
-	"    <toolitem action='ViewRefreshAll'/>"
-	"    <separator/>"
-	"    <toolitem action='ThemeProperties'/>"
 	"    <toolitem action='ViewApply'/>"
+	"    <toolitem action='ThemeProperties'/>"
 	"  </toolbar>"
 	"  <popup  name='ThemePopup'>"
+	"    <menuitem action='ViewApply'/>"
 	"    <menuitem action='ThemeProperties'/>"
-	"    <menuitem action='ThemeRename'/>"
 	"    <separator/>"
 	"    <menuitem action='ThemeDelete'/>"
 	"  </popup>"
@@ -115,14 +114,14 @@ static const char *global_ui =
 static GtkActionEntry entries[] = {
 	{"ThemeMenu", NULL, "Theme", NULL, NULL, NULL},
 	{"ThemeAdd", GTK_STOCK_ADD, "_Add...", "<Control>N", "Add theme", G_CALLBACK (menuAdd)},
-//	{"ThemeSaveAs", GTK_STOCK_SAVE_AS, "_Save as...", NULL, "Save theme as", G_CALLBACK (menuSaveAs)},
+	{"ThemeSaveAs", GTK_STOCK_SAVE_AS, "_Save as...", NULL, "Save theme as", G_CALLBACK (menuSaveAs)},
 	{"ThemeDelete", GTK_STOCK_DELETE, "_Delete", NULL, "Delete theme", G_CALLBACK (menuDelete)},
 	{"ThemeProperties", GTK_STOCK_PROPERTIES, "_Properties...", NULL, "Show properties", G_CALLBACK (menuProperties)},
-	{"ThemeRename", NULL, "_Rename...", NULL, "Rename theme", G_CALLBACK (menuRename)},
 	{"ThemeQuit", GTK_STOCK_QUIT, "_Quit", "<control>Q", "Quit", G_CALLBACK (menuQuit)},
-	{"ViewMenu", NULL, "View", NULL, NULL, NULL},
-	{"ViewRefresh", GTK_STOCK_REFRESH, "Refresh", NULL, "Refresh", G_CALLBACK (menuRefresh)},
-	{"ViewRefreshAll", GTK_STOCK_REFRESH, "Refresh all", NULL, "Refresh all", G_CALLBACK (menuRefreshAll)},
+	{"EditMenu", NULL, "Edit", NULL, NULL, NULL},
+	{"EditRefresh", GTK_STOCK_REFRESH, "Refresh", NULL, "Refresh", G_CALLBACK (menuRefresh)},
+	{"EditRefreshAll", GTK_STOCK_REFRESH, "Refresh all", NULL, "Refresh all", G_CALLBACK (menuRefreshAll)},
+//	{"EditPreferences", GTK_STOCK_PREFERENCES, "Preferences", NULL, "Preferences", G_CALLBACK (menuPreferences)},
 	{"ViewApply", GTK_STOCK_APPLY, "Apply", NULL, "Apply theme", G_CALLBACK (menuApply)},
 	{"HelpMenu", NULL, "Help", NULL, NULL, NULL},
 	{"HelpAbout", GTK_STOCK_ABOUT, "_About", "<Control>A", "About", G_CALLBACK (menuAbout)}
@@ -161,7 +160,7 @@ int main (int argc, char ** argv)
 	gtk_box_pack_start(GTK_BOX(vBox), scrollbar, TRUE, TRUE, 0);
 
 	// define theme view
-	g_theme_view = create_view_and_model();
+	g_theme_view = create_view();
 	gtk_container_add(GTK_CONTAINER(scrollbar), g_theme_view);
    gtk_widget_show(g_theme_view);
 	g_signal_connect(g_theme_view, "button-press-event", (GCallback)view_onButtonPressed, NULL);
@@ -232,16 +231,11 @@ static void menuAdd (GtkWindow *parent)
 			if (pt1) {
 				pt1++;
 				if (*pt1) {
-					name = strdup(pt1);
+					name = g_strdup(pt1);
 					path = g_build_filename (g_get_user_config_dir(), "tint2", name, NULL);
 					copy_file(file, path);
+					add_to_list(g_theme_view, path);
 					g_free(path);
-					pt1 = strstr(name, ".tint2rc");
-					if (pt1) {
-						file = strndup(name, pt1-name);
-						add_to_list(g_theme_view, file);
-						g_free(file);
-					}
 					g_free(name);
 				}
 			}
@@ -253,7 +247,7 @@ static void menuAdd (GtkWindow *parent)
 	gtk_widget_destroy (dialog);
 }
 
-/*
+
 static void menuSaveAs (GtkWindow *parent)
 {
 	GtkWidget *dialog;
@@ -274,28 +268,23 @@ static void menuSaveAs (GtkWindow *parent)
 	}
 	gtk_widget_destroy (dialog);
 }
-*/
+
 
 static void menuDelete (void)
 {
 	GtkTreeSelection *sel;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	char *value, *name1, *name2;
+	char *value;
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_tree_model_get(model, &iter, COL_TEXT, &value,  -1);
 		gtk_tree_selection_unselect_all(sel);
-		// remove from the gui
+
+		// remove (gui and disk)
 		gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
-
-		name1 = g_build_filename (g_get_user_config_dir(), "tint2", value, NULL);
-		name2 = g_strdup_printf("%s.tint2rc", name1);
-		g_remove(name2);
-
-		g_free(name1);
-		g_free(name2);
+		g_remove(value);
 		g_free(value);
 	}
 }
@@ -306,30 +295,18 @@ static void menuProperties (void)
 	GtkTreeSelection *sel;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	char *value, *name1, *name2, *cmd;
+	char *value, *cmd;
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_tree_model_get(model, &iter, COL_TEXT, &value,  -1);
 
-		name1 = g_build_filename ("\'", g_get_user_config_dir(), "tint2", value, NULL);
-		name2 = g_strdup_printf("%s.tint2rc\'", name1);
-
-		cmd = g_strdup_printf("tintwizard.py %s", name2);
+		cmd = g_strdup_printf("tintwizard.py \'%s\'", value);
 		system(cmd);
-		g_free(cmd);
 
-		g_free(name1);
-		g_free(name2);
+		g_free(cmd);
 		g_free(value);
 	}
-}
-
-
-static void menuRename (void)
-{
-	printf("menuRename\n");
-	// g_rename
 }
 
 
@@ -354,24 +331,25 @@ static void menuRefreshAll (void)
 }
 
 
+static void menuPreferences (void)
+{
+	printf("menuPreferences\n");
+}
+
+
 static void menuApply (void)
 {
 	GtkTreeSelection *sel;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	char *value, *name1, *name2;
+	char *value;
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_tree_model_get(model, &iter, COL_TEXT, &value,  -1);
-		name1 = g_build_filename (g_get_user_config_dir(), "tint2", value, NULL);
-		name2 = g_strdup_printf("%s.tint2rc", name1);
-		g_free(name1);
 
-		copy_file(name2, g_path_config);
-		write_config();
+		copy_file(value, g_path_config);
 		g_free(value);
-		g_free(name2);
 
 		// restart panel
 		system("killall -SIGUSR1 tint2");
@@ -430,23 +408,34 @@ static void load_theme(GtkWidget *list)
 {
 	GDir *dir;
 	gchar *file, *pt1, *name;
+	int found_theme = FALSE;
 
 	dir = g_dir_open(g_path_dir, 0, NULL);
+	if (dir == NULL) return;
 	while ((file = g_dir_read_name(dir))) {
 		pt1 = strstr(file, ".tint2rc");
 		if (pt1) {
-			name = strndup(file, pt1-file);
+			found_theme = TRUE;
+			name = g_build_filename (g_path_dir, file, NULL);
 			add_to_list(list, name);
 			g_free(name);
 		}
 	}
 	g_dir_close(dir);
 
+	if (!found_theme) {
+		// create default theme file
+		file = g_build_filename (g_get_user_config_dir(), "tint2", "default.tint2rc", NULL);
+		copy_file(g_path_config, file);
+		add_to_list(list, file);
+		g_free(file);
+	}
+
 	// search default theme
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	if (g_default_theme) {
-		printf("defaultTheme %s\n", g_default_theme);
+	if (g_default_theme != NULL) {
+		printf("loadTheme : defaultTheme %s\n", g_default_theme);
 		//gtk_tree_selection_select_iter(GtkTreeSelection *selection, GtkTreeIter *iter);
 	}
 }
@@ -457,8 +446,10 @@ void read_config()
 {
 	char *path;
 
-	if (g_default_theme)
+	if (g_default_theme != NULL) {
 		g_free(g_default_theme);
+		g_default_theme = NULL;
+	}
 
 	g_width = 600;
 	g_height = 350;
@@ -484,6 +475,8 @@ void read_config()
 		}
 	}
 	g_free(path);
+	if (g_default_theme != NULL)
+		printf("readConfig : defaultTheme %s\n", g_default_theme);
 }
 
 
@@ -518,7 +511,10 @@ void write_config()
 	if (fp != NULL) {
 		fputs("#---------------------------------------------\n", fp);
 		fputs("# TINT2CONF CONFIG FILE\n", fp);
-		fprintf(fp, "default_theme = %s\n", g_default_theme);
+		if (g_default_theme != NULL) {
+			fprintf(fp, "default_theme = %s\n", g_default_theme);
+			printf("default_theme %s\n", g_default_theme);
+		}
 		fprintf(fp, "width = %d\n", g_width);
 		fprintf(fp, "height = %d\n", g_height);
 		fputs("\n", fp);

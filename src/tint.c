@@ -166,7 +166,9 @@ void get_snapshot(const char *path)
 {
 	Panel *panel = &panel1[0];
 
-	if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
+	if (panel->area.width > server.monitor[0].width)
+		panel->area.width = server.monitor[0].width;
+
 	panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
 
 	refresh(&panel->area);

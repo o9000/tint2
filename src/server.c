@@ -27,6 +27,7 @@
 #include <unistd.h>
 
 #include "server.h"
+#include "config.h"
 #include "task.h"
 #include "window.h"
 
@@ -385,7 +386,7 @@ void server_init_visual()
 		server.colormap32 = XCreateColormap(server.dsp, server.root_win, visual, AllocNone);
 	}
 
-	if (visual && server.composite_manager != None) {
+	if (visual && server.composite_manager != None && snapshot_path == 0) {
 		XSetWindowAttributes attrs;
 		attrs.event_mask = StructureNotifyMask;
 		XChangeWindowAttributes (server.dsp, server.composite_manager, CWEventMask, &attrs);
@@ -397,6 +398,7 @@ void server_init_visual()
 		server.visual = visual;
 	}
 	else {
+		// no composite manager or snapshot mode => fake transparency
 		real_transparency = 0;
 		server.depth = DefaultDepth(server.dsp, server.screen);
 		printf("real transparency off.... depth: %d\n", server.depth);
