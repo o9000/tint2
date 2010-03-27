@@ -527,12 +527,13 @@ void add_entry (char *key, char *value)
 	}
 
 	/* Systray */
-	else if (strcmp (key, "systray") == 0) {
+	// systray disabled in snapshot mode
+	else if (strcmp (key, "systray") == 0 && snapshot_path == 0) {
 		systray_enabled = atoi(value);
 		// systray is latest option added. files without 'systray' are old.
 		old_config_file = 0;
 	}
-	else if (strcmp (key, "systray_padding") == 0) {
+	else if (strcmp (key, "systray_padding") == 0 && snapshot_path == 0) {
 		if (old_config_file)
 			systray_enabled = 1;
 		extract_values(value, &value1, &value2, &value3);

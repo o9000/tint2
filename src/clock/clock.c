@@ -258,8 +258,6 @@ void resize_clock (void *obj)
 	new_width += (2*clock->area.paddingxlr) + (2*clock->area.bg->border.width);
 
 	Panel *panel = ((Area*)obj)->panel;
-	clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.bg->border.width;
-
 	if (new_width > clock->area.width || new_width < (clock->area.width-6)) {
 		// resize clock
 		// we try to limit the number of resize
@@ -274,6 +272,8 @@ void resize_clock (void *obj)
 		systray.area.resize = 1;
 		panel_refresh = 1;
 	}
+	clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.bg->border.width;
+
 
 	g_object_unref (layout);
 	cairo_destroy (c);
