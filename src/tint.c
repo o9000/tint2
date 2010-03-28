@@ -170,7 +170,6 @@ void get_snapshot(const char *path)
 		panel->area.width = server.monitor[0].width;
 
 	panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
-
 	refresh(&panel->area);
 
 	Imlib_Image img = NULL;
@@ -180,6 +179,7 @@ void get_snapshot(const char *path)
 	imlib_context_set_image(img);
 	imlib_save_image(path);
 	imlib_free_image();
+	XFreePixmap(server.dsp, panel->temp_pmap);
 }
 
 
