@@ -358,7 +358,7 @@ gboolean add_icon(Window id)
 
 	error = FALSE;
 	XWindowAttributes attr;
-	XGetWindowAttributes(server.dsp, id, &attr);
+	if ( XGetWindowAttributes(server.dsp, id, &attr) == False ) return FALSE;
 	unsigned long mask = 0;
 	XSetWindowAttributes set_attr;
 	printf("icon with depth: %d\n", attr.depth);
@@ -423,6 +423,7 @@ gboolean add_icon(Window id)
 		XSendEvent(server.dsp, id, False, 0xFFFFFF, &e);
 	}
 
+	printf("Adding systray with window: %d\n", id);
 	traywin = g_new0(TrayWindow, 1);
 	traywin->id = parent_window;
 	traywin->tray_id = id;
@@ -463,6 +464,7 @@ void remove_icon(TrayWindow *traywin)
 {
 	XErrorHandler old;
 
+	printf("Removing systray with window: %d\n", traywin->tray_id);
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
 	systray.area.resize = 1;
@@ -543,7 +545,7 @@ void systray_render_icon_now(void* t)
 		printf("Strange tray icon found with depth: %d\n", traywin->depth);
 		return;
 	}
-	Picture pict_image = XRenderCreatePicture(server.dsp, traywin->tray_id, f, 0, 0);
+	Picture pict_image = XRenderCreatePicture(server.dsp, traywin->id, f, 0, 0);
 	Picture pict_drawable = XRenderCreatePicture(server.dsp, tmp_pmap, XRenderFindVisualFormat(server.dsp, server.visual32), 0, 0);
 	XRenderComposite(server.dsp, PictOpSrc, pict_image, None, pict_drawable, 0, 0, 0, 0, 0, 0, traywin->width, traywin->height);
 	XRenderFreePicture(server.dsp, pict_image);
