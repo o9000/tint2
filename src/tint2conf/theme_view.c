@@ -1,234 +1,117 @@
 
 #include "theme_view.h"
 
-
-enum { PROP_PERCENTAGE = 1, PROP_THEME, PROP_SNAPSHOT, };
-
-static gpointer parent_class = NULL;
-
-static void custom_list_init(CustomList *cellprogress);
-static void custom_list_class_init(CustomListClass *klass);
-static void custom_list_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
-static void custom_list_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
-static void custom_list_finalize(GObject *gobject);
-
-
-// These functions are the heart of our custom cell renderer
-static void custom_list_get_size(GtkCellRenderer *cell, GtkWidget *widget, GdkRectangle *cell_area, gint *x_offset, gint *y_offset, gint *width, gint *height);
-static void custom_list_render(GtkCellRenderer *cell, GdkWindow *window, GtkWidget *widget, GdkRectangle *background_area, GdkRectangle *cell_area, GdkRectangle *expose_area, guint flags);
+// The data columns that we export via the tree model interface
+GtkListStore *g_store;
+int g_width_list, g_height_list;
+GtkCellRenderer *g_renderer;
 
 
 
-// register our type with the GObject type system if we haven't done so yet.
-// Everything else is done in the callbacks.
-GType custom_list_get_type()
+GtkWidget *create_view()
 {
-	static GType type = 0;
+	GtkTreeViewColumn   *col;
+	GtkCellRenderer     *renderer;
+	GtkWidget           *view;
 
-	if (type)
-		return type;
+	g_store = gtk_list_store_new(NB_COL, G_TYPE_STRING, GDK_TYPE_PIXBUF);
 
-	if (1) {
-		static const GTypeInfo cell_info =
-		{
-			sizeof (CustomListClass),
-			NULL,
-			NULL,
-			(GClassInitFunc)custom_list_class_init,
-			NULL,
-			NULL,
-			sizeof (CustomList),
-			0,
-			(GInstanceInitFunc)custom_list_init,
-		};
+	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(g_store));
+	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(view), TRUE);
+	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(view), FALSE);
 
-		// Derive from GtkCellRenderer
-		type = g_type_register_static(GTK_TYPE_CELL_RENDERER, "CustomList", &cell_info, 0);
+	g_object_unref(g_store); // destroy store automatically with view
+
+	renderer = gtk_cell_renderer_text_new();
+	col = gtk_tree_view_column_new();
+	gtk_tree_view_column_pack_start(col, renderer, TRUE);
+	gtk_tree_view_column_add_attribute(col, renderer, "text", COL_THEME_FILE);
+	gtk_tree_view_column_set_visible(col, FALSE);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(view),col);
+
+	g_width_list = 200;
+	g_height_list = 30;
+	g_renderer = gtk_cell_renderer_pixbuf_new();
+	g_object_set(g_renderer, "xalign", 0.0, NULL);
+	gtk_cell_renderer_set_fixed_size(g_renderer, g_width_list, g_height_list);
+	// specific to gtk-2.18 or higher
+	//gtk_cell_renderer_set_padding(g_renderer, 5, 5);
+	col = gtk_tree_view_column_new();
+	gtk_tree_view_column_pack_start(col, g_renderer, TRUE);
+	gtk_tree_view_column_add_attribute(col, g_renderer, "pixbuf", COL_SNAPSHOT);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(view),col);
+
+	//g_timeout_add(50, (GSourceFunc) increase_timeout, NULL);
+
+	return view;
+}
+
+
+void custom_list_append(const gchar *name)
+{
+	GtkTreeIter  iter;
+	gchar *snap, *cmd;
+	gint pixWidth, pixHeight;
+	gboolean changeSize = FALSE;
+	GdkPixbuf *icon;
+
+	// build panel's snapshot
+	snap = g_build_filename (g_get_user_config_dir(), "tint2", "snap.jpg", NULL);
+	g_remove(snap);
+
+	cmd = g_strdup_printf("tint2 -c %s -s %s", name, snap);
+	system(cmd);
+	g_free(cmd);
+
+	// load
+	icon = gdk_pixbuf_new_from_file(snap, NULL);
+	g_free(snap);
+	if (!icon)
+		return;
+
+	pixWidth = gdk_pixbuf_get_width(icon);
+	pixHeight = gdk_pixbuf_get_height(icon);
+	if (g_width_list < pixWidth) {
+		g_width_list = pixWidth;
+		changeSize = TRUE;
 	}
+	if (g_height_list < (pixHeight+6)) {
+		g_height_list = pixHeight+6;
+		changeSize = TRUE;
+	}
+	if (changeSize)
+		gtk_cell_renderer_set_fixed_size(g_renderer, g_width_list, g_height_list);
 
-	return type;
+	gtk_list_store_append(g_store, &iter);
+	gtk_list_store_set(g_store, &iter, COL_THEME_FILE, name, COL_SNAPSHOT, icon, -1);
 }
 
-
-// klass initialisation
-// - override the parent's functions that we need to implement.
-// - declare our property
-// - If you want cells that are editable, you need to override 'activate' and 'start_editing'.
-static void custom_list_class_init(CustomListClass *klass)
-{
-	GtkCellRendererClass *cell_class   = GTK_CELL_RENDERER_CLASS(klass);
-	GObjectClass         *object_class = G_OBJECT_CLASS(klass);
-
-printf("custom_list_class_init : deb\n");
-	parent_class           = g_type_class_peek_parent (klass);
-
-	cell_class->render   = custom_list_render;
-	cell_class->get_size = custom_list_get_size;
-	object_class->get_property = custom_list_get_property;
-	object_class->set_property = custom_list_set_property;
-	object_class->finalize = custom_list_finalize;
-
-	// Install our very own properties
-	g_object_class_install_property(object_class, PROP_PERCENTAGE, g_param_spec_double("percentage", "Percentage", "The fractional progress to display", 0.0, 1.0, 0.0, G_PARAM_READWRITE));
-	g_object_class_install_property(object_class, PROP_THEME, g_param_spec_string("theme", "Theme", "Theme file name", NULL, G_PARAM_READWRITE));
-	g_object_class_install_property(object_class, PROP_SNAPSHOT, g_param_spec_string("snapshot", "Snapshot", "Snapshot file name", NULL, G_PARAM_READWRITE));
-}
-
-
-// CustomList renderer initialisation
-static void custom_list_init(CustomList *custom_list)
-{
-	printf("custom_list_init : deb\n");
-	// set some default properties of the parent (GtkCellRenderer).
-	GTK_CELL_RENDERER(custom_list)->mode = GTK_CELL_RENDERER_MODE_INERT;
-	GTK_CELL_RENDERER(custom_list)->xpad = 2;
-	GTK_CELL_RENDERER(custom_list)->ypad = 2;
-}
-
-
-static void custom_list_finalize(GObject *object)
-{
 /*
-  CustomList *cellrendererprogress = CUSTOM_LIST(object);
+gboolean increase_timeout (GtkCellRenderer *renderer)
+{
+  GtkTreeIter  iter;
+  gfloat       perc = 0.0;
+  //gchar        buf[20];
+
+  gtk_tree_model_get_iter_first(GTK_TREE_MODEL(g_store), &iter);
+
+  gtk_tree_model_get (GTK_TREE_MODEL(g_store), &iter, COL_SNAPSHOT, &perc, -1);
+
+  if ( perc > (1.0-STEP)  ||  (perc < STEP && perc > 0.0) )
+  {
+    increasing = (!increasing);
+  }
+
+  if (increasing)
+    perc = perc + STEP;
+  else
+    perc = perc - STEP;
+
+  //g_snprintf(buf, sizeof(buf), "%u %%", (guint)(perc*100));
+
+  gtk_list_store_set (g_store, &iter, COL_SNAPSHOT, perc, -1);
+
+  return TRUE;
+}
 */
-
-printf("custom_list_finalize\n");
-	// Free any dynamically allocated resources here
-
-	(* G_OBJECT_CLASS (parent_class)->finalize) (object);
-}
-
-
-static void custom_list_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec)
-{
-	CustomList *custom_list = CUSTOM_LIST(object);
-
-	switch (param_id) {
-		case PROP_PERCENTAGE:
-			printf("custom_list_set_property : PROP_PERCENTAGE\n");
-			custom_list->progress = g_value_get_double(value);
-			break;
-
-		case PROP_THEME:
-			printf("custom_list_set_property : PROP_THEME\n");
-			//if (custom_list->nameTheme) g_free(custom_list->nameTheme);
-			custom_list->nameTheme = g_strdup(g_value_get_string(value));
-			break;
-
-		case PROP_SNAPSHOT:
-			printf("custom_list_set_property : PROP_SNAPSHOT\n");
-			custom_list->nameSnapshot = g_strdup(g_value_get_string(value));
-			break;
-
-		default:
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
-			break;
-	}
-}
-
-
-static void custom_list_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *psec)
-{
-	CustomList *custom_list = CUSTOM_LIST(object);
-
-	switch (param_id) {
-		case PROP_PERCENTAGE:
-			printf("custom_list_get_property : PROP_PERCENTAGE\n");
-			g_value_set_double(value, custom_list->progress);
-			break;
-
-		case PROP_THEME:
-			printf("custom_list_get_property : PROP_THEME\n");
-			g_value_set_string(value, g_strdup(custom_list->nameTheme));
-			break;
-
-		case PROP_SNAPSHOT:
-			printf("custom_list_get_property : PROP_SNAPSHOT\n");
-			g_value_set_string(value, g_strdup(custom_list->nameSnapshot));
-			break;
-			//g_value_set_object (value, (GObject *)priv->image);
-
-		default:
-			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, psec);
-			break;
-	}
-}
-
-
-GtkCellRenderer *custom_list_new()
-{
-	return g_object_new(CUSTOM_LIST_TYPE, NULL);
-}
-
-
-/***************************************************************************
- *
- *  custom_cell_renderer_progress_get_size: crucial - calculate the size
- *                                          of our cell, taking into account
- *                                          padding and alignment properties
- *                                          of parent.
- *
- ***************************************************************************/
-
-#define FIXED_WIDTH   100
-#define FIXED_HEIGHT  20
-
-static void custom_list_get_size(GtkCellRenderer *cell, GtkWidget *widget, GdkRectangle *cell_area, gint *x_offset, gint *y_offset, gint *width, gint *height)
-{
-	gint calc_width;
-	gint calc_height;
-
-	calc_width  = (gint) cell->xpad * 2 + FIXED_WIDTH;
-	calc_height = (gint) cell->ypad * 2 + FIXED_HEIGHT;
-
-	if (width)
-		*width = calc_width;
-
-	if (height)
-		*height = calc_height;
-
-	if (cell_area) {
-		if (x_offset) {
-			*x_offset = cell->xalign * (cell_area->width - calc_width);
-			*x_offset = MAX (*x_offset, 0);
-		}
-
-		if (y_offset) {
-			*y_offset = cell->yalign * (cell_area->height - calc_height);
-			*y_offset = MAX (*y_offset, 0);
-		}
-	}
-}
-
-
-/***************************************************************************
- *
- *  custom_cell_renderer_progress_render: crucial - do the rendering.
- *
- ***************************************************************************/
-
-static void custom_list_render(GtkCellRenderer *cell, GdkWindow *window, GtkWidget *widget, GdkRectangle *background_area, GdkRectangle *cell_area, GdkRectangle *expose_area, guint flags)
-{
-	CustomList *custom_list = CUSTOM_LIST(cell);
-	GtkStateType state;
-	gint width, height;
-	gint x_offset, y_offset;
-
-	//printf("custom_list_render\n");
-	custom_list_get_size (cell, widget, cell_area, &x_offset, &y_offset, &width, &height);
-
-	if (GTK_WIDGET_HAS_FOCUS (widget))
-		state = GTK_STATE_ACTIVE;
-	else
-		state = GTK_STATE_NORMAL;
-
-	width  -= cell->xpad*2;
-	height -= cell->ypad*2;
-
-	gtk_paint_box (widget->style, window, GTK_STATE_NORMAL, GTK_SHADOW_IN, NULL, widget, "trough", cell_area->x + x_offset + cell->xpad, cell_area->y + y_offset + cell->ypad, width - 1, height - 1);
-
-	gtk_paint_box (widget->style, window, state, GTK_SHADOW_OUT, NULL, widget, "bar", cell_area->x + x_offset + cell->xpad, cell_area->y + y_offset + cell->ypad, width * custom_list->progress, height - 1);
-}
-
-
 

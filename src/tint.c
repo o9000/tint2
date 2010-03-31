@@ -177,6 +177,11 @@ void get_snapshot(const char *path)
 	img = imlib_create_image_from_drawable(0, 0, 0, panel->area.width, panel->area.height, 0);
 
 	imlib_context_set_image(img);
+	if (!panel_horizontal) {
+		// rotate 90° vertical panel
+		imlib_image_flip_horizontal();
+		imlib_image_flip_diagonal();
+	}
 	imlib_save_image(path);
 	imlib_free_image();
 	XFreePixmap(server.dsp, panel->temp_pmap);

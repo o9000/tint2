@@ -626,7 +626,7 @@ void add_entry (char *key, char *value)
 		panel_autohide_height = atoi(value);
 
 	else
-		fprintf(stderr, "tint2 : invalid option \"%s\", correct your config file\n", key);
+		fprintf(stderr, "tint2 : invalid option \"%s\",\n  upgrade tint2 or correct your config file\n", key);
 
 	if (value1) free (value1);
 	if (value2) free (value2);
