@@ -299,7 +299,7 @@ static void menuProperties (void)
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &file,  -1);
 
-		cmd = g_strdup_printf("tintwizard.py \'%s\'", file);
+		cmd = g_strdup_printf("gedit \'%s\' &", file);
 		system(cmd);
 
 		g_free(cmd);
@@ -311,6 +311,14 @@ static void menuProperties (void)
 static void menuQuit (void)
 {
 	write_config();
+
+	if (g_path_config)
+		g_free(g_path_config);
+	if (g_path_dir)
+		g_free(g_path_dir);
+	if (g_default_theme)
+		g_free(g_default_theme);
+
    gtk_main_quit ();
 }
 
@@ -338,15 +346,16 @@ static void menuApply (void)
 	GtkTreeSelection *sel;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	char *file;
 
+	if (g_default_theme) {
+		g_free(g_default_theme);
+		g_default_theme = NULL;
+	}
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
-		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &file,  -1);
-
+		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &g_default_theme,  -1);
 		// overwrite tint2rc
-		copy_file(file, g_path_config);
-		g_free(file);
+		copy_file(g_default_theme, g_path_config);
 
 		// restart panel
 		system("killall -SIGUSR1 tint2");
@@ -405,7 +414,9 @@ static void load_theme(GtkWidget *list)
 {
 	GDir *dir;
 	gchar *pt1, *name, *file;
-	int found_theme = FALSE;
+	gboolean have_iter, found_theme = FALSE;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
 
 	dir = g_dir_open(g_path_dir, 0, NULL);
 	if (dir == NULL) return;
@@ -414,7 +425,7 @@ static void load_theme(GtkWidget *list)
 		if (pt1) {
 			found_theme = TRUE;
 			name = g_build_filename (g_path_dir, file, NULL);
-	      custom_list_append(name);
+			custom_list_append(name);
 			g_free(name);
 		}
 	}
@@ -424,17 +435,38 @@ static void load_theme(GtkWidget *list)
 		// create default theme file
 		name = g_build_filename (g_get_user_config_dir(), "tint2", "default.tint2rc", NULL);
 		copy_file(g_path_config, name);
-      custom_list_append(name);
+		custom_list_append(name);
 		g_free(name);
 	}
 
 	// search default theme
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-	if (g_default_theme != NULL) {
-		printf("loadTheme : defaultTheme %s\n", g_default_theme);
-		//gtk_tree_selection_select_iter(GtkTreeSelection *selection, GtkTreeIter *iter);
+	found_theme = FALSE;
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(g_theme_view));
+	have_iter = gtk_tree_model_get_iter_first(model, &iter);
+	while (have_iter) {
+		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &name,  -1);
+		found_theme = (strcmp(name, g_default_theme) == 0);
+		g_free(name);
+		if (found_theme)
+			break;
+		have_iter = gtk_tree_model_iter_next(model, &iter);
 	}
+
+	// select theme
+	GtkTreePath *path = NULL;
+	if (found_theme)
+		path = gtk_tree_model_get_path(model, &iter);
+	else {
+		have_iter = gtk_tree_model_get_iter_first(model, &iter);
+		if (have_iter)
+			path = gtk_tree_model_get_path(model, &iter);
+	}
+	if (path) {
+		gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view)), &iter);
+		gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(g_theme_view), path, NULL, FALSE, 0, 0);
+		gtk_tree_path_free(path);
+	}
+
 }
 
 
@@ -472,8 +504,6 @@ void read_config()
 		}
 	}
 	g_free(path);
-	if (g_default_theme != NULL)
-		printf("readConfig : defaultTheme %s\n", g_default_theme);
 }
 
 

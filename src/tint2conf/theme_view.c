@@ -59,7 +59,7 @@ void custom_list_append(const gchar *name)
 	snap = g_build_filename (g_get_user_config_dir(), "tint2", "snap.jpg", NULL);
 	g_remove(snap);
 
-	cmd = g_strdup_printf("tint2 -c %s -s %s", name, snap);
+	cmd = g_strdup_printf("tint2 -c \'%s\' -s \'%s\'", name, snap);
 	system(cmd);
 	g_free(cmd);
 
