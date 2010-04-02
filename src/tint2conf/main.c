@@ -48,20 +48,21 @@ static GtkUIManager *globalUIManager = NULL;
 static void menuAddWidget (GtkUIManager *, GtkWidget *, GtkContainer *);
 
 // action on menus
-static void menuAdd (GtkWindow * parent);
-static void menuSaveAs (GtkWindow *parent);
-static void menuDelete (void);
-static void menuProperties (void);
-static void menuQuit (void);
-static void menuRefresh (void);
-static void menuRefreshAll (void);
-static void menuPreferences (void);
-static void menuApply (void);
-static void menuAbout(GtkWindow * parent);
+static void menuAdd();
+static void menuSaveAs();
+static void menuDelete();
+static void menuProperties();
+static void menuQuit();
+static void menuRefresh();
+static void menuRefreshAll();
+static void menuPreferences();
+static void menuApply();
+static void menuAbout();
 
 static gboolean view_onPopupMenu (GtkWidget *treeview, gpointer userdata);
 static gboolean view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer userdata);
-static void viewRowActivated( GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data);
+static void windowSizeAllocated();
+static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data);
 
 
 // theme files
@@ -81,8 +82,8 @@ static const char *global_ui =
 	"      <separator/>"
 	"      <menuitem action='ThemeDelete'/>"
 	"      <separator/>"
-	"      <menuitem action='ThemeProperties'/>"
-	"      <separator/>"
+//	"      <menuitem action='ThemeProperties'/>"
+//	"      <separator/>"
 	"      <menuitem action='ThemeQuit'/>"
 	"    </menu>"
 	"    <menu action='EditMenu'>"
@@ -96,12 +97,13 @@ static const char *global_ui =
 	"    </menu>"
 	"  </menubar>"
 	"  <toolbar  name='ToolBar'>"
-	"    <toolitem action='ViewApply'/>"
 	"    <toolitem action='ThemeProperties'/>"
+	"    <toolitem action='ViewApply'/>"
 	"  </toolbar>"
 	"  <popup  name='ThemePopup'>"
-	"    <menuitem action='ViewApply'/>"
+	"    <menuitem action='EditRefresh'/>"
 	"    <menuitem action='ThemeProperties'/>"
+	"    <menuitem action='ViewApply'/>"
 	"    <separator/>"
 	"    <menuitem action='ThemeDelete'/>"
 	"  </popup>"
@@ -135,14 +137,13 @@ int main (int argc, char ** argv)
 	g_thread_init( NULL );
 	read_config();
 	check_theme();
-	g_width = 300;
-	g_height = 400;
 
 	// define main layout : container, menubar, toolbar
 	g_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(g_window), _("Panel theming"));
 	gtk_window_resize(GTK_WINDOW(g_window), g_width, g_height);
-	g_signal_connect (G_OBJECT (g_window), "destroy", G_CALLBACK (menuQuit), NULL);
+	g_signal_connect(G_OBJECT(g_window), "destroy", G_CALLBACK (menuQuit), NULL);
+	g_signal_connect(g_window, "size-allocate", G_CALLBACK(windowSizeAllocated), NULL);
 	vBox = gtk_vbox_new (FALSE, 0);
    gtk_container_add (GTK_CONTAINER(g_window), vBox);
 
@@ -185,11 +186,11 @@ static void menuAddWidget (GtkUIManager * p_uiManager, GtkWidget * p_widget, Gtk
 }
 
 
-static void menuAbout(GtkWindow * parent)
+static void menuAbout()
 {
 	const char *authors[] = { "Thierry Lorthiois <lorthiois@bbsoft.fr>", "Andreas Fink <andreas.fink85@googlemail.com>", "Christian Ruppert <Spooky85@gmail.com> (Build system)", "Euan Freeman <euan04@gmail.com> (tintwizard)\n  See http://code.google.com/p/tintwizard/", NULL };
 
-	gtk_show_about_dialog( parent, "name", g_get_application_name( ),
+	gtk_show_about_dialog(g_window, "name", g_get_application_name( ),
 								"comments", _("Theming tool for tint2 panel"),
 								"version", VERSION_STRING,
 								"copyright", _("Copyright 2009 tint2 team\nTint2 License GNU GPL version 2\nTintwizard License GNU GPL version 3"),
@@ -198,17 +199,17 @@ static void menuAbout(GtkWindow * parent)
 									your name to have it appear in the credits in the "About"
 									dialog */
 								"translator-credits", _("translator-credits"),
-								NULL );
+								NULL);
 }
 
 
-static void menuAdd (GtkWindow *parent)
+static void menuAdd()
 {
 	GtkWidget *dialog;
 	GtkFileChooser *chooser;
 	GtkFileFilter *filter;
 
-	dialog = gtk_file_chooser_dialog_new(_("Add a theme"), parent, GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_ADD, GTK_RESPONSE_ACCEPT, NULL);
+	dialog = gtk_file_chooser_dialog_new(_("Add a theme"), g_window, GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_ADD, GTK_RESPONSE_ACCEPT, NULL);
 	chooser = GTK_FILE_CHOOSER(dialog);
 
 	gtk_file_chooser_set_current_folder(chooser, g_get_home_dir());
@@ -246,34 +247,50 @@ static void menuAdd (GtkWindow *parent)
 }
 
 
-static void menuSaveAs (GtkWindow *parent)
+static void menuSaveAs ()
 {
 	GtkWidget *dialog;
 	GtkFileChooser *chooser;
+	GtkTreeSelection *sel;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	gchar *file, *pt1;
 
-	dialog = gtk_file_chooser_dialog_new (_("Save theme as"), parent, GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
+	if (!gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
+		GtkWidget *w = gtk_message_dialog_new(g_window, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, _("Select the theme to be saved."), NULL);
+		g_signal_connect_swapped(w, "response", G_CALLBACK(gtk_widget_destroy), w);
+		gtk_widget_show(w);
+		return;
+	}
+
+	gtk_tree_model_get(model, &iter, COL_THEME_FILE, &file, -1);
+	pt1 = strrchr (file, '/');
+	if (pt1) pt1++;
+
+	dialog = gtk_file_chooser_dialog_new(_("Save theme as"), g_window, GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
 	chooser = GTK_FILE_CHOOSER(dialog);
 
-	gtk_file_chooser_set_do_overwrite_confirmation (chooser, TRUE);
-	gtk_file_chooser_set_current_folder (chooser, g_get_home_dir());
-	gtk_file_chooser_set_current_name (chooser, _("Untitled document"));
+	gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
+	gtk_file_chooser_set_current_folder(chooser, g_get_home_dir());
+	gtk_file_chooser_set_current_name(chooser, pt1);
 
-	if (gtk_dialog_run (GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 		char *filename = gtk_file_chooser_get_filename(chooser);
-		printf("fichier %s\n", filename);
-		//save_to_file (filename);
+		copy_file(file, filename);
 		g_free (filename);
 	}
+	g_free(file);
 	gtk_widget_destroy (dialog);
 }
 
 
-static void menuDelete (void)
+static void menuDelete()
 {
 	GtkTreeSelection *sel;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	char *file;
+	gchar *file;
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
@@ -288,7 +305,7 @@ static void menuDelete (void)
 }
 
 
-static void menuProperties (void)
+static void menuProperties()
 {
 	GtkTreeSelection *sel;
 	GtkTreeIter iter;
@@ -308,7 +325,7 @@ static void menuProperties (void)
 }
 
 
-static void menuQuit (void)
+static void menuQuit()
 {
 	write_config();
 
@@ -323,25 +340,25 @@ static void menuQuit (void)
 }
 
 
-static void menuRefresh (void)
+static void menuRefresh()
 {
 	printf("menuRefresh\n");
 }
 
 
-static void menuRefreshAll (void)
+static void menuRefreshAll()
 {
 	printf("menuRefreshAll\n");
 }
 
 
-static void menuPreferences (void)
+static void menuPreferences()
 {
 	printf("menuPreferences\n");
 }
 
 
-static void menuApply (void)
+static void menuApply()
 {
 	GtkTreeSelection *sel;
 	GtkTreeIter iter;
@@ -407,6 +424,15 @@ static gboolean view_onPopupMenu (GtkWidget *treeview, gpointer userdata)
 static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data)
 {
 	menuApply();
+}
+
+
+static void windowSizeAllocated()
+{
+	const gboolean isMaximized = g_window->window && (gdk_window_get_state(g_window->window) & GDK_WINDOW_STATE_MAXIMIZED);
+
+	if(!isMaximized)
+		gtk_window_get_size(GTK_WINDOW(g_window), &g_width, &g_height);
 }
 
 
@@ -480,7 +506,7 @@ void read_config()
 		g_default_theme = NULL;
 	}
 
-	g_width = 600;
+	g_width = 500;
 	g_height = 350;
 	path = g_build_filename (g_get_user_config_dir(), "tint2", "tint2confrc", NULL);
 	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
@@ -511,28 +537,7 @@ void write_config()
 {
 	char *path;
 	FILE *fp;
-	GtkRequisition req;
-	int x, y, width, height, depth;
-	int top, bottom, left, right;
-	GdkRectangle rect;
 
-	gtk_window_get_size(GTK_WINDOW(g_window), &width, &height);
-	printf("write_config %d, %d\n", width, height);
-
-	// GTK incapacity to return (width, height) of the window is really annoying
-	gdk_window_get_geometry(GTK_WIDGET(g_window)->window, &x, &y, &width, &height, &depth);
-	printf("  write_config %d, %d, %d, %d\n", x, y, width, height);
-
-	//Window xid = GDK_WINDOW_XWINDOW(GTK_WIDGET(g_window)->window);
-	//gdk_window_get_frame_extentsGTK_WINDOW(g_window), &rect);
-	//printf("  write_config %d, %d\n", rec.width, rec.height);
-
-/*
-	path = gtk_tree_path_new_from_indices( playlist_pos, -1 );
-	sel = gtk_tree_view_get_selection( (GtkTreeView*)list_view );
-	gtk_tree_selection_select_path( sel, path );
-	gtk_tree_path_free( path );
- */
 	path = g_build_filename (g_get_user_config_dir(), "tint2", "tint2confrc", NULL);
 	fp = fopen(path, "w");
 	if (fp != NULL) {
