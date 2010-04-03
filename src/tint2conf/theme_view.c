@@ -1,7 +1,12 @@
 
+#include <stdlib.h>
+#include <glib.h>
+#include <glib/gstdio.h>
+
 #include "theme_view.h"
 
 // The data columns that we export via the tree model interface
+GtkWidget *g_theme_view;
 GtkListStore *g_store;
 int g_width_list, g_height_list;
 GtkCellRenderer *g_renderer;
@@ -41,13 +46,85 @@ GtkWidget *create_view()
 	gtk_tree_view_column_add_attribute(col, g_renderer, "pixbuf", COL_SNAPSHOT);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view),col);
 
-	//g_timeout_add(50, (GSourceFunc) increase_timeout, NULL);
-
 	return view;
 }
 
 
 void custom_list_append(const gchar *name)
+{
+	GtkTreeIter  iter;
+
+	gtk_list_store_append(g_store, &iter);
+	gtk_list_store_set(g_store, &iter, COL_THEME_FILE, name, -1);
+}
+
+
+gboolean update_snapshot()
+{
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	GdkPixbuf *icon;
+	gboolean have_iter, found = FALSE;
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(g_theme_view));
+	have_iter = gtk_tree_model_get_iter_first(model, &iter);
+	while (have_iter) {
+		gtk_tree_model_get(model, &iter, COL_SNAPSHOT, &icon, -1);
+		if (icon != NULL) {
+			g_object_unref(icon);
+			have_iter = gtk_tree_model_iter_next(model, &iter);
+		}
+		else {
+			found = TRUE;
+			break;
+		}
+	}
+
+	if (found) {
+		// build panel's snapshot
+		GdkPixbuf *pixbuf;
+		gchar *name, *snap, *cmd;
+		gint pixWidth, pixHeight;
+		gboolean changeSize = FALSE;
+
+		snap = g_build_filename (g_get_user_config_dir(), "tint2", "snap.jpg", NULL);
+		g_remove(snap);
+
+		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &name, -1);
+		cmd = g_strdup_printf("tint2 -c \'%s\' -s \'%s\'", name, snap);
+		system(cmd);
+
+		// load
+		pixbuf = gdk_pixbuf_new_from_file(snap, NULL);
+		if (pixbuf == NULL) {
+			printf("snapshot NULL : %s\n", cmd);
+			found = FALSE;
+		}
+		g_free(snap);
+		g_free(cmd);
+		g_free(name);
+
+		pixWidth = gdk_pixbuf_get_width(pixbuf);
+		pixHeight = gdk_pixbuf_get_height(pixbuf);
+		if (g_width_list < pixWidth) {
+			g_width_list = pixWidth;
+			changeSize = TRUE;
+		}
+		if (g_height_list < (pixHeight+6)) {
+			g_height_list = pixHeight+6;
+			changeSize = TRUE;
+		}
+		if (changeSize)
+			gtk_cell_renderer_set_fixed_size(g_renderer, g_width_list, g_height_list);
+
+		gtk_list_store_set(g_store, &iter, COL_SNAPSHOT, pixbuf, -1);
+	}
+	return found;
+}
+
+
+
+void custom_list_append2(const gchar *name)
 {
 	GtkTreeIter  iter;
 	gchar *snap, *cmd;
@@ -86,32 +163,4 @@ void custom_list_append(const gchar *name)
 	gtk_list_store_set(g_store, &iter, COL_THEME_FILE, name, COL_SNAPSHOT, icon, -1);
 }
 
-/*
-gboolean increase_timeout (GtkCellRenderer *renderer)
-{
-  GtkTreeIter  iter;
-  gfloat       perc = 0.0;
-  //gchar        buf[20];
-
-  gtk_tree_model_get_iter_first(GTK_TREE_MODEL(g_store), &iter);
-
-  gtk_tree_model_get (GTK_TREE_MODEL(g_store), &iter, COL_SNAPSHOT, &perc, -1);
-
-  if ( perc > (1.0-STEP)  ||  (perc < STEP && perc > 0.0) )
-  {
-    increasing = (!increasing);
-  }
-
-  if (increasing)
-    perc = perc + STEP;
-  else
-    perc = perc - STEP;
-
-  //g_snprintf(buf, sizeof(buf), "%u %%", (guint)(perc*100));
-
-  gtk_list_store_set (g_store, &iter, COL_SNAPSHOT, perc, -1);
-
-  return TRUE;
-}
-*/
 

@@ -41,7 +41,6 @@ char *g_default_theme = NULL;
 int g_width, g_height;
 
 GtkWidget *g_window;
-GtkWidget *g_theme_view;
 
 static GtkUIManager *globalUIManager = NULL;
 
@@ -55,7 +54,6 @@ static void menuProperties();
 static void menuQuit();
 static void menuRefresh();
 static void menuRefreshAll();
-static void menuPreferences();
 static void menuApply();
 static void menuAbout();
 
@@ -69,9 +67,9 @@ static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeV
 static void selectTheme(const gchar *name);
 static gboolean searchTheme(const gchar *name_theme, GtkTreeModel *model, GtkTreeIter *iter);
 static void load_theme();
+static void initTheme();
 static void read_config();
 static void write_config();
-static void check_theme();
 
 
 // define menubar, toolbar and popup
@@ -138,7 +136,7 @@ int main (int argc, char ** argv)
 	gtk_init (&argc, &argv);
 	g_thread_init( NULL );
 	read_config();
-	check_theme();
+	initTheme();
 
 	// define main layout : container, menubar, toolbar
 	g_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -170,10 +168,6 @@ int main (int argc, char ** argv)
 
    // load themes
 	load_theme(g_theme_view);
-
-	// rig up idle/thread routines
-	//Glib::Thread::create(sigc::mem_fun(window.view, &Thumbview::load_cache_images), true);
-	//Glib::Thread::create(sigc::mem_fun(window.view, &Thumbview::create_cache_images), true);
 
 	gtk_widget_show_all(g_window);
 	gtk_main ();
@@ -267,6 +261,7 @@ static void menuAdd()
 
 	selectTheme(name_first);
 	g_free(name_first);
+	g_timeout_add(100, (GSourceFunc)update_snapshot, NULL);
 }
 
 
@@ -367,19 +362,33 @@ static void menuQuit()
 
 static void menuRefresh()
 {
-	printf("menuRefresh\n");
+	GtkTreeSelection *sel;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
+	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
+		gtk_list_store_set(g_store, &iter, COL_SNAPSHOT, NULL, -1);
+	}
+
+	g_timeout_add(100, (GSourceFunc)update_snapshot, NULL);
 }
 
 
 static void menuRefreshAll()
 {
-	printf("menuRefreshAll\n");
-}
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	gboolean have_iter;
 
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(g_theme_view));
+	have_iter = gtk_tree_model_get_iter_first(model, &iter);
+	while (have_iter) {
+		gtk_list_store_set(g_store, &iter, COL_SNAPSHOT, NULL, -1);
+		have_iter = gtk_tree_model_iter_next(model, &iter);
+	}
 
-static void menuPreferences()
-{
-	printf("menuPreferences\n");
+	g_timeout_add(100, (GSourceFunc)update_snapshot, NULL);
 }
 
 
@@ -464,7 +473,8 @@ static void windowSizeAllocated()
 static void load_theme(GtkWidget *list)
 {
 	GDir *dir;
-	gchar *pt1, *name, *file;
+	gchar *pt1, *name;
+	const gchar *file;
 	gboolean found_theme = FALSE;
 
 	dir = g_dir_open(g_path_dir, 0, NULL);
@@ -491,6 +501,8 @@ static void load_theme(GtkWidget *list)
 	}
 
 	selectTheme(g_default_theme);
+
+	g_timeout_add(100, (GSourceFunc)update_snapshot, NULL);
 }
 
 
@@ -539,7 +551,16 @@ gboolean searchTheme(const gchar *name_theme, GtkTreeModel *model, GtkTreeIter *
 }
 
 
-// theme file management
+void initTheme()
+{
+	g_path_dir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
+	if (!g_file_test (g_path_dir, G_FILE_TEST_IS_DIR))
+		g_mkdir(g_path_dir, 0777);
+
+	g_path_config = g_build_filename (g_get_user_config_dir(), "tint2", "tint2rc", NULL);
+}
+
+
 void read_config()
 {
 	char *path;
@@ -596,17 +617,6 @@ void write_config()
 		fclose (fp);
 	}
 	g_free(path);
-}
-
-
-void check_theme()
-{
-	g_path_dir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
-	if (!g_file_test (g_path_dir, G_FILE_TEST_IS_DIR))
-		g_mkdir(g_path_dir, 0777);
-
-	g_path_config = g_build_filename (g_get_user_config_dir(), "tint2", "tint2rc", NULL);
-
 }
 
 
