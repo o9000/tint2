@@ -66,6 +66,8 @@ static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeV
 
 
 // theme files
+static void selectTheme(const gchar *name);
+static gboolean searchTheme(const gchar *name_theme, GtkTreeModel *model, GtkTreeIter *iter);
 static void load_theme();
 static void read_config();
 static void write_config();
@@ -220,30 +222,51 @@ static void menuAdd()
 	gtk_file_filter_add_pattern(filter, "*.tint2rc");
 	gtk_file_chooser_add_filter(chooser, filter);
 
-	if (gtk_dialog_run (GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-		GSList *l, *list = gtk_file_chooser_get_filenames(chooser);
+	if (gtk_dialog_run (GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT) {
+		gtk_widget_destroy(dialog);
+		return;
+	}
 
-		gchar *file, *pt1, *name, *path;
-		for (l = list; l ; l = l->next) {
-			file = (char *)l->data;
-			pt1 = strrchr (file, '/');
-			if (pt1) {
-				pt1++;
-				if (*pt1) {
-					name = g_strdup(pt1);
-					path = g_build_filename (g_get_user_config_dir(), "tint2", name, NULL);
-					copy_file(file, path);
-			      custom_list_append(path);
-					g_free(path);
-					g_free(name);
-				}
-			}
+	GtkTreeIter iter;
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(g_theme_view));
+	GSList *l, *list = gtk_file_chooser_get_filenames(chooser);
+	gchar *file, *pt1, *name, *path, *name_first=NULL;
+	for (l = list; l ; l = l->next) {
+		file = (char *)l->data;
+		pt1 = strrchr(file, '/');
+		if (pt1 == NULL) 	continue;
+		pt1++;
+		if (*pt1 == 0)	continue;
+
+		name = g_strdup(pt1);
+		path = g_build_filename (g_get_user_config_dir(), "tint2", name, NULL);
+
+		// check existing
+		if (searchTheme(path, model, &iter)) {
+			gchar *message;
+			message = g_strdup_printf(_("Couldn't add duplicate theme\n\'%s\'."), pt1);
+
+			GtkWidget *w = gtk_message_dialog_new(g_window, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, message, NULL);
+			g_signal_connect_swapped(w, "response", G_CALLBACK(gtk_widget_destroy), w);
+			gtk_widget_show(w);
+			g_free(message);
+			continue;
 		}
 
-		g_slist_foreach(list, (GFunc)g_free, NULL);
-		g_slist_free(list);
+		// append theme
+		copy_file(file, path);
+		custom_list_append(path);
+		if (name_first == NULL)
+			name_first = g_strdup(path);
+		g_free(path);
+		g_free(name);
 	}
-	gtk_widget_destroy (dialog);
+	g_slist_foreach(list, (GFunc)g_free, NULL);
+	g_slist_free(list);
+	gtk_widget_destroy(dialog);
+
+	selectTheme(name_first);
+	g_free(name_first);
 }
 
 
@@ -290,17 +313,19 @@ static void menuDelete()
 	GtkTreeSelection *sel;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	gchar *file;
+	gchar *filename;
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
-		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &file, -1);
+		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &filename, -1);
 		gtk_tree_selection_unselect_all(sel);
 
-		// remove (gui and disk)
+		// remove (gui and file)
 		gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
-		g_remove(file);
-		g_free(file);
+		GFile *file = g_file_new_for_path(filename);
+		g_file_trash(file, NULL, NULL);
+		g_object_unref(G_OBJECT(file));
+		g_free(filename);
 	}
 }
 
@@ -440,9 +465,7 @@ static void load_theme(GtkWidget *list)
 {
 	GDir *dir;
 	gchar *pt1, *name, *file;
-	gboolean have_iter, found_theme = FALSE;
-	GtkTreeIter iter;
-	GtkTreeModel *model;
+	gboolean found_theme = FALSE;
 
 	dir = g_dir_open(g_path_dir, 0, NULL);
 	if (dir == NULL) return;
@@ -459,26 +482,29 @@ static void load_theme(GtkWidget *list)
 
 	if (!found_theme) {
 		// create default theme file
-		name = g_build_filename (g_get_user_config_dir(), "tint2", "default.tint2rc", NULL);
+		name = g_build_filename(g_get_user_config_dir(), "tint2", "default.tint2rc", NULL);
 		copy_file(g_path_config, name);
 		custom_list_append(name);
+		if (g_default_theme) g_free(g_default_theme);
+		g_default_theme = strdup(name);
 		g_free(name);
 	}
 
-	// search default theme
-	found_theme = FALSE;
+	selectTheme(g_default_theme);
+}
+
+
+void selectTheme(const gchar *name_theme)
+{
+	gboolean have_iter, found_theme;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+
+	if (!name_theme) return;
+
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(g_theme_view));
-	have_iter = gtk_tree_model_get_iter_first(model, &iter);
-	while (have_iter) {
-		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &name,  -1);
-		found_theme = (strcmp(name, g_default_theme) == 0);
-		g_free(name);
-		if (found_theme)
-			break;
-		have_iter = gtk_tree_model_iter_next(model, &iter);
-	}
+	found_theme = searchTheme(name_theme, model, &iter);
 
-	// select theme
 	GtkTreePath *path = NULL;
 	if (found_theme)
 		path = gtk_tree_model_get_path(model, &iter);
@@ -492,7 +518,24 @@ static void load_theme(GtkWidget *list)
 		gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(g_theme_view), path, NULL, FALSE, 0, 0);
 		gtk_tree_path_free(path);
 	}
+}
 
+
+gboolean searchTheme(const gchar *name_theme, GtkTreeModel *model, GtkTreeIter *iter)
+{
+	gchar *name;
+	gboolean have_iter, found = FALSE;
+
+	have_iter = gtk_tree_model_get_iter_first(model, iter);
+	while (have_iter) {
+		gtk_tree_model_get(model, iter, COL_THEME_FILE, &name,  -1);
+		found = (strcmp(name, name_theme) == 0);
+		g_free(name);
+		if (found)
+			break;
+		have_iter = gtk_tree_model_iter_next(model, iter);
+	}
+	return found;
 }
 
 
