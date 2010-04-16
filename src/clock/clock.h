@@ -40,6 +40,8 @@ extern int clock_enabled;
 // initialize clock : y position, precision, ...
 void init_clock();
 void init_clock_panel(void *panel);
+
+// freed memory and set default values
 void cleanup_clock();
 
 void draw_clock (void *obj, cairo_t *c);

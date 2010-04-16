@@ -166,7 +166,11 @@ void init_taskbar()
 	}
 }
 
-void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data) {remove_task(task_get_task(*(Window*)key)); }
+void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data)
+{
+	remove_task(task_get_task(*(Window*)key));
+}
+
 void cleanup_taskbar()
 {
 	Panel *panel;

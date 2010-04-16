@@ -163,22 +163,46 @@ void init_clock_panel(void *p)
 void cleanup_clock()
 {
 	clock_enabled = 0;
-	if (time1_font_desc)
+	if (time1_font_desc) {
 		pango_font_description_free(time1_font_desc);
-	if (time2_font_desc)
+		time1_font_desc = 0;
+	}
+	if (time2_font_desc) {
 		pango_font_description_free(time2_font_desc);
-	g_free(time1_format);
-	g_free(time2_format);
-	g_free(time_tooltip_format);
-	g_free(time1_timezone);
-	g_free(time2_timezone);
-	g_free(time_tooltip_timezone);
-	g_free(clock_lclick_command);
-	g_free(clock_rclick_command);
-	time1_font_desc = time2_font_desc = 0;
-	time1_format = time2_format = time_tooltip_format = 0;
-	time1_timezone = time2_timezone = time_tooltip_timezone = 0;
-	clock_lclick_command = clock_rclick_command = 0;
+		time2_font_desc = 0;
+	}
+	if (time1_format) {
+		g_free(time1_format);
+		time1_format = 0;
+	}
+	if (time2_format) {
+		g_free(time2_format);
+		time2_format = 0;
+	}
+	if (time_tooltip_format) {
+		g_free(time_tooltip_format);
+		time_tooltip_format = 0;
+	}
+	if (time1_timezone) {
+		g_free(time1_timezone);
+		time1_timezone = 0;
+	}
+	if (time2_timezone) {
+		g_free(time2_timezone);
+		time2_timezone = 0;
+	}
+	if (time_tooltip_timezone) {
+		g_free(time_tooltip_timezone);
+		time_tooltip_timezone = 0;
+	}
+	if (clock_lclick_command) {
+		g_free(clock_lclick_command);
+		clock_lclick_command = 0;
+	}
+	if (clock_rclick_command) {
+		g_free(clock_rclick_command);
+		clock_rclick_command = 0;
+	}
 }
 
 

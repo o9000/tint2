@@ -73,6 +73,7 @@ void init_config()
 	Background transparent_bg;
 	memset(&transparent_bg, 0, sizeof(Background));
 	g_array_append_val(backgrounds, transparent_bg);
+printf("*** init_config()\n");
 
 	// tint2 could reload config, so we cleanup objects
 	cleanup_systray();
