@@ -50,7 +50,6 @@ void default_tooltip()
 
 void cleanup_tooltip()
 {
-printf("*** cleanup_tooltip()\n");
 	stop_tooltip_timeout();
 	tooltip_hide(0);
 	tooltip_copy_text(0);

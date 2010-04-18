@@ -71,7 +71,6 @@ void default_clock()
 
 void cleanup_clock()
 {
-printf("*** cleanup_clock()\n");
 	if (time1_font_desc) pango_font_description_free(time1_font_desc);
 	if (time2_font_desc) pango_font_description_free(time2_font_desc);
 	if (time1_format) g_free(time1_format);

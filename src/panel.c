@@ -108,7 +108,6 @@ void cleanup_panel()
 {
 	if (!panel1) return;
 
-printf("*** cleanup_panel()\n");
 	cleanup_taskbar();
 
 	int i;

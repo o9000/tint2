@@ -94,7 +94,6 @@ void default_battery()
 
 void cleanup_battery()
 {
-	printf("*** cleanup_battery()\n");
 	if (bat1_font_desc) pango_font_description_free(bat1_font_desc);
 	if (bat2_font_desc) pango_font_description_free(bat2_font_desc);
 	if (path_energy_now) g_free(path_energy_now);

@@ -839,8 +839,8 @@ start:
 					case UnmapNotify:
 					case DestroyNotify:
 						if (e.xany.window == server.composite_manager) {
-							// TODO: Stop real_transparency
-							//signal_pending = SIGUSR2;
+							// Stop real_transparency
+							signal_pending = SIGUSR1;
 							break;
 						}
 						if (e.xany.window == g_tooltip.window || !systray.area.on_screen)
@@ -857,13 +857,11 @@ start:
 						ev = &e.xclient;
 						if (ev->data.l[1] == server.atom._NET_WM_CM_S0) {
 							if (ev->data.l[2] == None)
-								// TODO: Stop real_transparency
-								//signal_pending = SIGUSR2;
-								;
+								// Stop real_transparency
+								signal_pending = SIGUSR1;
 							else
-								// TODO: Start real_transparency
-								//signal_pending = SIGUSR2;
-								;
+								// Start real_transparency
+								signal_pending = SIGUSR1;
 						}
 						if (!systray.area.on_screen) break;
 						if (e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
@@ -900,7 +898,7 @@ start:
 			if (signal_pending == SIGUSR1) {
 				// restart tint2
 				// SIGUSR1 used when : user's signal, composite manager stop/start or xrandr
-				FD_CLR (x11_fd, &fdset);
+				FD_CLR (x11_fd, &fdset); // not sure if needed
 				goto start;
 			}
 			else {

@@ -184,7 +184,6 @@ void cleanup_taskbar()
 	Taskbar *tskbar;
 	int i, j;
 
-printf("*** cleanup_taskbar()\n");
 	if (win_to_task_table) g_hash_table_foreach(win_to_task_table, taskbar_remove_task, 0);
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
