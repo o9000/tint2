@@ -57,9 +57,7 @@ char *snapshot_path;
 
 // --------------------------------------------------
 // backward compatibility
-static int old_task_icon_size;
-// detect if it's an old config file
-// ==1
+// detect if it's an old config file (==1)
 static int old_config_file;
 
 
@@ -74,43 +72,6 @@ void cleanup_config()
 {
 	if (config_path) g_free(config_path);
 	if (snapshot_path) g_free(snapshot_path);
-}
-
-
-void init_config()
-{
-	if (backgrounds)
-		g_array_free(backgrounds, 1);
-	backgrounds = g_array_new(0, 0, sizeof(Background));
-
-	// append full transparency background
-	Background transparent_bg;
-	memset(&transparent_bg, 0, sizeof(Background));
-	g_array_append_val(backgrounds, transparent_bg);
-printf("*** init_config()\n");
-
-	// tint2 could reload config, so we cleanup objects
-	cleanup_systray();
-#ifdef ENABLE_BATTERY
-	cleanup_battery();
-#endif
-	cleanup_clock();
-	cleanup_tooltip();
-
-	// panel's default value
-	if (panel_config.g_task.font_desc) {
-		pango_font_description_free(panel_config.g_task.font_desc);
-	}
-	memset(&panel_config, 0, sizeof(Panel));
-
-	// window manager's menu default value == false
-	wm_menu = 0;
-	max_tick_urgent = 7;
-
-	// flush pango cache if possible
-	//pango_xft_shutdown_display(server.dsp, server.screen);
-	//PangoFontMap *font_map = pango_xft_get_font_map(server.dsp, server.screen);
-	//pango_fc_font_map_shutdown(font_map);
 }
 
 
@@ -705,9 +666,6 @@ int config_read_file (const char *path)
 	}
 	fclose (fp);
 
-	if (old_task_icon_size) {
-		panel_config.g_task.area.paddingy = ((int)panel_config.area.height - (2 * panel_config.area.paddingy) - old_task_icon_size) / 2;
-	}
 	return 1;
 }
 

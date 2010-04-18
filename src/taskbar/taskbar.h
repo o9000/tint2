@@ -34,8 +34,9 @@ typedef struct {
 } Global_taskbar;
 
 
-// default values
+// default global data
 void default_taskbar();
+
 // freed memory
 void cleanup_taskbar();
 

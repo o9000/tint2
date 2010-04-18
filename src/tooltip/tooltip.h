@@ -43,8 +43,9 @@ typedef struct {
 extern Tooltip g_tooltip;
 
 
-// default values
+// default global data
 void default_tooltip();
+
 // freed memory
 void cleanup_tooltip();
 

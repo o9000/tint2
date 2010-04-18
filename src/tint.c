@@ -55,6 +55,7 @@ void init (int argc, char *argv[])
 	int i;
 
 	// set global data
+	default_config();
 	default_timeout();
 	default_systray();
 	memset(&server, 0, sizeof(Server_global));
@@ -62,7 +63,7 @@ void init (int argc, char *argv[])
 	default_clock();
 	default_taskbar();
 	default_tooltip();
-	default_config();
+	default_panel();
 
 	// read options
 	for (i = 1; i < argc; ++i) {
@@ -86,6 +87,7 @@ void init (int argc, char *argv[])
 		}
 	}
 	// Set signal handler
+	signal_pending = 0;
 	struct sigaction sa = { .sa_handler = signal_handler };
 	sigaction(SIGUSR1, &sa, 0);
 	sigaction(SIGINT, &sa, 0);
@@ -147,7 +149,6 @@ void init_X11()
 
 void cleanup()
 {
-printf("*** cleanup()\n");
 	cleanup_timeout();
 	cleanup_systray();
 	stop_net();
@@ -163,6 +164,7 @@ printf("*** cleanup()\n");
 		imlib_context_set_image(default_icon);
 		imlib_free_image();
 	}
+	imlib_context_disconnect_display();
 
 	cleanup_server();
 	if (server.dsp) XCloseDisplay(server.dsp);
@@ -191,7 +193,6 @@ void get_snapshot(const char *path)
 	}
 	imlib_save_image(path);
 	imlib_free_image();
-	XFreePixmap(server.dsp, panel->temp_pmap);
 }
 
 
@@ -624,11 +625,7 @@ void event_configure_notify (Window win)
 {
 	// change in root window (xrandr)
 	if (win == server.root_win) {
-		get_monitors();
-		init_config();
-		config_read_file (config_path);
-		init_panel();
-		cleanup_config();
+		signal_pending = SIGUSR1;
 		return;
 	}
 
@@ -704,8 +701,8 @@ int main (int argc, char *argv[])
 	GSList *it;
 	struct timeval* timeout;
 
+start:
 	init (argc, argv);
-	init_config();
 	init_X11();
 
 	i = 0;
@@ -720,7 +717,6 @@ int main (int argc, char *argv[])
 	}
 
 	init_panel();
-	cleanup_config();
 	if (snapshot_path) {
 		get_snapshot(snapshot_path);
 		cleanup();
@@ -899,19 +895,18 @@ int main (int argc, char *argv[])
 
 		callback_timeout_expired();
 
-		switch (signal_pending) {
-		case SIGUSR1: // reload config file
-			signal_pending = 0;
-			init_config();
-			config_read_file (config_path);
-			init_panel();
-			cleanup_config();
-			break;
-		case SIGINT:
-		case SIGTERM:
-		case SIGHUP:
-			cleanup ();
-			return 0;
+		if (signal_pending) {
+			cleanup();
+			if (signal_pending == SIGUSR1) {
+				// restart tint2
+				// SIGUSR1 used when : user's signal, composite manager stop/start or xrandr
+				FD_CLR (x11_fd, &fdset);
+				goto start;
+			}
+			else {
+				// SIGINT, SIGTERM, SIGHUP
+				return 0;
+			}
 		}
 	}
 }

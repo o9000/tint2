@@ -67,6 +67,7 @@ printf("*** default_systray()\n");
 
 void cleanup_systray()
 {
+printf("*** cleanup_systray()\n");
 	systray_enabled = 0;
 	systray_max_icon_size = 0;
 	systray.area.on_screen = 0;

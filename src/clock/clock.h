@@ -37,8 +37,9 @@ extern char *clock_rclick_command;
 extern int clock_enabled;
 
 
-// default values
+// default global data
 void default_clock();
+
 // freed memory
 void cleanup_clock();
 

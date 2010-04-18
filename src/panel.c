@@ -46,18 +46,18 @@ int mouse_tilt_right;
 
 int panel_mode;
 int wm_menu;
-int panel_dock=0;  // default not in the dock
-int panel_layer=BOTTOM_LAYER;  // default is bottom layer
+int panel_dock;
+int panel_layer;
 int panel_position;
 int panel_horizontal;
 int panel_refresh;
-int task_dragged=0;
+int task_dragged;
 
-int panel_autohide = 0;
-int panel_autohide_show_timeout = 0;
-int panel_autohide_hide_timeout = 0;
-int panel_autohide_height = 5;  // for vertical panels this is of course the width
-int panel_strut_policy = STRUT_MINIMUM;
+int panel_autohide;
+int panel_autohide_show_timeout;
+int panel_autohide_hide_timeout;
+int panel_autohide_height;
+int panel_strut_policy;
 
 Task *task_active;
 Task *task_drag;
@@ -66,17 +66,66 @@ int  max_tick_urgent;
 // panel's initial config
 Panel panel_config;
 // panels (one panel per monitor)
-Panel *panel1 = 0;
-int  nb_panel = 0;
+Panel *panel1;
+int  nb_panel;
 
-GArray* backgrounds = 0;
+GArray* backgrounds;
 
-Imlib_Image default_icon = NULL;
+Imlib_Image default_icon;
 
 
 void autohide_hide(void* p);
 void autohide_show(void* p);
 
+
+void default_panel()
+{
+	panel1 = 0;
+	nb_panel = 0;
+	default_icon = NULL;
+	task_active = 0;
+	task_drag = 0;
+	task_dragged = 0;
+	panel_autohide = 0;
+	panel_autohide_show_timeout = 0;
+	panel_autohide_hide_timeout = 0;
+	panel_autohide_height;  // for vertical panels this is of course the width
+	panel_strut_policy = STRUT_MINIMUM;
+	panel_dock = 0;  // default not in the dock
+	panel_layer = BOTTOM_LAYER;  // default is bottom layer
+	wm_menu = 0;
+	max_tick_urgent = 7;
+	memset(&panel_config, 0, sizeof(Panel));
+	backgrounds = g_array_new(0, 0, sizeof(Background));
+
+	// append full transparency background
+	Background transparent_bg;
+	memset(&transparent_bg, 0, sizeof(Background));
+	g_array_append_val(backgrounds, transparent_bg);
+}
+
+void cleanup_panel()
+{
+	if (!panel1) return;
+
+printf("*** cleanup_panel()\n");
+	cleanup_taskbar();
+
+	int i;
+	Panel *p;
+	for (i=0 ; i < nb_panel ; i++) {
+		p = &panel1[i];
+
+		free_area(&p->area);
+		if (p->temp_pmap) XFreePixmap(server.dsp, p->temp_pmap);
+		if (p->hidden_pixmap) XFreePixmap(server.dsp, p->hidden_pixmap);
+		if (p->main_win) XDestroyWindow(server.dsp, p->main_win);
+	}
+
+	if (panel1) free(panel1);
+	if (backgrounds) g_array_free(backgrounds, 1);
+	if (panel_config.g_task.font_desc) pango_font_description_free(panel_config.g_task.font_desc);
+}
 
 void init_panel()
 {
@@ -281,54 +330,6 @@ void init_panel_size_and_position(Panel *panel)
 		}
 	}
 	// printf("panel : posx %d, posy %d, width %d, height %d\n", panel->posx, panel->posy, panel->area.width, panel->area.height);
-}
-
-
-void cleanup_panel()
-{
-	if (!panel1) return;
-
-printf("*** cleanup_panel()\n");
-	task_active = 0;
-	task_drag = 0;
-
-	cleanup_taskbar();
-
-	int i;
-	Panel *p;
-	for (i=0 ; i < nb_panel ; i++) {
-		p = &panel1[i];
-
-		free_area(&p->area);
-
-		if (p->temp_pmap) {
-			XFreePixmap(server.dsp, p->temp_pmap);
-			p->temp_pmap = 0;
-		}
-		if (p->hidden_pixmap)
-			XFreePixmap(server.dsp, p->hidden_pixmap);
-		p->hidden_pixmap = 0;
-		if (p->main_win) {
-			XDestroyWindow(server.dsp, p->main_win);
-			p->main_win = 0;
-		}
-	}
-
-	if (panel1) {
-		free(panel1);
-		panel1 = 0;
-		nb_panel = 0;
-	}
-
-	if (panel_config.g_task.font_desc) {
-		pango_font_description_free(panel_config.g_task.font_desc);
-		panel_config.g_task.font_desc = 0;
-	}
-
-	if (backgrounds) {
-		g_array_free(backgrounds, 1);
-		backgrounds = 0;
-	}
 }
 
 

@@ -121,12 +121,18 @@ extern Panel panel_config;
 extern Panel *panel1;
 extern int  nb_panel;
 
+
+// default global data
+void default_panel();
+
+// freed memory
+void cleanup_panel();
+
 // realloc panels according to number of monitor
 // use panel_config as default value
 void init_panel();
 
 void init_panel_size_and_position(Panel *panel);
-void cleanup_panel();
 void resize_panel(void *obj);
 
 void set_panel_properties(Panel *p);

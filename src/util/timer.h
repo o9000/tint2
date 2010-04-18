@@ -36,8 +36,9 @@ typedef struct _timeout timeout;
   * integral multiple of the other.
 **/
 
-/** default values **/
+/** default global data **/
 void default_timeout();
+
 /** freed memory : stops all timeouts **/
 void cleanup_timeout();
 

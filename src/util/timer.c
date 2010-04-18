@@ -55,6 +55,7 @@ void default_timeout()
 
 void cleanup_timeout()
 {
+printf("*** cleanup_timeout()\n");
 	while (timeout_list) {
 		timeout* t = timeout_list->data;
 		if (t->multi_timeout)

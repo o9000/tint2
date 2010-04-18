@@ -94,6 +94,7 @@ void default_battery()
 
 void cleanup_battery()
 {
+	printf("*** cleanup_battery()\n");
 	if (bat1_font_desc) pango_font_description_free(bat1_font_desc);
 	if (bat2_font_desc) pango_font_description_free(bat2_font_desc);
 	if (path_energy_now) g_free(path_energy_now);
@@ -133,7 +134,6 @@ void init_battery()
 	if (directory)
 		g_dir_close(directory);
 	if (!battery_dir) {
-		cleanup_battery();
 		fprintf(stderr, "ERROR: battery applet can't found power_supply\n");
 		return;
 	}
@@ -166,6 +166,7 @@ void init_battery()
 		fp4 = fopen(path_status, "r");
 		if (fp1 == NULL || fp2 == NULL || fp3 == NULL || fp4 == NULL) {
 			cleanup_battery();
+			default_battery();
 			fprintf(stderr, "ERROR: battery applet can't open energy_now\n");
 		}
 		fclose(fp1);

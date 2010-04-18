@@ -52,8 +52,9 @@ extern int refresh_systray;
 extern int systray_enabled;
 extern int systray_max_icon_size;
 
-// default values
+// default global data
 void default_systray();
+
 // freed memory
 void cleanup_systray();
 
