@@ -33,10 +33,13 @@ typedef struct {
 	int use_active;
 } Global_taskbar;
 
-void init_taskbar();
 
-// freed memory and set default values
+// default values
+void default_taskbar();
+// freed memory
 void cleanup_taskbar();
+
+void init_taskbar();
 
 Task *task_get_task (Window win);
 GPtrArray* task_get_tasks(Window win);

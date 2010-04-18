@@ -52,12 +52,14 @@ extern int refresh_systray;
 extern int systray_enabled;
 extern int systray_max_icon_size;
 
-void init_systray();
-
-void init_systray_panel(void *p);
-
-// freed memory and set default values
+// default values
+void default_systray();
+// freed memory
 void cleanup_systray();
+
+// initialize protocol and panel position
+void init_systray();
+void init_systray_panel(void *p);
 
 void draw_systray(void *obj, cairo_t *c);
 void resize_systray(void *obj);

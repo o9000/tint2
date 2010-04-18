@@ -22,8 +22,9 @@
 
 #include "timer.h"
 
-GSList* timeout_list = 0;
+GSList* timeout_list;
 struct timeval next_timeout;
+GHashTable* multi_timeouts;
 
 
 // functions and structs for multi timeouts
@@ -45,6 +46,24 @@ struct _timeout {
 	multi_timeout* multi_timeout;
 };
 
+
+void default_timeout()
+{
+	timeout_list = 0;
+	multi_timeouts = 0;
+}
+
+void cleanup_timeout()
+{
+	while (timeout_list) {
+		timeout* t = timeout_list->data;
+		if (t->multi_timeout)
+			stop_multi_timeout(t);
+		free(t);
+		timeout_list = g_slist_remove(timeout_list, t);
+	}
+}
+
 void add_timeout_intern(int value_msec, int interval_msec, void(*_callback)(void*), void* arg, timeout* t);
 gint compare_timeouts(gconstpointer t1, gconstpointer t2);
 gint compare_timespecs(const struct timespec* t1, const struct timespec* t2);
@@ -60,8 +79,6 @@ void update_multi_timeout_values(multi_timeout_handler* mth);
 void callback_multi_timeout(void* mth);
 void remove_from_multi_timeout(timeout* t);
 void stop_multi_timeout(timeout* t);
-
-GHashTable* multi_timeouts = 0;
 
 /** Implementation notes for timeouts: The timeouts are kept in a GSList sorted by their
 	* expiration time.
@@ -152,18 +169,6 @@ void stop_timeout(timeout* t)
 			remove_from_multi_timeout((timeout*)t);
 		timeout_list = g_slist_remove(timeout_list, t);
 		free((void*)t);
-	}
-}
-
-
-void stop_all_timeouts()
-{
-	while (timeout_list) {
-		timeout* t = timeout_list->data;
-		if (t->multi_timeout)
-			stop_multi_timeout(t);
-		free(t);
-		timeout_list = g_slist_remove(timeout_list, t);
 	}
 }
 

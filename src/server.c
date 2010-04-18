@@ -33,8 +33,6 @@
 
 void server_catch_error (Display *d, XErrorEvent *ev){}
 
-int real_transparency = 0;
-
 void server_init_atoms ()
 {
 	server.atom._XROOTPMAP_ID = XInternAtom (server.dsp, "_XROOTPMAP_ID", False);
@@ -96,10 +94,6 @@ void server_init_atoms ()
 	server.atom.XdndAware = XInternAtom(server.dsp, "XdndAware", False);
 	server.atom.XdndPosition = XInternAtom(server.dsp, "XdndPosition", False);
 	server.atom.XdndStatus = XInternAtom(server.dsp, "XdndStatus", False);
-
-	server.colormap = 0;
-	server.monitor = 0;
-	server.gc = 0;
 }
 
 
@@ -391,7 +385,7 @@ void server_init_visual()
 		attrs.event_mask = StructureNotifyMask;
 		XChangeWindowAttributes (server.dsp, server.composite_manager, CWEventMask, &attrs);
 
-		real_transparency = 1;
+		server.real_transparency = 1;
 		server.depth = 32;
 		printf("real transparency on... depth: %d\n", server.depth);
 		server.colormap = XCreateColormap(server.dsp, server.root_win, visual, AllocNone);
@@ -399,7 +393,7 @@ void server_init_visual()
 	}
 	else {
 		// no composite manager or snapshot mode => fake transparency
-		real_transparency = 0;
+		server.real_transparency = 0;
 		server.depth = DefaultDepth(server.dsp, server.screen);
 		printf("real transparency off.... depth: %d\n", server.depth);
 		server.colormap = DefaultColormap(server.dsp, server.screen);

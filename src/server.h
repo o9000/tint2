@@ -13,7 +13,7 @@
 #include <X11/Xatom.h>
 #include <X11/extensions/Xinerama.h>
 
-extern int real_transparency;
+
 typedef struct Global_atom
 {
 	Atom _XROOTPMAP_ID;
@@ -87,6 +87,7 @@ typedef struct
 	Display *dsp;
 	Window root_win;
 	Window composite_manager;
+	int real_transparency;
 	// current desktop
 	int desktop;
 	int screen;
@@ -110,6 +111,9 @@ typedef struct
 Server_global server;
 
 
+// freed memory
+void cleanup_server();
+
 void send_event32 (Window win, Atom at, long data1, long data2, long data3);
 int  get_property32 (Window win, Atom at, Atom type);
 void *server_get_property (Window win, Atom at, Atom type, int *num_results);
@@ -117,7 +121,6 @@ Atom server_get_atom (char *atom_name);
 void server_catch_error (Display *d, XErrorEvent *ev);
 void server_init_atoms ();
 void server_init_visual();
-void cleanup_server();
 
 // detect root background
 void get_root_pixmap();

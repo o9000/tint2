@@ -34,23 +34,29 @@ void start_show_timeout();
 void start_hide_timeout();
 void stop_tooltip_timeout();
 
-// give the tooltip some reasonable default values
-Tooltip g_tooltip = {
-	.tooltip_text = 0,
-	.area = 0,
-	.panel = 0,
-	.window = 0,
-	.show_timeout_msec = 0,
-	.hide_timeout_msec = 0,
-	.enabled = False,
-	.mapped = False,
-	.paddingx = 0,
-	.paddingy = 0,
-	.font_color = { .color={1, 1, 1}, .alpha=1 },
-	.bg = 0,
-	.font_desc = 0,
-	.timeout = 0
-};
+Tooltip g_tooltip;
+
+
+void default_tooltip()
+{
+	// give the tooltip some reasonable default values
+	memset(&g_tooltip, 0, sizeof(Tooltip));
+
+	g_tooltip.font_color.color[0] = 1;
+	g_tooltip.font_color.color[1] = 1;
+	g_tooltip.font_color.color[2] = 1;
+	g_tooltip.font_color.alpha = 1;
+}
+
+void cleanup_tooltip()
+{
+	stop_tooltip_timeout();
+	tooltip_hide(0);
+	tooltip_copy_text(0);
+	if (g_tooltip.window) XDestroyWindow(server.dsp, g_tooltip.window);
+	if (g_tooltip.font_desc) pango_font_description_free(g_tooltip.font_desc);
+}
+
 
 void init_tooltip()
 {
@@ -66,23 +72,6 @@ void init_tooltip()
 	unsigned long mask = CWEventMask|CWColormap|CWBorderPixel|CWBackPixel|CWOverrideRedirect;
 	if (g_tooltip.window) XDestroyWindow(server.dsp, g_tooltip.window);
 	g_tooltip.window = XCreateWindow(server.dsp, server.root_win, 0, 0, 100, 20, 0, server.depth, InputOutput, server.visual, mask, &attr);
-}
-
-
-void cleanup_tooltip()
-{
-	stop_tooltip_timeout();
-	tooltip_hide(0);
-	g_tooltip.enabled = False;
-	tooltip_copy_text(0);
-	if (g_tooltip.window) {
-		XDestroyWindow(server.dsp, g_tooltip.window);
-		g_tooltip.window = 0;
-	}
-	if (g_tooltip.font_desc) {
-		pango_font_description_free(g_tooltip.font_desc);
-		g_tooltip.font_desc = 0;
-	}
 }
 
 
@@ -215,7 +204,7 @@ void tooltip_update()
 	c = cairo_create(cs);
 	Color bc = g_tooltip.bg->back;
 	Border b = g_tooltip.bg->border;
-	if (real_transparency) {
+	if (server.real_transparency) {
 		clear_pixmap(g_tooltip.window, 0, 0, width, height);
 		draw_rect(c, b.width, b.width, width-2*b.width, height-2*b.width, b.rounded-b.width/1.571);
 		cairo_set_source_rgba(c, bc.color[0], bc.color[1], bc.color[2], bc.alpha);
@@ -226,8 +215,10 @@ void tooltip_update()
 	}
 	cairo_fill(c);
 	cairo_set_line_width(c, b.width);
-	if (real_transparency) draw_rect(c, b.width/2.0, b.width/2.0, width - b.width, height - b.width, b.rounded);
-	else cairo_rectangle(c, b.width/2.0, b.width/2.0, width-b.width, height-b.width);
+	if (server.real_transparency)
+		draw_rect(c, b.width/2.0, b.width/2.0, width - b.width, height - b.width, b.rounded);
+	else
+		cairo_rectangle(c, b.width/2.0, b.width/2.0, width-b.width, height-b.width);
 	cairo_set_source_rgba(c, b.color[0], b.color[1], b.color[2], b.alpha);
 	cairo_stroke(c);
 

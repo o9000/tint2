@@ -11,9 +11,12 @@
 #include <pango/pangocairo.h>
 #include <Imlib2.h>
 #include "common.h"
+#include "timer.h"
 
 
 enum { TASK_NORMAL, TASK_ACTIVE, TASK_ICONIFIED, TASK_URGENT, TASK_STATE_COUNT };
+extern timeout* urgent_timeout;
+extern GSList* urgent_list;
 
 // --------------------------------------------------
 // global task parameter

@@ -42,6 +42,7 @@
 #include "tooltip.h"
 #include "timer.h"
 
+
 void signal_handler(int sig)
 {
 	// signal handler is light as it should be
@@ -52,6 +53,16 @@ void signal_handler(int sig)
 void init (int argc, char *argv[])
 {
 	int i;
+
+	// set global data
+	default_timeout();
+	default_systray();
+	memset(&server, 0, sizeof(Server_global));
+	default_battery();
+	default_clock();
+	default_taskbar();
+	default_tooltip();
+	default_config();
 
 	// read options
 	for (i = 1; i < argc; ++i) {
@@ -91,10 +102,6 @@ void init (int argc, char *argv[])
 //	sigaddset(&block_mask, SIGHUP);
 //	sigaddset(&block_mask, SIGUSR1);
 //	sigprocmask(SIG_BLOCK, &block_mask, 0);
-
-	// set global data
-	memset(&server, 0, sizeof(Server_global));
-	memset(&systray, 0, sizeof(Systraybar));
 }
 
 void init_X11()
@@ -140,7 +147,8 @@ void init_X11()
 
 void cleanup()
 {
-	stop_all_timeouts();
+printf("*** cleanup()\n");
+	cleanup_timeout();
 	cleanup_systray();
 	stop_net();
 	cleanup_panel();
@@ -149,13 +157,12 @@ void cleanup()
 #ifdef ENABLE_BATTERY
 	cleanup_battery();
 #endif
+	cleanup_config();
 
 	if (default_icon) {
 		imlib_context_set_image(default_icon);
 		imlib_free_image();
 	}
-	if (config_path) g_free(config_path);
-	if (snapshot_path) g_free(snapshot_path);
 
 	cleanup_server();
 	if (server.dsp) XCloseDisplay(server.dsp);

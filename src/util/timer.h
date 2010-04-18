@@ -36,6 +36,11 @@ typedef struct _timeout timeout;
   * integral multiple of the other.
 **/
 
+/** default values **/
+void default_timeout();
+/** freed memory : stops all timeouts **/
+void cleanup_timeout();
+
 /** installs a timeout with the first timeout of 'value_msec' and then a periodic timeout with
   * 'interval_msec'. '_callback' is the callback function when the timer reaches the timeout.
   * returns a pointer to the timeout, which is needed for stopping it again
@@ -47,9 +52,6 @@ void change_timeout(timeout* t, int value_msec, int interval_msec, void (*_callb
 
 /** stops the timeout 't' **/
 void stop_timeout(timeout* t);
-
-/** stops all timeouts **/
-void stop_all_timeouts();
 
 /** update_next_timeout updates next_timeout to the value, when the next installed timeout will expire **/
 void update_next_timeout();

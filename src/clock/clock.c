@@ -35,22 +35,53 @@
 #include "timer.h"
 
 
-char *time1_format=0;
-char *time1_timezone=0;
-char *time2_format=0;
-char *time2_timezone=0;
-char *time_tooltip_format=0;
-char *time_tooltip_timezone=0;
-char *clock_lclick_command=0;
-char *clock_rclick_command=0;
+char *time1_format;
+char *time1_timezone;
+char *time2_format;
+char *time2_timezone;
+char *time_tooltip_format;
+char *time_tooltip_timezone;
+char *clock_lclick_command;
+char *clock_rclick_command;
 struct timeval time_clock;
-PangoFontDescription *time1_font_desc=0;
-PangoFontDescription *time2_font_desc=0;
+PangoFontDescription *time1_font_desc;
+PangoFontDescription *time2_font_desc;
 static char buf_time[40];
 static char buf_date[40];
 static char buf_tooltip[40];
 int clock_enabled;
-static timeout* clock_timeout=0;
+static timeout* clock_timeout;
+
+
+void default_clock()
+{
+	clock_enabled = 0;
+	clock_timeout = 0;
+	time1_format = 0;
+	time1_timezone = 0;
+	time2_format = 0;
+	time2_timezone = 0;
+	time_tooltip_format = 0;
+	time_tooltip_timezone = 0;
+	clock_lclick_command = 0;
+	clock_rclick_command = 0;
+	time1_font_desc = 0;
+	time2_font_desc = 0;
+}
+
+void cleanup_clock()
+{
+	if (time1_font_desc) pango_font_description_free(time1_font_desc);
+	if (time2_font_desc) pango_font_description_free(time2_font_desc);
+	if (time1_format) g_free(time1_format);
+	if (time2_format) g_free(time2_format);
+	if (time_tooltip_format) g_free(time_tooltip_format);
+	if (time1_timezone) g_free(time1_timezone);
+	if (time2_timezone) g_free(time2_timezone);
+	if (time_tooltip_timezone) g_free(time_tooltip_timezone);
+	if (clock_lclick_command) g_free(clock_lclick_command);
+	if (clock_rclick_command) g_free(clock_rclick_command);
+}
 
 
 void update_clocks_sec(void* arg)
@@ -156,52 +187,6 @@ void init_clock_panel(void *p)
 	if (time_tooltip_format) {
 		clock->area._get_tooltip_text = clock_get_tooltip;
 		strftime(buf_tooltip, sizeof(buf_tooltip), time_tooltip_format, clock_gettime_for_tz(time_tooltip_timezone));
-	}
-}
-
-
-void cleanup_clock()
-{
-	clock_enabled = 0;
-	if (time1_font_desc) {
-		pango_font_description_free(time1_font_desc);
-		time1_font_desc = 0;
-	}
-	if (time2_font_desc) {
-		pango_font_description_free(time2_font_desc);
-		time2_font_desc = 0;
-	}
-	if (time1_format) {
-		g_free(time1_format);
-		time1_format = 0;
-	}
-	if (time2_format) {
-		g_free(time2_format);
-		time2_format = 0;
-	}
-	if (time_tooltip_format) {
-		g_free(time_tooltip_format);
-		time_tooltip_format = 0;
-	}
-	if (time1_timezone) {
-		g_free(time1_timezone);
-		time1_timezone = 0;
-	}
-	if (time2_timezone) {
-		g_free(time2_timezone);
-		time2_timezone = 0;
-	}
-	if (time_tooltip_timezone) {
-		g_free(time_tooltip_timezone);
-		time_tooltip_timezone = 0;
-	}
-	if (clock_lclick_command) {
-		g_free(clock_lclick_command);
-		clock_lclick_command = 0;
-	}
-	if (clock_rclick_command) {
-		g_free(clock_rclick_command);
-		clock_rclick_command = 0;
 	}
 }
 

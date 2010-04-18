@@ -51,8 +51,31 @@ int systray_enabled;
 int systray_max_icon_size;
 
 // background pixmap if we render ourselves the icons
-static Pixmap render_background = 0;
+static Pixmap render_background;
 
+
+void default_systray()
+{
+printf("*** default_systray()\n");
+	memset(&systray, 0, sizeof(Systraybar));
+	render_background = 0;
+	systray.alpha = 100;
+	systray.sort = 3;
+	systray.area._draw_foreground = draw_systray;
+	systray.area._resize = resize_systray;
+}
+
+void cleanup_systray()
+{
+	systray_enabled = 0;
+	systray_max_icon_size = 0;
+	systray.area.on_screen = 0;
+	free_area(&systray.area);
+	if (render_background) {
+		XFreePixmap(server.dsp, render_background);
+		render_background = 0;
+	}
+}
 
 void init_systray()
 {
@@ -66,8 +89,6 @@ void init_systray()
 		systray.alpha = 100;
 		systray.brightness = systray.saturation = 0;
 	}
-	systray.area._draw_foreground = draw_systray;
-	systray.area._resize = resize_systray;
 	systray.area.resize = 1;
 	systray.area.redraw = 1;
 	systray.area.on_screen = 1;
@@ -92,22 +113,9 @@ void init_systray_panel(void *p)
 }
 
 
-void cleanup_systray()
-{
-	systray_enabled = 0;
-	systray_max_icon_size = 0;
-	systray.area.on_screen = 0;
-	free_area(&systray.area);
-	if (render_background) {
-		XFreePixmap(server.dsp, render_background);
-		render_background = 0;
-	}
-}
-
-
 void draw_systray(void *obj, cairo_t *c)
 {
-	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+	if (server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		if (render_background) XFreePixmap(server.dsp, render_background);
 		render_background = XCreatePixmap(server.dsp, server.root_win, systray.area.width, systray.area.height, server.depth);
 		XCopyArea(server.dsp, systray.area.pix, render_background, server.gc, 0, 0, systray.area.width, systray.area.height, 0, 0);
@@ -446,7 +454,7 @@ gboolean add_icon(Window id)
 
 	// watch for the icon trying to resize itself!
 	XSelectInput(server.dsp, traywin->tray_id, StructureNotifyMask);
-	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+	if (server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		traywin->damage = XDamageCreate(server.dsp, traywin->id, XDamageReportRawRectangles);
 		XCompositeRedirectWindow(server.dsp, traywin->id, CompositeRedirectManual);
 	}
@@ -550,7 +558,7 @@ void systray_render_icon_now(void* t)
 		return;
 	}
 	Picture pict_image;
-	if (real_transparency)
+	if (server.real_transparency)
 		pict_image = XRenderCreatePicture(server.dsp, traywin->id, f, 0, 0);
 	else
 		pict_image = XRenderCreatePicture(server.dsp, traywin->tray_id, f, 0, 0);
@@ -592,7 +600,7 @@ void systray_render_icon_now(void* t)
 
 void systray_render_icon(TrayWindow* traywin)
 {
-	if (real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+	if (server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		// wine tray icons update whenever mouse is over them, so we limit the updates to 50 ms
 		if (traywin->render_timeout == 0)
 			traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin);

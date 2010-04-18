@@ -12,8 +12,12 @@
 extern char *config_path;
 extern char *snapshot_path;
 
-void init_config();
+// default values
+void default_config();
+// freed memory
 void cleanup_config();
+
+void init_config();
 int  config_read_file (const char *path);
 int  config_read ();
 

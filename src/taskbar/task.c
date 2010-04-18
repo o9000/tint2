@@ -35,8 +35,8 @@
 #include "tooltip.h"
 #include "timer.h"
 
-static timeout* urgent_timeout = 0;
-static GSList* urgent_list = 0;
+timeout* urgent_timeout;
+GSList* urgent_list;
 
 const char* task_get_tooltip(void* obj)
 {
@@ -325,7 +325,7 @@ void draw_task_icon (Task *tsk, int text_width)
 
 	// Render
 	imlib_context_set_image (tsk->icon[tsk->current_state]);
-	if (real_transparency) {
+	if (server.real_transparency) {
 		render_image(tsk->area.pix, pos_x, panel->g_task.icon_posy, imlib_image_get_width(), imlib_image_get_height() );
 	}
 	else {

@@ -37,12 +37,14 @@ extern char *clock_rclick_command;
 extern int clock_enabled;
 
 
+// default values
+void default_clock();
+// freed memory
+void cleanup_clock();
+
 // initialize clock : y position, precision, ...
 void init_clock();
 void init_clock_panel(void *panel);
-
-// freed memory and set default values
-void cleanup_clock();
 
 void draw_clock (void *obj, cairo_t *c);
 

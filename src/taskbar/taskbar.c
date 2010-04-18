@@ -37,7 +37,7 @@
    element. However for omnipresent windows (windows which are visible in every taskbar) the array
    contains to every Task* on each panel a pointer (i.e. GPtrArray.len == server.nb_desktop)
 */
-GHashTable* win_to_task_table = 0;
+GHashTable* win_to_task_table;
 
 guint win_hash(gconstpointer key) { return (guint)*((Window*)key); }
 gboolean win_compare(gconstpointer a, gconstpointer b) { return (*((Window*)a) == *((Window*)b)); }
@@ -169,6 +169,13 @@ void init_taskbar()
 void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data)
 {
 	remove_task(task_get_task(*(Window*)key));
+}
+
+void default_taskbar()
+{
+	win_to_task_table = 0;
+	urgent_timeout = 0;
+	urgent_list = 0;
 }
 
 void cleanup_taskbar()

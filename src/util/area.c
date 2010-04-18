@@ -101,7 +101,7 @@ void draw (Area *a)
 	a->pix = XCreatePixmap (server.dsp, server.root_win, a->width, a->height, server.depth);
 
 	// add layer of root pixmap (or clear pixmap if real_transparency==true)
-	if (real_transparency)
+	if (server.real_transparency)
 		clear_pixmap(a->pix, 0 ,0, a->width, a->height);
 	XCopyArea (server.dsp, ((Panel *)a->panel)->temp_pmap, a->pix, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
 

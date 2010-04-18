@@ -33,23 +33,23 @@
 #include "clock.h"
 #include "timer.h"
 
-PangoFontDescription *bat1_font_desc=0;
-PangoFontDescription *bat2_font_desc=0;
+PangoFontDescription *bat1_font_desc;
+PangoFontDescription *bat2_font_desc;
 struct batstate battery_state;
 int battery_enabled;
 int percentage_hide;
-static timeout* battery_timeout=0;
+static timeout* battery_timeout;
 
 static char buf_bat_percentage[10];
 static char buf_bat_time[20];
 
 int8_t battery_low_status;
 unsigned char battery_low_cmd_send;
-char *battery_low_cmd=0;
-char *path_energy_now=0;
-char *path_energy_full=0;
-char *path_current_now=0;
-char *path_status=0;
+char *battery_low_cmd;
+char *path_energy_now;
+char *path_energy_full;
+char *path_current_now;
+char *path_status;
 
 void update_batterys(void* arg)
 {
@@ -75,6 +75,32 @@ void update_batterys(void* arg)
 		}
 		panel1[i].battery.area.resize = 1;
 	}
+}
+
+void default_battery()
+{
+	battery_enabled = 0;
+	percentage_hide = 101;
+	battery_low_cmd_send = 0;
+	battery_timeout = 0;
+	bat1_font_desc = 0;
+	bat2_font_desc = 0;
+	battery_low_cmd = 0;
+	path_energy_now = 0;
+	path_energy_full = 0;
+	path_current_now = 0;
+	path_status = 0;
+}
+
+void cleanup_battery()
+{
+	if (bat1_font_desc) pango_font_description_free(bat1_font_desc);
+	if (bat2_font_desc) pango_font_description_free(bat2_font_desc);
+	if (path_energy_now) g_free(path_energy_now);
+	if (path_energy_full) g_free(path_energy_full);
+	if (path_current_now) g_free(path_current_now);
+	if (path_status) g_free(path_status);
+	if (battery_low_cmd) g_free(battery_low_cmd);
 }
 
 
@@ -153,43 +179,6 @@ void init_battery()
 
 	if (battery_enabled && battery_timeout==0)
 		battery_timeout = add_timeout(10, 10000, update_batterys, 0);
-}
-
-
-void cleanup_battery()
-{
-	battery_enabled = 0;
-	percentage_hide = 101;
-	battery_low_cmd_send = 0;
-
-	if (bat1_font_desc) {
-		pango_font_description_free(bat1_font_desc);
-		bat1_font_desc = 0;
-	}
-	if (bat2_font_desc) {
-		pango_font_description_free(bat2_font_desc);
-		bat2_font_desc = 0;
-	}
-	if (path_energy_now) {
-		g_free(path_energy_now);
-		path_energy_now = 0;
-	}
-	if (path_energy_full) {
-		g_free(path_energy_full);
-		path_energy_full = 0;
-	}
-	if (path_current_now) {
-		g_free(path_current_now);
-		path_current_now = 0;
-	}
-	if (path_status) {
-		g_free(path_status);
-		path_status = 0;
-	}
-	if (battery_low_cmd) {
-		g_free(battery_low_cmd);
-		battery_low_cmd = 0;
-	}
 }
 
 

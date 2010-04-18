@@ -288,6 +288,7 @@ void cleanup_panel()
 {
 	if (!panel1) return;
 
+printf("*** cleanup_panel()\n");
 	task_active = 0;
 	task_drag = 0;
 
@@ -568,7 +569,7 @@ void set_panel_background(Panel *p)
 	else if (!panel_horizontal && panel_position & RIGHT)
 		xoff = p->area.width-p->hidden_width;
 
-	if (real_transparency) {
+	if (server.real_transparency) {
 		clear_pixmap(p->area.pix, 0, 0, p->area.width, p->area.height);
 	}
 	else {

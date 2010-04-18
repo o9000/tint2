@@ -52,8 +52,8 @@
 #endif
 
 // global path
-char *config_path = 0;
-char *snapshot_path = 0;
+char *config_path;
+char *snapshot_path;
 
 // --------------------------------------------------
 // backward compatibility
@@ -61,6 +61,20 @@ static int old_task_icon_size;
 // detect if it's an old config file
 // ==1
 static int old_config_file;
+
+
+void default_config()
+{
+	config_path = 0;
+	snapshot_path = 0;
+	old_config_file = 1;
+}
+
+void cleanup_config()
+{
+	if (config_path) g_free(config_path);
+	if (snapshot_path) g_free(snapshot_path);
+}
 
 
 void init_config()
@@ -88,9 +102,6 @@ printf("*** init_config()\n");
 		pango_font_description_free(panel_config.g_task.font_desc);
 	}
 	memset(&panel_config, 0, sizeof(Panel));
-	systray.alpha = 100;
-	systray.sort = 3;
-	old_config_file = 1;
 
 	// window manager's menu default value == false
 	wm_menu = 0;
@@ -100,11 +111,6 @@ printf("*** init_config()\n");
 	//pango_xft_shutdown_display(server.dsp, server.screen);
 	//PangoFontMap *font_map = pango_xft_get_font_map(server.dsp, server.screen);
 	//pango_fc_font_map_shutdown(font_map);
-}
-
-
-void cleanup_config()
-{
 }
 
 
