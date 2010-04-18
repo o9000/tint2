@@ -590,8 +590,13 @@ void add_entry (char *key, char *value)
 		else
 			panel_strut_policy = STRUT_MINIMUM;
 	}
-	else if (strcmp(key, "autohide_height") == 0)
+	else if (strcmp(key, "autohide_height") == 0) {
 		panel_autohide_height = atoi(value);
+		if (panel_autohide_height == 0) {
+			// autohide need height > 0
+			panel_autohide_height = 1;
+		}
+	}
 
 	else
 		fprintf(stderr, "tint2 : invalid option \"%s\",\n  upgrade tint2 or correct your config file\n", key);

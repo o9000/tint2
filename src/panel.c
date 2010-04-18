@@ -86,10 +86,12 @@ void default_panel()
 	task_active = 0;
 	task_drag = 0;
 	task_dragged = 0;
+	panel_horizontal = 1;
+	panel_position = CENTER;
 	panel_autohide = 0;
 	panel_autohide_show_timeout = 0;
 	panel_autohide_hide_timeout = 0;
-	panel_autohide_height;  // for vertical panels this is of course the width
+	panel_autohide_height = 5;  // for vertical panels this is of course the width
 	panel_strut_policy = STRUT_MINIMUM;
 	panel_dock = 0;  // default not in the dock
 	panel_layer = BOTTOM_LAYER;  // default is bottom layer
@@ -784,6 +786,7 @@ void autohide_hide(void* p)
 
 	XUnmapSubwindows(server.dsp, panel->main_win);  // systray windows
 	int diff = (panel_horizontal ? panel->area.height : panel->area.width) - panel_autohide_height;
+	//printf("autohide_hide : diff %d, w %d, h %d\n", diff, panel->hidden_width, panel->hidden_height);
 	if (panel_horizontal) {
 		if (panel_position & TOP)
 			XResizeWindow(server.dsp, panel->main_win, panel->hidden_width, panel->hidden_height);
