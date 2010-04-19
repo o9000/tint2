@@ -348,39 +348,41 @@ void draw_task (void *obj, cairo_t *c)
 		/* Layout */
 		layout = pango_cairo_create_layout (c);
 		pango_layout_set_font_description (layout, panel->g_task.font_desc);
-		pango_layout_set_text (layout, tsk->title, -1);
+		pango_layout_set_text(layout, tsk->title, -1);
 
 		/* Drawing width and Cut text */
 		// pango use U+22EF or U+2026
-		pango_layout_set_width (layout, ((Taskbar*)tsk->area.parent)->text_width * PANGO_SCALE);
-		pango_layout_set_ellipsize (layout, PANGO_ELLIPSIZE_MIDDLE);
-		//pango_layout_set_wrap(layout, PANGO_WRAP_CHAR);
+		pango_layout_set_ellipsize (layout, PANGO_ELLIPSIZE_END);
+		pango_layout_set_width(layout, ((Taskbar*)tsk->area.parent)->text_width * PANGO_SCALE);
+		pango_layout_set_height(layout, panel->g_task.text_height * PANGO_SCALE);
+		pango_layout_set_wrap(layout, PANGO_WRAP_CHAR);
 
 		/* Center text */
 		if (panel->g_task.centered) pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
 		else pango_layout_set_alignment (layout, PANGO_ALIGN_LEFT);
 
 		pango_layout_get_pixel_size (layout, &width, &height);
+		//printf("nombre de lignes  %d, w %d, h %d, text_height %d\n", pango_layout_get_line_count(layout), width, height, (int)panel->g_task.text_height);
 
 		config_text = &panel->g_task.font[tsk->current_state];
 
 		cairo_set_source_rgba (c, config_text->color[0], config_text->color[1], config_text->color[2], config_text->alpha);
 
 		pango_cairo_update_layout (c, layout);
-		cairo_move_to (c, panel->g_task.text_posx, panel->g_task.text_posy);
+		double text_posy = (panel->g_task.area.height - height) / 2.0;
+		cairo_move_to (c, panel->g_task.text_posx, text_posy);
 		pango_cairo_show_layout (c, layout);
 
 		if (panel->g_task.font_shadow) {
 			cairo_set_source_rgba (c, 0.0, 0.0, 0.0, 0.5);
 			pango_cairo_update_layout (c, layout);
-			cairo_move_to (c, panel->g_task.text_posx + 1, panel->g_task.text_posy + 1);
+			cairo_move_to (c, panel->g_task.text_posx + 1, text_posy + 1);
 			pango_cairo_show_layout (c, layout);
 		}
 		g_object_unref (layout);
 	}
 
 	if (panel->g_task.icon) {
-		// icon use same opacity as text
 		draw_task_icon (tsk, width);
 	}
 }

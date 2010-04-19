@@ -142,7 +142,7 @@ void init_taskbar()
 			panel->g_task.maximum_width = server.monitor[panel->monitor].width;
 
 		panel->g_task.text_posx = panel->g_task.background[0]->border.width + panel->g_task.area.paddingxlr;
-		panel->g_task.text_posy = (panel->g_task.area.height - height) / 2.0;
+		panel->g_task.text_height = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
 		if (panel->g_task.icon) {
 			panel->g_task.icon_size1 = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
 			panel->g_task.text_posx += panel->g_task.icon_size1;
