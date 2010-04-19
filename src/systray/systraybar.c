@@ -56,7 +56,6 @@ static Pixmap render_background;
 
 void default_systray()
 {
-printf("*** default_systray()\n");
 	memset(&systray, 0, sizeof(Systraybar));
 	render_background = 0;
 	systray.alpha = 100;
