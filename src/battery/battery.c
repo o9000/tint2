@@ -134,6 +134,7 @@ void init_battery()
 		g_dir_close(directory);
 	if (!battery_dir) {
 		fprintf(stderr, "ERROR: battery applet can't found power_supply\n");
+		default_battery();
 		return;
 	}
 
