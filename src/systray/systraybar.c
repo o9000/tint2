@@ -557,10 +557,10 @@ void systray_render_icon_now(void* t)
 		return;
 	}
 	Picture pict_image;
-	if (server.real_transparency)
-		pict_image = XRenderCreatePicture(server.dsp, traywin->id, f, 0, 0);
-	else
-		pict_image = XRenderCreatePicture(server.dsp, traywin->tray_id, f, 0, 0);
+	//if (server.real_transparency)
+		//pict_image = XRenderCreatePicture(server.dsp, traywin->id, f, 0, 0);
+	// reverted Rev 407 because here it's breaking alls icon with systray + xcompmgr
+	pict_image = XRenderCreatePicture(server.dsp, traywin->tray_id, f, 0, 0);
 	Picture pict_drawable = XRenderCreatePicture(server.dsp, tmp_pmap, XRenderFindVisualFormat(server.dsp, server.visual32), 0, 0);
 	XRenderComposite(server.dsp, PictOpSrc, pict_image, None, pict_drawable, 0, 0, 0, 0, 0, 0, traywin->width, traywin->height);
 	XRenderFreePicture(server.dsp, pict_image);
