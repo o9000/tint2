@@ -151,7 +151,6 @@ void cleanup()
 {
 	cleanup_timeout();
 	cleanup_systray();
-	stop_net();
 	cleanup_panel();
 	cleanup_tooltip();
 	cleanup_clock();

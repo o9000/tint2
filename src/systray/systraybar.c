@@ -66,6 +66,7 @@ void default_systray()
 
 void cleanup_systray()
 {
+	stop_net();
 	systray_enabled = 0;
 	systray_max_icon_size = 0;
 	systray.area.on_screen = 0;
@@ -372,6 +373,7 @@ gboolean add_icon(Window id)
 	if ( XGetWindowAttributes(server.dsp, id, &attr) == False ) return FALSE;
 	unsigned long mask = 0;
 	XSetWindowAttributes set_attr;
+	//printf("icon with depth: %d, width %d, height %d\n", attr.depth, attr.width, attr.height);
 	printf("icon with depth: %d\n", attr.depth);
 	if (attr.depth != server.depth || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		set_attr.colormap = attr.colormap;
@@ -575,6 +577,8 @@ void systray_render_icon_now(void* t)
 		return;
 
 	imlib_context_set_image(image);
+	//if (traywin->depth == 24)
+		//imlib_save_image("/home/thil77/test.jpg");
 	imlib_image_set_has_alpha(1);
 	DATA32* data = imlib_image_get_data();
 	if (traywin->depth == 24) {

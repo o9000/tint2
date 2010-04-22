@@ -97,8 +97,9 @@ void default_panel()
 	panel_layer = BOTTOM_LAYER;  // default is bottom layer
 	wm_menu = 0;
 	max_tick_urgent = 7;
-	memset(&panel_config, 0, sizeof(Panel));
 	backgrounds = g_array_new(0, 0, sizeof(Background));
+
+	memset(&panel_config, 0, sizeof(Panel));
 
 	// append full transparency background
 	Background transparent_bg;
@@ -130,8 +131,8 @@ void cleanup_panel()
 
 void init_panel()
 {
-	int i, old_nb_panel;
-	Panel *new_panel, *p;
+	int i;
+	Panel *p;
 
 	if (panel_config.monitor > (server.nb_monitor-1)) {
 		// server.nb_monitor minimum value is 1 (see get_monitors())
@@ -146,46 +147,20 @@ void init_panel()
 	init_battery();
 #endif
 
-	cleanup_taskbar();
-	for (i=0 ; i < nb_panel ; i++) {
-		autohide_show(&panel1[i]);
-		free_area(&panel1[i].area);
-		if (panel1[i].temp_pmap) {
-			XFreePixmap(server.dsp, panel1[i].temp_pmap);
-			panel1[i].temp_pmap = 0;
-		}
-	}
-
-	// number of panels
-	old_nb_panel = nb_panel;
+	// number of panels (one monitor or 'all' monitors)
 	if (panel_config.monitor >= 0)
 		nb_panel = 1;
 	else
 		nb_panel = server.nb_monitor;
 
-	// freed old panels
-	for (i=nb_panel ; i < old_nb_panel ; i++) {
-		if (panel1[i].main_win) {
-			XDestroyWindow(server.dsp, panel1[i].main_win);
-			panel1[i].main_win = 0;
-		}
-	}
-
-	// alloc & init new panel
-	Window old_win;
-	if (nb_panel != old_nb_panel)
-		new_panel = realloc(panel1, nb_panel * sizeof(Panel));
-	else
-		new_panel = panel1;
+	panel1 = malloc(nb_panel * sizeof(Panel));
 	for (i=0 ; i < nb_panel ; i++) {
-		old_win = new_panel[i].main_win;
-		memcpy(&new_panel[i], &panel_config, sizeof(Panel));
-		new_panel[i].main_win = old_win;
+		memcpy(&panel1[i], &panel_config, sizeof(Panel));
 	}
 
 	fprintf(stderr, "tint2 : nb monitor %d, nb monitor used %d, nb desktop %d\n", server.nb_monitor, nb_panel, server.nb_desktop);
 	for (i=0 ; i < nb_panel ; i++) {
-		p = &new_panel[i];
+		p = &panel1[i];
 
 		if (panel_config.monitor < 0)
 			p->monitor = i;
@@ -216,16 +191,10 @@ void init_panel()
 			refresh_systray = 1;
 		}
 
-		if (i >= old_nb_panel) {
-			// new panel : catch some events
-			XSetWindowAttributes att = { .colormap=server.colormap, .background_pixel=0, .border_pixel=0 };
-			unsigned long mask = CWEventMask|CWColormap|CWBackPixel|CWBorderPixel;
-			p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, server.visual, mask, &att);
-		}
-		else {
-			// old panel
-			XMoveResizeWindow(server.dsp, p->main_win, p->posx, p->posy, p->area.width, p->area.height);
-		}
+		// catch some events
+		XSetWindowAttributes att = { .colormap=server.colormap, .background_pixel=0, .border_pixel=0 };
+		unsigned long mask = CWEventMask|CWColormap|CWBackPixel|CWBorderPixel;
+		p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, server.visual, mask, &att);
 
 		long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
 		if (g_tooltip.enabled)
@@ -241,7 +210,7 @@ void init_panel()
 		//printf("panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
 		set_panel_properties(p);
 		set_panel_background(p);
-		if (i >= old_nb_panel && snapshot_path == 0) {
+		if (snapshot_path == 0) {
 			// if we are not in 'snapshot' mode then map new panel
 			XMapWindow (server.dsp, p->main_win);
 		}
@@ -250,7 +219,6 @@ void init_panel()
 			add_timeout(panel_autohide_hide_timeout, 0, autohide_hide, p);
 	}
 
-	panel1 = new_panel;
 	panel_refresh = 1;
 	init_taskbar();
 	visible_object();
