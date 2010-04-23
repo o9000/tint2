@@ -59,8 +59,6 @@ extern int panel_autohide_hide_timeout;
 extern int panel_autohide_height;  // for vertical panels this is of course the width
 extern int panel_strut_policy;
 
-extern Task *task_active;
-extern Task *task_drag;
 extern int  max_tick_urgent;
 
 extern GArray* backgrounds;

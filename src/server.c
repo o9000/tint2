@@ -104,7 +104,8 @@ void cleanup_server()
 	if (server.monitor) {
 		int i;
 		for (i=0; i<server.nb_monitor; ++i)
-			g_strfreev(server.monitor[i].names);
+			if (server.monitor[i].names)
+				g_strfreev(server.monitor[i].names);
 		free(server.monitor);
 	}
 	if (server.gc) XFreeGC(server.dsp, server.gc);
@@ -247,15 +248,6 @@ int compareMonitorIncluded(const void *monitor1, const void *monitor2)
 
 void get_monitors()
 {
-	if (server.monitor) {
-		int i;
-		for (i=0; i<server.nb_monitor; ++i)
-			g_strfreev(server.monitor[i].names);
-		free(server.monitor);
-	}
-	server.nb_monitor = 0;
-	server.monitor = 0;
-
 	int i, j, nbmonitor;
 	if (XineramaIsActive(server.dsp)) {
 		XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &nbmonitor);
@@ -309,7 +301,8 @@ void get_monitors()
 		}
 next:
 		for (j=i; j<server.nb_monitor; ++j)
-			g_strfreev(server.monitor[j].names);
+			if (server.monitor[j].names)
+				g_strfreev(server.monitor[j].names);
 		server.nb_monitor = i;
 		server.monitor = realloc(server.monitor, server.nb_monitor * sizeof(Monitor));
 		qsort(server.monitor, server.nb_monitor, sizeof(Monitor), compareMonitorPos);
@@ -324,6 +317,7 @@ next:
 		server.monitor[0].x = server.monitor[0].y = 0;
 		server.monitor[0].width = DisplayWidth (server.dsp, server.screen);
 		server.monitor[0].height = DisplayHeight (server.dsp, server.screen);
+		server.monitor[0].names = 0;
 	}
 }
 

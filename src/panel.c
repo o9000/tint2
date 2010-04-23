@@ -59,8 +59,6 @@ int panel_autohide_hide_timeout;
 int panel_autohide_height;
 int panel_strut_policy;
 
-Task *task_active;
-Task *task_drag;
 int  max_tick_urgent;
 
 // panel's initial config
@@ -83,8 +81,6 @@ void default_panel()
 	panel1 = 0;
 	nb_panel = 0;
 	default_icon = NULL;
-	task_active = 0;
-	task_drag = 0;
 	task_dragged = 0;
 	panel_horizontal = 1;
 	panel_position = CENTER;
@@ -125,7 +121,8 @@ void cleanup_panel()
 	}
 
 	if (panel1) free(panel1);
-	if (backgrounds) g_array_free(backgrounds, 1);
+	if (backgrounds)
+		g_array_free(backgrounds, 1);
 	if (panel_config.g_task.font_desc) pango_font_description_free(panel_config.g_task.font_desc);
 }
 
