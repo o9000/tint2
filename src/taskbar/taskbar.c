@@ -224,7 +224,10 @@ Task *task_get_task (Window win)
 
 GPtrArray* task_get_tasks(Window win)
 {
-	return g_hash_table_lookup(win_to_task_table, &win);
+	if (win_to_task_table)
+		return g_hash_table_lookup(win_to_task_table, &win);
+	else
+		return 0;
 }
 
 
@@ -235,10 +238,6 @@ void task_refresh_tasklist ()
 
 	win = server_get_property (server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
 	if (!win) return;
-
-	// Remove any old and set active win
-	// remark from Andreas: This seems unneccessary...
-//	active_task();
 
 	GList* win_list = g_hash_table_get_keys(win_to_task_table);
 	GList* it;
