@@ -32,6 +32,7 @@
 #include "common.h"
 #include "theme_view.h"
 
+#define SNAPSHOT_TICK 190
 
 
 // default config file and directory
@@ -261,7 +262,7 @@ static void menuAdd()
 
 	selectTheme(name_first);
 	g_free(name_first);
-	g_timeout_add(100, (GSourceFunc)update_snapshot, NULL);
+	g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
 }
 
 
@@ -371,7 +372,7 @@ static void menuRefresh()
 		gtk_list_store_set(g_store, &iter, COL_SNAPSHOT, NULL, -1);
 	}
 
-	g_timeout_add(100, (GSourceFunc)update_snapshot, NULL);
+	g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
 }
 
 
@@ -388,7 +389,7 @@ static void menuRefreshAll()
 		have_iter = gtk_tree_model_iter_next(model, &iter);
 	}
 
-	g_timeout_add(100, (GSourceFunc)update_snapshot, NULL);
+	g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
 }
 
 
@@ -502,7 +503,7 @@ static void load_theme(GtkWidget *list)
 
 	selectTheme(g_default_theme);
 
-	g_timeout_add(100, (GSourceFunc)update_snapshot, NULL);
+	g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
 }
 
 

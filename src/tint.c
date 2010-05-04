@@ -130,6 +130,8 @@ void init_X11()
 	XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
 
 	setlocale (LC_ALL, "");
+	// config file use '.' as decimal separator
+	setlocale(LC_NUMERIC, "POSIX");
 
 	// load default icon
 	gchar *path;
