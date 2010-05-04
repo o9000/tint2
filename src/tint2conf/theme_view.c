@@ -15,9 +15,9 @@ GtkCellRenderer *g_renderer;
 
 GtkWidget *create_view()
 {
-	GtkTreeViewColumn   *col;
-	GtkCellRenderer     *renderer;
-	GtkWidget           *view;
+	GtkTreeViewColumn *col;
+	GtkCellRenderer *renderer;
+	GtkWidget  *view;
 
 	g_store = gtk_list_store_new(NB_COL, G_TYPE_STRING, GDK_TYPE_PIXBUF);
 
@@ -46,6 +46,9 @@ GtkWidget *create_view()
 	gtk_tree_view_column_add_attribute(col, g_renderer, "pixbuf", COL_SNAPSHOT);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view),col);
 
+	GtkTreeSortable *sortable;
+	sortable = GTK_TREE_SORTABLE(g_store);
+	gtk_tree_sortable_set_sort_column_id(sortable, COL_THEME_FILE, GTK_SORT_ASCENDING);
 	return view;
 }
 
