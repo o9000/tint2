@@ -1,0 +1,139 @@
+#---------------------------------------------
+# TINT2 CONFIG FILE
+#---------------------------------------------
+
+#---------------------------------------------
+# BACKGROUND AND BORDER
+#---------------------------------------------
+rounded = 1
+border_width = 0
+background_color = #282828 60
+border_color = #000000 0
+
+rounded = 1
+border_width = 1
+background_color = #cccccc 0
+border_color = #cccccc 55
+
+rounded = 1
+border_width = 0
+background_color = #cccccc 20
+border_color = #cccccc 40
+
+#---------------------------------------------
+# PANEL
+#---------------------------------------------
+panel_monitor = all
+panel_position = bottom center horizontal
+panel_size = 95% 30
+panel_margin = 0 0
+panel_padding = 7 3 7
+panel_background_id = 1
+panel_layer = top
+wm_menu = 1
+strut_policy = follow_size
+
+# Panel Autohide
+autohide = 0
+autohide_show_timeout = 0.7
+autohide_hide_timeout = 1.5
+autohide_height = 2
+
+#---------------------------------------------
+# TASKBAR
+#---------------------------------------------
+taskbar_mode = multi_desktop
+taskbar_padding = 0 0 0
+taskbar_background_id = 2
+taskbar_active_background_id = 2
+
+#---------------------------------------------
+# TASKS
+#---------------------------------------------
+task_icon = 1
+task_text = 0
+task_maximum_size = 34 34
+task_centered = 1
+task_padding = 2 3
+task_font = sans 8
+font_shadow = 0
+
+# Task inactive
+task_font_color = #ffffff 60
+task_icon_asb = 100 0 0
+task_background_id = 0
+
+# Task active
+task_active_font_color = #ffffff 100
+task_active_icon_asb = 100 0 0
+task_active_background_id = 3
+
+# Task urgent
+task_urgent_font_color = #ffffff 60
+task_urgent_icon_asb = 100 0 0
+task_urgent_background_id = 0
+urgent_nb_of_blink = 7
+
+# Task iconified
+task_iconified_font_color = #ffffff 60
+task_iconified_icon_asb = 100 0 0
+task_iconified_background_id = 0
+
+
+#---------------------------------------------
+# SYSTRAYBAR
+#---------------------------------------------
+systray = 1
+systray_padding = 0 0 5
+systray_background_id = 0
+systray_sort = ascending
+systray_icon_asb = 100 0 0
+systray_icon_size = 16
+
+#---------------------------------------------
+# CLOCK
+#---------------------------------------------
+time1_format = Paris %H:%M - %d/%m
+time1_font = sans 7
+time2_format = Moscow %H:%M - %d/%m
+time2_font = sans 7
+clock_font_color = #ffffff 100
+clock_padding = 1 0
+clock_background_id = 0
+clock_lclick_command =
+clock_rclick_command = gsimplecal
+clock_tooltip =
+time1_timezone = :Europe/Paris
+time2_timezone = :Europe/Moscow
+
+# Tooltips
+tooltip = 1
+tooltip_padding = 5 4
+tooltip_show_timeout = 0.8
+tooltip_hide_timeout = 0.3
+tooltip_background_id = 1
+tooltip_font = Sans 7
+tooltip_font_color = #FFFFFF 100
+
+#---------------------------------------------
+# BATTERY
+#---------------------------------------------
+battery = 1
+battery_hide = 90
+battery_low_status = 7
+battery_low_cmd = notify-send "battery low"
+bat1_font = sans 7
+bat2_font = sans 7
+battery_font_color = #ffffff 100
+battery_padding = 1 0
+battery_background_id = 0
+
+#---------------------------------------------
+# MOUSE ACTION ON TASK
+#---------------------------------------------
+mouse_middle = none
+mouse_right = close
+mouse_scroll_up = toggle
+mouse_scroll_down = iconify
+
+# End of config

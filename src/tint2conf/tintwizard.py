@@ -17,7 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #*************************************************************************/
-# Last modified: 7th March 2010
+# Last modified: 21st April 2010
 
 import pygtk
 pygtk.require('2.0')
@@ -32,7 +32,7 @@ import shutil
 # Project information
 NAME = "tintwizard"
 AUTHORS = ["Euan Freeman <euan04@gmail.com>"]
-VERSION = "0.3.1"
+VERSION = "0.3.3b"
 COMMENTS = "tintwizard generates config files for the lightweight panel replacement tint2"
 WEBSITE = "http://code.google.com/p/tintwizard/"
 
@@ -115,83 +115,37 @@ class TintWizardPrefGUI(gtk.Window):
 		self.table.set_row_spacings(5)
 		self.table.set_col_spacings(5)
 
-		temp = gtk.Label("Default Font")
-		temp.set_alignment(0, 0.5)
-		self.table.attach(temp, 0, 1, 0, 1)
+		createLabel(self.table, text="Default Font", gridX=0, gridY=0)
 		self.font = gtk.FontButton(self.tw.defaults["font"])
 		self.font.set_alignment(0, 0.5)
 		self.table.attach(self.font, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
-		temp = gtk.Label("Default Background Color")
-		temp.set_alignment(0, 0.5)
-		self.table.attach(temp, 0, 1, 1, 2)
+		createLabel(self.table, text="Default Background Color", gridX=0, gridY=1)
 		self.bgColor = gtk.ColorButton(gtk.gdk.color_parse(self.tw.defaults["bgColor"]))
 		self.bgColor.set_alignment(0, 0.5)
 		self.table.attach(self.bgColor, 1, 2, 1, 2, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
-		temp = gtk.Label("Default Foreground Color")
-		temp.set_alignment(0, 0.5)
-		self.table.attach(temp, 0, 1, 2, 3)
+		createLabel(self.table, text="Default Foreground Color", gridX=0, gridY=2)
 		self.fgColor = gtk.ColorButton(gtk.gdk.color_parse(self.tw.defaults["fgColor"]))
 		self.fgColor.set_alignment(0, 0.5)
 		self.table.attach(self.fgColor, 1, 2, 2, 3, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
-		temp = gtk.Label("Default Border Color")
-		temp.set_alignment(0, 0.5)
-		self.table.attach(temp, 0, 1, 3, 4)
+		createLabel(self.table, text="Default Border Color", gridX=0, gridY=3)
 		self.borderColor = gtk.ColorButton(gtk.gdk.color_parse(self.tw.defaults["borderColor"]))
 		self.borderColor.set_alignment(0, 0.5)
 		self.table.attach(self.borderColor, 1, 2, 3, 4, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
-		temp = gtk.Label("Number of Background Styles")
-		temp.set_alignment(0, 0.5)
-		self.table.attach(temp, 0, 1, 4, 5)
-		self.bgCount = gtk.Entry(6)
-		self.bgCount.set_width_chars(8)
-		self.bgCount.set_text(str(self.tw.defaults["bgCount"]))
-		self.table.attach(self.bgCount, 1, 2, 4, 5, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Default directory")
-		temp.set_alignment(0, 0.5)
-		self.table.attach(temp, 0, 1, 5, 6)
-		self.dir = gtk.Button(self.tw.defaults["dir"])
-		self.dir.connect("clicked", self.chooseFolder)
-		self.table.attach(self.dir, 1, 2, 5, 6, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		createLabel(self.table, text="Number of background styles", gridX=0, gridY=4)
+		self.bgCount = createEntry(self.table, maxSize=6, width=8, text=str(self.tw.defaults["bgCount"]), gridX=1, gridY=4, xExpand=True, yExpand=True)
 
 		self.layout.attach(self.table, 0, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND, xpadding=20, ypadding=5)
 
-		temp = gtk.Button("Save", gtk.STOCK_SAVE)
-		temp.set_name("save")
-		temp.connect("clicked", self.save)
-		self.layout.attach(temp, 0, 1, 1, 2, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND, ypadding=20)
-		temp = gtk.Button("Cancel", gtk.STOCK_CANCEL)
-		temp.set_name("cancel")
-		temp.connect("clicked", self.quit)
-		self.layout.attach(temp, 1, 2, 1, 2, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND, ypadding=20)
+		createButton(self.layout, text="Save", stock=gtk.STOCK_SAVE, name="save", gridX=0, gridY=1, xExpand=True, yExpand=True, handler=self.save)
+		createButton(self.layout, text="Cancel", stock=gtk.STOCK_CANCEL, name="cancel", gridX=1, gridY=1, xExpand=True, yExpand=True, handler=self.quit)
 
 		self.add(self.layout)
 
 		self.show_all()
-
-	def chooseFolder(self, widget=None, direction=None):
-		"""Called every time the folder button is clicked. Shows a file chooser."""
-		chooser = gtk.FileChooserDialog("Choose Default Folder", self, gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-		chooser.set_default_response(gtk.RESPONSE_OK)
-
-		if self.tw.curDir != None:
-			chooser.set_current_folder(self.tw.curDir)
-
-		chooser.show()
-
-		response = chooser.run()
-
-		if response == gtk.RESPONSE_OK:
-			self.dir.set_label(chooser.get_filename())
-		else:
-			chooser.destroy()
-			return
-
-		chooser.destroy()
 
 	def quit(self, widget=None, event=None):
 		"""Destroys the window."""
@@ -210,9 +164,6 @@ class TintWizardPrefGUI(gtk.Window):
 			except:
 				errorDialog(self, "Invalid value for background count")
 				return
-
-			self.tw.defaults["dir"] = self.dir.get_label()
-			self.curDir = self.tw.defaults["dir"]
 
 			self.tw.writeConf()
 
@@ -244,19 +195,11 @@ class TintWizardGUI(gtk.Window):
 		if self.defaults["borderColor"] in [None, "None"]:
 			self.defaults["borderColor"] = "#ffffff"
 
-		if self.defaults["dir"] in [None, "None"]:
-			if os.path.exists(os.path.expandvars("${HOME}") + "/.config/tint2"):
-				self.curDir = os.path.expandvars("${HOME}") + "/.config/tint2"
-			else:
-				self.curDir = None
+		if os.path.exists(os.path.expandvars("${HOME}") + "/.config/tint2"):
+			self.curDir = os.path.expandvars("${HOME}") + "/.config/tint2"
 		else:
-			self.curDir = os.path.expandvars(self.defaults["dir"])
-
-			if not os.path.exists(os.path.expandvars(self.curDir)):
-				if os.path.exists(os.path.expandvars("${HOME}") + "/.config/tint2"):
-					self.curDir = os.path.expandvars("${HOME}") + "/.config/tint2"
-				else:
-					self.curDir = None
+			errorDialog("$HOME/.config/tint2/ directory not found! Is tint2 installed correctly?")
+			Sys.exit(1)
 
 		try:
 			self.defaults["bgCount"] = int(self.defaults["bgCount"])
@@ -283,6 +226,9 @@ class TintWizardGUI(gtk.Window):
 
 		# self.table is our main layout manager
 		self.table = gtk.Table(4, 1, False)
+
+		# Set up the dictionary to hold all registered widgets
+		self.propUI = {}
 
 		# Create menus and toolbar items
 		ui = """
@@ -377,1143 +323,39 @@ class TintWizardGUI(gtk.Window):
 		self.bgs = []
 
 		# Add buttons for adding/deleting background styles
-		temp = gtk.Button("New Background", gtk.STOCK_NEW)
-		temp.set_name("addBg")
-		temp.connect("clicked", self.addBgClick)
-		self.tableBgs.attach(temp, 0, 1, 1, 2, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		temp = gtk.Button("Delete Background", gtk.STOCK_DELETE)
-		temp.set_name("delBg")
-		temp.connect("clicked", self.delBgClick)
-		self.tableBgs.attach(temp, 1, 2, 1, 2, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		createButton(self.tableBgs, text="New Background", stock=gtk.STOCK_NEW, name="addBg", gridX=0, gridY=1, xExpand=True, yExpand=True, handler=self.addBgClick)
+		createButton(self.tableBgs, text="Delete Background", stock=gtk.STOCK_DELETE, name="delBg", gridX=1, gridY=1, xExpand=True, yExpand=True, handler=self.delBgClick)
 
-		# Panel Options
-		self.tablePanelDisplay = gtk.Table(rows=6, columns=3, homogeneous=False)
-		self.tablePanelDisplay.set_row_spacings(5)
-		self.tablePanelDisplay.set_col_spacings(5)
+		# Panel
+		self.createPanelDisplayWidgets()
+		self.createPanelSettingsWidgets()
+		self.createPanelAutohideWidgets()
 
-		temp = gtk.Label("Position")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelDisplay.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.panelPosY = gtk.combo_box_new_text()
-		self.panelPosY.append_text("bottom")
-		self.panelPosY.append_text("top")
-		self.panelPosY.append_text("center")
-		self.panelPosY.set_active(0)
-		self.panelPosY.connect("changed", self.changeOccurred)
-		self.tablePanelDisplay.attach(self.panelPosY, 2, 3, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		self.panelPosX = gtk.combo_box_new_text()
-		self.panelPosX.append_text("left")
-		self.panelPosX.append_text("right")
-		self.panelPosX.append_text("center")
-		self.panelPosX.set_active(0)
-		self.panelPosX.connect("changed", self.changeOccurred)
-		self.tablePanelDisplay.attach(self.panelPosX, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Panel Orientation")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelDisplay.attach(temp, 0, 1, 1, 2, xpadding=10)
-		self.panelOrientation = gtk.combo_box_new_text()
-		self.panelOrientation.append_text("horizontal")
-		self.panelOrientation.append_text("vertical")
-		self.panelOrientation.set_active(0)
-		self.panelOrientation.connect("changed", self.changeOccurred)
-		self.tablePanelDisplay.attach(self.panelOrientation, 1, 2, 1, 2, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		self.panelSizeLabel = gtk.Label("Size (width, height)")
-		self.panelSizeLabel.set_alignment(0, 0.5)
-		self.tablePanelDisplay.attach(self.panelSizeLabel, 0, 1, 2, 3, xpadding=10)
-		self.panelSizeX = gtk.Entry(6)
-		self.panelSizeX.set_width_chars(8)
-		self.panelSizeX.set_text(PANEL_SIZE_X)
-		self.panelSizeX.connect("changed", self.changeOccurred)
-		self.tablePanelDisplay.attach(self.panelSizeX, 1, 2, 2, 3, xoptions=gtk.EXPAND)
-		self.panelSizeY = gtk.Entry(6)
-		self.panelSizeY.set_width_chars(8)
-		self.panelSizeY.set_text(PANEL_SIZE_Y)
-		self.panelSizeY.connect("changed", self.changeOccurred)
-		self.tablePanelDisplay.attach(self.panelSizeY, 2, 3, 2, 3, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Margin (x, y)")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelDisplay.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.panelMarginX = gtk.Entry(6)
-		self.panelMarginX.set_width_chars(8)
-		self.panelMarginX.set_text(PANEL_MARGIN_X)
-		self.panelMarginX.connect("changed", self.changeOccurred)
-		self.tablePanelDisplay.attach(self.panelMarginX, 1, 2, 3, 4, xoptions=gtk.EXPAND)
-		self.panelMarginY = gtk.Entry(6)
-		self.panelMarginY.set_width_chars(8)
-		self.panelMarginY.set_text(PANEL_MARGIN_Y)
-		self.panelMarginY.connect("changed", self.changeOccurred)
-		self.tablePanelDisplay.attach(self.panelMarginY, 2, 3, 3, 4, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Padding (x, y)")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelDisplay.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.panelPadX = gtk.Entry(6)
-		self.panelPadX.set_width_chars(8)
-		self.panelPadX.set_text(PANEL_PADDING_Y)
-		self.panelPadX.connect("changed", self.changeOccurred)
-		self.tablePanelDisplay.attach(self.panelPadX, 1, 2, 4, 5, xoptions=gtk.EXPAND)
-		self.panelPadY = gtk.Entry(6)
-		self.panelPadY.set_width_chars(8)
-		self.panelPadY.set_text(PANEL_PADDING_Y)
-		self.panelPadY.connect("changed", self.changeOccurred)
-		self.tablePanelDisplay.attach(self.panelPadY, 2, 3, 4, 5, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Panel Background ID")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelDisplay.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.panelBg = gtk.combo_box_new_text()
-		self.panelBg.append_text("0 (fully transparent)")
-		for i in range(len(self.bgs)):
-			self.panelBg.append_text(str(i+1))
-		self.panelBg.set_active(0)
-		self.panelBg.connect("changed", self.changeOccurred)
-		self.tablePanelDisplay.attach(self.panelBg, 1, 2, 5, 6, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		
-		# Panel Settings
-		self.tablePanelSettings = gtk.Table(rows=5, columns=3, homogeneous=False)
-		self.tablePanelSettings.set_row_spacings(5)
-		self.tablePanelSettings.set_col_spacings(5)
-		
-		temp = gtk.Label("Window Manager Menu")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelSettings.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.panelMenu = gtk.CheckButton()
-		self.panelMenu.set_active(False)
-		self.panelMenu.connect("toggled", self.changeOccurred)
-		self.tablePanelSettings.attach(self.panelMenu, 1, 2, 0, 1, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Place In Window Manager Dock")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelSettings.attach(temp, 0, 1, 1, 2, xpadding=10)
-		self.panelDock = gtk.CheckButton()
-		self.panelDock.set_active(False)
-		self.panelDock.connect("toggled", self.changeOccurred)
-		self.tablePanelSettings.attach(self.panelDock, 1, 2, 1, 2, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Panel Layer")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelSettings.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.panelLayer = gtk.combo_box_new_text()
-		self.panelLayer.append_text("bottom")
-		self.panelLayer.append_text("top")
-		self.panelLayer.append_text("normal")
-		self.panelLayer.set_active(0)
-		self.panelLayer.connect("changed", self.changeOccurred)
-		self.tablePanelSettings.attach(self.panelLayer, 1, 2, 2, 3, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Strut Policy")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelSettings.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.panelAutohideStrut = gtk.combo_box_new_text()
-		self.panelAutohideStrut.append_text("none")
-		self.panelAutohideStrut.append_text("minimum")
-		self.panelAutohideStrut.append_text("follow_size")
-		self.panelAutohideStrut.set_active(0)
-		self.panelAutohideStrut.connect("changed", self.changeOccurred)
-		self.tablePanelSettings.attach(self.panelAutohideStrut, 1, 2, 3, 4, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Panel Monitor (all, 1, 2...)")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelSettings.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.panelMonitor = gtk.Entry(6)
-		self.panelMonitor.set_width_chars(8)
-		self.panelMonitor.set_text(PANEL_MONITOR)
-		self.panelMonitor.connect("changed", self.changeOccurred)
-		self.tablePanelSettings.attach(self.panelMonitor, 1, 2, 4, 5, xoptions=gtk.EXPAND)
-		
-		# Panel Autohide
-		self.tablePanelAutohide = gtk.Table(rows=4, columns=3, homogeneous=False)
-		self.tablePanelAutohide.set_row_spacings(5)
-		self.tablePanelAutohide.set_col_spacings(5)
-		
-		temp = gtk.Label("Autohide Panel")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelAutohide.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.panelAutohide = gtk.CheckButton()
-		self.panelAutohide.set_active(False)
-		self.panelAutohide.connect("toggled", self.changeOccurred)
-		self.tablePanelAutohide.attach(self.panelAutohide, 1, 2, 0, 1, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Autohide Show Timeout (seconds)")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelAutohide.attach(temp, 0, 1, 1, 2, xpadding=10)
-		self.panelAutohideShow = gtk.Entry(6)
-		self.panelAutohideShow.set_width_chars(8)
-		self.panelAutohideShow.set_text(PANEL_AUTOHIDE_SHOW)
-		self.panelAutohideShow.connect("changed", self.changeOccurred)
-		self.tablePanelAutohide.attach(self.panelAutohideShow, 1, 2, 1, 2, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Autohide Hide Timeout (seconds)")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelAutohide.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.panelAutohideHide = gtk.Entry(6)
-		self.panelAutohideHide.set_width_chars(8)
-		self.panelAutohideHide.set_text(PANEL_AUTOHIDE_HIDE)
-		self.panelAutohideHide.connect("changed", self.changeOccurred)
-		self.tablePanelAutohide.attach(self.panelAutohideHide, 1, 2, 2, 3, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Autohide Hidden Height")
-		temp.set_alignment(0, 0.5)
-		self.tablePanelAutohide.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.panelAutohideHeight = gtk.Entry(6)
-		self.panelAutohideHeight.set_width_chars(8)
-		self.panelAutohideHeight.set_text(PANEL_AUTOHIDE_HEIGHT)
-		self.panelAutohideHeight.connect("changed", self.changeOccurred)
-		self.tablePanelAutohide.attach(self.panelAutohideHeight, 1, 2, 3, 4, xoptions=gtk.EXPAND)
-		
-		
-		
 		# Taskbar
-		self.tableTaskbar = gtk.Table(rows=5, columns=3, homogeneous=False)
-		self.tableTaskbar.set_row_spacings(5)
-		self.tableTaskbar.set_col_spacings(5)
+		self.createTaskbarWidgets()
 
-		temp = gtk.Label("Taskbar Mode")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskbar.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.taskbarMode = gtk.combo_box_new_text()
-		self.taskbarMode.append_text("single_desktop")
-		self.taskbarMode.append_text("multi_desktop")
-		self.taskbarMode.set_active(0)
-		self.taskbarMode.connect("changed", self.changeOccurred)
-		self.tableTaskbar.attach(self.taskbarMode, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		# Tasks
+		self.createTaskSettingsWidgets()
+		self.createNormalTasksWidgets()
+		self.createActiveTasksWidgets()
+		self.createUrgentTasksWidgets()
+		self.createIconifiedTasksWidgets()
 
-		temp = gtk.Label("Padding (x, y)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskbar.attach(temp, 0, 1, 1, 2, xpadding=10)
-		self.taskbarPadX = gtk.Entry(6)
-		self.taskbarPadX.set_width_chars(8)
-		self.taskbarPadX.set_text(TASKBAR_PADDING_X)
-		self.taskbarPadX.connect("changed", self.changeOccurred)
-		self.tableTaskbar.attach(self.taskbarPadX, 1, 2, 1, 2, xoptions=gtk.EXPAND)
-		self.taskbarPadY = gtk.Entry(6)
-		self.taskbarPadY.set_width_chars(8)
-		self.taskbarPadY.set_text(TASKBAR_PADDING_Y)
-		self.taskbarPadY.connect("changed", self.changeOccurred)
-		self.tableTaskbar.attach(self.taskbarPadY, 2, 3, 1, 2, xoptions=gtk.EXPAND)
+		# System Tray
+		self.createSystemTrayWidgets()
 
-		temp = gtk.Label("Horizontal Spacing")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskbar.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.panelSpacing = gtk.Entry(6)
-		self.panelSpacing.set_width_chars(8)
-		self.panelSpacing.set_text(TASKBAR_SPACING)
-		self.panelSpacing.connect("changed", self.changeOccurred)
-		self.tableTaskbar.attach(self.panelSpacing, 1, 2, 3, 4, xoptions=gtk.EXPAND)
+		# Clock
+		self.createClockDisplayWidgets()
+		self.createClockSettingsWidgets()
 
-		temp = gtk.Label("Taskbar Background ID")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskbar.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.taskbarBg = gtk.combo_box_new_text()
-		self.taskbarBg.append_text("0 (fully transparent)")
-		for i in range(len(self.bgs)):
-			self.taskbarBg.append_text(str(i+1))
-		self.taskbarBg.set_active(0)
-		self.taskbarBg.connect("changed", self.changeOccurred)
-		self.tableTaskbar.attach(self.taskbarBg, 1, 2, 4, 5, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		# Mouse
+		self.createMouseWidgets()
 
-		temp = gtk.Label("Active Taskbar Background ID")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskbar.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.taskbarActiveBg = gtk.combo_box_new_text()
-		self.taskbarActiveBg.append_text("0 (fully transparent)")
-		for i in range(len(self.bgs)):
-			self.taskbarActiveBg.append_text(str(i+1))
-		self.taskbarActiveBg.set_active(0)
-		self.taskbarActiveBg.connect("changed", self.changeOccurred)
-		self.tableTaskbar.attach(self.taskbarActiveBg, 1, 2, 5, 6, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		self.taskbarActiveBgEnable = gtk.CheckButton("Enable")
-		self.taskbarActiveBgEnable.set_active(False)
-		self.taskbarActiveBgEnable.connect("toggled", self.changeOccurred)
-		self.tableTaskbar.attach(self.taskbarActiveBgEnable, 2, 3, 5, 6, xoptions=gtk.EXPAND)
+		# Tooltips
+		self.createTooltipsWidgets()
 
-		# Task Options
-		self.tableTask = gtk.Table(rows=12, columns=3, homogeneous=False)
-		self.tableTask.set_row_spacings(5)
-		self.tableTask.set_col_spacings(5)
-
-		temp = gtk.Label("Number of 'Blinks' on Urgent Event")
-		temp.set_alignment(0, 0.5)
-		self.tableTask.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.taskBlinks = gtk.Entry(6)
-		self.taskBlinks.set_width_chars(8)
-		self.taskBlinks.set_text(TASK_BLINKS)
-		self.taskBlinks.connect("changed", self.changeOccurred)
-		self.tableTask.attach(self.taskBlinks, 1, 2, 0, 1, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Show Icons")
-		temp.set_alignment(0, 0.5)
-		self.tableTask.attach(temp, 0, 1, 1, 2, xpadding=10)
-		self.taskIconCheckButton = gtk.CheckButton()
-		self.taskIconCheckButton.set_active(True)
-		self.taskIconCheckButton.connect("toggled", self.changeOccurred)
-		self.tableTask.attach(self.taskIconCheckButton, 1, 2, 1, 2, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Show Text")
-		temp.set_alignment(0, 0.5)
-		self.tableTask.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.taskTextCheckButton = gtk.CheckButton()
-		self.taskTextCheckButton.set_active(True)
-		self.taskTextCheckButton.connect("toggled", self.changeOccurred)
-		self.tableTask.attach(self.taskTextCheckButton, 1, 2, 2, 3, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Centre Text")
-		temp.set_alignment(0, 0.5)
-		self.tableTask.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.taskCentreCheckButton = gtk.CheckButton()
-		self.taskCentreCheckButton.set_active(True)
-		self.taskCentreCheckButton.connect("toggled", self.changeOccurred)
-		self.tableTask.attach(self.taskCentreCheckButton, 1, 2, 3, 4, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Font")
-		temp.set_alignment(0, 0.5)
-		self.tableTask.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.fontButton = gtk.FontButton()
-
-		if self.defaults["font"] in [None, "None"]:						# If there was no font specified in the config file
-			self.defaults["font"] = self.fontButton.get_font_name()		# Use the gtk default
-
-		self.fontButton.set_font_name(self.defaults["font"])
-		self.fontButton.connect("font-set", self.changeOccurred)
-		self.tableTask.attach(self.fontButton, 1, 2, 4, 5, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Show Font Shadow")
-		temp.set_alignment(0, 0.5)
-		self.tableTask.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.fontShadowCheckButton = gtk.CheckButton()
-		self.fontShadowCheckButton.set_active(False)
-		self.fontShadowCheckButton.connect("toggled", self.changeOccurred)
-		self.tableTask.attach(self.fontShadowCheckButton, 1, 2, 5, 6, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Maximum Size (x, y)")
-		temp.set_alignment(0, 0.5)
-		self.tableTask.attach(temp, 0, 1, 6, 7, xpadding=10)
-		self.taskMaxSizeX = gtk.Entry(6)
-		self.taskMaxSizeX.set_width_chars(8)
-		self.taskMaxSizeX.set_text(TASK_MAXIMUM_SIZE_X)
-		self.taskMaxSizeX.connect("changed", self.changeOccurred)
-		self.tableTask.attach(self.taskMaxSizeX, 1, 2, 6, 7, xoptions=gtk.EXPAND)
-		self.taskMaxSizeY = gtk.Entry(6)
-		self.taskMaxSizeY.set_width_chars(8)
-		self.taskMaxSizeY.set_text(TASK_MAXIMUM_SIZE_Y)
-		self.taskMaxSizeY.connect("changed", self.changeOccurred)
-		self.tableTask.attach(self.taskMaxSizeY, 2, 3, 6, 7, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Padding (x, y)")
-		temp.set_alignment(0, 0.5)
-		self.tableTask.attach(temp, 0, 1, 7, 8, xpadding=10)
-		self.taskPadX = gtk.Entry(6)
-		self.taskPadX.set_width_chars(8)
-		self.taskPadX.set_text(TASK_PADDING_X)
-		self.taskPadX.connect("changed", self.changeOccurred)
-		self.tableTask.attach(self.taskPadX, 1, 2, 7, 8, xoptions=gtk.EXPAND)
-		self.taskPadY = gtk.Entry(6)
-		self.taskPadY.set_width_chars(8)
-		self.taskPadY.set_text(TASK_PADDING_Y)
-		self.taskPadY.connect("changed", self.changeOccurred)
-		self.tableTask.attach(self.taskPadY, 2, 3, 7, 8, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Horizontal Spacing")
-		temp.set_alignment(0, 0.5)
-		self.tableTask.attach(temp, 0, 1, 8, 9, xpadding=10)
-		self.taskbarSpacing = gtk.Entry(6)
-		self.taskbarSpacing.set_width_chars(8)
-		self.taskbarSpacing.set_text(TASK_SPACING)
-		self.taskbarSpacing.connect("changed", self.changeOccurred)
-		self.tableTask.attach(self.taskbarSpacing, 1, 2, 8, 9, xoptions=gtk.EXPAND)
-		
-		# Default Appearance
-		self.tableTaskDefault = gtk.Table(rows=6, columns=3, homogeneous=False)
-		self.tableTaskDefault.set_row_spacings(5)
-		self.tableTaskDefault.set_col_spacings(5)
-		
-		temp = gtk.Label("Normal Task Background ID")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskDefault.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.taskBg = gtk.combo_box_new_text()
-		self.taskBg.append_text("0 (fully transparent)")
-		for i in range(len(self.bgs)):
-			self.taskBg.append_text(str(i+1))
-		self.taskBg.set_active(0)
-		self.taskBg.connect("changed", self.changeOccurred)
-		self.tableTaskDefault.attach(self.taskBg, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Note: Default values of 0 for each of these settings leaves icons unchanged!")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskDefault.attach(temp, 0, 3, 1, 2, xpadding=10)
-		
-		temp = gtk.Label("Normal Icon Alpha (0 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskDefault.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.iconHue = gtk.Entry(6)
-		self.iconHue.set_width_chars(8)
-		self.iconHue.set_text(ICON_ALPHA)
-		self.iconHue.connect("changed", self.changeOccurred)
-		self.tableTaskDefault.attach(self.iconHue, 1, 2, 2, 3, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Normal Icon Saturation (-100 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskDefault.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.iconSat = gtk.Entry(6)
-		self.iconSat.set_width_chars(8)
-		self.iconSat.set_text(ICON_SAT)
-		self.iconSat.connect("changed", self.changeOccurred)
-		self.tableTaskDefault.attach(self.iconSat, 1, 2, 3, 4, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Normal Icon Brightness (-100 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskDefault.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.iconBri = gtk.Entry(6)
-		self.iconBri.set_width_chars(8)
-		self.iconBri.set_text(ICON_BRI)
-		self.iconBri.connect("changed", self.changeOccurred)
-		self.tableTaskDefault.attach(self.iconBri, 1, 2, 4, 5, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Normal Font Color")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskDefault.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.fontCol = gtk.Entry(7)
-		self.fontCol.set_width_chars(9)
-		self.fontCol.set_name("fontCol")
-		self.fontCol.connect("activate", self.colorTyped)
-		self.tableTaskDefault.attach(self.fontCol, 1, 2, 5, 6, xoptions=gtk.EXPAND)
-		self.fontColButton = gtk.ColorButton(gtk.gdk.color_parse(self.defaults["fgColor"]))
-		self.fontColButton.set_use_alpha(True)
-		self.fontColButton.set_name("fontCol")
-		self.fontColButton.connect("color-set", self.colorChange)
-		self.tableTaskDefault.attach(self.fontColButton, 2, 3, 5, 6, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		self.fontCol.set_text(self.defaults["fgColor"])
-		# Add this AFTER we set color to avoid "changed" event
-		self.fontCol.connect("changed", self.changeOccurred)
-		
-		# Active Appearance
-		self.tableTaskActive = gtk.Table(rows=6, columns=3, homogeneous=False)
-		self.tableTaskActive.set_row_spacings(5)
-		self.tableTaskActive.set_col_spacings(5)
-		
-		temp = gtk.Label("Active Task Background ID")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskActive.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.taskActiveBg = gtk.combo_box_new_text()
-		self.taskActiveBg.append_text("0 (fully transparent)")
-		for i in range(len(self.bgs)):
-			self.taskActiveBg.append_text(str(i+1))
-		self.taskActiveBg.set_active(0)
-		self.taskActiveBg.connect("changed", self.changeOccurred)
-		self.tableTaskActive.attach(self.taskActiveBg, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Note: Default values of 0 for each of these settings leaves icons unchanged!")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskActive.attach(temp, 0, 3, 1, 2, xpadding=10)
-		
-		temp = gtk.Label("Active Icon Alpha (0 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskActive.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.activeIconHue = gtk.Entry(6)
-		self.activeIconHue.set_width_chars(8)
-		self.activeIconHue.set_text(ACTIVE_ICON_ALPHA)
-		self.activeIconHue.connect("changed", self.changeOccurred)
-		self.tableTaskActive.attach(self.activeIconHue, 1, 2, 2, 3, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Active Icon Saturation (-100 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskActive.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.activeIconSat = gtk.Entry(6)
-		self.activeIconSat.set_width_chars(8)
-		self.activeIconSat.set_text(ACTIVE_ICON_SAT)
-		self.activeIconSat.connect("changed", self.changeOccurred)
-		self.tableTaskActive.attach(self.activeIconSat, 1, 2, 3, 4, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Active Icon Brightness (-100 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskActive.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.activeIconBri = gtk.Entry(6)
-		self.activeIconBri.set_width_chars(8)
-		self.activeIconBri.set_text(ACTIVE_ICON_BRI)
-		self.activeIconBri.connect("changed", self.changeOccurred)
-		self.tableTaskActive.attach(self.activeIconBri, 1, 2, 4, 5, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Active Font Color")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskActive.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.fontActiveCol = gtk.Entry(7)
-		self.fontActiveCol.set_width_chars(9)
-		self.fontActiveCol.set_name("fontActiveCol")
-		self.fontActiveCol.connect("activate", self.colorTyped)
-		self.tableTaskActive.attach(self.fontActiveCol, 1, 2, 5, 6, xoptions=gtk.EXPAND)
-		self.fontActiveColButton = gtk.ColorButton(gtk.gdk.color_parse(self.defaults["fgColor"]))
-		self.fontActiveColButton.set_use_alpha(True)
-		self.fontActiveColButton.set_name("fontActiveCol")
-		self.fontActiveColButton.connect("color-set", self.colorChange)
-		self.tableTaskActive.attach(self.fontActiveColButton, 2, 3, 5, 6, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		self.fontActiveCol.set_text(self.defaults["fgColor"])
-		# Add this AFTER we set color to avoid "changed" event
-		self.fontActiveCol.connect("changed", self.changeOccurred)
-		
-		# Urgent Appearance
-		self.tableTaskUrgent = gtk.Table(rows=6, columns=3, homogeneous=False)
-		self.tableTaskUrgent.set_row_spacings(5)
-		self.tableTaskUrgent.set_col_spacings(5)
-		
-		temp = gtk.Label("Urgent Task Background ID")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskUrgent.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.taskUrgentBg = gtk.combo_box_new_text()
-		self.taskUrgentBg.append_text("0 (fully transparent)")
-		for i in range(len(self.bgs)):
-			self.taskUrgentBg.append_text(str(i+1))
-		self.taskUrgentBg.set_active(0)
-		self.taskUrgentBg.connect("changed", self.changeOccurred)
-		self.tableTaskUrgent.attach(self.taskUrgentBg, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Note: Default values of 0 for each of these settings leaves icons unchanged!")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskUrgent.attach(temp, 0, 3, 1, 2, xpadding=10)
-		
-		temp = gtk.Label("Urgent Icon Alpha (0 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskUrgent.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.urgentIconHue = gtk.Entry(6)
-		self.urgentIconHue.set_width_chars(8)
-		self.urgentIconHue.set_text(URGENT_ICON_ALPHA)
-		self.urgentIconHue.connect("changed", self.changeOccurred)
-		self.tableTaskUrgent.attach(self.urgentIconHue, 1, 2, 2, 3, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Urgent Icon Saturation (-100 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskUrgent.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.urgentIconSat = gtk.Entry(6)
-		self.urgentIconSat.set_width_chars(8)
-		self.urgentIconSat.set_text(URGENT_ICON_SAT)
-		self.urgentIconSat.connect("changed", self.changeOccurred)
-		self.tableTaskUrgent.attach(self.urgentIconSat, 1, 2, 3, 4, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Urgent Icon Brightness (-100 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskUrgent.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.urgentIconBri = gtk.Entry(6)
-		self.urgentIconBri.set_width_chars(8)
-		self.urgentIconBri.set_text(URGENT_ICON_BRI)
-		self.urgentIconBri.connect("changed", self.changeOccurred)
-		self.tableTaskUrgent.attach(self.urgentIconBri, 1, 2, 4, 5, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Urgent Font Color")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskUrgent.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.fontUrgentCol = gtk.Entry(7)
-		self.fontUrgentCol.set_width_chars(9)
-		self.fontUrgentCol.set_name("fontUrgentCol")
-		self.fontUrgentCol.connect("activate", self.colorTyped)
-		self.tableTaskUrgent.attach(self.fontUrgentCol, 1, 2, 5, 6, xoptions=gtk.EXPAND)
-		self.fontUrgentColButton = gtk.ColorButton(gtk.gdk.color_parse(self.defaults["fgColor"]))
-		self.fontUrgentColButton.set_use_alpha(True)
-		self.fontUrgentColButton.set_name("fontUrgentCol")
-		self.fontUrgentColButton.connect("color-set", self.colorChange)
-		self.tableTaskUrgent.attach(self.fontUrgentColButton, 2, 3, 5, 6, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		self.fontUrgentCol.set_text(self.defaults["fgColor"])
-		# Add this AFTER we set color to avoid "changed" event
-		self.fontUrgentCol.connect("changed", self.changeOccurred)
-		
-		# Iconified Appearance
-		self.tableTaskIconified = gtk.Table(rows=6, columns=3, homogeneous=False)
-		self.tableTaskIconified.set_row_spacings(5)
-		self.tableTaskIconified.set_col_spacings(5)
-		
-		temp = gtk.Label("Iconified Task Background ID")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskIconified.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.taskIconifiedBg = gtk.combo_box_new_text()
-		self.taskIconifiedBg.append_text("0 (fully transparent)")
-		for i in range(len(self.bgs)):
-			self.taskIconifiedBg.append_text(str(i+1))
-		self.taskIconifiedBg.set_active(0)
-		self.taskIconifiedBg.connect("changed", self.changeOccurred)
-		self.tableTaskIconified.attach(self.taskIconifiedBg, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Note: Default values of 0 for each of these settings leaves icons unchanged!")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskIconified.attach(temp, 0, 3, 1, 2, xpadding=10)
-		
-		temp = gtk.Label("Iconified Icon Alpha (0 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskIconified.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.iconifiedIconHue = gtk.Entry(6)
-		self.iconifiedIconHue.set_width_chars(8)
-		self.iconifiedIconHue.set_text(ICONIFIED_ICON_ALPHA)
-		self.iconifiedIconHue.connect("changed", self.changeOccurred)
-		self.tableTaskIconified.attach(self.iconifiedIconHue, 1, 2, 2, 3, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Iconified Icon Saturation (-100 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskIconified.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.iconifiedIconSat = gtk.Entry(6)
-		self.iconifiedIconSat.set_width_chars(8)
-		self.iconifiedIconSat.set_text(ICONIFIED_ICON_SAT)
-		self.iconifiedIconSat.connect("changed", self.changeOccurred)
-		self.tableTaskIconified.attach(self.iconifiedIconSat, 1, 2, 3, 4, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Iconified Icon Brightness (-100 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskIconified.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.iconifiedIconBri = gtk.Entry(6)
-		self.iconifiedIconBri.set_width_chars(8)
-		self.iconifiedIconBri.set_text(ICONIFIED_ICON_BRI)
-		self.iconifiedIconBri.connect("changed", self.changeOccurred)
-		self.tableTaskIconified.attach(self.iconifiedIconBri, 1, 2, 4, 5, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Iconified Font Color")
-		temp.set_alignment(0, 0.5)
-		self.tableTaskIconified.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.fontIconifiedCol = gtk.Entry(7)
-		self.fontIconifiedCol.set_width_chars(9)
-		self.fontIconifiedCol.set_name("fontIconifiedCol")
-		self.fontIconifiedCol.connect("activate", self.colorTyped)
-		self.tableTaskIconified.attach(self.fontIconifiedCol, 1, 2, 5, 6, xoptions=gtk.EXPAND)
-		self.fontIconifiedColButton = gtk.ColorButton(gtk.gdk.color_parse(self.defaults["fgColor"]))
-		self.fontIconifiedColButton.set_use_alpha(True)
-		self.fontIconifiedColButton.set_name("fontIconifiedCol")
-		self.fontIconifiedColButton.connect("color-set", self.colorChange)
-		self.tableTaskIconified.attach(self.fontIconifiedColButton, 2, 3, 5, 6, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		self.fontIconifiedCol.set_text(self.defaults["fgColor"])
-		# Add this AFTER we set color to avoid "changed" event
-		self.fontIconifiedCol.connect("changed", self.changeOccurred)
-
-		# System Tray Options
-		self.tableTray = gtk.Table(rows=9, columns=3, homogeneous=False)
-		self.tableTray.set_row_spacings(5)
-		self.tableTray.set_col_spacings(5)
-
-		temp = gtk.Label("Show System Tray")
-		temp.set_alignment(0, 0.5)
-		self.tableTray.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.trayShow = gtk.CheckButton()
-		self.trayShow.set_active(True)
-		self.trayShow.connect("toggled", self.changeOccurred)
-		self.tableTray.attach(self.trayShow, 1, 2, 0, 1, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Padding (x, y)")
-		temp.set_alignment(0, 0.5)
-		self.tableTray.attach(temp, 0, 1, 1, 2, xpadding=10)
-		self.trayPadX = gtk.Entry(6)
-		self.trayPadX.set_width_chars(8)
-		self.trayPadX.set_text(TRAY_PADDING_X)
-		self.trayPadX.connect("changed", self.changeOccurred)
-		self.tableTray.attach(self.trayPadX, 1, 2, 1, 2, xoptions=gtk.EXPAND)
-		self.trayPadY = gtk.Entry(6)
-		self.trayPadY.set_width_chars(8)
-		self.trayPadY.set_text(TRAY_PADDING_Y)
-		self.trayPadY.connect("changed", self.changeOccurred)
-		self.tableTray.attach(self.trayPadY, 2, 3, 1, 2, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Horizontal Spacing")
-		temp.set_alignment(0, 0.5)
-		self.tableTray.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.traySpacing = gtk.Entry(6)
-		self.traySpacing.set_width_chars(8)
-		self.traySpacing.set_text(TRAY_SPACING)
-		self.traySpacing.connect("changed", self.changeOccurred)
-		self.tableTray.attach(self.traySpacing, 1, 2, 2, 3, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("System Tray Background ID")
-		temp.set_alignment(0, 0.5)
-		self.tableTray.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.trayBg = gtk.combo_box_new_text()
-		self.trayBg.append_text("0 (fully transparent)")
-		for i in range(len(self.bgs)):
-			self.trayBg.append_text(str(i+1))
-		self.trayBg.set_active(0)
-		self.trayBg.connect("changed", self.changeOccurred)
-		self.tableTray.attach(self.trayBg, 1, 2, 3, 4, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Icon Ordering")
-		temp.set_alignment(0, 0.5)
-		self.tableTray.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.trayOrder = gtk.combo_box_new_text()
-		self.trayOrder.append_text("ascending")
-		self.trayOrder.append_text("descending")
-		self.trayOrder.append_text("left2right")
-		self.trayOrder.append_text("right2left")
-		self.trayOrder.set_active(0)
-		self.trayOrder.connect("changed", self.changeOccurred)
-		self.tableTray.attach(self.trayOrder, 1, 2, 4, 5, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Maximum Icon Size (0 for automatic size)")
-		temp.set_alignment(0, 0.5)
-		self.tableTray.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.trayMaxIconSize = gtk.Entry(6)
-		self.trayMaxIconSize.set_width_chars(8)
-		self.trayMaxIconSize.set_text(TRAY_MAX_ICON_SIZE)
-		self.trayMaxIconSize.connect("changed", self.changeOccurred)
-		self.tableTray.attach(self.trayMaxIconSize, 1, 2, 5, 6, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("System Tray Icon Alpha (0 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTray.attach(temp, 0, 1, 6, 7, xpadding=10)
-		self.trayIconHue = gtk.Entry(6)
-		self.trayIconHue.set_width_chars(8)
-		self.trayIconHue.set_text(TRAY_ICON_ALPHA)
-		self.trayIconHue.connect("changed", self.changeOccurred)
-		self.tableTray.attach(self.trayIconHue, 1, 2, 6, 7, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("System Tray Icon Saturation (-100 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTray.attach(temp, 0, 1, 7, 8, xpadding=10)
-		self.trayIconSat = gtk.Entry(6)
-		self.trayIconSat.set_width_chars(8)
-		self.trayIconSat.set_text(TRAY_ICON_SAT)
-		self.trayIconSat.connect("changed", self.changeOccurred)
-		self.tableTray.attach(self.trayIconSat, 1, 2, 7, 8, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("System Tray Icon Brightness (-100 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableTray.attach(temp, 0, 1, 8, 9, xpadding=10)
-		self.trayIconBri = gtk.Entry(6)
-		self.trayIconBri.set_width_chars(8)
-		self.trayIconBri.set_text(TRAY_ICON_BRI)
-		self.trayIconBri.connect("changed", self.changeOccurred)
-		self.tableTray.attach(self.trayIconBri, 1, 2, 8, 9, xoptions=gtk.EXPAND)
-		
-		# Clock Options
-		self.tableClockDisplays = gtk.Table(rows=3, columns=3, homogeneous=False)
-		self.tableClockDisplays.set_row_spacings(5)
-		self.tableClockDisplays.set_col_spacings(5)
-
-		temp = gtk.Label("Show Clock")
-		temp.set_alignment(0, 0.5)
-		self.tableClockDisplays.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.clockCheckButton = gtk.CheckButton()
-		self.clockCheckButton.set_active(True)
-		self.clockCheckButton.connect("toggled", self.changeOccurred)
-		self.tableClockDisplays.attach(self.clockCheckButton, 1, 2, 0, 1, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Time 1 Format")
-		temp.set_alignment(0, 0.5)
-		self.tableClockDisplays.attach(temp, 0, 1, 1, 2, xpadding=10)
-		self.clock1Format = gtk.Entry(50)
-		self.clock1Format.set_width_chars(20)
-		self.clock1Format.set_text(CLOCK_FMT_1)
-		self.clock1Format.connect("changed", self.changeOccurred)
-		self.tableClockDisplays.attach(self.clock1Format, 1, 2, 1, 2, xoptions=gtk.EXPAND)
-		self.clock1CheckButton = gtk.CheckButton("Show")
-		self.clock1CheckButton.set_active(True)
-		self.clock1CheckButton.connect("toggled", self.changeOccurred)
-		self.tableClockDisplays.attach(self.clock1CheckButton, 2, 3, 1, 2, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Time 1 Font")
-		temp.set_alignment(0, 0.5)
-		self.tableClockDisplays.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.clock1FontButton = gtk.FontButton()
-		self.clock1FontButton.set_font_name(self.defaults["font"])
-		self.clock1FontButton.connect("font-set", self.changeOccurred)
-		self.tableClockDisplays.attach(self.clock1FontButton, 1, 2, 2, 3, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Time 2 Format")
-		temp.set_alignment(0, 0.5)
-		self.tableClockDisplays.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.clock2Format = gtk.Entry(50)
-		self.clock2Format.set_width_chars(20)
-		self.clock2Format.set_text(CLOCK_FMT_2)
-		self.clock2Format.connect("changed", self.changeOccurred)
-		self.tableClockDisplays.attach(self.clock2Format, 1, 2, 3, 4, xoptions=gtk.EXPAND)
-		self.clock2CheckButton = gtk.CheckButton("Show")
-		self.clock2CheckButton.set_active(True)
-		self.clock2CheckButton.connect("toggled", self.changeOccurred)
-		self.tableClockDisplays.attach(self.clock2CheckButton, 2, 3, 3, 4, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Time 2 Font")
-		temp.set_alignment(0, 0.5)
-		self.tableClockDisplays.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.clock2FontButton = gtk.FontButton()
-		self.clock2FontButton.set_font_name(self.defaults["font"])
-		self.clock2FontButton.connect("font-set", self.changeOccurred)
-		self.tableClockDisplays.attach(self.clock2FontButton, 1, 2, 4, 5, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Tooltip Format")
-		temp.set_alignment(0, 0.5)
-		self.tableClockDisplays.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.clockTooltipFormat = gtk.Entry(50)
-		self.clockTooltipFormat.set_width_chars(20)
-		self.clockTooltipFormat.set_text(CLOCK_TOOLTIP)
-		self.clockTooltipFormat.connect("changed", self.changeOccurred)
-		self.tableClockDisplays.attach(self.clockTooltipFormat, 1, 2, 5, 6, xoptions=gtk.EXPAND)
-		self.clockTooltipCheckButton = gtk.CheckButton("Show")
-		self.clockTooltipCheckButton.set_active(True)
-		self.clockTooltipCheckButton.connect("toggled", self.changeOccurred)
-		self.tableClockDisplays.attach(self.clockTooltipCheckButton, 2, 3, 5, 6, xoptions=gtk.EXPAND)
-		
-		self.clockArea = gtk.ScrolledWindow()
-		self.clockBuf = gtk.TextBuffer()
-		self.clockTextView = gtk.TextView(self.clockBuf)
-		self.clockBuf.insert_at_cursor("%H 00-23 (24-hour)    %I 01-12 (12-hour)    %l 1-12 (12-hour)    %M 00-59 (minutes)\n%S 00-59 (seconds)    %P am/pm    %b Jan-Dec    %B January-December\n%a Sun-Sat    %A Sunday-Saturday    %d 01-31 (day)    %e 1-31 (day)\n%y 2 digit year, e.g. 09    %Y 4 digit year, e.g. 2009")
-		self.clockTextView.set_editable(False)
-		self.clockArea.add_with_viewport(self.clockTextView)
-		self.tableClockDisplays.attach(self.clockArea, 0, 3, 6, 7, xpadding=10)
-
-		self.tableClockSettings = gtk.Table(rows=3, columns=3, homogeneous=False)
-		self.tableClockSettings.set_row_spacings(5)
-		self.tableClockSettings.set_col_spacings(5)
-
-		temp = gtk.Label("Clock Font Color")
-		temp.set_alignment(0, 0.5)
-		self.tableClockSettings.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.clockFontCol = gtk.Entry(7)
-		self.clockFontCol.set_width_chars(9)
-		self.clockFontCol.set_name("clockFontCol")
-		self.clockFontCol.connect("activate", self.colorTyped)
-		self.tableClockSettings.attach(self.clockFontCol, 1, 2, 0, 1, xoptions=gtk.EXPAND)
-		self.clockFontColButton = gtk.ColorButton(gtk.gdk.color_parse(self.defaults["fgColor"]))
-		self.clockFontColButton.set_use_alpha(True)
-		self.clockFontColButton.set_name("clockFontCol")
-		self.clockFontColButton.connect("color-set", self.colorChange)
-		self.tableClockSettings.attach(self.clockFontColButton, 2, 3, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		self.clockFontCol.set_text(self.defaults["fgColor"])
-		# Add this AFTER we set color to avoid "changed" event
-		self.clockFontCol.connect("changed", self.changeOccurred)
-
-		temp = gtk.Label("Padding (x, y)")
-		temp.set_alignment(0, 0.5)
-		self.tableClockSettings.attach(temp, 0, 1, 1, 2, xpadding=10)
-		self.clockPadX = gtk.Entry(6)
-		self.clockPadX.set_width_chars(8)
-		self.clockPadX.set_text(CLOCK_PADDING_X)
-		self.clockPadX.connect("changed", self.changeOccurred)
-		self.tableClockSettings.attach(self.clockPadX, 1, 2, 1, 2, xoptions=gtk.EXPAND)
-		self.clockPadY = gtk.Entry(6)
-		self.clockPadY.set_width_chars(8)
-		self.clockPadY.set_text(CLOCK_PADDING_Y)
-		self.clockPadY.connect("changed", self.changeOccurred)
-		self.tableClockSettings.attach(self.clockPadY, 2, 3, 1, 2, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Clock Background ID")
-		temp.set_alignment(0, 0.5)
-		self.tableClockSettings.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.clockBg = gtk.combo_box_new_text()
-		self.clockBg.append_text("0 (fully transparent)")
-		for i in range(len(self.bgs)):
-			self.clockBg.append_text(str(i+1))
-		self.clockBg.set_active(0)
-		self.clockBg.connect("changed", self.changeOccurred)
-		self.tableClockSettings.attach(self.clockBg, 1, 2, 2, 3, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Left Click Command")
-		temp.set_alignment(0, 0.5)
-		self.tableClockSettings.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.clockLClick = gtk.Entry(50)
-		self.clockLClick.set_width_chars(20)
-		self.clockLClick.set_text(CLOCK_LCLICK)
-		self.clockLClick.connect("changed", self.changeOccurred)
-		self.tableClockSettings.attach(self.clockLClick, 1, 2, 3, 4, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Right Click Command")
-		temp.set_alignment(0, 0.5)
-		self.tableClockSettings.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.clockRClick = gtk.Entry(50)
-		self.clockRClick.set_width_chars(20)
-		self.clockRClick.set_text(CLOCK_RCLICK)
-		self.clockRClick.connect("changed", self.changeOccurred)
-		self.tableClockSettings.attach(self.clockRClick, 1, 2, 4, 5, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Time 1 Timezone")
-		temp.set_alignment(0, 0.5)
-		self.tableClockSettings.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.clockTime1Timezone = gtk.Entry(50)
-		self.clockTime1Timezone.set_width_chars(20)
-		self.clockTime1Timezone.set_text(CLOCK_TIME1_TIMEZONE)
-		self.clockTime1Timezone.connect("changed", self.changeOccurred)
-		self.tableClockSettings.attach(self.clockTime1Timezone, 1, 2, 5, 6, xoptions=gtk.EXPAND)
-		self.clockTimezone1CheckButton = gtk.CheckButton("Enable")
-		self.clockTimezone1CheckButton.set_active(False)
-		self.clockTimezone1CheckButton.connect("toggled", self.changeOccurred)
-		self.tableClockSettings.attach(self.clockTimezone1CheckButton, 2, 3, 5, 6, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Time 2 Timezone")
-		temp.set_alignment(0, 0.5)
-		self.tableClockSettings.attach(temp, 0, 1, 6, 7, xpadding=10)
-		self.clockTime2Timezone = gtk.Entry(50)
-		self.clockTime2Timezone.set_width_chars(20)
-		self.clockTime2Timezone.set_text(CLOCK_TIME2_TIMEZONE)
-		self.clockTime2Timezone.connect("changed", self.changeOccurred)
-		self.tableClockSettings.attach(self.clockTime2Timezone, 1, 2, 6, 7, xoptions=gtk.EXPAND)
-		self.clockTimezone2CheckButton = gtk.CheckButton("Enable")
-		self.clockTimezone2CheckButton.set_active(False)
-		self.clockTimezone2CheckButton.connect("toggled", self.changeOccurred)
-		self.tableClockSettings.attach(self.clockTimezone2CheckButton, 2, 3, 6, 7, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Tooltip Timezone")
-		temp.set_alignment(0, 0.5)
-		self.tableClockSettings.attach(temp, 0, 1, 7, 8, xpadding=10)
-		self.clockTooltipTimezone = gtk.Entry(50)
-		self.clockTooltipTimezone.set_width_chars(20)
-		self.clockTooltipTimezone.set_text(CLOCK_TOOLTIP_TIMEZONE)
-		self.clockTooltipTimezone.connect("changed", self.changeOccurred)
-		self.tableClockSettings.attach(self.clockTooltipTimezone, 1, 2, 7, 8, xoptions=gtk.EXPAND)
-		self.clockTimezoneTooltipCheckButton = gtk.CheckButton("Enable")
-		self.clockTimezoneTooltipCheckButton.set_active(False)
-		self.clockTimezoneTooltipCheckButton.connect("toggled", self.changeOccurred)
-		self.tableClockSettings.attach(self.clockTimezoneTooltipCheckButton, 2, 3, 7, 8, xoptions=gtk.EXPAND)
-
-		# Tooltip Options
-		self.tableTooltip = gtk.Table(rows=7, columns=3, homogeneous=False)
-		self.tableTooltip.set_row_spacings(5)
-		self.tableTooltip.set_col_spacings(5)
-
-		temp = gtk.Label("Show Tooltips")
-		temp.set_alignment(0, 0.5)
-		self.tableTooltip.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.tooltipShow = gtk.CheckButton()
-		self.tooltipShow.set_active(False)
-		self.tooltipShow.connect("toggled", self.changeOccurred)
-		self.tableTooltip.attach(self.tooltipShow, 1, 2, 0, 1, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Padding (x, y)")
-		temp.set_alignment(0, 0.5)
-		self.tableTooltip.attach(temp, 0, 1, 1, 2, xpadding=10)
-		self.tooltipPadX = gtk.Entry(6)
-		self.tooltipPadX.set_width_chars(8)
-		self.tooltipPadX.set_text(TOOLTIP_PADDING_X)
-		self.tooltipPadX.connect("changed", self.changeOccurred)
-		self.tableTooltip.attach(self.tooltipPadX, 1, 2, 1, 2, xoptions=gtk.EXPAND)
-		self.tooltipPadY = gtk.Entry(6)
-		self.tooltipPadY.set_width_chars(8)
-		self.tooltipPadY.set_text(TOOLTIP_PADDING_Y)
-		self.tooltipPadY.connect("changed", self.changeOccurred)
-		self.tableTooltip.attach(self.tooltipPadY, 2, 3, 1, 2, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Tooltip Show Timeout (seconds)")
-		temp.set_alignment(0, 0.5)
-		self.tableTooltip.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.tooltipShowTime = gtk.Entry(6)
-		self.tooltipShowTime.set_width_chars(8)
-		self.tooltipShowTime.set_text(TOOLTIP_SHOW_TIMEOUT)
-		self.tooltipShowTime.connect("changed", self.changeOccurred)
-		self.tableTooltip.attach(self.tooltipShowTime, 1, 2, 2, 3, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Tooltip Hide Timeout (seconds)")
-		temp.set_alignment(0, 0.5)
-		self.tableTooltip.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.tooltipHideTime = gtk.Entry(6)
-		self.tooltipHideTime.set_width_chars(8)
-		self.tooltipHideTime.set_text(TOOLTIP_HIDE_TIMEOUT)
-		self.tooltipHideTime.connect("changed", self.changeOccurred)
-		self.tableTooltip.attach(self.tooltipHideTime, 1, 2, 3, 4, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Tooltip Background ID")
-		temp.set_alignment(0, 0.5)
-		self.tableTooltip.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.tooltipBg = gtk.combo_box_new_text()
-		self.tooltipBg.append_text("0 (fully transparent)")
-		for i in range(len(self.bgs)):
-			self.tooltipBg.append_text(str(i+1))
-		self.tooltipBg.set_active(0)
-		self.tooltipBg.connect("changed", self.changeOccurred)
-		self.tableTooltip.attach(self.tooltipBg, 1, 2, 4, 5, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Tooltip Font")
-		temp.set_alignment(0, 0.5)
-		self.tableTooltip.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.tooltipFont = gtk.FontButton()
-		self.tooltipFont.set_font_name(self.defaults["font"])
-		self.tooltipFont.connect("font-set", self.changeOccurred)
-		self.tableTooltip.attach(self.tooltipFont, 1, 2, 5, 6, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Tooltip Font Color")
-		temp.set_alignment(0, 0.5)
-		self.tableTooltip.attach(temp, 0, 1, 6, 7, xpadding=10)
-		self.tooltipFontCol = gtk.Entry(7)
-		self.tooltipFontCol.set_width_chars(9)
-		self.tooltipFontCol.set_name("tooltipFontCol")
-		self.tooltipFontCol.connect("activate", self.colorTyped)
-		self.tableTooltip.attach(self.tooltipFontCol, 1, 2, 6, 7, xoptions=gtk.EXPAND)
-		self.tooltipFontColButton = gtk.ColorButton(gtk.gdk.color_parse(self.defaults["fgColor"]))
-		self.tooltipFontColButton.set_use_alpha(True)
-		self.tooltipFontColButton.set_name("tooltipFontCol")
-		self.tooltipFontColButton.connect("color-set", self.colorChange)
-		self.tableTooltip.attach(self.tooltipFontColButton, 2, 3, 6, 7, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		self.tooltipFontCol.set_text(self.defaults["fgColor"])
-		# Add this AFTER we set color to avoid "changed" event
-		self.clockFontCol.connect("changed", self.changeOccurred)
-
-		# Mouse Options
-		self.tableMouse = gtk.Table(rows=4, columns=3, homogeneous=False)
-		self.tableMouse.set_row_spacings(5)
-		self.tableMouse.set_col_spacings(5)
-
-		temp = gtk.Label("Middle Mouse Click Action")
-		temp.set_alignment(0, 0.5)
-		self.tableMouse.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.mouseMiddle = gtk.combo_box_new_text()
-		self.mouseMiddle.append_text("none")
-		self.mouseMiddle.append_text("close")
-		self.mouseMiddle.append_text("toggle")
-		self.mouseMiddle.append_text("iconify")
-		self.mouseMiddle.append_text("shade")
-		self.mouseMiddle.append_text("toggle_iconify")
-		self.mouseMiddle.append_text("maximize_restore")
-		self.mouseMiddle.append_text("desktop_left")
-		self.mouseMiddle.append_text("desktop_right")
-		self.mouseMiddle.append_text("next_task")
-		self.mouseMiddle.append_text("prev_task")
-		self.mouseMiddle.set_active(0)
-		self.mouseMiddle.connect("changed", self.changeOccurred)
-		self.tableMouse.attach(self.mouseMiddle, 1, 2, 0, 1, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Right Mouse Click Action")
-		temp.set_alignment(0, 0.5)
-		self.tableMouse.attach(temp, 0, 1, 1, 2, xpadding=10)
-		self.mouseRight = gtk.combo_box_new_text()
-		self.mouseRight.append_text("none")
-		self.mouseRight.append_text("close")
-		self.mouseRight.append_text("toggle")
-		self.mouseRight.append_text("iconify")
-		self.mouseRight.append_text("shade")
-		self.mouseRight.append_text("toggle_iconify")
-		self.mouseRight.append_text("maximize_restore")
-		self.mouseRight.append_text("desktop_left")
-		self.mouseRight.append_text("desktop_right")
-		self.mouseRight.append_text("next_task")
-		self.mouseRight.append_text("prev_task")
-		self.mouseRight.set_active(0)
-		self.mouseRight.connect("changed", self.changeOccurred)
-		self.tableMouse.attach(self.mouseRight, 1, 2, 1, 2, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Mouse Wheel Scroll Up Action")
-		temp.set_alignment(0, 0.5)
-		self.tableMouse.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.mouseUp = gtk.combo_box_new_text()
-		self.mouseUp.append_text("none")
-		self.mouseUp.append_text("close")
-		self.mouseUp.append_text("toggle")
-		self.mouseUp.append_text("iconify")
-		self.mouseUp.append_text("shade")
-		self.mouseUp.append_text("toggle_iconify")
-		self.mouseUp.append_text("maximize_restore")
-		self.mouseUp.append_text("desktop_left")
-		self.mouseUp.append_text("desktop_right")
-		self.mouseUp.append_text("next_task")
-		self.mouseUp.append_text("prev_task")
-		self.mouseUp.set_active(0)
-		self.mouseUp.connect("changed", self.changeOccurred)
-		self.tableMouse.attach(self.mouseUp, 1, 2, 2, 3, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Mouse Wheel Scroll Down Action")
-		temp.set_alignment(0, 0.5)
-		self.tableMouse.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.mouseDown = gtk.combo_box_new_text()
-		self.mouseDown.append_text("none")
-		self.mouseDown.append_text("close")
-		self.mouseDown.append_text("toggle")
-		self.mouseDown.append_text("iconify")
-		self.mouseDown.append_text("shade")
-		self.mouseDown.append_text("toggle_iconify")
-		self.mouseDown.append_text("maximize_restore")
-		self.mouseDown.append_text("desktop_left")
-		self.mouseDown.append_text("desktop_right")
-		self.mouseDown.append_text("next_task")
-		self.mouseDown.append_text("prev_task")
-		self.mouseDown.set_active(0)
-		self.mouseDown.connect("changed", self.changeOccurred)
-		self.tableMouse.attach(self.mouseDown, 1, 2, 3, 4, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		# Battery Options
-		self.tableBattery = gtk.Table(rows=8, columns=3, homogeneous=False)
-		self.tableBattery.set_row_spacings(5)
-		self.tableBattery.set_col_spacings(5)
-
-		temp = gtk.Label("Show Battery Applet")
-		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 0, 1, xpadding=10)
-		self.batteryCheckButton = gtk.CheckButton()
-		self.batteryCheckButton.set_active(False)
-		self.batteryCheckButton.connect("toggled", self.changeOccurred)
-		self.tableBattery.attach(self.batteryCheckButton, 1, 2, 0, 1, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Battery Low Status (%)")
-		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 1, 2, xpadding=10)
-		self.batteryLow = gtk.Entry(6)
-		self.batteryLow.set_width_chars(8)
-		self.batteryLow.set_text(BATTERY_LOW)
-		self.batteryLow.connect("changed", self.changeOccurred)
-		self.tableBattery.attach(self.batteryLow, 1, 2, 1, 2, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Battery Low Action")
-		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 2, 3, xpadding=10)
-		self.batteryLowAction = gtk.Entry(150)
-		self.batteryLowAction.set_width_chars(32)
-		self.batteryLowAction.set_text(BATTERY_ACTION)
-		self.batteryLowAction.connect("changed", self.changeOccurred)
-		self.tableBattery.attach(self.batteryLowAction, 1, 3, 2, 3, xoptions=gtk.EXPAND)
-		
-		temp = gtk.Label("Battery Hide (0 to 100)")
-		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 3, 4, xpadding=10)
-		self.batteryHide = gtk.Entry(6)
-		self.batteryHide.set_width_chars(8)
-		self.batteryHide.set_text(BATTERY_HIDE)
-		self.batteryHide.connect("changed", self.changeOccurred)
-		self.tableBattery.attach(self.batteryHide, 1, 2, 3, 4, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Battery 1 Font")
-		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 4, 5, xpadding=10)
-		self.bat1FontButton = gtk.FontButton()
-		self.bat1FontButton.set_font_name(self.defaults["font"])
-		self.bat1FontButton.connect("font-set", self.changeOccurred)
-		self.tableBattery.attach(self.bat1FontButton, 1, 2, 4, 5, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Battery 2 Font")
-		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 5, 6, xpadding=10)
-		self.bat2FontButton = gtk.FontButton()
-		self.bat2FontButton.set_font_name(self.defaults["font"])
-		self.bat2FontButton.connect("font-set", self.changeOccurred)
-		self.tableBattery.attach(self.bat2FontButton, 1, 2, 5, 6, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Battery Font Color")
-		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 6, 7, xpadding=10)
-		self.batteryFontCol = gtk.Entry(7)
-		self.batteryFontCol.set_width_chars(9)
-		self.batteryFontCol.set_name("batteryFontCol")
-		self.batteryFontCol.connect("activate", self.colorTyped)
-		self.tableBattery.attach(self.batteryFontCol, 1, 2, 6, 7, xoptions=gtk.EXPAND)
-		self.batteryFontColButton = gtk.ColorButton(gtk.gdk.color_parse(self.defaults["fgColor"]))
-		self.batteryFontColButton.set_use_alpha(True)
-		self.batteryFontColButton.set_name("batteryFontCol")
-		self.batteryFontColButton.connect("color-set", self.colorChange)
-		self.tableBattery.attach(self.batteryFontColButton, 2, 3, 6, 7, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
-		self.batteryFontCol.set_text(self.defaults["fgColor"])
-		# Add this AFTER we set color to avoid "changed" event
-		self.batteryFontCol.connect("changed", self.changeOccurred)
-
-		temp = gtk.Label("Padding (x, y)")
-		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 7, 8, xpadding=10)
-		self.batteryPadX = gtk.Entry(6)
-		self.batteryPadX.set_width_chars(8)
-		self.batteryPadX.set_text(BATTERY_PADDING_X)
-		self.batteryPadX.connect("changed", self.changeOccurred)
-		self.tableBattery.attach(self.batteryPadX, 1, 2, 7, 8, xoptions=gtk.EXPAND)
-		self.batteryPadY = gtk.Entry(6)
-		self.batteryPadY.set_width_chars(8)
-		self.batteryPadY.set_text(BATTERY_PADDING_Y)
-		self.batteryPadY.connect("changed", self.changeOccurred)
-		self.tableBattery.attach(self.batteryPadY, 2, 3, 7, 8, xoptions=gtk.EXPAND)
-
-		temp = gtk.Label("Battery Background ID")
-		temp.set_alignment(0, 0.5)
-		self.tableBattery.attach(temp, 0, 1, 8, 9, xpadding=10)
-		self.batteryBg = gtk.combo_box_new_text()
-		self.batteryBg.append_text("0 (fully transparent)")
-		for i in range(len(self.bgs)):
-			self.batteryBg.append_text(str(i+1))
-		self.batteryBg.set_active(0)
-		self.batteryBg.connect("changed", self.changeOccurred)
-		self.tableBattery.attach(self.batteryBg, 1, 2, 8, 9, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
+		# Battery
+		self.createBatteryWidgets()
 
 		# View Config
 		self.configArea = gtk.ScrolledWindow()
@@ -1531,11 +373,11 @@ class TintWizardGUI(gtk.Window):
 		self.panelNotebook = gtk.Notebook()
 		self.panelNotebook.set_tab_pos(gtk.POS_TOP)
 		self.panelNotebook.set_current_page(0)
-		
+
 		self.panelNotebook.append_page(self.tablePanelDisplay, gtk.Label("Panel Display"))
 		self.panelNotebook.append_page(self.tablePanelSettings, gtk.Label("Panel Settings"))
 		self.panelNotebook.append_page(self.tablePanelAutohide, gtk.Label("Panel Autohide"))
-		
+
 		self.taskNotebook = gtk.Notebook()
 		self.taskNotebook.set_tab_pos(gtk.POS_TOP)
 		self.taskNotebook.set_current_page(0)
@@ -1545,7 +387,7 @@ class TintWizardGUI(gtk.Window):
 		self.taskNotebook.append_page(self.tableTaskActive, gtk.Label("Active Tasks"))
 		self.taskNotebook.append_page(self.tableTaskUrgent, gtk.Label("Urgent Tasks"))
 		self.taskNotebook.append_page(self.tableTaskIconified, gtk.Label("Iconified Tasks"))
-		
+
 		self.clockNotebook = gtk.Notebook()
 		self.clockNotebook.set_tab_pos(gtk.POS_TOP)
 		self.clockNotebook.set_current_page(0)
@@ -1593,90 +435,556 @@ class TintWizardGUI(gtk.Window):
 
 		self.show_all()
 
-		# Create our property dictionary. This holds the widgets which correspond to each property
-		self.propUI = {
-			"panel_monitor": self.panelMonitor,
-			"panel_position": (self.panelPosY, self.panelPosX, self.panelOrientation),
-			"panel_size": (self.panelSizeX, self.panelSizeY),
-			"panel_margin": (self.panelMarginX, self.panelMarginY),
-			"panel_padding": (self.panelPadX, self.panelPadY, self.panelSpacing),
-			"wm_menu": self.panelMenu,
-			"panel_layer": self.panelLayer,
-			"panel_dock": self.panelDock,
-			"panel_background_id": self.panelBg,
-			"autohide": self.panelAutohide,
-			"autohide_show_timeout": self.panelAutohideShow,
-			"autohide_hide_timeout": self.panelAutohideHide,
-			"autohide_height": self.panelAutohideHeight,
-			"strut_policy": self.panelAutohideStrut,
-			"taskbar_mode": self.taskbarMode,
-			"taskbar_padding": (self.taskbarPadX, self.taskbarPadY, self.taskbarSpacing),
-			"taskbar_background_id": self.taskbarBg,
-			"taskbar_active_background_id": self.taskbarActiveBg,
-			"task_icon": self.taskIconCheckButton,
-			"task_text": self.taskTextCheckButton,
-			"task_centered": self.taskCentreCheckButton,
-			"task_maximum_size": (self.taskMaxSizeX, self.taskMaxSizeY),
-			"task_padding": (self.taskPadX, self.taskPadY),
-			"task_background_id": self.taskBg,
-			"task_active_background_id": self.taskActiveBg,
-			"task_urgent_background_id": self.taskUrgentBg,
-			"task_iconified_background_id": self.taskIconifiedBg,
-			"task_font": self.fontButton,
-			"task_font_color": (self.fontCol, self.fontColButton),
-			"task_active_font_color": (self.fontActiveCol, self.fontActiveColButton),
-			"task_urgent_font_color": (self.fontUrgentCol, self.fontUrgentColButton),
-			"task_iconified_font_color": (self.fontIconifiedCol, self.fontIconifiedColButton),
-			"task_icon_asb": (self.iconHue, self.iconSat, self.iconBri),
-			"task_active_icon_asb": (self.activeIconHue, self.activeIconSat, self.activeIconBri),
-			"task_urgent_icon_asb": (self.urgentIconHue, self.urgentIconSat, self.urgentIconBri),
-			"task_iconified_icon_asb": (self.iconifiedIconHue, self.iconifiedIconSat, self.iconifiedIconBri),
-			"font_shadow": self.fontShadowCheckButton,
-			"systray": self.trayShow,
-			"systray_padding": (self.trayPadX, self.trayPadY, self.traySpacing),
-			"systray_background_id": self.trayBg,
-			"systray_sort": self.trayOrder,
-			"systray_icon_size": self.trayMaxIconSize,
-			"systray_icon_asb": (self.trayIconHue, self.trayIconSat, self.trayIconBri),
-			"time1_format": self.clock1Format,
-			"time2_format": self.clock2Format,
-			"clock_tooltip": self.clockTooltipFormat,
-			"time1_font": self.clock1FontButton,
-			"time2_font": self.clock2FontButton,
-			"clock_font_color": (self.clockFontCol, self.clockFontColButton),
-			"clock_padding": (self.clockPadX, self.clockPadY),
-			"clock_background_id": self.clockBg,
-			"clock_lclick_command": self.clockLClick,
-			"clock_rclick_command": self.clockRClick,
-			"time1_timezone": self.clockTime1Timezone,
-			"time2_timezone": self.clockTime2Timezone,
-			"clock_tooltip_timezone": self.clockTooltipTimezone,
-			"mouse_middle": self.mouseMiddle,
-			"mouse_right": self.mouseRight,
-			"mouse_scroll_up": self.mouseUp,
-			"mouse_scroll_down": self.mouseDown,
-			"tooltip": self.tooltipShow,
-			"tooltip_padding": (self.tooltipPadX, self.tooltipPadY),
-			"tooltip_show_timeout": self.tooltipShowTime,
-			"tooltip_hide_timeout": self.tooltipHideTime,
-			"tooltip_background_id": self.tooltipBg,
-			"tooltip_font": self.tooltipFont,
-			"tooltip_font_color": (self.tooltipFontCol, self.tooltipFontColButton),
-			"battery": self.batteryCheckButton,
-			"battery_low_status": self.batteryLow,
-			"battery_low_cmd": self.batteryLowAction,
-			"battery_hide": self.batteryHide,
-			"bat1_font": self.bat1FontButton,
-			"bat2_font": self.bat2FontButton,
-			"battery_font_color": (self.batteryFontCol, self.batteryFontColButton),
-			"battery_padding": (self.batteryPadX, self.batteryPadY),
-			"battery_background_id": self.batteryBg
-		}
-
+		# If tintwizard was launched with a tint2 config filename
+		# as an argument, load that config.
 		if self.oneConfigFile:
 			self.readTint2Config()
 
 		self.generateConfig()
+
+	def createPanelDisplayWidgets(self):
+		"""Create the Panel Display widgets."""
+		self.tablePanelDisplay = gtk.Table(rows=6, columns=3, homogeneous=False)
+		self.tablePanelDisplay.set_row_spacings(5)
+		self.tablePanelDisplay.set_col_spacings(5)
+
+		createLabel(self.tablePanelDisplay, text="Position", gridX=0, gridY=0, xPadding=10)
+		self.panelPosY = createComboBox(self.tablePanelDisplay, ["bottom", "top", "center"], gridX=1, gridY=0, handler=self.changeOccurred)
+		self.panelPosX = createComboBox(self.tablePanelDisplay, ["left", "right", "center"], gridX=2, gridY=0, handler=self.changeOccurred)
+		# Note: registered below
+
+		createLabel(self.tablePanelDisplay, text="Panel Orientation", gridX=0, gridY=1, xPadding=10)
+		self.panelOrientation = createComboBox(self.tablePanelDisplay, ["horizontal", "vertical"], gridX=1, gridY=1, handler=self.changeOccurred)
+		self.registerComponent("panel_position", (self.panelPosY, self.panelPosX, self.panelOrientation))
+
+		self.panelSizeLabel = createLabel(self.tablePanelDisplay, text="Size (width, height)", gridX=0, gridY=2, xPadding=10)
+		self.panelSizeX = createEntry(self.tablePanelDisplay, maxSize=6, width=8, text=PANEL_SIZE_X, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.panelSizeY = createEntry(self.tablePanelDisplay, maxSize=6, width=8, text=PANEL_SIZE_Y, gridX=2, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("panel_size", (self.panelSizeX, self.panelSizeY))
+
+		createLabel(self.tablePanelDisplay, text="Margin (x, y)", gridX=0, gridY=3, xPadding=10)
+		self.panelMarginX = createEntry(self.tablePanelDisplay, maxSize=6, width=8, text=PANEL_MARGIN_X, gridX=1, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.panelMarginY = createEntry(self.tablePanelDisplay, maxSize=6, width=8, text=PANEL_MARGIN_Y, gridX=2, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("panel_margin", (self.panelMarginX, self.panelMarginY))
+
+		createLabel(self.tablePanelDisplay, text="Padding (x, y)", gridX=0, gridY=4, xPadding=10)
+		self.panelPadX = createEntry(self.tablePanelDisplay, maxSize=6, width=8, text=PANEL_PADDING_X, gridX=1, gridY=4, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.panelPadY = createEntry(self.tablePanelDisplay, maxSize=6, width=8, text=PANEL_PADDING_Y, gridX=2, gridY=4, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tablePanelDisplay, text="Horizontal Spacing", gridX=0, gridY=5, xPadding=10)
+		self.panelSpacing = createEntry(self.tablePanelDisplay, maxSize=6, width=8, text=TASKBAR_SPACING, gridX=1, gridY=5, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("panel_padding", (self.panelPadX, self.panelPadY, self.panelSpacing))
+
+		createLabel(self.tablePanelDisplay, text="Panel Background ID", gridX=0, gridY=6, xPadding=10)
+		self.panelBg = createComboBox(self.tablePanelDisplay, ["0 (fully transparent)"] + range(1, len(self.bgs)), gridX=1, gridY=6, handler=self.changeOccurred)
+		self.registerComponent("panel_background_id", self.panelBg)
+
+	def createPanelSettingsWidgets(self):
+		"""Create the Panel Settings widgets."""
+		self.tablePanelSettings = gtk.Table(rows=5, columns=3, homogeneous=False)
+		self.tablePanelSettings.set_row_spacings(5)
+		self.tablePanelSettings.set_col_spacings(5)
+
+		createLabel(self.tablePanelSettings, text="Window Manager Menu", gridX=0, gridY=0, xPadding=10)
+		self.panelMenu = createCheckButton(self.tablePanelSettings, active=False, gridX=1, gridY=0, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("wm_menu", self.panelMenu)
+
+		createLabel(self.tablePanelSettings, text="Place In Window Manager Dock", gridX=0, gridY=1, xPadding=10)
+		self.panelDock = createCheckButton(self.tablePanelSettings, active=False, gridX=1, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("panel_dock", self.panelDock)
+
+		createLabel(self.tablePanelSettings, text="Panel Layer", gridX=0, gridY=2, xPadding=10)
+		self.panelLayer = createComboBox(self.tablePanelSettings, ["bottom", "top", "normal"], gridX=1, gridY=2, handler=self.changeOccurred)
+		self.registerComponent("panel_layer", self.panelLayer)
+
+		createLabel(self.tablePanelSettings, text="Strut Policy", gridX=0, gridY=3, xPadding=10)
+		self.panelAutohideStrut = createComboBox(self.tablePanelSettings, ["none", "minimum", "follow_size"], gridX=1, gridY=3, handler=self.changeOccurred)
+		self.registerComponent("strut_policy", self.panelAutohideStrut)
+
+		createLabel(self.tablePanelSettings, text="Panel Monitor (all, 1, 2, ...)", gridX=0, gridY=4, xPadding=10)
+		self.panelMonitor = createEntry(self.tablePanelSettings, maxSize=6, width=8, text=PANEL_MONITOR, gridX=1, gridY=4, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("panel_monitor", self.panelMonitor)
+
+	def createPanelAutohideWidgets(self):
+		"""Create the Panel Autohide widgets."""
+		self.tablePanelAutohide = gtk.Table(rows=4, columns=3, homogeneous=False)
+		self.tablePanelAutohide.set_row_spacings(5)
+		self.tablePanelAutohide.set_col_spacings(5)
+
+		createLabel(self.tablePanelAutohide, text="Autohide Panel", gridX=0, gridY=0, xPadding=10)
+		self.panelAutohide = createCheckButton(self.tablePanelAutohide, active=False, gridX=1, gridY=0, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("autohide", self.panelAutohide)
+
+		createLabel(self.tablePanelAutohide, text="Autohide Show Timeout (seconds)", gridX=0, gridY=1, xPadding=10)
+		self.panelAutohideShow = createEntry(self.tablePanelAutohide, maxSize=6, width=8, text=PANEL_AUTOHIDE_SHOW, gridX=1, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("autohide_show_timeout", self.panelAutohideShow)
+
+		createLabel(self.tablePanelAutohide, text="Autohide Hide Timeout (seconds)", gridX=0, gridY=2, xPadding=10)
+		self.panelAutohideHide = createEntry(self.tablePanelAutohide, maxSize=6, width=8, text=PANEL_AUTOHIDE_HIDE, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("autohide_hide_timeout", self.panelAutohideHide)
+
+		createLabel(self.tablePanelAutohide, text="Autohide Hidden Height", gridX=0, gridY=3, xPadding=10)
+		self.panelAutohideHeight = createEntry(self.tablePanelAutohide, maxSize=6, width=8, text=PANEL_AUTOHIDE_HEIGHT, gridX=1, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("autohide_height", self.panelAutohideHeight)
+
+	def createTaskbarWidgets(self):
+		"""Create the Taskbar widgets."""
+		self.tableTaskbar = gtk.Table(rows=5, columns=3, homogeneous=False)
+		self.tableTaskbar.set_row_spacings(5)
+		self.tableTaskbar.set_col_spacings(5)
+
+		createLabel(self.tableTaskbar, text="Taskbar Mode", gridX=0, gridY=0, xPadding=10)
+		self.taskbarMode = createComboBox(self.tableTaskbar, ["single_desktop", "multi_desktop"], gridX=1, gridY=0, handler=self.changeOccurred)
+		self.registerComponent("taskbar_mode", self.taskbarMode)
+
+		createLabel(self.tableTaskbar, text="Padding (x, y)", gridX=0, gridY=1, xPadding=10)
+		self.taskbarPadX = createEntry(self.tableTaskbar, maxSize=6, width=8, text=TASKBAR_PADDING_X, gridX=1, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.taskbarPadY = createEntry(self.tableTaskbar, maxSize=6, width=8, text=TASKBAR_PADDING_Y, gridX=2, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTaskbar, text="Horizontal Spacing", gridX=0, gridY=2, xPadding=10)
+		self.taskbarSpacing = createEntry(self.tableTaskbar, maxSize=6, width=8, text=TASK_SPACING, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("taskbar_padding", (self.taskbarPadX, self.taskbarPadY, self.taskbarSpacing))
+
+		createLabel(self.tableTaskbar, text="Taskbar Background ID", gridX=0, gridY=3, xPadding=10)
+		self.taskbarBg = createComboBox(self.tableTaskbar, ["0 (fully transparent)"] + range(1, len(self.bgs)), gridX=1, gridY=3, handler=self.changeOccurred)
+		self.registerComponent("taskbar_background_id", self.taskbarBg)
+
+		createLabel(self.tableTaskbar, text="Active Taskbar Background ID", gridX=0, gridY=4, xPadding=10)
+		self.taskbarActiveBg = createComboBox(self.tableTaskbar, ["0 (fully transparent)"] + range(1, len(self.bgs)), gridX=1, gridY=4, handler=self.changeOccurred)
+		self.taskbarActiveBgEnable = createCheckButton(self.tableTaskbar, text="Enable", active=False, gridX=2, gridY=4, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("taskbar_active_background_id", self.taskbarActiveBg)
+
+	def createTaskSettingsWidgets(self):
+		"""Create the Task Settings widgets."""
+		self.tableTask = gtk.Table(rows=12, columns=3, homogeneous=False)
+		self.tableTask.set_row_spacings(5)
+		self.tableTask.set_col_spacings(5)
+
+		createLabel(self.tableTask, text="Number of 'Blinks' on Urgent Event", gridX=0, gridY=0, xPadding=10)
+		self.taskBlinks = createEntry(self.tableTask, maxSize=6, width=8, text=TASK_BLINKS, gridX=1, gridY=0, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("urgent_nb_of_blink", self.taskBlinks)
+
+		createLabel(self.tableTask, text="Show Icons", gridX=0, gridY=1, xPadding=10)
+		self.taskIconCheckButton = createCheckButton(self.tableTask, active=True, gridX=1, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("task_icon", self.taskIconCheckButton)
+
+		createLabel(self.tableTask, text="Show Text", gridX=0, gridY=2, xPadding=10)
+		self.taskTextCheckButton = createCheckButton(self.tableTask, active=True, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("task_text", self.taskTextCheckButton)
+
+		createLabel(self.tableTask, text="Centre Text", gridX=0, gridY=3, xPadding=10)
+		self.taskCentreCheckButton = createCheckButton(self.tableTask, active=True, gridX=1, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("task_centered", self.taskCentreCheckButton)
+
+		createLabel(self.tableTask, text="Font", gridX=0, gridY=4, xPadding=10)
+		self.fontButton = gtk.FontButton()
+
+		if self.defaults["font"] in [None, "None"]:						# If there was no font specified in the config file
+			self.defaults["font"] = self.fontButton.get_font_name()		# Use the gtk default
+
+		self.fontButton = createFontButton(self.tableTask, font=self.defaults["font"], gridX=1, gridY=4, handler=self.changeOccurred)
+		self.registerComponent("task_font", self.fontButton)
+
+		createLabel(self.tableTask, text="Show Font Shadow", gridX=0, gridY=5, xPadding=10)
+		self.fontShadowCheckButton = createCheckButton(self.tableTask, active=False, gridX=1, gridY=5, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("font_shadow", self.fontShadowCheckButton)
+
+		createLabel(self.tableTask, text="Maximum Size (x, y)", gridX=0, gridY=6, xPadding=10)
+		self.taskMaxSizeX = createEntry(self.tableTask, maxSize=6, width=8, text=TASK_MAXIMUM_SIZE_X, gridX=1, gridY=6, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.taskMaxSizeY = createEntry(self.tableTask, maxSize=6, width=8, text=TASK_MAXIMUM_SIZE_Y, gridX=2, gridY=6, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("task_maximum_size", (self.taskMaxSizeX, self.taskMaxSizeY))
+
+		createLabel(self.tableTask, text="Padding (x, y)", gridX=0, gridY=7, xPadding=10)
+		self.taskPadX = createEntry(self.tableTask, maxSize=6, width=8, text=TASK_PADDING_X, gridX=1, gridY=7, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.taskPadY = createEntry(self.tableTask, maxSize=6, width=8, text=TASK_PADDING_Y, gridX=2, gridY=7, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("task_padding", (self.taskPadX, self.taskPadY))
+
+	def createNormalTasksWidgets(self):
+		"""Create the Normal Tasks widgets."""
+		self.tableTaskDefault = gtk.Table(rows=6, columns=3, homogeneous=False)
+		self.tableTaskDefault.set_row_spacings(5)
+		self.tableTaskDefault.set_col_spacings(5)
+
+		createLabel(self.tableTaskDefault, text="Normal Task Background ID", gridX=0, gridY=0, xPadding=10)
+		self.taskBg = createComboBox(self.tableTaskDefault, ["0 (fully transparent)"] + range(1, len(self.bgs)), gridX=1, gridY=0, handler=self.changeOccurred)
+		self.registerComponent("task_background_id", self.taskBg)
+
+		createLabel(self.tableTaskDefault, text="Note: Default values of 0 for each of these settings leaves icons unchanged!", gridX=0, gridY=1, sizeX=3, xPadding=10)
+
+		createLabel(self.tableTaskDefault, text="Normal Icon Alpha (0 to 100)", gridX=0, gridY=2, xPadding=10)
+		self.iconHue = createEntry(self.tableTaskDefault, maxSize=6, width=8, text=ICON_ALPHA, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTaskDefault, text="Normal Icon Saturation (-100 to 100)", gridX=0, gridY=3, xPadding=10)
+		self.iconSat = createEntry(self.tableTaskDefault, maxSize=6, width=8, text=ICON_SAT, gridX=1, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTaskDefault, text="Normal Icon Brightness (-100 to 100)", gridX=0, gridY=4, xPadding=10)
+		self.iconBri = createEntry(self.tableTaskDefault, maxSize=6, width=8, text=ICON_BRI, gridX=1, gridY=4, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("task_icon_asb", (self.iconHue, self.iconSat, self.iconBri))
+
+		createLabel(self.tableTaskDefault, text="Normal Font Color", gridX=0, gridY=5, xPadding=10)
+		self.fontCol = createEntry(self.tableTaskDefault, maxSize=7, width=9, text="", gridX=1, gridY=5, xExpand=True, yExpand=False, handler=None, name="fontCol")
+		self.fontCol.connect("activate", self.colorTyped)
+		self.fontColButton = createColorButton(self.tableTaskDefault, color=self.defaults["fgColor"], useAlpha=True, name="fontCol", gridX=2, gridY=5, handler=self.colorChange)
+		self.fontCol.set_text(self.defaults["fgColor"])
+		# Add this AFTER we set color to avoid "changed" event
+		self.fontCol.connect("changed", self.changeOccurred)
+		self.registerComponent("task_font_color", (self.fontCol, self.fontColButton))
+
+	def createActiveTasksWidgets(self):
+		"""Create the Active Tasks widgets."""
+		self.tableTaskActive = gtk.Table(rows=6, columns=3, homogeneous=False)
+		self.tableTaskActive.set_row_spacings(5)
+		self.tableTaskActive.set_col_spacings(5)
+
+		createLabel(self.tableTaskActive, text="Active Task Background ID", gridX=0, gridY=0, xPadding=10)
+		self.taskActiveBg = createComboBox(self.tableTaskActive, ["0 (fully transparent)"] + range(1, len(self.bgs)), gridX=1, gridY=0, handler=self.changeOccurred)
+		self.registerComponent("task_active_background_id", self.taskActiveBg)
+
+		createLabel(self.tableTaskActive, text="Note: Default values of 0 for each of these settings leaves icons unchanged!", gridX=0, gridY=1, sizeX=3, xPadding=10)
+
+		createLabel(self.tableTaskActive, text="Active Icon Alpha (0 to 100)", gridX=0, gridY=2, xPadding=10)
+		self.activeIconHue = createEntry(self.tableTaskActive, maxSize=6, width=8, text=ACTIVE_ICON_ALPHA, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTaskActive, text="Active Icon Saturation (-100 to 100)", gridX=0, gridY=3, xPadding=10)
+		self.activeIconSat = createEntry(self.tableTaskActive, maxSize=6, width=8, text=ACTIVE_ICON_SAT, gridX=1, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTaskActive, text="Active Icon Brightness (-100 to 100)", gridX=0, gridY=4, xPadding=10)
+		self.activeIconBri = createEntry(self.tableTaskActive, maxSize=6, width=8, text=ACTIVE_ICON_BRI, gridX=1, gridY=4, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("task_active_icon_asb", (self.activeIconHue, self.activeIconSat, self.activeIconBri))
+
+		createLabel(self.tableTaskActive, text="Active Font Color", gridX=0, gridY=5, xPadding=10)
+		self.fontActiveCol = createEntry(self.tableTaskActive, maxSize=7, width=9, text="", gridX=1, gridY=5, xExpand=True, yExpand=False, handler=None, name="fontActiveCol")
+		self.fontActiveCol.connect("activate", self.colorTyped)
+		self.fontActiveColButton = createColorButton(self.tableTaskActive, color=self.defaults["fgColor"], useAlpha=True, name="fontActiveCol", gridX=2, gridY=5, handler=self.colorChange)
+		self.fontActiveCol.set_text(self.defaults["fgColor"])
+		# Add this AFTER we set color to avoid "changed" event
+		self.fontActiveCol.connect("changed", self.changeOccurred)
+		self.registerComponent("task_active_font_color", (self.fontActiveCol, self.fontActiveColButton))
+
+	def createUrgentTasksWidgets(self):
+		"""Create the Urgent Tasks widgets."""
+		self.tableTaskUrgent = gtk.Table(rows=6, columns=3, homogeneous=False)
+		self.tableTaskUrgent.set_row_spacings(5)
+		self.tableTaskUrgent.set_col_spacings(5)
+
+		createLabel(self.tableTaskUrgent, text="Urgent Task Background ID", gridX=0, gridY=0, xPadding=10)
+		self.taskUrgentBg = createComboBox(self.tableTaskUrgent, ["0 (fully transparent)"] + range(1, len(self.bgs)), gridX=1, gridY=0, handler=self.changeOccurred)
+		self.registerComponent("task_urgent_background_id", self.taskUrgentBg)
+
+		createLabel(self.tableTaskUrgent, text="Note: Default values of 0 for each of these settings leaves icons unchanged!", gridX=0, gridY=1, sizeX=3, xPadding=10)
+
+		createLabel(self.tableTaskUrgent, text="Urgent Icon Alpha (0 to 100)", gridX=0, gridY=2, xPadding=10)
+		self.urgentIconHue = createEntry(self.tableTaskUrgent, maxSize=6, width=8, text=URGENT_ICON_ALPHA, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTaskUrgent, text="Urgent Icon Saturation (-100 to 100)", gridX=0, gridY=3, xPadding=10)
+		self.urgentIconSat = createEntry(self.tableTaskUrgent, maxSize=6, width=8, text=URGENT_ICON_SAT, gridX=1, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTaskUrgent, text="Urgent Icon Brightness (-100 to 100)", gridX=0, gridY=4, xPadding=10)
+		self.urgentIconBri = createEntry(self.tableTaskUrgent, maxSize=6, width=8, text=URGENT_ICON_BRI, gridX=1, gridY=4, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("task_urgent_icon_asb", (self.urgentIconHue, self.urgentIconSat, self.urgentIconBri))
+
+		createLabel(self.tableTaskUrgent, text="Urgent Font Color", gridX=0, gridY=5, xPadding=10)
+		self.fontUrgentCol = createEntry(self.tableTaskUrgent, maxSize=7, width=9, text="", gridX=1, gridY=5, xExpand=True, yExpand=False, handler=None, name="fontUrgentCol")
+		self.fontUrgentCol.connect("activate", self.colorTyped)
+		self.fontUrgentColButton = createColorButton(self.tableTaskUrgent, color=self.defaults["fgColor"], useAlpha=True, name="fontUrgentCol", gridX=2, gridY=5, handler=self.colorChange)
+		self.fontUrgentCol.set_text(self.defaults["fgColor"])
+		# Add this AFTER we set color to avoid "changed" event
+		self.fontUrgentCol.connect("changed", self.changeOccurred)
+		self.registerComponent("task_urgent_font_color", (self.fontUrgentCol, self.fontUrgentColButton))
+
+	def createIconifiedTasksWidgets(self):
+		"""Create the Iconified Tasks widgets."""
+		self.tableTaskIconified = gtk.Table(rows=6, columns=3, homogeneous=False)
+		self.tableTaskIconified.set_row_spacings(5)
+		self.tableTaskIconified.set_col_spacings(5)
+
+		createLabel(self.tableTaskIconified, text="Iconified Task Background ID", gridX=0, gridY=0, xPadding=10)
+		self.taskIconifiedBg = createComboBox(self.tableTaskIconified, ["0 (fully transparent)"] + range(1, len(self.bgs)), gridX=1, gridY=0, handler=self.changeOccurred)
+		self.registerComponent("task_iconified_background_id", self.taskIconifiedBg)
+
+		createLabel(self.tableTaskIconified, text="Note: Default values of 0 for each of these settings leaves icons unchanged!", gridX=0, gridY=1, sizeX=3, xPadding=10)
+
+		createLabel(self.tableTaskIconified, text="Iconified Icon Alpha (0 to 100)", gridX=0, gridY=2, xPadding=10)
+		self.iconifiedIconHue = createEntry(self.tableTaskIconified, maxSize=6, width=8, text=ICONIFIED_ICON_ALPHA, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTaskIconified, text="Iconified Icon Saturation (-100 to 100)", gridX=0, gridY=3, xPadding=10)
+		self.iconifiedIconSat = createEntry(self.tableTaskIconified, maxSize=6, width=8, text=ICONIFIED_ICON_SAT, gridX=1, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTaskIconified, text="Iconified Icon Brightness (-100 to 100)", gridX=0, gridY=4, xPadding=10)
+		self.iconifiedIconBri = createEntry(self.tableTaskIconified, maxSize=6, width=8, text=ICONIFIED_ICON_BRI, gridX=1, gridY=4, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("task_iconified_icon_asb", (self.iconifiedIconHue, self.iconifiedIconSat, self.iconifiedIconBri))
+
+		createLabel(self.tableTaskIconified, text="Iconified Font Color", gridX=0, gridY=5, xPadding=10)
+		self.fontIconifiedCol = createEntry(self.tableTaskIconified, maxSize=7, width=9, text="", gridX=1, gridY=5, xExpand=True, yExpand=False, handler=None, name="fontIconifiedCol")
+		self.fontIconifiedCol.connect("activate", self.colorTyped)
+		self.fontIconifiedColButton = createColorButton(self.tableTaskIconified, color=self.defaults["fgColor"], useAlpha=True, name="fontIconifiedCol", gridX=2, gridY=5, handler=self.colorChange)
+		self.fontIconifiedCol.set_text(self.defaults["fgColor"])
+		# Add this AFTER we set color to avoid "changed" event
+		self.fontIconifiedCol.connect("changed", self.changeOccurred)
+		self.registerComponent("task_iconified_font_color", (self.fontIconifiedCol, self.fontIconifiedColButton))
+
+	def createSystemTrayWidgets(self):
+		"""Create the System Tray widgets."""
+		self.tableTray = gtk.Table(rows=9, columns=3, homogeneous=False)
+		self.tableTray.set_row_spacings(5)
+		self.tableTray.set_col_spacings(5)
+
+		createLabel(self.tableTray, text="Show System Tray", gridX=0, gridY=0, xPadding=10)
+		self.trayShow = createCheckButton(self.tableTray, active=True, gridX=1, gridY=0, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("systray", self.trayShow)
+
+		createLabel(self.tableTray, text="Padding (x, y)", gridX=0, gridY=1, xPadding=10)
+		self.trayPadX = createEntry(self.tableTray, maxSize=6, width=8, text=TRAY_PADDING_X, gridX=1, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.trayPadY = createEntry(self.tableTray, maxSize=6, width=8, text=TRAY_PADDING_Y, gridX=2, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTray, text="Horizontal Spacing", gridX=0, gridY=2, xPadding=10)
+		self.traySpacing = createEntry(self.tableTray, maxSize=6, width=8, text=TRAY_SPACING, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("systray_padding", (self.trayPadX, self.trayPadY, self.traySpacing))
+
+		createLabel(self.tableTray, text="System Tray Background ID", gridX=0, gridY=3, xPadding=10)
+		self.trayBg = createComboBox(self.tableTray, ["0 (fully transparent)"] + range(1, len(self.bgs)), gridX=1, gridY=3, handler=self.changeOccurred)
+		self.registerComponent("systray_background_id", self.trayBg)
+
+		createLabel(self.tableTray, text="Icon Ordering", gridX=0, gridY=4, xPadding=10)
+		self.trayOrder = createComboBox(self.tableTray, ["ascending", "descending", "left2right", "right2left"], gridX=1, gridY=4, handler=self.changeOccurred)
+		self.registerComponent("systray_sort", self.trayOrder)
+
+		createLabel(self.tableTray, text="Maximum Icon Size (0 for automatic size)", gridX=0, gridY=5, xPadding=10)
+		self.trayMaxIconSize = createEntry(self.tableTray, maxSize=6, width=8, text=TRAY_MAX_ICON_SIZE, gridX=1, gridY=5, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("systray_icon_size", self.trayMaxIconSize)
+
+		createLabel(self.tableTray, text="System Tray Icon Alpha (0 to 100)", gridX=0, gridY=6, xPadding=10)
+		self.trayIconHue = createEntry(self.tableTray, maxSize=6, width=8, text=TRAY_ICON_ALPHA, gridX=1, gridY=6, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTray, text="System Tray Icon Saturation (-100 to 100)", gridX=0, gridY=7, xPadding=10)
+		self.trayIconSat = createEntry(self.tableTray, maxSize=6, width=8, text=TRAY_ICON_SAT, gridX=1, gridY=7, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		# Note: added below
+
+		createLabel(self.tableTray, text="System Tray Icon Brightness (-100 to 100)", gridX=0, gridY=8, xPadding=10)
+		self.trayIconBri = createEntry(self.tableTray, maxSize=6, width=8, text=TRAY_ICON_BRI, gridX=1, gridY=8, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("systray_icon_asb", (self.trayIconHue, self.trayIconSat, self.trayIconBri))
+
+	def createClockDisplayWidgets(self):
+		"""Create the Clock Display widgets."""
+		self.tableClockDisplays = gtk.Table(rows=3, columns=3, homogeneous=False)
+		self.tableClockDisplays.set_row_spacings(5)
+		self.tableClockDisplays.set_col_spacings(5)
+
+		createLabel(self.tableClockDisplays, text="Show", gridX=0, gridY=0, xPadding=10)
+		self.clockCheckButton = createCheckButton(self.tableClockDisplays, active=True, gridX=1, gridY=0, xExpand=True, yExpand=False, handler=self.changeOccurred)
+
+		createLabel(self.tableClockDisplays, text="Time 1 Format", gridX=0, gridY=1, xPadding=10)
+		self.clock1Format = createEntry(self.tableClockDisplays, maxSize=50, width=20, text=CLOCK_FMT_1, gridX=1, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.clock1CheckButton = createCheckButton(self.tableClockDisplays, text="Show", active=True, gridX=2, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("time1_format", self.clock1Format)
+
+		createLabel(self.tableClockDisplays, text="Time 1 Font", gridX=0, gridY=2, xPadding=10)
+		self.clock1FontButton = createFontButton(self.tableClockDisplays, font=self.defaults["font"], gridX=1, gridY=2, handler=self.changeOccurred)
+		self.registerComponent("time1_font", self.clock1FontButton)
+
+		createLabel(self.tableClockDisplays, text="Time 2 Format", gridX=0, gridY=3, xPadding=10)
+		self.clock2Format = createEntry(self.tableClockDisplays, maxSize=50, width=20, text=CLOCK_FMT_2, gridX=1, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.clock2CheckButton = createCheckButton(self.tableClockDisplays, text="Show", active=True, gridX=2, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("time2_format", self.clock2Format)
+
+		createLabel(self.tableClockDisplays, text="Time 2 Font", gridX=0, gridY=4, xPadding=10)
+		self.clock2FontButton = createFontButton(self.tableClockDisplays, font=self.defaults["font"], gridX=1, gridY=4, handler=self.changeOccurred)
+		self.registerComponent("time2_font", self.clock2FontButton)
+
+		createLabel(self.tableClockDisplays, text="Tooltip Format", gridX=0, gridY=5, xPadding=10)
+		self.clockTooltipFormat = createEntry(self.tableClockDisplays, maxSize=50, width=20, text=CLOCK_TOOLTIP, gridX=1, gridY=5, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.clockTooltipCheckButton = createCheckButton(self.tableClockDisplays, text="Show", active=True, gridX=2, gridY=5, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("clock_tooltip", self.clockTooltipFormat)
+
+		self.clockArea = gtk.ScrolledWindow()
+		self.clockBuf = gtk.TextBuffer()
+		self.clockTextView = gtk.TextView(self.clockBuf)
+		self.clockBuf.insert_at_cursor("%H 00-23 (24-hour)    %I 01-12 (12-hour)    %l 1-12 (12-hour)    %M 00-59 (minutes)\n%S 00-59 (seconds)    %P am/pm    %b Jan-Dec    %B January-December\n%a Sun-Sat    %A Sunday-Saturday    %d 01-31 (day)    %e 1-31 (day)\n%y 2 digit year, e.g. 09    %Y 4 digit year, e.g. 2009")
+		self.clockTextView.set_editable(False)
+		self.clockArea.add_with_viewport(self.clockTextView)
+		self.tableClockDisplays.attach(self.clockArea, 0, 3, 6, 7, xpadding=10)
+
+	def createClockSettingsWidgets(self):
+		"""Create the Clock Settings widgets."""
+		self.tableClockSettings = gtk.Table(rows=3, columns=3, homogeneous=False)
+		self.tableClockSettings.set_row_spacings(5)
+		self.tableClockSettings.set_col_spacings(5)
+
+		createLabel(self.tableClockSettings, text="Clock Font Color", gridX=0, gridY=0, xPadding=10)
+		self.clockFontCol = createEntry(self.tableClockSettings, maxSize=7, width=9, text="", gridX=1, gridY=0, xExpand=True, yExpand=False, handler=None, name="clockFontCol")
+		self.clockFontCol.connect("activate", self.colorTyped)
+		self.clockFontColButton = createColorButton(self.tableClockSettings, color=self.defaults["fgColor"], useAlpha=True, name="clockFontCol", gridX=2, gridY=0, handler=self.colorChange)
+		self.clockFontCol.set_text(self.defaults["fgColor"])
+		# Add this AFTER we set color to avoid "changed" event
+		self.clockFontCol.connect("changed", self.changeOccurred)
+		self.registerComponent("clock_font_color", (self.clockFontCol, self.clockFontColButton))
+
+		createLabel(self.tableClockSettings, text="Padding (x, y)", gridX=0, gridY=1, xPadding=10)
+		self.clockPadX = createEntry(self.tableClockSettings, maxSize=6, width=8, text=CLOCK_PADDING_X, gridX=1, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.clockPadY = createEntry(self.tableClockSettings, maxSize=6, width=8, text=CLOCK_PADDING_Y, gridX=2, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("clock_padding", (self.clockPadX, self.clockPadY))
+
+		createLabel(self.tableClockSettings, text="Clock Background ID", gridX=0, gridY=2, xPadding=10)
+		self.clockBg = createComboBox(self.tableClockSettings, ["0 (fully transparent)"] + range(1, len(self.bgs)), gridX=1, gridY=2, handler=self.changeOccurred)
+		self.registerComponent("clock_background_id", self.clockBg)
+
+		createLabel(self.tableClockSettings, text="Left Click Command", gridX=0, gridY=3, xPadding=10)
+		self.clockLClick = createEntry(self.tableClockSettings, maxSize=50, width=20, text=CLOCK_LCLICK, gridX=1, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("clock_lclick_command", self.clockLClick)
+
+		createLabel(self.tableClockSettings, text="Right Click Command", gridX=0, gridY=4, xPadding=10)
+		self.clockRClick = createEntry(self.tableClockSettings, maxSize=50, width=20, text=CLOCK_RCLICK, gridX=1, gridY=4, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("clock_rclick_command", self.clockRClick)
+
+		createLabel(self.tableClockSettings, text="Time 1 Timezone", gridX=0, gridY=5, xPadding=10)
+		self.clockTime1Timezone = createEntry(self.tableClockSettings, maxSize=50, width=20, text=CLOCK_TIME1_TIMEZONE, gridX=1, gridY=5, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.clockTimezone1CheckButton = createCheckButton(self.tableClockSettings, text="Enable", active=False, gridX=2, gridY=5, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("time1_timezone", self.clockTime1Timezone)
+
+		createLabel(self.tableClockSettings, text="Time 2 Timezone", gridX=0, gridY=6, xPadding=10)
+		self.clockTime2Timezone = createEntry(self.tableClockSettings, maxSize=50, width=20, text=CLOCK_TIME2_TIMEZONE, gridX=1, gridY=6, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.clockTimezone2CheckButton = createCheckButton(self.tableClockSettings, text="Enable", active=False, gridX=2, gridY=6, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("time2_timezone", self.clockTime2Timezone)
+
+		createLabel(self.tableClockSettings, text="Tooltip Timezone", gridX=0, gridY=7, xPadding=10)
+		self.clockTooltipTimezone = createEntry(self.tableClockSettings, maxSize=50, width=20, text=CLOCK_TOOLTIP_TIMEZONE, gridX=1, gridY=7, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.clockTimezoneTooltipCheckButton = createCheckButton(self.tableClockSettings, text="Enable", active=False, gridX=2, gridY=7, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("clock_tooltip_timezone", self.clockTooltipTimezone)
+
+	def createMouseWidgets(self):
+		"""Creates the Mouse widgets."""
+		self.tableMouse = gtk.Table(rows=4, columns=3, homogeneous=False)
+		self.tableMouse.set_row_spacings(5)
+		self.tableMouse.set_col_spacings(5)
+
+		mouseCmds = ["none", "close", "toggle", "iconify", "shade", "toggle_iconify", "maximize_restore", "desktop_left", "desktop_right", "next_task", "prev_task"]
+
+		createLabel(self.tableMouse, text="Middle Mouse Click Action", gridX=0, gridY=0, xPadding=10)
+		self.mouseMiddle = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=0, handler=self.changeOccurred)
+		self.registerComponent("mouse_middle", self.mouseMiddle)
+
+		createLabel(self.tableMouse, text="Right Mouse Click Action", gridX=0, gridY=1, xPadding=10)
+		self.mouseRight = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=1, handler=self.changeOccurred)
+		self.registerComponent("mouse_right", self.mouseRight)
+
+		createLabel(self.tableMouse, text="Mouse Wheel Scroll Up Action", gridX=0, gridY=2, xPadding=10)
+		self.mouseUp = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=2, handler=self.changeOccurred)
+		self.registerComponent("mouse_scroll_up", self.mouseUp)
+
+		createLabel(self.tableMouse, text="Mouse Wheel Scroll Down Action", gridX=0, gridY=3, xPadding=10)
+		self.mouseDown = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=3, handler=self.changeOccurred)
+		self.registerComponent("mouse_scroll_down", self.mouseDown)
+
+	def createTooltipsWidgets(self):
+		"""Creates the Tooltips widgets."""
+		self.tableTooltip = gtk.Table(rows=7, columns=3, homogeneous=False)
+		self.tableTooltip.set_row_spacings(5)
+		self.tableTooltip.set_col_spacings(5)
+
+		createLabel(self.tableTooltip, text="Show Tooltips", gridX=0, gridY=0, xPadding=10)
+		self.tooltipShow = createCheckButton(self.tableTooltip, active=False, gridX=1, gridY=0, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("tooltip", self.tooltipShow)
+
+		createLabel(self.tableTooltip, text="Padding (x, y)", gridX=0, gridY=1, xPadding=10)
+		self.tooltipPadX = createEntry(self.tableTooltip, maxSize=6, width=8, text=TOOLTIP_PADDING_X, gridX=1, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.tooltipPadY = createEntry(self.tableTooltip, maxSize=6, width=8, text=TOOLTIP_PADDING_Y, gridX=2, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("tooltip_padding", (self.tooltipPadX, self.tooltipPadY))
+
+		createLabel(self.tableTooltip, text="Tooltip Show Timeout (seconds)", gridX=0, gridY=2, xPadding=10)
+		self.tooltipShowTime = createEntry(self.tableTooltip, maxSize=6, width=8, text=TOOLTIP_SHOW_TIMEOUT, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("tooltip_show_timeout", self.tooltipShowTime)
+
+		createLabel(self.tableTooltip, text="Tooltip Hide Timeout (seconds)", gridX=0, gridY=3, xPadding=10)
+		self.tooltipHideTime = createEntry(self.tableTooltip, maxSize=6, width=8, text=TOOLTIP_HIDE_TIMEOUT, gridX=1, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("tooltip_hide_timeout", self.tooltipHideTime)
+
+		createLabel(self.tableTooltip, text="Tooltip Background ID", gridX=0, gridY=4, xPadding=10)
+		self.tooltipBg = createComboBox(self.tableTooltip, ["0 (fully transparent)"] + range(1, len(self.bgs)), gridX=1, gridY=4, handler=self.changeOccurred)
+		self.registerComponent("tooltip_background_id", self.tooltipBg)
+
+		createLabel(self.tableTooltip, text="Tooltip Font", gridX=0, gridY=5, xPadding=10)
+		self.tooltipFont = createFontButton(self.tableTooltip, font=self.defaults["font"], gridX=1, gridY=5, handler=self.changeOccurred)
+		self.registerComponent("tooltip_font", self.tooltipFont)
+
+		createLabel(self.tableTooltip, text="Tooltip Font Color", gridX=0, gridY=6, xPadding=10)
+		self.tooltipFontCol = createEntry(self.tableTooltip, maxSize=7, width=9, text="", gridX=1, gridY=6, xExpand=True, yExpand=False, handler=None, name="tooltipFontCol")
+		self.tooltipFontCol.connect("activate", self.colorTyped)
+		self.tooltipFontColButton = createColorButton(self.tableTooltip, color=self.defaults["fgColor"], useAlpha=True, name="tooltipFontCol", gridX=2, gridY=6, handler=self.colorChange)
+		self.tooltipFontCol.set_text(self.defaults["fgColor"])
+		# Add this AFTER we set color to avoid "changed" event
+		self.tooltipFontCol.connect("changed", self.changeOccurred)
+		self.registerComponent("tooltip_font_color", (self.tooltipFontCol, self.tooltipFontColButton))
+
+	def createBatteryWidgets(self):
+		"""Creates the Battery widgets."""
+		self.tableBattery = gtk.Table(rows=8, columns=3, homogeneous=False)
+		self.tableBattery.set_row_spacings(5)
+		self.tableBattery.set_col_spacings(5)
+
+		createLabel(self.tableBattery, text="Show Battery Applet", gridX=0, gridY=0, xPadding=10)
+		self.batteryCheckButton = createCheckButton(self.tableBattery, active=False, gridX=1, gridY=0, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("battery", self.batteryCheckButton)
+
+		createLabel(self.tableBattery, text="Battery Low Status (%)", gridX=0, gridY=1, xPadding=10)
+		self.batteryLow = createEntry(self.tableBattery, maxSize=6, width=8, text=BATTERY_LOW, gridX=1, gridY=1, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("battery_low_status", self.batteryLow)
+
+		createLabel(self.tableBattery, text="Battery Low Action", gridX=0, gridY=2, xPadding=10)
+		self.batteryLowAction = createEntry(self.tableBattery, maxSize=150, width=32, text=BATTERY_ACTION, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("battery_low_cmd", self.batteryLowAction)
+
+		createLabel(self.tableBattery, text="Battery Hide (0 to 100)", gridX=0, gridY=3, xPadding=10)
+		self.batteryHide = createEntry(self.tableBattery, maxSize=6, width=8, text=BATTERY_HIDE, gridX=1, gridY=3, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("battery_hide", self.batteryHide)
+
+		createLabel(self.tableBattery, text="Battery 1 Font", gridX=0, gridY=4, xPadding=10)
+		self.bat1FontButton = createFontButton(self.tableBattery, font=self.defaults["font"], gridX=1, gridY=4, handler=self.changeOccurred)
+		self.registerComponent("bat1_font", self.bat1FontButton)
+
+		createLabel(self.tableBattery, text="Battery 2 Font", gridX=0, gridY=5, xPadding=10)
+		self.bat2FontButton = createFontButton(self.tableBattery, font=self.defaults["font"], gridX=1, gridY=5, handler=self.changeOccurred)
+		self.registerComponent("bat2_font", self.bat2FontButton)
+
+		createLabel(self.tableBattery, text="Battery Font Color", gridX=0, gridY=6, xPadding=10)
+		self.batteryFontCol = createEntry(self.tableBattery, maxSize=7, width=9, text="", gridX=1, gridY=6, xExpand=True, yExpand=False, handler=None, name="batteryFontCol")
+		self.batteryFontCol.connect("activate", self.colorTyped)
+		self.batteryFontColButton = createColorButton(self.tableBattery, color=self.defaults["fgColor"], useAlpha=True, name="batteryFontCol", gridX=2, gridY=6, handler=self.colorChange)
+		self.batteryFontCol.set_text(self.defaults["fgColor"])
+		# Add this AFTER we set color to avoid "changed" event
+		self.batteryFontCol.connect("changed", self.changeOccurred)
+		self.registerComponent("battery_font_color", (self.batteryFontCol, self.batteryFontColButton))
+
+		createLabel(self.tableBattery, text="Padding (x, y)", gridX=0, gridY=7, xPadding=10)
+		self.batteryPadX = createEntry(self.tableBattery, maxSize=6, width=8, text=BATTERY_PADDING_X, gridX=1, gridY=7, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.batteryPadY = createEntry(self.tableBattery, maxSize=6, width=8, text=BATTERY_PADDING_Y, gridX=2, gridY=7, xExpand=True, yExpand=False, handler=self.changeOccurred)
+		self.registerComponent("battery_padding", (self.batteryPadX, self.batteryPadY))
+
+		createLabel(self.tableBattery, text="Battery Background ID", gridX=0, gridY=8, xPadding=10)
+		self.batteryBg = createComboBox(self.tableBattery, ["0 (fully transparent)"] + range(1, len(self.bgs)), gridX=1, gridY=8, handler=self.changeOccurred)
+		self.registerComponent("battery_background_id", self.batteryBg)
+
+	def registerComponent(self, configProperty, component):
+		"""Registers a component with a particular property from
+		a tint2 config. Note: a component may be a double or
+		triple if that property has more than one value associated
+		with it."""
+		self.propUI[configProperty] = component
+
+	def getComponent(self, configProperty):
+		"""Fetches the component associated with a tint2 property."""
+		return self.propUI[configProperty] if configProperty in self.propUI else None
 
 	def about(self, action=None):
 		"""Displays the About dialog."""
@@ -1701,19 +1009,10 @@ class TintWizardGUI(gtk.Window):
 		"""Adds a new background to the list of backgrounds."""
 		self.bgs += [gtk.Table(4, 3, False)]
 
-		temp = gtk.Label("Corner Rounding (px)")
-		temp.set_alignment(0, 0.5)
-		self.bgs[-1].attach(temp, 0, 1, 0, 1, xpadding=10)
-		temp = gtk.Entry(7)
-		temp.set_width_chars(9)
-		temp.set_name("rounded")
-		temp.set_text(BG_ROUNDING)
-		temp.connect("changed", self.changeOccurred)
-		self.bgs[-1].attach(temp, 1, 2, 0, 1, xoptions=gtk.EXPAND)
+		createLabel(self.bgs[-1], text="Corner Rounding (px)", gridX=0, gridY=0, xPadding=10)
+		createEntry(self.bgs[-1], maxSize=7, width=9, text=BG_ROUNDING, gridX=1, gridY=0, xExpand=True, yExpand=False, handler=self.changeOccurred, name="rounded")
 
-		temp = gtk.Label("Background Color")
-		temp.set_alignment(0, 0.5)
-		self.bgs[-1].attach(temp, 0, 1, 1, 2, xpadding=10)
+		createLabel(self.bgs[-1], text="Background Color", gridX=0, gridY=1, xPadding=10)
 		temp = gtk.Entry(7)
 		temp.set_width_chars(9)
 		temp.set_name("bgColEntry")
@@ -1727,19 +1026,10 @@ class TintWizardGUI(gtk.Window):
 		temp.connect("color-set", self.colorChange)
 		self.bgs[-1].attach(temp, 2, 3, 1, 2, xoptions=gtk.EXPAND, yoptions=gtk.EXPAND)
 
-		temp = gtk.Label("Border Width (px)")
-		temp.set_alignment(0, 0.5)
-		self.bgs[-1].attach(temp, 0, 1, 2, 3, xpadding=10)
-		temp = gtk.Entry(7)
-		temp.set_width_chars(9)
-		temp.set_name("border")
-		temp.set_text(BG_BORDER)
-		temp.connect("changed", self.changeOccurred)
-		self.bgs[-1].attach(temp, 1, 2, 2, 3, xoptions=gtk.EXPAND)
+		createLabel(self.bgs[-1], text="Border Width (px)", gridX=0, gridY=2, xPadding=10)
+		createEntry(self.bgs[-1], maxSize=7, width=9, text=BG_BORDER, gridX=1, gridY=2, xExpand=True, yExpand=False, handler=self.changeOccurred, name="border")
 
-		temp = gtk.Label("Border Color")
-		temp.set_alignment(0, 0.5)
-		self.bgs[-1].attach(temp, 0, 1, 3, 4, xpadding=10)
+		createLabel(self.bgs[-1], text="Border Color", gridX=0, gridY=3, xPadding=10)
 		temp = gtk.Entry(7)
 		temp.set_width_chars(9)
 		temp.set_name("borderColEntry")
@@ -1777,7 +1067,7 @@ class TintWizardGUI(gtk.Window):
 
 		if not init:
 			self.changeOccurred()
-	
+
 	def addBgDefs(self, bgDefs):
 		"""Add interface elements for a list of background style definitions. bgDefs
 		should be a list containing dictionaries with the following keys: rounded,
@@ -1818,7 +1108,7 @@ class TintWizardGUI(gtk.Window):
 			self.updateComboBoxes(newId-1, "add")
 
 			self.bgNotebook.set_current_page(newId)
-	
+
 	def apply(self, widget, event=None, confirmChange=True):
 		"""Applies the current config to tint2."""
 		# Check if tint2 is running
@@ -1854,7 +1144,7 @@ class TintWizardGUI(gtk.Window):
 					os.kill(pid, signal.SIGTERM)
 
 				# Lastly, start it
-				os.spawnv(os.P_NOWAIT, self.tint2Bin, [self.tint2Bin, "-c" + self.filename])
+				os.spawnv(os.P_NOWAIT, self.tint2Bin, [self.tint2Bin, "-c", self.filename])
 
 				if confirmChange and self.filename != (os.path.expandvars("${HOME}") + "/.config/tint2/tint2rc") and confirmDialog(self, "Use this as default tint2 config?") == gtk.RESPONSE_YES:
 					tmp = self.filename
@@ -2020,14 +1310,14 @@ class TintWizardGUI(gtk.Window):
 		self.configBuf.insert(self.configBuf.get_end_iter(), "wm_menu = %s\n" % int(self.panelMenu.get_active()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "panel_layer = %s\n" % (self.panelLayer.get_active_text()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "panel_background_id = %s\n" % (self.panelBg.get_active()))
-		
+
 		self.configBuf.insert(self.configBuf.get_end_iter(), "\n# Panel Autohide\n")
 		self.configBuf.insert(self.configBuf.get_end_iter(), "autohide = %s\n" % int(self.panelAutohide.get_active()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "autohide_show_timeout = %s\n" % (self.panelAutohideShow.get_text() if self.panelAutohideShow.get_text() else PANEL_AUTOHIDE_SHOW))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "autohide_hide_timeout = %s\n" % (self.panelAutohideHide.get_text() if self.panelAutohideHide.get_text() else PANEL_AUTOHIDE_HIDE))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "autohide_height = %s\n" % (self.panelAutohideHeight.get_text() if self.panelAutohideHeight.get_text() else PANEL_AUTOHIDE_HEIGHT))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "strut_policy = %s\n" % (self.panelAutohideStrut.get_active_text() if self.panelAutohideStrut.get_active_text() else PANEL_AUTOHIDE_STRUT))
-		
+
 		self.configBuf.insert(self.configBuf.get_end_iter(), "\n# Taskbar\n")
 		self.configBuf.insert(self.configBuf.get_end_iter(), "taskbar_mode = %s\n" % (self.taskbarMode.get_active_text()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "taskbar_padding = %s %s %s\n" % (self.taskbarPadX.get_text() if self.taskbarPadX.get_text() else TASKBAR_PADDING_X,
@@ -2051,7 +1341,7 @@ class TintWizardGUI(gtk.Window):
 		self.configBuf.insert(self.configBuf.get_end_iter(), "task_active_background_id = %s\n" % (self.taskActiveBg.get_active()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "task_urgent_background_id = %s\n" % (self.taskUrgentBg.get_active()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "task_iconified_background_id = %s\n" % (self.taskIconifiedBg.get_active()))
-		
+
 		self.configBuf.insert(self.configBuf.get_end_iter(), "\n# Task Icons\n")
 		self.configBuf.insert(self.configBuf.get_end_iter(), "task_icon_asb = %s %s %s\n" % (self.iconHue.get_text() if self.iconHue.get_text() else ICON_ALPHA,
 															self.iconSat.get_text() if self.iconSat.get_text() else ICON_SAT,
@@ -2065,7 +1355,7 @@ class TintWizardGUI(gtk.Window):
 		self.configBuf.insert(self.configBuf.get_end_iter(), "task_iconified_icon_asb = %s %s %s\n" % (self.iconifiedIconHue.get_text() if self.iconifiedIconHue.get_text() else ICONIFIED_ICON_ALPHA,
 															self.iconifiedIconSat.get_text() if self.iconifiedIconSat.get_text() else ICONIFIED_ICON_SAT,
 															self.iconifiedIconBri.get_text() if self.iconifiedIconBri.get_text() else ICONIFIED_ICON_BRI))
-															
+
 		self.configBuf.insert(self.configBuf.get_end_iter(), "\n# Fonts\n")
 		self.configBuf.insert(self.configBuf.get_end_iter(), "task_font = %s\n" % (self.fontButton.get_font_name()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "task_font_color = %s %s\n" % (self.getHexFromWidget(self.fontColButton),
@@ -2089,7 +1379,7 @@ class TintWizardGUI(gtk.Window):
 		self.configBuf.insert(self.configBuf.get_end_iter(), "systray_icon_asb = %s %s %s\n" % (self.trayIconHue.get_text() if self.trayIconHue.get_text() else TRAY_ICON_ALPHA,
 															self.trayIconSat.get_text() if self.trayIconSat.get_text() else TRAY_ICON_SAT,
 															self.trayIconBri.get_text() if self.trayIconBri.get_text() else TRAY_ICON_BRI))
-		
+
 		if self.clockCheckButton.get_active():
 			self.configBuf.insert(self.configBuf.get_end_iter(), "\n# Clock\n")
 			if self.clock1CheckButton.get_active():
@@ -2098,10 +1388,10 @@ class TintWizardGUI(gtk.Window):
 			if self.clock2CheckButton.get_active():
 				self.configBuf.insert(self.configBuf.get_end_iter(), "time2_format = %s\n" % (self.clock2Format.get_text() if self.clock2Format.get_text() else CLOCK_FMT_2))
 				self.configBuf.insert(self.configBuf.get_end_iter(), "time2_font = %s\n" % (self.clock2FontButton.get_font_name()))
-			
+
 			self.configBuf.insert(self.configBuf.get_end_iter(), "clock_font_color = %s %s\n" % (self.getHexFromWidget(self.clockFontColButton),
 															int(self.clockFontColButton.get_alpha() / 65535.0 * 100)))
-		
+
 			if self.clockTooltipCheckButton.get_active():
 				self.configBuf.insert(self.configBuf.get_end_iter(), "clock_tooltip = %s\n" % (self.clockTooltipFormat.get_text() if self.clockTooltipFormat.get_text() else CLOCK_TOOLTIP))
 			self.configBuf.insert(self.configBuf.get_end_iter(), "clock_padding = %s %s\n" % (self.clockPadX.get_text() if self.clockPadX.get_text() else CLOCK_PADDING_X,
@@ -2117,8 +1407,8 @@ class TintWizardGUI(gtk.Window):
 				self.configBuf.insert(self.configBuf.get_end_iter(), "time2_timezone = %s\n" % (self.clockTime2Timezone.get_text() if self.clockTime2Timezone.get_text() else CLOCK_TIME2_TIMEZONE))
 			if self.clockTimezoneTooltipCheckButton.get_active():
 				self.configBuf.insert(self.configBuf.get_end_iter(), "clock_tooltip_timezone = %s\n" % (self.clockTooltipTimezone.get_text() if self.clockTooltipTimezone.get_text() else CLOCK_TOOLTIP_TIMEZONE))
-			
-			
+
+
 		self.configBuf.insert(self.configBuf.get_end_iter(), "\n# Tooltips\n")
 		self.configBuf.insert(self.configBuf.get_end_iter(), "tooltip = %s\n" % int(self.tooltipShow.get_active()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "tooltip_padding = %s %s\n" % (self.tooltipPadX.get_text() if self.tooltipPadX.get_text() else TOOLTIP_PADDING_Y,
@@ -2233,16 +1523,16 @@ class TintWizardGUI(gtk.Window):
 			webbrowser.open("http://code.google.com/p/tintwizard/wiki/Help")
 		except:
 			errorDialog(self, "Your default web-browser could not be opened.\nPlease visit http://code.google.com/p/tintwizard/wiki/Help")
-	
+
 	def main(self):
 		"""Enters the main loop."""
 		gtk.main()
-	
+
 	def new(self, action=None):
 		"""Prepares a new config."""
 		if self.toSave:
 			self.savePrompt()
-		
+
 		self.toSave = True
 		self.filename = None
 
@@ -2321,24 +1611,25 @@ class TintWizardGUI(gtk.Window):
 			e = s[0].strip()												# Strip whitespace from KEY
 
 			if e == "time1_format":											# Set the VALUE of KEY
-				self.parseProp(self.propUI[e], s[1], True, "time1")
+				self.parseProp(self.getComponent(e), s[1], True, "time1")
 			elif e == "time2_format":
-				self.parseProp(self.propUI[e], s[1], True, "time2")
+				self.parseProp(self.getComponent(e), s[1], True, "time2")
 			elif e == "clock_tooltip":
-				self.parseProp(self.propUI[e], s[1], True, "clock_tooltip")
+				self.parseProp(self.getComponent(e), s[1], True, "clock_tooltip")
 			elif e == "time1_timezone":
-				self.parseProp(self.propUI[e], s[1], True, "time1_timezone")
+				self.parseProp(self.getComponent(e), s[1], True, "time1_timezone")
 			elif e == "time2_timezone":
-				self.parseProp(self.propUI[e], s[1], True, "time2_timezone")
+				self.parseProp(self.getComponent(e), s[1], True, "time2_timezone")
 			elif e == "clock_tooltip_timezone":
-				self.parseProp(self.propUI[e], s[1], True, "tooltip_timezone")
+				self.parseProp(self.getComponent(e), s[1], True, "tooltip_timezone")
 			elif e == "systray_padding":
-				self.parseProp(self.propUI[e], s[1], True, "tray")
+				self.parseProp(self.getComponent(e), s[1], True, "tray")
 			elif e == "taskbar_active_background_id":
-				self.parseProp(self.propUI[e], s[1], True, "activeBg")
+				self.parseProp(self.getComponent(e), s[1], True, "activeBg")
 			else:
-				if self.propUI.has_key(e):
-					self.parseProp(self.propUI[e], s[1])
+				component = self.getComponent(e)
+				if component != None:
+					self.parseProp(self.getComponent(e), s[1])
 
 	def parseProp(self, prop, string, special=False, propType=""):
 		"""Parses a variable definition from the conf file and updates the correct UI widget."""
@@ -2429,16 +1720,13 @@ class TintWizardGUI(gtk.Window):
 
 	def readConf(self):
 		"""Reads the tintwizard configuration file - NOT tint2 config files."""
-		self.defaults = {"font": None, "bgColor": None, "fgColor": None, "borderColor": None, "bgCount": None, "dir": None}
+		self.defaults = {"font": None, "bgColor": None, "fgColor": None, "borderColor": None, "bgCount": None}
 
 		if self.oneConfigFile:
 			# don't need tintwizard.conf
 			return
 
-		pathName = os.path.dirname(sys.argv[0])
-
-		if pathName != "":
-			pathName += "/"
+		pathName = os.path.expandvars("${HOME}") + "/.config/tint2/"
 
 		if not os.path.exists(pathName + "tintwizard.conf"):
 			self.writeConf()
@@ -2487,7 +1775,7 @@ class TintWizardGUI(gtk.Window):
 		noBgDefs = self.parseBgs(string)
 
 		self.parseConfig(noBgDefs)
-	
+
 	def reportBug(self, action=None):
 		"""Opens the bug report page in the default web browser."""
 		try:
@@ -2495,7 +1783,7 @@ class TintWizardGUI(gtk.Window):
 		except:
 			errorDialog(self, "Your default web-browser could not be opened.\nPlease visit http://code.google.com/p/tintwizard/issues/entry")
 
-	
+
 	def resetConfig(self):
 		"""Resets all the widgets to their default values."""
 		# Backgrounds
@@ -2641,7 +1929,7 @@ class TintWizardGUI(gtk.Window):
 		self.batteryPadX.set_text(BATTERY_PADDING_Y)
 		self.batteryPadY.set_text(BATTERY_PADDING_Y)
 		self.batteryBg.set_active(0)
-	
+
 	def save(self, widget=None, event=None):
 		"""Saves the generated config file."""
 
@@ -2764,12 +2052,9 @@ class TintWizardGUI(gtk.Window):
 
 		confStr += "#End\n"
 
-		pathName = os.path.dirname(sys.argv[0])
+		pathName = os.path.expandvars("${HOME}") + "/.config/tint2/"
 
-		if pathName == "":
-			f = open("tintwizard.conf", "w")
-		else:
-			f = open(pathName+"/tintwizard.conf", "w")
+		f = open(pathName+"tintwizard.conf", "w")
 
 		f.write(confStr)
 
@@ -2793,6 +2078,88 @@ class TintWizardGUI(gtk.Window):
 			errorDialog(self, "Could not save file")
 
 # General use functions
+def createLabel(parent, text="", gridX=0, gridY=0, sizeX=1, sizeY=1, xPadding=0):
+	"""Creates a label and adds it to a parent widget."""
+
+	temp = gtk.Label(text)
+	temp.set_alignment(0, 0.5)
+	parent.attach(temp, gridX, gridX+sizeX, gridY, gridY+sizeY, xpadding=xPadding)
+	return temp
+
+def createComboBox(parent, choices=["null"], active=0, gridX=0, gridY=0, sizeX=1, sizeY=1, xExpand=True, yExpand=True, handler=None):
+	"""Creates a combo box with text choices and adds it to a parent widget."""
+	temp = gtk.combo_box_new_text()
+
+	for choice in choices:
+		temp.append_text(choice)
+
+	temp.set_active(active)
+
+	if handler != None:
+		temp.connect("changed", handler)
+
+	parent.attach(temp, gridX, gridX+sizeX, gridY, gridY+sizeY, xoptions=gtk.EXPAND if xExpand else 0, yoptions=gtk.EXPAND if yExpand else 0)
+
+	return temp
+
+def createEntry(parent, maxSize, width, text="", gridX=0, gridY=0, sizeX=1, sizeY=1, xExpand=True, yExpand=True, handler=None, name=""):
+	"""Creates a text entry widget and adds it to a parent widget."""
+	temp = gtk.Entry(maxSize)
+	temp.set_width_chars(width)
+	temp.set_text(text)
+	temp.set_name(name)
+
+	if handler != None:
+		temp.connect("changed", handler)
+
+	parent.attach(temp, gridX, gridX+sizeX, gridY, gridY+sizeY, xoptions=gtk.EXPAND if xExpand else 0, yoptions=gtk.EXPAND if yExpand else 0)
+
+	return temp
+
+def createCheckButton(parent, text="", active=False, gridX=0, gridY=0, sizeX=1, sizeY=1, xExpand=True, yExpand=True, handler=None):
+	"""Creates a checkbox widget and adds it to a parent widget."""
+	temp = gtk.CheckButton(text if text != "" else None)
+	temp.set_active(active)
+	temp.connect("toggled", handler)
+
+	parent.attach(temp, gridX, gridX+sizeX, gridY, gridY+sizeY, xoptions=gtk.EXPAND if xExpand else 0, yoptions=gtk.EXPAND if yExpand else 0)
+
+	return temp
+
+def createButton(parent, text="", stock=None, name="", gridX=0, gridY=0, sizeX=1, sizeY=1, xExpand=True, yExpand=True, handler=None):
+	"""Creates a button widget and adds it to a parent widget."""
+	if stock:
+		temp = gtk.Button(text, stock)
+	else:
+		temp = gtk.Button(text)
+
+	temp.set_name(name)
+	temp.connect("clicked", handler)
+
+	parent.attach(temp, gridX, gridX+sizeX, gridY, gridY+sizeY, xoptions=gtk.EXPAND if xExpand else 0, yoptions=gtk.EXPAND if yExpand else 0)
+
+	return temp
+
+def createFontButton(parent, font, gridX=0, gridY=0, sizeX=1, sizeY=1, xExpand=True, yExpand=True, handler=None):
+	"""Creates a font button widget and adds it to a parent widget."""
+	temp = gtk.FontButton()
+	temp.set_font_name(font)
+	temp.connect("font-set", handler)
+
+	parent.attach(temp, gridX, gridX+sizeX, gridY, gridY+sizeY, xoptions=gtk.EXPAND if xExpand else 0, yoptions=gtk.EXPAND if yExpand else 0)
+
+	return temp
+
+def createColorButton(parent, color="#000000", useAlpha=True, name="", gridX=0, gridY=0, sizeX=1, sizeY=1, xExpand=True, yExpand=True, handler=None):
+	temp = gtk.ColorButton(gtk.gdk.color_parse(color))
+	temp.set_use_alpha(useAlpha)
+	temp.set_name(name)
+	temp.connect("color-set", handler)
+
+	parent.attach(temp, gridX, gridX+sizeX, gridY, gridY+sizeY, xoptions=gtk.EXPAND if xExpand else 0, yoptions=gtk.EXPAND if yExpand else 0)
+
+	return temp
+
 def confirmDialog(parent, message):
 	"""Creates a confirmation dialog and returns the response."""
 	dialog = gtk.MessageDialog(parent, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, message)
@@ -2838,6 +2205,6 @@ if __name__ == "__main__":
 	if len(sys.argv) > 1 and sys.argv[1] == "-version":
 		print NAME, VERSION
 		exit()
-	
+
 	tw = TintWizardGUI()
 	tw.main()

@@ -1,0 +1,128 @@
+#---------------------------------------------
+# TINT2 CONFIG FILE
+#---------------------------------------------
+
+# Background definitions
+# ID 1
+rounded = 0
+border_width = 1
+background_color = #888888 30
+border_color = #000000 30
+
+# ID 2
+rounded = 3
+border_width = 1
+background_color = #888888 70
+border_color = #ffffff 50
+
+# ID 3
+rounded = 3
+border_width = 1
+background_color = #888888 30
+border_color = #ffffff 20
+
+# ID 4
+rounded = 3
+border_width = 1
+background_color = #888888 30
+border_color = #ed2323 60
+
+# Panel
+panel_monitor = all
+panel_position = bottom center horizontal
+panel_size = 100% 40
+panel_margin = 0 0
+panel_padding = 0 0 0
+panel_background_id = 1
+panel_layer = top
+wm_menu = 1
+strut_policy = follow_size
+
+# Panel Autohide
+autohide = 0
+autohide_show_timeout = 0.7
+autohide_hide_timeout = 1.5
+autohide_height = 2
+
+# Taskbar
+taskbar_mode = multi_desktop
+taskbar_padding = 6 1 6
+taskbar_background_id = 0
+
+# Tasks
+task_icon = 1
+task_text = 0
+task_maximum_size = 40 40
+task_centered = 1
+task_padding = 6 3
+task_font = kroeger 06_55 6
+font_shadow = 0
+
+# Task inactive
+task_font_color = #222222 100
+task_icon_asb = 90 0 0
+task_background_id = 3
+
+# Task active
+task_active_font_color = #000000 100
+task_active_icon_asb = 100 0 0
+task_active_background_id = 2
+
+# Task urgent
+task_urgent_font_color = #000000 100
+task_urgent_icon_asb = 100 0 0
+task_urgent_background_id = 4
+urgent_nb_of_blink = 20
+
+# Task iconified
+task_iconified_font_color = #222222 100
+task_iconified_icon_asb = 90 0 0
+task_iconified_background_id = 3
+
+# Systray
+systray = 1
+systray_padding = 4 4 5
+systray_background_id = 0
+systray_sort = ascending
+systray_icon_size = 20
+systray_icon_asb = 100 0 -10
+
+# Clock
+#time1_format = %I:%M %p
+#time1_format = %H:%M
+time1_font = snap 7
+#time2_format = %d %b
+time2_font = snap 7
+clock_font_color = #000000 100
+clock_padding = 10 3
+clock_background_id = 0
+clock_lclick_command =
+clock_rclick_command = gsimplecal
+
+# Tooltips
+tooltip = 1
+tooltip_padding = 5 0
+tooltip_show_timeout = 0.8
+tooltip_hide_timeout = 0.3
+tooltip_background_id = 1
+tooltip_font = Sans 10
+tooltip_font_color = #FFFFFF 80
+
+# Battery
+battery = 0
+battery_hide = 90
+battery_low_status = 20
+battery_low_cmd = notify-send "battery low"
+bat1_font = Sans 12
+bat2_font = Sans 12
+battery_font_color = #FFFFFF 100
+battery_padding = 0 0
+battery_background_id = 0
+
+# Mouse
+mouse_middle = none
+mouse_right = close
+mouse_scroll_up = toggle
+mouse_scroll_down = iconify
+
+# End of config

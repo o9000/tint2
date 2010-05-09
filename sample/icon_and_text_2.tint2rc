@@ -6,7 +6,7 @@
 # BACKGROUND AND BORDER
 #---------------------------------------------
 rounded = 7
-border_width = 2
+border_width = 1
 background_color = #000000 60
 border_color = #ffffff 18
 
@@ -25,23 +25,27 @@ border_color = #ffffff 70
 #---------------------------------------------
 panel_monitor = all
 panel_position = bottom center horizontal
-panel_size = 94% 30
-panel_margin = 0 0
-panel_padding = 7 0 7
-font_shadow = 0
-panel_background_id = 1
+panel_size = 98% 28
+panel_margin = 0 5
+panel_padding = 3 0 3
+panel_background_id = 0
+panel_layer = bottom
 wm_menu = 0
-panel_dock = 0
-panel_layer = top
 strut_policy = follow_size
+
+# Panel Autohide
+autohide = 0
+autohide_show_timeout = 0.7
+autohide_hide_timeout = 1.5
+autohide_height = 2
 
 #---------------------------------------------
 # TASKBAR
 #---------------------------------------------
 taskbar_mode = single_desktop
-taskbar_padding = 2 3 2
-taskbar_background_id = 0
-taskbar_active_background_id = 0
+taskbar_padding = 2 2 2
+taskbar_background_id = 1
+taskbar_active_background_id = 1
 
 #---------------------------------------------
 # TASKS
@@ -50,28 +54,29 @@ task_icon = 1
 task_text = 1
 task_maximum_size = 140 35
 task_centered = 1
-task_padding = 6 2
-task_font = sans 7
+task_padding = 2 3
+task_font = Sawasdee Bold 8
+font_shadow = 0
 
 # Task inactive
-task_font_color = #ffffff 70
-task_icon_asb = 70 0 0
+task_font_color = #ffffff 90
+task_icon_asb = 80 0 0
 task_background_id = 3
 
 # Task active
-task_active_font_color = #ffffff 85
+task_active_font_color = #ffffff 100
 task_active_icon_asb = 100 0 0
 task_active_background_id = 2
 
 # Task urgent
-task_urgent_font_color = #ffffff 85
+task_urgent_font_color = #ffffff 100
 task_urgent_icon_asb = 100 0 0
 task_urgent_background_id = 2
 urgent_nb_of_blink = 8
 
 # Task iconified
-task_iconified_font_color = #ffffff 70
-task_iconified_icon_asb = 70 0 0
+task_iconified_font_color = #ffffff 90
+task_iconified_icon_asb = 80 0 0
 task_iconified_background_id = 3
 
 
@@ -79,34 +84,38 @@ task_iconified_background_id = 3
 # SYSTRAYBAR
 #---------------------------------------------
 systray = 1
-systray_padding = 0 4 5
-systray_background_id = 0
-systray_sort = ascending
-systray_icon_size = 16
-systray_icon_asb = 70 0 0
+systray_padding = 6 0 5
+systray_background_id = 1
+systray_sort = left2right
+systray_icon_asb = 100 0 -10
+systray_icon_size = 18
 
 #---------------------------------------------
 # CLOCK
 #---------------------------------------------
 time1_format = %H:%M
-time1_font = sans 8
-time2_format = %A %d %B
-time2_font = sans 6
-clock_font_color = #ffffff 76
-clock_padding = 1 0
-clock_background_id = 0
-#clock_lclick_command = xclock
-clock_rclick_command = orage
-#clock_tooltip = %A %d %B
-#time1_timezone = :US/Hawaii
-#time2_timezone = :Europe/Berlin
-#clock_tooltip_timezone = :/usr/share/zoneinfo/Europe/Paris
+time1_font = Sawasdee Bold 12
+clock_font_color = #ffffff 90
+clock_padding = 4 0
+clock_background_id = 1
+clock_lclick_command =
+clock_rclick_command = gsimplecal
+clock_tooltip = %A %d %B
+
+# Tooltips
+tooltip = 0
+tooltip_padding = 5 0
+tooltip_show_timeout = 0.7
+tooltip_hide_timeout = 0.3
+tooltip_background_id = 1
+tooltip_font = Sans 10
+tooltip_font_color = #OOOOOO 80
 
 #---------------------------------------------
 # BATTERY
 #---------------------------------------------
 battery = 0
-battery_hide = 98
+battery_hide = 95
 battery_low_status = 10
 battery_low_cmd = notify-send "battery low"
 bat1_font = sans 8
@@ -116,29 +125,11 @@ battery_padding = 1 0
 battery_background_id = 0
 
 #---------------------------------------------
-# TOOLTIP
-#---------------------------------------------
-tooltip = 0
-tooltip_padding = 2 2
-tooltip_show_timeout = 0.7
-tooltip_hide_timeout = 0.3
-tooltip_background_id = 1
-tooltip_font_color = #000000 80
-tooltip_font = sans 10
-
-#---------------------------------------------
 # MOUSE ACTION ON TASK
 #---------------------------------------------
-mouse_middle = none
-mouse_right = close
+mouse_middle = close
+mouse_right = none
 mouse_scroll_up = toggle
 mouse_scroll_down = iconify
 
-#---------------------------------------------
-# AUTOHIDE OPTIONS
-#---------------------------------------------
-autohide = 0
-autohide_show_timeout = 0.3
-autohide_hide_timeout = 2
-autohide_height = 2
-
+# End of config

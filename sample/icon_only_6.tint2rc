@@ -5,120 +5,129 @@
 #---------------------------------------------
 # BACKGROUND AND BORDER
 #---------------------------------------------
-rounded = 0
-border_width = 1
-#background_color = #5E5E5E 25
-#background_color = #ffffff 20
+rounded = 5
+border_width = 0
 background_color = #000000 50
-border_color =  #9b9b9b 35
+border_color = #ffffff 40
 
-rounded = 1
-border_width = 1
-background_color = #000000 70
-border_color =  #9b9b9b 75
-
-rounded = 1
+rounded = 5
 border_width = 0
-background_color = #000000 70
-border_color = #ffffff 20
+background_color = #ffffff 60
+border_color = #ffffff 50
 
-# tooltip
-rounded = 0
+rounded = 5
 border_width = 0
-background_color = #bbbbbb
-border_color = #bbbbbb 30
+background_color = #ffffff 25
+border_color = #ffffff 70
+
+rounded = 5
+border_width = 0
+background_color = #bdbdbd 80
+border_color = #ffffff 70
 
 #---------------------------------------------
 # PANEL
 #---------------------------------------------
 panel_monitor = all
-#panel_position = center left vertical
-panel_position = bottom center horizontal
-panel_size = 100% 32
+panel_position = top left vertical
+panel_size = 75% 50
 panel_margin = 0 0
-panel_padding = 7 2 7
-font_shadow = 0
+panel_padding = 2 2 2
+font_shadow = 1
 panel_background_id = 0
-wm_menu = 1
-panel_dock = 0
-panel_layer = bottom
-strut_policy = minimum
+wm_menu = 0
+panel_layer = top
 
 #---------------------------------------------
 # TASKBAR
 #---------------------------------------------
-taskbar_mode = multi_desktop
-#taskbar_mode = single_desktop
-taskbar_padding = 0 0 0
+#taskbar_mode = multi_desktop
+taskbar_mode = single_desktop
+taskbar_padding = 2 2 2
 taskbar_background_id = 1
-taskbar_active_background_id = 2
+taskbar_active_background_id = 1
 
 #---------------------------------------------
-# TASK
+# TASKS
 #---------------------------------------------
 task_icon = 1
 task_text = 0
-task_maximum_size = 50 35
+task_maximum_size = 140 35
 task_centered = 1
-task_padding = 4 2
-task_font = kiloji 8
-task_font_color = #a0a0a0 100
-task_active_font_color = #d4d4d4 100
-#task_icon_asb = 0 -45 -10
-task_icon_asb = 90 -70 -20
-task_active_icon_asb = 100 -50 -15
-task_background_id = 0
-task_active_background_id = 3
+task_padding = 6 3
+task_font = sans 7
+
+# Task inactive
+task_font_color = #ffffff 70
+task_icon_asb = 100 0 0
+task_background_id = 3
+
+# Task active
+task_active_font_color = #ffffff 85
+task_active_icon_asb = 100 0 0
+task_active_background_id = 2
+
+# Task urgent
+task_urgent_font_color = #ec9b9b 85
+task_urgent_icon_asb = 100 0 0
+task_urgent_background_id = 2
+urgent_nb_of_blink = 20
+
+# Task iconified
+task_iconified_font_color = #ffffff 70
+task_iconified_icon_asb = 90 0 0
+task_iconified_background_id = 3
 
 #---------------------------------------------
 # SYSTRAYBAR
 #---------------------------------------------
 systray = 1
-systray_padding = 8 4 5
+systray_padding = 4 4 5
 systray_background_id = 1
 systray_sort = left2right
-systray_icon_size = 0
-
-#---------------------------------------------
-# BATTERY
-#---------------------------------------------
-battery = 1
-battery_hide = never
-battery_low_status = 7
-battery_low_cmd = notify-send "battery low"
-bat1_font = sans 8
-bat2_font = sans 6
-battery_font_color = #ffffff 76
-battery_padding = 1 0
-battery_background_id = 2
+systray_icon_size = 16
+systray_icon_asb = 100 0 0
 
 #---------------------------------------------
 # CLOCK
 #---------------------------------------------
 time1_format = %H:%M
-time1_font = sans 8
-time2_format = %A %d %B
+time1_font = sans bold 8
+time2_format = %h.%e
 time2_font = sans 6
 clock_font_color = #ffffff 76
-clock_padding = 1 0
+clock_padding = 4 2
 clock_background_id = 1
 #clock_lclick_command = xclock
-clock_rclick_command = orage
-#clock_tooltip = %A %d %B
+clock_rclick_command = zenity --calendar
+clock_tooltip = %A %d %B
 #time1_timezone = :US/Hawaii
 #time2_timezone = :Europe/Berlin
 #clock_tooltip_timezone = :/usr/share/zoneinfo/Europe/Paris
 
 #---------------------------------------------
+# BATTERY
+#---------------------------------------------
+battery = 0
+battery_hide = 98
+battery_low_status = 10
+battery_low_cmd = notify-send "battery low"
+bat1_font = sans bold 8
+bat2_font = sans 6
+battery_font_color = #ffffff 76
+battery_padding = 4 2
+battery_background_id = 1
+
+#---------------------------------------------
 # TOOLTIP
 #---------------------------------------------
 tooltip = 1
-tooltip_padding = 2 2
-tooltip_show_timeout = 0.7
+tooltip_padding = 3 2
+tooltip_show_timeout = 0.9
 tooltip_hide_timeout = 0.3
 tooltip_background_id = 4
-tooltip_font_color = #000000 80
-tooltip_font = sans 10
+tooltip_font_color = #000000 90
+tooltip_font = sans 8
 
 #---------------------------------------------
 # MOUSE ACTION ON TASK
@@ -135,4 +144,4 @@ autohide = 0
 autohide_show_timeout = 0.3
 autohide_hide_timeout = 2
 autohide_height = 4
-
+strut_policy = minimum
