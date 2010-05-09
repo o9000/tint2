@@ -7,12 +7,12 @@
 rounded = 3
 border_width = 1
 background_color = #000000 40
-border_color = #D1D1D1 32
+border_color = #D1D1D1 31
 
 # ID 2
 rounded = 3
 border_width = 1
-background_color = #000000 53
+background_color = #000000 52
 border_color = #D1D1D1 40
 
 # Panel
@@ -23,7 +23,15 @@ panel_margin = 0 0
 panel_padding = 0 2 5
 panel_dock = 0
 wm_menu = 1
+panel_layer = bottom
 panel_background_id = 0
+
+# Panel Autohide
+autohide = 0
+autohide_show_timeout = 0.0
+autohide_hide_timeout = 0.0
+autohide_height = 0
+strut_policy = none
 
 # Taskbar
 taskbar_mode = single_desktop
@@ -38,32 +46,26 @@ task_text = 1
 task_centered = 1
 task_maximum_size = 160 30
 task_padding = 3 1
-task_font = sans bold 7.5
-font_shadow = 0
-
-# Task inactive
-task_font_color = #FFFFFF 60
-task_icon_asb = 100 0 0
 task_background_id = 1
-
-# Task active
-task_active_font_color = #FFFFFF 88
-task_active_icon_asb = 100 0 0
 task_active_background_id = 2
-
-# Task urgent
-task_urgent_font_color = #FFFFFF 88
-task_urgent_icon_asb = 100 0 0
 task_urgent_background_id = 2
-urgent_nb_of_blink = 7
-
-# Task iconified
-task_iconified_font_color = #FFFFFF 60
-task_iconified_icon_asb = 100 0 0
 task_iconified_background_id = 1
 
+# Task Icons
+task_icon_asb = 100 0 0
+task_active_icon_asb = 100 0 0
+task_urgent_icon_asb = 100 0 0
+task_iconified_icon_asb = 100 0 0
 
-# Systray
+# Fonts
+task_font = sans bold 7.5
+task_font_color = #FFFFFF 60
+task_active_font_color = #FFFFFF 87
+task_urgent_font_color = #FFFFFF 87
+task_iconified_font_color = #FFFFFF 60
+font_shadow = 0
+
+# System Tray
 systray = 1
 systray_padding = 6 2 6
 systray_sort = ascending
@@ -88,9 +90,9 @@ mouse_scroll_down = iconify
 
 # Battery
 battery = 0
-battery_hide = 90
 battery_low_status = 10
 battery_low_cmd = notify-send "battery low"
+battery_hide = 90
 bat1_font = sans 7
 bat2_font = sans 7
 battery_font_color = #FFFFFF 100

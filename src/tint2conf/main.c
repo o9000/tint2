@@ -338,7 +338,7 @@ static void menuProperties()
 		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &file,  -1);
 
 		//cmd = g_strdup_printf("gedit \'%s\' &", file);
-		cmd = g_strdup_printf("tintwizard.py \'%s\' &", file);
+		cmd = g_strdup_printf("python /usr/bin/tintwizard.py \'%s\' &", file);
 		system(cmd);
 
 		g_free(cmd);

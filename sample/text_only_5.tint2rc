@@ -29,8 +29,10 @@ panel_margin = 0 0
 panel_padding = 3 3 3
 panel_dock = 0
 wm_menu = 1
+panel_layer = bottom
 panel_background_id = 3
 
+# Panel Autohide
 autohide = 0
 autohide_show_timeout = 0.2
 autohide_hide_timeout = 1.6
@@ -50,38 +52,32 @@ task_text = 1
 task_centered = 1
 task_maximum_size = 200 30
 task_padding = 5 0
-task_font = AvantGardeLTMedium 8
-font_shadow = 0
-
-# Task inactive
-task_font_color = #151515 60
-task_icon_asb = 50 0 0
 task_background_id = 1
-
-# Task active
-task_active_font_color = #FFFFFF 60
-task_active_icon_asb = 100 0 0
 task_active_background_id = 2
-
-# Task urgent
-task_urgent_font_color = #7E9659 90
-task_urgent_icon_asb = 100 0 0
 task_urgent_background_id = 2
-urgent_nb_of_blink = 7
-
-# Task iconified
-task_iconified_font_color = #ffffff 70
-task_iconified_icon_asb = 50 0 0
 task_iconified_background_id = 1
 
+# Task Icons
+task_icon_asb = 50 0 0
+task_active_icon_asb = 100 0 0
+task_urgent_icon_asb = 100 0 0
+task_iconified_icon_asb = 50 0 0
 
-# Systray
+# Fonts
+task_font = AvantGardeLTMedium 8
+task_font_color = #151515 60
+task_active_font_color = #FFFFFF 60
+task_urgent_font_color = #7E9659 89
+task_iconified_font_color = #FFFFFF 69
+font_shadow = 0
+
+# System Tray
 systray = 1
 systray_padding = 4 2 3
-systray_background_id = 0
 systray_sort = ascending
-systray_icon_asb = 100 0 -10
+systray_background_id = 0
 systray_icon_size = 15
+systray_icon_asb = 100 0 -10
 
 # Clock
 time1_format = %H:%M / %a %d %b
@@ -99,21 +95,21 @@ tooltip_background_id = 1
 tooltip_font = AvantGardeLTMedium 8
 tooltip_font_color = #434141 100
 
-# Battery
-battery = 0
-battery_hide = 90
-battery_low_status = 7
-battery_low_cmd = notify-send "battery low"
-bat1_font = sans 8
-bat2_font = sans 6
-battery_font_color = #151515 60
-battery_padding = 1 0
-battery_background_id = 0
-
 # Mouse
 mouse_middle = none
 mouse_right = close
 mouse_scroll_up = toggle
 mouse_scroll_down = iconify
+
+# Battery
+battery = 0
+battery_low_status = 7
+battery_low_cmd = notify-send "battery low"
+battery_hide = 90
+bat1_font = sans 8
+bat2_font = sans 6
+battery_font_color = #151515 60
+battery_padding = 1 0
+battery_background_id = 0
 
 # End of config
