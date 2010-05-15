@@ -1,3 +1,14 @@
+2010-05-15
+- added panel theme switcher 'tint2conf'
+  with preview of each theme based on current config (size of monitor, task opened, ...)
+- include tintwizard : theme editor
+- autodetect composite manager and switch to real or fake transparency
+  this feature needed a patch to xcompmgr
+  see FAQ http://code.google.com/p/tint2/wiki/FAQ#How_to_configure_real_transparency_(xcompmgr)
+- added 'strut_policy = none'
+- drag n drop task re-ordering
+
+
 2010-01-28
 - Battery hide option
 - bugfixes in task redrawing

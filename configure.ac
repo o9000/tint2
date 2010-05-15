@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.61])
-AC_INIT([tint2], [0.9-svn], [http://code.google.com/p/tint2/issues])
+AC_INIT([tint2], [0.10-beta1], [http://code.google.com/p/tint2/issues])
 
 AM_INIT_AUTOMAKE
 
