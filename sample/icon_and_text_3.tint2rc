@@ -46,7 +46,7 @@ autohide_height = 2
 strut_policy = follow_size
 
 # Taskbar
-taskbar_mode = None
+taskbar_mode = single_desktop
 taskbar_padding = 0 0 2
 taskbar_background_id = 0
 #taskbar_active_background_id = 0

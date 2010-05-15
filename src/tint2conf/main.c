@@ -39,6 +39,7 @@
 char *g_path_config = NULL;
 char *g_path_dir = NULL;
 char *g_default_theme = NULL;
+char *g_cmd_property = NULL;
 int g_width, g_height;
 
 GtkWidget *g_window;
@@ -337,8 +338,8 @@ static void menuProperties()
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &file,  -1);
 
-		//cmd = g_strdup_printf("gedit \'%s\' &", file);
-		cmd = g_strdup_printf("python /usr/bin/tintwizard.py \'%s\' &", file);
+		cmd = g_strdup_printf("%s \'%s\' &", g_cmd_property, file);
+		printf("cmd %s\n", cmd);
 		system(cmd);
 
 		g_free(cmd);
@@ -357,6 +358,8 @@ static void menuQuit()
 		g_free(g_path_dir);
 	if (g_default_theme)
 		g_free(g_default_theme);
+	if (g_cmd_property)
+		g_free(g_cmd_property);
 
    gtk_main_quit ();
 }
@@ -567,13 +570,16 @@ void read_config()
 {
 	char *path;
 
+	// default values
 	if (g_default_theme != NULL) {
 		g_free(g_default_theme);
 		g_default_theme = NULL;
 	}
-
 	g_width = 500;
 	g_height = 350;
+	g_cmd_property = g_strdup("python /usr/bin/tintwizard.py");
+
+	// load config
 	path = g_build_filename (g_get_user_config_dir(), "tint2", "tint2confrc", NULL);
 	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
 		FILE *fp;
@@ -583,7 +589,11 @@ void read_config()
 			while (fgets(line, sizeof(line), fp) != NULL) {
 				if (parse_line(line, &key, &value)) {
 					if (strcmp (key, "default_theme") == 0)
-						g_default_theme = strdup (value);
+						g_default_theme = strdup(value);
+					else if (strcmp (key, "cmd_property") == 0) {
+						g_free(g_cmd_property);
+						g_cmd_property = strdup(value);
+					}
 					else if (strcmp (key, "width") == 0)
 						g_width = atoi(value);
 					else if (strcmp (key, "height") == 0)
@@ -611,7 +621,9 @@ void write_config()
 		fputs("# TINT2CONF CONFIG FILE\n", fp);
 		if (g_default_theme != NULL) {
 			fprintf(fp, "default_theme = %s\n", g_default_theme);
-			printf("default_theme %s\n", g_default_theme);
+		}
+		if (g_cmd_property != NULL) {
+			fprintf(fp, "cmd_property = %s\n", g_cmd_property);
 		}
 		fprintf(fp, "width = %d\n", g_width);
 		fprintf(fp, "height = %d\n", g_height);
