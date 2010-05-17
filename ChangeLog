@@ -1,3 +1,6 @@
+2010-05-17
+- Fix installation of examples
+
 2010-05-15
 - added panel theme switcher 'tint2conf'
   with preview of each theme based on current config (size of monitor, task opened, ...)
