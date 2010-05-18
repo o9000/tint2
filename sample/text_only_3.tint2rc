@@ -12,7 +12,7 @@ border_color = #000000 0
 # ID 2
 rounded = 1
 border_width = 0
-background_color = #F6B655 86
+background_color = #F6B655 85
 border_color = #CCCCCC 40
 
 # Panel
@@ -31,7 +31,7 @@ autohide = 0
 autohide_show_timeout = 0.0
 autohide_hide_timeout = 0.0
 autohide_height = 0
-strut_policy = none
+strut_policy = follow_size
 
 # Taskbar
 taskbar_mode = single_desktop
@@ -76,7 +76,7 @@ systray_icon_asb = 100 -90 -15
 # Clock
 time1_format = %H:%M
 time1_font = sans 13
-clock_font_color = #FFFFFF 86
+clock_font_color = #FFFFFF 85
 clock_padding = 2 0
 clock_background_id = 0
 

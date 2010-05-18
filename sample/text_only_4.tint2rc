@@ -7,12 +7,12 @@
 rounded = 3
 border_width = 1
 background_color = #000000 40
-border_color = #D1D1D1 31
+border_color = #D1D1D1 30
 
 # ID 2
 rounded = 3
 border_width = 1
-background_color = #000000 52
+background_color = #000000 51
 border_color = #D1D1D1 40
 
 # Panel
@@ -31,7 +31,7 @@ autohide = 0
 autohide_show_timeout = 0.0
 autohide_hide_timeout = 0.0
 autohide_height = 0
-strut_policy = none
+strut_policy = follow_size
 
 # Taskbar
 taskbar_mode = single_desktop
@@ -60,8 +60,8 @@ task_iconified_icon_asb = 100 0 0
 # Fonts
 task_font = sans bold 7.5
 task_font_color = #FFFFFF 60
-task_active_font_color = #FFFFFF 87
-task_urgent_font_color = #FFFFFF 87
+task_active_font_color = #FFFFFF 86
+task_urgent_font_color = #FFFFFF 86
 task_iconified_font_color = #FFFFFF 60
 font_shadow = 0
 

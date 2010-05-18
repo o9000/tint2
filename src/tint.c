@@ -318,7 +318,8 @@ void event_button_press (XEvent *e)
 	}
 	task_drag = click_task(panel, e->xbutton.x, e->xbutton.y);
 
-	XLowerWindow (server.dsp, panel->main_win);
+	if (panel_layer == BOTTOM_LAYER)
+		XLowerWindow (server.dsp, panel->main_win);
 }
 
 void event_button_motion_notify (XEvent *e)
@@ -383,7 +384,8 @@ void event_button_release (XEvent *e)
 
 	if (wm_menu && !tint2_handles_click(panel, &e->xbutton)) {
 		forward_click(e);
-		XLowerWindow (server.dsp, panel->main_win);
+		if (panel_layer == BOTTOM_LAYER)
+			XLowerWindow (server.dsp, panel->main_win);
 		task_drag = 0;
 		return;
 	}
@@ -412,7 +414,8 @@ void event_button_release (XEvent *e)
 
 	if ( click_clock(panel, e->xbutton.x, e->xbutton.y)) {
 		clock_action(e->xbutton.button);
-		XLowerWindow (server.dsp, panel->main_win);
+		if (panel_layer == BOTTOM_LAYER)
+			XLowerWindow (server.dsp, panel->main_win);
 		task_drag = 0;
 		return;
 	}
@@ -420,7 +423,8 @@ void event_button_release (XEvent *e)
 	Taskbar *tskbar;
 	if ( !(tskbar = click_taskbar(panel, e->xbutton.x, e->xbutton.y)) ) {
 		// TODO: check better solution to keep window below
-		XLowerWindow (server.dsp, panel->main_win);
+		if (panel_layer == BOTTOM_LAYER)
+			XLowerWindow (server.dsp, panel->main_win);
 		task_drag = 0;
 		return;
 	}
@@ -442,7 +446,8 @@ void event_button_release (XEvent *e)
 	window_action( click_task(panel, e->xbutton.x, e->xbutton.y), action);
 
 	// to keep window below
-	XLowerWindow (server.dsp, panel->main_win);
+	if (panel_layer == BOTTOM_LAYER)
+		XLowerWindow (server.dsp, panel->main_win);
 }
 
 
