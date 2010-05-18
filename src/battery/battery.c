@@ -24,7 +24,7 @@
 #include <cairo-xlib.h>
 #include <pango/pangocairo.h>
 
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__)
 #include <machine/apmvar.h>
 #include <err.h>
 #include <sys/ioctl.h>
@@ -58,7 +58,7 @@ char *path_energy_full;
 char *path_current_now;
 char *path_status;
 
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__)
 int apm_fd;
 #endif
 
@@ -102,7 +102,7 @@ void default_battery()
 	path_energy_full = 0;
 	path_current_now = 0;
 	path_status = 0;
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__)
 	apm_fd = -1;
 #endif
 }
@@ -117,7 +117,7 @@ void cleanup_battery()
 	if (path_status) g_free(path_status);
 	if (battery_low_cmd) g_free(battery_low_cmd);
 
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__)
 	if ((apm_fd != -1) && (close(apm_fd) == -1))
 		warn("cannot close /dev/apm");
 #endif
@@ -128,7 +128,7 @@ void init_battery()
 {
 	if (!battery_enabled) return;
 
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__)
 	apm_fd = open("/dev/apm", O_RDONLY);
 	if (apm_fd < 0) {
 		warn("init_battery: failed to open /dev/apm.");
@@ -257,7 +257,7 @@ void init_battery_panel(void *p)
 
 
 void update_battery() {
-#if !defined(__OpenBSD__)
+#if !defined(__OpenBSD__) && !defined(__FreeBSD__) && !defined(__NetBSD__)
 	// unused on OpenBSD, silence compiler warnings
 	FILE *fp;
 	char tmp[25];
@@ -267,7 +267,7 @@ void update_battery() {
 	int seconds = 0;
 	int8_t new_percentage = 0;
 
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__)
 	struct apm_power_info info;
 	if (ioctl(apm_fd, APM_IOC_GETPOWER, &(info)) < 0)
 		warn("power update: APM_IOC_GETPOWER");
