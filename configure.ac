@@ -123,7 +123,8 @@ then
 				 [AC_MSG_ERROR([gtk+-2.x is missing or not built with X support])])
 	AC_CHECK_LIB([gthread-2.0], [g_thread_init], [],
 				 [AC_MSG_ERROR([libgthread-2.0 is missing, usually provided by glib-2.x])])
-
+	AC_CHECK_LIB([gdk-x11-2.0], [gdk_window_get_state], [],
+				 [AC_MSG_ERROR([gdk-x11-2.0 is missing, usually provided by gtk+-2.x])])
 	TINT2CONF_LIBS="${LIBS} ${PTHREAD_LIB} ${GLIB2_LIB} ${GOBJECT2_LIB} ${IMLIB2_LIBS}"
 	LIBS=$LIBS_SAVED
 
