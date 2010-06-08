@@ -45,6 +45,11 @@ if ( ENABLE_BATTERY )
   add_definitions( -DENABLE_BATTERY )
 endif( ENABLE_BATTERY )
 
+option( ENABLE_TINT2CONF "Enable tint2conf. A tint2 theme switcher" ON )
+if ( ENABLE_TINT2CONF )
+  add_subdirectory( src/tint2conf )
+endif( ENABLE_TINT2CONF )
+
 
 add_executable(tint2 ${SOURCES})
 target_link_libraries( tint2 ${X11_LIBRARIES}
