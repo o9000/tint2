@@ -253,7 +253,7 @@ void get_monitors()
 		XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &nbmonitor);
 		XRRScreenResources *res = XRRGetScreenResourcesCurrent(server.dsp, server.root_win);
 
-		if (res->ncrtc >= nbmonitor) {
+		if (res && res->ncrtc >= nbmonitor) {
 			// use xrandr to identify monitors (does not work with proprietery nvidia drivers)
 			printf("xRandr: Found crtc's: %d\n", res->ncrtc );
 			server.monitor = malloc(res->ncrtc * sizeof(Monitor));
@@ -307,7 +307,8 @@ next:
 		server.monitor = realloc(server.monitor, server.nb_monitor * sizeof(Monitor));
 		qsort(server.monitor, server.nb_monitor, sizeof(Monitor), compareMonitorPos);
 
-		XRRFreeScreenResources(res);
+		if (res)
+			XRRFreeScreenResources(res);
 		XFree(info);
 	}
 

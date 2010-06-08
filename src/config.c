@@ -155,9 +155,7 @@ int get_task_status(char* status)
 
 int config_get_monitor(char* monitor)
 {
-	if (strcmp(monitor, "all") == 0)
-		return -1;
-	else {
+	if (strcmp(monitor, "all") != 0) {
 		char* endptr;
 		int ret_int = strtol(monitor, &endptr, 10);
 		if (*endptr == 0)
@@ -166,6 +164,9 @@ int config_get_monitor(char* monitor)
 			// monitor specified by name, not by index
 			int i, j;
 			for (i=0; i<server.nb_monitor; ++i) {
+				if (server.monitor[i].names == 0) 
+					// xrandr can't identify monitors
+					continue;
 				j = 0;
 				while (server.monitor[i].names[j] != 0) {
 					if (strcmp(monitor, server.monitor[i].names[j++]) == 0)
@@ -174,6 +175,7 @@ int config_get_monitor(char* monitor)
 			}
 		}
 	}
+	// monitor == "all" or monitor not found or xrandr can't identify monitors
 	return -1;
 }
 
