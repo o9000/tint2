@@ -109,29 +109,7 @@ then
 	# Sorry if that might be confusing %-)
 
 	AC_CHECK_FUNCS([strndup strrchr])
-	# Save LIBS value and clear the variable, AC_CHECK_LIB will append all libs to LIBS on success.
-	LIBS_SAVED=$LIBS
-	LIBS=
-
-	AC_CHECK_LIB([pthread], [pthread_create], [],
-				 [AC_MSG_ERROR([libpthread is missing, usually provided by glibc])])
-	AC_CHECK_LIB([glib-2.0], [g_free], [],
-				 [AC_MSG_ERROR([glib-2.x is missing])])
-	AC_CHECK_LIB([gobject-2.0], [g_signal_connect_data], [],
-				 [AC_MSG_ERROR([libgobject-2.0 is missing, usually provided by glib-2.x])])
-	AC_CHECK_LIB([gtk-x11-2.0], [gtk_main], [],
-				 [AC_MSG_ERROR([gtk+-2.x is missing or not built with X support])])
-	AC_CHECK_LIB([gthread-2.0], [g_thread_init], [],
-				 [AC_MSG_ERROR([libgthread-2.0 is missing, usually provided by glib-2.x])])
-	AC_CHECK_LIB([gdk-x11-2.0], [gdk_window_get_state], [],
-				 [AC_MSG_ERROR([gdk-x11-2.0 is missing, usually provided by gtk+-2.x])])
-	AC_CHECK_LIB([Xrender], [XRenderComposite], [],
-				[AC_MSG_ERROR([XRender is missing])])
-
-	TINT2CONF_LIBS="${LIBS} ${PTHREAD_LIB} ${GLIB2_LIB} ${GOBJECT2_LIB} ${IMLIB2_LIBS}"
-	LIBS=$LIBS_SAVED
-
-	TINT2CONF_CFLAGS="$(${PKG_CONFIG} --cflags gtk+-x11-2.0 glib-2.0 gobject-2.0 gthread-2.0) ${IMLIB2_CFLAGS}"
+	PKG_CHECK_MODULES([TINT2CONF], [x11 xrender imlib2 gobject-2.0 glib-2.0 gthread-2.0 gtk+-x11-2.0])
 	AC_SUBST(TINT2CONF_CFLAGS)
 	AC_SUBST(TINT2CONF_LIBS)
 
