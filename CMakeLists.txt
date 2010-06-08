@@ -11,6 +11,7 @@ pkg_check_modules( GOBJECT2 REQUIRED gobject-2.0 )
 pkg_check_modules( IMLIB2 REQUIRED imlib2 )
 
 include_directories( src
+                     src/battery
                      src/clock
                      src/systray
                      src/taskbar
@@ -23,7 +24,6 @@ include_directories( src
                      ${GLIB2_INCLUDE_DIRS}
                      ${GOBJECT2_INCLUDE_DIRS}
                      ${IMLIB2_INCLUDE_DIRS} )
-message("Cairo cflags: ${CAIRO_INCLUDE_DIRS}" )
 
 set(SOURCES src/config.c
             src/panel.c
@@ -42,6 +42,7 @@ set(SOURCES src/config.c
 option( ENABLE_BATTERY "Enable battery support in tint2" OFF )
 if ( ENABLE_BATTERY )
   set( SOURCES ${SOURCES} src/battery/battery.c )
+  add_definitions( -DENABLE_BATTERY )
 endif( ENABLE_BATTERY )
 
 
