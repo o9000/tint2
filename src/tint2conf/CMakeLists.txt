@@ -28,4 +28,8 @@ target_link_libraries( tint2conf ${X11_LIBRARIES}
                                  ${GTHREAD2_LIBRARIES}
                                  ${GTK2_LIBRARIES} )
 
+set_target_properties(tint2conf PROPERTIES COMPILE_FLAGS -Wall)
+set_target_properties(tint2conf PROPERTIES LINK_FLAGS -Wl,--as-needed)
+
 install( TARGETS tint2conf DESTINATION bin )
+install( PROGRAMS tintwizard.py DESTINATION bin )
