@@ -436,7 +436,6 @@ gboolean add_icon(Window id)
 		XSendEvent(server.dsp, id, False, 0xFFFFFF, &e);
 	}
 
-	printf("Adding systray with window: %d\n", id);
 	traywin = g_new0(TrayWindow, 1);
 	traywin->id = parent_window;
 	traywin->tray_id = id;
@@ -477,7 +476,6 @@ void remove_icon(TrayWindow *traywin)
 {
 	XErrorHandler old;
 
-	printf("Removing systray with window: %d\n", traywin->tray_id);
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
 	systray.area.resize = 1;

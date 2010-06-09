@@ -31,7 +31,7 @@
 #include <Imlib2.h>
 #include <signal.h>
 
-#include "version.h"
+#include <version.h>
 #include "server.h"
 #include "window.h"
 #include "config.h"

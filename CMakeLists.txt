@@ -16,7 +16,8 @@ if( NOT IMLIB_BUILD_WITH_X )
   message( FATAL_ERROR "Imlib is not build with x support" )
 endif( NOT IMLIB_BUILD_WITH_X )
 
-include_directories( src
+include_directories( ${PROJECT_BINARY_DIR}
+                     src
                      src/battery
                      src/clock
                      src/systray
@@ -55,7 +56,9 @@ if( ENABLE_BATTERY )
 endif( ENABLE_BATTERY )
 
 if( ENABLE_TINT2CONF )
+  add_definitions( -DBUILD_CMAKE )
   add_subdirectory( src/tint2conf )
+  add_dependencies( tint2conf version )
 endif( ENABLE_TINT2CONF )
 
 
@@ -63,6 +66,8 @@ set( MANDIR ${CMAKE_INSTALL_PREFIX}/share/man CACHE PATH "Directory for man page
 set( DATADIR ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Directory for shared data" )
 set( SYSCONFDIR /etc CACHE PATH "Directory for configuration files" )
 set( DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/tint2 CACHE PATH "Directory for documentation files" )
+
+add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_svnrev.sh" "\"${PROJECT_SOURCE_DIR}\"" )
 
 add_executable(tint2 ${SOURCES})
 link_directories( ${X11_LIBRARY_DIRS}
@@ -82,6 +87,7 @@ target_link_libraries( tint2 ${X11_LIBRARIES}
                              ${IMLIB2_LIBRARIES}
                              rt )
 
+add_dependencies(tint2 version)
 set_target_properties(tint2 PROPERTIES COMPILE_FLAGS -Wall)
 set_target_properties(tint2 PROPERTIES LINK_FLAGS -Wl,--as-needed)
 

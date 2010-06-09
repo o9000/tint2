@@ -28,7 +28,11 @@
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
 
-#include "../version.h"
+#ifdef BUILD_CMAKE
+  #include "version.h"
+#else
+  #include "../version.h"
+#endif
 #include "common.h"
 #include "theme_view.h"
 
