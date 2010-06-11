@@ -39,6 +39,7 @@
 #include "battery.h"
 #include "clock.h"
 #include "timer.h"
+#include "common.h"
 
 PangoFontDescription *bat1_font_desc;
 PangoFontDescription *bat2_font_desc;
@@ -352,8 +353,8 @@ void update_battery() {
 		new_percentage = (energy_now*100)/energy_full;
 
 	if(battery_low_status > new_percentage && battery_state.state == BATTERY_DISCHARGING && !battery_low_cmd_send) {
-			system(battery_low_cmd);  // return value == -1, since we've set SIGCHLD to SIGIGN
-			battery_low_cmd_send = 1;
+		tint_exec(battery_low_cmd);
+		battery_low_cmd_send = 1;
 	}
 	if(battery_low_status < new_percentage && battery_state.state == BATTERY_CHARGING && battery_low_cmd_send) {
 		battery_low_cmd_send = 0;

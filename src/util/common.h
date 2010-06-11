@@ -40,6 +40,10 @@ void copy_file(const char *pathSrc, const char *pathDest);
 // extract key = value
 int parse_line (const char *line, char **key, char **value);
 
+// execute a command by calling fork
+void tint_exec(const char* command);
+
+
 // conversion
 int hex_char_to_int (char c);
 int hex_to_rgb (char *hex, int *r, int *g, int *b);

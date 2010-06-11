@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <unistd.h>
 
 #include "common.h"
 #include "../server.h"
@@ -74,6 +74,23 @@ int parse_line (const char *line, char **key, char **value)
 	g_strstrip(*key);
 	g_strstrip(*value);
 	return 1;
+}
+
+
+void tint_exec(const char *command)
+{
+	if (command) {
+		pid_t pid;
+		pid = fork();
+		if (pid == 0) {
+			// change for the fork the signal mask
+//			sigset_t sigset;
+//			sigprocmask(SIG_SETMASK, &sigset, 0);
+//			sigprocmask(SIG_UNBLOCK, &sigset, 0);
+			execl("/bin/sh", "/bin/sh", "-c", command, NULL);
+			_exit(0);
+		}
+	}
 }
 
 

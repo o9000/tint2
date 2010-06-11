@@ -22,8 +22,6 @@
 #include <cairo.h>
 #include <cairo-xlib.h>
 #include <pango/pangocairo.h>
-#include <unistd.h>
-#include <signal.h>
 #include <stdlib.h>
 
 #include "window.h"
@@ -33,6 +31,7 @@
 #include "taskbar.h"
 #include "clock.h"
 #include "timer.h"
+#include "common.h"
 
 
 char *time1_format;
@@ -302,17 +301,6 @@ void clock_action(int button)
 		command = clock_rclick_command;
 		break;
 	}
-	if (command) {
-		pid_t pid;
-		pid = fork();
-		if (pid == 0) {
-			// change for the fork the signal mask
-//			sigset_t sigset;
-//			sigprocmask(SIG_SETMASK, &sigset, 0);
-//			sigprocmask(SIG_UNBLOCK, &sigset, 0);
-			execl("/bin/sh", "/bin/sh", "-c", command, NULL);
-			_exit(0);
-		}
-	}
+  tint_exec(command);
 }
 

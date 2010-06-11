@@ -95,7 +95,7 @@ void init (int argc, char *argv[])
 	sigaction(SIGINT, &sa, 0);
 	sigaction(SIGTERM, &sa, 0);
 	sigaction(SIGHUP, &sa, 0);
-	signal(SIGCHLD, SIG_IGN);		// don't have to wait() after fork()
+//	signal(SIGCHLD, SIG_IGN);		// don't have to wait() after fork()
 
 	// BSD is too stupid to support pselect(), therefore we have to use select and hope that we do not
 	// end up in a race condition there
