@@ -1,3 +1,6 @@
+2010-06-09
+- Add cmake build system
+
 2010-05-17
 - Fix installation of examples
 

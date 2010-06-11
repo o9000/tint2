@@ -192,7 +192,7 @@ static void menuAbout()
 {
 	const char *authors[] = { "Thierry Lorthiois <lorthiois@bbsoft.fr>", "Andreas Fink <andreas.fink85@googlemail.com>", "Christian Ruppert <Spooky85@gmail.com> (Build system)", "Euan Freeman <euan04@gmail.com> (tintwizard)\n  See http://code.google.com/p/tintwizard/", NULL };
 
-	gtk_show_about_dialog(g_window, "name", g_get_application_name( ),
+	gtk_show_about_dialog(GTK_WINDOW(g_window), "name", g_get_application_name( ),
 								"comments", _("Theming tool for tint2 panel"),
 								"version", VERSION_STRING,
 								"copyright", _("Copyright 2009 tint2 team\nTint2 License GNU GPL version 2\nTintwizard License GNU GPL version 3"),
@@ -211,7 +211,7 @@ static void menuAdd()
 	GtkFileChooser *chooser;
 	GtkFileFilter *filter;
 
-	dialog = gtk_file_chooser_dialog_new(_("Add a theme"), g_window, GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_ADD, GTK_RESPONSE_ACCEPT, NULL);
+	dialog = gtk_file_chooser_dialog_new(_("Add a theme"), GTK_WINDOW(g_window), GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_ADD, GTK_RESPONSE_ACCEPT, NULL);
 	chooser = GTK_FILE_CHOOSER(dialog);
 
 	gtk_file_chooser_set_current_folder(chooser, g_get_home_dir());
@@ -246,7 +246,7 @@ static void menuAdd()
 			gchar *message;
 			message = g_strdup_printf(_("Couldn't add duplicate theme\n\'%s\'."), pt1);
 
-			GtkWidget *w = gtk_message_dialog_new(g_window, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, message, NULL);
+			GtkWidget *w = gtk_message_dialog_new(GTK_WINDOW(g_window), 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, message, NULL);
 			g_signal_connect_swapped(w, "response", G_CALLBACK(gtk_widget_destroy), w);
 			gtk_widget_show(w);
 			g_free(message);
@@ -282,7 +282,7 @@ static void menuSaveAs ()
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (!gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
-		GtkWidget *w = gtk_message_dialog_new(g_window, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, _("Select the theme to be saved."), NULL);
+		GtkWidget *w = gtk_message_dialog_new(GTK_WINDOW(g_window), 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, _("Select the theme to be saved."));
 		g_signal_connect_swapped(w, "response", G_CALLBACK(gtk_widget_destroy), w);
 		gtk_widget_show(w);
 		return;
@@ -292,7 +292,7 @@ static void menuSaveAs ()
 	pt1 = strrchr (file, '/');
 	if (pt1) pt1++;
 
-	dialog = gtk_file_chooser_dialog_new(_("Save theme as"), g_window, GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
+	dialog = gtk_file_chooser_dialog_new(_("Save theme as"), GTK_WINDOW(g_window), GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
 	chooser = GTK_FILE_CHOOSER(dialog);
 
 	gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);

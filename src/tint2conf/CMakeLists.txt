@@ -33,3 +33,5 @@ set_target_properties(tint2conf PROPERTIES LINK_FLAGS -Wl,--as-needed)
 
 install( TARGETS tint2conf DESTINATION bin )
 install( PROGRAMS tintwizard.py DESTINATION bin )
+install( FILES tint2conf.png tint2conf.svg DESTINATION share/pixmaps )
+install( FILES tint2conf.desktop DESTINATION share/applications )
