@@ -57,7 +57,7 @@ if( ENABLE_BATTERY )
 endif( ENABLE_BATTERY )
 
 if( ENABLE_TINT2CONF )
-  add_definitions( -DBUILD_CMAKE )
+  add_definitions( -DHAVE_VERSION_H )
   add_subdirectory( src/tint2conf )
   add_dependencies( tint2conf version )
 endif( ENABLE_TINT2CONF )

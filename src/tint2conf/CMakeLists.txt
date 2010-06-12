@@ -28,6 +28,7 @@ target_link_libraries( tint2conf ${X11_LIBRARIES}
                                  ${GTHREAD2_LIBRARIES}
                                  ${GTK2_LIBRARIES} )
 
+add_definitions( -DINSTALL_PREFIX=\"${CMAKE_INSTALL_PREFIX}\" )
 set_target_properties( tint2conf PROPERTIES COMPILE_FLAGS -Wall )
 #set_target_properties(tint2conf PROPERTIES LINK_FLAGS -Wl,--as-needed)
 

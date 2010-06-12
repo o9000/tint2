@@ -28,10 +28,8 @@
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
 
-#ifdef BUILD_CMAKE
+#ifdef HAVE_VERSION_H
   #include "version.h"
-#else
-  #include "../version.h"
 #endif
 #include "common.h"
 #include "theme_view.h"
@@ -581,7 +579,7 @@ void read_config()
 	}
 	g_width = 500;
 	g_height = 350;
-	g_cmd_property = g_strdup("python /usr/bin/tintwizard.py");
+	g_cmd_property = g_strconcat( "python ", INSTALL_PREFIX, "/bin/tintwizard.py", (void*)0 );
 
 	// load config
 	path = g_build_filename (g_get_user_config_dir(), "tint2", "tint2confrc", NULL);
