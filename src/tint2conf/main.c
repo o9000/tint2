@@ -33,6 +33,7 @@
 #endif
 #include "common.h"
 #include "theme_view.h"
+#include "properties.h"
 
 #define SNAPSHOT_TICK 190
 
@@ -105,8 +106,8 @@ static const char *global_ui =
 	"    <toolitem action='ViewApply'/>"
 	"  </toolbar>"
 	"  <popup  name='ThemePopup'>"
-	"    <menuitem action='EditRefresh'/>"
 	"    <menuitem action='ThemeProperties'/>"
+	"    <menuitem action='EditRefresh'/>"
 	"    <menuitem action='ViewApply'/>"
 	"    <separator/>"
 	"    <menuitem action='ThemeDelete'/>"
@@ -339,6 +340,12 @@ static void menuProperties()
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &file,  -1);
+/*
+		GtkWidget *prop;
+		prop = create_properties();
+		gtk_window_present(GTK_WINDOW(prop));
+		//printf("menuProperties : fin\n");
+*/		
 
 		cmd = g_strdup_printf("%s \'%s\' &", g_cmd_property, file);
 		printf("cmd %s\n", cmd);
@@ -346,6 +353,7 @@ static void menuProperties()
 
 		g_free(cmd);
 		g_free(file);
+		
 	}
 }
 

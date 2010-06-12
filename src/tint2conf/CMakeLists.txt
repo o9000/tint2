@@ -19,6 +19,7 @@ include_directories( ../util
 
 set(SOURCES ../util/common.c
             main.c
+            properties.c
             theme_view.c )
 add_executable( tint2conf ${SOURCES} )
 target_link_libraries( tint2conf ${X11_LIBRARIES}
