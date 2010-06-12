@@ -62,10 +62,10 @@ if( ENABLE_TINT2CONF )
   add_dependencies( tint2conf version )
 endif( ENABLE_TINT2CONF )
 
-set( MANDIR ${CMAKE_INSTALL_PREFIX}/share/man)
-set( DATADIR ${CMAKE_INSTALL_PREFIX}/share)
-set( SYSCONFDIR /etc)
-set( DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/tint2)
+set( MANDIR share/man CACHE PATH "Directory for man pages" )
+set( DATADIR share CACHE PATH "Directory for shared data" )
+set( SYSCONFDIR /etc CACHE PATH "Directory for configuration files" )
+set( DOCDIR share/doc/tint2 CACHE PATH "Directory for documentation files" )
 
 add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_svnrev.sh" "\"${PROJECT_SOURCE_DIR}\"" )
 
@@ -89,8 +89,8 @@ if( RT_LIBRARY )
   target_link_libraries( tint2 ${RT_LIBRARY} )
 endif( RT_LIBRARY )
 
-add_dependencies(tint2 version)
-set_target_properties(tint2 PROPERTIES COMPILE_FLAGS -Wall)
+add_dependencies( tint2 version )
+set_target_properties( tint2 PROPERTIES COMPILE_FLAGS -Wall )
 #set_target_properties(tint2 PROPERTIES LINK_FLAGS -Wl,--as-needed)
 
 install( TARGETS tint2 DESTINATION bin )
