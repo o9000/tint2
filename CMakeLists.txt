@@ -62,10 +62,10 @@ if( ENABLE_TINT2CONF )
   add_dependencies( tint2conf version )
 endif( ENABLE_TINT2CONF )
 
-set( MANDIR ${CMAKE_INSTALL_PREFIX}/share/man CACHE PATH "Directory for man pages" )
-set( DATADIR ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Directory for shared data" )
-set( SYSCONFDIR /etc CACHE PATH "Directory for configuration files" )
-set( DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/tint2 CACHE PATH "Directory for documentation files" )
+set( MANDIR ${CMAKE_INSTALL_PREFIX}/share/man)
+set( DATADIR ${CMAKE_INSTALL_PREFIX}/share)
+set( SYSCONFDIR /etc)
+set( DOCDIR ${CMAKE_INSTALL_PREFIX}/share/doc/tint2)
 
 add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_svnrev.sh" "\"${PROJECT_SOURCE_DIR}\"" )
 
