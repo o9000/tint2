@@ -88,7 +88,7 @@ void default_panel()
 	panel_autohide_show_timeout = 0;
 	panel_autohide_hide_timeout = 0;
 	panel_autohide_height = 5;  // for vertical panels this is of course the width
-	panel_strut_policy = STRUT_MINIMUM;
+	panel_strut_policy = STRUT_FOLLOW_SIZE;
 	panel_dock = 0;  // default not in the dock
 	panel_layer = BOTTOM_LAYER;  // default is bottom layer
 	wm_menu = 0;
@@ -284,16 +284,15 @@ void init_panel_size_and_position(Panel *panel)
 		}
 	}
 
-	if (panel_autohide) {
-		int diff = (panel_horizontal ? panel->area.height : panel->area.width) - panel_autohide_height;
-		if (panel_horizontal) {
-			panel->hidden_width = panel->area.width;
-			panel->hidden_height = panel->area.height - diff;
-		}
-		else {
-			panel->hidden_width = panel->area.width - diff;
-			panel->hidden_height = panel->area.height;
-		}
+	// autohide or strut_policy=minimum
+	int diff = (panel_horizontal ? panel->area.height : panel->area.width) - panel_autohide_height;
+	if (panel_horizontal) {
+		panel->hidden_width = panel->area.width;
+		panel->hidden_height = panel->area.height - diff;
+	}
+	else {
+		panel->hidden_width = panel->area.width - diff;
+		panel->hidden_height = panel->area.height;
 	}
 	// printf("panel : posx %d, posy %d, width %d, height %d\n", panel->posx, panel->posy, panel->area.width, panel->area.height);
 }
@@ -417,7 +416,7 @@ void update_strut(Panel* p)
 	long   struts [12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	if (panel_horizontal) {
 		int height = p->area.height + p->marginy;
-		if (panel_autohide && (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && p->is_hidden)) )
+		if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && p->is_hidden))
 			height = p->hidden_height;
 		if (panel_position & TOP) {
 			struts[2] = height + monitor.y;
@@ -434,7 +433,7 @@ void update_strut(Panel* p)
 	}
 	else {
 		int width = p->area.width + p->marginx;
-		if (panel_autohide && (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && p->is_hidden)) )
+		if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && p->is_hidden))
 			width = p->hidden_width;
 		if (panel_position & LEFT) {
 			struts[0] = width + monitor.x;

@@ -283,10 +283,10 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "panel_layer") == 0) {
 		if (strcmp(value, "bottom") == 0)
 			panel_layer = BOTTOM_LAYER;
-		else if (strcmp(value, "normal") == 0)
-			panel_layer = NORMAL_LAYER;
 		else if (strcmp(value, "top") == 0)
 			panel_layer = TOP_LAYER;
+		else
+			panel_layer = NORMAL_LAYER;
 	}
 
 	/* Battery */
