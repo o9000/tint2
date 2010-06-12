@@ -10,6 +10,7 @@ pkg_check_modules( CAIRO REQUIRED cairo )
 pkg_check_modules( GLIB2 REQUIRED glib-2.0 )
 pkg_check_modules( GOBJECT2 REQUIRED gobject-2.0 )
 pkg_check_modules( IMLIB2 REQUIRED imlib2 )
+find_library( RT_LIBRARY rt )
 
 check_library_exists( "${IMLIB2_LIBRARIES}" "imlib_context_set_display" "${IMLIB2_LIBRARY_DIRS}" IMLIB_BUILD_WITH_X )
 if( NOT IMLIB_BUILD_WITH_X )
@@ -61,7 +62,6 @@ if( ENABLE_TINT2CONF )
   add_dependencies( tint2conf version )
 endif( ENABLE_TINT2CONF )
 
-
 set( MANDIR ${CMAKE_INSTALL_PREFIX}/share/man CACHE PATH "Directory for man pages" )
 set( DATADIR ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Directory for shared data" )
 set( SYSCONFDIR /etc CACHE PATH "Directory for configuration files" )
@@ -84,12 +84,14 @@ target_link_libraries( tint2 ${X11_LIBRARIES}
                              ${CAIRO_LIBRARIES}
                              ${GLIB2_LIBRARIES}
                              ${GOBJECT2_LIBRARIES}
-                             ${IMLIB2_LIBRARIES}
-                             rt )
+                             ${IMLIB2_LIBRARIES} )
+if( RT_LIBRARY )
+  target_link_libraries( tint2 ${RT_LIBRARY} )
+endif( RT_LIBRARY )
 
 add_dependencies(tint2 version)
 set_target_properties(tint2 PROPERTIES COMPILE_FLAGS -Wall)
-set_target_properties(tint2 PROPERTIES LINK_FLAGS -Wl,--as-needed)
+#set_target_properties(tint2 PROPERTIES LINK_FLAGS -Wl,--as-needed)
 
 install( TARGETS tint2 DESTINATION bin )
 install( FILES sample/tint2rc DESTINATION ${SYSCONFDIR}/xdg/tint2 )
