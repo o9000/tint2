@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# This file should be removed for a release, but right now it is here for convenience.
-# Everyone who is used to build tint2 with ./configure && make && sudo make install will get this message
-
-echo "Tint2 has changed the build system to CMake"
-echo "See INSTALL or the wiki page for further building instructions"
-
