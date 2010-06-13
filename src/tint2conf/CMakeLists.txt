@@ -21,6 +21,12 @@ set(SOURCES ../util/common.c
             main.c
             properties.c
             theme_view.c )
+link_directories( ${X11_LIBRARY_DIRS}
+                  ${GLIB2_LIBRARY_DIRS}
+                  ${GOBJECT2_LIBRARY_DIRS}
+                  ${IMLIB2_LIBRARY_DIRS}
+                  ${GTHREAD2_LIBRARY_DIRS}
+                  ${GTK2_LIBRARY_DIRS} )
 add_executable( tint2conf ${SOURCES} )
 target_link_libraries( tint2conf ${X11_LIBRARIES}
                                  ${GLIB2_LIBRARIES}

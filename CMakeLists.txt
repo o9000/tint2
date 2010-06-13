@@ -12,7 +12,7 @@ pkg_check_modules( GOBJECT2 REQUIRED gobject-2.0 )
 pkg_check_modules( IMLIB2 REQUIRED imlib2 )
 find_library( RT_LIBRARY rt )
 
-string( REPLACE ";" " " FLAGS_REPLACED "${FLAGS}" )
+string( REPLACE ";" " " FLAGS_REPLACED "${IMLIB2_LDFLAGS}" )
 set( CMAKE_REQUIRED_FLAGS "${FLAGS_REPLACED}" )
 check_library_exists( "${IMLIB2_LIBRARIES}" "imlib_context_set_display" "${IMLIB2_LIBRARY_DIRS}" IMLIB_BUILD_WITH_X )
 if( NOT IMLIB_BUILD_WITH_X )
@@ -71,15 +71,14 @@ set( DOCDIR share/doc/tint2 CACHE PATH "Directory for documentation files" )
 
 add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_svnrev.sh" "\"${PROJECT_SOURCE_DIR}\"" )
 
-add_executable(tint2 ${SOURCES})
 link_directories( ${X11_LIBRARY_DIRS}
-                  ${X11_LIBRARY_DIRS}
                   ${PANGOCAIRO_LIBRARY_DIRS}
                   ${PANGO_LIBRARY_DIRS}
                   ${CAIRO_LIBRARY_DIRS}
                   ${GLIB2_LIBRARY_DIRS}
                   ${GOBJECT2_LIBRARY_DIRS}
                   ${IMLIB2_LIBRARY_DIRS} )
+add_executable(tint2 ${SOURCES})
 target_link_libraries( tint2 ${X11_LIBRARIES}
                              ${PANGOCAIRO_LIBRARIES}
                              ${PANGO_LIBRARIES}
