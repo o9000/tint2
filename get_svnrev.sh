@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FALLBACK="0.10-svn"
+FALLBACK=\"0.10-svn\"
 
 if [[ $# -eq 0 ]]; then
   DIR=.
@@ -22,7 +22,7 @@ fi
 
 if [[ ${REV_OLD} != ${REV} ]]; then
   echo "Building new version.h"
-  echo "#define VERSION_STRING "${REV}"" > version.h
+  echo "#define VERSION_STRING ${REV}" > version.h
 fi
 
 
