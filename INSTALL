@@ -1,0 +1,11 @@
+To build and install tint2 you need CMake.
+These steps should be enough for building tint2:
+
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=/usr ../
+make
+sudo make install
+
+To see additional options you can do after the cmake step a 'cmake -L ../'
+
