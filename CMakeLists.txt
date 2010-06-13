@@ -12,6 +12,8 @@ pkg_check_modules( GOBJECT2 REQUIRED gobject-2.0 )
 pkg_check_modules( IMLIB2 REQUIRED imlib2 )
 find_library( RT_LIBRARY rt )
 
+string( REPLACE ";" " " FLAGS_REPLACED "${FLAGS}" )
+set( CMAKE_REQUIRED_FLAGS "${FLAGS_REPLACED}" )
 check_library_exists( "${IMLIB2_LIBRARIES}" "imlib_context_set_display" "${IMLIB2_LIBRARY_DIRS}" IMLIB_BUILD_WITH_X )
 if( NOT IMLIB_BUILD_WITH_X )
   message( FATAL_ERROR "Imlib is not build with x support" )

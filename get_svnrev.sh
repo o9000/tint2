@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 FALLBACK=\"0.10-svn\"
 
