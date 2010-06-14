@@ -91,8 +91,8 @@ if( RT_LIBRARY )
 endif( RT_LIBRARY )
 
 add_dependencies( tint2 version )
-set_target_properties( tint2 PROPERTIES COMPILE_FLAGS -Wall )
-#set_target_properties(tint2 PROPERTIES LINK_FLAGS -Wl,--as-needed)
+set_target_properties( tint2 PROPERTIES COMPILE_FLAGS "-Wall -pthread" )
+set_target_properties(tint2 PROPERTIES LINK_FLAGS "-pthread" )
 
 install( TARGETS tint2 DESTINATION bin )
 install( FILES sample/tint2rc DESTINATION ${SYSCONFDIR}/xdg/tint2 )
