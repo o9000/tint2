@@ -2,7 +2,7 @@ project(tint2conf)
 cmake_minimum_required(VERSION 2.6)
 
 include( FindPkgConfig )
-pkg_check_modules( X11 REQUIRED x11 xrender )
+pkg_check_modules( X11_T2C REQUIRED x11 xrender )
 pkg_check_modules( GLIB2 REQUIRED glib-2.0 )
 pkg_check_modules( GOBJECT2 REQUIRED gobject-2.0 )
 pkg_check_modules( IMLIB2 REQUIRED imlib2 )
@@ -10,7 +10,7 @@ pkg_check_modules( GTHREAD2 REQUIRED gthread-2.0 )
 pkg_check_modules( GTK2 REQUIRED gtk+-x11-2.0 )
 
 include_directories( ../util
-                     ${X11_INCLUDE_DIRS}
+                     ${X11_T2C_INCLUDE_DIRS}
                      ${GLIB2_INCLUDE_DIRS}
                      ${GOBJECT2_INCLUDE_DIRS}
                      ${IMLIB2_INCLUDE_DIRS}
@@ -21,14 +21,14 @@ set(SOURCES ../util/common.c
             main.c
             properties.c
             theme_view.c )
-link_directories( ${X11_LIBRARY_DIRS}
+link_directories( ${X11_T2C_LIBRARY_DIRS}
                   ${GLIB2_LIBRARY_DIRS}
                   ${GOBJECT2_LIBRARY_DIRS}
                   ${IMLIB2_LIBRARY_DIRS}
                   ${GTHREAD2_LIBRARY_DIRS}
                   ${GTK2_LIBRARY_DIRS} )
 add_executable( tint2conf ${SOURCES} )
-target_link_libraries( tint2conf ${X11_LIBRARIES}
+target_link_libraries( tint2conf ${X11_T2C_LIBRARIES}
                                  ${GLIB2_LIBRARIES}
                                  ${GOBJECT2_LIBRARIES}
                                  ${IMLIB2_LIBRARIES}
@@ -36,8 +36,8 @@ target_link_libraries( tint2conf ${X11_LIBRARIES}
                                  ${GTK2_LIBRARIES} )
 
 add_definitions( -DINSTALL_PREFIX=\"${CMAKE_INSTALL_PREFIX}\" )
-set_target_properties( tint2conf PROPERTIES COMPILE_FLAGS -Wall )
-#set_target_properties(tint2conf PROPERTIES LINK_FLAGS -Wl,--as-needed)
+set_target_properties( tint2conf PROPERTIES COMPILE_FLAGS "-Wall -pthread" )
+set_target_properties( tint2conf PROPERTIES LINK_FLAGS "-pthread" )
 
 install( TARGETS tint2conf DESTINATION bin )
 install( PROGRAMS tintwizard.py DESTINATION bin )
