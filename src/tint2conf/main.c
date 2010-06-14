@@ -17,20 +17,10 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <locale.h>
-#include <X11/Xlib.h>
-#include <gdk/gdkx.h>
-#include <gtk/gtk.h>
-#include <glib.h>
-#include <glib/gstdio.h>
-#include <glib/gi18n.h>
-
 #ifdef HAVE_VERSION_H
   #include "version.h"
 #endif
+#include "main.h"
 #include "common.h"
 #include "theme_view.h"
 #include "properties.h"
@@ -117,19 +107,19 @@ static const char *global_ui =
 
 // define menubar and toolbar action
 static GtkActionEntry entries[] = {
-	{"ThemeMenu", NULL, "Theme", NULL, NULL, NULL},
-	{"ThemeAdd", GTK_STOCK_ADD, "_Add...", "<Control>N", "Add theme", G_CALLBACK (menuAdd)},
-	{"ThemeSaveAs", GTK_STOCK_SAVE_AS, "_Save as...", NULL, "Save theme as", G_CALLBACK (menuSaveAs)},
-	{"ThemeDelete", GTK_STOCK_DELETE, "_Delete", NULL, "Delete theme", G_CALLBACK (menuDelete)},
-	{"ThemeProperties", GTK_STOCK_PROPERTIES, "_Properties...", NULL, "Show properties", G_CALLBACK (menuProperties)},
-	{"ThemeQuit", GTK_STOCK_QUIT, "_Quit", "<control>Q", "Quit", G_CALLBACK (menuQuit)},
+	{"ThemeMenu", NULL, _("Theme"), NULL, NULL, NULL},
+	{"ThemeAdd", GTK_STOCK_ADD, _("_Add..."), "<Control>N", _("Add theme"), G_CALLBACK (menuAdd)},
+	{"ThemeSaveAs", GTK_STOCK_SAVE_AS, _("_Save as..."), NULL, _("Save theme as"), G_CALLBACK (menuSaveAs)},
+	{"ThemeDelete", GTK_STOCK_DELETE, _("_Delete"), NULL, _("Delete theme"), G_CALLBACK (menuDelete)},
+	{"ThemeProperties", GTK_STOCK_PROPERTIES, _("_Properties..."), NULL, _("Show properties"), G_CALLBACK (menuProperties)},
+	{"ThemeQuit", GTK_STOCK_QUIT, _("_Quit"), "<control>Q", _("Quit"), G_CALLBACK (menuQuit)},
 	{"EditMenu", NULL, "Edit", NULL, NULL, NULL},
-	{"EditRefresh", GTK_STOCK_REFRESH, "Refresh", NULL, "Refresh", G_CALLBACK (menuRefresh)},
-	{"EditRefreshAll", GTK_STOCK_REFRESH, "Refresh all", NULL, "Refresh all", G_CALLBACK (menuRefreshAll)},
+	{"EditRefresh", GTK_STOCK_REFRESH, _("Refresh"), NULL, _("Refresh"), G_CALLBACK (menuRefresh)},
+	{"EditRefreshAll", GTK_STOCK_REFRESH, _("Refresh all"), NULL, _("Refresh all"), G_CALLBACK (menuRefreshAll)},
 //	{"EditPreferences", GTK_STOCK_PREFERENCES, "Preferences", NULL, "Preferences", G_CALLBACK (menuPreferences)},
-	{"ViewApply", GTK_STOCK_APPLY, "Apply", NULL, "Apply theme", G_CALLBACK (menuApply)},
-	{"HelpMenu", NULL, "Help", NULL, NULL, NULL},
-	{"HelpAbout", GTK_STOCK_ABOUT, "_About", "<Control>A", "About", G_CALLBACK (menuAbout)}
+	{"ViewApply", GTK_STOCK_APPLY, _("Apply"), NULL, _("Apply theme"), G_CALLBACK (menuApply)},
+	{"HelpMenu", NULL, _("Help"), NULL, NULL, NULL},
+	{"HelpAbout", GTK_STOCK_ABOUT, _("_About"), "<Control>A", _("About"), G_CALLBACK (menuAbout)}
 };
 
 
@@ -150,12 +140,12 @@ int main (int argc, char ** argv)
 	g_signal_connect(G_OBJECT(g_window), "destroy", G_CALLBACK (menuQuit), NULL);
 	g_signal_connect(g_window, "size-allocate", G_CALLBACK(windowSizeAllocated), NULL);
 	vBox = gtk_vbox_new (FALSE, 0);
-   gtk_container_add (GTK_CONTAINER(g_window), vBox);
+	gtk_container_add (GTK_CONTAINER(g_window), vBox);
 
 	actionGroup = gtk_action_group_new ("menuActionGroup");
-   gtk_action_group_add_actions (actionGroup, entries, G_N_ELEMENTS (entries), NULL);
+	gtk_action_group_add_actions (actionGroup, entries, G_N_ELEMENTS (entries), NULL);
 	globalUIManager = gtk_ui_manager_new();
-   gtk_ui_manager_insert_action_group (globalUIManager, actionGroup, 0);
+	gtk_ui_manager_insert_action_group (globalUIManager, actionGroup, 0);
 	gtk_ui_manager_add_ui_from_string (globalUIManager, global_ui, -1, NULL );
 	g_signal_connect(globalUIManager, "add_widget", G_CALLBACK (menuAddWidget), vBox);
 	gtk_ui_manager_ensure_update(globalUIManager);
@@ -166,14 +156,19 @@ int main (int argc, char ** argv)
 	// define theme view
 	g_theme_view = create_view();
 	gtk_container_add(GTK_CONTAINER(scrollbar), g_theme_view);
-   gtk_widget_show(g_theme_view);
+	gtk_widget_show(g_theme_view);
 	g_signal_connect(g_theme_view, "button-press-event", (GCallback)view_onButtonPressed, NULL);
 	g_signal_connect(g_theme_view, "popup-menu", (GCallback)view_onPopupMenu, NULL);
 	g_signal_connect(g_theme_view, "row-activated", G_CALLBACK(viewRowActivated), NULL);
 
-   // load themes
+	// load themes
 	load_theme(g_theme_view);
 
+	/* temporaire !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	GtkWidget *prop;
+	prop = create_properties();
+	gtk_window_present(GTK_WINDOW(prop));
+*/
 	gtk_widget_show_all(g_window);
 	gtk_main ();
 	return 0;
@@ -182,8 +177,8 @@ int main (int argc, char ** argv)
 
 static void menuAddWidget (GtkUIManager * p_uiManager, GtkWidget * p_widget, GtkContainer * p_box)
 {
-   gtk_box_pack_start(GTK_BOX(p_box), p_widget, FALSE, FALSE, 0);
-   gtk_widget_show(p_widget);
+	gtk_box_pack_start(GTK_BOX(p_box), p_widget, FALSE, FALSE, 0);
+	gtk_widget_show(p_widget);
 }
 
 
@@ -345,12 +340,11 @@ static void menuProperties()
 		prop = create_properties();
 		gtk_window_present(GTK_WINDOW(prop));
 		//printf("menuProperties : fin\n");
-*/		
+*/
 
 		cmd = g_strdup_printf("%s \'%s\' &", g_cmd_property, file);
 		printf("cmd %s\n", cmd);
 		system(cmd);
-
 		g_free(cmd);
 		g_free(file);
 		

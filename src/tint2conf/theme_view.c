@@ -1,8 +1,6 @@
 
-#include <stdlib.h>
-#include <glib.h>
-#include <glib/gstdio.h>
 
+#include "main.h"
 #include "theme_view.h"
 
 // The data columns that we export via the tree model interface
