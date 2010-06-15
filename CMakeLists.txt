@@ -12,6 +12,10 @@ pkg_check_modules( GOBJECT2 REQUIRED gobject-2.0 )
 pkg_check_modules( IMLIB2 REQUIRED imlib2 )
 find_library( RT_LIBRARY rt )
 
+if( NOT (X11_FOUND AND PANGOCAIRO_FOUND AND PANGO_FOUND AND CAIRO_FOUND AND GLIB2_FOUND AND GOBJECT2_FOUND AND IMLIB2_FOUND) )
+  message( FATAL_ERROR "Not all dependencies fulfilled. See http://code.google.com/p/tint2/wiki/Install" )
+endif( NOT (X11_FOUND AND PANGOCAIRO_FOUND AND PANGO_FOUND AND CAIRO_FOUND AND GLIB2_FOUND AND GOBJECT2_FOUND AND IMLIB2_FOUND) )
+
 string( REPLACE ";" " " FLAGS_REPLACED "${IMLIB2_LDFLAGS}" )
 set( CMAKE_REQUIRED_FLAGS "${FLAGS_REPLACED}" )
 check_library_exists( "${IMLIB2_LIBRARIES}" "imlib_context_set_display" "${IMLIB2_LIBRARY_DIRS}" IMLIB_BUILD_WITH_X )
