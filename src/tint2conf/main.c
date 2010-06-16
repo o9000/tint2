@@ -164,11 +164,10 @@ int main (int argc, char ** argv)
 	// load themes
 	load_theme(g_theme_view);
 
-	/* temporaire !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	GtkWidget *prop;
-	prop = create_properties();
+	/* temporaire !!!!!!!!!!!!!!
+	GtkWidget *prop = create_properties();
 	gtk_window_present(GTK_WINDOW(prop));
-*/
+	//*/
 	gtk_widget_show_all(g_window);
 	gtk_main ();
 	return 0;
