@@ -97,8 +97,8 @@ void init (int argc, char *argv[])
 	sigaction(SIGHUP, &sa, 0);
 //	signal(SIGCHLD, SIG_IGN);		// don't have to wait() after fork()
 
-	// BSD is too stupid to support pselect(), therefore we have to use select and hope that we do not
-	// end up in a race condition there
+	// BSD does not support pselect(), therefore we have to use select and hope that we do not
+	// end up in a race condition there (see 'man select()' on a linux machine for more information)
 	// block all signals, such that no race conditions occur before pselect in our main loop
 //	sigset_t block_mask;
 //	sigaddset(&block_mask, SIGINT);

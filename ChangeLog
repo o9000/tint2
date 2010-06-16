@@ -1,5 +1,18 @@
+2010-06-16
+- Set _NET_WM_ICON_GEOMETRY for every task
+
+2010-06-12
+- strut_policy=minimum is possible even if autohide is disabled
+
+2010-06-11
+- Added icons and a *.desktop file for tint2conf
+- BSD fixes 
+
 2010-06-09
 - Add cmake build system
+
+2010-06-08
+- Xrandr and Nvidia problems fixed
 
 2010-05-17
 - Fix installation of examples

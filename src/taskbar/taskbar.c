@@ -302,6 +302,9 @@ void resize_taskbar(void *obj)
 			tsk->area.posx = x;
 			set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.width = pixel_width;
+			long value[] = { panel->posx+x, panel->posy, pixel_width, panel->area.height };
+			XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
+
 			if (modulo_width) {
 				tsk->area.width++;
 				modulo_width--;
@@ -340,6 +343,9 @@ void resize_taskbar(void *obj)
 			tsk->area.posy = y;
 			set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.height = pixel_height;
+			long value[] = { panel->posx, panel->posy+y, panel->area.width, pixel_height };
+			XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
+
 			if (modulo_height) {
 				tsk->area.height++;
 				modulo_height--;
