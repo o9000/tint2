@@ -148,7 +148,8 @@ int click_padding(Panel *panel, int x, int y);
 int click_clock(Panel *panel, int x, int y);
 Area* click_area(Panel *panel, int x, int y);
 
-void autohide_trigger_show();
-void autohide_trigger_hide();
+void autohide_show(void* p);
+void autohide_trigger_show(Panel* p);
+void autohide_trigger_hide(Panel* p);
 
 #endif

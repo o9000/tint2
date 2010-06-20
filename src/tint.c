@@ -790,8 +790,12 @@ start:
 						autohide_trigger_show(panel);
 					else if (e.type == LeaveNotify)
 						autohide_trigger_hide(panel);
-					if (panel->is_hidden)
-						continue;   // discard further processing of this event because the panel is not visible yet
+					if (panel->is_hidden) {
+						if (e.type == ClientMessage && e.xclient.message_type == server.atom.XdndPosition)
+							autohide_show(panel);
+						else
+							continue;   // discard further processing of this event because the panel is not visible yet
+					}
 				}
 
 				switch (e.type) {
@@ -871,8 +875,7 @@ start:
 								// Start real_transparency
 								signal_pending = SIGUSR1;
 						}
-						if (!systray.area.on_screen) break;
-						if (e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
+						if (systray.area.on_screen && e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
 							net_message(&e.xclient);
 						}
 						else if (e.xclient.message_type == server.atom.XdndPosition) {
