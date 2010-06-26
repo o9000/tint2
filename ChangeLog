@@ -1,3 +1,7 @@
+2010-06-26
+- unhide tint2 panel when dragging something
+- battery FreeBSD uses the new ACPI API (thx to yamagi.burmeister)
+
 2010-06-16
 - Set _NET_WM_ICON_GEOMETRY for every task
 
