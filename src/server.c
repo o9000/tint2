@@ -95,6 +95,7 @@ void server_init_atoms ()
 	server.atom.XdndAware = XInternAtom(server.dsp, "XdndAware", False);
 	server.atom.XdndPosition = XInternAtom(server.dsp, "XdndPosition", False);
 	server.atom.XdndStatus = XInternAtom(server.dsp, "XdndStatus", False);
+	server.atom.XdndLeave = XInternAtom(server.dsp, "XdndLeave", False);
 }
 
 

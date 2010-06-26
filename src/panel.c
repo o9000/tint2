@@ -71,11 +71,6 @@ GArray* backgrounds;
 
 Imlib_Image default_icon;
 
-
-void autohide_hide(void* p);
-void autohide_show(void* p);
-
-
 void default_panel()
 {
 	panel1 = 0;

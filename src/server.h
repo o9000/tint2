@@ -69,6 +69,7 @@ typedef struct Global_atom
 	Atom XdndAware;
 	Atom XdndPosition;
 	Atom XdndStatus;
+	Atom XdndLeave;
 } Global_atom;
 
 

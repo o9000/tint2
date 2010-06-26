@@ -708,6 +708,7 @@ int main (int argc, char *argv[])
 	Panel *panel;
 	GSList *it;
 	struct timeval* timeout;
+	int hidden_dnd = 0;
 
 start:
 	init (argc, argv);
@@ -791,10 +792,16 @@ start:
 					else if (e.type == LeaveNotify)
 						autohide_trigger_hide(panel);
 					if (panel->is_hidden) {
-						if (e.type == ClientMessage && e.xclient.message_type == server.atom.XdndPosition)
+						if (e.type == ClientMessage && e.xclient.message_type == server.atom.XdndPosition) {
+							hidden_dnd = 1;
 							autohide_show(panel);
+						}
 						else
 							continue;   // discard further processing of this event because the panel is not visible yet
+					}
+					else if (hidden_dnd && e.type == ClientMessage && e.xclient.message_type == server.atom.XdndLeave) {
+						hidden_dnd = 0;
+						autohide_hide(panel);
 					}
 				}
 
