@@ -279,7 +279,7 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "panel_dock") == 0)
 		panel_dock = atoi (value);
 	else if (strcmp (key, "urgent_nb_of_blink") == 0)
-		max_tick_urgent = (atoi (value) * 2) + 1;
+		max_tick_urgent = atoi (value);
 	else if (strcmp (key, "panel_layer") == 0) {
 		if (strcmp(value, "bottom") == 0)
 			panel_layer = BOTTOM_LAYER;

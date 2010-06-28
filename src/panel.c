@@ -87,7 +87,7 @@ void default_panel()
 	panel_dock = 0;  // default not in the dock
 	panel_layer = BOTTOM_LAYER;  // default is bottom layer
 	wm_menu = 0;
-	max_tick_urgent = 7;
+	max_tick_urgent = 14;
 	backgrounds = g_array_new(0, 0, sizeof(Background));
 
 	memset(&panel_config, 0, sizeof(Panel));
