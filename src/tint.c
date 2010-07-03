@@ -91,11 +91,12 @@ void init (int argc, char *argv[])
 	// Set signal handler
 	signal_pending = 0;
 	struct sigaction sa = { .sa_handler = signal_handler };
+	struct sigaction sa_chld = { .sa_handler = SIG_DFL, .sa_flags = SA_NOCLDWAIT };
 	sigaction(SIGUSR1, &sa, 0);
 	sigaction(SIGINT, &sa, 0);
 	sigaction(SIGTERM, &sa, 0);
 	sigaction(SIGHUP, &sa, 0);
-//	signal(SIGCHLD, SIG_IGN);		// don't have to wait() after fork()
+	sigaction(SIGCHLD, &sa_chld, 0);
 
 	// BSD does not support pselect(), therefore we have to use select and hope that we do not
 	// end up in a race condition there (see 'man select()' on a linux machine for more information)

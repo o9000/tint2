@@ -156,6 +156,8 @@ void init_panel()
 
 		if (panel_config.monitor < 0)
 			p->monitor = i;
+		if ( p->area.bg == 0 )
+			p->area.bg = &g_array_index(backgrounds, Background, 0);
 		p->area.parent = p;
 		p->area.panel = p;
 		p->area.on_screen = 1;
