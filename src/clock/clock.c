@@ -301,6 +301,6 @@ void clock_action(int button)
 		command = clock_rclick_command;
 		break;
 	}
-  tint_exec(command);
+	tint_exec(command);
 }
 

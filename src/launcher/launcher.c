@@ -251,18 +251,7 @@ void launcher_action(LauncherIcon *icon)
 {
 	char *cmd = malloc(strlen(icon->cmd) + 10);
 	sprintf(cmd, "(%s&)", icon->cmd);
-	if (cmd) {
-		pid_t pid;
-		pid = fork();
-		if (pid == 0) {
-			// change for the fork the signal mask
-			//			sigset_t sigset;
-			//			sigprocmask(SIG_SETMASK, &sigset, 0);
-			//			sigprocmask(SIG_UNBLOCK, &sigset, 0);
-			// exec
-			execl("/bin/sh", "/bin/sh", "-c", cmd, NULL);
-			_exit(0);
-		}
-	}
+	tint_exec(cmd);
+	free(cmd);
 }
 
