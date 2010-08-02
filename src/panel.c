@@ -134,6 +134,7 @@ void init_panel()
 
 	init_tooltip();
 	init_systray();
+	init_launcher();
 	init_clock();
 #ifdef ENABLE_BATTERY
 	init_battery();
@@ -178,6 +179,10 @@ void init_panel()
 			p->area.list = g_slist_append(p->area.list, &p->battery);
 		}
 #endif
+		if (launcher_enabled) {
+			init_launcher_panel(p);
+			p->area.list = g_slist_append(p->area.list, &p->launcher);
+		}
 		// systray only on first panel
 		if (systray.area.on_screen && i == 0) {
 			init_systray_panel(p);
@@ -305,6 +310,8 @@ void resize_panel(void *obj)
 		taskbar_width = panel->area.width - (2 * panel->area.paddingxlr) - (2 * panel->area.bg->border.width);
 		if (panel->clock.area.on_screen && panel->clock.area.width)
 			taskbar_width -= (panel->clock.area.width + panel->area.paddingx);
+		if (panel->launcher.area.on_screen && panel->launcher.area.width)
+			taskbar_width -= (panel->launcher.area.width + panel->area.paddingx);
 	#ifdef ENABLE_BATTERY
 		if (panel->battery.area.on_screen && panel->battery.area.width)
 			taskbar_width -= (panel->battery.area.width + panel->area.paddingx);
@@ -322,6 +329,8 @@ void resize_panel(void *obj)
 		// change posx and width for all taskbar
 		int i, posx;
 		posx = panel->area.bg->border.width + panel->area.paddingxlr;
+		if (panel->launcher.area.on_screen && panel->launcher.area.width)
+			posx += (panel->launcher.area.width + panel->area.paddingx);
 		for (i=0 ; i < panel->nb_desktop ; i++) {
 			panel->taskbar[i].area.posx = posx;
 			panel->taskbar[i].area.width = taskbar_width;
@@ -342,6 +351,8 @@ void resize_panel(void *obj)
 		taskbar_height = panel->area.height - (2 * panel->area.paddingxlr) - (2 * panel->area.bg->border.width);
 		if (panel->clock.area.on_screen && panel->clock.area.height)
 			taskbar_height -= (panel->clock.area.height + panel->area.paddingx);
+		if (panel->launcher.area.on_screen && panel->launcher.area.height)
+			taskbar_height -= (panel->launcher.area.height + panel->area.paddingx);
 	#ifdef ENABLE_BATTERY
 		if (panel->battery.area.on_screen && panel->battery.area.height)
 			taskbar_height -= (panel->battery.area.height + panel->area.paddingx);
@@ -351,6 +362,8 @@ void resize_panel(void *obj)
 			taskbar_height -= (systray.area.height + panel->area.paddingx);
 
 		posy = panel->area.height - panel->area.bg->border.width - panel->area.paddingxlr - taskbar_height;
+		if (panel->launcher.area.on_screen && panel->launcher.area.height)
+			posy -= (panel->launcher.area.height + panel->area.paddingx);
 		if (panel_mode == MULTI_DESKTOP) {
 			int height = taskbar_height - ((panel->nb_desktop-1) * panel->area.paddingx);
 			taskbar_height = height / panel->nb_desktop;
@@ -640,6 +653,43 @@ Task *click_task (Panel *panel, int x, int y)
 				if (tsk->area.on_screen && y >= tsk->area.posy && y <= (tsk->area.posy + tsk->area.height)) {
 					return tsk;
 				}
+			}
+		}
+	}
+	return NULL;
+}
+
+
+Launcher *click_launcher (Panel *panel, int x, int y)
+{
+	Launcher *launcher = &panel->launcher;
+	
+	if (panel_horizontal) {
+		if (launcher->area.on_screen && x >= launcher->area.posx && x <= (launcher->area.posx + launcher->area.width))
+			return launcher;
+	}
+	else {
+		if (launcher->area.on_screen && y >= launcher->area.posy && y <= (launcher->area.posy + launcher->area.height))
+			return launcher;
+	}
+	return NULL;
+}
+
+
+LauncherIcon *click_launcher_icon (Panel *panel, int x, int y)
+{
+	GSList *l0;
+	Launcher *launcher;
+
+	//printf("Click x=%d y=%d\n", x, y);
+	if ( (launcher = click_launcher(panel, x, y)) ) {
+		LauncherIcon *icon;
+		for (l0 = launcher->list_icons; l0 ; l0 = l0->next) {
+			icon = l0->data;
+			if (x >= (launcher->area.posx + icon->x) && x <= (launcher->area.posx + icon->x + icon->width) &&
+				y >= (launcher->area.posy + icon->y) && y <= (launcher->area.posy + icon->y + icon->height)) {
+				//printf("Hit rect x=%d y=%d xmax=%d ymax=%d\n", launcher->area.posx + icon->x, launcher->area.posy + icon->y, launcher->area.posx + icon->x + icon->width, launcher->area.posy + icon->y + icon->height);
+				return icon;
 			}
 		}
 	}

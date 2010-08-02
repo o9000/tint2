@@ -38,6 +38,7 @@
 #include "task.h"
 #include "taskbar.h"
 #include "systraybar.h"
+#include "launcher.h"
 #include "panel.h"
 #include "tooltip.h"
 #include "timer.h"
@@ -63,6 +64,7 @@ void init (int argc, char *argv[])
 	default_battery();
 #endif
 	default_clock();
+	default_launcher();
 	default_taskbar();
 	default_tooltip();
 	default_panel();
@@ -159,6 +161,7 @@ void cleanup()
 	cleanup_panel();
 	cleanup_tooltip();
 	cleanup_clock();
+	cleanup_launcher();
 #ifdef ENABLE_BATTERY
 	cleanup_battery();
 #endif
@@ -278,7 +281,15 @@ int tint2_handles_click(Panel* panel, XButtonEvent* e)
 		else
 			return 0;
 	}
-	// no task clicked --> check if taskbar clicked
+	LauncherIcon *icon = click_launcher_icon(panel, e->x, e->y);
+	if (icon) {
+		if (e->button == 1) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	// no launcher/task clicked --> check if taskbar clicked
 	Taskbar *tskbar = click_taskbar(panel, e->x, e->y);
 	if (tskbar && e->button == 1 && panel_mode == MULTI_DESKTOP)
 		return 1;
@@ -417,6 +428,15 @@ void event_button_release (XEvent *e)
 		clock_action(e->xbutton.button);
 		if (panel_layer == BOTTOM_LAYER)
 			XLowerWindow (server.dsp, panel->main_win);
+		task_drag = 0;
+		return;
+	}
+
+	if ( click_launcher(panel, e->xbutton.x, e->xbutton.y)) {
+		LauncherIcon *icon = click_launcher_icon(panel, e->xbutton.x, e->xbutton.y);
+		if (icon) {
+			launcher_action(icon);
+		}
 		task_drag = 0;
 		return;
 	}

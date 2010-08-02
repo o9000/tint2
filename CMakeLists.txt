@@ -29,6 +29,7 @@ include_directories( ${PROJECT_BINARY_DIR}
                      src/clock
                      src/systray
                      src/taskbar
+                     src/launcher
                      src/tooltip
                      src/util
                      ${X11_INCLUDE_DIRS}
@@ -45,6 +46,7 @@ set( SOURCES src/config.c
              src/tint.c
              src/clock/clock.c
              src/systray/systraybar.c
+             src/launcher/launcher.c
              src/taskbar/task.c
              src/taskbar/taskbar.c
              src/tooltip/tooltip.c

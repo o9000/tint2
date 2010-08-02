@@ -41,6 +41,7 @@
 #include "task.h"
 #include "taskbar.h"
 #include "systraybar.h"
+#include "launcher.h"
 #include "clock.h"
 #include "config.h"
 #include "window.h"
@@ -500,12 +501,13 @@ void add_entry (char *key, char *value)
 	// systray disabled in snapshot mode
 	else if (strcmp (key, "systray") == 0 && snapshot_path == 0) {
 		systray_enabled = atoi(value);
-		// systray is latest option added. files without 'systray' are old.
 		old_config_file = 0;
 	}
 	else if (strcmp (key, "systray_padding") == 0 && snapshot_path == 0) {
-		if (old_config_file)
+		if (old_config_file) {
+			// if tint2rc is an old config file, systray_padding enabled the systray bar.
 			systray_enabled = 1;
+		}
 		extract_values(value, &value1, &value2, &value3);
 		systray.area.paddingxlr = systray.area.paddingx = atoi (value1);
 		if (value2) systray.area.paddingy = atoi (value2);
@@ -534,6 +536,33 @@ void add_entry (char *key, char *value)
 		systray.alpha = atoi(value1);
 		systray.saturation = atoi(value2);
 		systray.brightness = atoi(value3);
+	}
+
+	/* Launcher */
+	else if (strcmp (key, "launcher") == 0) {
+		launcher_enabled = atoi(value);
+	}
+	else if (strcmp (key, "launcher_padding") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		panel_config.launcher.area.paddingxlr = panel_config.launcher.area.paddingx = atoi (value1);
+		if (value2) panel_config.launcher.area.paddingy = atoi (value2);
+		if (value3) panel_config.launcher.area.paddingx = atoi (value3);
+	}
+	else if (strcmp (key, "launcher_background_id") == 0) {
+		int id = atoi (value);
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		panel_config.launcher.area.bg = &g_array_index(backgrounds, Background, id);
+	}
+	else if (strcmp(key, "launcher_icon_size") == 0) {
+		launcher_max_icon_size = atoi(value);
+	}
+	else if (strcmp(key, "launcher_item_icon") == 0) {
+		char *path = strdup(value);
+		panel_config.launcher.list_icon_paths = g_slist_append(panel_config.launcher.list_icon_paths, path);
+	}
+	else if (strcmp(key, "launcher_item_cmd") == 0) {
+		char *cmd = strdup(value);
+		panel_config.launcher.list_cmds = g_slist_append(panel_config.launcher.list_cmds, cmd);
 	}
 
 	/* Tooltip */
