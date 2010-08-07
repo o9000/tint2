@@ -75,10 +75,11 @@ void init_tooltip()
 }
 
 
-void tooltip_trigger_show(Area* area, Panel* p, int x_root, int y_root)
+void tooltip_trigger_show(Area* area, Panel* p, XEvent *e)
 {
-	x = x_root;
-	y = y_root;
+	// Position the tooltip in the center of the area
+	x = area->posx + area->width / 2 + e->xmotion.x_root - e->xmotion.x;
+	y = area->posy + area->height / 2 + e->xmotion.y_root - e->xmotion.y;
 	g_tooltip.panel = p;
 	if (g_tooltip.mapped && g_tooltip.area != area) {
 		tooltip_copy_text(area);
@@ -93,10 +94,10 @@ void tooltip_trigger_show(Area* area, Panel* p, int x_root, int y_root)
 
 void tooltip_show(void* arg)
 {
-  int mx, my;
-  Window w;
-  XTranslateCoordinates( server.dsp, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
-  Area* area = click_area(g_tooltip.panel, mx, my);
+	int mx, my;
+	Window w;
+	XTranslateCoordinates( server.dsp, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
+	Area* area = click_area(g_tooltip.panel, mx, my);
 	stop_tooltip_timeout();
 	if (!g_tooltip.mapped && area->_get_tooltip_text) {
 		tooltip_copy_text(area);

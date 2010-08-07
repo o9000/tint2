@@ -47,6 +47,10 @@ typedef struct
 } Background;
 
 
+// way to calculate the size
+// SIZE_BY_LAYOUT objects : taskbar and task
+// SIZE_BY_CONTENT objects : clock, battery, launcher, systray
+enum { SIZE_BY_LAYOUT, SIZE_BY_CONTENT };
 
 typedef struct {
 	// coordinate relative to panel window
@@ -59,8 +63,11 @@ typedef struct {
 	// list of child : Area object
 	GSList *list;
 
+	// object visible on screen
 	int on_screen;
-	// need compute position and width
+	// way to calculate the size (SIZE_BY_CONTENT or SIZE_BY_LAYOUT)
+	int size_mode;
+	// need to calculate position and width
 	int resize;
 	// need redraw Pixmap
 	int redraw;

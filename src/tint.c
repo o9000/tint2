@@ -845,7 +845,7 @@ start:
 						Panel* panel = get_panel(e.xmotion.window);
 						Area* area = click_area(panel, e.xmotion.x, e.xmotion.y);
 						if (area->_get_tooltip_text)
-							tooltip_trigger_show(area, panel, e.xmotion.x_root, e.xmotion.y_root);
+							tooltip_trigger_show(area, panel, &e);
 						else
 							tooltip_trigger_hide();
 						break;

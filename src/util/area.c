@@ -31,10 +31,21 @@
 #include "panel.h"
 
 
-// 1) resize child
-// 2) resize parent
-// 3) redraw parent
-// 4) redraw child
+/*
+// TODO : layering & drawing loop
+1) browse tree and calculate 'size' for SIZE_BY_CONTENT
+	- SIZE_BY_CONTENT loop calculate child first
+	- if 'size' changed then 'resize = 1' on the parent (tester resize aprés la boucle)
+	- size == width on horizontal panel and == height on vertical panel
+2) browse tree and calculate 'size' for SIZE_BY_LAYOUT
+	- SIZE_BY_LAYOUT loop calculate parent first
+	- if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
+	- calculate width = size - somme(child_with_of_SIZE_BY_CONTENT) modulo(number of child_SIZE_BY_LAYOUT)
+	- calculate modulo = 
+3) calculate posx of all objects
+4) redraw needed objects
+*/
+
 void refresh (Area *a)
 {
 	// don't draw and resize hide objects
@@ -137,9 +148,9 @@ void draw_background (Area *a, cairo_t *c)
 		draw_rect(c, a->bg->border.width/2.0, a->bg->border.width/2.0, a->width - a->bg->border.width, a->height - a->bg->border.width, a->bg->border.rounded);
 		/*
 		// convert : radian = degre * M_PI/180
-		// définir le dégradé dans un carré de (0,0) (100,100)
-		// ensuite ce dégradé est extrapolé selon le ratio width/height
-		// dans repère (0, 0) (100, 100)
+		// dÃ©finir le dÃ©gradÃ© dans un carrÃ© de (0,0) (100,100)
+		// ensuite ce dÃ©gradÃ© est extrapolÃ© selon le ratio width/height
+		// dans repÃ¨re (0, 0) (100, 100)
 		double X0, Y0, X1, Y1, degre;
 		// x = X * (a->width / 100), y = Y * (a->height / 100)
 		double x0, y0, x1, y1;
@@ -148,13 +159,13 @@ void draw_background (Area *a, cairo_t *c)
 		X1 = 100;
 		Y1 = 0;
 		degre = 45;
-		// et ensuite faire la changement d'unité du repère
-		// car ce qui doit resté inchangée est les traits et pas la direction
+		// et ensuite faire la changement d'unitÃ© du repÃ¨re
+		// car ce qui doit restÃ© inchangÃ©e est les traits et pas la direction
 
-		// il faut d'abord appliquer une rotation de 90° (et -180° si l'angle est supérieur à 180°)
-		// ceci peut être appliqué une fois pour toute au départ
-		// ensuite calculer l'angle dans le nouveau repère
-		// puis faire une rotation de 90°
+		// il faut d'abord appliquer une rotation de 90Â° (et -180Â° si l'angle est supÃ©rieur Ã  180Â°)
+		// ceci peut Ãªtre appliquÃ© une fois pour toute au dÃ©part
+		// ensuite calculer l'angle dans le nouveau repÃ¨re
+		// puis faire une rotation de 90Â°
 		x0 = X0 * ((double)a->width / 100);
 		x1 = X1 * ((double)a->width / 100);
 		y0 = Y0 * ((double)a->height / 100);

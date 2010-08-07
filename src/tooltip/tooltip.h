@@ -50,7 +50,7 @@ void default_tooltip();
 void cleanup_tooltip();
 
 void init_tooltip();
-void tooltip_trigger_show(Area* area, Panel* p, int x, int y);
+void tooltip_trigger_show(Area* area, Panel* p, XEvent *e);
 void tooltip_show(void* /*arg*/);
 void tooltip_update();
 void tooltip_trigger_hide();

@@ -303,6 +303,7 @@ void init_panel_size_and_position(Panel *panel)
 void resize_panel(void *obj)
 {
 	Panel *panel = (Panel*)obj;
+//printf("resize_panel : taskbar\n");
 
 	if (panel_horizontal) {
 		int taskbar_width, modulo_width = 0;
