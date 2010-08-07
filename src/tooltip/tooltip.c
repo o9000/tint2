@@ -134,6 +134,9 @@ void tooltip_update_geometry()
 	else
 		x = panel->posx - width;
 
+	if (!panel_horizontal)
+		y -= height/2;
+
 	g_object_unref(layout);
 	cairo_destroy(c);
 	cairo_surface_destroy(cs);
