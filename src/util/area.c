@@ -31,25 +31,38 @@
 #include "panel.h"
 
 
-/*
-// TODO : layering & drawing loop
-1) browse tree and resize SIZE_BY_CONTENT node
-	- children node are resized before its parent
-	- if 'size' changed then 'resize = 1' on the parent
-2) browse tree and resize SIZE_BY_LAYOUT node
-	- parent node is resized before its children
-	- if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
-3) calculate posx of all objects
-4) redraw needed objects
-*/
+/************************************************************
+ * Layering & drawing loop of tint2
+ * 
+ * Areas in tint2 are similar to widgets in a GUI. 
+ * Areas (task, clock, systray, taskbar,...) are nodes in a tree.
+ * The position of each Area is defined by parent's position and brothers on the left.
+ * 
+ * !!! This design is experimental and not yet complete !!!!!!!!!!!!!
+ * 
+ * 1) browse tree and resize SIZE_BY_CONTENT node
+ * 	- children node are resized before its parent
+ * 	- if 'size' changed then 'resize = 1' on the parent
+ * 2) browse tree and resize SIZE_BY_LAYOUT node
+ * 	- parent node is resized before its children
+ * 	- if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
+ * 3) calculate posx of all objects
+ * 	- parent's position is calculated before children's position
+ * 4) redraw needed objects
+ ************************************************************/
+
+void size_by_content (Area *a);
+void size_by_layout (Area *a);
+
 
 void refresh (Area *a)
 {
 	// don't draw and resize hide objects
 	if (!a->on_screen) return;
 
-	size(a);
-	//size_by_content(a);
+	//size(a);
+	size_by_content(a);
+	size_by_layout(a);
 
 	// don't draw transparent objects (without foreground and without background)
 	if (a->redraw) {
@@ -93,7 +106,7 @@ void size (Area *a)
 	}
 }
 
-// browse tree and resize SIZE_BY_CONTENT node
+
 void size_by_content (Area *a)
 {
 	// children node are resized before its parent
@@ -106,27 +119,32 @@ void size_by_content (Area *a)
 		a->resize = 0;
 
 		// if 'size' changed then 'resize = 1' on the parent
-		a->_resize(a);
-		((Area*)a->parent)->resize = 1;
+		if (a->_resize) {
+			a->_resize(a);
+			((Area*)a->parent)->resize = 1;
+		}
 	}
 }
 
 
-// browse tree and resize SIZE_BY_LAYOUT node
 void size_by_layout (Area *a)
 {
 	// parent node is resized before its children
-
 	// calculate current area's size
+	GSList *l;
 	if (a->resize && a->size_mode == SIZE_BY_LAYOUT) {
 		a->resize = 0;
 
-		// if 'size' changed then 'resize = 1' on the parent
-		//if (a->_resize(a)) 
-			//a->parent->resize = 1;
+		// if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
+		if (a->_resize) {
+			a->_resize(a);
+			for (l = a->list; l ; l = l->next) {
+				if (((Area*)l->data)->size_mode == SIZE_BY_LAYOUT)
+					((Area*)l->data)->resize = 1;
+			}
+		}
 	}
 
-	GSList *l;
 	for (l = a->list; l ; l = l->next)
 		size_by_layout(l->data);	
 }
