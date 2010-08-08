@@ -221,7 +221,7 @@ void get_icon (Task *tsk)
 	}
 
 	data = server_get_property (tsk->win, server.atom._NET_WM_ICON, XA_CARDINAL, &i);
-	if (data) {
+	if (data && i) {
 		// get ARGB icon
 		int w, h;
 		long *tmp_data;

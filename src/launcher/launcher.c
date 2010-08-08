@@ -56,6 +56,7 @@ void init_launcher_panel(void *p)
 	launcher->area.parent = p;
 	launcher->area.panel = p;
 	launcher->area._draw_foreground = draw_launcher;
+	launcher->area.size_mode = SIZE_BY_CONTENT;
 	launcher->area._resize = resize_launcher;
 	launcher->area.resize = 1;
 	launcher->area.redraw = 1;

@@ -33,15 +33,12 @@
 
 /*
 // TODO : layering & drawing loop
-1) browse tree and calculate 'size' for SIZE_BY_CONTENT
-	- SIZE_BY_CONTENT loop calculate child first
-	- if 'size' changed then 'resize = 1' on the parent (tester resize aprés la boucle)
-	- size == width on horizontal panel and == height on vertical panel
-2) browse tree and calculate 'size' for SIZE_BY_LAYOUT
-	- SIZE_BY_LAYOUT loop calculate parent first
+1) browse tree and resize SIZE_BY_CONTENT node
+	- children node are resized before its parent
+	- if 'size' changed then 'resize = 1' on the parent
+2) browse tree and resize SIZE_BY_LAYOUT node
+	- parent node is resized before its children
 	- if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
-	- calculate width = size - somme(child_with_of_SIZE_BY_CONTENT) modulo(number of child_SIZE_BY_LAYOUT)
-	- calculate modulo = 
 3) calculate posx of all objects
 4) redraw needed objects
 */
@@ -52,6 +49,7 @@ void refresh (Area *a)
 	if (!a->on_screen) return;
 
 	size(a);
+	//size_by_content(a);
 
 	// don't draw transparent objects (without foreground and without background)
 	if (a->redraw) {
@@ -93,6 +91,44 @@ void size (Area *a)
 		if (a->_resize)
 			a->_resize(a);
 	}
+}
+
+// browse tree and resize SIZE_BY_CONTENT node
+void size_by_content (Area *a)
+{
+	// children node are resized before its parent
+	GSList *l;
+	for (l = a->list; l ; l = l->next)
+		size_by_content(l->data);
+	
+	// calculate current area's size
+	if (a->resize && a->size_mode == SIZE_BY_CONTENT) {
+		a->resize = 0;
+
+		// if 'size' changed then 'resize = 1' on the parent
+		a->_resize(a);
+		((Area*)a->parent)->resize = 1;
+	}
+}
+
+
+// browse tree and resize SIZE_BY_LAYOUT node
+void size_by_layout (Area *a)
+{
+	// parent node is resized before its children
+
+	// calculate current area's size
+	if (a->resize && a->size_mode == SIZE_BY_LAYOUT) {
+		a->resize = 0;
+
+		// if 'size' changed then 'resize = 1' on the parent
+		//if (a->_resize(a)) 
+			//a->parent->resize = 1;
+	}
+
+	GSList *l;
+	for (l = a->list; l ; l = l->next)
+		size_by_layout(l->data);	
 }
 
 
@@ -148,9 +184,9 @@ void draw_background (Area *a, cairo_t *c)
 		draw_rect(c, a->bg->border.width/2.0, a->bg->border.width/2.0, a->width - a->bg->border.width, a->height - a->bg->border.width, a->bg->border.rounded);
 		/*
 		// convert : radian = degre * M_PI/180
-		// dÃ©finir le dÃ©gradÃ© dans un carrÃ© de (0,0) (100,100)
-		// ensuite ce dÃ©gradÃ© est extrapolÃ© selon le ratio width/height
-		// dans repÃ¨re (0, 0) (100, 100)
+		// definir le degrade dans un carre de (0,0) (100,100)
+		// ensuite ce degrade est extrapoler selon le ratio width/height
+		// dans repere (0, 0) (100, 100)
 		double X0, Y0, X1, Y1, degre;
 		// x = X * (a->width / 100), y = Y * (a->height / 100)
 		double x0, y0, x1, y1;
@@ -159,13 +195,13 @@ void draw_background (Area *a, cairo_t *c)
 		X1 = 100;
 		Y1 = 0;
 		degre = 45;
-		// et ensuite faire la changement d'unitÃ© du repÃ¨re
-		// car ce qui doit restÃ© inchangÃ©e est les traits et pas la direction
+		// et ensuite faire la changement d'unite du repere
+		// car ce qui doit reste inchangee est les traits et pas la direction
 
-		// il faut d'abord appliquer une rotation de 90Â° (et -180Â° si l'angle est supÃ©rieur Ã  180Â°)
-		// ceci peut Ãªtre appliquÃ© une fois pour toute au dÃ©part
-		// ensuite calculer l'angle dans le nouveau repÃ¨re
-		// puis faire une rotation de 90Â°
+		// il faut d'abord appliquer une rotation de 90 (et -180 si l'angle est superieur a  180)
+		// ceci peut etre applique une fois pour toute au depart
+		// ensuite calculer l'angle dans le nouveau repare
+		// puis faire une rotation de 90
 		x0 = X0 * ((double)a->width / 100);
 		x1 = X1 * ((double)a->width / 100);
 		y0 = Y0 * ((double)a->height / 100);

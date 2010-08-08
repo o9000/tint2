@@ -163,6 +163,7 @@ void init_panel()
 		p->area.panel = p;
 		p->area.on_screen = 1;
 		p->area.resize = 1;
+		p->area.size_mode = SIZE_BY_CONTENT;
 		p->area._resize = resize_panel;
 		p->g_taskbar.area.parent = p;
 		p->g_taskbar.area.panel = p;

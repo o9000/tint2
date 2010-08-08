@@ -149,6 +149,7 @@ void init_clock_panel(void *p)
 	clock->area.parent = p;
 	clock->area.panel = p;
 	clock->area._draw_foreground = draw_clock;
+	clock->area.size_mode = SIZE_BY_CONTENT;
 	clock->area._resize = resize_clock;
 	clock->area.resize = 1;
 	clock->area.redraw = 1;

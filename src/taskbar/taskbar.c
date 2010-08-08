@@ -75,6 +75,7 @@ void init_taskbar()
 			panel->g_task.area.bg = &g_array_index(backgrounds, Background, 0);
 
 		// taskbar
+		panel->g_taskbar.area.size_mode = SIZE_BY_LAYOUT;
 		panel->g_taskbar.area._resize = resize_taskbar;
 		panel->g_taskbar.area.redraw = 1;
 		panel->g_taskbar.area.on_screen = 1;
@@ -88,6 +89,7 @@ void init_taskbar()
 		}
 
 		// task
+		panel->g_task.area.size_mode = SIZE_BY_LAYOUT;
 		panel->g_task.area._draw_foreground = draw_task;
 		panel->g_task.area.redraw = 1;
 		panel->g_task.area.on_screen = 1;
