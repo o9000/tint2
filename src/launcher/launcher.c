@@ -34,7 +34,7 @@
 
 int launcher_enabled;
 int launcher_max_icon_size;
-
+GSList *icon_themes = 0;
 
 void default_launcher()
 {
@@ -56,7 +56,6 @@ void init_launcher_panel(void *p)
 	launcher->area.parent = p;
 	launcher->area.panel = p;
 	launcher->area._draw_foreground = draw_launcher;
-	launcher->area.size_mode = SIZE_BY_CONTENT;
 	launcher->area._resize = resize_launcher;
 	launcher->area.resize = 1;
 	launcher->area.redraw = 1;
@@ -256,3 +255,229 @@ void launcher_action(LauncherIcon *icon)
 	free(cmd);
 }
 
+/***************** Freedesktop app.desktop and icon theme handling  *********************/
+/* http://standards.freedesktop.org/desktop-entry-spec/ */
+/* http://standards.freedesktop.org/icon-theme-spec/ */
+
+int parse_dektop_line(char *line, char **key, char **value)
+{
+	char *p;
+	int found = 0;
+	*key = line;
+	for (p = line; *p; p++) {
+		if (*p == '=') {
+			*value = p + 1;
+			*p = 0;
+			found = 1;
+			break;
+		}
+	}
+	if (!found)
+		return 0;
+	if (found && (strlen(*key) == 0 || strlen(*value) == 0))
+		return 0;
+	return 1;
+}
+
+void expand_exec(DesktopEntry *entry, const char *path)
+{
+	// Expand % in exec
+	// %i -> --icon Icon
+	// %c -> Name
+	// %k -> path
+	if (entry->exec) {
+		char *exec2 = malloc(strlen(entry->exec) + strlen(entry->name) + strlen(entry->icon) + 100);
+		char *p, *q;
+		// p will never point to an escaped char
+		for (p = entry->exec, q = exec2; *p; p++, q++) {
+			*q = *p; // Copy
+			if (*p == '\\') {
+				p++, q++;
+				// Copy the escaped char
+				if (*p == '%') // For % we delete the backslash, i.e. write % over it
+					q--;
+				*q = *p;
+				if (!*p) break;
+				continue;
+			}
+			if (*p == '%') {
+				p++;
+				if (!*p) break;
+				if (*p == 'i' && entry->icon != NULL) {
+					sprintf(q, "--icon '%s'", entry->icon);
+					q += strlen("--icon ''");
+					q += strlen(entry->icon);
+					q--; // To balance the q++ in the for
+				} else if (*p == 'c' && entry->name != NULL) {
+					sprintf(q, "'%s'", entry->name);
+					q += strlen("''");
+					q += strlen(entry->name);
+					q--; // To balance the q++ in the for
+				} else if (*p == 'c') {
+					sprintf(q, "'%s'", path);
+					q += strlen("''");
+					q += strlen(path);
+					q--; // To balance the q++ in the for
+				} else {
+					// We don't care about other expansions
+					q--; // Delete the last % from q
+				}
+				continue;
+			}
+		}
+		*q = '\0';
+		free(entry->exec);
+		entry->exec = exec2;
+	}
+}
+
+int launcher_read_desktop_file(const char *path, DesktopEntry *entry)
+{
+	FILE *fp;
+	char line[4096];
+	char *buffer;
+	char *key, *value;
+
+	entry->name = entry->icon = entry->exec = NULL;
+
+	if ((fp = fopen(path, "r")) == NULL) {
+		fprintf(stderr, "Could not open file %s\n", path);
+		return 0;
+	}
+
+	buffer = line;
+	while (fgets(buffer, sizeof(line) - (buffer - line), fp) != NULL) {
+		//TODO use UTF8 capable strlen
+		int len = strlen(buffer);
+		int total_len = strlen(line);
+		if (!g_utf8_validate(buffer, total_len, NULL)) {
+			// Not a real newline, read more
+			buffer += len;
+			if (sizeof(line) - (buffer - line) < 2) {
+				fprintf(stderr, "%s %d: line too long (%s)\n", __FILE__, __LINE__, path);
+				break;
+			} else {
+				continue;
+			}
+		}
+		// We have a valid line
+		buffer[len-1] = '\0';
+		buffer = line;
+		if (parse_dektop_line(line, &key, &value)) {
+			if (strcmp(key, "Name") == 0) {
+				//TODO use UTF-8 capable strdup
+				entry->name = strdup(value);
+			} else if (strcmp(key, "Exec") == 0) {
+				entry->exec = strdup(value);
+			} else if (strcmp(key, "Icon") == 0) {
+				//TODO use UTF-8 capable strdup
+				entry->icon = strdup(value);
+			}
+		}
+	}
+	fclose (fp);
+	// From this point:
+	// entry->name, entry->icon, entry->exec will never be empty strings (can be NULL though)
+
+	expand_exec(entry, path);
+	
+	return 1;
+}
+
+void test_launcher_read_desktop_file()
+{
+	DesktopEntry entry;
+	launcher_read_desktop_file("/usr/share/applications/firefox.desktop", &entry);
+	printf("Name:%s Icon:%s Exec:%s\n", entry.name, entry.icon, entry.exec);
+}
+
+IconTheme *load_theme(char *name)
+{
+	//TODO
+	// Look for name/index.theme in $HOME/.icons, /usr/share/icons, /usr/share/pixmaps (stop at the first found)
+	// Parse index.theme -> list of IconThemeDir with attributes
+	// Return IconTheme struct
+	return NULL;
+}
+
+// Populates the icon_themes list
+void launcher_load_themes()
+{
+	//TODO load the user theme, all the inherited themes recursively (DFS), and the hicolor theme
+	// avoid inheritance loops
+}
+
+// Returns the full path to an icon file (or NULL) given the icon name
+char *icon_path(const char *name)
+{
+	//TODO
+	/*
+
+// Stage 1: exact size match
+LookupIcon (iconname, size):
+for each subdir in $(theme subdir list) {  // <---- each subdir in each theme
+   for each directory in $(basename list) {
+   for extension in ("png", "svg", "xpm") {
+   if DirectoryMatchesSize(subdir, size) {
+   filename = directory/$(themename)/subdirectory/iconname.extension
+   if exist filename
+	   return filename
+}
+}
+}
+}
+
+// Stage 2: best size match
+minimal_size = MAXINT
+for each subdir in $(theme subdir list) {  // <---- each subdir in each theme
+   for each directory in $(basename list) {
+   for extension in ("png", "svg", "xpm") {
+   filename = directory/$(themename)/subdirectory/iconname.extension
+   if exist filename and DirectorySizeDistance(subdir, size) < minimal_size
+	   closest_filename = filename
+	   minimal_size = DirectorySizeDistance(subdir, size)
+}
+}
+}
+if closest_filename set
+	return closest_filename
+
+// Stage 3: look in unthemed icons 
+for each directory in $(basename list) { // <---- $HOME/.icons, /usr/share/icons, /usr/share/pixmaps
+   for extension in ("png", "svg", "xpm") {
+   if exists directory/iconname.extension
+	   return directory/iconname.extension
+	   }
+	   }
+	   
+	   return failed icon lookup
+
+// With the following helper functions:
+
+DirectoryMatchesSize(subdir, iconsize):
+read Type and size data from subdir
+if Type is Fixed
+return Size == iconsize
+if Type is Scaled
+return MinSize <= iconsize <= MaxSize
+if Type is Threshold
+return Size - Threshold <= iconsize <= Size + Threshold
+
+DirectorySizeDistance(subdir, size):
+read Type and size data from subdir
+if Type is Fixed
+return abs(Size - iconsize)
+if Type is Scaled
+if iconsize < MinSize
+return MinSize - iconsize
+if iconsize > MaxSize
+return iconsize - MaxSize
+return 0
+if Type is Threshold
+if iconsize < Size - Threshold
+return MinSize - iconsize
+if iconsize > Size + Threshold
+return iconsize - MaxSize
+return 0
+	*/
+}

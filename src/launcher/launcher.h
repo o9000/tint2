@@ -25,8 +25,34 @@ typedef struct LauncherIcon {
 	int width, height;
 } LauncherIcon;
 
+typedef struct DesktopEntry {
+	char *name;
+	char *exec;
+	char *icon;
+} DesktopEntry;
+
+#define ICON_DIR_TYPE_SCALABLE 0
+#define ICON_DIR_TYPE_FIXED 1
+#define ICON_DIR_TYPE_THRESHOLD 2
+typedef struct IconThemeDir {
+	char *name;
+	int size;
+	int type;
+	int max_size;
+	int min_size;
+	int threshold;
+} IconThemeDir;
+
+typedef struct IconTheme {
+	char *name;
+	GSList *list_inherits; // each item is a char* (theme name)
+	GSList *list_directories; // each item is an IconThemeDir*
+} IconTheme;
+
 extern int launcher_enabled;
 extern int launcher_max_icon_size;
+
+extern GSList *icon_themes; // each item is an IconTheme*
 
 // default global data
 void default_launcher();
@@ -40,5 +66,7 @@ void resize_launcher(void *obj);
 void draw_launcher (void *obj, cairo_t *c);
 
 void launcher_action(LauncherIcon *icon);
+
+void test_launcher_read_desktop_file();
 
 #endif
