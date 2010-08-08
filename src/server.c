@@ -171,7 +171,6 @@ void *server_get_property (Window win, Atom at, Atom type, int *num_results)
 	result = XGetWindowProperty(server.dsp, win, at, 0, 0x7fffffff, False, type, &type_ret, &format_ret, &nitems_ret, &bafter_ret, &prop_value);
 
 	// Send back resultcount
-	// it look some version of gcc doesn't do the cast. so we force it.
 	if (num_results) *num_results = (int)nitems_ret;
 
 	if (result == Success && prop_value) return prop_value;

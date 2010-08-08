@@ -218,7 +218,7 @@ int window_is_active (Window win)
 }
 
 
-int get_icon_count (long *data, int num)
+int get_icon_count (int32_t *data, int num)
 {
 	int count, pos, w, h;
 
@@ -236,10 +236,10 @@ int get_icon_count (long *data, int num)
 }
 
 
-long *get_best_icon (long *data, int icon_count, int num, int *iw, int *ih, int best_icon_size)
+int32_t *get_best_icon (int32_t *data, int icon_count, int num, int *iw, int *ih, int best_icon_size)
 {
 	int width[icon_count], height[icon_count], pos, i, w, h;
-	long *icon_data[icon_count];
+	int32_t *icon_data[icon_count];
 
 	/* List up icons */
 	pos = 0;

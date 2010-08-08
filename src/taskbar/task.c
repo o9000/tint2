@@ -209,7 +209,7 @@ void get_icon (Task *tsk)
 	int i;
 	Imlib_Image img = NULL;
 	XWMHints *hints = 0;
-	long *data = 0;
+	int32_t *data = 0;
 
 	int k;
 	for (k=0; k<TASK_STATE_COUNT; ++k) {
@@ -224,7 +224,7 @@ void get_icon (Task *tsk)
 	if (data) {
 		// get ARGB icon
 		int w, h;
-		long *tmp_data;
+		int32_t *tmp_data;
 
 		tmp_data = get_best_icon (data, get_icon_count (data, i), i, &w, &h, panel->g_task.icon_size1);
 
