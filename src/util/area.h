@@ -89,11 +89,11 @@ typedef struct {
 
 
 
+void size_by_content (Area *a);
+void size_by_layout (Area *a);
 // draw background and foreground
 void refresh (Area *a);
-
-void size (Area *a);
-
+ 
 // set 'redraw' on an area and childs
 void set_redraw (Area *a);
 

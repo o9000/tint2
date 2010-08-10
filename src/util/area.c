@@ -32,13 +32,30 @@
 
 
 /************************************************************
- * Layering & drawing loop of tint2
+ * !!! This design is experimental and not yet fully implemented !!!!!!!!!!!!!
  * 
+ * AREA :
  * Areas in tint2 are similar to widgets in a GUI. 
- * Areas (task, clock, systray, taskbar,...) are nodes in a tree.
- * The position of each Area is defined by parent's position and brothers on the left.
+ * Graphical objects (panel, taskbar, task, systray, clock, ...) in tint2 'inherit' an Area class.
+ * Area is an abstract class of objects. It's at the begining of each object (&object == &area).
+ * Area manage the background and border drawing, size and padding.
  * 
- * !!! This design is experimental and not yet complete !!!!!!!!!!!!!
+ * DATA ORGANISATION :
+ * tint2 define one panel per monitor. And each panel have a tree of Area (nodes).
+ * The root of the tree is Panel.Area. And task, clock, systray, taskbar,... are nodes.
+ * 
+ * 'panel_items' parameter (in config) define the list and the order of nodes in tree's panel.
+ * 'panel_items = SC' define a panel with just Systray and Clock.
+ * So the root Panel.Area will have 2 childs (Systray and Clock).
+ *
+ * The tree allow to browse panel's objects from background to foreground and from left to right.
+ * The position of each node/Area depend on parent's position and brothers on the left.
+ * 
+ * DRAWING EVENT :
+ * In the end, redrawing an object (like the clock) could come from an external event (date change) 
+ * or from a layering event (size or position change).
+ * 
+ * DRAWING LOOP :
  * 
  * 1) browse tree and resize SIZE_BY_CONTENT node
  * 	- children node are resized before its parent
@@ -46,23 +63,20 @@
  * 2) browse tree and resize SIZE_BY_LAYOUT node
  * 	- parent node is resized before its children
  * 	- if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
- * 3) calculate posx of all objects
+ * 3) calculate posx of objects
  * 	- parent's position is calculated before children's position
+ * 	- if 'position' changed then 'redraw = 1'
  * 4) redraw needed objects
+ * 	- parent node is drawn before its children
+ * 
+ * perhaps 2) and 3) can be merged...
  ************************************************************/
-
-void size_by_content (Area *a);
-void size_by_layout (Area *a);
 
 
 void refresh (Area *a)
 {
 	// don't draw and resize hide objects
 	if (!a->on_screen) return;
-
-	//size(a);
-	size_by_content(a);
-	size_by_layout(a);
 
 	// don't draw transparent objects (without foreground and without background)
 	if (a->redraw) {
@@ -87,28 +101,11 @@ void refresh (Area *a)
 }
 
 
-void size (Area *a)
-{
-	GSList *l;
-
-	if (a->resize) {
-		a->resize = 0;
-		// force the resize of childs
-		for (l = a->list; l ; l = l->next) {
-			Area *area = (Area*)l->data;
-			area->resize = 1;
-			size(area);
-		}
-
-		// resize can generate a redraw
-		if (a->_resize)
-			a->_resize(a);
-	}
-}
-
-
 void size_by_content (Area *a)
 {
+	// don't draw and resize hide objects
+	if (!a->on_screen) return;
+
 	// children node are resized before its parent
 	GSList *l;
 	for (l = a->list; l ; l = l->next)
@@ -129,6 +126,9 @@ void size_by_content (Area *a)
 
 void size_by_layout (Area *a)
 {
+	// don't draw and resize hide objects
+	if (!a->on_screen) return;
+
 	// parent node is resized before its children
 	// calculate current area's size
 	GSList *l;

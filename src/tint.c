@@ -186,6 +186,8 @@ void get_snapshot(const char *path)
 		panel->area.width = server.monitor[0].width;
 
 	panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
+	size_by_content(&panel->area);
+	size_by_layout(&panel->area);
 	refresh(&panel->area);
 
 	Imlib_Image img = NULL;
@@ -775,6 +777,8 @@ start:
 				else {
 					if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
 					panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
+					size_by_content(&panel->area);
+					size_by_layout(&panel->area);
 					refresh(&panel->area);
 					XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
 				}
