@@ -711,6 +711,7 @@ void launcher_load_themes(Launcher *launcher)
 			launcher->icon_themes = g_slist_append(launcher->icon_themes, theme);
 
 			GSList* item = theme->list_inherits;
+			int pos = 0;
 			while (item != NULL)
 			{
 				char *parent = item->data;
@@ -724,7 +725,8 @@ void launcher_load_themes(Launcher *launcher)
 					queued_item = g_slist_next(queued_item);
 				}
 				if (!duplicate) {
-					queue = g_slist_append(queue, strdup(parent));
+					queue = g_slist_insert(queue, strdup(parent), pos);
+					pos++;
 					queued = g_slist_append(queued, strdup(parent));
 				}
 				item = g_slist_next(item);
