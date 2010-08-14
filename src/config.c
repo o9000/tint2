@@ -556,13 +556,13 @@ void add_entry (char *key, char *value)
 	else if (strcmp(key, "launcher_icon_size") == 0) {
 		launcher_max_icon_size = atoi(value);
 	}
-	else if (strcmp(key, "launcher_item_icon") == 0) {
-		char *path = strdup(value);
-		panel_config.launcher.list_icon_paths = g_slist_append(panel_config.launcher.list_icon_paths, path);
+	else if (strcmp(key, "launcher_item_app") == 0) {
+		char *app = strdup(value);
+		panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, app);
 	}
-	else if (strcmp(key, "launcher_item_cmd") == 0) {
-		char *cmd = strdup(value);
-		panel_config.launcher.list_cmds = g_slist_append(panel_config.launcher.list_cmds, cmd);
+	else if (strcmp(key, "launcher_icon_theme") == 0) {
+		char *app = strdup(value);
+		panel_config.launcher.icon_theme_names = g_slist_append(panel_config.launcher.icon_theme_names, app);
 	}
 
 	/* Tooltip */

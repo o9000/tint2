@@ -688,8 +688,8 @@ LauncherIcon *click_launcher_icon (Panel *panel, int x, int y)
 		LauncherIcon *icon;
 		for (l0 = launcher->list_icons; l0 ; l0 = l0->next) {
 			icon = l0->data;
-			if (x >= (launcher->area.posx + icon->x) && x <= (launcher->area.posx + icon->x + icon->width) &&
-				y >= (launcher->area.posy + icon->y) && y <= (launcher->area.posy + icon->y + icon->height)) {
+			if (x >= (launcher->area.posx + icon->x) && x <= (launcher->area.posx + icon->x + icon->icon_size) &&
+				y >= (launcher->area.posy + icon->y) && y <= (launcher->area.posy + icon->y + icon->icon_size)) {
 				//printf("Hit rect x=%d y=%d xmax=%d ymax=%d\n", launcher->area.posx + icon->x, launcher->area.posy + icon->y, launcher->area.posx + icon->x + icon->width, launcher->area.posy + icon->y + icon->height);
 				return icon;
 			}

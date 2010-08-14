@@ -13,16 +13,21 @@
 typedef struct Launcher {
 	// always start with area
 	Area area;
-	GSList *list_icon_paths;
-	GSList *list_cmds;
-	GSList *list_icons;
+	GSList *list_apps;			// List of char*, each is a path to a app.desktop file
+	GSList *list_icons; 		// List of LauncherIcon*
+	GSList *icon_theme_names; 	// List of char*, each is a theme name (oxygen, Tango...)
+	GSList *icon_themes;		// List of IconTheme*
 } Launcher;
 
 typedef struct LauncherIcon {
-	Imlib_Image icon;
+	Imlib_Image icon_scaled;
+	Imlib_Image icon_original;
 	char *cmd;
+	char *icon_name;
+	char *icon_path;
+	int icon_size;
+	int is_app_desktop;
 	int x, y;
-	int width, height;
 } LauncherIcon;
 
 typedef struct DesktopEntry {
@@ -41,6 +46,7 @@ typedef struct IconThemeDir {
 	int max_size;
 	int min_size;
 	int threshold;
+	char *context;
 } IconThemeDir;
 
 typedef struct IconTheme {
@@ -51,8 +57,6 @@ typedef struct IconTheme {
 
 extern int launcher_enabled;
 extern int launcher_max_icon_size;
-
-extern GSList *icon_themes; // each item is an IconTheme*
 
 // default global data
 void default_launcher();
@@ -68,5 +72,6 @@ void draw_launcher (void *obj, cairo_t *c);
 void launcher_action(LauncherIcon *icon);
 
 void test_launcher_read_desktop_file();
+void test_launcher_read_theme_file();
 
 #endif
