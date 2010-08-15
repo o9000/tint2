@@ -372,7 +372,7 @@ void expand_exec(DesktopEntry *entry, const char *path)
 	// %c -> Name
 	// %k -> path
 	if (entry->exec) {
-		char *exec2 = malloc(strlen(entry->exec) + strlen(entry->name) + strlen(entry->icon) + 100);
+		char *exec2 = malloc(strlen(entry->exec) + (entry->name ? strlen(entry->name) : 1) + (entry->icon ? strlen(entry->icon) : 1) + 100);
 		char *p, *q;
 		// p will never point to an escaped char
 		for (p = entry->exec, q = exec2; *p; p++, q++) {
