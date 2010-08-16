@@ -27,7 +27,7 @@
 #include "panel.h"
 #include "timer.h"
 
-static int x, y, width, height;
+static int x_original, y_original, x, y, width, height;
 
 // the next functions are helper functions for tooltip handling
 void start_show_timeout();
@@ -78,8 +78,8 @@ void init_tooltip()
 void tooltip_trigger_show(Area* area, Panel* p, XEvent *e)
 {
 	// Position the tooltip in the center of the area
-	x = area->posx + area->width / 2 + e->xmotion.x_root - e->xmotion.x;
-	y = area->posy + area->height / 2 + e->xmotion.y_root - e->xmotion.y;
+	x = x_original = area->posx + area->width / 2 + e->xmotion.x_root - e->xmotion.x;
+	y = y_original = area->posy + area->height / 2 + e->xmotion.y_root - e->xmotion.y;
 	g_tooltip.panel = p;
 	if (g_tooltip.mapped && g_tooltip.area != area) {
 		tooltip_copy_text(area);
@@ -123,6 +123,9 @@ void tooltip_update_geometry()
 	pango_layout_get_pixel_extents(layout, &r1, &r2);
 	width = 2*g_tooltip.bg->border.width + 2*g_tooltip.paddingx + r2.width;
 	height = 2*g_tooltip.bg->border.width + 2*g_tooltip.paddingy + r2.height;
+
+	x = x_original;
+	y = y_original;
 
 	Panel* panel = g_tooltip.panel;
 	if (panel_horizontal && panel_position & BOTTOM)
