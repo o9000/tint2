@@ -374,9 +374,11 @@ gboolean add_icon(Window id)
 	if ( XGetWindowAttributes(server.dsp, id, &attr) == False ) return FALSE;
 	unsigned long mask = 0;
 	XSetWindowAttributes set_attr;
+	Visual* visual = server.visual;
 	//printf("icon with depth: %d, width %d, height %d\n", attr.depth, attr.width, attr.height);
 	printf("icon with depth: %d\n", attr.depth);
 	if (attr.depth != server.depth || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+		visual = attr.visual;
 		set_attr.colormap = attr.colormap;
 		set_attr.background_pixel = 0;
 		set_attr.border_pixel = 0;
@@ -387,7 +389,7 @@ gboolean add_icon(Window id)
 		mask = CWBackPixmap;
 	}
 	Window parent_window;
-	parent_window = XCreateWindow(server.dsp, panel->main_win, 0, 0, 30, 30, 0, attr.depth, InputOutput, attr.visual, mask, &set_attr);
+	parent_window = XCreateWindow(server.dsp, panel->main_win, 0, 0, 30, 30, 0, attr.depth, InputOutput, visual, mask, &set_attr);
 	old = XSetErrorHandler(window_error_handler);
 	XReparentWindow(server.dsp, id, parent_window, 0, 0);
 	XSync(server.dsp, False);

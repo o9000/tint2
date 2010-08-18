@@ -444,9 +444,11 @@ void active_task()
 	//printf("Change active task %ld\n", w1);
 
 	if (w1) {
-		Window w2;
-		if (XGetTransientForHint(server.dsp, w1, &w2) != 0)
-			if (w2 && !task_get_tasks(w1)) w1 = w2;
+		if (!task_get_tasks(w1)) {
+			Window w2;
+			while (XGetTransientForHint(server.dsp, w1, &w2))
+				w1 = w2;
+		}
 		set_task_state((task_active = task_get_task(w1)), TASK_ACTIVE);
 	}
 }
