@@ -56,13 +56,12 @@
  * or from a layering event (size or position change).
  * 
  * DRAWING LOOP :
- * 
  * 1) browse tree and resize SIZE_BY_CONTENT node
  * 	- children node are resized before its parent
- * 	- if 'size' changed then 'resize = 1' on the parent
+ * 	- if 'size' changed then 'redraw = 1' and 'resize = 1' on the parent
  * 2) browse tree and resize SIZE_BY_LAYOUT node
  * 	- parent node is resized before its children
- * 	- if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
+ * 	- if 'size' changed then 'redraw = 1' and 'resize = 1' on childs with SIZE_BY_LAYOUT
  * 3) calculate posx of objects
  * 	- parent's position is calculated before children's position
  * 	- if 'position' changed then 'redraw = 1'
@@ -70,6 +69,10 @@
  * 	- parent node is drawn before its children
  * 
  * perhaps 2) and 3) can be merged...
+ * répartition entre niveau global et niveau local ??
+ *   size_by_content peut-il modifier redraw=1 en cas de changement ? ou est ce géré par chaque composant ?
+ *   size_by_layout peut-il modifier redraw ?
+ *   
  ************************************************************/
 
 
@@ -118,6 +121,7 @@ void size_by_content (Area *a)
 		// if 'size' changed then 'resize = 1' on the parent
 		if (a->_resize) {
 			a->_resize(a);
+			a->redraw = 1;
 			((Area*)a->parent)->resize = 1;
 		}
 	}
