@@ -278,7 +278,7 @@ void start_net()
 
 	// v0.3 trayer specification. tint2 always horizontal.
 	// Vertical panel will draw the systray horizontal.
-	int orient = 0;
+	long orient = 0;
 	XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_ORIENTATION, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &orient, 1);
 	VisualID vid;
 	if (server.visual32 && (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0))

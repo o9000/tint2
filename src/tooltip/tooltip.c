@@ -151,22 +151,22 @@ void tooltip_adjust_geometry()
 	Panel* panel = g_tooltip.panel;
 	int screen_width = server.monitor[panel->monitor].x + server.monitor[panel->monitor].width;
 	int screen_height = server.monitor[panel->monitor].y + server.monitor[panel->monitor].height;
-	if ( x+width <= screen_width && y+height <= screen_height && x>=0 && y>=0)
+	if ( x+width <= screen_width && y+height <= screen_height && x>=server.monitor[panel->monitor].x && y>=server.monitor[panel->monitor].y )
 		return;    // no adjustment needed
 
 	if (panel_horizontal) {
 		min_x=0;
-		max_width=screen_width;
-		max_height=screen_height-panel->area.height;
+		max_width=server.monitor[panel->monitor].width;
+		max_height=server.monitor[panel->monitor].height-panel->area.height;
 		if (panel_position & BOTTOM)
 			min_y=0;
 		else
 			min_y=panel->area.height;
 	}
 	else {
-		max_width=screen_width-panel->area.width;
+		max_width=server.monitor[panel->monitor].width-panel->area.width;
 		min_y=0;
-		max_height=screen_height;
+		max_height=server.monitor[panel->monitor].height;
 		if (panel_position & LEFT)
 			min_x=panel->area.width;
 		else

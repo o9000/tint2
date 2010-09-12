@@ -221,17 +221,17 @@ int window_is_active (Window win)
 }
 
 
-int get_icon_count (long *data, int num)
+int get_icon_count (gulong *data, int num)
 {
 	int count, pos, w, h;
 
 	count = 0;
 	pos = 0;
-	while (pos < num) {
+	while (pos+2 < num) {
 		w = data[pos++];
 		h = data[pos++];
 		pos += w * h;
-		if (pos > num || w * h == 0) break;
+		if (pos > num || w <= 0 || h <= 0) break;
 		count++;
 	}
 
@@ -239,10 +239,10 @@ int get_icon_count (long *data, int num)
 }
 
 
-long *get_best_icon (long *data, int icon_count, int num, int *iw, int *ih, int best_icon_size)
+gulong *get_best_icon (gulong *data, int icon_count, int num, int *iw, int *ih, int best_icon_size)
 {
 	int width[icon_count], height[icon_count], pos, i, w, h;
-	long *icon_data[icon_count];
+	gulong *icon_data[icon_count];
 
 	/* List up icons */
 	pos = 0;

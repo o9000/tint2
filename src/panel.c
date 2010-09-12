@@ -510,7 +510,7 @@ void set_panel_properties(Panel *p)
 	XChangeProperty(server.dsp, p->main_win, server.atom._MOTIF_WM_HINTS, server.atom._MOTIF_WM_HINTS, 32, PropModeReplace, (unsigned char *) prop, 5);
 
 	// XdndAware - Register for Xdnd events
-	long version=5;
+	Atom version=4;
 	XChangeProperty(server.dsp, p->main_win, server.atom.XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char*)&version, 1);
 
 	update_strut(p);

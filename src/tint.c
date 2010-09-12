@@ -158,13 +158,13 @@ void cleanup()
 {
 	cleanup_timeout();
 	cleanup_systray();
-	cleanup_panel();
 	cleanup_tooltip();
 	cleanup_clock();
 	cleanup_launcher();
 #ifdef ENABLE_BATTERY
 	cleanup_battery();
 #endif
+	cleanup_panel();
 	cleanup_config();
 
 	if (default_icon) {
