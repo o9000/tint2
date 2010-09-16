@@ -449,11 +449,11 @@ void draw_battery (void *obj, cairo_t *c)
 }
 
 
-void resize_battery(void *obj)
+int resize_battery(void *obj)
 {
 	Battery *battery = obj;
 	PangoLayout *layout;
-	int percentage_width, time_width, new_width;
+	int percentage_width, time_width, new_width, ret = 0;
 
 	percentage_width = time_width = 0;
 	battery->area.redraw = 1;
@@ -465,7 +465,7 @@ void resize_battery(void *obj)
 		snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
 	}
 	// vertical panel doen't adjust width
-	if (!panel_horizontal) return;
+	if (!panel_horizontal) return ret;
 
 	cairo_surface_t *cs;
 	cairo_t *c;
@@ -500,18 +500,17 @@ void resize_battery(void *obj)
 	if (panel->clock.area.on_screen)
 		battery->area.posx -= (panel->clock.area.width + panel->area.paddingx);
 
-	if(new_width > old_width || new_width < (old_width-6)) {
+	if (new_width > old_width || new_width < (old_width-6)) {
 		// refresh and resize other objects on panel
 		// we try to limit the number of refresh
 		// printf("battery_width %d, new_width %d\n", battery->area.width, new_width);
-		panel->area.resize = 1;
-		systray.area.resize = 1;
-		panel_refresh = 1;
+		ret = 1;
 	}
 
 	g_object_unref (layout);
 	cairo_destroy (c);
 	cairo_surface_destroy (cs);
 	XFreePixmap (server.dsp, pmap);
+	return ret;
 }
 

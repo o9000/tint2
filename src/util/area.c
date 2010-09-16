@@ -34,46 +34,100 @@
 /************************************************************
  * !!! This design is experimental and not yet fully implemented !!!!!!!!!!!!!
  * 
- * AREA :
- * Areas in tint2 are similar to widgets in a GUI. 
- * Graphical objects (panel, taskbar, task, systray, clock, ...) in tint2 'inherit' an Area class.
- * Area is an abstract class of objects. It's at the begining of each object (&object == &area).
- * Area manage the background and border drawing, size and padding.
- * 
  * DATA ORGANISATION :
- * tint2 define one panel per monitor. And each panel have a tree of Area (nodes).
+ * Areas in tint2 are similar to widgets in a GUI. 
+ * All graphical objects (panel, taskbar, task, systray, clock, ...) 'inherit' an abstract class 'Area'.
+ * This class 'Area' manage the background, border, size, position and padding.
+ * Area is at the begining of each object (&object == &area).
+ * 
+ * tint2 define one panel per monitor. And each panel have a tree of Area.
  * The root of the tree is Panel.Area. And task, clock, systray, taskbar,... are nodes.
  * 
+ * The tree give the localisation of each object :
+ * - tree's root is in the background while tree's leafe are foreground objects
+ * - position of a node/Area depend on the layout : parent's position (posx, posy), size of previous brothers and parent's padding
+ * - size of a node/Area depend on the content (SIZE_BY_CONTENT objects) or on the layout (SIZE_BY_LAYOUT objects) 
+ * 
+ * DRAWING AND LAYERING ENGINE :
+ * Redrawing an object (like the clock) could come from an 'external event' (date change) 
+ * or from a 'layering event' (position change).
+ * The following 'drawing engine' take care of all 'layering event'.
+ * 1) browse tree SIZE_BY_CONTENT
+ *  - resize SIZE_BY_CONTENT node : children are resized before parent
+ * 	- if 'size' changed then 'resize = 1' on the parent
+ * 2) browse tree SIZE_BY_LAYOUT and POSITION
+ *  - resize SIZE_BY_LAYOUT node : parent is resized before children
+ * 	- if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
+ *  - calculate position (posx,posy) : parent is calculated before children
+ * 	- if 'position' changed then 'redraw = 1'
+ * 3) browse tree REDRAW
+ *  - redraw needed objects : parent is drawn before children
+ *
+ * CONFIGURE PANEL'S LAYOUT :
  * 'panel_items' parameter (in config) define the list and the order of nodes in tree's panel.
  * 'panel_items = SC' define a panel with just Systray and Clock.
- * So the root Panel.Area will have 2 childs (Systray and Clock).
+ * So the tree 'Panel.Area' will have 2 childs (Systray and Clock).
  *
- * The tree allow to browse panel's objects from background to foreground and from left to right.
- * The position of each node/Area depend on parent's position and brothers on the left.
- * 
- * DRAWING EVENT :
- * In the end, redrawing an object (like the clock) could come from an external event (date change) 
- * or from a layering event (size or position change).
- * 
- * DRAWING LOOP :
- * 1) browse tree and resize SIZE_BY_CONTENT node
- * 	- children node are resized before its parent
- * 	- if 'size' changed then 'redraw = 1' and 'resize = 1' on the parent
- * 2) browse tree and resize SIZE_BY_LAYOUT node
- * 	- parent node is resized before its children
- * 	- if 'size' changed then 'redraw = 1' and 'resize = 1' on childs with SIZE_BY_LAYOUT
- * 3) calculate posx of objects
- * 	- parent's position is calculated before children's position
- * 	- if 'position' changed then 'redraw = 1'
- * 4) redraw needed objects
- * 	- parent node is drawn before its children
- * 
- * perhaps 2) and 3) can be merged...
+ * 1) ok
+ * 2) ??
+ * 3) ??
  * répartition entre niveau global et niveau local ??
  *   size_by_content peut-il modifier redraw=1 en cas de changement ? ou est ce géré par chaque composant ?
  *   size_by_layout peut-il modifier redraw ?
- *   
+ *
  ************************************************************/
+
+
+void size_by_content (Area *a)
+{
+	// don't resize hiden objects
+	if (!a->on_screen) return;
+
+	// children node are resized before its parent
+	GSList *l;
+	for (l = a->list; l ; l = l->next)
+		size_by_content(l->data);
+	
+	// calculate area's size
+	if (a->resize && a->size_mode == SIZE_BY_CONTENT) {
+		a->resize = 0;
+
+		if (a->_resize) {
+			if (a->_resize(a)) {
+				// 'size' changed then 'resize = 1' on the parent
+				((Area*)a->parent)->resize = 1;
+			}
+			a->redraw = 1;
+		}
+	}
+}
+
+
+void size_by_layout (Area *a)
+{
+	// don't resize hiden objects
+	if (!a->on_screen) return;
+
+	// parent node is resized before its children
+	// calculate area's size
+	GSList *l;
+	if (a->resize && a->size_mode == SIZE_BY_LAYOUT) {
+		a->resize = 0;
+
+		if (a->_resize) {
+			if (a->_resize(a)) {
+				// if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
+				for (l = a->list; l ; l = l->next) {
+					if (((Area*)l->data)->size_mode == SIZE_BY_LAYOUT)
+						((Area*)l->data)->resize = 1;
+				}
+			}
+		}
+	}
+
+	for (l = a->list; l ; l = l->next)
+		size_by_layout(l->data);	
+}
 
 
 void refresh (Area *a)
@@ -87,7 +141,8 @@ void refresh (Area *a)
 		// force redraw of child
 		GSList *l;
 		for (l = a->list ; l ; l = l->next)
-			set_redraw(l->data);
+			((Area*)l->data)->redraw = 1;
+//			set_redraw(l->data);
 
 		//printf("draw area posx %d, width %d\n", a->posx, a->width);
 		draw(a);
@@ -101,56 +156,6 @@ void refresh (Area *a)
 	GSList *l;
 	for (l = a->list; l ; l = l->next)
 		refresh(l->data);
-}
-
-
-void size_by_content (Area *a)
-{
-	// don't draw and resize hide objects
-	if (!a->on_screen) return;
-
-	// children node are resized before its parent
-	GSList *l;
-	for (l = a->list; l ; l = l->next)
-		size_by_content(l->data);
-	
-	// calculate current area's size
-	if (a->resize && a->size_mode == SIZE_BY_CONTENT) {
-		a->resize = 0;
-
-		// if 'size' changed then 'resize = 1' on the parent
-		if (a->_resize) {
-			a->_resize(a);
-			a->redraw = 1;
-			((Area*)a->parent)->resize = 1;
-		}
-	}
-}
-
-
-void size_by_layout (Area *a)
-{
-	// don't draw and resize hide objects
-	if (!a->on_screen) return;
-
-	// parent node is resized before its children
-	// calculate current area's size
-	GSList *l;
-	if (a->resize && a->size_mode == SIZE_BY_LAYOUT) {
-		a->resize = 0;
-
-		// if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
-		if (a->_resize) {
-			a->_resize(a);
-			for (l = a->list; l ; l = l->next) {
-				if (((Area*)l->data)->size_mode == SIZE_BY_LAYOUT)
-					((Area*)l->data)->resize = 1;
-			}
-		}
-	}
-
-	for (l = a->list; l ; l = l->next)
-		size_by_layout(l->data);	
 }
 
 

@@ -66,7 +66,7 @@ void init_launcher();
 void init_launcher_panel(void *panel);
 void cleanup_launcher();
 
-void resize_launcher(void *obj);
+int  resize_launcher(void *obj);
 void draw_launcher (void *obj, cairo_t *c);
 
 void launcher_action(LauncherIcon *icon);

@@ -49,7 +49,7 @@ void init_clock_panel(void *panel);
 
 void draw_clock (void *obj, cairo_t *c);
 
-void resize_clock (void *obj);
+int  resize_clock (void *obj);
 
 void clock_action(int button);
 

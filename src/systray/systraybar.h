@@ -63,7 +63,7 @@ void init_systray();
 void init_systray_panel(void *p);
 
 void draw_systray(void *obj, cairo_t *c);
-void resize_systray(void *obj);
+int  resize_systray(void *obj);
 
 
 // systray protocol

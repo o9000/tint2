@@ -149,7 +149,7 @@ void cleanup_launcher()
 	launcher_enabled = 0;
 }
 
-void resize_launcher(void *obj)
+int resize_launcher(void *obj)
 {
 	Launcher *launcher = obj;
 	Panel *panel = launcher->area.panel;
@@ -274,9 +274,7 @@ void resize_launcher(void *obj)
 			}
 		}
 	}
-	
-	// resize force the redraw
-	launcher->area.redraw = 1;
+	return 1;
 }
 
 

@@ -81,7 +81,8 @@ typedef struct {
 
 	// each object can overwrite following function
 	void (*_draw_foreground)(void *obj, cairo_t *c);
-	void (*_resize)(void *obj);
+	// calculate size. return '1' if size changed, '0' otherwise.
+	int (*_resize)(void *obj);
 	void (*_add_child)(void *obj);
 	int (*_remove_child)(void *obj);
 	const char* (*_get_tooltip_text)(void *obj);

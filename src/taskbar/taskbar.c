@@ -261,7 +261,7 @@ void task_refresh_tasklist ()
 }
 
 
-void resize_taskbar(void *obj)
+int resize_taskbar(void *obj)
 {
 	Taskbar *taskbar = (Taskbar*)obj;
 	Panel *panel = (Panel*)taskbar->area.panel;
@@ -356,4 +356,5 @@ void resize_taskbar(void *obj)
 			y += tsk->area.height + panel->g_taskbar.area.paddingx;
 		}
 	}
+	return 0;
 }

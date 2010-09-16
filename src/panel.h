@@ -134,7 +134,7 @@ void cleanup_panel();
 void init_panel();
 
 void init_panel_size_and_position(Panel *panel);
-void resize_panel(void *obj);
+int  resize_panel(void *obj);
 
 void set_panel_properties(Panel *p);
 void visible_object();

@@ -126,7 +126,7 @@ void draw_systray(void *obj, cairo_t *c)
 }
 
 
-void resize_systray(void *obj)
+int resize_systray(void *obj)
 {
 	Systraybar *sysbar = obj;
 	Panel *panel = sysbar->area.panel;
@@ -228,8 +228,7 @@ void resize_systray(void *obj)
 		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
 		XResizeWindow(server.dsp, traywin->tray_id, icon_size, icon_size);
 	}
-	// resize force the redraw
-	systray.area.redraw = 1;
+	return 1;
 }
 
 

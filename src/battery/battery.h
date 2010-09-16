@@ -71,6 +71,6 @@ void init_battery_panel(void *panel);
 
 void draw_battery(void *obj, cairo_t *c);
 
-void resize_battery(void *obj);
+int  resize_battery(void *obj);
 
 #endif

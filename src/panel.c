@@ -301,7 +301,7 @@ void init_panel_size_and_position(Panel *panel)
 }
 
 
-void resize_panel(void *obj)
+int resize_panel(void *obj)
 {
 	Panel *panel = (Panel*)obj;
 //printf("resize_panel : taskbar\n");
@@ -385,6 +385,7 @@ void resize_panel(void *obj)
 				posy += panel->taskbar[i].area.height + panel->area.paddingx;
 		}
 	}
+	return 0;
 }
 
 
@@ -580,12 +581,14 @@ void set_panel_background(Panel *p)
 	}
 
 	// redraw panel's object
+	//p->area.redraw = 1;
 	GSList *l0;
 	Area *a;
 	for (l0 = p->area.list; l0 ; l0 = l0->next) {
 		a = l0->data;
 		set_redraw(a);
 	}
+	
 	// reset task 'state_pix'
 	int i;
 	Taskbar *tskbar;

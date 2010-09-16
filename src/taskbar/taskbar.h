@@ -49,7 +49,7 @@ Task *task_get_task (Window win);
 GPtrArray* task_get_tasks(Window win);
 void task_refresh_tasklist ();
 
-void resize_taskbar(void *obj);
+int  resize_taskbar(void *obj);
 
 
 #endif

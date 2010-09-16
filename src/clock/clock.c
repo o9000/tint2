@@ -225,11 +225,11 @@ void draw_clock (void *obj, cairo_t *c)
 }
 
 
-void resize_clock (void *obj)
+int resize_clock (void *obj)
 {
 	Clock *clock = obj;
 	PangoLayout *layout;
-	int time_width, date_width, new_width;
+	int time_width, date_width, new_width, ret = 0;
 
 	clock->area.redraw = 1;
 	time_width = date_width = 0;
@@ -238,7 +238,7 @@ void resize_clock (void *obj)
 		strftime(buf_date, sizeof(buf_date), time2_format, clock_gettime_for_tz(time2_timezone));
 
 	// vertical panel doen't adjust width
-	if (!panel_horizontal) return;
+	if (!panel_horizontal) return ret;
 
 	//printf("  resize_clock\n");
 	cairo_surface_t *cs;
@@ -274,11 +274,7 @@ void resize_clock (void *obj)
 		clock->area.width = new_width + 1;
 
 		// resize other objects on panel
-		panel->area.resize = 1;
-#ifdef ENABLE_BATTERY
-		panel->battery.area.resize = 1;
-#endif
-		systray.area.resize = 1;
+		ret = 1;
 		panel_refresh = 1;
 	}
 	clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.bg->border.width;
@@ -288,6 +284,7 @@ void resize_clock (void *obj)
 	cairo_destroy (c);
 	cairo_surface_destroy (cs);
 	XFreePixmap (server.dsp, pmap);
+	return ret;
 }
 
 
