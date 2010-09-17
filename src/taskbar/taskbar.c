@@ -60,11 +60,6 @@ void init_taskbar()
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
 
-		if (panel->taskbar) {
-			free(panel->taskbar);
-			panel->taskbar = 0;
-		}
-
 		if (panel->g_taskbar.bg == 0) {
 			panel->g_taskbar.bg = &g_array_index(backgrounds, Background, 0);
 			panel->g_taskbar.area.bg = panel->g_taskbar.bg;
@@ -159,17 +154,12 @@ void init_taskbar()
 		//printf("monitor %d, task_maximum_width %d\n", panel->monitor, panel->g_task.maximum_width);
 
 		Taskbar *tskbar;
-		panel->nb_desktop = server.nb_desktop;
-		panel->taskbar = calloc(panel->nb_desktop, sizeof(Taskbar));
 		for (j=0 ; j < panel->nb_desktop ; j++) {
 			tskbar = &panel->taskbar[j];
 			memcpy(&tskbar->area, &panel->g_taskbar, sizeof(Area));
 			tskbar->desktop = j;
 			if (j == server.desktop && panel->g_taskbar.use_active)
 				tskbar->area.bg = panel->g_taskbar.bg_active;
-
-			// add taskbar to the panel
-			panel->area.list = g_slist_append(panel->area.list, tskbar);
 		}
 	}
 }

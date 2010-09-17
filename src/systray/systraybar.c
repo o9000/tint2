@@ -375,7 +375,7 @@ gboolean add_icon(Window id)
 	XSetWindowAttributes set_attr;
 	Visual* visual = server.visual;
 	//printf("icon with depth: %d, width %d, height %d\n", attr.depth, attr.width, attr.height);
-	printf("icon with depth: %d\n", attr.depth);
+	//printf("icon with depth: %d\n", attr.depth);
 	if (attr.depth != server.depth || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		visual = attr.visual;
 		set_attr.colormap = attr.colormap;
