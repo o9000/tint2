@@ -242,7 +242,8 @@ void add_entry (char *key, char *value)
 		for (j=0 ; j < strlen(panel_items_order) ; j++) {
 			if (panel_items_order[j] == 'L')
 				launcher_enabled = 1;
-			//if (panel_items_order[j] == 'T')
+			if (panel_items_order[j] == 'T')
+				taskbar_enabled = 1;
 			if (panel_items_order[j] == 'B') {
 #ifdef ENABLE_BATTERY
 				battery_enabled = 1;

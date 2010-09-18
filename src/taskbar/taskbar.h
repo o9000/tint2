@@ -13,6 +13,7 @@
 extern GHashTable* win_to_task_table;
 extern Task *task_active;
 extern Task *task_drag;
+extern int taskbar_enabled;
 
 // tint2 use one taskbar per desktop.
 typedef struct {

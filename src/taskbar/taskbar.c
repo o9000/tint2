@@ -41,6 +41,7 @@ GHashTable* win_to_task_table;
 
 Task *task_active;
 Task *task_drag;
+int taskbar_enabled;
 
 guint win_hash(gconstpointer key) { return (guint)*((Window*)key); }
 gboolean win_compare(gconstpointer a, gconstpointer b) { return (*((Window*)a) == *((Window*)b)); }
@@ -52,6 +53,7 @@ void default_taskbar()
 	win_to_task_table = 0;
 	urgent_timeout = 0;
 	urgent_list = 0;
+	taskbar_enabled = 0;
 }
 
 void cleanup_taskbar()
@@ -220,7 +222,7 @@ Task *task_get_task (Window win)
 
 GPtrArray* task_get_tasks(Window win)
 {
-	if (win_to_task_table)
+	if (win_to_task_table && taskbar_enabled)
 		return g_hash_table_lookup(win_to_task_table, &win);
 	else
 		return 0;
@@ -232,6 +234,7 @@ void task_refresh_tasklist ()
 	Window *win;
 	int num_results, i;
 
+	if (!taskbar_enabled) return;
 	win = server_get_property (server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
 	if (!win) return;
 
