@@ -235,6 +235,30 @@ void add_entry (char *key, char *value)
 			panel_config.area.height = atoi(value2);
 		}
 	}
+	else if (strcmp (key, "panel_items") == 0) {
+		if (panel_items_order) g_free(panel_items_order);
+		panel_items_order = strdup(value);
+		int j;
+		for (j=0 ; j < strlen(panel_items_order) ; j++) {
+			if (panel_items_order[j] == 'L')
+				launcher_enabled = 1;
+			//if (panel_items_order[j] == 'T')
+			if (panel_items_order[j] == 'B') {
+#ifdef ENABLE_BATTERY
+				battery_enabled = 1;
+#else
+				fprintf(stderr, "tint2 is build without battery support\n");
+#endif
+			}
+			if (panel_items_order[j] == 'S') {
+				// systray disabled in snapshot mode
+				if (snapshot_path == 0)
+					systray_enabled = 1;
+			}
+			if (panel_items_order[j] == 'C')			
+				clock_enabled = 1;
+		}
+	}
 	else if (strcmp (key, "panel_margin") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		panel_config.marginx = atoi (value1);
@@ -291,15 +315,6 @@ void add_entry (char *key, char *value)
 	}
 
 	/* Battery */
-	else if (strcmp (key, "battery") == 0) {
-#ifdef ENABLE_BATTERY
-		if(atoi(value) == 1)
-			battery_enabled = 1;
-#else
-		if(atoi(value) == 1)
-			fprintf(stderr, "tint2 is build without battery support\n");
-#endif
-	}
 	else if (strcmp (key, "battery_low_status") == 0) {
 #ifdef ENABLE_BATTERY
 		battery_low_status = atoi(value);
@@ -498,16 +513,7 @@ void add_entry (char *key, char *value)
 	}
 
 	/* Systray */
-	// systray disabled in snapshot mode
-	else if (strcmp (key, "systray") == 0 && snapshot_path == 0) {
-		systray_enabled = atoi(value);
-		old_config_file = 0;
-	}
-	else if (strcmp (key, "systray_padding") == 0 && snapshot_path == 0) {
-		if (old_config_file) {
-			// if tint2rc is an old config file, systray_padding enabled the systray bar.
-			systray_enabled = 1;
-		}
+	else if (strcmp (key, "systray_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		systray.area.paddingxlr = systray.area.paddingx = atoi (value1);
 		if (value2) systray.area.paddingy = atoi (value2);
@@ -539,9 +545,6 @@ void add_entry (char *key, char *value)
 	}
 
 	/* Launcher */
-	else if (strcmp (key, "launcher") == 0) {
-		launcher_enabled = atoi(value);
-	}
 	else if (strcmp (key, "launcher_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		panel_config.launcher.area.paddingxlr = panel_config.launcher.area.paddingx = atoi (value1);

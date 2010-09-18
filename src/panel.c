@@ -58,6 +58,7 @@ int panel_autohide_show_timeout;
 int panel_autohide_hide_timeout;
 int panel_autohide_height;
 int panel_strut_policy;
+char *panel_items_order;
 
 int  max_tick_urgent;
 
@@ -79,6 +80,7 @@ void default_panel()
 	task_dragged = 0;
 	panel_horizontal = 1;
 	panel_position = CENTER;
+	panel_items_order = strdup("LTBSC");  // Default order : Launcher, Taskbar, Battery, Systray, Clock
 	panel_autohide = 0;
 	panel_autohide_show_timeout = 0;
 	panel_autohide_hide_timeout = 0;
@@ -115,6 +117,7 @@ void cleanup_panel()
 		if (p->main_win) XDestroyWindow(server.dsp, p->main_win);
 	}
 
+	if (panel_items_order) g_free(panel_items_order);
 	if (panel1) free(panel1);
 	if (backgrounds)
 		g_array_free(backgrounds, 1);
@@ -169,32 +172,37 @@ void init_panel()
 		p->g_taskbar.area.panel = p;
 		p->g_task.area.panel = p;
 		init_panel_size_and_position(p);
-		// add childs
-		// TODO : should respect the order of 'panel_items' config parameter
-		if (launcher_enabled) {
-			init_launcher_panel(p);
-			p->area.list = g_slist_append(p->area.list, &p->launcher);
-		}
-		p->nb_desktop = server.nb_desktop;
-		p->taskbar = calloc(p->nb_desktop, sizeof(Taskbar));
-		for (j=0 ; j < p->nb_desktop ; j++) {
-			p->area.list = g_slist_append(p->area.list, &p->taskbar[j]);
-		}
+		// add childs occording to panel_items_order
+		int k;
+		for (k=0 ; k < strlen(panel_items_order) ; k++) {
+			if (panel_items_order[k] == 'L') {
+				init_launcher_panel(p);
+				p->area.list = g_slist_append(p->area.list, &p->launcher);
+			}
+			if (panel_items_order[k] == 'T') {
+				p->nb_desktop = server.nb_desktop;
+				p->taskbar = calloc(p->nb_desktop, sizeof(Taskbar));
+				for (j=0 ; j < p->nb_desktop ; j++) {
+					p->area.list = g_slist_append(p->area.list, &p->taskbar[j]);
+				}
+				//printf("init taskbar\n");
+			}
 #ifdef ENABLE_BATTERY
-		if (battery_enabled) {
-			init_battery_panel(p);
-			p->area.list = g_slist_append(p->area.list, &p->battery);
-		}
+			if (panel_items_order[k] == 'B') {
+				init_battery_panel(p);
+				p->area.list = g_slist_append(p->area.list, &p->battery);
+			}
 #endif
-		// systray only on first panel
-		if (systray.area.on_screen && i == 0) {
-			init_systray_panel(p);
-			p->area.list = g_slist_append(p->area.list, &systray);
-			refresh_systray = 1;
-		}
-		if (clock_enabled) {
-			init_clock_panel(p);
-			p->area.list = g_slist_append(p->area.list, &p->clock);
+			if (panel_items_order[k] == 'S') {
+				// TODO : check systray is only on 1 panel
+				init_systray_panel(p);
+				p->area.list = g_slist_append(p->area.list, &systray);
+				refresh_systray = 1;
+			}
+			if (panel_items_order[k] == 'C') {
+				init_clock_panel(p);
+				p->area.list = g_slist_append(p->area.list, &p->clock);
+			}
 		}
 
 		// catch some events
