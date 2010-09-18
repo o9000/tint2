@@ -151,8 +151,11 @@ void init_clock_panel(void *p)
 	clock->area._resize = resize_clock;
 	clock->area.resize = 1;
 	clock->area.redraw = 1;
-	clock->area.on_screen = 1;
+	// check consistency
+	if (time1_format == 0)
+		return;
 
+	clock->area.on_screen = 1;
 	strftime(buf_time, sizeof(buf_time), time1_format, clock_gettime_for_tz(time1_timezone));
 	get_text_size(time1_font_desc, &time_height_ink, &time_height, panel->area.height, buf_time, strlen(buf_time));
 	if (time2_format) {
@@ -167,8 +170,6 @@ void init_clock_panel(void *p)
 	}
 	else {
 		// panel vertical => fixed width, height, posy and posx
-//		clock->area.posy = panel->area.bg->border.width + panel->area.paddingxlr;
-//		clock->area.height = (2 * clock->area.paddingxlr) + (time_height + date_height);
 		clock->area.posx = panel->area.bg->border.width + panel->area.paddingy;
 		clock->area.width = panel->area.width - (2 * panel->area.bg->border.width) - (2 * panel->area.paddingy);
 	}
@@ -236,7 +237,11 @@ int resize_clock (void *obj)
 		strftime(buf_date, sizeof(buf_date), time2_format, clock_gettime_for_tz(time2_timezone));
 
 	// vertical panel doen't adjust width
-	if (!panel_horizontal) return ret;
+	if (!panel_horizontal) {
+//		clock->area.posy = panel->area.bg->border.width + panel->area.paddingxlr;
+//		clock->area.height = (2 * clock->area.paddingxlr) + (time_height + date_height);
+		return ret;
+	}
 
 	//printf("  resize_clock\n");
 	cairo_surface_t *cs;

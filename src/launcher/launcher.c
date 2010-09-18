@@ -70,8 +70,12 @@ void init_launcher_panel(void *p)
 	launcher->area._resize = resize_launcher;
 	launcher->area.resize = 1;
 	launcher->area.redraw = 1;
-	launcher->area.on_screen = 1;
 
+	// check consistency
+	if (launcher->list_apps == NULL)
+		return;
+
+	launcher->area.on_screen = 1;
 	if (panel_horizontal) {
 		// panel horizonal => fixed height and posy
 		launcher->area.posy = panel->area.bg->border.width + panel->area.paddingy;
@@ -149,6 +153,7 @@ void cleanup_launcher()
 	launcher_enabled = 0;
 }
 
+
 int resize_launcher(void *obj)
 {
 	Launcher *launcher = obj;
@@ -222,9 +227,6 @@ int resize_launcher(void *obj)
 			icons_per_row = count / icons_per_column + (count%icons_per_column != 0);
 			launcher->area.width = (2 * launcher->area.bg->border.width) + (2 * launcher->area.paddingxlr) + (icon_size * icons_per_row) + ((icons_per_row-1) * launcher->area.paddingx);
 		}
-
-//		launcher->area.posx = panel->area.bg->border.width + panel->area.paddingxlr;
-		launcher->area.posy = panel->area.bg->border.width;
 	}
 	else {
 		if (!count) launcher->area.height = 0;
@@ -236,9 +238,6 @@ int resize_launcher(void *obj)
 			icons_per_column = count / icons_per_row+ (count%icons_per_row != 0);
 			launcher->area.height = (2 * launcher->area.bg->border.width) + (2 * launcher->area.paddingxlr) + (icon_size * icons_per_column) + ((icons_per_column-1) * launcher->area.paddingx);
 		}
-
-		launcher->area.posx = panel->area.bg->border.width;
-//		launcher->area.posy = panel->area.height - panel->area.bg->border.width - panel->area.paddingxlr - launcher->area.height;
 	}
 
 	int i, posx, posy;

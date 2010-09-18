@@ -68,13 +68,6 @@
  * 'panel_items = SC' define a panel with just Systray and Clock.
  * So the tree 'Panel.Area' will have 2 childs (Systray and Clock).
  *
- * 1) ok
- * 2) ??
- * 3) ??
- * répartition entre niveau global et niveau local ??
- *   size_by_content peut-il modifier redraw=1 en cas de changement ? ou est ce géré par chaque composant ?
- *   size_by_layout peut-il modifier redraw ?
- *
  ************************************************************/
 
 void rendering(void *obj)

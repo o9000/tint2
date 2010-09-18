@@ -73,17 +73,20 @@ void update_batterys(void* arg)
 		if (battery_state.percentage >= percentage_hide) {
 			if (panel1[i].battery.area.on_screen == 1) {
 				panel1[i].battery.area.on_screen = 0;
+				panel1[i].area.resize = 1;
 				panel_refresh = 1;
 			}
-			continue;
 		}
 		else {
 			if (panel1[i].battery.area.on_screen == 0) {
 				panel1[i].battery.area.on_screen = 1;
-				panel_refresh = 1;
+				panel1[i].area.resize = 1;
 			}
 		}
-		panel1[i].battery.area.resize = 1;
+		if (panel1[i].battery.area.on_screen == 1) {
+			panel1[i].battery.area.resize = 1;
+			panel_refresh = 1;
+		}
 	}
 }
 
@@ -448,7 +451,6 @@ int resize_battery(void *obj)
 
 	percentage_width = time_width = 0;
 	battery->area.redraw = 1;
-
 	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
 	if(battery_state.state == BATTERY_FULL) {
 		strcpy(buf_bat_time, "Full");
