@@ -28,6 +28,7 @@ typedef struct {
 	GSList *list_icons;
 	int sort;
 	int alpha, saturation, brightness;
+	int icon_size, icons_per_column, icons_per_row, marging;
 } Systraybar;
 
 

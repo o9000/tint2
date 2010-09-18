@@ -461,7 +461,7 @@ void set_panel_items(Panel *p)
 		g_slist_free(p->area.list);
 		p->area.list = 0;
 	}
-	printf("panel_items_order %s\n", panel_items_order);
+
 	for (k=0 ; k < strlen(panel_items_order) ; k++) {
 		if (panel_items_order[k] == 'L') {
 			init_launcher_panel(p);
