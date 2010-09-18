@@ -490,10 +490,11 @@ void event_property_notify (XEvent *e)
 			server.nb_desktop = server_get_number_of_desktop ();
 			cleanup_taskbar();
 			init_taskbar();
-			visible_object();
 			for (i=0 ; i < nb_panel ; i++) {
+				set_panel_items(&panel1[i]);
 				panel1[i].area.resize = 1;
 			}
+			visible_object();
 			task_refresh_tasklist();
 			active_task();
 			panel_refresh = 1;
@@ -883,7 +884,7 @@ start:
 							signal_pending = SIGUSR1;
 							break;
 						}
-						if (e.xany.window == g_tooltip.window || !systray.area.on_screen)
+						if (e.xany.window == g_tooltip.window || !systray_enabled)
 							break;
 						for (it = systray.list_icons; it; it = g_slist_next(it)) {
 							if (((TrayWindow*)it->data)->tray_id == e.xany.window) {
@@ -903,7 +904,7 @@ start:
 								// Start real_transparency
 								signal_pending = SIGUSR1;
 						}
-						if (systray.area.on_screen && e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
+						if (systray_enabled && e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
 							net_message(&e.xclient);
 						}
 						else if (e.xclient.message_type == server.atom.XdndPosition) {

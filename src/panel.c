@@ -126,7 +126,7 @@ void cleanup_panel()
 
 void init_panel()
 {
-	int i, j;
+	int i;
 	Panel *p;
 
 	if (panel_config.monitor > (server.nb_monitor-1)) {
@@ -142,6 +142,7 @@ void init_panel()
 #ifdef ENABLE_BATTERY
 	init_battery();
 #endif
+	init_taskbar();
 
 	// number of panels (one monitor or 'all' monitors)
 	if (panel_config.monitor >= 0)
@@ -172,38 +173,8 @@ void init_panel()
 		p->g_taskbar.area.panel = p;
 		p->g_task.area.panel = p;
 		init_panel_size_and_position(p);
-		// add childs occording to panel_items_order
-		int k;
-		for (k=0 ; k < strlen(panel_items_order) ; k++) {
-			if (panel_items_order[k] == 'L') {
-				init_launcher_panel(p);
-				p->area.list = g_slist_append(p->area.list, &p->launcher);
-			}
-			if (panel_items_order[k] == 'T') {
-				p->nb_desktop = server.nb_desktop;
-				p->taskbar = calloc(p->nb_desktop, sizeof(Taskbar));
-				for (j=0 ; j < p->nb_desktop ; j++) {
-					p->area.list = g_slist_append(p->area.list, &p->taskbar[j]);
-				}
-				//printf("init taskbar\n");
-			}
-#ifdef ENABLE_BATTERY
-			if (panel_items_order[k] == 'B') {
-				init_battery_panel(p);
-				p->area.list = g_slist_append(p->area.list, &p->battery);
-			}
-#endif
-			if (panel_items_order[k] == 'S') {
-				// TODO : check systray is only on 1 panel
-				init_systray_panel(p);
-				p->area.list = g_slist_append(p->area.list, &systray);
-				refresh_systray = 1;
-			}
-			if (panel_items_order[k] == 'C') {
-				init_clock_panel(p);
-				p->area.list = g_slist_append(p->area.list, &p->clock);
-			}
-		}
+		// add childs according to panel_items
+		set_panel_items(p);
 
 		// catch some events
 		XSetWindowAttributes att = { .colormap=server.colormap, .background_pixel=0, .border_pixel=0 };
@@ -234,7 +205,6 @@ void init_panel()
 	}
 
 	panel_refresh = 1;
-	init_taskbar();
 	visible_object();
 	task_refresh_tasklist();
 	active_task();
@@ -480,6 +450,45 @@ void update_strut(Panel* p)
 	// Old specification : fluxbox need _NET_WM_STRUT.
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STRUT, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &struts, 4);
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STRUT_PARTIAL, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &struts, 12);
+}
+
+
+void set_panel_items(Panel *p)
+{
+	int k, j;
+	
+	if (p->area.list) {
+		g_slist_free(p->area.list);
+		p->area.list = 0;
+	}
+
+	for (k=0 ; k < strlen(panel_items_order) ; k++) {
+		if (panel_items_order[k] == 'L') {
+			init_launcher_panel(p);
+			p->area.list = g_slist_append(p->area.list, &p->launcher);
+		}
+		if (panel_items_order[k] == 'T') {
+			init_taskbar_panel(p);
+			for (j=0 ; j < p->nb_desktop ; j++)
+				p->area.list = g_slist_append(p->area.list, &p->taskbar[j]);
+		}
+#ifdef ENABLE_BATTERY
+		if (panel_items_order[k] == 'B') {
+			init_battery_panel(p);
+			p->area.list = g_slist_append(p->area.list, &p->battery);
+		}
+#endif
+		if (panel_items_order[k] == 'S') {
+			// TODO : check systray is only on 1 panel
+			init_systray_panel(p);
+			refresh_systray = 1;
+			p->area.list = g_slist_append(p->area.list, &systray);
+		}
+		if (panel_items_order[k] == 'C') {
+			init_clock_panel(p);
+			p->area.list = g_slist_append(p->area.list, &p->clock);
+		}
+	}
 }
 
 

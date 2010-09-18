@@ -44,7 +44,9 @@ void default_taskbar();
 void cleanup_taskbar();
 
 void init_taskbar();
+void init_taskbar_panel(void *p);
 
+void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data);
 Task *task_get_task (Window win);
 GPtrArray* task_get_tasks(Window win);
 void task_refresh_tasklist ();

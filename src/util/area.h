@@ -63,7 +63,8 @@ typedef struct {
 	// list of child : Area object
 	GSList *list;
 
-	// object visible on screen
+	// object visible on screen. 
+	// An object (like systray) could be enabled but hidden (because no tray icon).
 	int on_screen;
 	// way to calculate the size (SIZE_BY_CONTENT or SIZE_BY_LAYOUT)
 	int size_mode;

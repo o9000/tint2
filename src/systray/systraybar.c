@@ -90,10 +90,6 @@ void init_systray()
 		systray.alpha = 100;
 		systray.brightness = systray.saturation = 0;
 	}
-	systray.area.resize = 1;
-	systray.area.redraw = 1;
-	systray.area.on_screen = 1;
-	refresh_systray = 0;
 }
 
 
@@ -111,6 +107,18 @@ void init_systray_panel(void *p)
 	}
 	systray.area.parent = p;
 	systray.area.panel = p;
+	
+	GSList *l;
+	int count = 0;
+	for (l = systray.list_icons; l ; l = l->next) {
+		if (!((TrayWindow*)l->data)->hide)
+			count++;
+	}
+	if (count == 0)
+		systray.area.on_screen = 0;
+	else 
+		systray.area.on_screen = 1;
+	refresh_systray = 0;
 }
 
 
@@ -195,26 +203,20 @@ int resize_systray(void *obj)
 	//printf("count %d\n", count);
 
 	if (panel_horizontal) {
-		if (!count) systray.area.width = 0;
-		else {
-			int height = sysbar->area.height - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
-			// here icons_per_column always higher than 0
-			icons_per_column = (height+sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
-			marging = height - (icons_per_column-1)*(icon_size+sysbar->area.paddingx) - icon_size;
-			icons_per_row = count / icons_per_column + (count%icons_per_column != 0);
-			systray.area.width = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_row) + ((icons_per_row-1) * systray.area.paddingx);
-		}
+		int height = sysbar->area.height - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
+		// here icons_per_column always higher than 0
+		icons_per_column = (height+sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
+		marging = height - (icons_per_column-1)*(icon_size+sysbar->area.paddingx) - icon_size;
+		icons_per_row = count / icons_per_column + (count%icons_per_column != 0);
+		systray.area.width = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_row) + ((icons_per_row-1) * systray.area.paddingx);
 	}
 	else {
-		if (!count) systray.area.height = 0;
-		else {
-			int width = sysbar->area.width - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
-			// here icons_per_row always higher than 0
-			icons_per_row = (width+sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
-			marging = width - (icons_per_row-1)*(icon_size+sysbar->area.paddingx) - icon_size;
-			icons_per_column = count / icons_per_row+ (count%icons_per_row != 0);
-			systray.area.height = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_column) + ((icons_per_column-1) * systray.area.paddingx);
-		}
+		int width = sysbar->area.width - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
+		// here icons_per_row always higher than 0
+		icons_per_row = (width+sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
+		marging = width - (icons_per_row-1)*(icon_size+sysbar->area.paddingx) - icon_size;
+		icons_per_column = count / icons_per_row+ (count%icons_per_row != 0);
+		systray.area.height = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_column) + ((icons_per_column-1) * systray.area.paddingx);
 	}
 	return 1;
 }
@@ -433,6 +435,9 @@ gboolean add_icon(Window id)
 	traywin->depth = attr.depth;
 	traywin->damage = 0;
 
+	if (systray.area.on_screen == 0)
+		systray.area.on_screen = 1;
+
 	if (systray.sort == 3)
 		systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
 	else if (systray.sort == 2)
@@ -488,6 +493,17 @@ void remove_icon(TrayWindow *traywin)
 		stop_timeout(traywin->render_timeout);
 	g_free(traywin);
 
+	// check empty systray
+	int count = 0;
+	GSList *l;
+	for (l = systray.list_icons; l ; l = l->next) {
+		if (!((TrayWindow*)l->data)->hide)
+			count++;
+	}
+	if (count == 0) {
+		systray.area.on_screen = 0;
+		systray.area.width = 0;
+	}
 	// changed in systray force resize on panel
 	Panel *panel = systray.area.panel;
 	panel->area.resize = 1;

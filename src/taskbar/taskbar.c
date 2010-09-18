@@ -46,128 +46,6 @@ guint win_hash(gconstpointer key) { return (guint)*((Window*)key); }
 gboolean win_compare(gconstpointer a, gconstpointer b) { return (*((Window*)a) == *((Window*)b)); }
 void free_ptr_array(gpointer data) { g_ptr_array_free(data, 1); }
 
-void init_taskbar()
-{
-	Panel *panel;
-	int i, j;
-
-	if (win_to_task_table == 0)
-		win_to_task_table = g_hash_table_new_full(win_hash, win_compare, free, free_ptr_array);
-
-	task_active = 0;
-	task_drag = 0;
-
-	for (i=0 ; i < nb_panel ; i++) {
-		panel = &panel1[i];
-
-		if (panel->g_taskbar.bg == 0) {
-			panel->g_taskbar.bg = &g_array_index(backgrounds, Background, 0);
-			panel->g_taskbar.area.bg = panel->g_taskbar.bg;
-		}
-		if (panel->g_taskbar.bg_active == 0)
-			panel->g_taskbar.bg_active = panel->g_taskbar.bg;
-		if (panel->g_task.area.bg == 0)
-			panel->g_task.area.bg = &g_array_index(backgrounds, Background, 0);
-
-		// taskbar
-		panel->g_taskbar.area.size_mode = SIZE_BY_LAYOUT;
-		panel->g_taskbar.area._resize = resize_taskbar;
-		panel->g_taskbar.area.redraw = 1;
-		panel->g_taskbar.area.on_screen = 1;
-		if (panel_horizontal) {
-			panel->g_taskbar.area.posy = panel->area.bg->border.width + panel->area.paddingy;
-			panel->g_taskbar.area.height = panel->area.height - (2 * panel->g_taskbar.area.posy);
-		}
-		else {
-			panel->g_taskbar.area.posx = panel->area.bg->border.width + panel->area.paddingy;
-			panel->g_taskbar.area.width = panel->area.width - (2 * panel->g_taskbar.area.posx);
-		}
-
-		// task
-		panel->g_task.area.size_mode = SIZE_BY_LAYOUT;
-		panel->g_task.area._draw_foreground = draw_task;
-		panel->g_task.area.redraw = 1;
-		panel->g_task.area.on_screen = 1;
-		if ((panel->g_task.config_asb_mask & (1<<TASK_NORMAL)) == 0) {
-			panel->g_task.alpha[TASK_NORMAL] = 100;
-			panel->g_task.saturation[TASK_NORMAL] = 0;
-			panel->g_task.brightness[TASK_NORMAL] = 0;
-		}
-		if ((panel->g_task.config_asb_mask & (1<<TASK_ACTIVE)) == 0) {
-			panel->g_task.alpha[TASK_ACTIVE] = panel->g_task.alpha[TASK_NORMAL];
-			panel->g_task.saturation[TASK_ACTIVE] = panel->g_task.saturation[TASK_NORMAL];
-			panel->g_task.brightness[TASK_ACTIVE] = panel->g_task.brightness[TASK_NORMAL];
-		}
-		if ((panel->g_task.config_asb_mask & (1<<TASK_ICONIFIED)) == 0) {
-			panel->g_task.alpha[TASK_ICONIFIED] = panel->g_task.alpha[TASK_NORMAL];
-			panel->g_task.saturation[TASK_ICONIFIED] = panel->g_task.saturation[TASK_NORMAL];
-			panel->g_task.brightness[TASK_ICONIFIED] = panel->g_task.brightness[TASK_NORMAL];
-		}
-		if ((panel->g_task.config_asb_mask & (1<<TASK_URGENT)) == 0) {
-			panel->g_task.alpha[TASK_URGENT] = panel->g_task.alpha[TASK_ACTIVE];
-			panel->g_task.saturation[TASK_URGENT] = panel->g_task.saturation[TASK_ACTIVE];
-			panel->g_task.brightness[TASK_URGENT] = panel->g_task.brightness[TASK_ACTIVE];
-		}
-		if ((panel->g_task.config_font_mask & (1<<TASK_NORMAL)) == 0) panel->g_task.font[TASK_NORMAL] = (Color){{0, 0, 0}, 0};
-		if ((panel->g_task.config_font_mask & (1<<TASK_ACTIVE)) == 0) panel->g_task.font[TASK_ACTIVE] = panel->g_task.font[TASK_NORMAL];
-		if ((panel->g_task.config_font_mask & (1<<TASK_ICONIFIED)) == 0) panel->g_task.font[TASK_ICONIFIED] = panel->g_task.font[TASK_NORMAL];
-		if ((panel->g_task.config_font_mask & (1<<TASK_URGENT)) == 0) panel->g_task.font[TASK_URGENT] = panel->g_task.font[TASK_ACTIVE];
-		if ((panel->g_task.config_font_mask & (1<<TASK_NORMAL)) == 0) panel->g_task.background[TASK_NORMAL] = &g_array_index(backgrounds, Background, 0);
-		if ((panel->g_task.config_background_mask & (1<<TASK_ACTIVE)) == 0) panel->g_task.background[TASK_ACTIVE] = panel->g_task.background[TASK_NORMAL];
-		if ((panel->g_task.config_background_mask & (1<<TASK_ICONIFIED)) == 0) panel->g_task.background[TASK_ICONIFIED] = panel->g_task.background[TASK_NORMAL];
-		if ((panel->g_task.config_background_mask & (1<<TASK_URGENT)) == 0) panel->g_task.background[TASK_URGENT] = panel->g_task.background[TASK_ACTIVE];
-
-		if (panel_horizontal) {
-			panel->g_task.area.posy = panel->g_taskbar.area.posy + panel->g_taskbar.bg->border.width + panel->g_taskbar.area.paddingy;
-			panel->g_task.area.height = panel->area.height - (2 * panel->g_task.area.posy);
-		}
-		else {
-			panel->g_task.area.posx = panel->g_taskbar.area.posx + panel->g_taskbar.bg->border.width + panel->g_taskbar.area.paddingy;
-			panel->g_task.area.width = panel->area.width - (2 * panel->g_task.area.posx);
-			panel->g_task.area.height = panel->g_task.maximum_height;
-		}
-
-		int k;
-		for (k=0; k<TASK_STATE_COUNT; ++k) {
-			if (panel->g_task.background[k]->border.rounded > panel->g_task.area.height/2) {
-				printf("task%sbackground_id has a too large rounded value. Please fix your tint2rc\n", k==0 ? "_" : k==1 ? "_active_" : k==2 ? "_iconified_" : "_urgent_");
-				g_array_append_val(backgrounds, *panel->g_task.background[k]);
-				panel->g_task.background[k] = &g_array_index(backgrounds, Background, backgrounds->len-1);
-				panel->g_task.background[k]->border.rounded = panel->g_task.area.height/2;
-			}
-		}
-
-		// compute vertical position : text and icon
-		int height_ink, height;
-		get_text_size(panel->g_task.font_desc, &height_ink, &height, panel->area.height, "TAjpg", 5);
-
-		if (!panel->g_task.maximum_width && panel_horizontal)
-			panel->g_task.maximum_width = server.monitor[panel->monitor].width;
-
-		panel->g_task.text_posx = panel->g_task.background[0]->border.width + panel->g_task.area.paddingxlr;
-		panel->g_task.text_height = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
-		if (panel->g_task.icon) {
-			panel->g_task.icon_size1 = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
-			panel->g_task.text_posx += panel->g_task.icon_size1;
-			panel->g_task.icon_posy = (panel->g_task.area.height - panel->g_task.icon_size1) / 2;
-		}
-		//printf("monitor %d, task_maximum_width %d\n", panel->monitor, panel->g_task.maximum_width);
-
-		Taskbar *tskbar;
-		for (j=0 ; j < panel->nb_desktop ; j++) {
-			tskbar = &panel->taskbar[j];
-			memcpy(&tskbar->area, &panel->g_taskbar, sizeof(Area));
-			tskbar->desktop = j;
-			if (j == server.desktop && panel->g_taskbar.use_active)
-				tskbar->area.bg = panel->g_taskbar.bg_active;
-		}
-	}
-}
-
-void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data)
-{
-	remove_task(task_get_task(*(Window*)key));
-}
 
 void default_taskbar()
 {
@@ -201,6 +79,132 @@ void cleanup_taskbar()
 		g_hash_table_destroy(win_to_task_table);
 		win_to_task_table = 0;
 	}
+}
+
+
+void init_taskbar()
+{
+	if (win_to_task_table == 0)
+		win_to_task_table = g_hash_table_new_full(win_hash, win_compare, free, free_ptr_array);
+
+	task_active = 0;
+	task_drag = 0;
+}
+
+
+void init_taskbar_panel(void *p)
+{
+	Panel *panel =(Panel*)p;
+	int j;
+
+	if (panel->g_taskbar.bg == 0) {
+		panel->g_taskbar.bg = &g_array_index(backgrounds, Background, 0);
+		panel->g_taskbar.area.bg = panel->g_taskbar.bg;
+	}
+	if (panel->g_taskbar.bg_active == 0)
+		panel->g_taskbar.bg_active = panel->g_taskbar.bg;
+	if (panel->g_task.area.bg == 0)
+		panel->g_task.area.bg = &g_array_index(backgrounds, Background, 0);
+
+	// taskbar
+	panel->g_taskbar.area.size_mode = SIZE_BY_LAYOUT;
+	panel->g_taskbar.area._resize = resize_taskbar;
+	panel->g_taskbar.area.redraw = 1;
+	panel->g_taskbar.area.on_screen = 1;
+	if (panel_horizontal) {
+		panel->g_taskbar.area.posy = panel->area.bg->border.width + panel->area.paddingy;
+		panel->g_taskbar.area.height = panel->area.height - (2 * panel->g_taskbar.area.posy);
+	}
+	else {
+		panel->g_taskbar.area.posx = panel->area.bg->border.width + panel->area.paddingy;
+		panel->g_taskbar.area.width = panel->area.width - (2 * panel->g_taskbar.area.posx);
+	}
+
+	// task
+	panel->g_task.area.size_mode = SIZE_BY_LAYOUT;
+	panel->g_task.area._draw_foreground = draw_task;
+	panel->g_task.area.redraw = 1;
+	panel->g_task.area.on_screen = 1;
+	if ((panel->g_task.config_asb_mask & (1<<TASK_NORMAL)) == 0) {
+		panel->g_task.alpha[TASK_NORMAL] = 100;
+		panel->g_task.saturation[TASK_NORMAL] = 0;
+		panel->g_task.brightness[TASK_NORMAL] = 0;
+	}
+	if ((panel->g_task.config_asb_mask & (1<<TASK_ACTIVE)) == 0) {
+		panel->g_task.alpha[TASK_ACTIVE] = panel->g_task.alpha[TASK_NORMAL];
+		panel->g_task.saturation[TASK_ACTIVE] = panel->g_task.saturation[TASK_NORMAL];
+		panel->g_task.brightness[TASK_ACTIVE] = panel->g_task.brightness[TASK_NORMAL];
+	}
+	if ((panel->g_task.config_asb_mask & (1<<TASK_ICONIFIED)) == 0) {
+		panel->g_task.alpha[TASK_ICONIFIED] = panel->g_task.alpha[TASK_NORMAL];
+		panel->g_task.saturation[TASK_ICONIFIED] = panel->g_task.saturation[TASK_NORMAL];
+		panel->g_task.brightness[TASK_ICONIFIED] = panel->g_task.brightness[TASK_NORMAL];
+	}
+	if ((panel->g_task.config_asb_mask & (1<<TASK_URGENT)) == 0) {
+		panel->g_task.alpha[TASK_URGENT] = panel->g_task.alpha[TASK_ACTIVE];
+		panel->g_task.saturation[TASK_URGENT] = panel->g_task.saturation[TASK_ACTIVE];
+		panel->g_task.brightness[TASK_URGENT] = panel->g_task.brightness[TASK_ACTIVE];
+	}
+	if ((panel->g_task.config_font_mask & (1<<TASK_NORMAL)) == 0) panel->g_task.font[TASK_NORMAL] = (Color){{0, 0, 0}, 0};
+	if ((panel->g_task.config_font_mask & (1<<TASK_ACTIVE)) == 0) panel->g_task.font[TASK_ACTIVE] = panel->g_task.font[TASK_NORMAL];
+	if ((panel->g_task.config_font_mask & (1<<TASK_ICONIFIED)) == 0) panel->g_task.font[TASK_ICONIFIED] = panel->g_task.font[TASK_NORMAL];
+	if ((panel->g_task.config_font_mask & (1<<TASK_URGENT)) == 0) panel->g_task.font[TASK_URGENT] = panel->g_task.font[TASK_ACTIVE];
+	if ((panel->g_task.config_font_mask & (1<<TASK_NORMAL)) == 0) panel->g_task.background[TASK_NORMAL] = &g_array_index(backgrounds, Background, 0);
+	if ((panel->g_task.config_background_mask & (1<<TASK_ACTIVE)) == 0) panel->g_task.background[TASK_ACTIVE] = panel->g_task.background[TASK_NORMAL];
+	if ((panel->g_task.config_background_mask & (1<<TASK_ICONIFIED)) == 0) panel->g_task.background[TASK_ICONIFIED] = panel->g_task.background[TASK_NORMAL];
+	if ((panel->g_task.config_background_mask & (1<<TASK_URGENT)) == 0) panel->g_task.background[TASK_URGENT] = panel->g_task.background[TASK_ACTIVE];
+
+	if (panel_horizontal) {
+		panel->g_task.area.posy = panel->g_taskbar.area.posy + panel->g_taskbar.bg->border.width + panel->g_taskbar.area.paddingy;
+		panel->g_task.area.height = panel->area.height - (2 * panel->g_task.area.posy);
+	}
+	else {
+		panel->g_task.area.posx = panel->g_taskbar.area.posx + panel->g_taskbar.bg->border.width + panel->g_taskbar.area.paddingy;
+		panel->g_task.area.width = panel->area.width - (2 * panel->g_task.area.posx);
+		panel->g_task.area.height = panel->g_task.maximum_height;
+	}
+
+	for (j=0; j<TASK_STATE_COUNT; ++j) {
+		if (panel->g_task.background[j]->border.rounded > panel->g_task.area.height/2) {
+			printf("task%sbackground_id has a too large rounded value. Please fix your tint2rc\n", j==0 ? "_" : j==1 ? "_active_" : j==2 ? "_iconified_" : "_urgent_");
+			g_array_append_val(backgrounds, *panel->g_task.background[j]);
+			panel->g_task.background[j] = &g_array_index(backgrounds, Background, backgrounds->len-1);
+			panel->g_task.background[j]->border.rounded = panel->g_task.area.height/2;
+		}
+	}
+
+	// compute vertical position : text and icon
+	int height_ink, height;
+	get_text_size(panel->g_task.font_desc, &height_ink, &height, panel->area.height, "TAjpg", 5);
+
+	if (!panel->g_task.maximum_width && panel_horizontal)
+		panel->g_task.maximum_width = server.monitor[panel->monitor].width;
+
+	panel->g_task.text_posx = panel->g_task.background[0]->border.width + panel->g_task.area.paddingxlr;
+	panel->g_task.text_height = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
+	if (panel->g_task.icon) {
+		panel->g_task.icon_size1 = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
+		panel->g_task.text_posx += panel->g_task.icon_size1;
+		panel->g_task.icon_posy = (panel->g_task.area.height - panel->g_task.icon_size1) / 2;
+	}
+	//printf("monitor %d, task_maximum_width %d\n", panel->monitor, panel->g_task.maximum_width);
+
+	Taskbar *tskbar;
+	panel->nb_desktop = server.nb_desktop;
+	panel->taskbar = calloc(server.nb_desktop, sizeof(Taskbar));
+	for (j=0 ; j < panel->nb_desktop ; j++) {
+		tskbar = &panel->taskbar[j];
+		memcpy(&tskbar->area, &panel->g_taskbar, sizeof(Area));
+		tskbar->desktop = j;
+		if (j == server.desktop && panel->g_taskbar.use_active)
+			tskbar->area.bg = panel->g_taskbar.bg_active;
+	}
+}
+
+
+void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data)
+{
+	remove_task(task_get_task(*(Window*)key));
 }
 
 

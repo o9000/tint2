@@ -157,7 +157,6 @@ void cleanup_launcher()
 int resize_launcher(void *obj)
 {
 	Launcher *launcher = obj;
-	Panel *panel = launcher->area.panel;
 	GSList *l;
 	int count, icon_size;
 	int icons_per_column=1, icons_per_row=1, marging=0;
