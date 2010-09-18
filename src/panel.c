@@ -393,7 +393,7 @@ int resize_panel(void *obj)
 				posy += panel->taskbar[i].area.height + panel->area.paddingx;
 		}
 	}
-	return 1;
+	return 0;
 }
 
 

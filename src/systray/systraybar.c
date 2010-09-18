@@ -116,79 +116,11 @@ void init_systray_panel(void *p)
 
 void draw_systray(void *obj, cairo_t *c)
 {
-	if (server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
-		if (render_background) XFreePixmap(server.dsp, render_background);
-		render_background = XCreatePixmap(server.dsp, server.root_win, systray.area.width, systray.area.height, server.depth);
-		XCopyArea(server.dsp, systray.area.pix, render_background, server.gc, 0, 0, systray.area.width, systray.area.height, 0, 0);
-	}
-
-	refresh_systray = 1;
-}
-
-
-int resize_systray(void *obj)
-{
+	// TODO : position and size the icon window when position of systray is known
 	Systraybar *sysbar = obj;
 	Panel *panel = sysbar->area.panel;
-	TrayWindow *traywin;
-	GSList *l;
-	int count, icon_size;
-	int icons_per_column=1, icons_per_row=1, marging=0;
-
-	if (panel_horizontal)
-		icon_size = sysbar->area.height;
-	else
-		icon_size = sysbar->area.width;
-	icon_size = icon_size - (2 * sysbar->area.bg->border.width) - (2 * sysbar->area.paddingy);
-	if (systray_max_icon_size > 0 && icon_size > systray_max_icon_size)
-		icon_size = systray_max_icon_size;
-	count = 0;
-	for (l = systray.list_icons; l ; l = l->next) {
-		if (!((TrayWindow*)l->data)->hide)
-			count++;
-	}
-	//printf("count %d\n", count);
-
-	if (panel_horizontal) {
-		if (!count) systray.area.width = 0;
-		else {
-			int height = sysbar->area.height - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
-			// here icons_per_column always higher than 0
-			icons_per_column = (height+sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
-			marging = height - (icons_per_column-1)*(icon_size+sysbar->area.paddingx) - icon_size;
-			icons_per_row = count / icons_per_column + (count%icons_per_column != 0);
-			systray.area.width = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_row) + ((icons_per_row-1) * systray.area.paddingx);
-		}
-
-		systray.area.posx = panel->area.width - panel->area.bg->border.width - panel->area.paddingxlr - systray.area.width;
-		if (panel->clock.area.on_screen)
-			systray.area.posx -= (panel->clock.area.width + panel->area.paddingx);
-#ifdef ENABLE_BATTERY
-		if (panel->battery.area.on_screen)
-			systray.area.posx -= (panel->battery.area.width + panel->area.paddingx);
-#endif
-	}
-	else {
-		if (!count) systray.area.height = 0;
-		else {
-			int width = sysbar->area.width - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
-			// here icons_per_row always higher than 0
-			icons_per_row = (width+sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
-			marging = width - (icons_per_row-1)*(icon_size+sysbar->area.paddingx) - icon_size;
-			icons_per_column = count / icons_per_row+ (count%icons_per_row != 0);
-			systray.area.height = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_column) + ((icons_per_column-1) * systray.area.paddingx);
-		}
-
-		systray.area.posy = panel->area.bg->border.width + panel->area.paddingxlr;
-		if (panel->clock.area.on_screen)
-			systray.area.posy += (panel->clock.area.height + panel->area.paddingx);
-#ifdef ENABLE_BATTERY
-		if (panel->battery.area.on_screen)
-			systray.area.posy += (panel->battery.area.height + panel->area.paddingx);
-#endif
-	}
-
-	int i, posx, posy;
+	int i, posx, posy, marging=3, icons_per_column=1, icons_per_row=1;
+	int icon_size = 24;
 	int start = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +marging/2;
 	if (panel_horizontal) {
 		posy = start;
@@ -199,6 +131,8 @@ int resize_systray(void *obj)
 		posy = systray.area.posy + systray.area.bg->border.width + systray.area.paddingxlr;
 	}
 
+	TrayWindow *traywin;
+	GSList *l;
 	for (i=1, l = systray.list_icons; l ; i++, l = l->next) {
 		traywin = (TrayWindow*)l->data;
 		if (traywin->hide) continue;
@@ -227,6 +161,60 @@ int resize_systray(void *obj)
 		// position and size the icon window
 		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, icon_size, icon_size);
 		XResizeWindow(server.dsp, traywin->tray_id, icon_size, icon_size);
+	}
+
+	if (server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+		if (render_background) XFreePixmap(server.dsp, render_background);
+		render_background = XCreatePixmap(server.dsp, server.root_win, systray.area.width, systray.area.height, server.depth);
+		XCopyArea(server.dsp, systray.area.pix, render_background, server.gc, 0, 0, systray.area.width, systray.area.height, 0, 0);
+	}
+
+	refresh_systray = 1;
+}
+
+
+int resize_systray(void *obj)
+{
+	Systraybar *sysbar = obj;
+	GSList *l;
+	int count, icon_size;
+	int icons_per_column=1, icons_per_row=1, marging=0;
+
+	if (panel_horizontal)
+		icon_size = sysbar->area.height;
+	else
+		icon_size = sysbar->area.width;
+	icon_size = icon_size - (2 * sysbar->area.bg->border.width) - (2 * sysbar->area.paddingy);
+	if (systray_max_icon_size > 0 && icon_size > systray_max_icon_size)
+		icon_size = systray_max_icon_size;
+	count = 0;
+	for (l = systray.list_icons; l ; l = l->next) {
+		if (!((TrayWindow*)l->data)->hide)
+			count++;
+	}
+	//printf("count %d\n", count);
+
+	if (panel_horizontal) {
+		if (!count) systray.area.width = 0;
+		else {
+			int height = sysbar->area.height - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
+			// here icons_per_column always higher than 0
+			icons_per_column = (height+sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
+			marging = height - (icons_per_column-1)*(icon_size+sysbar->area.paddingx) - icon_size;
+			icons_per_row = count / icons_per_column + (count%icons_per_column != 0);
+			systray.area.width = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_row) + ((icons_per_row-1) * systray.area.paddingx);
+		}
+	}
+	else {
+		if (!count) systray.area.height = 0;
+		else {
+			int width = sysbar->area.width - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
+			// here icons_per_row always higher than 0
+			icons_per_row = (width+sysbar->area.paddingx) / (icon_size+sysbar->area.paddingx);
+			marging = width - (icons_per_row-1)*(icon_size+sysbar->area.paddingx) - icon_size;
+			icons_per_column = count / icons_per_row+ (count%icons_per_row != 0);
+			systray.area.height = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (icon_size * icons_per_column) + ((icons_per_column-1) * systray.area.paddingx);
+		}
 	}
 	return 1;
 }

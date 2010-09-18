@@ -38,11 +38,8 @@
 
 #include "window.h"
 #include "server.h"
-#include "area.h"
 #include "panel.h"
-#include "taskbar.h"
 #include "battery.h"
-#include "clock.h"
 #include "timer.h"
 #include "common.h"
 
@@ -76,8 +73,6 @@ void update_batterys(void* arg)
 		if (battery_state.percentage >= percentage_hide) {
 			if (panel1[i].battery.area.on_screen == 1) {
 				panel1[i].battery.area.on_screen = 0;
-				// force resize on panel
-				panel1[i].area.resize = 1;
 				panel_refresh = 1;
 			}
 			continue;
@@ -85,8 +80,6 @@ void update_batterys(void* arg)
 		else {
 			if (panel1[i].battery.area.on_screen == 0) {
 				panel1[i].battery.area.on_screen = 1;
-				// force resize on panel
-				panel1[i].area.resize = 1;
 				panel_refresh = 1;
 			}
 		}
@@ -250,8 +243,6 @@ void init_battery_panel(void *p)
 	}
 	else {
 		// panel vertical => fixed width, height, posy and posx
-		battery->area.posy = panel->clock.area.posy + panel->clock.area.height + panel->area.paddingx;
-		battery->area.height = (2 * battery->area.paddingxlr) + (bat_time_height + bat_percentage_height);
 		battery->area.posx = panel->area.bg->border.width + panel->area.paddingy;
 		battery->area.width = panel->area.width - (2 * panel->area.bg->border.width) - (2 * panel->area.paddingy);
 	}
@@ -465,7 +456,11 @@ int resize_battery(void *obj)
 		snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
 	}
 	// vertical panel doen't adjust width
-	if (!panel_horizontal) return ret;
+	if (!panel_horizontal) {
+//		battery->area.posy = panel->clock.area.posy + panel->clock.area.height + panel->area.paddingx;
+//		battery->area.height = (2 * battery->area.paddingxlr) + (bat_time_height + bat_percentage_height);
+		return ret;
+	}
 
 	cairo_surface_t *cs;
 	cairo_t *c;
@@ -490,16 +485,11 @@ int resize_battery(void *obj)
 	if(percentage_width > time_width) new_width = percentage_width;
 	else new_width = time_width;
 
-	new_width += (2*battery->area.paddingxlr) + (2*battery->area.bg->border.width);
-
 	int old_width = battery->area.width;
-
-	Panel *panel = ((Area*)obj)->panel;
+	
+	new_width += (2*battery->area.paddingxlr) + (2*battery->area.bg->border.width);
 	battery->area.width = new_width + 1;
-	battery->area.posx = panel->area.width - battery->area.width - panel->area.paddingxlr - panel->area.bg->border.width;
-	if (panel->clock.area.on_screen)
-		battery->area.posx -= (panel->clock.area.width + panel->area.paddingx);
-
+	
 	if (new_width > old_width || new_width < (old_width-6)) {
 		// refresh and resize other objects on panel
 		// we try to limit the number of refresh

@@ -266,7 +266,7 @@ int resize_taskbar(void *obj)
 
 	if (panel_horizontal) {
 		int  pixel_width, modulo_width=0;
-		int  x, taskbar_width;
+		int  taskbar_width;
 
 		// new task width for 'desktop'
 		task_count = g_slist_length(taskbar->area.list);
@@ -287,27 +287,24 @@ int resize_taskbar(void *obj)
 		taskbar->text_width = pixel_width - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingx;
 
 		// change pos_x and width for all tasks
-		x = taskbar->area.posx + border_width + taskbar->area.paddingxlr;
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
-			tsk->area.posx = x;
 			set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.width = pixel_width;
-			long value[] = { panel->posx+x, panel->posy, pixel_width, panel->area.height };
-			XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
+// TODO : move later (when posx is known)
+//			long value[] = { panel->posx+x, panel->posy, pixel_width, panel->area.height };
+//			XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
 
 			if (modulo_width) {
 				tsk->area.width++;
 				modulo_width--;
 			}
-
-			x += tsk->area.width + panel->g_taskbar.area.paddingx;
 		}
 	}
 	else {
 		int  pixel_height, modulo_height=0;
-		int  y, taskbar_height;
+		int  taskbar_height;
 
 		// new task width for 'desktop'
 		task_count = g_slist_length(taskbar->area.list);
@@ -328,23 +325,21 @@ int resize_taskbar(void *obj)
 		taskbar->text_width = taskbar->area.width - (2 * panel->g_taskbar.area.paddingy) - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingx;
 
 		// change pos_y and height for all tasks
-		y = taskbar->area.posy + border_width + taskbar->area.paddingxlr;
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
-			tsk->area.posy = y;
 			set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.height = pixel_height;
-			long value[] = { panel->posx, panel->posy+y, panel->area.width, pixel_height };
-			XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
+// TODO : move later (when posy is known)
+//			long value[] = { panel->posx, panel->posy+y, panel->area.width, pixel_height };
+//			XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
 
 			if (modulo_height) {
 				tsk->area.height++;
 				modulo_height--;
 			}
-
-			y += tsk->area.height + panel->g_taskbar.area.paddingx;
 		}
 	}
 	return 0;
 }
+

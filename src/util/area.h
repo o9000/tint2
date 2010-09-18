@@ -89,9 +89,9 @@ typedef struct {
 } Area;
 
 
-
+void rendering(void *panel);
 void size_by_content (Area *a);
-void size_by_layout (Area *a);
+void size_by_layout (Area *a, int pos, int level);
 // draw background and foreground
 void refresh (Area *a);
  

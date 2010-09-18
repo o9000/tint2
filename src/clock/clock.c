@@ -26,9 +26,7 @@
 
 #include "window.h"
 #include "server.h"
-#include "area.h"
 #include "panel.h"
-#include "taskbar.h"
 #include "clock.h"
 #include "timer.h"
 #include "common.h"
@@ -169,8 +167,8 @@ void init_clock_panel(void *p)
 	}
 	else {
 		// panel vertical => fixed width, height, posy and posx
-		clock->area.posy = panel->area.bg->border.width + panel->area.paddingxlr;
-		clock->area.height = (2 * clock->area.paddingxlr) + (time_height + date_height);
+//		clock->area.posy = panel->area.bg->border.width + panel->area.paddingxlr;
+//		clock->area.height = (2 * clock->area.paddingxlr) + (time_height + date_height);
 		clock->area.posx = panel->area.bg->border.width + panel->area.paddingy;
 		clock->area.width = panel->area.width - (2 * panel->area.bg->border.width) - (2 * panel->area.paddingy);
 	}
@@ -266,7 +264,6 @@ int resize_clock (void *obj)
 	else new_width = date_width;
 	new_width += (2*clock->area.paddingxlr) + (2*clock->area.bg->border.width);
 
-	Panel *panel = ((Area*)obj)->panel;
 	if (new_width > clock->area.width || new_width < (clock->area.width-6)) {
 		// resize clock
 		// we try to limit the number of resize
@@ -277,8 +274,6 @@ int resize_clock (void *obj)
 		ret = 1;
 		panel_refresh = 1;
 	}
-	clock->area.posx = panel->area.width - clock->area.width - panel->area.paddingxlr - panel->area.bg->border.width;
-
 
 	g_object_unref (layout);
 	cairo_destroy (c);

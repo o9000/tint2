@@ -77,6 +77,16 @@
  *
  ************************************************************/
 
+void rendering(void *obj)
+{
+	Panel *panel = (Panel*)obj;
+	
+	size_by_content(&panel->area);
+	size_by_layout(&panel->area, 0, 0);
+	
+	refresh(&panel->area);
+}
+
 
 void size_by_content (Area *a)
 {
@@ -94,16 +104,16 @@ void size_by_content (Area *a)
 
 		if (a->_resize) {
 			if (a->_resize(a)) {
-				// 'size' changed then 'resize = 1' on the parent
+				// 'size' changed => 'resize = 1' on the parent and redraw object
 				((Area*)a->parent)->resize = 1;
+				a->redraw = 1;
 			}
-			a->redraw = 1;
 		}
 	}
 }
 
 
-void size_by_layout (Area *a)
+void size_by_layout (Area *a, int pos, int level)
 {
 	// don't resize hiden objects
 	if (!a->on_screen) return;
@@ -125,8 +135,24 @@ void size_by_layout (Area *a)
 		}
 	}
 
-	for (l = a->list; l ; l = l->next)
-		size_by_layout(l->data);	
+	// update position of childs
+	pos += a->paddingxlr + a->bg->border.width;
+	int i=0;
+	for (l = a->list; l ; l = l->next) {
+		Area *child = ((Area*)l->data);
+		i++;
+		
+		if (pos != child->posx) {
+			// pos changed => redraw
+			child->posx = pos;
+			child->redraw = 1;
+		}
+		//printf("level %d, object %d, pos %d\n", level, i, pos);
+		
+		size_by_layout(child, pos, level+1);
+		
+		pos += child->width + a->paddingx;
+	}
 }
 
 

@@ -223,7 +223,7 @@ int resize_launcher(void *obj)
 			launcher->area.width = (2 * launcher->area.bg->border.width) + (2 * launcher->area.paddingxlr) + (icon_size * icons_per_row) + ((icons_per_row-1) * launcher->area.paddingx);
 		}
 
-		launcher->area.posx = panel->area.bg->border.width + panel->area.paddingxlr;
+//		launcher->area.posx = panel->area.bg->border.width + panel->area.paddingxlr;
 		launcher->area.posy = panel->area.bg->border.width;
 	}
 	else {
@@ -238,7 +238,7 @@ int resize_launcher(void *obj)
 		}
 
 		launcher->area.posx = panel->area.bg->border.width;
-		launcher->area.posy = panel->area.height - panel->area.bg->border.width - panel->area.paddingxlr - launcher->area.height;
+//		launcher->area.posy = panel->area.height - panel->area.bg->border.width - panel->area.paddingxlr - launcher->area.height;
 	}
 
 	int i, posx, posy;
