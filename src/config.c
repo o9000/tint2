@@ -59,14 +59,14 @@ char *snapshot_path;
 // --------------------------------------------------
 // backward compatibility
 // detect if it's an old config file (==1)
-static int old_config_file;
+static int new_config_file;
 
 
 void default_config()
 {
 	config_path = 0;
 	snapshot_path = 0;
-	old_config_file = 1;
+	new_config_file = 0;
 }
 
 void cleanup_config()
@@ -236,7 +236,7 @@ void add_entry (char *key, char *value)
 		}
 	}
 	else if (strcmp (key, "panel_items") == 0) {
-		if (panel_items_order) g_free(panel_items_order);
+		new_config_file = 1;
 		panel_items_order = strdup(value);
 		int j;
 		for (j=0 ; j < strlen(panel_items_order) ; j++) {
@@ -372,6 +372,13 @@ void add_entry (char *key, char *value)
 
 	/* Clock */
 	else if (strcmp (key, "time1_format") == 0) {
+		if (new_config_file == 0) {
+			clock_enabled = 1;
+			if (panel_items_order)
+				panel_items_order = strcat(panel_items_order, "C");
+			else 
+				panel_items_order = strdup("C");
+		}
 		if (strlen(value) > 0) {
 			time1_format = strdup (value);
 			clock_enabled = 1;
@@ -633,6 +640,29 @@ void add_entry (char *key, char *value)
 		}
 	}
 
+	// old config option
+	else if (strcmp(key, "systray") == 0) {
+		if (new_config_file == 0) {
+			systray_enabled = atoi(value);
+			if (systray_enabled) {
+				if (panel_items_order)
+					panel_items_order = strcat(panel_items_order, "S");
+				else 
+					panel_items_order = strdup("S");
+			}
+		}
+	}
+	else if (strcmp(key, "battery") == 0) {
+		if (new_config_file == 0) {
+			battery_enabled = atoi(value);
+			if (battery_enabled) {
+				if (panel_items_order)
+					panel_items_order = strcat(panel_items_order, "B");
+				else 
+					panel_items_order = strdup("B");
+			}
+		}
+	}
 	else
 		fprintf(stderr, "tint2 : invalid option \"%s\",\n  upgrade tint2 or correct your config file\n", key);
 
@@ -705,6 +735,17 @@ int config_read_file (const char *path)
 		}
 	}
 	fclose (fp);
+	
+	// append Taskbar item
+	if (new_config_file == 0) {
+		taskbar_enabled = 1;
+		if (panel_items_order) {
+			char *tmp = strdup("T");
+			panel_items_order = strcat(tmp, panel_items_order);
+		}
+		else 
+			panel_items_order = strdup("T");
+	}
 
 	return 1;
 }

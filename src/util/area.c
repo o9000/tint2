@@ -140,7 +140,7 @@ void size_by_layout (Area *a, int pos, int level)
 			child->posx = pos;
 			child->redraw = 1;
 		}
-		//printf("level %d, object %d, pos %d\n", level, i, pos);
+		printf("level %d, object %d, pos %d\n", level, i, pos);
 		
 		size_by_layout(child, pos, level+1);
 		
