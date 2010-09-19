@@ -169,9 +169,10 @@ void init_clock_panel(void *p)
 		clock->area.height = panel->area.height - (2 * clock->area.posy);
 	}
 	else {
-		// panel vertical => fixed width, height, posy and posx
+		// panel vertical => fixed width, posx, height
 		clock->area.posx = panel->area.bg->border.width + panel->area.paddingy;
 		clock->area.width = panel->area.width - (2 * panel->area.bg->border.width) - (2 * panel->area.paddingy);
+		clock->area.height = time_height + date_height + (2 * clock->area.paddingxlr) + (2*clock->area.bg->border.width);
 	}
 
 	clock->time1_posy = (clock->area.height - time_height) / 2;
@@ -228,7 +229,7 @@ int resize_clock (void *obj)
 {
 	Clock *clock = obj;
 	PangoLayout *layout;
-	int time_width, date_width, new_width, ret = 0;
+	int time_width, date_width, ret = 0;
 
 	clock->area.redraw = 1;
 	time_width = date_width = 0;
@@ -237,12 +238,8 @@ int resize_clock (void *obj)
 		strftime(buf_date, sizeof(buf_date), time2_format, clock_gettime_for_tz(time2_timezone));
 
 	// vertical panel doen't adjust width
-	if (!panel_horizontal) {
-//		clock->area.posy = panel->area.bg->border.width + panel->area.paddingxlr;
-//		clock->area.height = (2 * clock->area.paddingxlr) + (time_height + date_height);
-		return ret;
-	}
-
+	if (!panel_horizontal) return ret;
+	
 	//printf("  resize_clock\n");
 	cairo_surface_t *cs;
 	cairo_t *c;
@@ -253,7 +250,7 @@ int resize_clock (void *obj)
 	c = cairo_create (cs);
 	layout = pango_cairo_create_layout (c);
 
-	// check width
+	// check width/height
 	pango_layout_set_font_description (layout, time1_font_desc);
 	pango_layout_set_indent(layout, 0);
 	pango_layout_set_text (layout, buf_time, strlen(buf_time));
@@ -265,17 +262,11 @@ int resize_clock (void *obj)
 		pango_layout_get_pixel_size (layout, &date_width, NULL);
 	}
 
-	if (time_width > date_width) new_width = time_width;
-	else new_width = date_width;
+	int new_width = (time_width > date_width) ? time_width : date_width;
 	new_width += (2*clock->area.paddingxlr) + (2*clock->area.bg->border.width);
-
 	if (new_width > clock->area.width || new_width < (clock->area.width-6)) {
-		// resize clock
 		// we try to limit the number of resize
-		// printf("clock_width %d, new_width %d\n", clock->area.width, new_width);
 		clock->area.width = new_width + 1;
-
-		// resize other objects on panel
 		ret = 1;
 		panel_refresh = 1;
 	}
