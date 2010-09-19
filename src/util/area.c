@@ -135,16 +135,28 @@ void size_by_layout (Area *a, int pos, int level)
 		Area *child = ((Area*)l->data);
 		i++;
 		
-		if (pos != child->posx) {
-			// pos changed => redraw
-			child->posx = pos;
-			child->redraw = 1;
+		if (panel_horizontal) {
+			if (pos != child->posx) {
+				// pos changed => redraw
+				child->posx = pos;
+				child->redraw = 1;
+			}
 		}
-		printf("level %d, object %d, pos %d\n", level, i, pos);
+		else {
+			if (pos != child->posy) {
+				// pos changed => redraw
+				child->posy = pos;
+				child->redraw = 1;
+			}
+		}
+		//printf("level %d, object %d, pos %d\n", level, i, pos);
 		
 		size_by_layout(child, pos, level+1);
 		
-		pos += child->width + a->paddingx;
+		if (panel_horizontal)
+			pos += child->width + a->paddingx;
+		else
+			pos += child->height + a->paddingx;
 	}
 }
 
