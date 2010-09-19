@@ -133,6 +133,7 @@ void size_by_layout (Area *a, int pos, int level)
 	int i=0;
 	for (l = a->list; l ; l = l->next) {
 		Area *child = ((Area*)l->data);
+		if (!child->on_screen) continue;
 		i++;
 		
 		if (panel_horizontal) {
