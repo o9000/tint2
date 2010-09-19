@@ -487,11 +487,13 @@ void event_property_notify (XEvent *e)
 
 		// Change number of desktops
 		else if (at == server.atom._NET_NUMBER_OF_DESKTOPS) {
+			if (!taskbar_enabled) return;
 			server.nb_desktop = server_get_number_of_desktop ();
 			cleanup_taskbar();
 			init_taskbar();
 			for (i=0 ; i < nb_panel ; i++) {
-				set_panel_items(&panel1[i]);
+				init_taskbar_panel(&panel1[i]);
+				set_panel_items_order(&panel1[i]);
 				panel1[i].area.resize = 1;
 			}
 			visible_object();
@@ -501,6 +503,7 @@ void event_property_notify (XEvent *e)
 		}
 		// Change desktop
 		else if (at == server.atom._NET_CURRENT_DESKTOP) {
+			if (!taskbar_enabled) return;
 			int old_desktop = server.desktop;
 			server.desktop = server_get_current_desktop ();
 			for (i=0 ; i < nb_panel ; i++) {

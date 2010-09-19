@@ -126,7 +126,7 @@ void cleanup_panel()
 
 void init_panel()
 {
-	int i;
+	int i, k;
 	Panel *p;
 
 	if (panel_config.monitor > (server.nb_monitor-1)) {
@@ -174,7 +174,24 @@ void init_panel()
 		p->g_task.area.panel = p;
 		init_panel_size_and_position(p);
 		// add childs according to panel_items
-		set_panel_items(p);
+		for (k=0 ; k < strlen(panel_items_order) ; k++) {
+			if (panel_items_order[k] == 'L') 
+				init_launcher_panel(p);
+			if (panel_items_order[k] == 'T')
+				init_taskbar_panel(p);
+#ifdef ENABLE_BATTERY
+			if (panel_items_order[k] == 'B')
+				init_battery_panel(p);
+#endif
+			if (panel_items_order[k] == 'S') {
+				// TODO : check systray is only on 1 panel
+				init_systray_panel(p);
+				refresh_systray = 1;
+			}
+			if (panel_items_order[k] == 'C')
+				init_clock_panel(p);
+		}
+		set_panel_items_order(p);
 
 		// catch some events
 		XSetWindowAttributes att = { .colormap=server.colormap, .background_pixel=0, .border_pixel=0 };
@@ -453,7 +470,7 @@ void update_strut(Panel* p)
 }
 
 
-void set_panel_items(Panel *p)
+void set_panel_items_order(Panel *p)
 {
 	int k, j;
 	
@@ -463,31 +480,22 @@ void set_panel_items(Panel *p)
 	}
 
 	for (k=0 ; k < strlen(panel_items_order) ; k++) {
-		if (panel_items_order[k] == 'L') {
-			init_launcher_panel(p);
+		if (panel_items_order[k] == 'L') 
 			p->area.list = g_slist_append(p->area.list, &p->launcher);
-		}
 		if (panel_items_order[k] == 'T') {
-			init_taskbar_panel(p);
 			for (j=0 ; j < p->nb_desktop ; j++)
 				p->area.list = g_slist_append(p->area.list, &p->taskbar[j]);
 		}
 #ifdef ENABLE_BATTERY
-		if (panel_items_order[k] == 'B') {
-			init_battery_panel(p);
+		if (panel_items_order[k] == 'B') 
 			p->area.list = g_slist_append(p->area.list, &p->battery);
-		}
 #endif
 		if (panel_items_order[k] == 'S') {
 			// TODO : check systray is only on 1 panel
-			init_systray_panel(p);
-			refresh_systray = 1;
 			p->area.list = g_slist_append(p->area.list, &systray);
 		}
-		if (panel_items_order[k] == 'C') {
-			init_clock_panel(p);
+		if (panel_items_order[k] == 'C')
 			p->area.list = g_slist_append(p->area.list, &p->clock);
-		}
 	}
 }
 
