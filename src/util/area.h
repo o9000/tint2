@@ -89,13 +89,18 @@ typedef struct {
 	const char* (*_get_tooltip_text)(void *obj);
 } Area;
 
+// on startup, initialize fixed pos/size
+void init_rendering(void *obj, int pos);
 
-void rendering(void *panel);
+void rendering(void *obj);
 void size_by_content (Area *a);
 void size_by_layout (Area *a, int pos, int level);
 // draw background and foreground
 void refresh (Area *a);
  
+// generic resize for SIZE_BY_LAYOUT objects
+int resize_by_layout(void *obj);
+
 // set 'redraw' on an area and childs
 void set_redraw (Area *a);
 

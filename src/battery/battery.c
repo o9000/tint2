@@ -80,7 +80,6 @@ void update_batterys(void* arg)
 		else {
 			if (panel1[i].battery.area.on_screen == 0) {
 				panel1[i].battery.area.on_screen = 1;
-				panel1[i].area.resize = 1;
 			}
 		}
 		if (panel1[i].battery.area.on_screen == 1) {
@@ -238,15 +237,14 @@ void init_battery_panel(void *p)
 
 	get_text_size(bat1_font_desc, &bat_percentage_height_ink, &bat_percentage_height, panel->area.height, buf_bat_percentage, strlen(buf_bat_percentage));
 	get_text_size(bat2_font_desc, &bat_time_height_ink, &bat_time_height, panel->area.height, buf_bat_time, strlen(buf_bat_time));
+	
 
 	if (panel_horizontal) {
-		// panel horizonal => fixed height and posy
-		battery->area.posy = panel->area.bg->border.width + panel->area.paddingy;
+		// panel horizonal => fixed height
 		battery->area.height = panel->area.height - (2 * battery->area.posy);
 	}
 	else {
-		// panel vertical => fixed width, height, posy and posx
-		battery->area.posx = panel->area.bg->border.width + panel->area.paddingy;
+		// panel vertical => fixed width, height
 		battery->area.width = panel->area.width - (2 * panel->area.bg->border.width) - (2 * panel->area.paddingy);
 	}
 

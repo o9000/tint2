@@ -97,14 +97,6 @@ void init_systray_panel(void *p)
 {
 	Panel *panel =(Panel*)p;
 
-	if (panel_horizontal) {
-		systray.area.posy = panel->area.bg->border.width + panel->area.paddingy;
-		systray.area.height = panel->area.height - (2 * systray.area.posy);
-	}
-	else {
-		systray.area.posx = panel->area.bg->border.width + panel->area.paddingy;
-		systray.area.width = panel->area.width - (2 * panel->area.bg->border.width) - (2 * panel->area.paddingy);
-	}
 	systray.area.parent = p;
 	systray.area.panel = p;
 	
@@ -442,7 +434,6 @@ gboolean add_icon(Window id)
 		systray.list_icons = g_slist_append(systray.list_icons, traywin);
 	else
 		systray.list_icons = g_slist_insert_sorted(systray.list_icons, traywin, compare_traywindows);
-	systray.area.resize = 1;
 	//printf("add_icon id %lx, %d\n", id, g_slist_length(systray.list_icons));
 
 	// watch for the icon trying to resize itself!
@@ -458,8 +449,8 @@ gboolean add_icon(Window id)
 	if (!traywin->hide && !panel->is_hidden)
 		XMapRaised(server.dsp, traywin->id);
 
-	// changed in systray force resize on panel
-	panel->area.resize = 1;
+	// changed in systray
+	systray.area.resize = 1;
 	panel_refresh = 1;
 	return TRUE;
 }
@@ -471,7 +462,6 @@ void remove_icon(TrayWindow *traywin)
 
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
-	systray.area.resize = 1;
 	//printf("remove_icon id %lx, %d\n", traywin->id);
 
 	XSelectInput(server.dsp, traywin->tray_id, NoEventMask);
@@ -502,9 +492,8 @@ void remove_icon(TrayWindow *traywin)
 		systray.area.on_screen = 0;
 		systray.area.width = 0;
 	}
-	// changed in systray force resize on panel
-	Panel *panel = systray.area.panel;
-	panel->area.resize = 1;
+	// changed in systray
+	systray.area.resize = 1;
 	panel_refresh = 1;
 }
 

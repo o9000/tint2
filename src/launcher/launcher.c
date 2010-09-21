@@ -76,16 +76,7 @@ void init_launcher_panel(void *p)
 		return;
 
 	launcher->area.on_screen = 1;
-	if (panel_horizontal) {
-		// panel horizonal => fixed height and posy
-		launcher->area.posy = panel->area.bg->border.width + panel->area.paddingy;
-		launcher->area.height = panel->area.height - (2 * launcher->area.posy);
-	}
-	else {
-		// panel vertical => fixed width, height, posy and posx
-		launcher->area.posx = panel->area.bg->border.width + panel->area.paddingxlr;
-		launcher->area.width = panel->area.width - (2 * panel->area.bg->border.width) - (2 * panel->area.paddingy);
-	}
+	panel_refresh = 1;
 
 	fprintf(stderr, "Loading themes...\n");
 	launcher_load_themes(launcher);

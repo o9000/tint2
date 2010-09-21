@@ -221,7 +221,6 @@ void init_panel()
 			add_timeout(panel_autohide_hide_timeout, 0, autohide_hide, p);
 	}
 
-	panel_refresh = 1;
 	visible_object();
 	task_refresh_tasklist();
 	active_task();
@@ -497,6 +496,7 @@ void set_panel_items_order(Panel *p)
 		if (panel_items_order[k] == 'C')
 			p->area.list = g_slist_append(p->area.list, &p->clock);
 	}
+	init_rendering(&p->area, 0);
 }
 
 

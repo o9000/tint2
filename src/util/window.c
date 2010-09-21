@@ -310,3 +310,29 @@ void get_text_size(PangoFontDescription *font, int *height_ink, int *height, int
 }
 
 
+void get_text_size2(PangoFontDescription *font, int *height_ink, int *height, int *width, int panel_height, int panel_with, char *text, int len)
+{
+	PangoRectangle rect_ink, rect;
+
+	Pixmap pmap = XCreatePixmap (server.dsp, server.root_win, panel_height, panel_height, server.depth);
+
+	cairo_surface_t *cs = cairo_xlib_surface_create (server.dsp, pmap, server.visual, panel_height, panel_with);
+	cairo_t *c = cairo_create (cs);
+
+	PangoLayout *layout = pango_cairo_create_layout (c);
+	pango_layout_set_font_description (layout, font);
+	pango_layout_set_text (layout, text, len);
+
+	pango_layout_get_pixel_extents(layout, &rect_ink, &rect);
+	*height_ink = rect_ink.height;
+	*height = rect.height;
+	*width = rect.width;
+	//printf("dimension : %d - %d\n", rect_ink.height, rect.height);
+
+	g_object_unref (layout);
+	cairo_destroy (c);
+	cairo_surface_destroy (cs);
+	XFreePixmap (server.dsp, pmap);
+}
+
+
