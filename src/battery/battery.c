@@ -67,8 +67,15 @@ int apm_fd;
 
 void update_batterys(void* arg)
 {
-	int i;
+	int old_percentage = battery_state.percentage;
+	int16_t old_hours = battery_state.time.hours;
+	int8_t old_minutes = battery_state.time.minutes;
+	
 	update_battery();
+	if (old_percentage == battery_state.percentage && old_hours == battery_state.time.hours && old_minutes == battery_state.time.minutes)
+		return;
+
+	int i;
 	for (i=0 ; i < nb_panel ; i++) {
 		if (battery_state.percentage >= percentage_hide) {
 			if (panel1[i].battery.area.on_screen == 1) {
@@ -102,6 +109,9 @@ void default_battery()
 	path_energy_full = 0;
 	path_current_now = 0;
 	path_status = 0;
+	battery_state.percentage = 0;
+	battery_state.time.hours = 0;
+	battery_state.time.minutes = 0;
 #if defined(__OpenBSD__) || defined(__NetBSD__)
 	apm_fd = -1;
 #endif
@@ -116,6 +126,7 @@ void cleanup_battery()
 	if (path_current_now) g_free(path_current_now);
 	if (path_status) g_free(path_status);
 	if (battery_low_cmd) g_free(battery_low_cmd);
+	if (battery_timeout) stop_timeout(battery_timeout);
 
 #if defined(__OpenBSD__) || defined(__NetBSD__)
 	if ((apm_fd != -1) && (close(apm_fd) == -1))
@@ -217,7 +228,6 @@ void init_battery_panel(void *p)
 {
 	Panel *panel = (Panel*)p;
 	Battery *battery = &panel->battery;
-	int bat_percentage_height, bat_percentage_height_ink, bat_time_height, bat_time_height_ink;
 
 	if (!battery_enabled)
 		return;
@@ -230,27 +240,6 @@ void init_battery_panel(void *p)
 	battery->area.resize = 1;
 	battery->area.redraw = 1;
 	battery->area.on_screen = 1;
-
-	update_battery(&battery_state);
-	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
-	snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
-
-	get_text_size(bat1_font_desc, &bat_percentage_height_ink, &bat_percentage_height, panel->area.height, buf_bat_percentage, strlen(buf_bat_percentage));
-	get_text_size(bat2_font_desc, &bat_time_height_ink, &bat_time_height, panel->area.height, buf_bat_time, strlen(buf_bat_time));
-	
-
-	if (panel_horizontal) {
-		// panel horizonal => fixed height
-		battery->area.height = panel->area.height - (2 * battery->area.posy);
-	}
-	else {
-		// panel vertical => fixed width, height
-		battery->area.width = panel->area.width - (2 * panel->area.bg->border.width) - (2 * panel->area.paddingy);
-	}
-
-	battery->bat1_posy = (battery->area.height - bat_percentage_height) / 2;
-	battery->bat1_posy -= ((bat_time_height_ink + 2) / 2);
-	battery->bat2_posy = battery->bat1_posy + bat_percentage_height + 2 - (bat_percentage_height - bat_percentage_height_ink)/2 - (bat_time_height - bat_time_height_ink)/2;
 }
 
 
@@ -444,63 +433,43 @@ void draw_battery (void *obj, cairo_t *c)
 int resize_battery(void *obj)
 {
 	Battery *battery = obj;
-	PangoLayout *layout;
-	int percentage_width, time_width, new_width, ret = 0;
+	Panel *panel = battery->area.panel;
+	int bat_percentage_height, bat_percentage_width, bat_percentage_height_ink;
+	int bat_time_height, bat_time_width, bat_time_height_ink;
+	int ret = 0;
 
-	percentage_width = time_width = 0;
 	battery->area.redraw = 1;
+	
 	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
 	if(battery_state.state == BATTERY_FULL) {
 		strcpy(buf_bat_time, "Full");
 	} else {
 		snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
 	}
-	// vertical panel doen't adjust width
-	if (!panel_horizontal) {
-//		battery->area.posy = panel->clock.area.posy + panel->clock.area.height + panel->area.paddingx;
-//		battery->area.height = (2 * battery->area.paddingxlr) + (bat_time_height + bat_percentage_height);
-		return ret;
+	get_text_size2(bat1_font_desc, &bat_percentage_height_ink, &bat_percentage_height, &bat_percentage_width, panel->area.height, panel->area.width, buf_bat_percentage, strlen(buf_bat_percentage));
+	get_text_size2(bat2_font_desc, &bat_time_height_ink, &bat_time_height, &bat_time_width, panel->area.height, panel->area.width, buf_bat_time, strlen(buf_bat_time));
+
+	if (panel_horizontal) {
+		int new_size = (bat_percentage_width > bat_time_width) ? bat_percentage_width : bat_time_width;
+		new_size += (2*battery->area.paddingxlr) + (2*battery->area.bg->border.width);
+		if (new_size > battery->area.width || new_size < (battery->area.width-2)) {
+			// we try to limit the number of resize
+			battery->area.width =  new_size;
+			battery->bat1_posy = ((battery->area.height - bat_percentage_height) / 2) - ((bat_time_height_ink + 2) / 2);
+			battery->bat2_posy = battery->bat1_posy + bat_percentage_height + 2 - (bat_percentage_height - bat_percentage_height_ink)/2 - (bat_time_height - bat_time_height_ink)/2;
+			ret = 1;
+		}
+	}
+	else {
+		int new_size = bat_percentage_height + bat_time_height + (2 * (battery->area.paddingxlr + battery->area.bg->border.width));
+		if (new_size != battery->area.height) {
+			battery->area.height =  new_size;
+			battery->bat1_posy = ((battery->area.height - bat_percentage_height) / 2) - ((bat_time_height_ink + 2) / 2);
+			battery->bat2_posy = battery->bat1_posy + bat_percentage_height + 2 - (bat_percentage_height - bat_percentage_height_ink)/2 - (bat_time_height - bat_time_height_ink)/2;
+			ret = 1;
+		}
 	}
 
-	cairo_surface_t *cs;
-	cairo_t *c;
-	Pixmap pmap;
-	pmap = XCreatePixmap(server.dsp, server.root_win, battery->area.width, battery->area.height, server.depth);
-
-	cs = cairo_xlib_surface_create(server.dsp, pmap, server.visual, battery->area.width, battery->area.height);
-	c = cairo_create(cs);
-	layout = pango_cairo_create_layout(c);
-
-	// check width
-	pango_layout_set_font_description(layout, bat1_font_desc);
-	pango_layout_set_indent(layout, 0);
-	pango_layout_set_text(layout, buf_bat_percentage, strlen(buf_bat_percentage));
-	pango_layout_get_pixel_size(layout, &percentage_width, NULL);
-
-	pango_layout_set_font_description(layout, bat2_font_desc);
-	pango_layout_set_indent(layout, 0);
-	pango_layout_set_text(layout, buf_bat_time, strlen(buf_bat_time));
-	pango_layout_get_pixel_size(layout, &time_width, NULL);
-
-	if(percentage_width > time_width) new_width = percentage_width;
-	else new_width = time_width;
-
-	int old_width = battery->area.width;
-	
-	new_width += (2*battery->area.paddingxlr) + (2*battery->area.bg->border.width);
-	battery->area.width = new_width + 1;
-	
-	if (new_width > old_width || new_width < (old_width-6)) {
-		// refresh and resize other objects on panel
-		// we try to limit the number of refresh
-		// printf("battery_width %d, new_width %d\n", battery->area.width, new_width);
-		ret = 1;
-	}
-
-	g_object_unref (layout);
-	cairo_destroy (c);
-	cairo_surface_destroy (cs);
-	XFreePixmap (server.dsp, pmap);
 	return ret;
 }
 
