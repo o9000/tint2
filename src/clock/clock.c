@@ -148,12 +148,11 @@ void init_clock_panel(void *p)
 	clock->area._draw_foreground = draw_clock;
 	clock->area.size_mode = SIZE_BY_CONTENT;
 	clock->area._resize = resize_clock;
-	clock->area.resize = 1;
-	clock->area.redraw = 1;
 	// check consistency
 	if (time1_format == 0)
 		return;
 
+	clock->area.resize = 1;
 	clock->area.on_screen = 1;
 
 	if (time_tooltip_format) {
@@ -205,6 +204,7 @@ int resize_clock (void *obj)
 
 	clock->area.redraw = 1;
 	
+	date_height = date_width = 0;
 	strftime(buf_time, sizeof(buf_time), time1_format, clock_gettime_for_tz(time1_timezone));
 	get_text_size2(time1_font_desc, &time_height_ink, &time_height, &time_width, panel->area.height, panel->area.width, buf_time, strlen(buf_time));
 	if (time2_format) {

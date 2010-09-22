@@ -123,8 +123,8 @@ void size_by_content (Area *a)
 			if (a->_resize(a)) {
 				// 'size' changed => 'resize = 1' on the parent and redraw object
 				((Area*)a->parent)->resize = 1;
-				a->redraw = 1;
 			}
+			a->redraw = 1;
 		}
 	}
 }
@@ -317,6 +317,26 @@ void set_redraw (Area *a)
 		set_redraw(l->data);
 }
 
+void hide(Area *a)
+{
+	Area *parent = (Area*)a->parent;
+
+	a->on_screen = 0;
+	parent->resize = 1;
+	if (panel_horizontal)
+		a->width = 0;
+	else
+		a->height = 0;
+}
+
+void show(Area *a)
+{
+	Area *parent = (Area*)a->parent;
+
+	a->on_screen = 1;
+	parent->resize = 1;
+	a->resize = 1;
+}
 
 void draw (Area *a)
 {

@@ -107,9 +107,9 @@ void init_systray_panel(void *p)
 			count++;
 	}
 	if (count == 0)
-		systray.area.on_screen = 0;
+		hide(&systray.area);
 	else 
-		systray.area.on_screen = 1;
+		show(&systray.area);
 	refresh_systray = 0;
 }
 
@@ -426,7 +426,7 @@ gboolean add_icon(Window id)
 	traywin->damage = 0;
 
 	if (systray.area.on_screen == 0)
-		systray.area.on_screen = 1;
+		show(&systray.area);
 
 	if (systray.sort == 3)
 		systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
@@ -488,10 +488,9 @@ void remove_icon(TrayWindow *traywin)
 		if (!((TrayWindow*)l->data)->hide)
 			count++;
 	}
-	if (count == 0) {
-		systray.area.on_screen = 0;
-		systray.area.width = 0;
-	}
+	if (count == 0)
+		hide(&systray.area);
+		
 	// changed in systray
 	systray.area.resize = 1;
 	panel_refresh = 1;

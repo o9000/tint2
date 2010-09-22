@@ -104,6 +104,10 @@ int resize_by_layout(void *obj);
 // set 'redraw' on an area and childs
 void set_redraw (Area *a);
 
+// hide/unhide area
+void hide(Area *a);
+void show(Area *a);
+
 // draw pixmap
 void draw (Area *a);
 void draw_background (Area *a, cairo_t *c);

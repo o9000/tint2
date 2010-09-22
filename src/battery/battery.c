@@ -79,14 +79,14 @@ void update_batterys(void* arg)
 	for (i=0 ; i < nb_panel ; i++) {
 		if (battery_state.percentage >= percentage_hide) {
 			if (panel1[i].battery.area.on_screen == 1) {
-				panel1[i].battery.area.on_screen = 0;
-				panel1[i].area.resize = 1;
+				hide(&panel1[i].battery.area);
 				panel_refresh = 1;
 			}
 		}
 		else {
 			if (panel1[i].battery.area.on_screen == 0) {
-				panel1[i].battery.area.on_screen = 1;
+				show(&panel1[i].battery.area);
+				panel_refresh = 1;
 			}
 		}
 		if (panel1[i].battery.area.on_screen == 1) {
@@ -237,9 +237,6 @@ void init_battery_panel(void *p)
 	battery->area._draw_foreground = draw_battery;
 	battery->area.size_mode = SIZE_BY_CONTENT;
 	battery->area._resize = resize_battery;
-	battery->area.resize = 1;
-	battery->area.redraw = 1;
-	battery->area.on_screen = 1;
 }
 
 
@@ -462,14 +459,13 @@ int resize_battery(void *obj)
 	}
 	else {
 		int new_size = bat_percentage_height + bat_time_height + (2 * (battery->area.paddingxlr + battery->area.bg->border.width));
-		if (new_size != battery->area.height) {
+		if (new_size > battery->area.height || new_size < (battery->area.height-2)) {
 			battery->area.height =  new_size;
 			battery->bat1_posy = ((battery->area.height - bat_percentage_height) / 2) - ((bat_time_height_ink + 2) / 2);
 			battery->bat2_posy = battery->bat1_posy + bat_percentage_height + 2 - (bat_percentage_height - bat_percentage_height_ink)/2 - (bat_time_height - bat_time_height_ink)/2;
 			ret = 1;
 		}
 	}
-
 	return ret;
 }
 
