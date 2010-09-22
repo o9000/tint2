@@ -168,7 +168,7 @@ void init_panel()
 		p->area.on_screen = 1;
 		p->area.resize = 1;
 		p->area.size_mode = SIZE_BY_LAYOUT;
-		p->area._resize = resize_panel;
+		p->area._resize = resize_by_layout;
 		p->g_taskbar.area.parent = p;
 		p->g_taskbar.area.panel = p;
 		p->g_task.area.panel = p;
@@ -298,96 +298,6 @@ void init_panel_size_and_position(Panel *panel)
 		panel->hidden_height = panel->area.height;
 	}
 	// printf("panel : posx %d, posy %d, width %d, height %d\n", panel->posx, panel->posy, panel->area.width, panel->area.height);
-}
-
-
-int resize_panel(void *obj)
-{
-	Panel *panel = (Panel*)obj;
-	int size, nb_by_content=0, nb_by_layout=0;
-	Area *a = (Area*)obj;
-	int paddingx = a->paddingx;;
-
-	if (panel_horizontal) {		
-		// detect free size for SIZE_BY_LAYOUT's Area
-		size = a->width - (2 * a->paddingxlr) - (2 * a->bg->border.width);
-		GSList *l;
-		for (l = ((Area*)obj)->list ; l ; l = l->next) {
-			a = (Area*)l->data;
-			if (a->on_screen && a->width && a->size_mode == SIZE_BY_CONTENT) {
-				size -= a->width;
-				nb_by_content++;
-			}
-			if (a->on_screen && a->size_mode == SIZE_BY_LAYOUT)
-				nb_by_layout++;
-		}
-		if (nb_by_content+nb_by_layout)
-			size -= ((nb_by_content+nb_by_layout-1) * paddingx);
-		//printf("resize_panel : size_panel %d, size_layout %d\n", panel->area.width, size);
-
-		int width=0, modulo=0;
-		if (nb_by_layout) {
-			width = size / nb_by_layout;
-			modulo = size % nb_by_layout;
-		}
-		//printf("   content %d, layout %d, width %d, modulo %d\n", nb_by_content, nb_by_layout, width, modulo);
-
-		// change posx and width for all taskbar
-		int i, posx;
-		posx = panel->area.bg->border.width + panel->area.paddingxlr;
-		if (panel->launcher.area.on_screen && panel->launcher.area.width)
-			posx += (panel->launcher.area.width + panel->area.paddingx);
-		for (i=0 ; i < panel->nb_desktop ; i++) {
-			panel->taskbar[i].area.posx = posx;
-			panel->taskbar[i].area.width = width;
-			panel->taskbar[i].area.resize = 1;
-			if (modulo) {
-				panel->taskbar[i].area.width++;
-				modulo--;
-			}
-			//printf("   width %d\n", panel->taskbar[i].area.width);
-			//printf("taskbar %d : posx %d, width, %d, posy %d\n", i, posx, panel->taskbar[i].area.width, posx + panel->taskbar[i].area.width);
-			if (panel_mode == MULTI_DESKTOP)
-				posx += panel->taskbar[i].area.width + panel->area.paddingx;
-		}
-	}
-	else {
-		// detect free size for SIZE_BY_LAYOUT's Area
-		size = a->height - (2 * a->paddingxlr) - (2 * a->bg->border.width);
-		GSList *l;
-		for (l = ((Area*)obj)->list ; l ; l = l->next) {
-			a = (Area*)l->data;
-			if (a->on_screen && a->height && a->size_mode == SIZE_BY_CONTENT) {
-				size -= a->height;
-				nb_by_content++;
-			}
-			if (a->on_screen && a->size_mode == SIZE_BY_LAYOUT)
-				nb_by_layout++;
-		}
-		if (nb_by_content+nb_by_layout)
-			size -= ((nb_by_content+nb_by_layout-1) * paddingx);
-
-		int width=0, modulo=0;
-		if (nb_by_layout) {
-			width = size / nb_by_layout;
-			modulo = size % nb_by_layout;
-		}
-
-		// change posy and height for all taskbar
-		int i, posy;
-		for (i=0 ; i < panel->nb_desktop ; i++) {
-			panel->taskbar[i].area.posy = posy;
-			panel->taskbar[i].area.height = width;
-			panel->taskbar[i].area.resize = 1;
-			if (modulo) {
-				panel->taskbar[i].area.height++;
-				modulo--;
-			}
-			if (panel_mode == MULTI_DESKTOP)
-				posy += panel->taskbar[i].area.height + panel->area.paddingx;
-		}
-	}
-	return 0;
 }
 
 

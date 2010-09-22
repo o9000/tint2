@@ -211,7 +211,7 @@ int resize_clock (void *obj)
 		strftime(buf_date, sizeof(buf_date), time2_format, clock_gettime_for_tz(time2_timezone));
 		get_text_size2(time2_font_desc, &date_height_ink, &date_height, &date_width, panel->area.height, panel->area.width, buf_date, strlen(buf_date));
 	}
-	
+
 	if (panel_horizontal) {
 		int new_size = (time_width > date_width) ? time_width : date_width;
 		new_size += (2*clock->area.paddingxlr) + (2*clock->area.bg->border.width);

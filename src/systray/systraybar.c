@@ -95,8 +95,6 @@ void init_systray()
 
 void init_systray_panel(void *p)
 {
-	Panel *panel =(Panel*)p;
-
 	systray.area.parent = p;
 	systray.area.panel = p;
 	

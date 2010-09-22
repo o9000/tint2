@@ -217,90 +217,78 @@ void refresh (Area *a)
 
 int resize_by_layout(void *obj)
 {
-	Taskbar *taskbar = (Taskbar*)obj;
-	Panel *panel = (Panel*)taskbar->area.panel;
-	Task *tsk;
-	GSList *l;
-	int  task_count, border_width;
+	Area *child, *a = (Area*)obj;
+	int size, nb_by_content=0, nb_by_layout=0;
 
-	//printf("resize_taskbar : posx et width des taches\n");
-	taskbar->area.redraw = 1;
+	printf("resize_by_layout\n");
+	if (panel_horizontal) {		
+		// detect free size for SIZE_BY_LAYOUT's Area
+		size = a->width - (2 * (a->paddingxlr + a->bg->border.width));
+		GSList *l;
+		for (l = a->list ; l ; l = l->next) {
+			child = (Area*)l->data;
+			if (child->on_screen && child->size_mode == SIZE_BY_CONTENT) {
+				size -= child->width;
+				nb_by_content++;
+			}
+			if (child->on_screen && child->size_mode == SIZE_BY_LAYOUT)
+				nb_by_layout++;
+		}
+		if (nb_by_content+nb_by_layout)
+			size -= ((nb_by_content+nb_by_layout-1) * a->paddingx);
+		//printf("resize_panel : size_panel %d, size_layout %d\n", panel->area.width, size);
 
-	border_width = taskbar->area.bg->border.width;
-
-	if (panel_horizontal) {
-		int  pixel_width, modulo_width=0;
-		int  taskbar_width;
-
-		// new task width for 'desktop'
-		task_count = g_slist_length(taskbar->area.list);
-		if (!task_count) pixel_width = panel->g_task.maximum_width;
-		else {
-			taskbar_width = taskbar->area.width - (2 * border_width) - (2 * panel->g_taskbar.area.paddingxlr);
-			if (task_count>1) taskbar_width -= ((task_count-1) * panel->g_taskbar.area.paddingx);
-
-			pixel_width = taskbar_width / task_count;
-			if (pixel_width > panel->g_task.maximum_width)
-				pixel_width = panel->g_task.maximum_width;
-			else
-				modulo_width = taskbar_width % task_count;
+		int width=0, modulo=0;
+		if (nb_by_layout) {
+			width = size / nb_by_layout;
+			modulo = size % nb_by_layout;
 		}
 
-		taskbar->task_width = pixel_width;
-		taskbar->task_modulo = modulo_width;
-		taskbar->text_width = pixel_width - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingx;
-
-		// change pos_x and width for all tasks
-		for (l = taskbar->area.list; l ; l = l->next) {
-			tsk = l->data;
-			if (!tsk->area.on_screen) continue;
-			set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
-			tsk->area.width = pixel_width;
-// TODO : move later (when posx is known)
-//			long value[] = { panel->posx+x, panel->posy, pixel_width, panel->area.height };
-//			XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
-
-			if (modulo_width) {
-				tsk->area.width++;
-				modulo_width--;
+		// resize SIZE_BY_LAYOUT objects
+		for (l = a->list ; l ; l = l->next) {
+			child = (Area*)l->data;
+			if (child->on_screen && child->size_mode == SIZE_BY_LAYOUT) {
+				child->width = width;
+				child->resize = 1;
+				if (modulo) {
+					child->width++;
+					modulo--;
+				}
 			}
 		}
 	}
 	else {
-		int  pixel_height, modulo_height=0;
-		int  taskbar_height;
+		// detect free size for SIZE_BY_LAYOUT's Area
+		size = a->height - (2 * (a->paddingxlr + a->bg->border.width));
+		GSList *l;
+		for (l = a->list ; l ; l = l->next) {
+			child = (Area*)l->data;
+			if (child->on_screen && child->size_mode == SIZE_BY_CONTENT) {
+				size -= child->height;
+				nb_by_content++;
+			}
+			if (child->on_screen && child->size_mode == SIZE_BY_LAYOUT)
+				nb_by_layout++;
+		}
+		if (nb_by_content+nb_by_layout)
+			size -= ((nb_by_content+nb_by_layout-1) * a->paddingx);
 
-		// new task width for 'desktop'
-		task_count = g_slist_length(taskbar->area.list);
-		if (!task_count) pixel_height = panel->g_task.maximum_height;
-		else {
-			taskbar_height = taskbar->area.height - (2 * border_width) - (2 * panel->g_taskbar.area.paddingxlr);
-			if (task_count>1) taskbar_height -= ((task_count-1) * panel->g_taskbar.area.paddingx);
-
-			pixel_height = taskbar_height / task_count;
-			if (pixel_height > panel->g_task.maximum_height)
-				pixel_height = panel->g_task.maximum_height;
-			else
-				modulo_height = taskbar_height % task_count;
+		int height=0, modulo=0;
+		if (nb_by_layout) {
+			height = size / nb_by_layout;
+			modulo = size % nb_by_layout;
 		}
 
-		taskbar->task_width = pixel_height;
-		taskbar->task_modulo = modulo_height;
-		taskbar->text_width = taskbar->area.width - (2 * panel->g_taskbar.area.paddingy) - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingx;
-
-		// change pos_y and height for all tasks
-		for (l = taskbar->area.list; l ; l = l->next) {
-			tsk = l->data;
-			if (!tsk->area.on_screen) continue;
-			set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
-			tsk->area.height = pixel_height;
-// TODO : move later (when posy is known)
-//			long value[] = { panel->posx, panel->posy+y, panel->area.width, pixel_height };
-//			XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
-
-			if (modulo_height) {
-				tsk->area.height++;
-				modulo_height--;
+		// resize SIZE_BY_LAYOUT objects
+		for (l = a->list ; l ; l = l->next) {
+			child = (Area*)l->data;
+			if (child->on_screen && child->size_mode == SIZE_BY_LAYOUT) {
+				child->height = height;
+				child->resize = 1;
+				if (modulo) {
+					child->height++;
+					modulo--;
+				}
 			}
 		}
 	}
