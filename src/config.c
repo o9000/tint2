@@ -451,13 +451,14 @@ void add_entry (char *key, char *value)
 		int id = atoi (value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		panel_config.g_taskbar.bg = &g_array_index(backgrounds, Background, id);
+		if (panel_config.g_taskbar.bg_active == 0)
+			panel_config.g_taskbar.bg_active = panel_config.g_taskbar.bg;
 		panel_config.g_taskbar.area.bg = panel_config.g_taskbar.bg;
 	}
 	else if (strcmp (key, "taskbar_active_background_id") == 0) {
 		int id = atoi (value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		panel_config.g_taskbar.bg_active = &g_array_index(backgrounds, Background, id);
-		panel_config.g_taskbar.use_active = 1;
 	}
 
 	/* Task */

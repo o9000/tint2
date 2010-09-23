@@ -219,9 +219,10 @@ void init_panel()
 
 		if (panel_autohide)
 			add_timeout(panel_autohide_hide_timeout, 0, autohide_hide, p);
+		
+		visible_taskbar(p);
 	}
 
-	visible_object();
 	task_refresh_tasklist();
 	active_task();
 }
@@ -300,29 +301,6 @@ void init_panel_size_and_position(Panel *panel)
 	// printf("panel : posx %d, posy %d, width %d, height %d\n", panel->posx, panel->posy, panel->area.width, panel->area.height);
 }
 
-
-void visible_object()
-{
-	Panel *panel;
-	int i, j;
-
-	for (i=0 ; i < nb_panel ; i++) {
-		panel = &panel1[i];
-
-		Taskbar *taskbar;
-		for (j=0 ; j < panel->nb_desktop ; j++) {
-			taskbar = &panel->taskbar[j];
-			if (panel_mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) {
-				// SINGLE_DESKTOP and not current desktop
-				taskbar->area.on_screen = 0;
-			}
-			else {
-				taskbar->area.on_screen = 1;
-			}
-		}
-	}
-	panel_refresh = 1;
-}
 
 void update_strut(Panel* p)
 {

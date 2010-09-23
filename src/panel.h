@@ -138,7 +138,6 @@ void init_panel_size_and_position(Panel *panel);
 
 void set_panel_items_order(Panel *p);
 void set_panel_properties(Panel *p);
-void visible_object();
 
 // draw background panel
 void set_panel_background(Panel *p);

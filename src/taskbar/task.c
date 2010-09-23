@@ -342,6 +342,7 @@ void draw_task (void *obj, cairo_t *c)
 	Color *config_text;
 	int width=0, height;
 	Panel *panel = (Panel*)tsk->area.panel;
+	//printf("draw_task %d %d\n", tsk->area.posx, tsk->area.posy);
 
 	if (panel->g_task.text) {
 		/* Layout */

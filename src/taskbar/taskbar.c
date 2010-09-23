@@ -198,7 +198,7 @@ void init_taskbar_panel(void *p)
 		tskbar = &panel->taskbar[j];
 		memcpy(&tskbar->area, &panel->g_taskbar, sizeof(Area));
 		tskbar->desktop = j;
-		if (j == server.desktop && panel->g_taskbar.use_active)
+		if (j == server.desktop)
 			tskbar->area.bg = panel->g_taskbar.bg_active;
 	}
 }
@@ -266,9 +266,7 @@ int resize_taskbar(void *obj)
 	GSList *l;
 	int  task_count, border_width;
 
-	//printf("resize_taskbar : posx et width des taches\n");
-	taskbar->area.redraw = 1;
-
+//	taskbar->area.redraw = 1;
 	border_width = taskbar->area.bg->border.width;
 
 	if (panel_horizontal) {
@@ -297,7 +295,7 @@ int resize_taskbar(void *obj)
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
-			set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
+			//set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.width = pixel_width;
 // TODO : move later (when posx is known)
 //			long value[] = { panel->posx+x, panel->posy, pixel_width, panel->area.height };
@@ -335,7 +333,7 @@ int resize_taskbar(void *obj)
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
-			set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
+			//set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.height = pixel_height;
 // TODO : move later (when posy is known)
 //			long value[] = { panel->posx, panel->posy+y, panel->area.width, pixel_height };
@@ -347,6 +345,27 @@ int resize_taskbar(void *obj)
 			}
 		}
 	}
+	
 	return 0;
+}
+
+
+void visible_taskbar(void *p)
+{
+	Panel *panel =(Panel*)p;
+	int j;
+
+	Taskbar *taskbar;
+	for (j=0 ; j < panel->nb_desktop ; j++) {
+		taskbar = &panel->taskbar[j];
+		if (panel_mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) {
+			// SINGLE_DESKTOP and not current desktop
+			taskbar->area.on_screen = 0;
+		}
+		else {
+			taskbar->area.on_screen = 1;
+		}
+	}
+	panel_refresh = 1;
 }
 

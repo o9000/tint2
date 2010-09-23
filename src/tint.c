@@ -494,9 +494,9 @@ void event_property_notify (XEvent *e)
 			for (i=0 ; i < nb_panel ; i++) {
 				init_taskbar_panel(&panel1[i]);
 				set_panel_items_order(&panel1[i]);
+				visible_taskbar(&panel1[i]);
 				panel1[i].area.resize = 1;
 			}
-			visible_object();
 			task_refresh_tasklist();
 			active_task();
 			panel_refresh = 1;
@@ -508,7 +508,7 @@ void event_property_notify (XEvent *e)
 			server.desktop = server_get_current_desktop ();
 			for (i=0 ; i < nb_panel ; i++) {
 				Panel *panel = &panel1[i];
-				if (panel_mode == MULTI_DESKTOP && panel->g_taskbar.use_active) {
+				if (panel_mode == MULTI_DESKTOP && panel->g_taskbar.bg != panel->g_taskbar.bg_active) {
 					// redraw both taskbar
 					if (server.nb_desktop > old_desktop) {
 						// can happen if last desktop is deleted and we've been on the last desktop
@@ -542,9 +542,8 @@ void event_property_notify (XEvent *e)
 						tskbar->area.resize = 1;
 					}
 				}
-			}
-			if (panel_mode != MULTI_DESKTOP) {
-				visible_object();
+				if (panel_mode != MULTI_DESKTOP) 
+					visible_taskbar(panel);
 			}
 		}
 		// Window list

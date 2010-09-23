@@ -34,7 +34,6 @@ typedef struct {
 	Area area;
 	Background* bg;
 	Background* bg_active;
-	int use_active;
 } Global_taskbar;
 
 
@@ -53,6 +52,9 @@ GPtrArray* task_get_tasks(Window win);
 void task_refresh_tasklist ();
 
 int  resize_taskbar(void *obj);
+
+// show/hide taskbar according to current desktop
+void visible_taskbar(void *p);
 
 
 #endif

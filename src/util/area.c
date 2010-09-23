@@ -220,7 +220,6 @@ int resize_by_layout(void *obj)
 	Area *child, *a = (Area*)obj;
 	int size, nb_by_content=0, nb_by_layout=0;
 
-	printf("resize_by_layout\n");
 	if (panel_horizontal) {		
 		// detect free size for SIZE_BY_LAYOUT's Area
 		size = a->width - (2 * (a->paddingxlr + a->bg->border.width));

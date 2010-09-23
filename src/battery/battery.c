@@ -237,6 +237,8 @@ void init_battery_panel(void *p)
 	battery->area._draw_foreground = draw_battery;
 	battery->area.size_mode = SIZE_BY_CONTENT;
 	battery->area._resize = resize_battery;
+	battery->area.on_screen = 1;
+	battery->area.resize = 1;
 }
 
 
