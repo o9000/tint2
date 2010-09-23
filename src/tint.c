@@ -485,6 +485,11 @@ void event_property_notify (XEvent *e)
 			server.got_root_win = 1;
 		}
 
+		// Change name of desktops
+		else if (at == server.atom._NET_DESKTOP_NAMES) {
+			printf("_NET_DESKTOP_NAMES\n");
+			panel_refresh = 1;
+		}
 		// Change number of desktops
 		else if (at == server.atom._NET_NUMBER_OF_DESKTOPS) {
 			if (!taskbar_enabled) return;

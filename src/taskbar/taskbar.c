@@ -266,6 +266,7 @@ int resize_taskbar(void *obj)
 	GSList *l;
 	int  task_count, border_width;
 
+	//printf("resize_taskbar %d %d\n", taskbar->area.posx, taskbar->area.posy);
 //	taskbar->area.redraw = 1;
 	border_width = taskbar->area.bg->border.width;
 
@@ -297,9 +298,6 @@ int resize_taskbar(void *obj)
 			if (!tsk->area.on_screen) continue;
 			//set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.width = pixel_width;
-// TODO : move later (when posx is known)
-//			long value[] = { panel->posx+x, panel->posy, pixel_width, panel->area.height };
-//			XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
 
 			if (modulo_width) {
 				tsk->area.width++;
@@ -335,9 +333,6 @@ int resize_taskbar(void *obj)
 			if (!tsk->area.on_screen) continue;
 			//set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.height = pixel_height;
-// TODO : move later (when posy is known)
-//			long value[] = { panel->posx, panel->posy+y, panel->area.width, pixel_height };
-//			XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
 
 			if (modulo_height) {
 				tsk->area.height++;

@@ -344,6 +344,9 @@ void draw_task (void *obj, cairo_t *c)
 	Panel *panel = (Panel*)tsk->area.panel;
 	//printf("draw_task %d %d\n", tsk->area.posx, tsk->area.posy);
 
+	long value[] = { panel->posx+tsk->area.posx, panel->posy+tsk->area.posy, tsk->area.width, tsk->area.height };
+	XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
+
 	if (panel->g_task.text) {
 		/* Layout */
 		layout = pango_cairo_create_layout (c);
