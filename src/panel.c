@@ -168,7 +168,7 @@ void init_panel()
 		p->area.on_screen = 1;
 		p->area.resize = 1;
 		p->area.size_mode = SIZE_BY_LAYOUT;
-		p->area._resize = resize_by_layout;
+		p->area._resize = resize_panel;
 		p->g_taskbar.area.parent = p;
 		p->g_taskbar.area.panel = p;
 		p->g_task.area.panel = p;
@@ -299,6 +299,26 @@ void init_panel_size_and_position(Panel *panel)
 		panel->hidden_height = panel->area.height;
 	}
 	// printf("panel : posx %d, posy %d, width %d, height %d\n", panel->posx, panel->posy, panel->area.width, panel->area.height);
+}
+
+
+int resize_panel(void *obj)
+{	
+	int ret = resize_by_layout(obj);
+	
+	if (panel_mode != MULTI_DESKTOP) {
+		// propagate width/height on hidden taskbar
+		int i, width, height;
+		Panel *panel = (Panel*)obj;
+		width = panel->taskbar[server.desktop].area.width;
+		height = panel->taskbar[server.desktop].area.height;
+		for (i=0 ; i < panel->nb_desktop ; i++) {
+			panel->taskbar[i].area.width = width;
+			panel->taskbar[i].area.height = height;
+			panel->taskbar[i].area.resize = 1;
+		}
+	}
+	return ret;
 }
 
 
