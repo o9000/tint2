@@ -116,6 +116,7 @@ void size_by_content (Area *a)
 		size_by_content(l->data);
 	
 	// calculate area's size
+	a->on_changed = 0;
 	if (a->resize && a->size_mode == SIZE_BY_CONTENT) {
 		a->resize = 0;
 
@@ -123,8 +124,9 @@ void size_by_content (Area *a)
 			if (a->_resize(a)) {
 				// 'size' changed => 'resize = 1' on the parent and redraw object
 				((Area*)a->parent)->resize = 1;
+				a->on_changed = 1;
+				a->redraw = 1;
 			}
-			a->redraw = 1;
 		}
 	}
 }
@@ -144,6 +146,7 @@ void size_by_layout (Area *a, int pos, int level)
 		if (a->_resize) {
 			if (a->_resize(a)) {
 				// if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
+				a->on_changed = 1;
 				for (l = a->list; l ; l = l->next) {
 					if (((Area*)l->data)->size_mode == SIZE_BY_LAYOUT)
 						((Area*)l->data)->resize = 1;
@@ -164,6 +167,7 @@ void size_by_layout (Area *a, int pos, int level)
 			if (pos != child->posx) {
 				// pos changed => redraw
 				child->posx = pos;
+				child->on_changed = 1;
 				child->redraw = 1;
 			}
 		}
@@ -171,6 +175,7 @@ void size_by_layout (Area *a, int pos, int level)
 			if (pos != child->posy) {
 				// pos changed => redraw
 				child->posy = pos;
+				child->on_changed = 1;
 				child->redraw = 1;
 			}
 		}
@@ -183,6 +188,9 @@ void size_by_layout (Area *a, int pos, int level)
 		else
 			pos += child->height + a->paddingx;
 	}
+	
+	if (a->on_changed && a->_on_change_layout)
+		a->_on_change_layout (a);
 }
 
 

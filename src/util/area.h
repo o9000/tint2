@@ -85,8 +85,9 @@ typedef struct {
 	// update area's content and update size (width/heith). 
 	// return '1' if size changed, '0' otherwise.
 	int (*_resize)(void *obj);
-	void (*_add_child)(void *obj);
-	int (*_remove_child)(void *obj);
+	// after pos/size changed, the rendering engine will call _on_change_layout(Area*)
+	int on_changed;
+	void (*_on_change_layout)(void *obj);
 	const char* (*_get_tooltip_text)(void *obj);
 } Area;
 

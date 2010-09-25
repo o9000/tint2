@@ -344,9 +344,6 @@ void draw_task (void *obj, cairo_t *c)
 	Panel *panel = (Panel*)tsk->area.panel;
 	//printf("draw_task %d %d\n", tsk->area.posx, tsk->area.posy);
 
-	long value[] = { panel->posx+tsk->area.posx, panel->posy+tsk->area.posy, tsk->area.width, tsk->area.height };
-	XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
-
 	if (panel->g_task.text) {
 		/* Layout */
 		layout = pango_cairo_create_layout (c);
@@ -386,6 +383,19 @@ void draw_task (void *obj, cairo_t *c)
 	if (panel->g_task.icon) {
 		draw_task_icon (tsk, width);
 	}
+}
+
+
+void on_change_task (void *obj)
+{
+	Task *tsk = obj;
+	Panel *panel = (Panel*)tsk->area.panel;
+
+	long value[] = { panel->posx+tsk->area.posx, panel->posy+tsk->area.posy, tsk->area.width, tsk->area.height };
+	XChangeProperty (server.dsp, tsk->win, server.atom._NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)value, 4);
+	
+	// reset Pixmap when position/size changed
+	set_task_redraw(tsk);
 }
 
 

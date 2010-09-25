@@ -125,6 +125,7 @@ void init_taskbar_panel(void *p)
 	// task
 	panel->g_task.area.size_mode = SIZE_BY_LAYOUT;
 	panel->g_task.area._draw_foreground = draw_task;
+	panel->g_task.area._on_change_layout = on_change_task;
 	panel->g_task.area.redraw = 1;
 	panel->g_task.area.on_screen = 1;
 	if ((panel->g_task.config_asb_mask & (1<<TASK_NORMAL)) == 0) {
@@ -296,7 +297,6 @@ int resize_taskbar(void *obj)
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
-			//set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.width = pixel_width;
 
 			if (modulo_width) {
@@ -331,7 +331,6 @@ int resize_taskbar(void *obj)
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
-			//set_task_redraw(tsk);  // always redraw task, because the background could have changed (taskbar_active_id)
 			tsk->area.height = pixel_height;
 
 			if (modulo_height) {

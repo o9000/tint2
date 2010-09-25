@@ -61,6 +61,7 @@ void default_systray()
 	systray.alpha = 100;
 	systray.sort = 3;
 	systray.area._draw_foreground = draw_systray;
+	systray.area._on_change_layout = on_change_systray;
 	systray.area.size_mode = SIZE_BY_CONTENT;
 	systray.area._resize = resize_systray;
 }
@@ -114,52 +115,6 @@ void init_systray_panel(void *p)
 
 void draw_systray(void *obj, cairo_t *c)
 {
-	// here, sysbar's position is defined. so we can calculate position of tray icon.
-	Systraybar *sysbar = obj;
-	Panel *panel = sysbar->area.panel;
-	int i, posx, posy;
-	int start = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +sysbar->marging/2;
-	if (panel_horizontal) {
-		posy = start;
-		posx = systray.area.posx + systray.area.bg->border.width + systray.area.paddingxlr;
-	}
-	else {
-		posx = start;
-		posy = systray.area.posy + systray.area.bg->border.width + systray.area.paddingxlr;
-	}
-
-	TrayWindow *traywin;
-	GSList *l;
-	for (i=1, l = systray.list_icons; l ; i++, l = l->next) {
-		traywin = (TrayWindow*)l->data;
-		if (traywin->hide) continue;
-
-		traywin->y = posy;
-		traywin->x = posx;
-		traywin->width = sysbar->icon_size;
-		traywin->height = sysbar->icon_size;
-		if (panel_horizontal) {
-			if (i % sysbar->icons_per_column)
-				posy += sysbar->icon_size + sysbar->area.paddingx;
-			else {
-				posy = start;
-				posx += (sysbar->icon_size + systray.area.paddingx);
-			}
-		}
-		else {
-			if (i % sysbar->icons_per_row)
-				posx += sysbar->icon_size + systray.area.paddingx;
-			else {
-				posx = start;
-				posy += (sysbar->icon_size + systray.area.paddingx);
-			}
-		}
-
-		// position and size the icon window
-		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, sysbar->icon_size, sysbar->icon_size);
-		XResizeWindow(server.dsp, traywin->tray_id, sysbar->icon_size, sysbar->icon_size);
-	}
-
 	if (server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		if (render_background) XFreePixmap(server.dsp, render_background);
 		render_background = XCreatePixmap(server.dsp, server.root_win, systray.area.width, systray.area.height, server.depth);
@@ -207,6 +162,56 @@ int resize_systray(void *obj)
 		systray.area.height = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (sysbar->icon_size * sysbar->icons_per_column) + ((sysbar->icons_per_column-1) * systray.area.paddingx);
 	}
 	return 1;
+}
+
+
+void on_change_systray (void *obj)
+{
+	// here, sysbar's position is defined. so we can calculate position of tray icon.
+	Systraybar *sysbar = obj;
+	Panel *panel = sysbar->area.panel;
+	int i, posx, posy;
+	int start = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy +sysbar->marging/2;
+	if (panel_horizontal) {
+		posy = start;
+		posx = systray.area.posx + systray.area.bg->border.width + systray.area.paddingxlr;
+	}
+	else {
+		posx = start;
+		posy = systray.area.posy + systray.area.bg->border.width + systray.area.paddingxlr;
+	}
+
+	TrayWindow *traywin;
+	GSList *l;
+	for (i=1, l = systray.list_icons; l ; i++, l = l->next) {
+		traywin = (TrayWindow*)l->data;
+		if (traywin->hide) continue;
+
+		traywin->y = posy;
+		traywin->x = posx;
+		traywin->width = sysbar->icon_size;
+		traywin->height = sysbar->icon_size;
+		if (panel_horizontal) {
+			if (i % sysbar->icons_per_column)
+				posy += sysbar->icon_size + sysbar->area.paddingx;
+			else {
+				posy = start;
+				posx += (sysbar->icon_size + systray.area.paddingx);
+			}
+		}
+		else {
+			if (i % sysbar->icons_per_row)
+				posx += sysbar->icon_size + systray.area.paddingx;
+			else {
+				posx = start;
+				posy += (sysbar->icon_size + systray.area.paddingx);
+			}
+		}
+
+		// position and size the icon window
+		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, sysbar->icon_size, sysbar->icon_size);
+		XResizeWindow(server.dsp, traywin->tray_id, sysbar->icon_size, sysbar->icon_size);
+	}
 }
 
 

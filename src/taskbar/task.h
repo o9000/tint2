@@ -69,6 +69,7 @@ Task *add_task (Window win);
 void remove_task (Task *tsk);
 
 void draw_task (void *obj, cairo_t *c);
+void on_change_task (void *obj);
 
 void get_icon (Task *tsk);
 void get_title(Task *tsk);
