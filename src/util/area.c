@@ -221,7 +221,7 @@ void refresh (Area *a)
 }
 
 
-int resize_by_layout(void *obj)
+int resize_by_layout(void *obj, int maximum_size)
 {
 	Area *child, *a = (Area*)obj;
 	int size, nb_by_content=0, nb_by_layout=0;
@@ -247,6 +247,10 @@ int resize_by_layout(void *obj)
 		if (nb_by_layout) {
 			width = size / nb_by_layout;
 			modulo = size % nb_by_layout;
+			if (width > maximum_size && maximum_size != 0) {
+				width = maximum_size;
+				modulo = 0;
+			}
 		}
 
 		// resize SIZE_BY_LAYOUT objects
@@ -284,6 +288,10 @@ int resize_by_layout(void *obj)
 		if (nb_by_layout) {
 			height = size / nb_by_layout;
 			modulo = size % nb_by_layout;
+			if (height > maximum_size && maximum_size != 0) {
+				height = maximum_size;
+				modulo = 0;
+			}
 		}
 
 		// resize SIZE_BY_LAYOUT objects

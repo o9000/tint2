@@ -101,7 +101,7 @@ void size_by_layout (Area *a, int pos, int level);
 void refresh (Area *a);
  
 // generic resize for SIZE_BY_LAYOUT objects
-int resize_by_layout(void *obj);
+int resize_by_layout(void *obj, int maximum_size);
 
 // set 'redraw' on an area and childs
 void set_redraw (Area *a);

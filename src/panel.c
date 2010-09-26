@@ -304,7 +304,7 @@ void init_panel_size_and_position(Panel *panel)
 
 int resize_panel(void *obj)
 {	
-	int ret = resize_by_layout(obj);
+	resize_by_layout(obj, 0);
 	
 	//printf("resize_panel\n");
 	if (panel_mode != MULTI_DESKTOP) {
@@ -319,7 +319,7 @@ int resize_panel(void *obj)
 			panel->taskbar[i].area.resize = 1;
 		}
 	}
-	return ret;
+	return 0;
 }
 
 
