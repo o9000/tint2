@@ -306,6 +306,7 @@ int resize_panel(void *obj)
 {	
 	int ret = resize_by_layout(obj);
 	
+	//printf("resize_panel\n");
 	if (panel_mode != MULTI_DESKTOP) {
 		// propagate width/height on hidden taskbar
 		int i, width, height;
@@ -522,7 +523,6 @@ void set_panel_background(Panel *p)
 	}
 
 	// redraw panel's object
-	//p->area.redraw = 1;
 	GSList *l0;
 	Area *a;
 	for (l0 = p->area.list; l0 ; l0 = l0->next) {

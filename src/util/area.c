@@ -59,7 +59,6 @@
  * 	- if 'size' changed then 'resize = 1' on the parent
  * 2) browse tree SIZE_BY_LAYOUT and POSITION
  *  - resize SIZE_BY_LAYOUT node : parent is resized before children
- * 	- if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
  *  - calculate position (posx,posy) : parent is calculated before children
  * 	- if 'position' changed then 'redraw = 1'
  * 3) browse tree REDRAW
@@ -122,10 +121,9 @@ void size_by_content (Area *a)
 
 		if (a->_resize) {
 			if (a->_resize(a)) {
-				// 'size' changed => 'resize = 1' on the parent and redraw object
+				// 'size' changed => 'resize = 1' on the parent
 				((Area*)a->parent)->resize = 1;
 				a->on_changed = 1;
-				a->redraw = 1;
 			}
 		}
 	}
@@ -144,13 +142,12 @@ void size_by_layout (Area *a, int pos, int level)
 		a->resize = 0;
 
 		if (a->_resize) {
-			if (a->_resize(a)) {
-				// if 'size' changed then 'resize = 1' on childs with SIZE_BY_LAYOUT
-				a->on_changed = 1;
-				for (l = a->list; l ; l = l->next) {
-					if (((Area*)l->data)->size_mode == SIZE_BY_LAYOUT)
-						((Area*)l->data)->resize = 1;
-				}
+			a->_resize(a);
+			// resize childs with SIZE_BY_LAYOUT
+			for (l = a->list; l ; l = l->next) {
+				Area *child = ((Area*)l->data);
+				if (child->size_mode == SIZE_BY_LAYOUT && child->list)
+					child->resize = 1;
 			}
 		}
 	}
@@ -168,7 +165,6 @@ void size_by_layout (Area *a, int pos, int level)
 				// pos changed => redraw
 				child->posx = pos;
 				child->on_changed = 1;
-				child->redraw = 1;
 			}
 		}
 		else {
@@ -176,21 +172,24 @@ void size_by_layout (Area *a, int pos, int level)
 				// pos changed => redraw
 				child->posy = pos;
 				child->on_changed = 1;
-				child->redraw = 1;
 			}
 		}
-		//printf("level %d, object %d, pos %d\n", level, i, pos);
 		
+		//printf("level %d, object %d, pos %d\n", level, i, pos);
 		size_by_layout(child, pos, level+1);
 		
 		if (panel_horizontal)
 			pos += child->width + a->paddingx;
 		else
 			pos += child->height + a->paddingx;
+	}	
+
+	if (a->on_changed) {
+		// pos/size changed
+		a->redraw = 1;
+		if (a->_on_change_layout)
+			a->_on_change_layout (a);
 	}
-	
-	if (a->on_changed && a->_on_change_layout)
-		a->_on_change_layout (a);
 }
 
 
@@ -203,10 +202,9 @@ void refresh (Area *a)
 	if (a->redraw) {
 		a->redraw = 0;
 		// force redraw of child
-		GSList *l;
-		for (l = a->list ; l ; l = l->next)
-			((Area*)l->data)->redraw = 1;
-//			set_redraw(l->data);
+		//GSList *l;
+		//for (l = a->list ; l ; l = l->next)
+			//((Area*)l->data)->redraw = 1;
 
 		//printf("draw area posx %d, width %d\n", a->posx, a->width);
 		draw(a);
@@ -245,7 +243,7 @@ int resize_by_layout(void *obj)
 			size -= ((nb_by_content+nb_by_layout-1) * a->paddingx);
 		//printf("resize_panel : size_panel %d, size_layout %d\n", panel->area.width, size);
 
-		int width=0, modulo=0;
+		int width=0, modulo=0, old_width;
 		if (nb_by_layout) {
 			width = size / nb_by_layout;
 			modulo = size % nb_by_layout;
@@ -255,12 +253,14 @@ int resize_by_layout(void *obj)
 		for (l = a->list ; l ; l = l->next) {
 			child = (Area*)l->data;
 			if (child->on_screen && child->size_mode == SIZE_BY_LAYOUT) {
+				old_width = child->width;
 				child->width = width;
-				child->resize = 1;
 				if (modulo) {
 					child->width++;
 					modulo--;
 				}
+				if (child->width != old_width)
+					child->on_changed = 1;
 			}
 		}
 	}
@@ -280,7 +280,7 @@ int resize_by_layout(void *obj)
 		if (nb_by_content+nb_by_layout)
 			size -= ((nb_by_content+nb_by_layout-1) * a->paddingx);
 
-		int height=0, modulo=0;
+		int height=0, modulo=0, old_height;
 		if (nb_by_layout) {
 			height = size / nb_by_layout;
 			modulo = size % nb_by_layout;
@@ -290,12 +290,14 @@ int resize_by_layout(void *obj)
 		for (l = a->list ; l ; l = l->next) {
 			child = (Area*)l->data;
 			if (child->on_screen && child->size_mode == SIZE_BY_LAYOUT) {
+				old_height = child->height;
 				child->height = height;
-				child->resize = 1;
 				if (modulo) {
 					child->height++;
 					modulo--;
 				}
+				if (child->height != old_height)
+					child->on_changed = 1;
 			}
 		}
 	}

@@ -261,6 +261,12 @@ void task_refresh_tasklist ()
 
 int resize_taskbar(void *obj)
 {
+	//int ret = resize_by_layout(obj);
+	// on_changed
+	// taskbar->text_width = pixel_width - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingx;
+	//taskbar->text_width = taskbar->area.width - (2 * panel->g_taskbar.area.paddingy) - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingx;
+	//return ret;
+	
 	Taskbar *taskbar = (Taskbar*)obj;
 	Panel *panel = (Panel*)taskbar->area.panel;
 	Task *tsk;
@@ -273,7 +279,7 @@ int resize_taskbar(void *obj)
 
 	if (panel_horizontal) {
 		int  pixel_width, modulo_width=0;
-		int  taskbar_width;
+		int  taskbar_width, old_width;
 
 		// new task width for 'desktop'
 		task_count = g_slist_length(taskbar->area.list);
@@ -297,17 +303,19 @@ int resize_taskbar(void *obj)
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
+			old_width = tsk->area.width;
 			tsk->area.width = pixel_width;
-
 			if (modulo_width) {
 				tsk->area.width++;
 				modulo_width--;
 			}
+			if (tsk->area.width != old_width)
+				tsk->area.on_changed = 1;
 		}
 	}
 	else {
 		int  pixel_height, modulo_height=0;
-		int  taskbar_height;
+		int  taskbar_height, old_height;
 
 		// new task width for 'desktop'
 		task_count = g_slist_length(taskbar->area.list);
@@ -331,12 +339,14 @@ int resize_taskbar(void *obj)
 		for (l = taskbar->area.list; l ; l = l->next) {
 			tsk = l->data;
 			if (!tsk->area.on_screen) continue;
+			old_height = tsk->area.height;
 			tsk->area.height = pixel_height;
-
 			if (modulo_height) {
 				tsk->area.height++;
 				modulo_height--;
 			}
+			if (tsk->area.height != old_height)
+				tsk->area.on_changed = 1;
 		}
 	}
 	
