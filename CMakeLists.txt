@@ -49,6 +49,7 @@ set( SOURCES src/config.c
              src/launcher/launcher.c
              src/taskbar/task.c
              src/taskbar/taskbar.c
+             src/taskbar/taskbarname.c
              src/tooltip/tooltip.c
              src/util/area.c
              src/util/common.c

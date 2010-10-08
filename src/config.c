@@ -40,6 +40,7 @@
 #include "panel.h"
 #include "task.h"
 #include "taskbar.h"
+#include "taskbarname.h"
 #include "systraybar.h"
 #include "launcher.h"
 #include "clock.h"
@@ -459,6 +460,17 @@ void add_entry (char *key, char *value)
 		int id = atoi (value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		panel_config.g_taskbar.bg_active = &g_array_index(backgrounds, Background, id);
+	}
+	else if (strcmp (key, "taskbar_name") == 0) {
+		taskbarname_enabled = atoi (value);
+	}
+	else if (strcmp (key, "taskbar_name_background_id") == 0) {
+	}
+	else if (strcmp (key, "taskbar_name_active_background_id") == 0) {
+	}
+	else if (strcmp (key, "taskbar_font_color") == 0) {
+	}
+	else if (strcmp (key, "taskbar_active_font_color") == 0) {
 	}
 
 	/* Task */

@@ -339,7 +339,7 @@ static void menuProperties()
 		prop = create_properties();
 		gtk_window_present(GTK_WINDOW(prop));
 		//printf("menuProperties : fin\n");
-*/
+//*/
 
 		cmd = g_strdup_printf("%s \'%s\' &", g_cmd_property, file);
 		printf("cmd %s\n", cmd);
