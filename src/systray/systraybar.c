@@ -532,6 +532,11 @@ void systray_render_icon_now(void* t)
 	// we made also sure, that we always have a 32 bit visual, i.e. we can safely create 32 bit pixmaps here
 	TrayWindow* traywin = t;
 	traywin->render_timeout = 0;
+	if ( traywin->width == 0 || traywin->height == 0 ) {
+		// reschedule rendering since the geometry information has not yet been processed (can happen on slow cpu)
+		systray_render_icon(traywin);
+		return;
+	}
 
 	// good systray icons support 32 bit depth, but some icons are still 24 bit.
 	// We create a heuristic mask for these icons, i.e. we get the rgb value in the top left corner, and

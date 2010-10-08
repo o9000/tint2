@@ -303,7 +303,7 @@ void get_monitors()
 			i++;
 		}
 next:
-		for (j=i; j<server.nb_monitor; ++j)
+		for (j=i; j<nbmonitor; ++j)
 			if (server.monitor[j].names)
 				g_strfreev(server.monitor[j].names);
 		server.nb_monitor = i;

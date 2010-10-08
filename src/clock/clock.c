@@ -78,6 +78,7 @@ void cleanup_clock()
 	if (time_tooltip_timezone) g_free(time_tooltip_timezone);
 	if (clock_lclick_command) g_free(clock_lclick_command);
 	if (clock_rclick_command) g_free(clock_rclick_command);
+	if (clock_timeout) stop_timeout(clock_timeout);
 }
 
 

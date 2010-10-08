@@ -375,10 +375,13 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "time1_format") == 0) {
 		if (new_config_file == 0) {
 			clock_enabled = 1;
-			if (panel_items_order)
-				panel_items_order = strcat(panel_items_order, "C");
+			if (panel_items_order) {
+				char* tmp = g_strconcat(panel_items_order, "C", NULL);
+				g_free( panel_items_order );
+				panel_items_order = tmp;
+			}
 			else 
-				panel_items_order = strdup("C");
+				panel_items_order = g_strdup("C");
 		}
 		if (strlen(value) > 0) {
 			time1_format = strdup (value);
@@ -658,10 +661,13 @@ void add_entry (char *key, char *value)
 		if (new_config_file == 0) {
 			systray_enabled = atoi(value);
 			if (systray_enabled) {
-				if (panel_items_order)
-					panel_items_order = strcat(panel_items_order, "S");
-				else 
-					panel_items_order = strdup("S");
+				if (panel_items_order) {
+					char* tmp = g_strconcat(panel_items_order, "S", NULL);
+					g_free( panel_items_order );
+					panel_items_order = tmp;
+				}
+				else
+					panel_items_order = g_strdup("S");
 			}
 		}
 	}
@@ -669,10 +675,13 @@ void add_entry (char *key, char *value)
 		if (new_config_file == 0) {
 			battery_enabled = atoi(value);
 			if (battery_enabled) {
-				if (panel_items_order)
-					panel_items_order = strcat(panel_items_order, "B");
-				else 
-					panel_items_order = strdup("B");
+				if (panel_items_order) {
+					char* tmp = g_strconcat(panel_items_order, "B", NULL);
+					g_free( panel_items_order );
+					panel_items_order = tmp;
+				}
+				else
+					panel_items_order = g_strdup("B");
 			}
 		}
 	}
@@ -753,11 +762,12 @@ int config_read_file (const char *path)
 	if (new_config_file == 0) {
 		taskbar_enabled = 1;
 		if (panel_items_order) {
-			char *tmp = strdup("T");
-			panel_items_order = strcat(tmp, panel_items_order);
+			char* tmp = g_strconcat( "T", panel_items_order, NULL );
+			g_free(panel_items_order);
+			panel_items_order = tmp;
 		}
 		else 
-			panel_items_order = strdup("T");
+			panel_items_order = g_strdup("T");
 	}
 
 	return 1;

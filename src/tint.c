@@ -156,7 +156,6 @@ void init_X11()
 
 void cleanup()
 {
-	cleanup_timeout();
 	cleanup_systray();
 	cleanup_tooltip();
 	cleanup_clock();
@@ -174,6 +173,7 @@ void cleanup()
 	imlib_context_disconnect_display();
 
 	cleanup_server();
+	cleanup_timeout();
 	if (server.dsp) XCloseDisplay(server.dsp);
 }
 
