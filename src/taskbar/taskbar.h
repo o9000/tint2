@@ -23,8 +23,6 @@ typedef struct {
 	int desktop;
 
 	// task parameters
-	int task_width;
-	int task_modulo;
 	int text_width;
 } Taskbar;
 

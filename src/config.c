@@ -471,9 +471,11 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "taskbar_name_active_background_id") == 0) {
 	}
-	else if (strcmp (key, "taskbar_font_color") == 0) {
+	else if (strcmp (key, "taskbar_name_font") == 0) {
 	}
-	else if (strcmp (key, "taskbar_active_font_color") == 0) {
+	else if (strcmp (key, "taskbar_name_font_color") == 0) {
+	}
+	else if (strcmp (key, "taskbar_name_active_font_color") == 0) {
 	}
 
 	/* Task */
