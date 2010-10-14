@@ -303,11 +303,11 @@ void init_panel_size_and_position(Panel *panel)
 
 
 int resize_panel(void *obj)
-{	
+{
 	resize_by_layout(obj, 0);
 	
 	//printf("resize_panel\n");
-	if (panel_mode != MULTI_DESKTOP) {
+	if (panel_mode != MULTI_DESKTOP && taskbar_enabled) {
 		// propagate width/height on hidden taskbar
 		int i, width, height;
 		Panel *panel = (Panel*)obj;
