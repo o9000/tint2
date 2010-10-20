@@ -580,7 +580,7 @@ void read_config()
 	}
 	g_width = 500;
 	g_height = 350;
-	g_cmd_property = g_strconcat( "python ", INSTALL_PREFIX, "/bin/tintwizard.py", (void*)0 );
+	g_cmd_property = g_strconcat( "/usr/bin/env python ", INSTALL_PREFIX, "/bin/tintwizard.py", (void*)0 );
 
 	// load config
 	path = g_build_filename (g_get_user_config_dir(), "tint2", "tint2confrc", NULL);
