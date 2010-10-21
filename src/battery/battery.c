@@ -194,8 +194,14 @@ void init_battery()
 		}
 		g_free(path2);
 	}
-	if (path_energy_now && path_energy_full) {
+
+	path_current_now = g_build_filename(battery_dir, "power_now", NULL);
+	if (!g_file_test (path_current_now, G_FILE_TEST_EXISTS)) {
+		g_free(path_current_now);
 		path_current_now = g_build_filename(battery_dir, "current_now", NULL);
+	}
+
+	if (path_energy_now && path_energy_full) {
 		path_status = g_build_filename(battery_dir, "status", NULL);
 
 		// check file
