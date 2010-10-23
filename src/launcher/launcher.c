@@ -473,29 +473,33 @@ IconTheme *load_theme(char *name)
 	if (name == NULL)
 		return NULL;
 
-	fprintf(stderr, "Loading icon theme %s\n", name);
-
-	file_name = malloc(100 + strlen(name));
-	sprintf(file_name, "~/.icons/%s/index.theme", name);
+	file_name = g_build_filename(g_get_home_dir(), ".icons", name, "index.theme", NULL);
 	if (!g_file_test(file_name, G_FILE_TEST_EXISTS)) {
-		sprintf(file_name, "/usr/share/icons/%s/index.theme", name);
+		g_free (file_name);
+		file_name = g_build_filename("/usr", "share", "icons", name, "index.theme", NULL);
 		if (!g_file_test(file_name, G_FILE_TEST_EXISTS)) {
-			sprintf(file_name, "/usr/share/pixmaps/%s/index.theme", name);
+			g_free (file_name);
+			file_name = g_build_filename("/usr", "share", "pixmaps", name, "index.theme", NULL);
 			if (!g_file_test(file_name, G_FILE_TEST_EXISTS)) {
-				free(file_name);
+				g_free (file_name);
 				file_name = NULL;
 			}
 		}
 	}
+
 	if (!file_name) {
-		fprintf(stderr, "Could not load theme %s\n", name);
+		fprintf(stderr, "Could not found theme '%s'\n", name);
 		return NULL;
 	}
 
-	if ((f = fopen(file_name, "rt")) == NULL)
+	if ((f = fopen(file_name, "rt")) == NULL) {
+		fprintf(stderr, "Could not open theme '%s'\n", file_name);
 		return NULL;
+	}
+	else
+		fprintf(stderr, "Loading icon theme '%s'\n", file_name);
 
-	free(file_name);
+	g_free (file_name);
 
 	theme = calloc(1, sizeof(IconTheme));
 	theme->name = strdup(name);
@@ -793,6 +797,7 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 	for (theme = launcher->icon_themes; theme; theme = g_slist_next(theme)) {
 		GSList *dir;
 		for (dir = ((IconTheme*)theme->data)->list_directories; dir; dir = g_slist_next(dir)) {
+			//printf("directory  %s, size %d\n", ((IconThemeDir*)dir->data)->name, ((IconThemeDir*)dir->data)->size);
 			if (directory_matches_size((IconThemeDir*)dir->data, size)) {
 				GSList *base;
 				for (base = basenames; base; base = g_slist_next(base)) {
