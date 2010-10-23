@@ -10,6 +10,7 @@
 
 #include "task.h"
 
+enum { TASKBAR_NORMAL, TASKBAR_ACTIVE, TASKBAR_STATE_COUNT };
 extern GHashTable* win_to_task_table;
 extern Task *task_active;
 extern Task *task_drag;
@@ -21,6 +22,8 @@ typedef struct {
 	Area area;
 
 	int desktop;
+	int current_state;
+	Pixmap state_pix[TASKBAR_STATE_COUNT];
 
 	// task parameters
 	int text_width;
@@ -30,8 +33,9 @@ typedef struct {
 typedef struct {
 	//always start with area
 	Area area;
-	Background* bg;
-	Background* bg_active;
+	Background* background[TASKBAR_STATE_COUNT];
+	//Background* bg;
+	//Background* bg_active;
 } Global_taskbar;
 
 
@@ -44,12 +48,14 @@ void cleanup_taskbar();
 void init_taskbar();
 void init_taskbar_panel(void *p);
 
+void draw_taskbar (void *obj, cairo_t *c);
 void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data);
 Task *task_get_task (Window win);
 GPtrArray* task_get_tasks(Window win);
 void task_refresh_tasklist ();
 
 int  resize_taskbar(void *obj);
+void set_taskbar_state(Taskbar *tskbar, int state);
 
 // show/hide taskbar according to current desktop
 void visible_taskbar(void *p);

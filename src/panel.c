@@ -530,11 +530,16 @@ void set_panel_background(Panel *p)
 		set_redraw(a);
 	}
 	
-	// reset task 'state_pix'
-	int i;
+	// reset task/taskbar 'state_pix'
+	int i, k;
 	Taskbar *tskbar;
 	for (i=0 ; i < p->nb_desktop ; i++) {
 		tskbar = &p->taskbar[i];
+		for (k=0; k<TASKBAR_STATE_COUNT; ++k) {
+			if (tskbar->state_pix[k]) XFreePixmap(server.dsp, tskbar->state_pix[k]);
+			tskbar->state_pix[k] = 0;
+		}
+		tskbar->area.pix = 0;
 		for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
 			set_task_redraw((Task *)l0->data);
 		}

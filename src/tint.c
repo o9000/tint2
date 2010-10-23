@@ -513,17 +513,8 @@ void event_property_notify (XEvent *e)
 			server.desktop = server_get_current_desktop ();
 			for (i=0 ; i < nb_panel ; i++) {
 				Panel *panel = &panel1[i];
-				if (panel_mode == MULTI_DESKTOP && panel->g_taskbar.bg != panel->g_taskbar.bg_active) {
-					// redraw both taskbar
-					if (server.nb_desktop > old_desktop) {
-						// can happen if last desktop is deleted and we've been on the last desktop
-						panel->taskbar[old_desktop].area.bg = panel->g_taskbar.bg;
-						panel->taskbar[old_desktop].area.resize = 1;
-					}
-					panel->taskbar[server.desktop].area.bg = panel->g_taskbar.bg_active;
-					panel->taskbar[server.desktop].area.resize = 1;
-					panel_refresh = 1;
-				}
+				set_taskbar_state(&panel->taskbar[old_desktop], TASKBAR_NORMAL);
+				set_taskbar_state(&panel->taskbar[server.desktop], TASKBAR_ACTIVE);
 				// check ALLDESKTOP task => resize taskbar
 				Taskbar *tskbar;
 				Task *tsk;
