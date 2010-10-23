@@ -165,6 +165,7 @@ int resize_launcher(void *obj)
 		LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
 		if (launcherIcon->icon_size != icon_size || !launcherIcon->icon_original) {
 			launcherIcon->icon_size = icon_size;
+
 			// Get the path for an icon file with the new size
 			char *new_icon_path = icon_path(launcher, launcherIcon->icon_name, launcherIcon->icon_size);
 			if (!new_icon_path) {
@@ -476,10 +477,10 @@ IconTheme *load_theme(char *name)
 	file_name = g_build_filename(g_get_home_dir(), ".icons", name, "index.theme", NULL);
 	if (!g_file_test(file_name, G_FILE_TEST_EXISTS)) {
 		g_free (file_name);
-		file_name = g_build_filename("/usr", "share", "icons", name, "index.theme", NULL);
+		file_name = g_build_filename("/usr/share/icons", name, "index.theme", NULL);
 		if (!g_file_test(file_name, G_FILE_TEST_EXISTS)) {
 			g_free (file_name);
-			file_name = g_build_filename("/usr", "share", "pixmaps", name, "index.theme", NULL);
+			file_name = g_build_filename("/usr/share/pixmaps", name, "index.theme", NULL);
 			if (!g_file_test(file_name, G_FILE_TEST_EXISTS)) {
 				g_free (file_name);
 				file_name = NULL;
@@ -568,13 +569,13 @@ IconTheme *load_theme(char *name)
 					// value is like 2
 					sscanf(value, "%d", &current_dir->threshold);
 				} else if (strcmp(key, "Type") == 0) {
-					// value is Fixed, Scalable or Threshold
+					// value is Fixed, Scalable or Threshold : default to scalable for unknown Type.
 					if (strcmp(value, "Fixed") == 0) {
 						current_dir->type = ICON_DIR_TYPE_FIXED;
-					} else if (strcmp(value, "Scalable") == 0) {
-						current_dir->type = ICON_DIR_TYPE_SCALABLE;
 					} else if (strcmp(value, "Threshold") == 0) {
 						current_dir->type = ICON_DIR_TYPE_THRESHOLD;
+					} else {
+						current_dir->type = ICON_DIR_TYPE_SCALABLE;
 					}
 				} else if (strcmp(key, "Context") == 0) {
 					// usual values: Actions, Applications, Devices, FileSystems, MimeTypes
@@ -782,9 +783,11 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 		else
 			return NULL;
 	}
+	//printf("nom %s, taille %d, path %s\n", launcherIcon->icon_name, launcherIcon->icon_size, new_icon_path);
 
 	GSList *basenames = NULL;
-	basenames = g_slist_append(basenames, "~/.icons");
+	char *file_name = g_build_filename(g_get_home_dir(), ".icons", NULL);
+	basenames = g_slist_append(basenames, file_name);
 	basenames = g_slist_append(basenames, "/usr/share/icons");
 	basenames = g_slist_append(basenames, "/usr/share/pixmaps");
 
@@ -797,7 +800,6 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 	for (theme = launcher->icon_themes; theme; theme = g_slist_next(theme)) {
 		GSList *dir;
 		for (dir = ((IconTheme*)theme->data)->list_directories; dir; dir = g_slist_next(dir)) {
-			//printf("directory  %s, size %d\n", ((IconThemeDir*)dir->data)->name, ((IconThemeDir*)dir->data)->size);
 			if (directory_matches_size((IconThemeDir*)dir->data, size)) {
 				GSList *base;
 				for (base = basenames; base; base = g_slist_next(base)) {
@@ -825,6 +827,7 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 			}
 		}
 	}
+	g_free (file_name);
 
 	// Stage 2: best size match
 	// Contrary to the freedesktop spec, we are not choosing the closest icon in size, but the next larger icon
