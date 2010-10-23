@@ -457,7 +457,6 @@ void add_entry (char *key, char *value)
 		panel_config.g_taskbar.background[TASKBAR_NORMAL] = &g_array_index(backgrounds, Background, id);
 		if (panel_config.g_taskbar.background[TASKBAR_ACTIVE] == 0)
 			panel_config.g_taskbar.background[TASKBAR_ACTIVE] = panel_config.g_taskbar.background[TASKBAR_NORMAL];
-		//panel_config.g_taskbar.area.bg = panel_config.g_taskbar.bg;
 	}
 	else if (strcmp (key, "taskbar_active_background_id") == 0) {
 		int id = atoi (value);

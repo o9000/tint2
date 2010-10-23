@@ -72,7 +72,7 @@ void draw_task (void *obj, cairo_t *c);
 void on_change_task (void *obj);
 
 void get_icon (Task *tsk);
-void get_title(Task *tsk);
+int  get_title(Task *tsk);
 void active_task();
 void set_task_state(Task* tsk, int state);
 void set_task_redraw(Task* tsk);

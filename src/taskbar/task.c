@@ -159,12 +159,12 @@ void remove_task (Task *tsk)
 }
 
 
-void get_title(Task *tsk)
+int get_title(Task *tsk)
 {
 	Panel *panel = tsk->area.panel;
 	char *title, *name;
 
-	if (!panel->g_task.text && !g_tooltip.enabled) return;
+	if (!panel->g_task.text && !g_tooltip.enabled) return 0;
 
 	name = server_get_property (tsk->win, server.atom._NET_WM_VISIBLE_NAME, server.atom.UTF8_STRING, 0);
 	if (!name || !strlen(name)) {
@@ -184,9 +184,16 @@ void get_title(Task *tsk)
 	else title[0] = 0;
 	strcat(title, name);
 	if (name) XFree (name);
-
-	if (tsk->title)
-		free(tsk->title);
+	
+	if (tsk->title) {
+		// check unecessary title change
+		if (strcmp(tsk->title, title) == 0) {
+			free(title);
+			return 0;
+		}
+		else
+			free(tsk->title);
+	} 
 
 	tsk->title = title;
 	GPtrArray* task_group = task_get_tasks(tsk->win);
@@ -198,7 +205,7 @@ void get_title(Task *tsk)
 			set_task_redraw(tsk2);
 		}
 	}
-	set_task_redraw(tsk);
+	return 1;
 }
 
 
@@ -303,7 +310,6 @@ void get_icon (Task *tsk)
 			set_task_redraw(tsk2);
 		}
 	}
-	set_task_redraw(tsk);
 }
 
 
