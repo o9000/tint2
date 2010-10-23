@@ -60,13 +60,16 @@ void cleanup_taskbar()
 {
 	Panel *panel;
 	Taskbar *tskbar;
-	int i, j;
+	int i, j, k;
 
 	if (win_to_task_table) g_hash_table_foreach(win_to_task_table, taskbar_remove_task, 0);
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
 		for (j=0 ; j < panel->nb_desktop ; j++) {
 			tskbar = &panel->taskbar[j];
+			for (k=0; k<TASKBAR_STATE_COUNT; ++k) {
+				if (tskbar->state_pix[k]) XFreePixmap(server.dsp, tskbar->state_pix[k]);
+			}
 			free_area (&tskbar->area);
 			// remove taskbar from the panel
 			panel->area.list = g_slist_remove(panel->area.list, tskbar);

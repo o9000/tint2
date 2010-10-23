@@ -22,7 +22,6 @@ typedef struct {
 	Area area;
 
 	int desktop;
-	int current_state;
 	Pixmap state_pix[TASKBAR_STATE_COUNT];
 
 	// task parameters
@@ -34,8 +33,6 @@ typedef struct {
 	//always start with area
 	Area area;
 	Background* background[TASKBAR_STATE_COUNT];
-	//Background* bg;
-	//Background* bg_active;
 } Global_taskbar;
 
 
