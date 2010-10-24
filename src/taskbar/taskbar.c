@@ -303,11 +303,20 @@ void set_taskbar_state(Taskbar *tskbar, int state)
 {
 	tskbar->area.bg = panel1[0].g_taskbar.background[state];
 	tskbar->area.pix = tskbar->state_pix[state];
-	if (tskbar->state_pix[state] == 0) {
-		tskbar->area.redraw = 1;
-		GSList *l;
-		for (l = tskbar->area.list ; l ; l = l->next)
-			((Area*)l->data)->redraw = 1;
+	if (panel_mode != MULTI_DESKTOP) { 
+		if (state == TASKBAR_NORMAL)
+			tskbar->area.on_screen = 0;
+		else
+			tskbar->area.on_screen = 1;
+	}
+	if (tskbar->area.on_screen == 1) {
+		if (tskbar->state_pix[state] == 0)
+			tskbar->area.redraw = 1;
+		if (panel_mode == MULTI_DESKTOP && panel1[0].g_taskbar.background[TASKBAR_NORMAL] != panel1[0].g_taskbar.background[TASKBAR_ACTIVE]) {
+			GSList *l;
+			for (l = tskbar->area.list ; l ; l = l->next)
+				set_task_redraw(l->data);
+		}
 	}
 	panel_refresh = 1;
 }

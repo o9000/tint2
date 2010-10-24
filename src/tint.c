@@ -538,8 +538,6 @@ void event_property_notify (XEvent *e)
 						tskbar->area.resize = 1;
 					}
 				}
-				if (panel_mode != MULTI_DESKTOP) 
-					visible_taskbar(panel);
 			}
 		}
 		// Window list

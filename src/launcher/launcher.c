@@ -783,7 +783,6 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 		else
 			return NULL;
 	}
-	//printf("nom %s, taille %d, path %s\n", launcherIcon->icon_name, launcherIcon->icon_size, new_icon_path);
 
 	GSList *basenames = NULL;
 	char *file_name = g_build_filename(g_get_home_dir(), ".icons", NULL);
