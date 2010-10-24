@@ -52,6 +52,7 @@ GPtrArray* task_get_tasks(Window win);
 void task_refresh_tasklist ();
 
 int  resize_taskbar(void *obj);
+void on_change_taskbar (void *obj);
 void set_taskbar_state(Taskbar *tskbar, int state);
 
 // show/hide taskbar according to current desktop

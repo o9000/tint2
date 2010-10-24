@@ -113,6 +113,7 @@ void init_taskbar_panel(void *p)
 	panel->g_taskbar.area.size_mode = SIZE_BY_LAYOUT;
 	panel->g_taskbar.area._resize = resize_taskbar;
 	panel->g_taskbar.area._draw_foreground = draw_taskbar;
+	panel->g_taskbar.area._on_change_layout = on_change_taskbar;
 	panel->g_taskbar.area.redraw = 1;
 	panel->g_taskbar.area.on_screen = 1;
 	if (panel_horizontal) {
@@ -296,6 +297,21 @@ int resize_taskbar(void *obj)
 		taskbar->text_width = taskbar->area.width - (2 * panel->g_taskbar.area.paddingy) - panel->g_task.text_posx -	panel->g_task.area.bg->border.width - panel->g_task.area.paddingx;
 	}
 	return 0;
+}
+
+
+void on_change_taskbar (void *obj)
+{
+	Taskbar *tskbar = obj;
+	int k;
+
+	// reset Pixmap when position/size changed
+	for (k=0; k<TASKBAR_STATE_COUNT; ++k) {
+		if (tskbar->state_pix[k]) XFreePixmap(server.dsp, tskbar->state_pix[k]);
+		tskbar->state_pix[k] = 0;
+	}
+	tskbar->area.pix = 0;
+	tskbar->area.redraw = 1;
 }
 
 
