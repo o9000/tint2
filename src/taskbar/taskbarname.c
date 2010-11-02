@@ -2,7 +2,7 @@
 *
 * Tint2 : taskbarname
 *
-* Copyright (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr)
+* Copyright (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr) from Omega distribution
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2

@@ -2,7 +2,7 @@
 *
 * Tint2conf
 *
-* Copyright (C) 2009 Thierry lorthiois (lorthiois@bbsoft.fr)
+* Copyright (C) 2009 Thierry lorthiois (lorthiois@bbsoft.fr) from Omega distribution
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2
@@ -164,10 +164,6 @@ int main (int argc, char ** argv)
 	// load themes
 	load_theme(g_theme_view);
 
-	/* temporaire !!!!!!!!!!!!!!
-	GtkWidget *prop = create_properties();
-	gtk_window_present(GTK_WINDOW(prop));
-	//*/
 	gtk_widget_show_all(g_window);
 	gtk_main ();
 	return 0;
@@ -340,11 +336,12 @@ static void menuProperties()
 		gtk_window_present(GTK_WINDOW(prop));
 		//printf("menuProperties : fin\n");
 //*/
-
+//*
 		cmd = g_strdup_printf("%s \'%s\' &", g_cmd_property, file);
 		printf("cmd %s\n", cmd);
 		system(cmd);
 		g_free(cmd);
+		//*/
 		g_free(file);
 		
 	}

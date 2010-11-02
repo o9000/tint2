@@ -1,7 +1,7 @@
 /**************************************************************************
 * Tint2 : systraybar
 *
-* Copyright (C) 2009 thierry lorthiois (lorthiois@bbsoft.fr)
+* Copyright (C) 2009 thierry lorthiois (lorthiois@bbsoft.fr) from Omega distribution
 * based on 'docker-1.5' from Ben Jansens.
 *
 * This program is free software; you can redistribute it and/or

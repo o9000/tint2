@@ -1,7 +1,7 @@
 /**************************************************************************
 *
 * Copyright (C) 2008 Pål Staurland (staura@gmail.com)
-* Modified (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr)
+* Modified (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr) from Omega distribution
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2

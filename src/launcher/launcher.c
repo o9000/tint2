@@ -177,7 +177,7 @@ int resize_launcher(void *obj)
 				new_icon_path = icon_path(launcher, ICON_FALLBACK, launcherIcon->icon_size);
 				if (new_icon_path) {
 					launcherIcon->icon_original = imlib_load_image(new_icon_path);
-					fprintf(stderr, "%s %d: Using icon %s\n", __FILE__, __LINE__, new_icon_path);
+					fprintf(stderr, "launcher.c %d: Using icon %s\n", __LINE__, new_icon_path);
 					free(new_icon_path);
 				}
 				launcherIcon->icon_scaled = scale_icon(launcherIcon->icon_original, icon_size);
@@ -188,7 +188,7 @@ int resize_launcher(void *obj)
 				free_icon(launcherIcon->icon_scaled);
 				launcherIcon->icon_scaled = scale_icon(launcherIcon->icon_original, icon_size);
 				free(new_icon_path);
-				fprintf(stderr, "%s %d: Using icon %s\n", __FILE__, __LINE__, launcherIcon->icon_path);
+				fprintf(stderr, "launcher.c %d: Using icon %s\n", __LINE__, launcherIcon->icon_path);
 			} else {
 				// Free the old files
 				free_icon(launcherIcon->icon_original);
@@ -198,7 +198,7 @@ int resize_launcher(void *obj)
 				launcherIcon->icon_scaled = scale_icon(launcherIcon->icon_original, launcherIcon->icon_size);
 				free(launcherIcon->icon_path);
 				launcherIcon->icon_path = new_icon_path;
-				fprintf(stderr, "%s %d: Using icon %s\n", __FILE__, __LINE__, launcherIcon->icon_path);
+				fprintf(stderr, "launcher.c %d: Using icon %s\n", __LINE__, launcherIcon->icon_path);
 			}
 		}
 	}
