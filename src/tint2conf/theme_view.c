@@ -125,12 +125,12 @@ gboolean update_snapshot()
 
 		pixWidth = gdk_pixbuf_get_width(pixbuf);
 		pixHeight = gdk_pixbuf_get_height(pixbuf);
-		if (g_width_list < pixWidth) {
+		if (g_width_list != pixWidth) {
 			g_width_list = pixWidth;
 			changeSize = TRUE;
 		}
-		if (g_height_list < (pixHeight+6)) {
-			g_height_list = pixHeight+6;
+		if (g_height_list != (pixHeight+30)) {
+			g_height_list = pixHeight+30;
 			changeSize = TRUE;
 		}
 		if (changeSize)

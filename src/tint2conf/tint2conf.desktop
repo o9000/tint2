@@ -143,7 +143,7 @@ Comment[ur]=پینل کی ترتیبات
 Comment[ur_PK]=پینل کی ترتیبات
 Comment[zh_CN]=自定义面板设置
 Exec=tint2conf
-Icon=tint2conf
+Icon=taskbar
 Terminal=false
 Categories=Settings;DesktopSettings;
 

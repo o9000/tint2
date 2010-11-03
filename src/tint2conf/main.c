@@ -132,6 +132,8 @@ int main (int argc, char ** argv)
 	g_thread_init( NULL );
 	read_config();
 	initTheme();
+	g_set_application_name (_("tint2conf"));
+	gtk_window_set_default_icon_name("taskbar");
 
 	// define main layout : container, menubar, toolbar
 	g_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -185,7 +187,7 @@ static void menuAbout()
 								"comments", _("Theming tool for tint2 panel"),
 								"version", VERSION_STRING,
 								"copyright", _("Copyright 2009 tint2 team\nTint2 License GNU GPL version 2\nTintwizard License GNU GPL version 3"),
-								"logo-icon-name", NULL, "authors", authors,
+								"logo-icon-name", "taskbar", "authors", authors,
 								/* Translators: translate "translator-credits" as
 									your name to have it appear in the credits in the "About"
 									dialog */
