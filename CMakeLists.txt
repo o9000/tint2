@@ -65,16 +65,16 @@ if( ENABLE_BATTERY )
   add_definitions( -DENABLE_BATTERY )
 endif( ENABLE_BATTERY )
 
+set( MANDIR share/man CACHE PATH "Directory for man pages" )
+set( DATADIR share CACHE PATH "Directory for shared data" )
+set( SYSCONFDIR /etc CACHE PATH "Directory for configuration files" )
+set( DOCDIR share/doc/tint2 CACHE PATH "Directory for documentation files" )
+
 if( ENABLE_TINT2CONF )
   add_definitions( -DHAVE_VERSION_H )
   add_subdirectory( src/tint2conf )
   add_dependencies( tint2conf version )
 endif( ENABLE_TINT2CONF )
-
-set( MANDIR share/man CACHE PATH "Directory for man pages" )
-set( DATADIR share CACHE PATH "Directory for shared data" )
-set( SYSCONFDIR /etc CACHE PATH "Directory for configuration files" )
-set( DOCDIR share/doc/tint2 CACHE PATH "Directory for documentation files" )
 
 add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_svnrev.sh" "\"${PROJECT_SOURCE_DIR}\"" )
 

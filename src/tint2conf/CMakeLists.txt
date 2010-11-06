@@ -35,6 +35,10 @@ target_link_libraries( tint2conf ${X11_T2C_LIBRARIES}
                                  ${GTHREAD2_LIBRARIES}
                                  ${GTK2_LIBRARIES} )
 
+if ( NOT DATADIR )
+  set( DATADIR share )
+endif( NOT DATADIR )
+
 add_definitions( -DINSTALL_PREFIX=\"${CMAKE_INSTALL_PREFIX}\" )
 set_target_properties( tint2conf PROPERTIES COMPILE_FLAGS "-Wall -pthread" )
 set_target_properties( tint2conf PROPERTIES LINK_FLAGS "-pthread" )
@@ -43,3 +47,4 @@ install( TARGETS tint2conf DESTINATION bin )
 install( PROGRAMS tintwizard.py DESTINATION bin )
 install( FILES taskbar.svg DESTINATION share/icons/hicolor/scalable/apps )
 install( FILES tint2conf.desktop DESTINATION share/applications )
+install( CODE "execute_process(COMMAND gtk-update-icon-cache -f -t ${DATADIR}/icons/hicolor WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX})" )
