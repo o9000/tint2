@@ -51,27 +51,21 @@ void xsettings_notify_cb (const char *name, XSettingsAction action, XSettingsSet
 	//printf("xsettings_notify_cb\n");
 	if ((action == XSETTINGS_ACTION_NEW || action == XSETTINGS_ACTION_CHANGED) && name != NULL && setting != NULL) {
 		if (!strcmp(name, "Net/IconThemeName") && setting->type == XSETTINGS_TYPE_STRING) {
-			printf("XSETTINGS_ACTION %s\n", setting->data.v_string);
 			if (icon_theme_name) {
 				if (strcmp(icon_theme_name, setting->data.v_string) == 0)
 					return;
 				g_free(icon_theme_name);
 			}
 			icon_theme_name = strdup(setting->data.v_string);
-			/*
-			cleanup_launcher();
+			
 			int i;
-			Panel *p;
-			for (i=0 ; i < nb_panel ; i++) {
-				p = &panel1[i];
-				init_launcher_panel(p);
+			for (i = 0 ; i < nb_panel ; i++) {
+				Launcher *launcher = &panel1[i].launcher;
+				cleanup_launcher_theme(launcher);
+				launcher_load_themes(launcher);
+				launcher_load_icons(launcher);
+				launcher->area.resize = 1;
 			}
-			/*
-			MBTrayApp *mb = (MBTrayApp *)data;
-			mb->theme_name = strdup(setting->data.v_string);
-			if (mb->theme_cb)
-				mb->theme_cb(mb, mb->theme_name);
-			*/
 		}
 	}
 }
@@ -361,7 +355,6 @@ static void read_settings (XSettingsClient *client)
 
 	XSettingsList *old_list = client->settings;
 	client->settings = NULL;
-	printf("read_settings 1\n");
 
 	old_handler = XSetErrorHandler (ignore_errors);
 	result = XGetWindowProperty (client->display, client->manager_window, server.atom._XSETTINGS_SETTINGS, 0, LONG_MAX, False, server.atom._XSETTINGS_SETTINGS, &type, &format, &n_items, &bytes_after, &data);

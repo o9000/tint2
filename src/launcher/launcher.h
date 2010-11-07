@@ -16,7 +16,7 @@ typedef struct Launcher {
 	Area area;
 	GSList *list_apps;			// List of char*, each is a path to a app.desktop file
 	GSList *list_icons; 		// List of LauncherIcon*
-	GSList *icon_themes;		// List of IconTheme*
+	GSList *list_themes;		// List of IconTheme*
 } Launcher;
 
 typedef struct LauncherIcon {
@@ -67,10 +67,15 @@ void default_launcher();
 void init_launcher();
 void init_launcher_panel(void *panel);
 void cleanup_launcher();
+void cleanup_launcher_theme(Launcher *launcher);
 
 int  resize_launcher(void *obj);
 void draw_launcher (void *obj, cairo_t *c);
 
+// Populates the list_themes list
+void launcher_load_themes(Launcher *launcher);
+// Populates the list_icons list
+void launcher_load_icons(Launcher *launcher);
 void launcher_action(LauncherIcon *icon);
 
 void test_launcher_read_desktop_file();

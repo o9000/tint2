@@ -480,6 +480,8 @@ void event_property_notify (XEvent *e)
 	Window win = e->xproperty.window;
 	Atom at = e->xproperty.atom;
 
+	if (xsettings_client)
+		xsettings_client_process_event(xsettings_client, e);
 	if (win == server.root_win) {
 		if (!server.got_root_win) {
 			XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
@@ -804,9 +806,6 @@ start:
 		if (select(x11_fd+1, &fdset, 0, 0, timeout) > 0) {
 			while (XPending (server.dsp)) {
 				XNextEvent(server.dsp, &e);
-				if (xsettings_client != NULL) {
-					xsettings_client_process_event(xsettings_client, &e);
-				}
 
 				panel = get_panel(e.xany.window);
 				if (panel && panel_autohide) {

@@ -36,7 +36,6 @@ int launcher_enabled;
 int launcher_max_icon_size;
 char *icon_theme_name; 
 XSettingsClient *xsettings_client;
-GSList *icon_themes;
 
 #define ICON_FALLBACK "exec"
 
@@ -53,10 +52,8 @@ void default_launcher()
 {
 	launcher_enabled = 0;
 	launcher_max_icon_size = 0;
-	icon_themes = 0;
 	icon_theme_name = 0;
 	xsettings_client = NULL;
-	printf("default_launcher\n");
 }
 
 
@@ -90,23 +87,7 @@ void init_launcher_panel(void *p)
 	panel_refresh = 1;
 
 	launcher_load_themes(launcher);
-
-	// Load apps (.desktop style launcher items)
-	GSList* app = launcher->list_apps;
-	while (app != NULL) {
-		DesktopEntry entry;
-		launcher_read_desktop_file(app->data, &entry);
-		if (entry.exec) {
-			LauncherIcon *launcherIcon = calloc(1, sizeof(LauncherIcon));
-			launcherIcon->is_app_desktop = 1;
-			launcherIcon->cmd = strdup(entry.exec);
-			launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(ICON_FALLBACK);
-			launcherIcon->icon_size = 1;
-			free_desktop_entry(&entry);
-			launcher->list_icons = g_slist_append(launcher->list_icons, launcherIcon);
-		}
-		app = g_slist_next(app);
-	}
+	launcher_load_icons(launcher);
 }
 
 
@@ -118,38 +99,45 @@ void cleanup_launcher()
 		xsettings_client_destroy(xsettings_client);
 	for (i = 0 ; i < nb_panel ; i++) {
 		Panel *panel = &panel1[i];
-		Launcher *launcher = &panel->launcher;
-		free_area(&launcher->area);
+		Launcher *launcher = &panel->launcher;		
+		cleanup_launcher_theme(launcher);
+		
 		GSList *l;
-		for (l = launcher->list_icons; l ; l = l->next) {
-			LauncherIcon *launcherIcon = (LauncherIcon*)l->data;
-			if (launcherIcon) {
-				free_icon(launcherIcon->icon_scaled);
-				free_icon(launcherIcon->icon_original);
-				free(launcherIcon->icon_name);
-				free(launcherIcon->icon_path);
-				free(launcherIcon->cmd);
-			}
-			free(launcherIcon);
-		}
-		g_slist_free(launcher->list_icons);
-
 		for (l = launcher->list_apps; l ; l = l->next) {
 			free(l->data);
 		}
 		g_slist_free(launcher->list_apps);
-
-		for (l = launcher->icon_themes; l ; l = l->next) {
-			IconTheme *theme = (IconTheme*) l->data;
-			free_icon_theme(theme);
-			free(theme);
-		}
-		g_slist_free(launcher->icon_themes);
-
-		launcher->list_apps = launcher->list_icons = launcher->icon_themes = NULL;
+		launcher->list_apps = NULL;
 	}
 	g_free(icon_theme_name);
 	launcher_enabled = 0;
+}
+
+
+void cleanup_launcher_theme(Launcher *launcher)
+{
+	free_area(&launcher->area);
+	GSList *l;
+	for (l = launcher->list_icons; l ; l = l->next) {
+		LauncherIcon *launcherIcon = (LauncherIcon*)l->data;
+		if (launcherIcon) {
+			free_icon(launcherIcon->icon_scaled);
+			free_icon(launcherIcon->icon_original);
+			free(launcherIcon->icon_name);
+			free(launcherIcon->icon_path);
+			free(launcherIcon->cmd);
+		}
+		free(launcherIcon);
+	}
+	g_slist_free(launcher->list_icons);
+
+	for (l = launcher->list_themes; l ; l = l->next) {
+		IconTheme *theme = (IconTheme*) l->data;
+		free_icon_theme(theme);
+		free(theme);
+	}
+	g_slist_free(launcher->list_themes);
+	launcher->list_icons = launcher->list_themes = NULL;
 }
 
 
@@ -657,7 +645,30 @@ void test_launcher_read_theme_file()
 	fprintf(stdout, "\033[0m");
 }
 
-// Populates the icon_themes list
+
+// Populates the list_icons list
+void launcher_load_icons(Launcher *launcher)
+{
+	// Load apps (.desktop style launcher items)
+	GSList* app = launcher->list_apps;
+	while (app != NULL) {
+		DesktopEntry entry;
+		launcher_read_desktop_file(app->data, &entry);
+		if (entry.exec) {
+			LauncherIcon *launcherIcon = calloc(1, sizeof(LauncherIcon));
+			launcherIcon->is_app_desktop = 1;
+			launcherIcon->cmd = strdup(entry.exec);
+			launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(ICON_FALLBACK);
+			launcherIcon->icon_size = 1;
+			free_desktop_entry(&entry);
+			launcher->list_icons = g_slist_append(launcher->list_icons, launcherIcon);
+		}
+		app = g_slist_next(app);
+	}
+}
+
+
+// Populates the list_themes list
 void launcher_load_themes(Launcher *launcher)
 {
 	// load the user theme, all the inherited themes recursively (DFS), and the hicolor theme
@@ -667,7 +678,7 @@ void launcher_load_themes(Launcher *launcher)
 		icon_theme_name = "hicolor";
 	}
 	else
-		fprintf(stderr, "Loading %s : ", icon_theme_name);
+		fprintf(stderr, "Loading %s. Icon theme :", icon_theme_name);
 
 	GSList *queue = g_slist_append(NULL, strdup(icon_theme_name));
 	GSList *queued = g_slist_append(NULL, strdup(icon_theme_name));
@@ -692,10 +703,10 @@ void launcher_load_themes(Launcher *launcher)
 		char *name = queue->data;
 		queue = g_slist_remove(queue, name);
 
-		fprintf(stderr, "icon theme '%s', ", name);
+		fprintf(stderr, " '%s',", name);
 		IconTheme *theme = load_theme(name);
 		if (theme != NULL) {
-			launcher->icon_themes = g_slist_append(launcher->icon_themes, theme);
+			launcher->list_themes = g_slist_append(launcher->list_themes, theme);
 
 			GSList* item = theme->list_inherits;
 			int pos = 0;
@@ -792,7 +803,7 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 
 	// Stage 1: exact size match
 	GSList *theme;
-	for (theme = launcher->icon_themes; theme; theme = g_slist_next(theme)) {
+	for (theme = launcher->list_themes; theme; theme = g_slist_next(theme)) {
 		GSList *dir;
 		for (dir = ((IconTheme*)theme->data)->list_directories; dir; dir = g_slist_next(dir)) {
 			if (directory_matches_size((IconThemeDir*)dir->data, size)) {
@@ -832,7 +843,7 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 	char *best_file_name = NULL;
 	int next_larger_size = -1;
 	char *next_larger = NULL;
-	for (theme = launcher->icon_themes; theme; theme = g_slist_next(theme)) {
+	for (theme = launcher->list_themes; theme; theme = g_slist_next(theme)) {
 		GSList *dir;
 		for (dir = ((IconTheme*)theme->data)->list_directories; dir; dir = g_slist_next(dir)) {
 			GSList *base;
