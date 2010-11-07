@@ -412,25 +412,18 @@ XSettingsClient *xsettings_client_new (Display *display, int screen, XSettingsNo
 	client->manager_window = None;
 	client->settings = NULL;
 
-	XGrabServer (server.dsp);
-	client->manager_window = XGetSelectionOwner (server.dsp, server.atom._XSETTINGS_SCREEN);
-	if (client->manager_window != None)
-		XSelectInput (server.dsp, client->manager_window, PropertyChangeMask | StructureNotifyMask);
-	XUngrabServer (client->display);
-	XFlush (client->display);
-	
-	if (client->manager_window == None) {
-		printf("NO XSETTINGS manager, tint2 use config 'launcher_icon_theme'.\n");
-		free (client);
-		return NULL;
-	}
-
 	if (client->watch)
 		client->watch (RootWindow (display, screen), True, StructureNotifyMask,	client->cb_data);
 
 	check_manager_window (client);
 
-	return client;
+	if (client->manager_window == None) {
+		printf("NO XSETTINGS manager, tint2 use config 'launcher_icon_theme'.\n");
+		free (client);
+		return NULL;
+	}
+	else
+		return client;
 }
 
 

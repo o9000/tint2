@@ -199,10 +199,7 @@ int resize_launcher(void *obj)
 		}
 	}
 	
-	count = 0;
-	for (l = launcher->list_icons; l ; l = l->next) {
-		count++;
-	}
+	count = g_slist_length(launcher->list_icons);
 
 	if (panel_horizontal) {
 		if (!count) launcher->area.width = 0;
@@ -228,7 +225,7 @@ int resize_launcher(void *obj)
 	}
 
 	int i, posx, posy;
-	int start = launcher->area.bg->border.width + launcher->area.paddingy;// +marging/2;
+	int start = launcher->area.bg->border.width + launcher->area.paddingy + marging/2;
 	if (panel_horizontal) {
 		posy = start;
 		posx = launcher->area.bg->border.width + launcher->area.paddingxlr;
@@ -243,6 +240,7 @@ int resize_launcher(void *obj)
 		
 		launcherIcon->y = posy;
 		launcherIcon->x = posx;
+		//printf("launcher %d : %d,%d\n", i, posx, posy);
 		if (panel_horizontal) {
 			if (i % icons_per_column)
 				posy += icon_size + launcher->area.paddingx;
