@@ -42,6 +42,7 @@
 #include "panel.h"
 #include "tooltip.h"
 #include "timer.h"
+#include "xsettings-client.h"
 
 
 void signal_handler(int sig)
@@ -135,7 +136,7 @@ void init_X11()
 	setlocale (LC_ALL, "");
 	// config file use '.' as decimal separator
 	setlocale(LC_NUMERIC, "POSIX");
-
+	
 	// load default icon
 	gchar *path;
 	const gchar * const *data_dirs;
@@ -803,6 +804,9 @@ start:
 		if (select(x11_fd+1, &fdset, 0, 0, timeout) > 0) {
 			while (XPending (server.dsp)) {
 				XNextEvent(server.dsp, &e);
+				if (xsettings_client != NULL) {
+					xsettings_client_process_event(xsettings_client, &e);
+				}
 
 				panel = get_panel(e.xany.window);
 				if (panel && panel_autohide) {

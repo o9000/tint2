@@ -80,17 +80,21 @@ void server_init_atoms ()
 	server.atom.__SWM_VROOT = XInternAtom(server.dsp, "__SWM_VROOT", False);
 	server.atom._MOTIF_WM_HINTS = XInternAtom(server.dsp, "_MOTIF_WM_HINTS", False);
 	server.atom.WM_HINTS = XInternAtom(server.dsp, "WM_HINTS", False);
+	char *name = g_strdup_printf("_XSETTINGS_S%d", DefaultScreen(server.dsp));
+	server.atom._XSETTINGS_SCREEN = XInternAtom(server.dsp, name, False);
+	g_free(name);
+	server.atom._XSETTINGS_SETTINGS = XInternAtom(server.dsp, "_XSETTINGS_SETTINGS", False);
 
 	// systray protocol
-	char *name_trayer = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", DefaultScreen(server.dsp));
-	server.atom._NET_SYSTEM_TRAY_SCREEN = XInternAtom(server.dsp, name_trayer, False);
+	name = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", DefaultScreen(server.dsp));
+	server.atom._NET_SYSTEM_TRAY_SCREEN = XInternAtom(server.dsp, name, False);
+	g_free(name);
 	server.atom._NET_SYSTEM_TRAY_OPCODE = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_OPCODE", False);
 	server.atom.MANAGER = XInternAtom(server.dsp, "MANAGER", False);
 	server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_MESSAGE_DATA", False);
 	server.atom._NET_SYSTEM_TRAY_ORIENTATION = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_ORIENTATION", False);
 	server.atom._XEMBED = XInternAtom(server.dsp, "_XEMBED", False);
 	server.atom._XEMBED_INFO = XInternAtom(server.dsp, "_XEMBED_INFO", False);
-	g_free(name_trayer);
 
 	// drag 'n' drop
 	server.atom.XdndAware = XInternAtom(server.dsp, "XdndAware", False);

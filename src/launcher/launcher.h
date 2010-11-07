@@ -9,13 +9,13 @@
 
 #include "common.h"
 #include "area.h"
+#include "xsettings-client.h"
 
 typedef struct Launcher {
 	// always start with area
 	Area area;
 	GSList *list_apps;			// List of char*, each is a path to a app.desktop file
 	GSList *list_icons; 		// List of LauncherIcon*
-	GSList *icon_theme_names; 	// List of char*, each is a theme name (oxygen, Tango...)
 	GSList *icon_themes;		// List of IconTheme*
 } Launcher;
 
@@ -57,6 +57,8 @@ typedef struct IconTheme {
 
 extern int launcher_enabled;
 extern int launcher_max_icon_size;
+extern char *icon_theme_name; 	// theme name
+extern XSettingsClient *xsettings_client;
 
 // default global data
 void default_launcher();

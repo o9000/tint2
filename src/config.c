@@ -589,8 +589,9 @@ void add_entry (char *key, char *value)
 		panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, app);
 	}
 	else if (strcmp(key, "launcher_icon_theme") == 0) {
-		char *app = strdup(value);
-		panel_config.launcher.icon_theme_names = g_slist_append(panel_config.launcher.icon_theme_names, app);
+		// if XSETTINGS manager running, tint2 use it.
+		if (!icon_theme_name)
+			icon_theme_name = strdup(value);
 	}
 
 	/* Tooltip */

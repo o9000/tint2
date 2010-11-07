@@ -47,6 +47,8 @@ set( SOURCES src/config.c
              src/clock/clock.c
              src/systray/systraybar.c
              src/launcher/launcher.c
+             src/launcher/xsettings-client.c
+             src/launcher/xsettings-common.c
              src/taskbar/task.c
              src/taskbar/taskbar.c
              src/taskbar/taskbarname.c

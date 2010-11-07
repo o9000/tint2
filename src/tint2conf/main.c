@@ -327,19 +327,19 @@ static void menuProperties()
 	GtkTreeSelection *sel;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	char *file, *cmd;
+	char *file;
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &file,  -1);
-/*
+//*
 		GtkWidget *prop;
 		prop = create_properties();
 		gtk_window_present(GTK_WINDOW(prop));
 		//printf("menuProperties : fin\n");
 //*/
-//*
-		cmd = g_strdup_printf("%s \'%s\' &", g_cmd_property, file);
+/*
+		char *cmd = g_strdup_printf("%s \'%s\' &", g_cmd_property, file);
 		printf("cmd %s\n", cmd);
 		system(cmd);
 		g_free(cmd);

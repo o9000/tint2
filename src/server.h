@@ -50,7 +50,7 @@ typedef struct Global_atom
 	Atom _NET_WM_VISIBLE_NAME;
 	Atom _NET_WM_STRUT;
 	Atom _NET_WM_ICON;
-  Atom _NET_WM_ICON_GEOMETRY;
+	Atom _NET_WM_ICON_GEOMETRY;
 	Atom _NET_CLOSE_WINDOW;
 	Atom UTF8_STRING;
 	Atom _NET_SUPPORTING_WM_CHECK;
@@ -67,6 +67,8 @@ typedef struct Global_atom
 	Atom _NET_SYSTEM_TRAY_ORIENTATION;
 	Atom _XEMBED;
 	Atom _XEMBED_INFO;
+	Atom _XSETTINGS_SCREEN;
+	Atom _XSETTINGS_SETTINGS;
 	Atom XdndAware;
 	Atom XdndPosition;
 	Atom XdndStatus;

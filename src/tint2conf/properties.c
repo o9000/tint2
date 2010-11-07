@@ -27,6 +27,7 @@
 void change_paragraph(GtkWidget  *widget);
 void create_general(GtkWidget  *parent);
 void create_panel(GtkWidget  *parent);
+void create_launcher(GtkWidget  *parent);
 void create_taskbar(GtkWidget  *parent);
 void create_task(GtkWidget  *parent);
 void create_clock(GtkWidget  *parent);
