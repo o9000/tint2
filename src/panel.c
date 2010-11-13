@@ -169,9 +169,6 @@ void init_panel()
 		p->area.resize = 1;
 		p->area.size_mode = SIZE_BY_LAYOUT;
 		p->area._resize = resize_panel;
-		p->g_taskbar.area.parent = p;
-		p->g_taskbar.area.panel = p;
-		p->g_task.area.panel = p;
 		init_panel_size_and_position(p);
 		// add childs according to panel_items
 		for (k=0 ; k < strlen(panel_items_order) ; k++) {
@@ -540,7 +537,9 @@ void set_panel_background(Panel *p)
 			tskbar->state_pix[k] = 0;
 		}
 		tskbar->area.pix = 0;
-		for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
+		l0 = tskbar->area.list;
+		if (taskbarname_enabled) l0 = l0->next;
+		for (; l0 ; l0 = l0->next) {
 			set_task_redraw((Task *)l0->data);
 		}
 	}
@@ -590,7 +589,9 @@ Task *click_task (Panel *panel, int x, int y)
 	if ( (tskbar = click_taskbar(panel, x, y)) ) {
 		if (panel_horizontal) {
 			Task *tsk;
-			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
+			l0 = tskbar->area.list;
+			if (taskbarname_enabled) l0 = l0->next;
+			for (; l0 ; l0 = l0->next) {
 				tsk = l0->data;
 				if (tsk->area.on_screen && x >= tsk->area.posx && x <= (tsk->area.posx + tsk->area.width)) {
 					return tsk;
@@ -599,7 +600,9 @@ Task *click_task (Panel *panel, int x, int y)
 		}
 		else {
 			Task *tsk;
-			for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
+			l0 = tskbar->area.list;
+			if (taskbarname_enabled) l0 = l0->next;
+			for (; l0 ; l0 = l0->next) {
 				tsk = l0->data;
 				if (tsk->area.on_screen && y >= tsk->area.posy && y <= (tsk->area.posy + tsk->area.height)) {
 					return tsk;

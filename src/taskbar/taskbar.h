@@ -9,12 +9,23 @@
 #define TASKBAR_H
 
 #include "task.h"
+#include "taskbarname.h"
 
 enum { TASKBAR_NORMAL, TASKBAR_ACTIVE, TASKBAR_STATE_COUNT };
 extern GHashTable* win_to_task_table;
 extern Task *task_active;
 extern Task *task_drag;
 extern int taskbar_enabled;
+
+
+typedef struct {
+	// always start with area
+	Area area;
+	Pixmap state_pix[TASKBAR_STATE_COUNT];
+
+	char *name;
+	int name_posy;
+} Taskbarname;
 
 // tint2 use one taskbar per desktop.
 typedef struct {
@@ -24,15 +35,18 @@ typedef struct {
 	int desktop;
 	Pixmap state_pix[TASKBAR_STATE_COUNT];
 
+	Taskbarname bar_name;
+	
 	// task parameters
 	int text_width;
 } Taskbar;
 
-
 typedef struct {
 	//always start with area
 	Area area;
+	Area area_name;
 	Background* background[TASKBAR_STATE_COUNT];
+	Background* background_name[TASKBAR_STATE_COUNT];
 } Global_taskbar;
 
 

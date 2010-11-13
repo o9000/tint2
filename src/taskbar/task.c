@@ -414,7 +414,9 @@ Task *next_task(Task *tsk)
 	Task *tsk1;
 	Taskbar* tskbar = tsk->area.parent;
 
-	for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
+	l0 = tskbar->area.list;
+	if (taskbarname_enabled) l0 = l0->next;
+	for (; l0 ; l0 = l0->next) {
 		tsk1 = l0->data;
 		if (tsk1 == tsk) {
 			if (l0->next == 0) l0 = tskbar->area.list;
@@ -436,7 +438,9 @@ Task *prev_task(Task *tsk)
 	Taskbar* tskbar = tsk->area.parent;
 
 	tsk2 = 0;
-	for (l0 = tskbar->area.list; l0 ; l0 = l0->next) {
+	l0 = tskbar->area.list;
+	if (taskbarname_enabled) l0 = l0->next;
+	for (; l0 ; l0 = l0->next) {
 		tsk1 = l0->data;
 		if (tsk1 == tsk) {
 			if (l0 == tskbar->area.list) {

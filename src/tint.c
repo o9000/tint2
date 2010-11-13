@@ -372,8 +372,10 @@ void event_button_motion_notify (XEvent *e)
 		Taskbar * drag_taskbar = (Taskbar*)task_drag->area.parent;
 		drag_taskbar->area.list = g_slist_remove(drag_taskbar->area.list, task_drag);
 
-		if(event_taskbar->area.posx > drag_taskbar->area.posx || event_taskbar->area.posy > drag_taskbar->area.posy)
-			event_taskbar->area.list = g_slist_prepend(event_taskbar->area.list, task_drag);
+		if(event_taskbar->area.posx > drag_taskbar->area.posx || event_taskbar->area.posy > drag_taskbar->area.posy) {
+			int i = (taskbarname_enabled) ? 1 : 0;
+			event_taskbar->area.list = g_slist_insert(event_taskbar->area.list, task_drag, i);
+		}
 		else
 			event_taskbar->area.list = g_slist_append(event_taskbar->area.list, task_drag);
 
@@ -524,7 +526,9 @@ void event_property_notify (XEvent *e)
 				GSList *l;
 				if (server.nb_desktop > old_desktop) {
 					tskbar = &panel->taskbar[old_desktop];
-					for (l = tskbar->area.list; l ; l = l->next) {
+					l = tskbar->area.list;
+					if (taskbarname_enabled) l = l->next;
+					for (; l ; l = l->next) {
 						tsk = l->data;
 						if (tsk->desktop == ALLDESKTOP) {
 							tsk->area.on_screen = 0;
@@ -534,7 +538,9 @@ void event_property_notify (XEvent *e)
 					}
 				}
 				tskbar = &panel->taskbar[server.desktop];
-				for (l = tskbar->area.list; l ; l = l->next) {
+				l = tskbar->area.list;
+				if (taskbarname_enabled) l = l->next;
+				for (; l ; l = l->next) {
 					tsk = l->data;
 					if (tsk->desktop == ALLDESKTOP) {
 						tsk->area.on_screen = 1;

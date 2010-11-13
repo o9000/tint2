@@ -467,12 +467,23 @@ void add_entry (char *key, char *value)
 		taskbarname_enabled = atoi (value);
 	}
 	else if (strcmp (key, "taskbar_name_background_id") == 0) {
+		int id = atoi (value);
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
 	}
 	else if (strcmp (key, "taskbar_name_active_background_id") == 0) {
+		int id = atoi (value);
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
 	}
 	else if (strcmp (key, "taskbar_name_font") == 0) {
+		taskbarname_font_desc = pango_font_description_from_string (value);
 	}
 	else if (strcmp (key, "taskbar_name_font_color") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		get_color (value1, taskbarname_font.color);
+		if (value2) taskbarname_font.alpha = (atoi (value2) / 100.0);
+		else taskbarname_font.alpha = 0.5;
 	}
 	else if (strcmp (key, "taskbar_name_active_font_color") == 0) {
 	}

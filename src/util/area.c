@@ -96,9 +96,9 @@ void init_rendering(void *obj, int pos)
 void rendering(void *obj)
 {
 	Panel *panel = (Panel*)obj;
-	
+
 	size_by_content(&panel->area);
-	size_by_layout(&panel->area, 0, 0);
+	size_by_layout(&panel->area, 0, 1);
 	
 	refresh(&panel->area);
 }
@@ -175,7 +175,10 @@ void size_by_layout (Area *a, int pos, int level)
 			}
 		}
 		
-		//printf("level %d, object %d, pos %d\n", level, i, pos);
+		/*// position of each visible object
+		int k;
+		for (k=0 ; k < level ; k++) printf("  ");
+		printf("tree level %d, object %d, pos %d, %s\n", level, i, pos, (child->size_mode == SIZE_BY_LAYOUT) ? "SIZE_BY_LAYOUT" : "SIZE_BY_CONTENT");*/
 		size_by_layout(child, pos, level+1);
 		
 		if (panel_horizontal)
@@ -239,9 +242,9 @@ int resize_by_layout(void *obj, int maximum_size)
 			if (child->on_screen && child->size_mode == SIZE_BY_LAYOUT)
 				nb_by_layout++;
 		}
+		//printf("  resize_by_layout Deb %d, %d\n", nb_by_content, nb_by_layout);
 		if (nb_by_content+nb_by_layout)
 			size -= ((nb_by_content+nb_by_layout-1) * a->paddingx);
-		//printf("resize_panel : size_panel %d, size_layout %d\n", panel->area.width, size);
 
 		int width=0, modulo=0, old_width;
 		if (nb_by_layout) {
