@@ -63,11 +63,11 @@ void cleanup_taskbarname()
 	Panel *panel;
 	Taskbar *tskbar;
 
+	if (taskbarname_font_desc)	pango_font_description_free(taskbarname_font_desc);
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
 		for (j=0 ; j < panel->nb_desktop ; j++) {
 			tskbar = &panel->taskbar[j];
-			if (taskbarname_font_desc)	pango_font_description_free(taskbarname_font_desc);
 			if (tskbar->bar_name.name)	g_free(tskbar->bar_name.name);
 			free_area (&tskbar->bar_name.area);
 			for (k=0; k<TASKBAR_STATE_COUNT; ++k) {
