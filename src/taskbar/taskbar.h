@@ -24,7 +24,7 @@ typedef struct {
 	Pixmap state_pix[TASKBAR_STATE_COUNT];
 
 	char *name;
-	int name_posy;
+	int  posy;
 } Taskbarname;
 
 // tint2 use one taskbar per desktop.

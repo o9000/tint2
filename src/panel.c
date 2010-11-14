@@ -105,6 +105,8 @@ void cleanup_panel()
 	if (!panel1) return;
 
 	cleanup_taskbar();
+	// taskbarname_font_desc freed here because cleanup_taskbarname() called on _NET_NUMBER_OF_DESKTOPS
+	if (taskbarname_font_desc)	pango_font_description_free(taskbarname_font_desc);
 
 	int i;
 	Panel *p;

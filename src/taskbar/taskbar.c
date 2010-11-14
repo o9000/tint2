@@ -228,16 +228,6 @@ void init_taskbar_panel(void *p)
 			tskbar->area.bg = panel->g_taskbar.background[TASKBAR_ACTIVE];
 		else
 			tskbar->area.bg = panel->g_taskbar.background[TASKBAR_NORMAL];
-		
-		if (taskbarname_enabled) {
-			memcpy(&tskbar->bar_name.area, &panel->g_taskbar.area_name, sizeof(Area));
-			tskbar->bar_name.area.parent = tskbar;
-			if (j == server.desktop)
-				tskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_ACTIVE];
-			else
-				tskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_NORMAL];
-			tskbar->area.list = g_slist_append(tskbar->area.list, &tskbar->bar_name);
-		}
 	}
 	init_taskbarname_panel(panel);
 }

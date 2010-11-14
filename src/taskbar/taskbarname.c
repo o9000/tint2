@@ -47,12 +47,23 @@ void default_taskbarname()
 void init_taskbarname_panel(void *p)
 {
 	Panel *panel =(Panel*)p;
+	Taskbar *tskbar;
 	int j;
 	
-	if (!taskbarname_enabled || !taskbar_enabled) return;
+	if (!taskbarname_enabled) return;
 	
 	for (j=0 ; j < panel->nb_desktop ; j++) {
-		panel->taskbar[j].bar_name.name = g_strdup_printf("%d", j+1);
+		tskbar = &panel->taskbar[j];
+		memcpy(&tskbar->bar_name.area, &panel->g_taskbar.area_name, sizeof(Area));
+		tskbar->bar_name.area.parent = tskbar;
+		if (j == server.desktop)
+			tskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_ACTIVE];
+		else
+			tskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_NORMAL];
+		tskbar->bar_name.name = g_strdup_printf("%d", j+1);
+		
+		// append the name at the beginning of taskbar
+		tskbar->area.list = g_slist_append(tskbar->area.list, &tskbar->bar_name);
 	}
 }
 
@@ -63,7 +74,6 @@ void cleanup_taskbarname()
 	Panel *panel;
 	Taskbar *tskbar;
 
-	if (taskbarname_font_desc)	pango_font_description_free(taskbarname_font_desc);
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
 		for (j=0 ; j < panel->nb_desktop ; j++) {
@@ -73,6 +83,7 @@ void cleanup_taskbarname()
 			for (k=0; k<TASKBAR_STATE_COUNT; ++k) {
 				if (tskbar->bar_name.state_pix[k]) XFreePixmap(server.dsp, tskbar->bar_name.state_pix[k]);
 			}
+			tskbar->area.list = g_slist_remove(tskbar->area.list, &tskbar->bar_name);
 		}
 	}
 }
@@ -94,7 +105,7 @@ void draw_taskbarname (void *obj, cairo_t *c)
 	cairo_set_source_rgba (c, taskbarname_font.color[0], taskbarname_font.color[1], taskbarname_font.color[2], taskbarname_font.alpha);
 
 	pango_cairo_update_layout (c, layout);
-	cairo_move_to (c, 0, 2);
+	cairo_move_to (c, 0, taskbar_name->posy);
 	pango_cairo_show_layout (c, layout);
 
 	g_object_unref (layout);
@@ -106,49 +117,29 @@ int resize_taskbarname(void *obj)
 {
 	Taskbarname *taskbar_name = (Taskbar*)obj;
 	Panel *panel = taskbar_name->area.panel;
-	int time_height, time_width, ret = 0;
+	int name_height, name_width, name_height_ink;
+	int ret = 0;
 
 	taskbar_name->area.redraw = 1;
-	/*
-	strftime(buf_time, sizeof(buf_time), time1_format, clock_gettime_for_tz(time1_timezone));
-	get_text_size2(time1_font_desc, &time_height_ink, &time_height, &time_width, panel->area.height, panel->area.width, buf_time, strlen(buf_time));
-	if (time2_format) {
-		strftime(buf_date, sizeof(buf_date), time2_format, clock_gettime_for_tz(time2_timezone));
-		get_text_size2(time2_font_desc, &date_height_ink, &date_height, &date_width, panel->area.height, panel->area.width, buf_date, strlen(buf_date));
-	}
+	get_text_size2(taskbarname_font_desc, &name_height_ink, &name_height, &name_width, panel->area.height, panel->area.width, taskbar_name->name, strlen(taskbar_name->name));
 
 	if (panel_horizontal) {
-		int new_size = (time_width > date_width) ? time_width : date_width;
-		new_size += (2*clock->area.paddingxlr) + (2*clock->area.bg->border.width);
-		if (new_size > clock->area.width || new_size < (clock->area.width-6)) {
-			// we try to limit the number of resize
-			clock->area.width = new_size + 1;
-			clock->time1_posy = (clock->area.height - time_height) / 2;
-			if (time2_format) {
-				clock->time1_posy -= ((date_height_ink + 2) / 2);
-				clock->time2_posy = clock->time1_posy + time_height + 2 - (time_height - time_height_ink)/2 - (date_height - date_height_ink)/2;
-			}
+		int new_size = name_width + (2* (taskbar_name->area.paddingxlr + taskbar_name->area.bg->border.width));
+		if (new_size != taskbar_name->area.width) {
+			taskbar_name->area.width = new_size;
+			taskbar_name->posy = (taskbar_name->area.height - name_height) / 2;
 			ret = 1;
 		}
 	}
 	else {
-		int new_size = time_height + date_height + (2 * (clock->area.paddingxlr + clock->area.bg->border.width));
-		if (new_size != clock->area.height) {
-			// we try to limit the number of resize
-			clock->area.height =  new_size;
-			clock->time1_posy = (clock->area.height - time_height) / 2;
-			if (time2_format) {
-				clock->time1_posy -= ((date_height_ink + 2) / 2);
-				clock->time2_posy = clock->time1_posy + time_height + 2 - (time_height - time_height_ink)/2 - (date_height - date_height_ink)/2;
-			}
+		int new_size = name_height + (2 * (taskbar_name->area.paddingxlr + taskbar_name->area.bg->border.width));
+		if (new_size != taskbar_name->area.height) {
+			taskbar_name->area.height =  new_size;
+			taskbar_name->posy = (taskbar_name->area.height - name_height) / 2;
 			ret = 1;
 		}
 	}
 	return ret;
-*/
-
-	taskbar_name->area.width = 10;
-	return 1;
 }
 
 
