@@ -461,15 +461,21 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "taskbar_active_background_id") == 0) {
 		int id = atoi (value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
-		panel_config.g_taskbar.background[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
+		panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
 	}
 	else if (strcmp (key, "taskbar_name") == 0) {
 		taskbarname_enabled = atoi (value);
 	}
+	else if (strcmp (key, "taskbar_name_padding") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		panel_config.g_taskbar.area_name.paddingxlr = panel_config.g_taskbar.area_name.paddingx = atoi (value1);
+	}
 	else if (strcmp (key, "taskbar_name_background_id") == 0) {
 		int id = atoi (value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
-		panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
+		panel_config.g_taskbar.background_name[TASKBAR_NORMAL] = &g_array_index(backgrounds, Background, id);
+		if (panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] == 0)
+			panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] = panel_config.g_taskbar.background_name[TASKBAR_NORMAL];
 	}
 	else if (strcmp (key, "taskbar_name_active_background_id") == 0) {
 		int id = atoi (value);
@@ -486,6 +492,10 @@ void add_entry (char *key, char *value)
 		else taskbarname_font.alpha = 0.5;
 	}
 	else if (strcmp (key, "taskbar_name_active_font_color") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		get_color (value1, taskbarname_active_font.color);
+		if (value2) taskbarname_active_font.alpha = (atoi (value2) / 100.0);
+		else taskbarname_active_font.alpha = 0.5;
 	}
 
 	/* Task */

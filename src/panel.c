@@ -537,8 +537,11 @@ void set_panel_background(Panel *p)
 		for (k=0; k<TASKBAR_STATE_COUNT; ++k) {
 			if (tskbar->state_pix[k]) XFreePixmap(server.dsp, tskbar->state_pix[k]);
 			tskbar->state_pix[k] = 0;
+			if (tskbar->bar_name.state_pix[k]) XFreePixmap(server.dsp, tskbar->bar_name.state_pix[k]);
+			tskbar->bar_name.state_pix[k] = 0;
 		}
 		tskbar->area.pix = 0;
+		tskbar->bar_name.area.pix = 0;
 		l0 = tskbar->area.list;
 		if (taskbarname_enabled) l0 = l0->next;
 		for (; l0 ; l0 = l0->next) {
