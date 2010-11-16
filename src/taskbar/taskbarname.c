@@ -49,25 +49,11 @@ void init_taskbarname_panel(void *p)
 {
 	Panel *panel =(Panel*)p;
 	Taskbar *tskbar;
-	int j, count;
+	int j;
 	
 	if (!taskbarname_enabled) return;
 	
-	GList *list = NULL;
-	gchar *data_ptr, *ptr;
-	data_ptr = server_get_property (server.root_win, server.atom._NET_DESKTOP_NAMES, server.atom.UTF8_STRING, &count);
-	if (data_ptr) {
-		list = g_list_append(list, g_strdup(data_ptr));
-		for (j = 0; j < count-1; j++) {
-			if (*(data_ptr + j)	== '\0') {
-				ptr = (gchar*)data_ptr + j + 1;
-				list = g_list_append(list, g_strdup(ptr));
-			}
-		}
-		XFree(data_ptr);
-	}
-
-	GList *l;
+	GSList *l, *list = server_get_name_of_desktop();
 	for (j=0, l=list ; j < panel->nb_desktop ; j++) {
 		tskbar = &panel->taskbar[j];
 		memcpy(&tskbar->bar_name.area, &panel->g_taskbar.area_name, sizeof(Area));
@@ -77,18 +63,21 @@ void init_taskbarname_panel(void *p)
 		else
 			tskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_NORMAL];
 
+		// use desktop number if name is missing
 		if (l) {
 			tskbar->bar_name.name = g_strdup(l->data);
 			l = l->next;
 		}
-		else {
-			// use desktop number if name is missing
+		else
 			tskbar->bar_name.name = g_strdup_printf("%d", j+1);
-		}
 		
 		// append the name at the beginning of taskbar
 		tskbar->area.list = g_slist_append(tskbar->area.list, &tskbar->bar_name);
 	}
+
+	for (l=list ; l ; l = l->next)
+		g_free(l->data);
+	g_slist_free(list);
 }
 
 

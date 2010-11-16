@@ -203,6 +203,26 @@ int server_get_number_of_desktop ()
 }
 
 
+GSList *server_get_name_of_desktop ()
+{
+	int count, j;
+	GSList *list = NULL;
+	gchar *data_ptr, *ptr;
+	data_ptr = server_get_property (server.root_win, server.atom._NET_DESKTOP_NAMES, server.atom.UTF8_STRING, &count);
+	if (data_ptr) {
+		list = g_slist_append(list, g_strdup(data_ptr));
+		for (j = 0; j < count-1; j++) {
+			if (*(data_ptr + j)	== '\0') {
+				ptr = (gchar*)data_ptr + j + 1;
+				list = g_slist_append(list, g_strdup(ptr));
+			}
+		}
+		XFree(data_ptr);
+	}
+	return list;
+}
+
+
 int server_get_current_desktop ()
 {
 	return get_property32(server.root_win, server.atom._NET_CURRENT_DESKTOP, XA_CARDINAL);

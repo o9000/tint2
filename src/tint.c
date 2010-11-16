@@ -492,7 +492,32 @@ void event_property_notify (XEvent *e)
 
 		// Change name of desktops
 		else if (at == server.atom._NET_DESKTOP_NAMES) {
-			printf("_NET_DESKTOP_NAMES\n");
+			if (!taskbarname_enabled) return;
+			GSList *l, *list = server_get_name_of_desktop();
+			int j;
+			gchar *name;
+			Taskbar *tskbar;
+			for (i=0 ; i < nb_panel ; i++) {
+				for (j=0, l=list ; j < panel1[i].nb_desktop ; j++) {
+					if (l) {
+						name = g_strdup(l->data);
+						l = l->next;
+					}
+					else
+						name = g_strdup_printf("%d", j+1);
+					tskbar = &panel1[i].taskbar[j];
+					if (strcmp(name, tskbar->bar_name.name) != 0) {
+						g_free(tskbar->bar_name.name);
+						tskbar->bar_name.name = name;
+						tskbar->bar_name.area.resize = 1;
+					}
+					else
+						g_free(name);
+				}
+			}
+			for (l=list ; l ; l = l->next)
+				g_free(l->data);
+			g_slist_free(list);
 			panel_refresh = 1;
 		}
 		// Change number of desktops
