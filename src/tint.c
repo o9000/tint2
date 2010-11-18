@@ -923,7 +923,7 @@ start:
 								break;
 							}
 						}
-					break;
+						break;
 
 					case ClientMessage:
 						ev = &e.xclient;

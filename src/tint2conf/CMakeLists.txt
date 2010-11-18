@@ -45,6 +45,6 @@ set_target_properties( tint2conf PROPERTIES LINK_FLAGS "-pthread" )
 
 install( TARGETS tint2conf DESTINATION bin )
 install( PROGRAMS tintwizard.py DESTINATION bin )
-install( FILES taskbar.svg DESTINATION share/icons/hicolor/scalable/apps )
-install( FILES tint2conf.desktop DESTINATION share/applications )
+install( FILES taskbar.svg DESTINATION ${DATADIR}/icons/hicolor/scalable/apps )
+install( FILES tint2conf.desktop DESTINATION ${DATADIR}/applications )
 install( CODE "execute_process(COMMAND gtk-update-icon-cache -f -t ${DATADIR}/icons/hicolor WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX})" )
