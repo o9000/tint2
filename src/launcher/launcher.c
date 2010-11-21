@@ -790,17 +790,30 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 	}
 
 	GSList *basenames = NULL;
-	char *file_name = g_build_filename(g_get_home_dir(), ".icons", NULL);
-	basenames = g_slist_append(basenames, file_name);
+	char *home_icons = g_build_filename(g_get_home_dir(), ".icons", NULL);
+	basenames = g_slist_append(basenames, home_icons);
 	basenames = g_slist_append(basenames, "/usr/share/icons");
 	basenames = g_slist_append(basenames, "/usr/share/pixmaps");
 
 	GSList *extensions = NULL;
-	extensions = g_slist_append(extensions, "png");
-	extensions = g_slist_append(extensions, "xpm");
+	extensions = g_slist_append(extensions, ".png");
+	extensions = g_slist_append(extensions, ".xpm");
+	// if the icon name already contains one of the extensions (e.g. vlc.png instead of vlc) add a special entry
+	GSList *ext;
+	for (ext = extensions; ext; ext = g_slist_next(ext)) {
+		char *extension = (char*) ext->data;
+		if (strlen(icon_name) > strlen(extension) &&
+			strcmp(extension, icon_name + strlen(icon_name) - strlen(extension)) == 0) {
+			extensions = g_slist_append(extensions, "");
+			break;
+		}
+	}
 
-	// Stage 1: exact size match
 	GSList *theme;
+	// Stage 1: exact size match
+	// the theme must have a higher priority than having an exact size match, so we will just use
+	// the code that searches for the best size match (it will find the exact size match if one exists)
+	/*
 	for (theme = launcher->list_themes; theme; theme = g_slist_next(theme)) {
 		GSList *dir;
 		for (dir = ((IconTheme*)theme->data)->list_directories; dir; dir = g_slist_next(dir)) {
@@ -816,11 +829,13 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 						char *file_name = malloc(strlen(base_name) + strlen(theme_name) +
 							strlen(dir_name) + strlen(icon_name) + strlen(extension) + 100);
 						// filename = directory/$(themename)/subdirectory/iconname.extension
-						sprintf(file_name, "%s/%s/%s/%s.%s", base_name, theme_name, dir_name, icon_name, extension);
+						sprintf(file_name, "%s/%s/%s/%s%s", base_name, theme_name, dir_name, icon_name, extension);
+						//printf("found exact: %s\n", file_name);
 						//printf("checking %s\n", file_name);
 						if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {
 							g_slist_free(basenames);
 							g_slist_free(extensions);
+							g_free(home_icons);
 							return file_name;
 						} else {
 							free(file_name);
@@ -832,15 +847,23 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 		}
 	}
 	g_free (file_name);
+	*/
 
 	// Stage 2: best size match
 	// Contrary to the freedesktop spec, we are not choosing the closest icon in size, but the next larger icon
 	// otherwise the quality is usually crap (for size 22, if you can choose 16 or 32, you're better with 32)
 	// We do fallback to the closest size if we cannot find a larger or equal icon
+	
+	// These 3 variables are used for keeping the closest size match
 	int minimal_size = INT_MAX;
 	char *best_file_name = NULL;
+	GSList *best_file_theme = NULL;
+	
+	// These 3 variables are used for keeping the next larger match
 	int next_larger_size = -1;
 	char *next_larger = NULL;
+	GSList *next_larger_theme = NULL;
+	
 	for (theme = launcher->list_themes; theme; theme = g_slist_next(theme)) {
 		GSList *dir;
 		for (dir = ((IconTheme*)theme->data)->list_directories; dir; dir = g_slist_next(dir)) {
@@ -855,23 +878,32 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 					char *file_name = malloc(strlen(base_name) + strlen(theme_name) +
 					strlen(dir_name) + strlen(icon_name) + strlen(extension) + 100);
 					// filename = directory/$(themename)/subdirectory/iconname.extension
-					sprintf(file_name, "%s/%s/%s/%s.%s", base_name, theme_name, dir_name, icon_name, extension);
+					sprintf(file_name, "%s/%s/%s/%s%s", base_name, theme_name, dir_name, icon_name, extension);
 					if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {
-						if (directory_size_distance((IconThemeDir*)dir->data, size) < minimal_size) {
+						//printf("found: %s\n", file_name);
+						// Closest match
+						if (directory_size_distance((IconThemeDir*)dir->data, size) < minimal_size && (!best_file_theme ? 1 : theme == best_file_theme)) {
 							if (best_file_name) {
 								free(best_file_name);
 								best_file_name = NULL;
 							}
 							best_file_name = strdup(file_name);
 							minimal_size = directory_size_distance((IconThemeDir*)dir->data, size);
+							best_file_theme = theme;
+							//printf("best_file_name = %s; minimal_size = %d\n", best_file_name, minimal_size);
 						}
-						if (((IconThemeDir*)dir->data)->size >= size && (next_larger_size == -1 || ((IconThemeDir*)dir->data)->size < next_larger_size)) {
+						// Next larger match
+						if (((IconThemeDir*)dir->data)->size >= size &&
+							(next_larger_size == -1 || ((IconThemeDir*)dir->data)->size < next_larger_size) &&
+							(!next_larger_theme ? 1 : theme == next_larger_theme)) {
 							if (next_larger) {
 								free(next_larger);
 								next_larger = NULL;
 							}
 							next_larger = strdup(file_name);
 							next_larger_size = ((IconThemeDir*)dir->data)->size;
+							next_larger_theme = theme;
+							//printf("next_larger = %s; next_larger_size = %d\n", next_larger, next_larger_size);
 						}
 					}
 					free(file_name);
@@ -883,11 +915,13 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 		g_slist_free(basenames);
 		g_slist_free(extensions);
 		free(best_file_name);
+		g_free(home_icons);
 		return next_larger;
 	}
 	if (best_file_name) {
 		g_slist_free(basenames);
 		g_slist_free(extensions);
+		g_free(home_icons);
 		return best_file_name;
 	}
 
@@ -902,11 +936,12 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 				char *file_name = malloc(strlen(base_name) + strlen(icon_name) +
 					strlen(extension) + 100);
 				// filename = directory/iconname.extension
-				sprintf(file_name, "%s/%s.%s", base_name, icon_name, extension);
+				sprintf(file_name, "%s/%s%s", base_name, icon_name, extension);
 				//printf("checking %s\n", file_name);
 				if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {
 					g_slist_free(basenames);
 					g_slist_free(extensions);
+					g_free(home_icons);
 					return file_name;
 				} else {
 					free(file_name);
@@ -918,6 +953,9 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 
 	fprintf(stderr, "Could not find icon %s\n", icon_name);
 
+	g_slist_free(basenames);
+	g_slist_free(extensions);
+	g_free(home_icons);
 	return NULL;
 }
 
