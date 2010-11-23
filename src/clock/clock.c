@@ -43,9 +43,9 @@ char *clock_rclick_command;
 struct timeval time_clock;
 PangoFontDescription *time1_font_desc;
 PangoFontDescription *time2_font_desc;
-static char buf_time[40];
-static char buf_date[40];
-static char buf_tooltip[40];
+static char buf_time[256];
+static char buf_date[256];
+static char buf_tooltip[512];
 int clock_enabled;
 static timeout* clock_timeout;
 
