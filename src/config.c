@@ -461,7 +461,7 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "taskbar_active_background_id") == 0) {
 		int id = atoi (value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
-		panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
+		panel_config.g_taskbar.background[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
 	}
 	else if (strcmp (key, "taskbar_name") == 0) {
 		taskbarname_enabled = atoi (value);
