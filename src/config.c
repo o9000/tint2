@@ -560,7 +560,8 @@ void add_entry (char *key, char *value)
 
 	/* Systray */
 	else if (strcmp (key, "systray_padding") == 0) {
-		if (new_config_file == 0) {
+		if (new_config_file == 0 && systray_enabled == 0) {
+			systray_enabled = 1;
 			if (panel_items_order) {
 				char* tmp = g_strconcat(panel_items_order, "S", NULL);
 				g_free( panel_items_order );
