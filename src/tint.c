@@ -584,7 +584,7 @@ void event_property_notify (XEvent *e)
 			active_task();
 			panel_refresh = 1;
 		}
-		else if (at == server.atom._XROOTPMAP_ID) {
+		else if (at == server.atom._XROOTPMAP_ID || at == server.atom._XROOTMAP_ID) {
 			// change Wallpaper
 			for (i=0 ; i < nb_panel ; i++) {
 				set_panel_background(&panel1[i]);

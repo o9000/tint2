@@ -36,6 +36,7 @@ void server_catch_error (Display *d, XErrorEvent *ev){}
 void server_init_atoms ()
 {
 	server.atom._XROOTPMAP_ID = XInternAtom (server.dsp, "_XROOTPMAP_ID", False);
+	server.atom._XROOTMAP_ID = XInternAtom (server.dsp, "_XROOTMAP_ID", False);
 	server.atom._NET_CURRENT_DESKTOP = XInternAtom (server.dsp, "_NET_CURRENT_DESKTOP", False);
 	server.atom._NET_NUMBER_OF_DESKTOPS = XInternAtom (server.dsp, "_NET_NUMBER_OF_DESKTOPS", False);
 	server.atom._NET_DESKTOP_NAMES = XInternAtom (server.dsp, "_NET_DESKTOP_NAMES", False);
@@ -188,16 +189,17 @@ void get_root_pixmap()
 	Pixmap ret = None;
 
 	unsigned long *res;
-	int  c = 2;
+	Atom pixmap_atoms[] = { server.atom._XROOTPMAP_ID, server.atom._XROOTMAP_ID };
+	int i;
 
-	do {
-		res = server_get_property (server.root_win, server.atom._XROOTPMAP_ID, XA_PIXMAP, 0);
+	for (i=0; i<sizeof(pixmap_atoms)/sizeof(Atom); ++i) {
+		res = server_get_property (server.root_win, pixmap_atoms[i], XA_PIXMAP, 0);
 		if (res) {
 			ret = *((Pixmap*)res);
 			XFree(res);
 			break;
 		}
-	} while (--c > 0);
+	}
 	server.root_pmap = ret;
 
 	if (server.root_pmap == None)

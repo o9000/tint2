@@ -17,6 +17,7 @@
 typedef struct Global_atom
 {
 	Atom _XROOTPMAP_ID;
+	Atom _XROOTMAP_ID;
 	Atom _NET_CURRENT_DESKTOP;
 	Atom _NET_NUMBER_OF_DESKTOPS;
 	Atom _NET_DESKTOP_NAMES;
