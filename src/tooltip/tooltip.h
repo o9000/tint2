@@ -30,7 +30,6 @@ typedef struct {
 	Window window;
 	int show_timeout_msec;
 	int hide_timeout_msec;
-	Bool enabled;
 	Bool mapped;
 	int paddingx;
 	int paddingy;

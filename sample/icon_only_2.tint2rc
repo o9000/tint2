@@ -62,6 +62,7 @@ task_background_id = 0
 task_active_background_id = 3
 task_urgent_background_id = 3
 task_iconified_background_id = 0
+task_tooltip = 1
 
 # Task Icons
 task_icon_asb = 90 -100 -20
@@ -97,7 +98,6 @@ clock_background_id = 0
 clock_rclick_command = gsimplecal
 
 # Tooltips
-tooltip = 1
 tooltip_padding = 2 2
 tooltip_show_timeout = 0.9
 tooltip_hide_timeout = 0.3

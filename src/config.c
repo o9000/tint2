@@ -557,6 +557,9 @@ void add_entry (char *key, char *value)
 		panel_config.g_task.config_background_mask |= (1<<status);
 		if (status == TASK_NORMAL) panel_config.g_task.area.bg = panel_config.g_task.background[TASK_NORMAL];
 	}
+	// "tooltip" is deprecated but here for backwards compatibility
+	else if (strcmp (key, "task_tooltip") == 0 || strcmp(key, "tooltip") == 0)
+		panel_config.g_task.tooltip_enabled = atoi(value);
 
 	/* Systray */
 	else if (strcmp (key, "systray_padding") == 0) {
@@ -626,8 +629,6 @@ void add_entry (char *key, char *value)
 	}
 
 	/* Tooltip */
-	else if (strcmp (key, "tooltip") == 0)
-		g_tooltip.enabled = atoi(value);
 	else if (strcmp (key, "tooltip_show_timeout") == 0) {
 		int timeout_msec = 1000*atof(value);
 		g_tooltip.show_timeout_msec = timeout_msec;

@@ -873,7 +873,6 @@ start:
 						if (e.xmotion.state & button_mask)
 							event_button_motion_notify (&e);
 
-						if (!g_tooltip.enabled) break;
 						Panel* panel = get_panel(e.xmotion.window);
 						Area* area = click_area(panel, e.xmotion.x, e.xmotion.y);
 						if (area->_get_tooltip_text)
@@ -884,8 +883,7 @@ start:
 					}
 
 					case LeaveNotify:
-						if (g_tooltip.enabled)
-							tooltip_trigger_hide();
+						tooltip_trigger_hide();
 						break;
 
 					case Expose:

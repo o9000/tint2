@@ -96,7 +96,8 @@ Task *add_task (Window win)
 			new_tsk2->area.on_screen = 0;
 		}
 		new_tsk2->title = new_tsk.title;
-		new_tsk2->area._get_tooltip_text = task_get_tooltip;
+		if (panel1[monitor].g_task.tooltip_enabled)
+			new_tsk2->area._get_tooltip_text = task_get_tooltip;
 		for (k=0; k<TASK_STATE_COUNT; ++k) {
 			new_tsk2->icon[k] = new_tsk.icon[k];
 			new_tsk2->state_pix[k] = 0;
@@ -164,7 +165,7 @@ int get_title(Task *tsk)
 	Panel *panel = tsk->area.panel;
 	char *title, *name;
 
-	if (!panel->g_task.text && !g_tooltip.enabled) return 0;
+	if (!panel->g_task.text && !panel->g_task.tooltip_enabled) return 0;
 
 	name = server_get_property (tsk->win, server.atom._NET_WM_VISIBLE_NAME, server.atom.UTF8_STRING, 0);
 	if (!name || !strlen(name)) {

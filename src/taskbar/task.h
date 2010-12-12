@@ -44,6 +44,7 @@ typedef struct {
 	PangoFontDescription *font_desc;
 	Color font[TASK_STATE_COUNT];
 	int config_font_mask;
+	int tooltip_enabled;
 } Global_task;
 
 
