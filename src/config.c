@@ -257,7 +257,7 @@ void add_entry (char *key, char *value)
 				if (snapshot_path == 0)
 					systray_enabled = 1;
 			}
-			if (panel_items_order[j] == 'C')			
+			if (panel_items_order[j] == 'C')
 				clock_enabled = 1;
 		}
 	}
