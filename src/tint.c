@@ -524,6 +524,9 @@ void event_property_notify (XEvent *e)
 		else if (at == server.atom._NET_NUMBER_OF_DESKTOPS) {
 			if (!taskbar_enabled) return;
 			server.nb_desktop = server_get_number_of_desktop ();
+			if (server.nb_desktop <= server.desktop) {
+				server.desktop = server.nb_desktop-1;
+			}
 			cleanup_taskbar();
 			init_taskbar();
 			for (i=0 ; i < nb_panel ; i++) {
