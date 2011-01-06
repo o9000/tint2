@@ -78,6 +78,8 @@ void init_launcher_panel(void *p)
 	launcher->area._resize = resize_launcher;
 	launcher->area.resize = 1;
 	launcher->area.redraw = 1;
+	if (launcher->area.bg == 0)
+		launcher->area.bg = &g_array_index(backgrounds, Background, 0);
 
 	// check consistency
 	if (launcher->list_apps == NULL)

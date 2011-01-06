@@ -98,7 +98,9 @@ void init_systray_panel(void *p)
 {
 	systray.area.parent = p;
 	systray.area.panel = p;
-	
+	if (systray.area.bg == 0)
+		systray.area.bg = &g_array_index(backgrounds, Background, 0);
+
 	GSList *l;
 	int count = 0;
 	for (l = systray.list_icons; l ; l = l->next) {
