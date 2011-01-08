@@ -221,8 +221,8 @@ int resize_clock (void *obj)
 			clock->area.width = new_size + 1;
 			clock->time1_posy = (clock->area.height - time_height) / 2;
 			if (time2_format) {
-				clock->time1_posy -= ((date_height_ink + 2) / 2);
-				clock->time2_posy = clock->time1_posy + time_height + 2 - (time_height - time_height_ink)/2 - (date_height - date_height_ink)/2;
+				clock->time1_posy -= (date_height)/2;
+				clock->time2_posy = clock->time1_posy + time_height;
 			}
 			ret = 1;
 		}
@@ -234,8 +234,8 @@ int resize_clock (void *obj)
 			clock->area.height =  new_size;
 			clock->time1_posy = (clock->area.height - time_height) / 2;
 			if (time2_format) {
-				clock->time1_posy -= ((date_height_ink + 2) / 2);
-				clock->time2_posy = clock->time1_posy + time_height + 2 - (time_height - time_height_ink)/2 - (date_height - date_height_ink)/2;
+				clock->time1_posy -= (date_height)/2;
+				clock->time2_posy = clock->time1_posy + time_height;
 			}
 			ret = 1;
 		}
