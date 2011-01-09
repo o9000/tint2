@@ -236,6 +236,8 @@ void init_panel_size_and_position(Panel *panel)
 			panel->area.width = (float)server.monitor[panel->monitor].width * panel->area.width / 100;
 		if (panel->pourcenty)
 			panel->area.height = (float)server.monitor[panel->monitor].height * panel->area.height / 100;
+		if (panel->area.width + panel->marginx > server.monitor[panel->monitor].width)
+			panel->area.width = server.monitor[panel->monitor].width - panel->marginx;
 		if (panel->area.bg->border.rounded > panel->area.height/2) {
 			printf("panel_background_id rounded is too big... please fix your tint2rc\n");
 			g_array_append_val(backgrounds, *panel->area.bg);
@@ -253,6 +255,8 @@ void init_panel_size_and_position(Panel *panel)
 			panel->area.width = (float)server.monitor[panel->monitor].width * old_panel_height / 100;
 		else
 			panel->area.width = old_panel_height;
+		if (panel->area.height + panel->marginy > server.monitor[panel->monitor].height)
+			panel->area.height = server.monitor[panel->monitor].height - panel->marginy;
 		if (panel->area.bg->border.rounded > panel->area.width/2) {
 			printf("panel_background_id rounded is too big... please fix your tint2rc\n");
 			g_array_append_val(backgrounds, *panel->area.bg);
