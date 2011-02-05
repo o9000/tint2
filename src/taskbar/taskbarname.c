@@ -52,7 +52,7 @@ void init_taskbarname_panel(void *p)
 	int j;
 	
 	if (!taskbarname_enabled) return;
-	
+
 	GSList *l, *list = server_get_name_of_desktop();
 	for (j=0, l=list ; j < panel->nb_desktop ; j++) {
 		tskbar = &panel->taskbar[j];

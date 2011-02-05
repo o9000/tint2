@@ -238,6 +238,9 @@ void init_battery_panel(void *p)
 	if (!battery_enabled)
 		return;
 
+	if (battery->area.bg == 0)
+		battery->area.bg = &g_array_index(backgrounds, Background, 0);
+
 	battery->area.parent = p;
 	battery->area.panel = p;
 	battery->area._draw_foreground = draw_battery;
