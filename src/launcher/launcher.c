@@ -37,7 +37,7 @@ int launcher_max_icon_size;
 char *icon_theme_name; 
 XSettingsClient *xsettings_client;
 
-#define ICON_FALLBACK "exec"
+#define ICON_FALLBACK "application-x-executable"
 
 char *icon_path(Launcher *launcher, const char *icon_name, int size);
 void launcher_load_themes(Launcher *launcher);
@@ -405,7 +405,8 @@ void expand_exec(DesktopEntry *entry, const char *path)
 int launcher_read_desktop_file(const char *path, DesktopEntry *entry)
 {
 	FILE *fp;
-	char line[4096];
+	char *line = NULL;
+	size_t line_size;
 	char *key, *value;
 
 	entry->name = entry->icon = entry->exec = NULL;
@@ -415,7 +416,7 @@ int launcher_read_desktop_file(const char *path, DesktopEntry *entry)
 		return 0;
 	}
 
-	while (fgets(line, sizeof(line), fp) != NULL) {
+	while (getline(&line, &line_size, fp) >= 0) {
 		int len = strlen(line);
 		if (len == 0)
 			continue;
@@ -436,6 +437,7 @@ int launcher_read_desktop_file(const char *path, DesktopEntry *entry)
 
 	expand_exec(entry, path);
 	
+	free(line);
 	return 1;
 }
 
@@ -465,7 +467,8 @@ IconTheme *load_theme(char *name)
 	IconTheme *theme;
 	char *file_name;
 	FILE *f;
-	char line[2048];
+	char *line = NULL;
+	size_t line_size;
 
 	if (name == NULL)
 		return NULL;
@@ -502,7 +505,7 @@ IconTheme *load_theme(char *name)
 
 	IconThemeDir *current_dir = NULL;
 	int inside_header = 1;
-	while (fgets(line, sizeof(line), f) != NULL) {
+	while (getline(&line, &line_size, f) >= 0) {
 		char *key, *value;
 		
 		int line_len = strlen(line);
@@ -595,6 +598,8 @@ IconTheme *load_theme(char *name)
 		}
 	}
 	fclose(f);
+	
+	free(line);
 	
 	return theme;
 }
