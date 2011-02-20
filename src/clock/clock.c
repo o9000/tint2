@@ -143,7 +143,9 @@ void init_clock_panel(void *p)
 {
 	Panel *panel =(Panel*)p;
 	Clock *clock = &panel->clock;
-
+	
+	if (clock->area.bg == 0)
+		clock->area.bg = &g_array_index(backgrounds, Background, 0);
 	clock->area.parent = p;
 	clock->area.panel = p;
 	clock->area._draw_foreground = draw_clock;
