@@ -411,16 +411,17 @@ Task *next_task(Task *tsk)
 	if (tsk == 0)
 		return 0;
 
-	GSList *l0;
+	GSList *l0, *lfirst_tsk;
 	Task *tsk1;
 	Taskbar* tskbar = tsk->area.parent;
 
 	l0 = tskbar->area.list;
 	if (taskbarname_enabled) l0 = l0->next;
+	lfirst_tsk = l0;
 	for (; l0 ; l0 = l0->next) {
 		tsk1 = l0->data;
 		if (tsk1 == tsk) {
-			if (l0->next == 0) l0 = tskbar->area.list;
+			if (l0->next == 0) l0 = lfirst_tsk;
 			else l0 = l0->next;
 			return l0->data;
 		}
@@ -434,17 +435,18 @@ Task *prev_task(Task *tsk)
 	if (tsk == 0)
 		return 0;
 
-	GSList *l0;
+	GSList *l0, *lfirst_tsk;
 	Task *tsk1, *tsk2;
 	Taskbar* tskbar = tsk->area.parent;
 
 	tsk2 = 0;
 	l0 = tskbar->area.list;
 	if (taskbarname_enabled) l0 = l0->next;
+	lfirst_tsk = l0;
 	for (; l0 ; l0 = l0->next) {
 		tsk1 = l0->data;
 		if (tsk1 == tsk) {
-			if (l0 == tskbar->area.list) {
+			if (l0 == lfirst_tsk) {
 				l0 = g_slist_last ( l0 );
 				tsk2 = l0->data;
 			}
