@@ -354,6 +354,9 @@ gboolean add_icon(Window id)
 	Panel *panel = systray.area.panel;
 	int hide = 0;
 
+	// watch for the icon trying to resize itself / closing again!
+	XSelectInput(server.dsp, id, StructureNotifyMask);
+
 	error = FALSE;
 	XWindowAttributes attr;
 	if ( XGetWindowAttributes(server.dsp, id, &attr) == False ) return FALSE;
@@ -442,8 +445,6 @@ gboolean add_icon(Window id)
 		systray.list_icons = g_slist_insert_sorted(systray.list_icons, traywin, compare_traywindows);
 	//printf("add_icon id %lx, %d\n", id, g_slist_length(systray.list_icons));
 
-	// watch for the icon trying to resize itself!
-	XSelectInput(server.dsp, traywin->tray_id, StructureNotifyMask);
 	if (server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		traywin->damage = XDamageCreate(server.dsp, traywin->id, XDamageReportRawRectangles);
 		XCompositeRedirectWindow(server.dsp, traywin->id, CompositeRedirectManual);
