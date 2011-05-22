@@ -354,9 +354,6 @@ gboolean add_icon(Window id)
 	Panel *panel = systray.area.panel;
 	int hide = 0;
 
-	// watch for the icon trying to resize itself / closing again!
-	XSelectInput(server.dsp, id, StructureNotifyMask);
-
 	error = FALSE;
 	XWindowAttributes attr;
 	if ( XGetWindowAttributes(server.dsp, id, &attr) == False ) return FALSE;
@@ -380,6 +377,8 @@ gboolean add_icon(Window id)
 	parent_window = XCreateWindow(server.dsp, panel->main_win, 0, 0, 30, 30, 0, attr.depth, InputOutput, visual, mask, &set_attr);
 	old = XSetErrorHandler(window_error_handler);
 	XReparentWindow(server.dsp, id, parent_window, 0, 0);
+	// watch for the icon trying to resize itself / closing again!
+	XSelectInput(server.dsp, id, StructureNotifyMask);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
 	if (error != FALSE) {
