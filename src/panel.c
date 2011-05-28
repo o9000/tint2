@@ -699,16 +699,10 @@ Area* click_area(Panel *panel, int x, int y)
 		GSList* it = result->list;
 		while (it) {
 			Area* a = it->data;
-			if (panel_horizontal) {
-				if (a->on_screen && x >= a->posx && x <= (a->posx + a->width)) {
-					new_result = a;
-					break;
-				}
-			} else {
-				if (a->on_screen && y >= a->posy && y <= (a->posy + a->height)) {
-					new_result = a;
-					break;
-				}
+			if (a->on_screen && x >= a->posx && x <= (a->posx + a->width)
+					&& y >= a->posy && y <= (a->posy + a->height)) {
+				new_result = a;
+				break;
 			}
 			it = it->next;
 		}

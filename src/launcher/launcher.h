@@ -20,11 +20,14 @@ typedef struct Launcher {
 } Launcher;
 
 typedef struct LauncherIcon {
+	// always start with area
+	Area area;
 	Imlib_Image icon_scaled;
 	Imlib_Image icon_original;
 	char *cmd;
 	char *icon_name;
 	char *icon_path;
+	char *icon_tooltip;
 	int icon_size;
 	int is_app_desktop;
 	int x, y;

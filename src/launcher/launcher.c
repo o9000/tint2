@@ -73,7 +73,7 @@ void init_launcher_panel(void *p)
 
 	launcher->area.parent = p;
 	launcher->area.panel = p;
-	launcher->area._draw_foreground = draw_launcher;
+	launcher->area._draw_foreground = NULL;
 	launcher->area.size_mode = SIZE_BY_CONTENT;
 	launcher->area._resize = resize_launcher;
 	launcher->area.resize = 1;
@@ -128,6 +128,7 @@ void cleanup_launcher_theme(Launcher *launcher)
 			free(launcherIcon->icon_name);
 			free(launcherIcon->icon_path);
 			free(launcherIcon->cmd);
+			free(launcherIcon->icon_tooltip);
 		}
 		free(launcherIcon);
 	}
@@ -163,6 +164,8 @@ int resize_launcher(void *obj)
 		LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
 		if (launcherIcon->icon_size != icon_size || !launcherIcon->icon_original) {
 			launcherIcon->icon_size = icon_size;
+			launcherIcon->area.width = launcherIcon->icon_size;
+			launcherIcon->area.height = launcherIcon->icon_size;
 
 			// Get the path for an icon file with the new size
 			char *new_icon_path = icon_path(launcher, launcherIcon->icon_name, launcherIcon->icon_size);
@@ -263,27 +266,32 @@ int resize_launcher(void *obj)
 	return 1;
 }
 
-
-void draw_launcher(void *obj, cairo_t *c)
+// Here we override the default layout of the icons; normally Area layouts its children
+// in a stack; we need to layout them in a kind of table
+void launcher_icon_on_change_layout(void *obj)
 {
-	Launcher *launcher = obj;
-	GSList *l;
-	if (launcher->list_icons == 0) return;
+	LauncherIcon *launcherIcon = (LauncherIcon*)obj;
+	launcherIcon->area.posy = ((Area*)launcherIcon->area.parent)->posy + launcherIcon->y;
+	launcherIcon->area.posx = ((Area*)launcherIcon->area.parent)->posx + launcherIcon->x;
+}
 
-	for (l = launcher->list_icons; l ; l = l->next) {
-		LauncherIcon *launcherIcon = (LauncherIcon*)l->data;
-		int pos_x = launcherIcon->x;
-		int pos_y = launcherIcon->y;
-		Imlib_Image icon_scaled = launcherIcon->icon_scaled;
-		// Render
-		imlib_context_set_image (icon_scaled);
-		if (server.real_transparency) {
-			render_image(launcher->area.pix, pos_x, pos_y, imlib_image_get_width(), imlib_image_get_height() );
-		}
-		else {
-			imlib_context_set_drawable(launcher->area.pix);
-			imlib_render_image_on_drawable (pos_x, pos_y);
-		}
+const char* launcher_icon_get_tooltip_text(void *obj)
+{
+	LauncherIcon *launcherIcon = (LauncherIcon*)obj;
+	return launcherIcon->icon_tooltip;
+}
+
+void draw_launcher_icon(void *obj, cairo_t *c)
+{
+	LauncherIcon *launcherIcon = (LauncherIcon*)obj;
+	Imlib_Image icon_scaled = launcherIcon->icon_scaled;
+	// Render
+	imlib_context_set_image (icon_scaled);
+	if (server.real_transparency) {
+		render_image(launcherIcon->area.pix, 0, 0, imlib_image_get_width(), imlib_image_get_height() );
+	} else {
+		imlib_context_set_drawable(launcherIcon->area.pix);
+		imlib_render_image_on_drawable (0, 0);
 	}
 }
 
@@ -661,12 +669,25 @@ void launcher_load_icons(Launcher *launcher)
 		launcher_read_desktop_file(app->data, &entry);
 		if (entry.exec) {
 			LauncherIcon *launcherIcon = calloc(1, sizeof(LauncherIcon));
+			launcherIcon->area.parent = launcher;
+			launcherIcon->area.panel = launcher->area.panel;
+			launcherIcon->area._draw_foreground = draw_launcher_icon;
+			launcherIcon->area.size_mode = SIZE_BY_CONTENT;
+			launcherIcon->area._resize = NULL;
+			launcherIcon->area.resize = 0;
+			launcherIcon->area.redraw = 1;
+			launcherIcon->area.bg = &g_array_index(backgrounds, Background, 0);
+			launcherIcon->area.on_screen = 1;
+			launcherIcon->area._on_change_layout = launcher_icon_on_change_layout;
+			launcherIcon->area._get_tooltip_text = launcher_icon_get_tooltip_text;
 			launcherIcon->is_app_desktop = 1;
 			launcherIcon->cmd = strdup(entry.exec);
 			launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(ICON_FALLBACK);
 			launcherIcon->icon_size = 1;
+			launcherIcon->icon_tooltip = entry.name ? strdup(entry.name) : strdup(entry.exec);
 			free_desktop_entry(&entry);
 			launcher->list_icons = g_slist_append(launcher->list_icons, launcherIcon);
+			add_area(&launcherIcon->area);
 		}
 		app = g_slist_next(app);
 	}

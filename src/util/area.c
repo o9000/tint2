@@ -444,7 +444,7 @@ void add_area (Area *a)
 {
 	Area *parent = (Area*)a->parent;
 
-	parent->list = g_slist_remove(parent->list, a);
+	parent->list = g_slist_append(parent->list, a);
 	set_redraw (parent);
 
 }
