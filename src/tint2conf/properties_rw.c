@@ -188,95 +188,78 @@ void add_entry (char *key, char *value)
 
 	/* Battery */
 	else if (strcmp (key, "battery_low_status") == 0) {
-#ifdef ENABLE_BATTERY
-		//battery_low_status = atoi(value);
-		//if(battery_low_status < 0 || battery_low_status > 100)
-			//battery_low_status = 0;
-#endif
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_alert_if_lower), atof(value));
 	}
 	else if (strcmp (key, "battery_low_cmd") == 0) {
-#ifdef ENABLE_BATTERY
-		//if (strlen(value) > 0)
-			//battery_low_cmd = strdup (value);
-#endif
+		gtk_entry_set_text(GTK_ENTRY(battery_alert_cmd), value);
 	}
 	else if (strcmp (key, "bat1_font") == 0) {
-#ifdef ENABLE_BATTERY
-		//bat1_font_desc = pango_font_description_from_string (value);
-#endif
+		gtk_font_button_set_font_name(GTK_FONT_BUTTON(battery_font_line1), value);
 	}
 	else if (strcmp (key, "bat2_font") == 0) {
-#ifdef ENABLE_BATTERY
-		//bat2_font_desc = pango_font_description_from_string (value);
-#endif
+		gtk_font_button_set_font_name(GTK_FONT_BUTTON(battery_font_line2), value);
 	}
 	else if (strcmp (key, "battery_font_color") == 0) {
-#ifdef ENABLE_BATTERY
 		extract_values(value, &value1, &value2, &value3);
-		//get_color (value1, panel_config.battery.font.color);
-		//if (value2) panel_config.battery.font.alpha = (atoi (value2) / 100.0);
-		//else panel_config.battery.font.alpha = 0.5;
-#endif
+		GdkColor col;
+		hex2gdk(value1, &col);
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(battery_font_color), &col);
+		if (value2) {
+			int alpha = atoi(value2);
+			gtk_color_button_set_alpha(GTK_COLOR_BUTTON(battery_font_color), (alpha*65535)/100);
+		}
 	}
 	else if (strcmp (key, "battery_padding") == 0) {
-#ifdef ENABLE_BATTERY
 		extract_values(value, &value1, &value2, &value3);
-		//panel_config.battery.area.paddingxlr = panel_config.battery.area.paddingx = atoi (value1);
-		//if (value2) panel_config.battery.area.paddingy = atoi (value2);
-		//if (value3) panel_config.battery.area.paddingx = atoi (value3);
-#endif
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_padding_x), atof(value1));
+		if (value2) gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_padding_y), atof(value2));
 	}
 	else if (strcmp (key, "battery_background_id") == 0) {
-#ifdef ENABLE_BATTERY
 		//int id = atoi (value);
 		//id = (id < backgrounds->len && id >= 0) ? id : 0;
 		//panel_config.battery.area.bg = &g_array_index(backgrounds, Background, id);
-#endif
 	}
 	else if (strcmp (key, "battery_hide") == 0) {
-#ifdef ENABLE_BATTERY
-		//percentage_hide = atoi (value);
-		//if (percentage_hide == 0)
-		//	percentage_hide = 101;
-#endif
+		int percentage_hide = atoi (value);
+		if (percentage_hide == 0)
+			gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_hide_if_higher), 101.0);
+		else
+			gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_hide_if_higher), atof(value));
 	}
 
 	/* Clock */
 	else if (strcmp (key, "time1_format") == 0) {
-		//if (strlen(value) > 0) {
-			//time1_format = strdup (value);
-			//clock_enabled = 1;
-		//}
+		gtk_entry_set_text(GTK_ENTRY(clock_format_line1), value);
 	}
 	else if (strcmp (key, "time2_format") == 0) {
-		//if (strlen(value) > 0)
-			//time2_format = strdup (value);
+		gtk_entry_set_text(GTK_ENTRY(clock_format_line2), value);
 	}
 	else if (strcmp (key, "time1_font") == 0) {
-		//time1_font_desc = pango_font_description_from_string (value);
+		gtk_font_button_set_font_name(GTK_FONT_BUTTON(clock_font_line1), value);
 	}
 	else if (strcmp(key, "time1_timezone") == 0) {
-		//if (strlen(value) > 0)
-			//time1_timezone = strdup(value);
+		gtk_entry_set_text(GTK_ENTRY(clock_tmz_line1), value);
 	}
 	else if (strcmp(key, "time2_timezone") == 0) {
-		//if (strlen(value) > 0)
-			//time2_timezone = strdup(value);
+		gtk_entry_set_text(GTK_ENTRY(clock_tmz_line2), value);
 	}
 	else if (strcmp (key, "time2_font") == 0) {
-		//time2_font_desc = pango_font_description_from_string (value);
+		gtk_font_button_set_font_name(GTK_FONT_BUTTON(clock_font_line2), value);
 	}
 	else if (strcmp (key, "clock_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		//get_color (value1, panel_config.clock.font.color);
-		//if (value2) panel_config.clock.font.alpha = (atoi (value2) / 100.0);
-		//else panel_config.clock.font.alpha = 0.5;
+		GdkColor col;
+		hex2gdk(value1, &col);
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(clock_font_color), &col);
+		if (value2) {
+			int alpha = atoi(value2);
+			gtk_color_button_set_alpha(GTK_COLOR_BUTTON(clock_font_color), (alpha*65535)/100);
+		}
 	}
 	else if (strcmp (key, "clock_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		//panel_config.clock.area.paddingxlr = panel_config.clock.area.paddingx = atoi (value1);
-		//if (value2) panel_config.clock.area.paddingy = atoi (value2);
-		//if (value3) panel_config.clock.area.paddingx = atoi (value3);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(clock_padding_x), atof(value1));
+		if (value2) gtk_spin_button_set_value(GTK_SPIN_BUTTON(clock_padding_y), atof(value2));
 	}
 	else if (strcmp (key, "clock_background_id") == 0) {
 		//int id = atoi (value);
@@ -284,20 +267,16 @@ void add_entry (char *key, char *value)
 		//panel_config.clock.area.bg = &g_array_index(backgrounds, Background, id);
 	}
 	else if (strcmp(key, "clock_tooltip") == 0) {
-		//if (strlen(value) > 0)
-			//time_tooltip_format = strdup (value);
+		gtk_entry_set_text(GTK_ENTRY(clock_format_tooltip), value);
 	}
 	else if (strcmp(key, "clock_tooltip_timezone") == 0) {
-		//if (strlen(value) > 0)
-			//time_tooltip_timezone = strdup(value);
+		gtk_entry_set_text(GTK_ENTRY(clock_tmz_tooltip), value);
 	}
 	else if (strcmp(key, "clock_lclick_command") == 0) {
-		//if (strlen(value) > 0)
-			//clock_lclick_command = strdup(value);
+		gtk_entry_set_text(GTK_ENTRY(clock_left_command), value);
 	}
 	else if (strcmp(key, "clock_rclick_command") == 0) {
-		//if (strlen(value) > 0)
-			//clock_rclick_command = strdup(value);
+		gtk_entry_set_text(GTK_ENTRY(clock_right_command), value);
 	}
 
 	/* Taskbar */
@@ -442,9 +421,10 @@ void add_entry (char *key, char *value)
 	/* Systray */
 	else if (strcmp (key, "systray_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		//systray.area.paddingxlr = systray.area.paddingx = atoi (value1);
-		//if (value2) systray.area.paddingy = atoi (value2);
-		//if (value3) systray.area.paddingx = atoi (value3);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_padding_x), atof(value1));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_spacing), atof(value1));
+		if (value2) gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_padding_y), atof(value2));
+		if (value3) gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_spacing), atof(value3));
 	}
 	else if (strcmp (key, "systray_background_id") == 0) {
 		//int id = atoi (value);
@@ -462,13 +442,13 @@ void add_entry (char *key, char *value)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_icon_order), 2);
 	}
 	else if (strcmp(key, "systray_icon_size") == 0) {
-		//systray_max_icon_size = atoi(value);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_size), atof(value));
 	}
 	else if (strcmp(key, "systray_icon_asb") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		//systray.alpha = atoi(value1);
-		//systray.saturation = atoi(value2);
-		//systray.brightness = atoi(value3);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_opacity), atof(value1));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_saturation), atof(value2));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_brightness), atof(value3));
 	}
 
 	/* Launcher */

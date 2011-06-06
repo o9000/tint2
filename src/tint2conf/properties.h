@@ -17,11 +17,17 @@ GtkWidget  *taskbar_name_padding_x, *taskbar_name_inactive_color, *taskbar_name_
 // task
 
 // clock
+GtkWidget  *clock_format_line1, *clock_format_line2, *clock_format_tooltip, *clock_tmz_line1, *clock_tmz_line2, *clock_tmz_tooltip;
+GtkWidget  *clock_left_command, *clock_right_command;
+GtkWidget  *clock_padding_x, *clock_padding_y, *clock_font_line1, *clock_font_line2, *clock_font_color;
 
 // battery
+GtkWidget  *battery_hide_if_higher, *battery_alert_if_lower, *battery_alert_cmd;
+GtkWidget  *battery_padding_x, *battery_padding_y, *battery_font_line1, *battery_font_line2, *battery_font_color;
 
 // systray
-GtkWidget  *systray_icon_order;
+GtkWidget  *systray_icon_order, *systray_padding_x, *systray_padding_y, *systray_spacing;
+GtkWidget  *systray_icon_size, *systray_icon_opacity, *systray_icon_saturation, *systray_icon_brightness;
 
 // tooltip
 

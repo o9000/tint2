@@ -602,7 +602,6 @@ void create_launcher(GtkWidget  *parent)
 void create_taskbar(GtkWidget  *parent)
 {
 	GtkWidget  *table, *label;
-	GtkWidget  *margin_x, *margin_y, *combo_background;
 
 	table = gtk_table_new (2, 2, FALSE);
 	gtk_widget_show (table);
@@ -971,7 +970,6 @@ void create_task(GtkWidget  *parent)
 void create_clock(GtkWidget  *parent)
 {
 	GtkWidget  *table;
-	GtkWidget  *margin_x, *margin_y, *combo_background;
 	GtkWidget  *label;
 
 	table = gtk_table_new (1, 2, FALSE);
@@ -998,60 +996,60 @@ void create_clock(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_entry_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_width_chars (GTK_ENTRY (margin_x), 16);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	clock_format_line1 = gtk_entry_new ();
+	gtk_widget_show (clock_format_line1);
+	gtk_entry_set_width_chars (GTK_ENTRY (clock_format_line1), 16);
+	gtk_table_attach (GTK_TABLE (table), clock_format_line1, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Second line format"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_entry_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_width_chars (GTK_ENTRY (margin_x), 16);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	clock_format_line2 = gtk_entry_new ();
+	gtk_widget_show (clock_format_line2);
+	gtk_entry_set_width_chars (GTK_ENTRY (clock_format_line2), 16);
+	gtk_table_attach (GTK_TABLE (table), clock_format_line2, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Tooltip format"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_entry_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_width_chars (GTK_ENTRY (margin_x), 16);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	clock_format_tooltip = gtk_entry_new ();
+	gtk_widget_show (clock_format_tooltip);
+	gtk_entry_set_width_chars (GTK_ENTRY (clock_format_tooltip), 16);
+	gtk_table_attach (GTK_TABLE (table), clock_format_tooltip, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("First line timezone"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_entry_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_width_chars (GTK_ENTRY (margin_x), 16);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	clock_tmz_line1 = gtk_entry_new ();
+	gtk_widget_show (clock_tmz_line1);
+	gtk_entry_set_width_chars (GTK_ENTRY (clock_tmz_line1), 16);
+	gtk_table_attach (GTK_TABLE (table), clock_tmz_line1, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Second line timezone"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_entry_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_width_chars (GTK_ENTRY (margin_x), 16);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	clock_tmz_line2 = gtk_entry_new ();
+	gtk_widget_show (clock_tmz_line2);
+	gtk_entry_set_width_chars (GTK_ENTRY (clock_tmz_line2), 16);
+	gtk_table_attach (GTK_TABLE (table), clock_tmz_line2, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Tooltip timezone"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_entry_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_width_chars (GTK_ENTRY (margin_x), 16);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+	clock_tmz_tooltip = gtk_entry_new ();
+	gtk_widget_show (clock_tmz_tooltip);
+	gtk_entry_set_width_chars (GTK_ENTRY (clock_tmz_tooltip), 16);
+	gtk_table_attach (GTK_TABLE (table), clock_tmz_tooltip, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
 
 	change_paragraph(parent);
 
@@ -1072,20 +1070,20 @@ void create_clock(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_entry_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_width_chars (GTK_ENTRY (margin_x), 16);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	clock_left_command = gtk_entry_new ();
+	gtk_widget_show (clock_left_command);
+	gtk_entry_set_width_chars (GTK_ENTRY (clock_left_command), 16);
+	gtk_table_attach (GTK_TABLE (table), clock_left_command, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Right click command"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_entry_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_width_chars (GTK_ENTRY (margin_x), 16);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	clock_right_command = gtk_entry_new ();
+	gtk_widget_show (clock_right_command);
+	gtk_entry_set_width_chars (GTK_ENTRY (clock_right_command), 16);
+	gtk_table_attach (GTK_TABLE (table), clock_right_command, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
 
 	change_paragraph(parent);
 
@@ -1106,20 +1104,20 @@ void create_clock(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_spin_button_new_with_range (0, 500, 1);
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	clock_padding_x = gtk_spin_button_new_with_range (0, 500, 1);
+	gtk_widget_show (clock_padding_x);
+	gtk_entry_set_max_length (GTK_ENTRY (clock_padding_x), 3);
+	gtk_table_attach (GTK_TABLE (table), clock_padding_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Vertical padding"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
 
-	margin_y = gtk_spin_button_new_with_range (0, 500, 1);
-	gtk_widget_show (margin_y);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_y), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_y, 3, 4, 1, 2,  GTK_FILL, 0, 0, 0);
+	clock_padding_y = gtk_spin_button_new_with_range (0, 500, 1);
+	gtk_widget_show (clock_padding_y);
+	gtk_entry_set_max_length (GTK_ENTRY (clock_padding_y), 3);
+	gtk_table_attach (GTK_TABLE (table), clock_padding_y, 3, 4, 1, 2,  GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Background"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
@@ -1138,30 +1136,30 @@ void create_clock(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_font_button_new ();
-	gtk_widget_show (margin_x);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 22, 0, 1, GTK_FILL, 0, 0, 0);
-//	gtk_font_button_set_show_style (GTK_FONT_BUTTON (margin_x), FALSE);
+	clock_font_line1 = gtk_font_button_new ();
+	gtk_widget_show (clock_font_line1);
+	gtk_table_attach (GTK_TABLE (table), clock_font_line1, 7, 22, 0, 1, GTK_FILL, 0, 0, 0);
+//	gtk_font_button_set_show_style (GTK_FONT_BUTTON (clock_font_line1), FALSE);
 
 	label = gtk_label_new (_("Font second line"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_font_button_new ();
-	gtk_widget_show (margin_x);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 22, 1, 2, GTK_FILL, 0, 0, 0);
-//	gtk_font_button_set_show_style (GTK_FONT_BUTTON (margin_x), FALSE);
+	clock_font_line2 = gtk_font_button_new ();
+	gtk_widget_show (clock_font_line2);
+	gtk_table_attach (GTK_TABLE (table), clock_font_line2, 7, 22, 1, 2, GTK_FILL, 0, 0, 0);
+//	gtk_font_button_set_show_style (GTK_FONT_BUTTON (clock_font_line2), FALSE);
 
 	label = gtk_label_new (_("Font color"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_color_button_new();
-	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(margin_x), TRUE);
-	gtk_widget_show (margin_x);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+	clock_font_color = gtk_color_button_new();
+	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(clock_font_color), TRUE);
+	gtk_widget_show (clock_font_color);
+	gtk_table_attach (GTK_TABLE (table), clock_font_color, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
 
 	change_paragraph(parent);
 }
@@ -1170,7 +1168,6 @@ void create_clock(GtkWidget  *parent)
 void create_systemtray(GtkWidget  *parent)
 {
 	GtkWidget  *table;
-	GtkWidget  *margin_x, *margin_y;
 	GtkWidget  *label;
 
 	table = gtk_table_new (2, 2, FALSE);
@@ -1211,30 +1208,30 @@ void create_systemtray(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_spin_button_new_with_range (0, 500, 1);
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	systray_padding_x = gtk_spin_button_new_with_range (0, 500, 1);
+	gtk_widget_show (systray_padding_x);
+	gtk_entry_set_max_length (GTK_ENTRY (systray_padding_x), 3);
+	gtk_table_attach (GTK_TABLE (table), systray_padding_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Vertical padding"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
 
-	margin_y = gtk_spin_button_new_with_range (0, 500, 1);
-	gtk_widget_show (margin_y);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_y), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_y, 3, 4, 1, 2,  GTK_FILL, 0, 0, 0);
+	systray_padding_y = gtk_spin_button_new_with_range (0, 500, 1);
+	gtk_widget_show (systray_padding_y);
+	gtk_entry_set_max_length (GTK_ENTRY (systray_padding_y), 3);
+	gtk_table_attach (GTK_TABLE (table), systray_padding_y, 3, 4, 1, 2,  GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Spacing"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_spin_button_new_with_range (0, 500, 1);
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	systray_spacing = gtk_spin_button_new_with_range (0, 500, 1);
+	gtk_widget_show (systray_spacing);
+	gtk_entry_set_max_length (GTK_ENTRY (systray_spacing), 3);
+	gtk_table_attach (GTK_TABLE (table), systray_spacing, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Background"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
@@ -1253,40 +1250,40 @@ void create_systemtray(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_spin_button_new_with_range (0, 500, 1);
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	systray_icon_size = gtk_spin_button_new_with_range (0, 500, 1);
+	gtk_widget_show (systray_icon_size);
+	gtk_entry_set_max_length (GTK_ENTRY (systray_icon_size), 3);
+	gtk_table_attach (GTK_TABLE (table), systray_icon_size, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Icon opacity"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_spin_button_new_with_range (0, 100, 1);
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	systray_icon_opacity = gtk_spin_button_new_with_range (0, 100, 1);
+	gtk_widget_show (systray_icon_opacity);
+	gtk_entry_set_max_length (GTK_ENTRY (systray_icon_opacity), 3);
+	gtk_table_attach (GTK_TABLE (table), systray_icon_opacity, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Icon saturation"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_spin_button_new_with_range (-100, 100, 1);
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+	systray_icon_saturation = gtk_spin_button_new_with_range (-100, 100, 1);
+	gtk_widget_show (systray_icon_saturation);
+	gtk_entry_set_max_length (GTK_ENTRY (systray_icon_saturation), 4);
+	gtk_table_attach (GTK_TABLE (table), systray_icon_saturation, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Icon brightness"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 3, 4, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_spin_button_new_with_range (-100, 100, 1);
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 8, 3, 4, GTK_FILL, 0, 0, 0);
+	systray_icon_brightness = gtk_spin_button_new_with_range (-100, 100, 1);
+	gtk_widget_show (systray_icon_brightness);
+	gtk_entry_set_max_length (GTK_ENTRY (systray_icon_brightness), 4);
+	gtk_table_attach (GTK_TABLE (table), systray_icon_brightness, 7, 8, 3, 4, GTK_FILL, 0, 0, 0);
 
 }
 
@@ -1294,7 +1291,6 @@ void create_systemtray(GtkWidget  *parent)
 void create_battery(GtkWidget  *parent)
 {
 	GtkWidget  *table, *label;
-	GtkWidget  *margin_x, *margin_y, *combo_background, *alert_command;
 
 	table = gtk_table_new (1, 2, FALSE);
 	gtk_widget_show (table);
@@ -1319,10 +1315,10 @@ void create_battery(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_spin_button_new_with_range (0, 100, 1);
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	battery_hide_if_higher = gtk_spin_button_new_with_range (0, 101, 1);
+	gtk_widget_show (battery_hide_if_higher);
+	gtk_entry_set_max_length (GTK_ENTRY (battery_hide_if_higher), 3);
+	gtk_table_attach (GTK_TABLE (table), battery_hide_if_higher, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("%"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
@@ -1334,10 +1330,10 @@ void create_battery(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_spin_button_new_with_range (0, 100, 1);
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	battery_alert_if_lower = gtk_spin_button_new_with_range (0, 100, 1);
+	gtk_widget_show (battery_alert_if_lower);
+	gtk_entry_set_max_length (GTK_ENTRY (battery_alert_if_lower), 3);
+	gtk_table_attach (GTK_TABLE (table), battery_alert_if_lower, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("%"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
@@ -1349,10 +1345,10 @@ void create_battery(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
 
-	alert_command = gtk_entry_new ();
-	gtk_widget_show (alert_command);
-	gtk_entry_set_width_chars (GTK_ENTRY (alert_command), 20);
-	gtk_table_attach (GTK_TABLE (table), alert_command, 8, 9, 1, 2, GTK_FILL, 0, 0, 0);
+	battery_alert_cmd = gtk_entry_new ();
+	gtk_widget_show (battery_alert_cmd);
+	gtk_entry_set_width_chars (GTK_ENTRY (battery_alert_cmd), 28);
+	gtk_table_attach (GTK_TABLE (table), battery_alert_cmd, 8, 9, 1, 2, GTK_FILL, 0, 0, 0);
 
 
 	change_paragraph(parent);
@@ -1374,20 +1370,20 @@ void create_battery(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_spin_button_new_with_range (0, 500, 1);
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	battery_padding_x = gtk_spin_button_new_with_range (0, 500, 1);
+	gtk_widget_show (battery_padding_x);
+	gtk_entry_set_max_length (GTK_ENTRY (battery_padding_x), 3);
+	gtk_table_attach (GTK_TABLE (table), battery_padding_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Vertical padding"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
 
-	margin_y = gtk_spin_button_new_with_range (0, 500, 1);
-	gtk_widget_show (margin_y);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_y), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_y, 3, 4, 1, 2,  GTK_FILL, 0, 0, 0);
+	battery_padding_y = gtk_spin_button_new_with_range (0, 500, 1);
+	gtk_widget_show (battery_padding_y);
+	gtk_entry_set_max_length (GTK_ENTRY (battery_padding_y), 3);
+	gtk_table_attach (GTK_TABLE (table), battery_padding_y, 3, 4, 1, 2,  GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Background"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
@@ -1406,30 +1402,30 @@ void create_battery(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_font_button_new ();
-	gtk_widget_show (margin_x);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 22, 0, 1, GTK_FILL, 0, 0, 0);
-//	gtk_font_button_set_show_style (GTK_FONT_BUTTON (margin_x), FALSE);
+	battery_font_line1 = gtk_font_button_new ();
+	gtk_widget_show (battery_font_line1);
+	gtk_table_attach (GTK_TABLE (table), battery_font_line1, 7, 22, 0, 1, GTK_FILL, 0, 0, 0);
+//	gtk_font_button_set_show_style (GTK_FONT_BUTTON (battery_font_line1), FALSE);
 
 	label = gtk_label_new (_("Font second line"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_font_button_new ();
-	gtk_widget_show (margin_x);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 22, 1, 2, GTK_FILL, 0, 0, 0);
-//	gtk_font_button_set_show_style (GTK_FONT_BUTTON (margin_x), FALSE);
+	battery_font_line2 = gtk_font_button_new ();
+	gtk_widget_show (battery_font_line2);
+	gtk_table_attach (GTK_TABLE (table), battery_font_line2, 7, 22, 1, 2, GTK_FILL, 0, 0, 0);
+//	gtk_font_button_set_show_style (GTK_FONT_BUTTON (battery_font_line2), FALSE);
 
 	label = gtk_label_new (_("Font color"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_color_button_new();
-	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(margin_x), TRUE);
-	gtk_widget_show (margin_x);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+	battery_font_color = gtk_color_button_new();
+	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(battery_font_color), TRUE);
+	gtk_widget_show (battery_font_color);
+	gtk_table_attach (GTK_TABLE (table), battery_font_color, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
 
 	change_paragraph(parent);
 }
