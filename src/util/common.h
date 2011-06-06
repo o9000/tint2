@@ -49,6 +49,8 @@ int hex_char_to_int (char c);
 int hex_to_rgb (char *hex, int *r, int *g, int *b);
 void get_color (char *hex, double *rgb);
 
+void extract_values (const char *value, char **value1, char **value2, char **value3);
+
 // adjust Alpha/Saturation/Brightness on an ARGB icon
 // alpha from 0 to 100, satur from 0 to 1, bright from 0 to 1.
 void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright);

@@ -24,6 +24,7 @@
 #include "common.h"
 #include "theme_view.h"
 #include "properties.h"
+#include "properties_rw.h"
 
 #define SNAPSHOT_TICK 190
 
@@ -76,27 +77,27 @@ static const char *global_ui =
 	"      <menuitem action='ThemeSaveAs'/>"
 	"      <separator/>"
 	"      <menuitem action='ThemeDelete'/>"
-//	"      <separator/>"
-//	"      <menuitem action='ThemeProperties'/>"
+	"      <separator/>"
+	"      <menuitem action='ThemeProperties'/>"
 	"      <separator/>"
 	"      <menuitem action='ThemeQuit'/>"
 	"    </menu>"
 	"    <menu action='EditMenu'>"
 	"      <menuitem action='EditRefresh'/>"
 	"      <menuitem action='EditRefreshAll'/>"
-//	"      <separator/>"
-//	"      <menuitem action='EditPreferences'/>"
+	"      <separator/>"
+	"      <menuitem action='EditPreferences'/>"
 	"    </menu>"
 	"    <menu action='HelpMenu'>"
 	"      <menuitem action='HelpAbout'/>"
 	"    </menu>"
 	"  </menubar>"
 	"  <toolbar  name='ToolBar'>"
-//	"    <toolitem action='ThemeProperties'/>"
+	"    <toolitem action='ThemeProperties'/>"
 	"    <toolitem action='ViewApply'/>"
 	"  </toolbar>"
 	"  <popup  name='ThemePopup'>"
-//	"    <menuitem action='ThemeProperties'/>"
+	"    <menuitem action='ThemeProperties'/>"
 	"    <menuitem action='EditRefresh'/>"
 	"    <menuitem action='ViewApply'/>"
 	"    <separator/>"
@@ -134,6 +135,9 @@ int main (int argc, char ** argv)
 	initTheme();
 	g_set_application_name (_("tint2conf"));
 	gtk_window_set_default_icon_name("taskbar");
+	
+	// config file use '.' as decimal separator
+	setlocale(LC_NUMERIC, "POSIX");
 
 	// define main layout : container, menubar, toolbar
 	g_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -335,6 +339,7 @@ static void menuProperties()
 //*
 		GtkWidget *prop;
 		prop = create_properties();
+		config_read_file(file);
 		gtk_window_present(GTK_WINDOW(prop));
 		//printf("menuProperties : fin\n");
 //*/

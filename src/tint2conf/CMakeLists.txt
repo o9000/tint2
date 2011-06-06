@@ -20,6 +20,7 @@ include_directories( ../util
 set(SOURCES ../util/common.c
             main.c
             properties.c
+            properties_rw.c
             theme_view.c )
 link_directories( ${X11_T2C_LIBRARY_DIRS}
                   ${GLIB2_LIBRARY_DIRS}

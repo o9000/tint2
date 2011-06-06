@@ -146,6 +146,45 @@ void get_color (char *hex, double *rgb)
 }
 
 
+void extract_values (const char *value, char **value1, char **value2, char **value3)
+{
+	char *b=0, *c=0;
+
+	if (*value1) free (*value1);
+	if (*value2) free (*value2);
+	if (*value3) free (*value3);
+
+	if ((b = strchr (value, ' '))) {
+		b[0] = '\0';
+		b++;
+	}
+	else {
+		*value2 = 0;
+		*value3 = 0;
+	}
+	*value1 = strdup (value);
+	g_strstrip(*value1);
+
+	if (b) {
+		if ((c = strchr (b, ' '))) {
+			c[0] = '\0';
+			c++;
+		}
+		else {
+			c = 0;
+			*value3 = 0;
+		}
+		*value2 = strdup (b);
+		g_strstrip(*value2);
+	}
+
+	if (c) {
+		*value3 = strdup (c);
+		g_strstrip(*value3);
+	}
+}
+
+
 void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright)
 {
 	unsigned int x, y;

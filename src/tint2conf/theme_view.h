@@ -6,7 +6,7 @@
 
 extern GtkWidget *g_theme_view;
 extern GtkListStore *g_store;
-enum { COL_THEME_FILE = 0, COL_SNAPSHOT, NB_COL, };
+enum { COL_THEME_FILE = 0, COL_THEME_NAME, COL_SNAPSHOT, NB_COL, };
 
 GtkWidget *create_view();
 

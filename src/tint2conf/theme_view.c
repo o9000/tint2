@@ -35,7 +35,7 @@ GtkWidget *create_view()
 	GtkCellRenderer *renderer;
 	GtkWidget  *view;
 
-	g_store = gtk_list_store_new(NB_COL, G_TYPE_STRING, GDK_TYPE_PIXBUF);
+	g_store = gtk_list_store_new(NB_COL, G_TYPE_STRING, G_TYPE_STRING, GDK_TYPE_PIXBUF);
 
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(g_store));
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(view), TRUE);
@@ -48,6 +48,12 @@ GtkWidget *create_view()
 	gtk_tree_view_column_pack_start(col, renderer, TRUE);
 	gtk_tree_view_column_add_attribute(col, renderer, "text", COL_THEME_FILE);
 	gtk_tree_view_column_set_visible(col, FALSE);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(view),col);
+
+	renderer = gtk_cell_renderer_text_new();
+	col = gtk_tree_view_column_new();
+	gtk_tree_view_column_pack_start(col, renderer, TRUE);
+	gtk_tree_view_column_add_attribute(col, renderer, "text", COL_THEME_NAME);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view),col);
 
 	g_width_list = 200;
@@ -75,6 +81,13 @@ void custom_list_append(const gchar *name)
 
 	gtk_list_store_append(g_store, &iter);
 	gtk_list_store_set(g_store, &iter, COL_THEME_FILE, name, -1);
+
+	gchar *b, *n;
+	b = strrchr(name, '/');
+	n = g_strdup(b+1);
+	b = strrchr(n, '.');
+	*b = '\0';
+	gtk_list_store_set(g_store, &iter, COL_THEME_NAME, n, -1);
 }
 
 
