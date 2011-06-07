@@ -415,7 +415,7 @@ void add_entry (char *key, char *value)
 	}
 	// "tooltip" is deprecated but here for backwards compatibility
 	else if (strcmp (key, "task_tooltip") == 0 || strcmp(key, "tooltip") == 0) {
-		//panel_config.g_task.tooltip_enabled = atoi(value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tooltip_task_show), atoi(value));
 	}
 
 	/* Systray */
@@ -454,9 +454,10 @@ void add_entry (char *key, char *value)
 	/* Launcher */
 	else if (strcmp (key, "launcher_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		//panel_config.launcher.area.paddingxlr = panel_config.launcher.area.paddingx = atoi (value1);
-		//if (value2) panel_config.launcher.area.paddingy = atoi (value2);
-		//if (value3) panel_config.launcher.area.paddingx = atoi (value3);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_padding_x), atof(value1));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_spacing), atof(value1));
+		if (value2) gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_padding_y), atof(value2));
+		if (value3) gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_spacing), atof(value3));
 	}
 	else if (strcmp (key, "launcher_background_id") == 0) {
 		//int id = atoi (value);
@@ -464,7 +465,7 @@ void add_entry (char *key, char *value)
 		//panel_config.launcher.area.bg = &g_array_index(backgrounds, Background, id);
 	}
 	else if (strcmp(key, "launcher_icon_size") == 0) {
-		//launcher_max_icon_size = atoi(value);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_size), atof(value));
 	}
 	else if (strcmp(key, "launcher_item_app") == 0) {
 		//char *app = strdup(value);
@@ -477,15 +478,15 @@ void add_entry (char *key, char *value)
 
 	/* Tooltip */
 	else if (strcmp (key, "tooltip_show_timeout") == 0) {
-		//int timeout_msec = 1000*atof(value);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_show_after), atof(value));
 	}
 	else if (strcmp (key, "tooltip_hide_timeout") == 0) {
-		//int timeout_msec = 1000*atof(value);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_hide_after), atof(value));
 	}
 	else if (strcmp (key, "tooltip_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		//if (value1) g_tooltip.paddingx = atoi(value1);
-		//if (value2) g_tooltip.paddingy = atoi(value2);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_padding_x), atof(value1));
+		if (value2) gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_padding_y), atof(value2));
 	}
 	else if (strcmp (key, "tooltip_background_id") == 0) {
 		//int id = atoi (value);
@@ -494,12 +495,16 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "tooltip_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		//get_color(value1, g_tooltip.font_color.color);
-		//if (value2) g_tooltip.font_color.alpha = (atoi (value2) / 100.0);
-		//else g_tooltip.font_color.alpha = 0.1;
+		GdkColor col;
+		hex2gdk(value1, &col);
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(tooltip_font_color), &col);
+		if (value2) {
+			int alpha = atoi(value2);
+			gtk_color_button_set_alpha(GTK_COLOR_BUTTON(tooltip_font_color), (alpha*65535)/100);
+		}
 	}
 	else if (strcmp (key, "tooltip_font") == 0) {
-		//g_tooltip.font_desc = pango_font_description_from_string(value);
+		gtk_font_button_set_font_name(GTK_FONT_BUTTON(tooltip_font), value);
 	}
 
 	/* Mouse actions */

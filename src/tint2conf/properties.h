@@ -17,7 +17,7 @@ GtkWidget  *taskbar_name_padding_x, *taskbar_name_inactive_color, *taskbar_name_
 // task
 
 // clock
-GtkWidget  *clock_format_line1, *clock_format_line2, *clock_format_tooltip, *clock_tmz_line1, *clock_tmz_line2, *clock_tmz_tooltip;
+GtkWidget  *clock_format_line1, *clock_format_line2, *clock_tmz_line1, *clock_tmz_line2;
 GtkWidget  *clock_left_command, *clock_right_command;
 GtkWidget  *clock_padding_x, *clock_padding_y, *clock_font_line1, *clock_font_line2, *clock_font_color;
 
@@ -30,8 +30,12 @@ GtkWidget  *systray_icon_order, *systray_padding_x, *systray_padding_y, *systray
 GtkWidget  *systray_icon_size, *systray_icon_opacity, *systray_icon_saturation, *systray_icon_brightness;
 
 // tooltip
+GtkWidget  *tooltip_padding_x, *tooltip_padding_y, *tooltip_font, *tooltip_font_color;
+GtkWidget  *tooltip_task_show, *tooltip_show_after, *tooltip_hide_after;
+GtkWidget  *clock_format_tooltip, *clock_tmz_tooltip;
 
 // launcher
+GtkWidget  *launcher_icon_size, *launcher_icon_theme, *launcher_padding_x, *launcher_padding_y, *launcher_spacing;
 
 // background
 GtkWidget  *combo_background;
