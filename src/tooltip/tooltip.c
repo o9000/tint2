@@ -99,7 +99,10 @@ void tooltip_show(void* arg)
 	int mx, my;
 	Window w;
 	XTranslateCoordinates( server.dsp, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
-	Area* area = click_area(g_tooltip.panel, mx, my);
+	Area* area;
+	if (!panel_horizontal)
+		my += height/2; /* we adjusted y in tooltip_trigger_show, revert or we won't find the correct area anymore */
+	area = click_area(g_tooltip.panel, mx, my);
 	stop_tooltip_timeout();
 	if (!g_tooltip.mapped && area->_get_tooltip_text) {
 		tooltip_copy_text(area);
