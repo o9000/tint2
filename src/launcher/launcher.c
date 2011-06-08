@@ -701,7 +701,7 @@ void launcher_load_themes(Launcher *launcher)
 	// avoid inheritance loops
 	if (!icon_theme_name) {
 		fprintf(stderr, "Missing launcher theme, default to 'hicolor'.\n");
-		icon_theme_name = "hicolor";
+		icon_theme_name = strdup("hicolor");
 	}
 	else
 		fprintf(stderr, "Loading %s. Icon theme :", icon_theme_name);
