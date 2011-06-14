@@ -15,6 +15,9 @@ GtkWidget  *taskbar_show_desktop, *taskbar_show_name, *taskbar_padding_x, *taskb
 GtkWidget  *taskbar_name_padding_x, *taskbar_name_inactive_color, *taskbar_name_active_color, *taskbar_name_font;
 
 // task
+GtkWidget  *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up,  *task_mouse_scroll_down;
+GtkWidget  *task_show_icon, *task_show_text, *task_align_center,  *task_font_shadow;
+GtkWidget  *task_maximum_width, *task_maximum_height, *task_padding_x, *task_padding_y, *task_font;
 
 // clock
 GtkWidget  *clock_format_line1, *clock_format_line2, *clock_tmz_line1, *clock_tmz_line2;

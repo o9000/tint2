@@ -11,6 +11,7 @@
 
 void add_entry (char *key, char *value);
 void hex2gdk(char *hex, GdkColor *color);
+void get_action(char *event, GtkWidget *combo);
 
 
 
@@ -151,12 +152,6 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "panel_monitor") == 0) {
 		//panel_config.monitor = config_get_monitor(value);
-	}
-	else if (strcmp (key, "font_shadow") == 0) {
-		//panel_config.g_task.font_shadow = atoi (value);
-	}
-	else if (strcmp (key, "urgent_nb_of_blink") == 0) {
-		//max_tick_urgent = atoi (value);
 	}
 	
 	/* autohide options */
@@ -350,34 +345,39 @@ void add_entry (char *key, char *value)
 
 	/* Task */
 	else if (strcmp (key, "task_text") == 0) {
-		//panel_config.g_task.text = atoi (value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_show_text), atoi(value));
 	}
 	else if (strcmp (key, "task_icon") == 0) {
-		//panel_config.g_task.icon = atoi (value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_show_icon), atoi(value));
 	}
 	else if (strcmp (key, "task_centered") == 0) {
-		//panel_config.g_task.centered = atoi (value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_align_center), atoi(value));
+	}
+	else if (strcmp (key, "font_shadow") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_font_shadow), atoi(value));
+	}
+	else if (strcmp (key, "urgent_nb_of_blink") == 0) {
+		//max_tick_urgent = atoi (value);
 	}
 	else if (strcmp (key, "task_width") == 0) {
 		// old parameter : just for backward compatibility
-		//panel_config.g_task.maximum_width = atoi (value);
-		//panel_config.g_task.maximum_height = 30;
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_width), atof(value));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_height), 30.0);
 	}
 	else if (strcmp (key, "task_maximum_size") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		//panel_config.g_task.maximum_width = atoi (value1);
-		//panel_config.g_task.maximum_height = 30;
-		//if (value2)
-			//panel_config.g_task.maximum_height = atoi (value2);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_width), atof(value1));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_height), 30.0);
+		if (value2)
+			gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_height), atof(value2));
 	}
 	else if (strcmp (key, "task_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		//panel_config.g_task.area.paddingxlr = panel_config.g_task.area.paddingx = atoi (value1);
-		//if (value2) panel_config.g_task.area.paddingy = atoi (value2);
-		//if (value3) panel_config.g_task.area.paddingx = atoi (value3);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_padding_x), atof(value1));
+		if (value2) gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_padding_y), atof(value2));
 	}
 	else if (strcmp (key, "task_font") == 0) {
-		//panel_config.g_task.font_desc = pango_font_description_from_string (value);
+		gtk_font_button_set_font_name(GTK_FONT_BUTTON(task_font), value);
 	}
 	else if (g_regex_match_simple("task.*_font_color", key, 0, 0)) {
 		/*gchar** split = g_regex_split_simple("_", key, 0, 0);
@@ -509,13 +509,16 @@ void add_entry (char *key, char *value)
 
 	/* Mouse actions */
 	else if (strcmp (key, "mouse_middle") == 0) {
-		//get_action (value, &mouse_middle);
+		get_action(value, task_mouse_middle);
 	}
 	else if (strcmp (key, "mouse_right") == 0) {
+		get_action(value, task_mouse_right);
 	}
 	else if (strcmp (key, "mouse_scroll_up") == 0) {
+		get_action(value, task_mouse_scroll_up);
 	}
 	else if (strcmp (key, "mouse_scroll_down") == 0) {
+		get_action(value, task_mouse_scroll_down);
 	}
 
 	if (value1) free (value1);
@@ -533,4 +536,30 @@ void hex2gdk(char *hex, GdkColor *color)
 	color->blue  = 257 * (hex_char_to_int (hex[5]) * 16 + hex_char_to_int (hex[6]));
 }
 
+
+void get_action(char *event, GtkWidget *combo)
+{
+	if (strcmp (event, "none") == 0)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
+	else if (strcmp (event, "close") == 0)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 1);
+	else if (strcmp (event, "toggle") == 0)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 2);
+	else if (strcmp (event, "iconify") == 0)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 3);
+	else if (strcmp (event, "shade") == 0)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 4);
+	else if (strcmp (event, "toggle_iconify") == 0)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 5);
+	else if (strcmp (event, "maximize_restore") == 0)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 6);
+	else if (strcmp (event, "desktop_left") == 0)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 7);
+	else if (strcmp (event, "desktop_right") == 0)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 8);
+	else if (strcmp (event, "next_task") == 0)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 9);
+	else if (strcmp (event, "prev_task") == 0)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 10);
+}
 

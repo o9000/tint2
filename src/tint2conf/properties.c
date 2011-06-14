@@ -781,7 +781,6 @@ void create_taskbar(GtkWidget  *parent)
 void create_task(GtkWidget  *parent)
 {
 	GtkWidget  *table, *label, *notebook, *page_task;
-	GtkWidget  *margin_x, *combo_background;
 
 	label = gtk_label_new (_("<b>Mouse action</b>"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
@@ -800,80 +799,80 @@ void create_task(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
 
-	combo_background = gtk_combo_box_new_text ();
-	gtk_widget_show (combo_background);
-	gtk_table_attach (GTK_TABLE (table), combo_background, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("none"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("close"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("toggle"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("iconify"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("shade"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("toggle_iconify"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("maximize_restore"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("desktop_left"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("desktop_right"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("next_task"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("previous_task"));
+	task_mouse_middle = gtk_combo_box_new_text ();
+	gtk_widget_show (task_mouse_middle);
+	gtk_table_attach (GTK_TABLE (table), task_mouse_middle, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_middle), _("None"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_middle), _("Close"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_middle), _("Toggle"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_middle), _("Iconify"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_middle), _("sShade"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_middle), _("Toggle or iconify"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_middle), _("Maximize or restore"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_middle), _("Desktop left"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_middle), _("Desktop right"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_middle), _("Next task"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_middle), _("Previous task"));
 
 	label = gtk_label_new (_("Wheel scroll up"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
 
-	combo_background = gtk_combo_box_new_text ();
-	gtk_widget_show (combo_background);
-	gtk_table_attach (GTK_TABLE (table), combo_background, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("none"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("close"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("toggle"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("iconify"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("shade"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("toggle_iconify"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("maximize_restore"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("desktop_left"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("desktop_right"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("next_task"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("previous_task"));
+	task_mouse_scroll_up = gtk_combo_box_new_text ();
+	gtk_widget_show (task_mouse_scroll_up);
+	gtk_table_attach (GTK_TABLE (table), task_mouse_scroll_up, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_up), _("None"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_up), _("Close"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_up), _("Toggle"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_up), _("Iconify"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_up), _("Shade"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_up), _("Toggle or iconify"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_up), _("Maximize or restore"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_up), _("Desktop left"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_up), _("Desktop right"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_up), _("Next task"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_up), _("Previous task"));
 
 	label = gtk_label_new (_("Right click"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
 
-	combo_background = gtk_combo_box_new_text ();
-	gtk_widget_show (combo_background);
-	gtk_table_attach (GTK_TABLE (table), combo_background, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("none"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("close"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("toggle"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("iconify"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("shade"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("toggle_iconify"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("maximize_restore"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("desktop_left"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("desktop_right"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("next_task"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("previous_task"));
+	task_mouse_right = gtk_combo_box_new_text ();
+	gtk_widget_show (task_mouse_right);
+	gtk_table_attach (GTK_TABLE (table), task_mouse_right, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_right), _("None"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_right), _("Close"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_right), _("Toggle"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_right), _("Iconify"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_right), _("Shade"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_right), _("Toggle or iconify"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_right), _("Maximize or restore"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_right), _("Desktop left"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_right), _("Desktop right"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_right), _("Next task"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_right), _("Previous task"));
 
 	label = gtk_label_new (_("Wheel scroll down"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
 
-	combo_background = gtk_combo_box_new_text ();
-	gtk_widget_show (combo_background);
-	gtk_table_attach (GTK_TABLE (table), combo_background, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("none"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("close"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("toggle"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("iconify"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("shade"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("toggle_iconify"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("maximize_restore"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("desktop_left"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("desktop_right"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("next_task"));
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_background), _("previous_task"));
+	task_mouse_scroll_down = gtk_combo_box_new_text ();
+	gtk_widget_show (task_mouse_scroll_down);
+	gtk_table_attach (GTK_TABLE (table), task_mouse_scroll_down, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_down), _("None"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_down), _("Close"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_down), _("Toggle"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_down), _("Iconify"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_down), _("Shade"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_down), _("Toggle or iconify"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_down), _("Maximize or restore"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_down), _("Desktop left"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_down), _("Desktop right"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_down), _("Next task"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (task_mouse_scroll_down), _("Previous task"));
 
 	change_paragraph(parent);
 
@@ -883,7 +882,7 @@ void create_task(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_box_pack_start(GTK_BOX (parent), label, FALSE, FALSE, 0);
 
-	table = gtk_table_new (4, 10, FALSE);
+	table = gtk_table_new (4, 13, FALSE);
 	gtk_widget_show (table);
 	gtk_box_pack_start (GTK_BOX (parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings (GTK_TABLE (table), ROW_SPACING);
@@ -894,40 +893,86 @@ void create_task(GtkWidget  *parent)
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_check_button_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	task_show_icon = gtk_check_button_new ();
+	gtk_widget_show (task_show_icon);
+	gtk_entry_set_max_length (GTK_ENTRY (task_show_icon), 3);
+	gtk_table_attach (GTK_TABLE (table), task_show_icon, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Show text"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_check_button_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	task_show_text = gtk_check_button_new ();
+	gtk_widget_show (task_show_text);
+	gtk_entry_set_max_length (GTK_ENTRY (task_show_text), 3);
+	gtk_table_attach (GTK_TABLE (table), task_show_text, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Align center"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_check_button_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	task_align_center = gtk_check_button_new ();
+	gtk_widget_show (task_align_center);
+	gtk_entry_set_max_length (GTK_ENTRY (task_align_center), 3);
+	gtk_table_attach (GTK_TABLE (table), task_align_center, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
 
 	label = gtk_label_new (_("Font shadow"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
 	gtk_widget_show (label);
 	gtk_table_attach (GTK_TABLE (table), label, 2, 3, 3, 4, GTK_FILL, 0, 0, 0);
 
-	margin_x = gtk_check_button_new ();
-	gtk_widget_show (margin_x);
-	gtk_entry_set_max_length (GTK_ENTRY (margin_x), 3);
-	gtk_table_attach (GTK_TABLE (table), margin_x, 3, 4, 3, 4, GTK_FILL, 0, 0, 0);
+	task_font_shadow = gtk_check_button_new ();
+	gtk_widget_show (task_font_shadow);
+	gtk_entry_set_max_length (GTK_ENTRY (task_font_shadow), 3);
+	gtk_table_attach (GTK_TABLE (table), task_font_shadow, 3, 4, 3, 4, GTK_FILL, 0, 0, 0);
+
+	label = gtk_label_new (_("Maximum width"));
+	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+	gtk_widget_show (label);
+	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+
+	task_maximum_width = gtk_spin_button_new_with_range (0, 9000, 1);
+	gtk_widget_show (task_maximum_width);
+	gtk_table_attach (GTK_TABLE (table), task_maximum_width, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+
+	label = gtk_label_new (_("Maximum height"));
+	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+	gtk_widget_show (label);
+	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+
+	task_maximum_height = gtk_spin_button_new_with_range (0, 9000, 1);
+	gtk_widget_show (task_maximum_height);
+	gtk_table_attach (GTK_TABLE (table), task_maximum_height, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+
+	label = gtk_label_new (_("Horizontal padding"));
+	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+	gtk_widget_show (label);
+	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
+
+	task_padding_x = gtk_spin_button_new_with_range (0, 9000, 1);
+	gtk_widget_show (task_padding_x);
+	gtk_table_attach (GTK_TABLE (table), task_padding_x, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+
+	label = gtk_label_new (_("Vertical padding"));
+	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+	gtk_widget_show (label);
+	gtk_table_attach (GTK_TABLE (table), label, 6, 7, 3, 4, GTK_FILL, 0, 0, 0);
+
+	task_padding_y = gtk_spin_button_new_with_range (0, 9000, 1);
+	gtk_widget_show (task_padding_y);
+	gtk_table_attach (GTK_TABLE (table), task_padding_y, 7, 8, 3, 4, GTK_FILL, 0, 0, 0);
+
+	label = gtk_label_new (_("Font"));
+	gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+	gtk_widget_show (label);
+	gtk_table_attach (GTK_TABLE (table), label, 10, 11, 0, 1, GTK_FILL, 0, 0, 0);
+
+	task_font = gtk_font_button_new ();
+	gtk_widget_show (task_font);
+	gtk_table_attach (GTK_TABLE (table), task_font, 11, 12, 0, 1, GTK_FILL, 0, 0, 0);
+//	gtk_font_button_set_show_style (GTK_FONT_BUTTON (task_font), FALSE);
 
 	// tasks
 	notebook = gtk_notebook_new ();
