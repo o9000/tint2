@@ -62,6 +62,8 @@ void init_tooltip()
 {
 	if (!g_tooltip.font_desc)
 		g_tooltip.font_desc = pango_font_description_from_string("sans 10");
+	if (g_tooltip.bg == 0)
+		g_tooltip.bg = &g_array_index(backgrounds, Background, 0);
 
 	XSetWindowAttributes attr;
 	attr.override_redirect = True;
