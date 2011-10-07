@@ -424,17 +424,21 @@ int launcher_read_desktop_file(const char *path, DesktopEntry *entry)
 		return 0;
 	}
 
+	int inside_desktop_entry = 0;
 	while (getline(&line, &line_size, fp) >= 0) {
 		int len = strlen(line);
 		if (len == 0)
 			continue;
 		line[len - 1] = '\0';
-		if (parse_dektop_line(line, &key, &value)) {
-			if (strcmp(key, "Name") == 0) {
+		if (line[0] == '[') {
+			inside_desktop_entry = (strcmp(line, "[Desktop Entry]") == 0);
+		}
+		if (inside_desktop_entry && parse_dektop_line(line, &key, &value)) {
+			if (!entry->name && strcmp(key, "Name") == 0) {
 				entry->name = strdup(value);
-			} else if (strcmp(key, "Exec") == 0) {
+			} else if (!entry->exec && strcmp(key, "Exec") == 0) {
 				entry->exec = strdup(value);
-			} else if (strcmp(key, "Icon") == 0) {
+			} else if (!entry->icon && strcmp(key, "Icon") == 0) {
 				entry->icon = strdup(value);
 			}
 		}
@@ -702,9 +706,9 @@ void launcher_load_themes(Launcher *launcher)
 	if (!icon_theme_name) {
 		fprintf(stderr, "Missing launcher theme, default to 'hicolor'.\n");
 		icon_theme_name = strdup("hicolor");
-	}
-	else
+	} else {
 		fprintf(stderr, "Loading %s. Icon theme :", icon_theme_name);
+	}
 
 	GSList *queue = g_slist_append(NULL, strdup(icon_theme_name));
 	GSList *queued = g_slist_append(NULL, strdup(icon_theme_name));
