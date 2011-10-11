@@ -34,6 +34,9 @@
 
 int launcher_enabled;
 int launcher_max_icon_size;
+int launcher_alpha;
+int launcher_saturation;
+int launcher_brightness;
 char *icon_theme_name; 
 XSettingsClient *xsettings_client;
 
@@ -52,6 +55,9 @@ void default_launcher()
 {
 	launcher_enabled = 0;
 	launcher_max_icon_size = 0;
+	launcher_alpha = 100;
+	launcher_saturation = 0;
+	launcher_brightness = 0;
 	icon_theme_name = 0;
 	xsettings_client = NULL;
 }
@@ -301,6 +307,11 @@ Imlib_Image scale_icon(Imlib_Image original, int icon_size)
 	if (original) {
 		imlib_context_set_image (original);
 		icon_scaled = imlib_create_cropped_scaled_image(0, 0, imlib_image_get_width(), imlib_image_get_height(), icon_size, icon_size);
+		imlib_context_set_image (icon_scaled);
+		imlib_image_set_has_alpha(1);
+		DATA32* data = imlib_image_get_data();
+		adjust_asb(data, icon_size, icon_size, launcher_alpha, (float)launcher_saturation/100, (float)launcher_brightness/100);
+		imlib_image_put_back_data(data);
 	} else {
 		icon_scaled = imlib_create_image(icon_size, icon_size);
 		imlib_context_set_image (icon_scaled);

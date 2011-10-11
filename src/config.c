@@ -588,6 +588,12 @@ void add_entry (char *key, char *value)
 		if (!icon_theme_name)
 			icon_theme_name = strdup(value);
 	}
+	else if (strcmp(key, "launcher_icon_asb") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		launcher_alpha = atoi(value1);
+		launcher_saturation = atoi(value2);
+		launcher_brightness = atoi(value3);
+	}
 
 	/* Tooltip */
 	else if (strcmp (key, "tooltip_show_timeout") == 0) {
