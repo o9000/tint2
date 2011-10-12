@@ -34,6 +34,7 @@
 
 int launcher_enabled;
 int launcher_max_icon_size;
+int launcher_tooltip_enabled;
 int launcher_alpha;
 int launcher_saturation;
 int launcher_brightness;
@@ -55,6 +56,7 @@ void default_launcher()
 {
 	launcher_enabled = 0;
 	launcher_max_icon_size = 0;
+	launcher_tooltip_enabled = 0;
 	launcher_alpha = 100;
 	launcher_saturation = 0;
 	launcher_brightness = 0;
@@ -694,7 +696,10 @@ void launcher_load_icons(Launcher *launcher)
 			launcherIcon->area.bg = &g_array_index(backgrounds, Background, 0);
 			launcherIcon->area.on_screen = 1;
 			launcherIcon->area._on_change_layout = launcher_icon_on_change_layout;
-			launcherIcon->area._get_tooltip_text = launcher_icon_get_tooltip_text;
+			if (launcher_tooltip_enabled) 
+				launcherIcon->area._get_tooltip_text = launcher_icon_get_tooltip_text;
+			else
+				launcherIcon->area._get_tooltip_text = NULL;
 			launcherIcon->is_app_desktop = 1;
 			launcherIcon->cmd = strdup(entry.exec);
 			launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(ICON_FALLBACK);

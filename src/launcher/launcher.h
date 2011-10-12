@@ -60,6 +60,7 @@ typedef struct IconTheme {
 
 extern int launcher_enabled;
 extern int launcher_max_icon_size;
+extern int launcher_tooltip_enabled;
 extern int launcher_alpha;
 extern int launcher_saturation;
 extern int launcher_brightness;

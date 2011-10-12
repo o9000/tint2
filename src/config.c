@@ -594,6 +594,9 @@ void add_entry (char *key, char *value)
 		launcher_saturation = atoi(value2);
 		launcher_brightness = atoi(value3);
 	}
+	else if (strcmp(key, "launcher_tooltip") == 0) {
+		launcher_tooltip_enabled = atoi(value);
+	}
 
 	/* Tooltip */
 	else if (strcmp (key, "tooltip_show_timeout") == 0) {
