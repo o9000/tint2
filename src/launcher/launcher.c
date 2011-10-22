@@ -111,14 +111,9 @@ void cleanup_launcher()
 		Panel *panel = &panel1[i];
 		Launcher *launcher = &panel->launcher;		
 		cleanup_launcher_theme(launcher);
-		
-		GSList *l;
-		for (l = launcher->list_apps; l ; l = l->next) {
-			free(l->data);
-		}
-		g_slist_free(launcher->list_apps);
-		launcher->list_apps = NULL;
 	}
+	g_slist_free_full(panel_config.launcher.list_apps, free);
+	panel_config.launcher.list_apps = NULL;
 	free(icon_theme_name);
 	icon_theme_name = 0;
 	launcher_enabled = 0;
