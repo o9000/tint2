@@ -54,7 +54,7 @@ void xsettings_notify_cb (const char *name, XSettingsAction action, XSettingsSet
 			if (icon_theme_name) {
 				if (strcmp(icon_theme_name, setting->data.v_string) == 0)
 					return;
-				g_free(icon_theme_name);
+				free(icon_theme_name);
 			}
 			icon_theme_name = strdup(setting->data.v_string);
 			

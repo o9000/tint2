@@ -119,7 +119,8 @@ void cleanup_launcher()
 		g_slist_free(launcher->list_apps);
 		launcher->list_apps = NULL;
 	}
-	g_free(icon_theme_name);
+	free(icon_theme_name);
+	icon_theme_name = 0;
 	launcher_enabled = 0;
 }
 
