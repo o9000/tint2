@@ -104,6 +104,7 @@ void init_launcher_panel(void *p)
 void cleanup_launcher()
 {
 	int i;
+	GSList *l;
 
 	if (xsettings_client)
 		xsettings_client_destroy(xsettings_client);
@@ -112,7 +113,10 @@ void cleanup_launcher()
 		Launcher *launcher = &panel->launcher;		
 		cleanup_launcher_theme(launcher);
 	}
-	g_slist_free_full(panel_config.launcher.list_apps, free);
+	for (l = panel_config.launcher.list_apps; l ; l = l->next) {
+		free(l->data);
+	}
+	g_slist_free(panel_config.launcher.list_apps);
 	panel_config.launcher.list_apps = NULL;
 	free(icon_theme_name);
 	icon_theme_name = 0;
