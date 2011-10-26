@@ -823,6 +823,7 @@ int directory_size_distance(IconThemeDir *dir, int size)
 	}
 }
 
+#define DEBUG_ICON_SEARCH 0
 // Returns the full path to an icon file (or NULL) given the icon name
 char *icon_path(Launcher *launcher, const char *icon_name, int size)
 {
@@ -840,6 +841,10 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 	GSList *basenames = NULL;
 	char *home_icons = g_build_filename(g_get_home_dir(), ".icons", NULL);
 	basenames = g_slist_append(basenames, home_icons);
+	char *home_local_icons = g_build_filename(g_get_home_dir(), ".local/share/icons", NULL);
+	basenames = g_slist_append(basenames, home_local_icons);
+	basenames = g_slist_append(basenames, "/usr/local/share/icons");
+	basenames = g_slist_append(basenames, "/usr/local/share/pixmaps");
 	basenames = g_slist_append(basenames, "/usr/share/icons");
 	basenames = g_slist_append(basenames, "/usr/share/pixmaps");
 
@@ -884,6 +889,7 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 							g_slist_free(basenames);
 							g_slist_free(extensions);
 							g_free(home_icons);
+							g_free(home_local_icons);
 							return file_name;
 						} else {
 							free(file_name);
@@ -927,8 +933,11 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 					strlen(dir_name) + strlen(icon_name) + strlen(extension) + 100);
 					// filename = directory/$(themename)/subdirectory/iconname.extension
 					sprintf(file_name, "%s/%s/%s/%s%s", base_name, theme_name, dir_name, icon_name, extension);
+					if (DEBUG_ICON_SEARCH)
+						printf("checking %s\n", file_name);
 					if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {
-						//printf("found: %s\n", file_name);
+						if (DEBUG_ICON_SEARCH)
+							printf("found: %s\n", file_name);
 						// Closest match
 						if (directory_size_distance((IconThemeDir*)dir->data, size) < minimal_size && (!best_file_theme ? 1 : theme == best_file_theme)) {
 							if (best_file_name) {
@@ -938,7 +947,8 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 							best_file_name = strdup(file_name);
 							minimal_size = directory_size_distance((IconThemeDir*)dir->data, size);
 							best_file_theme = theme;
-							//printf("best_file_name = %s; minimal_size = %d\n", best_file_name, minimal_size);
+							if (DEBUG_ICON_SEARCH)
+								printf("best_file_name = %s; minimal_size = %d\n", best_file_name, minimal_size);
 						}
 						// Next larger match
 						if (((IconThemeDir*)dir->data)->size >= size &&
@@ -951,7 +961,8 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 							next_larger = strdup(file_name);
 							next_larger_size = ((IconThemeDir*)dir->data)->size;
 							next_larger_theme = theme;
-							//printf("next_larger = %s; next_larger_size = %d\n", next_larger, next_larger_size);
+							if (DEBUG_ICON_SEARCH)
+								printf("next_larger = %s; next_larger_size = %d\n", next_larger, next_larger_size);
 						}
 					}
 					free(file_name);
@@ -964,12 +975,14 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 		g_slist_free(extensions);
 		free(best_file_name);
 		g_free(home_icons);
+		g_free(home_local_icons);
 		return next_larger;
 	}
 	if (best_file_name) {
 		g_slist_free(basenames);
 		g_slist_free(extensions);
 		g_free(home_icons);
+		g_free(home_local_icons);
 		return best_file_name;
 	}
 
@@ -985,11 +998,13 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 					strlen(extension) + 100);
 				// filename = directory/iconname.extension
 				sprintf(file_name, "%s/%s%s", base_name, icon_name, extension);
-				//printf("checking %s\n", file_name);
+				if (DEBUG_ICON_SEARCH)
+					printf("checking %s\n", file_name);
 				if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {
 					g_slist_free(basenames);
 					g_slist_free(extensions);
 					g_free(home_icons);
+					g_free(home_local_icons);
 					return file_name;
 				} else {
 					free(file_name);
@@ -1004,6 +1019,7 @@ char *icon_path(Launcher *launcher, const char *icon_name, int size)
 	g_slist_free(basenames);
 	g_slist_free(extensions);
 	g_free(home_icons);
+	g_free(home_local_icons);
 	return NULL;
 }
 
