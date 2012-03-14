@@ -71,9 +71,16 @@ typedef struct Global_atom
 	Atom _XSETTINGS_SCREEN;
 	Atom _XSETTINGS_SETTINGS;
 	Atom XdndAware;
+	Atom XdndEnter;
 	Atom XdndPosition;
 	Atom XdndStatus;
+	Atom XdndDrop;
 	Atom XdndLeave;
+	Atom XdndSelection;
+	Atom XdndTypeList;
+	Atom XdndActionCopy;
+	Atom XdndFinished;
+	Atom TARGETS;
 } Global_atom;
 
 

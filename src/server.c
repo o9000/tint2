@@ -99,9 +99,16 @@ void server_init_atoms ()
 
 	// drag 'n' drop
 	server.atom.XdndAware = XInternAtom(server.dsp, "XdndAware", False);
+	server.atom.XdndEnter = XInternAtom(server.dsp, "XdndEnter", False);
 	server.atom.XdndPosition = XInternAtom(server.dsp, "XdndPosition", False);
 	server.atom.XdndStatus = XInternAtom(server.dsp, "XdndStatus", False);
+	server.atom.XdndDrop = XInternAtom(server.dsp, "XdndDrop", False);
 	server.atom.XdndLeave = XInternAtom(server.dsp, "XdndLeave", False);
+	server.atom.XdndSelection = XInternAtom(server.dsp, "XdndSelection", False);
+	server.atom.XdndTypeList = XInternAtom(server.dsp, "XdndTypeList", False);
+	server.atom.XdndActionCopy = XInternAtom(server.dsp, "XdndActionCopy", False);
+	server.atom.XdndFinished = XInternAtom(server.dsp, "XdndFinished", False);
+	server.atom.TARGETS = XInternAtom(server.dsp, "TARGETS", False);
 }
 
 

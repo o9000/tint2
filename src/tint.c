@@ -44,6 +44,14 @@
 #include "timer.h"
 #include "xsettings-client.h"
 
+// Drag and Drop state variables
+Window dnd_source_window;
+Window dnd_target_window;
+int dnd_version;
+Atom dnd_selection;
+Atom dnd_atom;
+int dnd_sent_request;
+char *dnd_launcher_exec;
 
 void signal_handler(int sig)
 {
@@ -724,9 +732,150 @@ void event_configure_notify (Window win)
 	}
 }
 
-
-void dnd_message(XClientMessageEvent *e)
+char *GetAtomName(Display* disp, Atom a)
 {
+	if (a == None)
+		return "None";
+	else
+		return XGetAtomName(disp, a);
+}
+
+typedef struct Property
+{
+	unsigned char *data;
+	int format, nitems;
+	Atom type;
+} Property;
+
+//This fetches all the data from a property
+struct Property read_property(Display* disp, Window w, Atom property)
+{
+	Atom actual_type;
+	int actual_format;
+	unsigned long nitems;
+	unsigned long bytes_after;
+	unsigned char *ret=0;
+
+	int read_bytes = 1024;
+
+	//Keep trying to read the property until there are no
+	//bytes unread.
+	do {
+		if (ret != 0)
+			XFree(ret);
+		XGetWindowProperty(disp, w, property, 0, read_bytes, False, AnyPropertyType,
+							&actual_type, &actual_format, &nitems, &bytes_after,
+							&ret);
+		read_bytes *= 2;
+	} while (bytes_after != 0);
+
+	fprintf(stderr, "DnD %s:%d: Property:\n", __FILE__, __LINE__);
+	fprintf(stderr, "DnD %s:%d: Actual type: %s\n", __FILE__, __LINE__, GetAtomName(disp, actual_type));
+	fprintf(stderr, "DnD %s:%d: Actual format: %d\n", __FILE__, __LINE__, actual_format);
+	fprintf(stderr, "DnD %s:%d: Number of items: %lu\n", __FILE__, __LINE__, nitems);
+
+	Property p;
+	p.data = ret;
+	p.format = actual_format;
+	p.nitems = nitems;
+	p.type = actual_type;
+
+	return p;
+}
+
+// This function takes a list of targets which can be converted to (atom_list, nitems)
+// and a list of acceptable targets with prioritees (datatypes). It returns the highest
+// entry in datatypes which is also in atom_list: ie it finds the best match.
+Atom pick_target_from_list(Display* disp, Atom* atom_list, int nitems)
+{
+	Atom to_be_requested = None;
+	int i;
+	for (i = 0; i < nitems; i++) {
+		char *atom_name = GetAtomName(disp, atom_list[i]);
+		fprintf(stderr, "DnD %s:%d: Type %d = %s\n", __FILE__, __LINE__, i, atom_name);
+
+		//See if this data type is allowed and of higher priority (closer to zero)
+		//than the present one.
+		if (strcmp(atom_name, "STRING") == 0) {
+			to_be_requested = atom_list[i];
+		}
+	}
+
+	return to_be_requested;
+}
+
+// Finds the best target given up to three atoms provided (any can be None).
+// Useful for part of the Xdnd protocol.
+Atom pick_target_from_atoms(Display* disp, Atom t1, Atom t2, Atom t3)
+{
+	Atom atoms[3];
+	int n = 0;
+
+	if (t1 != None)
+		atoms[n++] = t1;
+
+	if (t2 != None)
+		atoms[n++] = t2;
+
+	if (t3 != None)
+		atoms[n++] = t3;
+
+	return pick_target_from_list(disp, atoms, n);
+}
+
+// Finds the best target given a local copy of a property.
+Atom pick_target_from_targets(Display* disp, Property p)
+{
+	//The list of targets is a list of atoms, so it should have type XA_ATOM
+	//but it may have the type TARGETS instead.
+
+	if ((p.type != XA_ATOM && p.type != server.atom.TARGETS) || p.format != 32) {
+		//This would be really broken. Targets have to be an atom list
+		//and applications should support this. Nevertheless, some
+		//seem broken (MATLAB 7, for instance), so ask for STRING
+		//next instead as the lowest common denominator
+		return XA_STRING;
+	} else {
+		Atom *atom_list = (Atom*)p.data;
+
+		return pick_target_from_list(disp, atom_list, p.nitems);
+	}
+}
+
+void dnd_enter(XClientMessageEvent *e)
+{
+	dnd_atom = None;
+	int more_than_3 = e->data.l[1] & 1;
+	dnd_source_window = e->data.l[0];
+	dnd_version = (e->data.l[1] >> 24);
+
+	fprintf(stderr, "DnD %s:%d: DnDEnter\n", __FILE__, __LINE__);
+	fprintf(stderr, "DnD %s:%d: DnDEnter. Supports > 3 types = %s\n", __FILE__, __LINE__, more_than_3 ? "yes" : "no");
+	fprintf(stderr, "DnD %s:%d: Protocol version = %d\n", __FILE__, __LINE__, dnd_version);
+	fprintf(stderr, "DnD %s:%d: Type 1 = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e->data.l[2]));
+	fprintf(stderr, "DnD %s:%d: Type 2 = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e->data.l[3]));
+	fprintf(stderr, "DnD %s:%d: Type 3 = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e->data.l[4]));
+
+	//Query which conversions are available and pick the best
+
+	if (more_than_3) {
+		//Fetch the list of possible conversions
+		//Notice the similarity to TARGETS with paste.
+		Property p = read_property(server.dsp, dnd_source_window, server.atom.XdndTypeList);
+		dnd_atom = pick_target_from_targets(server.dsp, p);
+		XFree(p.data);
+	} else {
+		//Use the available list
+		dnd_atom = pick_target_from_atoms(server.dsp, e->data.l[2], e->data.l[3], e->data.l[4]);
+	}
+
+	fprintf(stderr, "DnD %s:%d: Requested type = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, dnd_atom));
+}
+
+void dnd_position(XClientMessageEvent *e)
+{
+	dnd_target_window = e->window;
+	int accept = 0;
 	Panel *panel = get_panel(e->window);
 	int x, y, mapX, mapY;
 	Window child;
@@ -738,6 +887,14 @@ void dnd_message(XClientMessageEvent *e)
 		if (task->desktop != server.desktop )
 			set_desktop (task->desktop);
 		window_action(task, TOGGLE);
+	} else {
+		LauncherIcon *icon = click_launcher_icon(panel, mapX, mapY);
+		if (icon) {
+			accept = 1;
+			dnd_launcher_exec = icon->cmd;
+		} else {
+			dnd_launcher_exec = 0;
+		}
 	}
 
 	// send XdndStatus event to get more XdndPosition events
@@ -747,13 +904,42 @@ void dnd_message(XClientMessageEvent *e)
 	se.message_type = server.atom.XdndStatus;
 	se.format = 32;
 	se.data.l[0] = e->window;  // XID of the target window
-	se.data.l[1] = 0;          // bit 0: accept drop    bit 1: send XdndPosition events if inside rectangle
+	se.data.l[1] = accept ? 1 : 0;          // bit 0: accept drop    bit 1: send XdndPosition events if inside rectangle
 	se.data.l[2] = 0;          // Rectangle x,y for which no more XdndPosition events
 	se.data.l[3] = (1 << 16) | 1;  // Rectangle w,h for which no more XdndPosition events
-	se.data.l[4] = None;       // None = drop will not be accepted
+	if (accept) {
+		se.data.l[4] = dnd_version >= 2 ? e->data.l[4] : server.atom.XdndActionCopy;
+	} else {
+		se.data.l[4] = None;       // None = drop will not be accepted
+	}
+
 	XSendEvent(server.dsp, e->data.l[0], False, NoEventMask, (XEvent*)&se);
 }
 
+void dnd_drop(XClientMessageEvent *e)
+{
+	if (dnd_target_window && dnd_launcher_exec) {
+		if (dnd_version >= 1) {
+			XConvertSelection(server.dsp, server.atom.XdndSelection, XA_STRING, dnd_selection, dnd_target_window, e->data.l[2]);
+		} else {
+			XConvertSelection(server.dsp, server.atom.XdndSelection, XA_STRING, dnd_selection, dnd_target_window, CurrentTime);
+		}
+	} else {
+		//The source is sending anyway, despite instructions to the contrary.
+		//So reply that we're not interested.
+		XClientMessageEvent m;
+		memset(&m, sizeof(m), 0);
+		m.type = ClientMessage;
+		m.display = e->display;
+		m.window = e->data.l[0];
+		m.message_type = server.atom.XdndFinished;
+		m.format = 32;
+		m.data.l[0] = dnd_target_window;
+		m.data.l[1] = 0;
+		m.data.l[2] = None; //Failed.
+		XSendEvent(server.dsp, e->data.l[0], False, NoEventMask, (XEvent*)&m);
+	}
+}
 
 int main (int argc, char *argv[])
 {
@@ -792,6 +978,15 @@ start:
 	XDamageQueryExtension(server.dsp, &damage_event, &damage_error);
 	x11_fd = ConnectionNumber(server.dsp);
 	XSync(server.dsp, False);
+
+	// XDND initialization
+	dnd_source_window = 0;
+	dnd_target_window = 0;
+	dnd_version = 0;
+	dnd_selection = XInternAtom(server.dsp, "PRIMARY", 0);
+	dnd_atom = None;
+	dnd_sent_request = 0;
+	dnd_launcher_exec = 0;
 
 //	sigset_t empty_mask;
 //	sigemptyset(&empty_mask);
@@ -939,10 +1134,121 @@ start:
 						if (systray_enabled && e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
 							net_message(&e.xclient);
 						}
+						else if (e.xclient.message_type == server.atom.XdndEnter) {
+							dnd_enter(&e.xclient);
+						}
 						else if (e.xclient.message_type == server.atom.XdndPosition) {
-							dnd_message(&e.xclient);
+							dnd_position(&e.xclient);
+						}
+						else if (e.xclient.message_type == server.atom.XdndDrop) {
+							dnd_drop(&e.xclient);
 						}
 						break;
+
+					case SelectionNotify:
+						{
+							Atom target = e.xselection.target;
+
+							fprintf(stderr, "DnD %s:%d: A selection notify has arrived!\n", __FILE__, __LINE__);
+							fprintf(stderr, "DnD %s:%d: Requestor = %lu\n", __FILE__, __LINE__, e.xselectionrequest.requestor);
+							fprintf(stderr, "DnD %s:%d: Selection atom = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e.xselection.selection));
+							fprintf(stderr, "DnD %s:%d: Target atom    = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, target));
+							fprintf(stderr, "DnD %s:%d: Property atom  = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e.xselection.property));
+
+							if (e.xselection.property != None && dnd_launcher_exec) {
+								Property prop = read_property(server.dsp, dnd_target_window, dnd_selection);
+
+								//If we're being given a list of targets (possible conversions)
+								if (target == server.atom.TARGETS && !dnd_sent_request) {
+									dnd_sent_request = 1;
+									dnd_atom = pick_target_from_targets(server.dsp, prop);
+
+									if (dnd_atom == None) {
+										fprintf(stderr, "No matching datatypes.\n");
+									} else {
+										//Request the data type we are able to select
+										fprintf(stderr, "Now requsting type %s", GetAtomName(server.dsp, dnd_atom));
+										XConvertSelection(server.dsp, dnd_selection, dnd_atom, dnd_selection, dnd_target_window, CurrentTime);
+									}
+								} else if (target == dnd_atom) {
+									//Dump the binary data
+									fprintf(stderr, "DnD %s:%d: Data begins:\n", __FILE__, __LINE__);
+									fprintf(stderr, "--------\n");
+									int i;
+									for (i = 0; i < prop.nitems * prop.format/8; i++)
+										fprintf(stderr, "%c", ((char*)prop.data)[i]);
+									fprintf(stderr, "--------\n");
+
+									int cmd_length = 0;
+									cmd_length += 1; // (
+									cmd_length += strlen(dnd_launcher_exec) + 1; // exec + space
+									cmd_length += 1; // open double quotes
+									for (i = 0; i < prop.nitems * prop.format/8; i++) {
+										char c = ((char*)prop.data)[i];
+										if (c == '\n') {
+											if (i < prop.nitems * prop.format/8 - 1) {
+												cmd_length += 3; // close double quotes, space, open double quotes
+											}
+										} else if (c == '\r') {
+										} else {
+											cmd_length += 1; // 1 character
+											if (c == '`' || c == '$' || c == '\\') {
+												cmd_length += 1; // escape with one backslash
+											}
+										}
+									}
+									cmd_length += 1; // close double quotes
+									cmd_length += 2; // &)
+									cmd_length += 1; // terminator
+
+									char *cmd = malloc(cmd_length);
+									cmd[0] = '\0';
+									strcat(cmd, "(");
+									strcat(cmd, dnd_launcher_exec);
+									strcat(cmd, " \"");
+									for (i = 0; i < prop.nitems * prop.format/8; i++) {
+										char c = ((char*)prop.data)[i];
+										if (c == '\n') {
+											if (i < prop.nitems * prop.format/8 - 1) {
+												strcat(cmd, "\" \"");
+											}
+										} else if (c == '\r') {
+										} else {
+											if (c == '`' || c == '$' || c == '\\') {
+												strcat(cmd, "\\");
+											}
+											char sc[2];
+											sc[0] = c;
+											sc[1] = '\0';
+											strcat(cmd, sc);
+										}
+									}
+									strcat(cmd, "\"");
+									strcat(cmd, "&)");
+									fprintf(stderr, "DnD %s:%d: Running command: %s\n", __FILE__, __LINE__, cmd);
+									tint_exec(cmd);
+									free(cmd);
+
+									// Reply OK.
+									XClientMessageEvent m;
+									memset(&m, sizeof(m), 0);
+									m.type = ClientMessage;
+									m.display = server.dsp;
+									m.window = dnd_source_window;
+									m.message_type = server.atom.XdndFinished;
+									m.format = 32;
+									m.data.l[0] = dnd_target_window;
+									m.data.l[1] = 1;
+									m.data.l[2] = server.atom.XdndActionCopy; //We only ever copy.
+									XSendEvent(server.dsp, dnd_source_window, False, NoEventMask, (XEvent*)&m);
+									XSync(server.dsp, False);
+								}
+
+								XFree(prop.data);
+							}
+
+							break;
+						}
 
 					default:
 						if (e.type == XDamageNotify+damage_event) {
