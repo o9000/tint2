@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <glib/gi18n.h>
 
 #include "window.h"
 #include "server.h"
@@ -422,13 +423,13 @@ void expand_exec(DesktopEntry *entry, const char *path)
 	}
 }
 
-//TODO Use UTF8 when parsing the file
 int launcher_read_desktop_file(const char *path, DesktopEntry *entry)
 {
 	FILE *fp;
 	char *line = NULL;
 	size_t line_size;
 	char *key, *value;
+	int i;
 
 	entry->name = entry->icon = entry->exec = NULL;
 
@@ -436,6 +437,20 @@ int launcher_read_desktop_file(const char *path, DesktopEntry *entry)
 		fprintf(stderr, "Could not open file %s\n", path);
 		return 0;
 	}
+
+	gchar **languages = (gchar **)g_get_language_names();
+	// lang_index is the index of the language for the best Name key in the language vector
+	// lang_index_default is a constant that encodes the Name key without a language
+	int lang_index, lang_index_default;
+#define LANG_DBG 0
+	if (LANG_DBG) printf("Languages:");
+	for (i = 0; languages[i]; i++) {
+		if (LANG_DBG) printf(" %s", languages[i]);
+	}
+	if (LANG_DBG) printf("\n");
+	lang_index_default = i;
+	// we currently do not know about any Name key at all, so use an invalid index
+	lang_index = lang_index_default + 1;
 
 	int inside_desktop_entry = 0;
 	while (getline(&line, &line_size, fp) >= 0) {
@@ -447,8 +462,22 @@ int launcher_read_desktop_file(const char *path, DesktopEntry *entry)
 			inside_desktop_entry = (strcmp(line, "[Desktop Entry]") == 0);
 		}
 		if (inside_desktop_entry && parse_dektop_line(line, &key, &value)) {
-			if (!entry->name && strcmp(key, "Name") == 0) {
-				entry->name = strdup(value);
+			if (strstr(key, "Name") == key) {
+				if (strcmp(key, "Name") == 0 && lang_index > lang_index_default) {
+					entry->name = strdup(value);
+					lang_index = lang_index_default;
+				} else {
+					for (i = 0; languages[i] && i < lang_index; i++) {
+						gchar *localized_key = g_strdup_printf("Name[%s]", languages[i]);
+						if (strcmp(key, localized_key) == 0) {
+							if (entry->name)
+								free(entry->name);
+							entry->name = strdup(value);
+							lang_index = i;
+						}
+						g_free(localized_key);
+					}
+				}
 			} else if (!entry->exec && strcmp(key, "Exec") == 0) {
 				entry->exec = strdup(value);
 			} else if (!entry->icon && strcmp(key, "Icon") == 0) {
