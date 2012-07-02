@@ -83,7 +83,7 @@ void draw_launcher (void *obj, cairo_t *c);
 void launcher_load_themes(Launcher *launcher);
 // Populates the list_icons list
 void launcher_load_icons(Launcher *launcher);
-void launcher_action(LauncherIcon *icon);
+void launcher_action(LauncherIcon *icon, XEvent* e);
 
 void test_launcher_read_desktop_file();
 void test_launcher_read_theme_file();

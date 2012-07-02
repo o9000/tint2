@@ -31,6 +31,11 @@
 #include <Imlib2.h>
 #include <signal.h>
 
+#ifdef HAVE_SN
+#include <libsn/sn.h>
+#include <sys/wait.h>
+#endif
+
 #include <version.h>
 #include "server.h"
 #include "window.h"
@@ -120,6 +125,58 @@ void init (int argc, char *argv[])
 //	sigprocmask(SIG_BLOCK, &block_mask, 0);
 }
 
+#ifdef HAVE_SN
+static int error_trap_depth = 0;
+
+static void
+error_trap_push (SnDisplay *display,
+		 Display   *xdisplay)
+{
+	++error_trap_depth;
+}
+
+static void
+error_trap_pop (SnDisplay *display,
+		Display   *xdisplay)
+{
+	if (error_trap_depth == 0)
+	{
+		fprintf(stderr, "Error trap underflow!\n");
+		return;
+	}
+
+	XSync(xdisplay, False); /* get all errors out of the queue */
+	--error_trap_depth;
+}
+
+static void sigchld_handler(int sig) {
+        // Wait for all dead processes
+        pid_t pid;
+        while ((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
+	        SnLauncherContext *ctx;
+		ctx = (SnLauncherContext *) g_tree_lookup (server.pids, GINT_TO_POINTER (pid));
+		if (ctx == NULL) {
+		        fprintf(stderr, "Unknown child %d terminated!\n", pid);
+		}
+		else {
+		        g_tree_remove (server.pids, GINT_TO_POINTER (pid));
+			sn_launcher_context_complete (ctx);
+			sn_launcher_context_unref (ctx);
+		}
+	}
+}
+
+static gint cmp_ptr(gconstpointer a, gconstpointer b) {
+        if (a < b)
+	  return -1;
+	else if (a == b)
+	  return 0;
+	else
+	  return 1;
+}
+
+#endif // HAVE_SN
+
 void init_X11()
 {
 	server.dsp = XOpenDisplay (NULL);
@@ -133,6 +190,19 @@ void init_X11()
 	server.desktop = server_get_current_desktop ();
 	server_init_visual();
 	XSetErrorHandler ((XErrorHandler) server_catch_error);
+
+#ifdef HAVE_SN
+	// Initialize startup-notification
+	server.sn_dsp = sn_display_new (server.dsp, error_trap_push, error_trap_pop);
+	server.pids = g_tree_new (cmp_ptr);
+	// Setup a handler for child termination
+	struct sigaction act;
+	memset (&act, 0, sizeof (struct sigaction));
+	act.sa_handler = sigchld_handler;
+	if (sigaction(SIGCHLD, &act, 0)) {
+		perror("sigaction");
+	}
+#endif // HAVE_SN
 
 	imlib_context_set_display (server.dsp);
 	imlib_context_set_visual (server.visual);
@@ -446,7 +516,7 @@ void event_button_release (XEvent *e)
 	if ( click_launcher(panel, e->xbutton.x, e->xbutton.y)) {
 		LauncherIcon *icon = click_launcher_icon(panel, e->xbutton.x, e->xbutton.y);
 		if (icon) {
-			launcher_action(icon);
+			launcher_action(icon, e);
 		}
 		task_drag = 0;
 		return;
@@ -1035,6 +1105,9 @@ start:
 		if (select(x11_fd+1, &fdset, 0, 0, timeout) > 0) {
 			while (XPending (server.dsp)) {
 				XNextEvent(server.dsp, &e);
+#if HAVE_SN
+				sn_display_process_event (server.sn_dsp, &e);
+#endif // HAVE_SN
 
 				panel = get_panel(e.xany.window);
 				if (panel && panel_autohide) {

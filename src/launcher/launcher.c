@@ -26,6 +26,10 @@
 #include <stdlib.h>
 #include <glib/gi18n.h>
 
+#ifdef HAVE_SN
+#include <libsn/sn.h>
+#endif
+
 #include "window.h"
 #include "server.h"
 #include "area.h"
@@ -332,11 +336,54 @@ void free_icon(Imlib_Image icon)
 	}
 }
 
-void launcher_action(LauncherIcon *icon)
+void launcher_action(LauncherIcon *icon, XEvent* evt)
 {
 	char *cmd = malloc(strlen(icon->cmd) + 10);
 	sprintf(cmd, "(%s&)", icon->cmd);
-	tint_exec(cmd);
+#if HAVE_SN
+		SnLauncherContext* ctx;
+		Time time;
+
+		ctx = sn_launcher_context_new(server.sn_dsp, server.screen);
+		sn_launcher_context_set_name(ctx, icon->icon_tooltip);
+		sn_launcher_context_set_description(ctx, "Application launched from tint2");
+		sn_launcher_context_set_binary_name (ctx, icon->cmd);
+		// Get a timestamp from the X event
+		if (evt->type == ButtonPress || evt->type == ButtonRelease) {
+		    time = evt->xbutton.time;
+		}
+		else {
+		    	fprintf(stderr, "Unknown X event: %d\n", evt->type);
+			free(cmd);
+			return;
+		}
+		sn_launcher_context_initiate(ctx, "tint2", icon->cmd, time);
+#endif /* HAVE_SN */
+	pid_t pid;
+	pid = fork();
+	if (pid < 0) {
+		fprintf(stderr, "Could not fork\n");
+	}
+	else if (pid == 0) {
+#if HAVE_SN
+	        sn_launcher_context_setup_child_process (ctx);
+#endif // HAVE_SN
+		// Allow children to exist after parent destruction
+		setsid ();
+		// Run the command
+		execl("/bin/sh", "/bin/sh", "-c", icon->cmd, NULL);
+
+		fprintf(stderr, "Failed to execlp %s\n", icon->cmd);
+#if HAVE_SN
+		sn_launcher_context_unref (ctx);
+#endif // HAVE_SN
+		_exit(1);
+	}
+#if HAVE_SN
+	else {
+	        g_tree_insert (server.pids, GINT_TO_POINTER (pid), ctx);
+	}
+#endif // HAVE_SN
 	free(cmd);
 }
 

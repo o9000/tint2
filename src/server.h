@@ -13,6 +13,11 @@
 #include <X11/Xatom.h>
 #include <X11/extensions/Xinerama.h>
 
+#ifdef HAVE_SN
+#include <libsn/sn.h>
+#include <glib.h>
+#endif
+
 
 typedef struct Global_atom
 {
@@ -118,6 +123,10 @@ typedef struct
 	Colormap colormap;
 	Colormap colormap32;
 	Global_atom atom;
+#ifdef HAVE_SN
+	SnDisplay *sn_dsp;
+	GTree *pids;
+#endif // HAVE_SN
 } Server_global;
 
 
