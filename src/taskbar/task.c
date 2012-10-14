@@ -405,6 +405,35 @@ void on_change_task (void *obj)
 	set_task_redraw(tsk);
 }
 
+// Given a pointer to the active task (active_task) and a pointer
+// to the task that is currently under the mouse (current_task),
+// return a pointer to the active task that is on the same desktop
+// as current_task. Normally this is simply active_task, except when
+// it is set to appear on all desktops. In that case we search for
+// another Task on current_task's taskbar, with the same window as
+// active_task.
+Task *find_active_task(Task *current_task, Task *active_task)
+{
+	if (active_task == 0)
+		return current_task;
+	if (active_task->desktop != ALLDESKTOP)
+		return active_task;
+	if (current_task == 0)
+		return active_task;
+
+	GSList *l0;
+	Task *tsk;
+	Taskbar* tskbar = current_task->area.parent;
+
+	l0 = tskbar->area.list;
+	if (taskbarname_enabled) l0 = l0->next;
+	for (; l0 ; l0 = l0->next) {
+		tsk = l0->data;
+		if (tsk->win == active_task->win)
+			return tsk;
+	}
+	return active_task;
+}
 
 Task *next_task(Task *tsk)
 {

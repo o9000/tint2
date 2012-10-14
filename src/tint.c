@@ -331,14 +331,14 @@ void window_action (Task *tsk, int action)
 		case NEXT_TASK:
 			if (task_active) {
 				Task *tsk1;
-				tsk1 = next_task(task_active);
+				tsk1 = next_task(find_active_task(tsk, task_active));
 				set_active(tsk1->win);
 			}
 			break;
 		case PREV_TASK:
 			if (task_active) {
 				Task *tsk1;
-				tsk1 = prev_task(task_active);
+				tsk1 = prev_task(find_active_task(tsk, task_active));
 				set_active(tsk1->win);
 			}
 	}

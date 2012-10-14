@@ -78,6 +78,7 @@ void active_task();
 void set_task_state(Task* tsk, int state);
 void set_task_redraw(Task* tsk);
 
+Task *find_active_task(Task *current_task, Task *active_task);
 Task *next_task (Task *tsk);
 Task *prev_task (Task *tsk);
 
