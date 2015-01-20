@@ -64,7 +64,17 @@ void cleanup_taskbar()
 	int i, j, k;
 
 	cleanup_taskbarname();
-	if (win_to_task_table) g_hash_table_foreach(win_to_task_table, taskbar_remove_task, 0);
+	if (win_to_task_table) {
+		while (g_hash_table_size(win_to_task_table)) {
+			GHashTableIter iter;
+			gpointer key, value;
+
+			g_hash_table_iter_init (&iter, win_to_task_table);
+			if (g_hash_table_iter_next (&iter, &key, &value)) {
+				taskbar_remove_task(key, 0, 0);
+			}
+		}
+	}
 	for (i=0 ; i < nb_panel ; i++) {
 		panel = &panel1[i];
 		for (j=0 ; j < panel->nb_desktop ; j++) {
