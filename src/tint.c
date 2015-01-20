@@ -998,7 +998,7 @@ void dnd_drop(XClientMessageEvent *e)
 		//The source is sending anyway, despite instructions to the contrary.
 		//So reply that we're not interested.
 		XClientMessageEvent m;
-		memset(&m, sizeof(m), 0);
+    memset(&m, 0, sizeof(m));
 		m.type = ClientMessage;
 		m.display = e->display;
 		m.window = e->data.l[0];
@@ -1304,7 +1304,7 @@ start:
 
 									// Reply OK.
 									XClientMessageEvent m;
-									memset(&m, sizeof(m), 0);
+                  memset(&m, 0, sizeof(m));
 									m.type = ClientMessage;
 									m.display = server.dsp;
 									m.window = dnd_source_window;
