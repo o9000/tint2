@@ -169,13 +169,13 @@ static XSettingsResult fetch_card32 (XSettingsBuffer *buffer, CARD32 *result)
 
 static XSettingsResult fetch_card8 (XSettingsBuffer *buffer, CARD8 *result)
 {
-  if (BYTES_LEFT (buffer) < 1)
-    return XSETTINGS_ACCESS;
+	if (BYTES_LEFT (buffer) < 1)
+		return XSETTINGS_ACCESS;
 
-  *result = *(CARD8 *)buffer->pos;
-  buffer->pos += 1;
+	*result = *(CARD8 *)buffer->pos;
+	buffer->pos += 1;
 
-  return XSETTINGS_SUCCESS;
+	return XSETTINGS_SUCCESS;
 }
 
 #define XSETTINGS_PAD(n,m) ((n + m - 1) & (~(m-1)))

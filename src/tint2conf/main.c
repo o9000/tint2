@@ -18,7 +18,7 @@
 **************************************************************************/
 
 #ifdef HAVE_VERSION_H
-  #include "version.h"
+#include "version.h"
 #endif
 #include "main.h"
 #include "common.h"
@@ -368,7 +368,7 @@ static void menuQuit()
 	if (g_cmd_property)
 		g_free(g_cmd_property);
 
-   gtk_main_quit ();
+	gtk_main_quit ();
 }
 
 
