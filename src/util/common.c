@@ -35,7 +35,7 @@
 void copy_file(const char *pathSrc, const char *pathDest)
 {
 	FILE *fileSrc, *fileDest;
-	char line[100];
+	char buffer[100];
 	int  nb;
 
 	fileSrc = fopen(pathSrc, "rb");
@@ -44,9 +44,11 @@ void copy_file(const char *pathSrc, const char *pathDest)
 	fileDest = fopen(pathDest, "wb");
 	if (fileDest == NULL) return;
 
-	while ((nb = fread(line, 1, 100, fileSrc)) > 0)
-		if ( nb != fwrite(line, 1, nb, fileDest))
+	while ((nb = fread(buffer, 1, sizeof(buffer), fileSrc)) > 0) {
+		if ( nb != fwrite(buffer, 1, nb, fileDest)) {
 			printf("Error while copying file %s to %s\n", pathSrc, pathDest);
+		}
+	}
 
 	fclose (fileDest);
 	fclose (fileSrc);
