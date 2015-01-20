@@ -150,16 +150,16 @@ error_trap_pop (SnDisplay *display,
 }
 
 static void sigchld_handler(int sig) {
-        // Wait for all dead processes
-        pid_t pid;
-        while ((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
-	        SnLauncherContext *ctx;
+	// Wait for all dead processes
+	pid_t pid;
+	while ((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
+		SnLauncherContext *ctx;
 		ctx = (SnLauncherContext *) g_tree_lookup (server.pids, GINT_TO_POINTER (pid));
 		if (ctx == NULL) {
-		        fprintf(stderr, "Unknown child %d terminated!\n", pid);
+			fprintf(stderr, "Unknown child %d terminated!\n", pid);
 		}
 		else {
-		        g_tree_remove (server.pids, GINT_TO_POINTER (pid));
+			g_tree_remove (server.pids, GINT_TO_POINTER (pid));
 			sn_launcher_context_complete (ctx);
 			sn_launcher_context_unref (ctx);
 		}
@@ -167,12 +167,12 @@ static void sigchld_handler(int sig) {
 }
 
 static gint cmp_ptr(gconstpointer a, gconstpointer b) {
-        if (a < b)
-	  return -1;
+	if (a < b)
+		return -1;
 	else if (a == b)
-	  return 0;
+		return 0;
 	else
-	  return 1;
+		return 1;
 }
 
 #endif // HAVE_SN
@@ -998,7 +998,7 @@ void dnd_drop(XClientMessageEvent *e)
 		//The source is sending anyway, despite instructions to the contrary.
 		//So reply that we're not interested.
 		XClientMessageEvent m;
-    memset(&m, 0, sizeof(m));
+		memset(&m, 0, sizeof(m));
 		m.type = ClientMessage;
 		m.display = e->display;
 		m.window = e->data.l[0];
@@ -1304,7 +1304,7 @@ start:
 
 									// Reply OK.
 									XClientMessageEvent m;
-                  memset(&m, 0, sizeof(m));
+									memset(&m, 0, sizeof(m));
 									m.type = ClientMessage;
 									m.display = server.dsp;
 									m.window = dnd_source_window;
