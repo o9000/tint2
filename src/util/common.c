@@ -140,6 +140,7 @@ int hex_to_rgb (char *hex, int *r, int *g, int *b)
 void get_color (char *hex, double *rgb)
 {
 	int r, g, b;
+	r = g = b = 0;
 	hex_to_rgb (hex, &r, &g, &b);
 
 	rgb[0] = (r / 255.0);
