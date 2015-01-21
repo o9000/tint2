@@ -241,7 +241,9 @@ void tooltip_update()
 	pango_layout_set_height(layout, height*PANGO_SCALE);
 	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);
 	// I do not know why this is the right way, but with the below cairo_move_to it seems to be centered (horiz. and vert.)
-	cairo_move_to(c, -r1.x/2+g_tooltip.bg->border.width+g_tooltip.paddingx, -r1.y/2+g_tooltip.bg->border.width+g_tooltip.paddingy);
+	cairo_move_to(c,
+				  -r1.x/2 + g_tooltip.bg->border.width + g_tooltip.paddingx,
+				  -r1.y/2 + 1 + g_tooltip.bg->border.width + g_tooltip.paddingy);
 	pango_cairo_show_layout (c, layout);
 
 	g_object_unref (layout);
