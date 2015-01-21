@@ -313,7 +313,7 @@ void get_icon (Task *tsk)
 	}
 }
 
-
+// TODO icons look too large when the panel is large
 void draw_task_icon (Task *tsk, int text_width)
 {
 	if (tsk->icon[tsk->current_state] == 0) return;
