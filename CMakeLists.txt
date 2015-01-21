@@ -109,6 +109,8 @@ if( RT_LIBRARY )
   target_link_libraries( tint2 ${RT_LIBRARY} )
 endif( RT_LIBRARY )
 
+target_link_libraries( tint2 m )
+
 add_dependencies( tint2 version )
 set_target_properties( tint2 PROPERTIES COMPILE_FLAGS "-Wall -pthread" )
 set_target_properties(tint2 PROPERTIES LINK_FLAGS "-pthread" )

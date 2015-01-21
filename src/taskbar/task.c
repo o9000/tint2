@@ -26,6 +26,7 @@
 #include <string.h>
 #include <glib.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "window.h"
 #include "task.h"
@@ -371,19 +372,27 @@ void draw_task (void *obj, cairo_t *c)
 		pango_layout_get_pixel_size (layout, &width, &height);
 
 		config_text = &panel->g_task.font[tsk->current_state];
-		cairo_set_source_rgba (c, config_text->color[0], config_text->color[1], config_text->color[2], config_text->alpha);
 
-		pango_cairo_update_layout (c, layout);
 		double text_posy = (panel->g_task.area.height - height) / 2.0;
+
+		if (panel->g_task.font_shadow) {
+			const int shadow_size = 3;
+			const double shadow_edge_alpha = 0.05;
+			int i, j;
+			for (i = -shadow_size; i <= shadow_size; i++) {
+				for (j = -shadow_size; j <= shadow_size; j++) {
+					cairo_set_source_rgba(c, 0.0, 0.0, 0.0, 1.0 - (1.0 - shadow_edge_alpha) * sqrt((i*i + j*j)/(double)(shadow_size*shadow_size)));
+					pango_cairo_update_layout(c, layout);
+					cairo_move_to(c, panel->g_task.text_posx + i, text_posy + j);
+					pango_cairo_show_layout(c, layout);
+				}
+			}
+		}
+		cairo_set_source_rgba (c, config_text->color[0], config_text->color[1], config_text->color[2], config_text->alpha);
+		pango_cairo_update_layout (c, layout);
 		cairo_move_to (c, panel->g_task.text_posx, text_posy);
 		pango_cairo_show_layout (c, layout);
 
-		if (panel->g_task.font_shadow) {
-			cairo_set_source_rgba (c, 0.0, 0.0, 0.0, 0.5);
-			pango_cairo_update_layout (c, layout);
-			cairo_move_to (c, panel->g_task.text_posx + 1, text_posy + 1);
-			pango_cairo_show_layout (c, layout);
-		}
 		g_object_unref (layout);
 	}
 
