@@ -171,6 +171,9 @@ void on_change_systray (void *obj)
 {
 	// here, systray.area.posx/posy are defined by rendering engine. so we can calculate position of tray icon.
 	Systraybar *sysbar = obj;
+	if (sysbar->icons_per_column == 0 || sysbar->icons_per_row == 0)
+		return;
+
 	Panel *panel = sysbar->area.panel;
 	int i, posx, posy;
 	int start = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width + systray.area.paddingy + sysbar->marging/2;
