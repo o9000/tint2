@@ -192,6 +192,7 @@ static XSettingsList *parse_settings (unsigned char *data, size_t len)
 
 	local_byte_order = xsettings_byte_order ();
 
+	buffer.byte_order = local_byte_order;
 	buffer.pos = buffer.data = data;
 	buffer.len = len;
 
