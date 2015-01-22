@@ -271,6 +271,18 @@ void get_monitors()
 
 		if (res && res->ncrtc >= nbmonitor) {
 			// use xrandr to identify monitors (does not work with proprietery nvidia drivers)
+
+			// Workaround for issue https://code.google.com/p/tint2/issues/detail?id=353
+			// on some recent configs, XRRGetScreenResourcesCurrent returns a fantom monitor at last position
+			{
+				int i = res->ncrtc - 1;
+				XRRCrtcInfo* crtc_info = XRRGetCrtcInfo(server.dsp, res, res->crtcs[i]);
+				if (!(crtc_info->x || crtc_info->y || crtc_info->width || crtc_info->height)) {
+					res->ncrtc -= 1;
+				}
+				XRRFreeCrtcInfo(crtc_info);
+			}
+
 			printf("xRandr: Found crtc's: %d\n", res->ncrtc );
 			server.monitor = malloc(res->ncrtc * sizeof(Monitor));
 			for (i=0; i<res->ncrtc; ++i) {
