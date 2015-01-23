@@ -182,9 +182,8 @@ void init_panel()
 			if (panel_items_order[k] == 'B')
 				init_battery_panel(p);
 #endif
-			if (panel_items_order[k] == 'S' && i==0) {
-				// TODO : check systray is only on 1 panel
-				// at the moment only on panel1[0] allowed
+			if (panel_items_order[k] == 'S' &&
+				((i == systray_monitor) || (i == 0 && systray_monitor >= nb_panel))) {
 				init_systray_panel(p);
 				refresh_systray = 1;
 			}
@@ -402,9 +401,9 @@ void set_panel_items_order(Panel *p)
 		if (panel_items_order[k] == 'B') 
 			p->area.list = g_slist_append(p->area.list, &p->battery);
 #endif
-		if (panel_items_order[k] == 'S' && p == panel1) {
-			// TODO : check systray is only on 1 panel
-			// at the moment only on panel1[0] allowed
+		int i = p - panel1;
+		if (panel_items_order[k] == 'S' &&
+			((i == systray_monitor) || (i == 0 && systray_monitor >= nb_panel))) {
 			p->area.list = g_slist_append(p->area.list, &systray);
 		}
 		if (panel_items_order[k] == 'C')

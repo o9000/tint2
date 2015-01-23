@@ -563,6 +563,9 @@ void add_entry (char *key, char *value)
 		systray.saturation = atoi(value2);
 		systray.brightness = atoi(value3);
 	}
+	else if (strcmp(key, "systray_monitor") == 0) {
+		systray_monitor = atoi(value);
+	}
 
 	/* Launcher */
 	else if (strcmp (key, "launcher_padding") == 0) {

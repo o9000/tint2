@@ -49,6 +49,7 @@ Systraybar systray;
 int refresh_systray;
 int systray_enabled;
 int systray_max_icon_size;
+int systray_monitor;
 
 // background pixmap if we render ourselves the icons
 static Pixmap render_background;
@@ -71,6 +72,7 @@ void cleanup_systray()
 	stop_net();
 	systray_enabled = 0;
 	systray_max_icon_size = 0;
+	systray_monitor = 0;
 	systray.area.on_screen = 0;
 	free_area(&systray.area);
 	if (render_background) {
