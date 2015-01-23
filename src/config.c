@@ -564,7 +564,7 @@ void add_entry (char *key, char *value)
 		systray.brightness = atoi(value3);
 	}
 	else if (strcmp(key, "systray_monitor") == 0) {
-		systray_monitor = atoi(value);
+		systray_monitor = atoi(value) - 1;
 	}
 
 	/* Launcher */
