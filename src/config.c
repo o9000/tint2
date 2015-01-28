@@ -35,6 +35,10 @@
 #include <pango/pangoxft.h>
 #include <Imlib2.h>
 
+#include "config.h"
+
+#ifndef TINT2CONF
+
 #include "common.h"
 #include "server.h"
 #include "panel.h"
@@ -44,7 +48,6 @@
 #include "systraybar.h"
 #include "launcher.h"
 #include "clock.h"
-#include "config.h"
 #include "window.h"
 #include "tooltip.h"
 #include "timer.h"
@@ -53,9 +56,13 @@
 #include "battery.h"
 #endif
 
+#endif
+
 // global path
 char *config_path;
 char *snapshot_path;
+
+#ifndef TINT2CONF
 
 // --------------------------------------------------
 // backward compatibility
@@ -780,5 +787,5 @@ int config_read_file (const char *path)
 	return 1;
 }
 
-
+#endif
 

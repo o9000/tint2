@@ -130,7 +130,7 @@ typedef struct
 } Server_global;
 
 
-Server_global server;
+extern Server_global server;
 
 
 // freed memory

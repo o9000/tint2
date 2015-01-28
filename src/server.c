@@ -28,8 +28,9 @@
 
 #include "server.h"
 #include "config.h"
-#include "task.h"
 #include "window.h"
+
+Server_global server;
 
 void server_catch_error (Display *d, XErrorEvent *ev){}
 
@@ -350,6 +351,10 @@ next:
 	}
 }
 
+int server_get_number_of_desktop ()
+{
+	return get_property32(server.root_win, server.atom._NET_NUMBER_OF_DESKTOPS, XA_CARDINAL);
+}
 
 void get_desktops()
 {

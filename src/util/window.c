@@ -197,11 +197,6 @@ int window_is_skip_taskbar (Window win)
 }
 
 
-int server_get_number_of_desktop ()
-{
-	return get_property32(server.root_win, server.atom._NET_NUMBER_OF_DESKTOPS, XA_CARDINAL);
-}
-
 
 GSList *server_get_name_of_desktop ()
 {

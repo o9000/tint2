@@ -128,19 +128,14 @@ void init (int argc, char *argv[])
 #ifdef HAVE_SN
 static int error_trap_depth = 0;
 
-static void
-error_trap_push (SnDisplay *display,
-		 Display   *xdisplay)
+static void error_trap_push(SnDisplay *display, Display *xdisplay)
 {
 	++error_trap_depth;
 }
 
-static void
-error_trap_pop (SnDisplay *display,
-		Display   *xdisplay)
+static void error_trap_pop(SnDisplay *display, Display *xdisplay)
 {
-	if (error_trap_depth == 0)
-	{
+	if (error_trap_depth == 0) {
 		fprintf(stderr, "Error trap underflow!\n");
 		return;
 	}
@@ -157,8 +152,7 @@ static void sigchld_handler(int sig) {
 		ctx = (SnLauncherContext *) g_tree_lookup (server.pids, GINT_TO_POINTER (pid));
 		if (ctx == NULL) {
 			fprintf(stderr, "Unknown child %d terminated!\n", pid);
-		}
-		else {
+		} else {
 			g_tree_remove (server.pids, GINT_TO_POINTER (pid));
 			sn_launcher_context_complete (ctx);
 			sn_launcher_context_unref (ctx);
