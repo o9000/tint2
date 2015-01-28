@@ -391,8 +391,10 @@ void set_panel_items_order(Panel *p)
 	}
 
 	for (k=0 ; k < strlen(panel_items_order) ; k++) {
-		if (panel_items_order[k] == 'L') 
+		if (panel_items_order[k] == 'L') {
 			p->area.list = g_slist_append(p->area.list, &p->launcher);
+			p->launcher.area.resize = 1;
+		}
 		if (panel_items_order[k] == 'T') {
 			for (j=0 ; j < p->nb_desktop ; j++)
 				p->area.list = g_slist_append(p->area.list, &p->taskbar[j]);
