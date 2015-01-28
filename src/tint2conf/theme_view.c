@@ -27,8 +27,6 @@ GtkListStore *g_store;
 int g_width_list, g_height_list;
 GtkCellRenderer *g_renderer;
 
-
-
 GtkWidget *create_view()
 {
 	GtkTreeViewColumn *col;
@@ -85,8 +83,6 @@ void custom_list_append(const gchar *name)
 	gchar *b, *n;
 	b = strrchr(name, '/');
 	n = g_strdup(b+1);
-	b = strrchr(n, '.');
-	*b = '\0';
 	gtk_list_store_set(g_store, &iter, COL_THEME_NAME, n, -1);
 }
 
@@ -96,7 +92,9 @@ gboolean update_snapshot()
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	GdkPixbuf *icon;
-	gboolean have_iter, found = FALSE;
+	gboolean have_iter;
+
+	gint pixWidth = 200, pixHeight = 30;
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(g_theme_view));
 	have_iter = gtk_tree_model_get_iter_first(model, &iter);
@@ -104,54 +102,42 @@ gboolean update_snapshot()
 		gtk_tree_model_get(model, &iter, COL_SNAPSHOT, &icon, -1);
 		if (icon != NULL) {
 			g_object_unref(icon);
-			have_iter = gtk_tree_model_iter_next(model, &iter);
 		}
-		else {
-			found = TRUE;
-			break;
-		}
-	}
 
-	if (found) {
 		// build panel's snapshot
-		GdkPixbuf *pixbuf;
+		GdkPixbuf *pixbuf = NULL;
 		gchar *name, *snap, *cmd;
-		gint pixWidth, pixHeight;
-		gboolean changeSize = FALSE;
 
-		snap = g_build_filename (g_get_user_config_dir(), "tint2", "snap.jpg", NULL);
+		snap = g_build_filename(g_get_user_config_dir(), "tint2", "snap.jpg", NULL);
 		g_remove(snap);
 
 		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &name, -1);
 		cmd = g_strdup_printf("tint2 -c \'%s\' -s \'%s\'", name, snap);
-		system(cmd);
-
-		// load
-		pixbuf = gdk_pixbuf_new_from_file(snap, NULL);
-		if (pixbuf == NULL) {
-			printf("snapshot NULL : %s\n", cmd);
-			found = FALSE;
+		if (system(cmd) == 0) {
+			// load
+			pixbuf = gdk_pixbuf_new_from_file(snap, NULL);
+			if (pixbuf == NULL) {
+				printf("snapshot NULL : %s\n", cmd);
+			}
 		}
 		g_free(snap);
 		g_free(cmd);
 		g_free(name);
 
-		pixWidth = gdk_pixbuf_get_width(pixbuf);
-		pixHeight = gdk_pixbuf_get_height(pixbuf);
-		if (g_width_list != pixWidth) {
-			g_width_list = pixWidth;
-			changeSize = TRUE;
-		}
-		if (g_height_list != (pixHeight+30)) {
-			g_height_list = pixHeight+30;
-			changeSize = TRUE;
-		}
-		if (changeSize)
-			gtk_cell_renderer_set_fixed_size(g_renderer, g_width_list, g_height_list);
+		gint w, h;
+		w = gdk_pixbuf_get_width(pixbuf);
+		h = gdk_pixbuf_get_height(pixbuf);
+		pixWidth = w > pixWidth ? w : pixWidth;
+		pixHeight = h > pixHeight ? h : pixHeight;
 
 		gtk_list_store_set(g_store, &iter, COL_SNAPSHOT, pixbuf, -1);
+
+		have_iter = gtk_tree_model_iter_next(model, &iter);
 	}
-	return found;
+
+	gtk_cell_renderer_set_fixed_size(g_renderer, pixWidth + 30, pixHeight + 30);
+
+	return FALSE;
 }
 
 

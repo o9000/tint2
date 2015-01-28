@@ -12,8 +12,6 @@ GtkWidget *create_view();
 
 void custom_list_append(const gchar *name);
 
-gboolean update_snapshot();
-
 #endif
 
 

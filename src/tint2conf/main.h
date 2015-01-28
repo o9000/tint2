@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -14,3 +13,6 @@
 #define _(String) String
 #endif
 
+#define SNAPSHOT_TICK 190
+gboolean update_snapshot();
+void menuApply();
