@@ -37,6 +37,7 @@
 int signal_pending;
 // --------------------------------------------------
 // mouse events
+int mouse_left;
 int mouse_middle;
 int mouse_right;
 int mouse_scroll_up;
@@ -90,6 +91,7 @@ void default_panel()
 	panel_layer = BOTTOM_LAYER;  // default is bottom layer
 	wm_menu = 0;
 	max_tick_urgent = 14;
+	mouse_left = TOGGLE_ICONIFY;
 	backgrounds = g_array_new(0, 0, sizeof(Background));
 
 	memset(&panel_config, 0, sizeof(Panel));

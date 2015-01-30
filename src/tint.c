@@ -349,7 +349,7 @@ int tint2_handles_click(Panel* panel, XButtonEvent* e)
 {
 	Task* task = click_task(panel, e->x, e->y);
 	if (task) {
-		if(   (e->button == 1)
+		if(   (e->button == 1 && mouse_left != 0)
 			 || (e->button == 2 && mouse_middle != 0)
 			 || (e->button == 3 && mouse_right != 0)
 			 || (e->button == 4 && mouse_scroll_up != 0)
@@ -486,6 +486,9 @@ void event_button_release (XEvent *e)
 
 	int action = TOGGLE_ICONIFY;
 	switch (e->xbutton.button) {
+		case 1:
+			action = mouse_left;
+			break;
 		case 2:
 			action = mouse_middle;
 			break;

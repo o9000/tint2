@@ -436,6 +436,8 @@ class TintWizardGUI(gtk.Window):
 
 		self.show_all()
 		
+		self.resetConfig()
+
 		# If tintwizard was launched with a tint2 config filename
 		# as an argument, load that config.
 		if self.oneConfigFile:
@@ -862,20 +864,24 @@ class TintWizardGUI(gtk.Window):
 		
 		mouseCmds = ["none", "close", "toggle", "iconify", "shade", "toggle_iconify", "maximize_restore", "desktop_left", "desktop_right", "next_task", "prev_task"]
 		
-		createLabel(self.tableMouse, text="Middle Mouse Click Action", gridX=0, gridY=0, xPadding=10)
-		self.mouseMiddle = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=0, handler=self.changeOccurred)
+		createLabel(self.tableMouse, text="Left Mouse Click Action", gridX=0, gridY=0, xPadding=10)
+		self.mouseLeft = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=0, handler=self.changeOccurred)
+		self.registerComponent("mouse_left", self.mouseLeft)
+		
+		createLabel(self.tableMouse, text="Middle Mouse Click Action", gridX=0, gridY=1, xPadding=10)
+		self.mouseMiddle = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=1, handler=self.changeOccurred)
 		self.registerComponent("mouse_middle", self.mouseMiddle)
 		
-		createLabel(self.tableMouse, text="Right Mouse Click Action", gridX=0, gridY=1, xPadding=10)
-		self.mouseRight = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=1, handler=self.changeOccurred)
+		createLabel(self.tableMouse, text="Right Mouse Click Action", gridX=0, gridY=2, xPadding=10)
+		self.mouseRight = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=2, handler=self.changeOccurred)
 		self.registerComponent("mouse_right", self.mouseRight)
 		
-		createLabel(self.tableMouse, text="Mouse Wheel Scroll Up Action", gridX=0, gridY=2, xPadding=10)
-		self.mouseUp = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=2, handler=self.changeOccurred)
+		createLabel(self.tableMouse, text="Mouse Wheel Scroll Up Action", gridX=0, gridY=3, xPadding=10)
+		self.mouseUp = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=3, handler=self.changeOccurred)
 		self.registerComponent("mouse_scroll_up", self.mouseUp)
 		
-		createLabel(self.tableMouse, text="Mouse Wheel Scroll Down Action", gridX=0, gridY=3, xPadding=10)
-		self.mouseDown = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=3, handler=self.changeOccurred)
+		createLabel(self.tableMouse, text="Mouse Wheel Scroll Down Action", gridX=0, gridY=4, xPadding=10)
+		self.mouseDown = createComboBox(self.tableMouse, mouseCmds, gridX=1, gridY=4, handler=self.changeOccurred)
 		self.registerComponent("mouse_scroll_down", self.mouseDown)
 	
 	def createTooltipsWidgets(self):
@@ -1397,6 +1403,7 @@ class TintWizardGUI(gtk.Window):
 															int(self.tooltipFontColButton.get_alpha() / 65535.0 * 100)))
 
 		self.configBuf.insert(self.configBuf.get_end_iter(), "\n# Mouse\n")
+		self.configBuf.insert(self.configBuf.get_end_iter(), "mouse_left = %s\n" % (self.mouseLeft.get_active_text()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "mouse_middle = %s\n" % (self.mouseMiddle.get_active_text()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "mouse_right = %s\n" % (self.mouseRight.get_active_text()))
 		self.configBuf.insert(self.configBuf.get_end_iter(), "mouse_scroll_up = %s\n" % (self.mouseUp.get_active_text()))
@@ -1847,6 +1854,7 @@ class TintWizardGUI(gtk.Window):
 		self.tooltipFontColButton.set_color(gtk.gdk.color_parse(self.defaults["fgColor"]))
 		self.tooltipFontCol.set_text(self.defaults["fgColor"])
 		# Mouse
+		self.mouseLeft.set_active(5)
 		self.mouseMiddle.set_active(0)
 		self.mouseRight.set_active(0)
 		self.mouseUp.set_active(0)

@@ -46,7 +46,7 @@ GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
 
 // task
-GtkWidget *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
+GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
 GtkWidget *task_show_icon, *task_show_text, *task_align_center, *task_font_shadow;
 GtkWidget *task_maximum_width, *task_maximum_height, *task_padding_x, *task_padding_y, *task_font;
 GtkWidget *task_default_color, *task_default_color_set,
@@ -2033,25 +2033,25 @@ void create_task(GtkWidget *parent)
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
 
-	label = gtk_label_new(_("Middle click"));
+	label = gtk_label_new(_("Left click"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
 	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
 
-	task_mouse_middle = gtk_combo_box_new_text();
-	gtk_widget_show(task_mouse_middle);
-	gtk_table_attach(GTK_TABLE(table), task_mouse_middle, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("None"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Close"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Toggle"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Iconify"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("sShade"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Toggle or iconify"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Maximize or restore"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Desktop left"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Desktop right"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Next task"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Previous task"));
+	task_mouse_left = gtk_combo_box_new_text();
+	gtk_widget_show(task_mouse_left);
+	gtk_table_attach(GTK_TABLE(table), task_mouse_left, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("None"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Close"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Toggle"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Iconify"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Shade"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Toggle or iconify"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Maximize or restore"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Desktop left"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Desktop right"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Next task"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Previous task"));
 
 	label = gtk_label_new(_("Wheel scroll up"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -2073,25 +2073,25 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_up), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_up), _("Previous task"));
 
-	label = gtk_label_new(_("Right click"));
+	label = gtk_label_new(_("Middle click"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
 	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
 
-	task_mouse_right = gtk_combo_box_new_text();
-	gtk_widget_show(task_mouse_right);
-	gtk_table_attach(GTK_TABLE(table), task_mouse_right, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("None"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Close"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Toggle"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Iconify"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Shade"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Toggle or iconify"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Maximize or restore"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Desktop left"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Desktop right"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Next task"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Previous task"));
+	task_mouse_middle = gtk_combo_box_new_text();
+	gtk_widget_show(task_mouse_middle);
+	gtk_table_attach(GTK_TABLE(table), task_mouse_middle, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("None"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Close"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Toggle"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Iconify"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("sShade"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Toggle or iconify"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Maximize or restore"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Desktop left"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Desktop right"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Next task"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Previous task"));
 
 	label = gtk_label_new(_("Wheel scroll down"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -2113,14 +2113,34 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_down), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_down), _("Previous task"));
 
-	label = gtk_label_new(_("Tooltip"));
+	label = gtk_label_new(_("Right click"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
 	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
 
+	task_mouse_right = gtk_combo_box_new_text();
+	gtk_widget_show(task_mouse_right);
+	gtk_table_attach(GTK_TABLE(table), task_mouse_right, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("None"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Close"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Toggle"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Iconify"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Shade"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Toggle or iconify"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Maximize or restore"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Desktop left"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Desktop right"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Next task"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Previous task"));
+
+	label = gtk_label_new(_("Tooltip"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
+
 	tooltip_task_show = gtk_check_button_new();
 	gtk_widget_show(tooltip_task_show);
-	gtk_table_attach(GTK_TABLE(table), tooltip_task_show, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), tooltip_task_show, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
 
 	change_paragraph(parent);
 

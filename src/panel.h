@@ -29,6 +29,7 @@
 extern int signal_pending;
 // --------------------------------------------------
 // mouse events
+extern int mouse_left;
 extern int mouse_middle;
 extern int mouse_right;
 extern int mouse_scroll_up;

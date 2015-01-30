@@ -89,6 +89,7 @@ tooltip_font = Aller 8
 tooltip_font_color = #D3CAAA 33
 
 # Mouse
+mouse_left = toggle_iconify
 mouse_middle = none
 mouse_right = close
 mouse_scroll_up = toggle

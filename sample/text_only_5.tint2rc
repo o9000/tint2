@@ -96,6 +96,7 @@ tooltip_font = AvantGardeLTMedium 8
 tooltip_font_color = #434141 100
 
 # Mouse
+mouse_left = toggle_iconify
 mouse_middle = none
 mouse_right = close
 mouse_scroll_up = toggle

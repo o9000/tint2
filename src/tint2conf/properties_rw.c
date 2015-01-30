@@ -1117,6 +1117,9 @@ void add_entry(char *key, char *value)
 	}
 
 	/* Mouse actions */
+	else if (strcmp(key, "mouse_left") == 0) {
+		get_action(value, task_mouse_left);
+	}
 	else if (strcmp(key, "mouse_middle") == 0) {
 		get_action(value, task_mouse_middle);
 	}

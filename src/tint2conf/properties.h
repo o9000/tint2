@@ -51,7 +51,7 @@ extern GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 extern GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
 
 // task
-extern GtkWidget *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
+extern GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
 extern GtkWidget *task_show_icon, *task_show_text, *task_align_center, *task_font_shadow;
 extern GtkWidget *task_maximum_width, *task_maximum_height, *task_padding_x, *task_padding_y, *task_font;
 extern GtkWidget *task_default_color, *task_default_color_set,
