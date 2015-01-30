@@ -150,6 +150,6 @@ void get_root_pixmap();
 // detect monitors and desktops
 void get_monitors();
 void get_desktops();
-int server_get_number_of_desktop();
+int server_get_number_of_desktops();
 
 #endif

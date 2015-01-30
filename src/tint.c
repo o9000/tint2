@@ -596,7 +596,7 @@ void event_property_notify (XEvent *e)
 		// Change number of desktops
 		else if (at == server.atom._NET_NUMBER_OF_DESKTOPS) {
 			if (!taskbar_enabled) return;
-			server.nb_desktop = server_get_number_of_desktop ();
+			server.nb_desktop = server_get_number_of_desktops();
 			if (server.nb_desktop <= server.desktop) {
 				server.desktop = server.nb_desktop-1;
 			}

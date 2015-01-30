@@ -351,7 +351,7 @@ next:
 	}
 }
 
-int server_get_number_of_desktop ()
+int server_get_number_of_desktops()
 {
 	return get_property32(server.root_win, server.atom._NET_NUMBER_OF_DESKTOPS, XA_CARDINAL);
 }
@@ -363,7 +363,7 @@ void get_desktops()
 	// detect number of desktops
 	// wait 15s to leave some time for window manager startup
 	for (i=0 ; i < 15 ; i++) {
-		server.nb_desktop = server_get_number_of_desktop ();
+		server.nb_desktop = server_get_number_of_desktops();
 		if (server.nb_desktop > 0) break;
 		sleep(1);
 	}
