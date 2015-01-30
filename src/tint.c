@@ -171,7 +171,7 @@ static gint cmp_ptr(gconstpointer a, gconstpointer b) {
 
 #endif // HAVE_SN
 
-void init_X11()
+void init_X11_pre_config()
 {
 	server.dsp = XOpenDisplay (NULL);
 	if (!server.dsp) {
@@ -182,6 +182,20 @@ void init_X11()
 	server.screen = DefaultScreen (server.dsp);
 	server.root_win = RootWindow(server.dsp, server.screen);
 	server.desktop = server_get_current_desktop ();
+
+	setlocale (LC_ALL, "");
+	// config file use '.' as decimal separator
+	setlocale(LC_NUMERIC, "POSIX");
+
+	// get monitor and desktop config
+	get_monitors();
+	get_desktops();
+
+	server.disable_transparency = 0;
+}
+
+void init_X11_post_config()
+{
 	server_init_visual();
 	XSetErrorHandler ((XErrorHandler) server_catch_error);
 
@@ -204,10 +218,6 @@ void init_X11()
 
 	/* Catch events */
 	XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
-
-	setlocale (LC_ALL, "");
-	// config file use '.' as decimal separator
-	setlocale(LC_NUMERIC, "POSIX");
 	
 	// load default icon
 	gchar *path;
@@ -220,10 +230,6 @@ void init_X11()
 			default_icon = imlib_load_image(path);
 		g_free(path);
 	}
-
-	// get monitor and desktop config
-	get_monitors();
-	get_desktops();
 }
 
 
@@ -1023,7 +1029,8 @@ int main (int argc, char *argv[])
 
 start:
 	init (argc, argv);
-	init_X11();
+
+	init_X11_pre_config();
 
 	i = 0;
 	if (config_path)
@@ -1035,6 +1042,8 @@ start:
 		cleanup();
 		exit(1);
 	}
+
+	init_X11_post_config();
 
 	init_panel();
 	if (snapshot_path) {

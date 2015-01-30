@@ -125,6 +125,7 @@ void cleanup_server()
 		free(server.monitor);
 	}
 	if (server.gc) XFreeGC(server.dsp, server.gc);
+	server.disable_transparency = 0;
 }
 
 
@@ -408,7 +409,7 @@ void server_init_visual()
 		server.colormap32 = XCreateColormap(server.dsp, server.root_win, visual, AllocNone);
 	}
 
-	if (visual && server.composite_manager != None && snapshot_path == 0) {
+	if (!server.disable_transparency && visual && server.composite_manager != None && snapshot_path == 0) {
 		XSetWindowAttributes attrs;
 		attrs.event_mask = StructureNotifyMask;
 		XChangeWindowAttributes (server.dsp, server.composite_manager, CWEventMask, &attrs);

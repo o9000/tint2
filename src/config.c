@@ -283,6 +283,9 @@ void add_entry (char *key, char *value)
 		else
 			panel_layer = NORMAL_LAYER;
 	}
+	else if (strcmp (key, "disable_transparency") == 0) {
+		server.disable_transparency = atoi (value);
+	}
 
 	/* Battery */
 	else if (strcmp (key, "battery_low_status") == 0) {

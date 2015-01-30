@@ -106,6 +106,7 @@ typedef struct
 	Window root_win;
 	Window composite_manager;
 	int real_transparency;
+	int disable_transparency;
 	// current desktop
 	int desktop;
 	int screen;
