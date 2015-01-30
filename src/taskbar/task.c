@@ -118,6 +118,11 @@ Task *add_task (Window win)
 	if (window_is_urgent(win))
 		add_urgent(new_tsk2);
 
+	if (panel_mode == MULTI_DESKTOP) {
+		Panel *panel = new_tsk2->area.panel;
+		panel->area.resize = 1;
+	}
+
 	return new_tsk2;
 }
 
@@ -125,6 +130,11 @@ Task *add_task (Window win)
 void remove_task (Task *tsk)
 {
 	if (!tsk) return;
+
+	if (panel_mode == MULTI_DESKTOP) {
+		Panel *panel = tsk->area.panel;
+		panel->area.resize = 1;
+	}
 
 	Window win = tsk->win;
 

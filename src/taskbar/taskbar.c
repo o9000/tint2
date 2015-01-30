@@ -42,6 +42,7 @@ GHashTable* win_to_task_table;
 Task *task_active;
 Task *task_drag;
 int taskbar_enabled;
+int taskbar_distribute_size;
 
 guint win_hash(gconstpointer key) { return (guint)*((Window*)key); }
 gboolean win_compare(gconstpointer a, gconstpointer b) { return (*((Window*)a) == *((Window*)b)); }
@@ -54,6 +55,7 @@ void default_taskbar()
 	urgent_timeout = 0;
 	urgent_list = 0;
 	taskbar_enabled = 0;
+	taskbar_distribute_size = 0;
 	default_taskbarname();
 }
 
@@ -321,8 +323,11 @@ int resize_taskbar(void *obj)
 		text_width = panel->g_task.maximum_width;
 		GSList *l = taskbar->area.list;
 		if (taskbarname_enabled) l = l->next;
-		if (l != NULL) {
-			text_width = ((Task *)l->data)->area.width;
+		for (; l != NULL; l = l->next) {
+			if (((Task *)l->data)->area.on_screen) {
+				text_width = ((Task *)l->data)->area.width;
+				break;
+			}
 		}
 		taskbar->text_width = text_width - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingx;
 	}

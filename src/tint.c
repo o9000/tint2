@@ -461,6 +461,7 @@ void event_button_motion_notify (XEvent *e)
 		drag_taskbar->area.resize = 1;
 		task_dragged = 1;
 		panel_refresh = 1;
+		panel->area.resize = 1;
 	}
 }
 
@@ -634,6 +635,8 @@ void event_property_notify (XEvent *e)
 							tsk->area.on_screen = 0;
 							tskbar->area.resize = 1;
 							panel_refresh = 1;
+							if (panel_mode == MULTI_DESKTOP)
+								panel->area.resize = 1;
 						}
 					}
 				}
@@ -645,6 +648,8 @@ void event_property_notify (XEvent *e)
 					if (tsk->desktop == ALLDESKTOP) {
 						tsk->area.on_screen = 1;
 						tskbar->area.resize = 1;
+						if (panel_mode == MULTI_DESKTOP)
+							panel->area.resize = 1;
 					}
 				}
 			}

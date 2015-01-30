@@ -16,7 +16,7 @@ extern GHashTable* win_to_task_table;
 extern Task *task_active;
 extern Task *task_drag;
 extern int taskbar_enabled;
-
+extern int taskbar_distribute_size;
 
 typedef struct {
 	// always start with area

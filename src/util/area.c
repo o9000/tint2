@@ -82,11 +82,15 @@ void init_rendering(void *obj, int pos)
 		if (panel_horizontal) {
 			child->posy = pos + a->bg->border.width + a->paddingy;
 			child->height = a->height - (2 * (a->bg->border.width + a->paddingy));
+			if (child->_on_change_layout)
+				child->_on_change_layout(child);
 			init_rendering(child, child->posy);
 		}
 		else {
 			child->posx = pos + a->bg->border.width + a->paddingy;
 			child->width = a->width - (2 * (a->bg->border.width + a->paddingy));
+			if (child->_on_change_layout)
+				child->_on_change_layout(child);
 			init_rendering(child, child->posx);
 		}
 	}

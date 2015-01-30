@@ -322,6 +322,87 @@ int resize_panel(void *obj)
 			panel->taskbar[i].area.resize = 1;
 		}
 	}
+	if (panel_mode == MULTI_DESKTOP && taskbar_enabled && taskbar_distribute_size) {
+		// Distribute the available space between taskbars
+		Panel *panel = (Panel*)obj;
+
+		// Compute the total available size, and the total size requested by the taskbars
+		int total_size = 0;
+		int total_name_size = 0;
+		int total_items = 0;
+		int i;
+		for (i = 0; i < panel->nb_desktop; i++) {
+			if (panel_horizontal) {
+				total_size += panel->taskbar[i].area.width;
+			} else {
+				total_size += panel->taskbar[i].area.height;
+			}
+
+			Taskbar *taskbar = &panel->taskbar[i];
+			GSList *l;
+			for (l = taskbar->area.list; l; l = l->next) {
+				Area *child = l->data;
+				if (!child->on_screen)
+					continue;
+				total_items++;
+			}
+			if (taskbarname_enabled) {
+				if (taskbar->area.list) {
+					total_items--;
+					Area *name = taskbar->area.list->data;
+					if (panel_horizontal) {
+						total_name_size += name->width;
+					} else {
+						total_name_size += name->height;
+					}
+				}
+			}
+		}
+		// Distribute the space proportionally to the requested size (that is, to the
+		// number of tasks in each taskbar)
+		if (total_items) {
+			int actual_name_size;
+			if (total_name_size <= total_size) {
+				actual_name_size = total_name_size / panel->nb_desktop;
+			} else {
+				actual_name_size = total_size / panel->nb_desktop;
+			}
+			total_size -= total_name_size;
+
+			for (i = 0; i < panel->nb_desktop; i++) {
+				Taskbar *taskbar = &panel->taskbar[i];
+
+				int requested_size = (2 * taskbar->area.bg->border.width) + (2 * taskbar->area.paddingxlr);
+				int items = 0;
+				GSList *l = taskbar->area.list;
+				if (taskbarname_enabled)
+					l = l->next;
+				for (; l; l = l->next) {
+					Area *child = l->data;
+					if (!child->on_screen)
+						continue;
+					items++;
+					if (panel_horizontal) {
+						requested_size += child->width + taskbar->area.paddingy;
+					} else {
+						requested_size += child->height + taskbar->area.paddingx;
+					}
+				}
+				if (panel_horizontal) {
+					requested_size -= taskbar->area.paddingy;
+				} else {
+					requested_size -= taskbar->area.paddingx;
+				}
+
+				if (panel_horizontal) {
+					taskbar->area.width = actual_name_size + items / (float)total_items * total_size;
+				} else {
+					taskbar->area.height = actual_name_size + items / (float)total_items * total_size;
+				}
+				taskbar->area.resize = 1;
+			}
+		}
+	}
 	return 0;
 }
 

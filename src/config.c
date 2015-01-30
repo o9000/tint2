@@ -413,6 +413,9 @@ void add_entry (char *key, char *value)
 		if (strcmp (value, "multi_desktop") == 0) panel_mode = MULTI_DESKTOP;
 		else panel_mode = SINGLE_DESKTOP;
 	}
+	else if (strcmp (key, "taskbar_distribute_size") == 0) {
+		taskbar_distribute_size = atoi(value);
+	}
 	else if (strcmp (key, "taskbar_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		panel_config.g_taskbar.area.paddingxlr = panel_config.g_taskbar.area.paddingx = atoi (value1);
