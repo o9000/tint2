@@ -636,3 +636,9 @@ void refresh_systray_icon()
 		systray_render_icon(traywin);
 	}
 }
+
+int systray_on_monitor(int i_monitor, int nb_panels)
+{
+	return (i_monitor == systray_monitor) ||
+			(i_monitor == 0 && (systray_monitor >= nb_panels || systray_monitor < 0));
+}
