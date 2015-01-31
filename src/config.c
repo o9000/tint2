@@ -280,6 +280,8 @@ void add_entry (char *key, char *value)
 			panel_layer = BOTTOM_LAYER;
 		else if (strcmp(value, "top") == 0)
 			panel_layer = TOP_LAYER;
+		else if (strcmp(value, "float") == 0)
+			panel_layer = FLOAT_LAYER;
 		else
 			panel_layer = NORMAL_LAYER;
 	}

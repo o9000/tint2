@@ -138,10 +138,12 @@ void config_write_panel(FILE *fp)
 	fprintf(fp, "\n");
 
 	fprintf(fp, "panel_layer = ");
-	if (gtk_combo_box_get_active(GTK_COMBO_BOX(panel_combo_layer)) == 0) {
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(panel_combo_layer)) == 2) {
 		fprintf(fp, "top");
 	} else if (gtk_combo_box_get_active(GTK_COMBO_BOX(panel_combo_layer)) == 1) {
-		fprintf(fp, "center");
+		fprintf(fp, "normal");
+	} else if (gtk_combo_box_get_active(GTK_COMBO_BOX(panel_combo_layer)) == 3) {
+		fprintf(fp, "float");
 	} else {
 		fprintf(fp, "bottom");
 	}
@@ -687,9 +689,11 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "panel_layer") == 0) {
 		if (strcmp(value, "bottom") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_layer), 2);
-		else if (strcmp(value, "top") == 0)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_layer), 0);
+		else if (strcmp(value, "top") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_layer), 2);
+		else if (strcmp(value, "float") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_layer), 3);
 		else
 			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_layer), 1);
 	}

@@ -510,18 +510,36 @@ void set_panel_properties(Panel *p)
 	}
 
 	// Dock
-	long val = panel_dock ? server.atom._NET_WM_WINDOW_TYPE_DOCK : server.atom._NET_WM_WINDOW_TYPE_NORMAL;
+	long val = server.atom._NET_WM_WINDOW_TYPE_DOCK;
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &val, 1);
 
-	// Sticky and below other window
 	val = ALLDESKTOP;
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_DESKTOP, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &val, 1);
-	Atom state[4];
+
+	Atom state[5];
+	int nb_atoms;
 	state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;
 	state[1] = server.atom._NET_WM_STATE_SKIP_TASKBAR;
 	state[2] = server.atom._NET_WM_STATE_STICKY;
-	state[3] = panel_layer == BOTTOM_LAYER ? server.atom._NET_WM_STATE_BELOW : server.atom._NET_WM_STATE_ABOVE;
-	int nb_atoms = panel_layer == NORMAL_LAYER ? 3 : 4;
+	switch ( panel_layer ) {
+	case BOTTOM_LAYER:
+		state[3] = server.atom._NET_WM_STATE_BELOW; 
+		nb_atoms = 4;
+		break;
+	case NORMAL_LAYER:
+		nb_atoms = 3;
+		break;
+	case TOP_LAYER:
+		state[3] = server.atom._NET_WM_STATE_ABOVE;
+		nb_atoms = 4;
+		break;
+	case FLOAT_LAYER:
+		// Float above or below (allowed by some WM for some layers)
+		state[3] = server.atom._NET_WM_STATE_BELOW; 
+		state[4] = server.atom._NET_WM_STATE_ABOVE;
+		nb_atoms = 5;
+		break;
+	}
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STATE, XA_ATOM, 32, PropModeReplace, (unsigned char *) state, nb_atoms);
 
 	// Unfocusable
