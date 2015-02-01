@@ -985,7 +985,6 @@ void create_panel(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_layer), _("Top"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_layer), _("Normal"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_layer), _("Bottom"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_layer), _("Float"));
 
 	label = gtk_label_new(_("Maximized window"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);

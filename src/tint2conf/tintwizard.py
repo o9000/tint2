@@ -502,7 +502,7 @@ class TintWizardGUI(gtk.Window):
 		self.registerComponent("panel_dock", self.panelDock)
 		
 		createLabel(self.tablePanelSettings, text="Panel Layer", gridX=0, gridY=2, xPadding=10)
-		self.panelLayer = createComboBox(self.tablePanelSettings, ["bottom", "top", "normal", "float"], gridX=1, gridY=2, handler=self.changeOccurred)
+		self.panelLayer = createComboBox(self.tablePanelSettings, ["bottom", "top", "normal"], gridX=1, gridY=2, handler=self.changeOccurred)
 		self.registerComponent("panel_layer", self.panelLayer)
 		
 		createLabel(self.tablePanelSettings, text="Strut Policy", gridX=0, gridY=3, xPadding=10)
