@@ -387,7 +387,7 @@ void update_battery() {
 	battery_state.time.seconds = seconds;
 
 	if(energy_full > 0)
-		new_percentage = (energy_now*100)/energy_full;
+		new_percentage = ((energy_now <= energy_full ? energy_now : energy_full) * 100) / energy_full;
 
 	if(battery_low_status > new_percentage && battery_state.state == BATTERY_DISCHARGING && !battery_low_cmd_send) {
 		tint_exec(battery_low_cmd);
