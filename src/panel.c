@@ -508,12 +508,12 @@ void set_panel_properties(Panel *p)
 	}
 
 	// Dock
-	long val = panel_dock ? server.atom._NET_WM_WINDOW_TYPE_DOCK : server.atom._NET_WM_WINDOW_TYPE_NORMAL;
+	long val = panel_dock ? server.atom._NET_WM_WINDOW_TYPE_DOCK : server.atom._NET_WM_WINDOW_TYPE_SPLASH;
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &val, 1);
 
-	// Sticky and below other window
 	val = ALLDESKTOP;
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_DESKTOP, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &val, 1);
+
 	Atom state[4];
 	state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;
 	state[1] = server.atom._NET_WM_STATE_SKIP_TASKBAR;
@@ -524,15 +524,11 @@ void set_panel_properties(Panel *p)
 
 	// Unfocusable
 	XWMHints wmhints;
-	if (panel_dock) {
-		wmhints.icon_window = wmhints.window_group = p->main_win;
-		wmhints.flags = StateHint | IconWindowHint;
-		wmhints.initial_state = WithdrawnState;
-	}
-	else {
-		wmhints.flags = InputHint;
-		wmhints.input = False;
-	}
+	wmhints.icon_window = wmhints.window_group = p->main_win;
+	wmhints.flags = StateHint | IconWindowHint;
+	wmhints.initial_state = WithdrawnState;
+	wmhints.flags = InputHint;
+	wmhints.input = False;
 	XSetWMHints(server.dsp, p->main_win, &wmhints);
 
 	// Undecorated
