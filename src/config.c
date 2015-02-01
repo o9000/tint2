@@ -157,6 +157,7 @@ void add_entry (char *key, char *value)
 	if (strcmp (key, "rounded") == 0) {
 		// 'rounded' is the first parameter => alloc a new background
 		Background bg;
+		memset(&bg, 0, sizeof(bg));
 		bg.border.rounded = atoi(value);
 		g_array_append_val(backgrounds, bg);
 	}
