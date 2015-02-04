@@ -694,6 +694,7 @@ void add_entry (char *key, char *value)
 			}
 		}
 	}
+#ifdef ENABLE_BATTERY
 	else if (strcmp(key, "battery") == 0) {
 		if (new_config_file == 0) {
 			battery_enabled = atoi(value);
@@ -708,6 +709,7 @@ void add_entry (char *key, char *value)
 			}
 		}
 	}
+#endif
 	else
 		fprintf(stderr, "tint2 : invalid option \"%s\",\n  upgrade tint2 or correct your config file\n", key);
 
