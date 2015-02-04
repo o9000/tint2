@@ -359,6 +359,12 @@ gboolean add_icon(Window id)
 	Panel *panel = systray.area.panel;
 	int hide = 0;
 
+	GSList *l;
+	for (l = systray.list_icons; l; l = l->next) {
+		if (((TrayWindow*)l->data)->tray_id == id)
+			return FALSE;
+	}
+
 	error = FALSE;
 	XWindowAttributes attr;
 	if ( XGetWindowAttributes(server.dsp, id, &attr) == False ) return FALSE;
