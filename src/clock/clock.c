@@ -127,14 +127,24 @@ const char* clock_get_tooltip(void* obj)
 	return buf_tooltip;
 }
 
+int time_format_needs_sec_ticks(char *time_format)
+{
+	if (!time_format)
+		return 0;
+	if (strchr(time_format, 'S') || strchr(time_format, 'T') || strchr(time_format, 'r'))
+		return 1;
+	return 0;
+}
 
 void init_clock()
 {
-	if(time1_format && clock_timeout==0) {
-		if (strchr(time1_format, 'S') || strchr(time1_format, 'T') || strchr(time1_format, 'r'))
+	if (clock_timeout == 0) {
+		if (time_format_needs_sec_ticks(time1_format) ||
+			time_format_needs_sec_ticks(time2_format)) {
 			clock_timeout = add_timeout(10, 1000, update_clocks_sec, 0);
-		else
+		} else {
 			clock_timeout = add_timeout(10, 1000, update_clocks_min, 0);
+		}
 	}
 }
 
