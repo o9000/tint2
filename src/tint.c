@@ -517,7 +517,7 @@ void event_button_release (XEvent *e)
 		return;
 	}
 
-	if ( click_launcher(panel, e->xbutton.x, e->xbutton.y)) {
+	if (e->xbutton.button == 1 && click_launcher(panel, e->xbutton.x, e->xbutton.y)) {
 		LauncherIcon *icon = click_launcher_icon(panel, e->xbutton.x, e->xbutton.y);
 		if (icon) {
 			launcher_action(icon, e);
