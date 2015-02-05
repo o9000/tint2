@@ -1,6 +1,12 @@
 project( tint2 )
 cmake_minimum_required( VERSION 2.6 )
 
+option( ENABLE_BATTERY "Enable battery status plugin" ON )
+option( ENABLE_TINT2CONF "Enable tint2conf build, a GTK+2 theme configurator for tint2" ON )
+option( ENABLE_EXAMPLES "Install additional tin2rc examples" OFF )
+option( ENABLE_RSVG "Rsvg support (launcher only)" ON )
+option( ENABLE_SN "Startup notification support" ON )
+
 include( FindPkgConfig )
 include( CheckLibraryExists )
 pkg_check_modules( X11 REQUIRED x11 xcomposite xdamage xinerama xrender xrandr>=1.3 )
@@ -10,20 +16,20 @@ pkg_check_modules( CAIRO REQUIRED cairo )
 pkg_check_modules( GLIB2 REQUIRED glib-2.0 )
 pkg_check_modules( GOBJECT2 REQUIRED gobject-2.0 )
 pkg_check_modules( IMLIB2 REQUIRED imlib2>=1.4.2 )
-pkg_check_modules( RSVG librsvg-2.0>=2.36.0 )
+pkg_check_modules( RSVG librsvg-2.0>=2.14.0 )
 pkg_check_modules( SN libstartup-notification-1.0>=0.12 )
 
 find_library( RT_LIBRARY rt )
 
 if( NOT X11_FOUND OR NOT PANGOCAIRO_FOUND OR NOT PANGO_FOUND OR NOT CAIRO_FOUND OR NOT GLIB2_FOUND OR NOT GOBJECT2_FOUND OR NOT IMLIB2_FOUND )
-  message( FATAL_ERROR "Not all dependencies fulfilled. See http://code.google.com/p/tint2/wiki/Install" )
+  message( FATAL_ERROR "Not all dependencies fulfilled. See https://code.google.com/p/tint2/wiki/Install" )
 endif( NOT X11_FOUND OR NOT PANGOCAIRO_FOUND OR NOT PANGO_FOUND OR NOT CAIRO_FOUND OR NOT GLIB2_FOUND OR NOT GOBJECT2_FOUND OR NOT IMLIB2_FOUND )
 
 string( REPLACE ";" " " FLAGS_REPLACED "${IMLIB2_LDFLAGS}" )
 set( CMAKE_REQUIRED_FLAGS "${FLAGS_REPLACED}" )
 check_library_exists( "${IMLIB2_LIBRARIES}" "imlib_context_set_display" "${IMLIB2_LIBRARY_DIRS}" IMLIB_BUILD_WITH_X )
 if( NOT IMLIB_BUILD_WITH_X )
-  message( FATAL_ERROR "Imlib is not build with x support" )
+  message( FATAL_ERROR "Imlib is not built with X support" )
 endif( NOT IMLIB_BUILD_WITH_X )
 
 include_directories( ${PROJECT_BINARY_DIR}
@@ -65,11 +71,6 @@ set( SOURCES src/config.c
              src/util/timer.c
              src/util/window.c )
 
-option( ENABLE_BATTERY "Enable battery status plugin" ON )
-option( ENABLE_TINT2CONF "Enable tint2conf build, a GTK+2 theme switcher for tint2" ON )
-option( ENABLE_EXAMPLES "Install additional tin2rc examples" OFF )
-option( ENABLE_RSVG "Rsvg support (launcher only)" ON )
-
 if( ENABLE_BATTERY )
   set( SOURCES ${SOURCES} src/battery/battery.c )
   add_definitions( -DENABLE_BATTERY )
@@ -78,26 +79,29 @@ endif( ENABLE_BATTERY )
 if( ENABLE_RSVG )
   if( RSVG_FOUND )
 	add_definitions( -DHAVE_RSVG )
+  else()
+    message( FATAL_ERROR "SVG support enabled yet dependency not fulfilled: librsvg-2.0" )
   endif( RSVG_FOUND )
 endif( ENABLE_RSVG )
 
-option( ENABLE_SN "Startup notification support" ON )
 if( ENABLE_SN )
   if( SN_FOUND )
     add_definitions( -DHAVE_SN -DSN_API_NOT_YET_FROZEN )
+  else()
+    message( FATAL_ERROR "Startup notification support enabled yet dependency not fulfilled: libstartup-notification-1.0" )
   endif( SN_FOUND )
 endif( ENABLE_SN)
-
-set( MANDIR share/man CACHE PATH "Directory for man pages" )
-set( DATADIR share CACHE PATH "Directory for shared data" )
-set( SYSCONFDIR /etc CACHE PATH "Directory for configuration files" )
-set( DOCDIR share/doc/tint2 CACHE PATH "Directory for documentation files" )
 
 if( ENABLE_TINT2CONF )
   add_definitions( -DHAVE_VERSION_H )
   add_subdirectory( src/tint2conf )
   add_dependencies( tint2conf version )
 endif( ENABLE_TINT2CONF )
+
+set( MANDIR share/man CACHE PATH "Directory for man pages" )
+set( DATADIR share CACHE PATH "Directory for shared data" )
+set( SYSCONFDIR /etc CACHE PATH "Directory for configuration files" )
+set( DOCDIR share/doc/tint2 CACHE PATH "Directory for documentation files" )
 
 add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_svnrev.sh" "\"${PROJECT_SOURCE_DIR}\"" )
 
