@@ -522,12 +522,14 @@ void set_panel_properties(Panel *p)
 	int nb_atoms = panel_layer == NORMAL_LAYER ? 3 : 4;
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_STATE, XA_ATOM, 32, PropModeReplace, (unsigned char *) state, nb_atoms);
 
-	// Unfocusable
 	XWMHints wmhints;
-	wmhints.icon_window = wmhints.window_group = p->main_win;
-	wmhints.flags = StateHint | IconWindowHint;
+	memset(&wmhints, 0, sizeof(wmhints));
+	wmhints.flags = StateHint | IconWindowHint | InputHint;
+	// Necessary for placing the panel into the dock on Openbox and Fluxbox.
+	// See https://code.google.com/p/tint2/issues/detail?id=465
 	wmhints.initial_state = WithdrawnState;
-	wmhints.flags = InputHint;
+	wmhints.icon_window = wmhints.window_group = p->main_win;
+	// We do not need keyboard input focus.
 	wmhints.input = False;
 	XSetWMHints(server.dsp, p->main_win, &wmhints);
 
