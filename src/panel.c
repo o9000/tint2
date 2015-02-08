@@ -53,6 +53,7 @@ int panel_position;
 int panel_horizontal;
 int panel_refresh;
 int task_dragged;
+char *panel_window_name;
 
 int panel_autohide;
 int panel_autohide_show_timeout;
@@ -89,6 +90,7 @@ void default_panel()
 	panel_strut_policy = STRUT_FOLLOW_SIZE;
 	panel_dock = 0;  // default not in the dock
 	panel_layer = BOTTOM_LAYER;  // default is bottom layer
+	panel_window_name = "tint2";
 	wm_menu = 0;
 	max_tick_urgent = 14;
 	mouse_left = TOGGLE_ICONIFY;
@@ -498,12 +500,14 @@ void set_panel_items_order(Panel *p)
 
 void set_panel_properties(Panel *p)
 {
-	XStoreName (server.dsp, p->main_win, "tint2");
+	XStoreName (server.dsp, p->main_win, panel_window_name);
+	XSetIconName (server.dsp, p->main_win, panel_window_name);
 
 	gsize len;
-	gchar *name = g_locale_to_utf8("tint2", -1, NULL, &len, NULL);
+	gchar *name = g_locale_to_utf8(panel_window_name, -1, NULL, &len, NULL);
 	if (name != NULL) {
 		XChangeProperty(server.dsp, p->main_win, server.atom._NET_WM_NAME, server.atom.UTF8_STRING, 8, PropModeReplace, (unsigned char *) name, (int) len);
+		XChangeProperty(server.dsp, p->main_win, server.atom._NET_WM_ICON_NAME, server.atom.UTF8_STRING, 8, PropModeReplace, (unsigned char *) name, (int) len);
 		g_free(name);
 	}
 

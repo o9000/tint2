@@ -57,6 +57,7 @@ typedef struct Global_atom
 	Atom _NET_WM_STRUT;
 	Atom _NET_WM_ICON;
 	Atom _NET_WM_ICON_GEOMETRY;
+	Atom _NET_WM_ICON_NAME;
 	Atom _NET_CLOSE_WINDOW;
 	Atom UTF8_STRING;
 	Atom _NET_SUPPORTING_WM_CHECK;

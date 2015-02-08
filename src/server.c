@@ -72,6 +72,7 @@ void server_init_atoms ()
 	server.atom._NET_WM_STRUT = XInternAtom (server.dsp, "_NET_WM_STRUT", False);
 	server.atom._NET_WM_ICON = XInternAtom (server.dsp, "_NET_WM_ICON", False);
 	server.atom._NET_WM_ICON_GEOMETRY = XInternAtom(server.dsp, "_NET_WM_ICON_GEOMETRY", False );
+	server.atom._NET_WM_ICON_NAME = XInternAtom(server.dsp, "_NET_WM_ICON_NAME", False );
 	server.atom._NET_CLOSE_WINDOW = XInternAtom (server.dsp, "_NET_CLOSE_WINDOW", False);
 	server.atom.UTF8_STRING = XInternAtom (server.dsp, "UTF8_STRING", False);
 	server.atom._NET_SUPPORTING_WM_CHECK = XInternAtom (server.dsp, "_NET_SUPPORTING_WM_CHECK", False);
