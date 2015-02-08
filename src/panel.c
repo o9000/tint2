@@ -53,7 +53,7 @@ int panel_position;
 int panel_horizontal;
 int panel_refresh;
 int task_dragged;
-char *panel_window_name;
+char *panel_window_name = NULL;
 
 int panel_autohide;
 int panel_autohide_show_timeout;
@@ -90,7 +90,8 @@ void default_panel()
 	panel_strut_policy = STRUT_FOLLOW_SIZE;
 	panel_dock = 0;  // default not in the dock
 	panel_layer = BOTTOM_LAYER;  // default is bottom layer
-	panel_window_name = "tint2";
+	free(panel_window_name);
+	panel_window_name = strdup("tint2");
 	wm_menu = 0;
 	max_tick_urgent = 14;
 	mouse_left = TOGGLE_ICONIFY;
@@ -124,6 +125,7 @@ void cleanup_panel()
 	}
 
 	if (panel_items_order) g_free(panel_items_order);
+	free(panel_window_name);
 	if (panel1) free(panel1);
 	if (backgrounds)
 		g_array_free(backgrounds, 1);

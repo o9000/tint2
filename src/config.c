@@ -288,8 +288,10 @@ void add_entry (char *key, char *value)
 		server.disable_transparency = atoi (value);
 	}
 	else if (strcmp (key, "panel_window_name") == 0) {
-		if (strlen(value) > 0)
+		if (strlen(value) > 0) {
+			free(panel_window_name);
 			panel_window_name = strdup (value);
+		}
 	}
 
 	/* Battery */
