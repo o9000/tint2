@@ -524,12 +524,15 @@ void set_panel_properties(Panel *p)
 
 	XWMHints wmhints;
 	memset(&wmhints, 0, sizeof(wmhints));
-	wmhints.flags = StateHint | IconWindowHint | InputHint;
-	// Necessary for placing the panel into the dock on Openbox and Fluxbox.
-	// See https://code.google.com/p/tint2/issues/detail?id=465
-	wmhints.initial_state = WithdrawnState;
-	wmhints.icon_window = wmhints.window_group = p->main_win;
+	if (panel_dock) {
+		// Necessary for placing the panel into the dock on Openbox and Fluxbox.
+		// See https://code.google.com/p/tint2/issues/detail?id=465
+		wmhints.icon_window = wmhints.window_group = p->main_win;
+		wmhints.flags = StateHint | IconWindowHint;
+		wmhints.initial_state = WithdrawnState;
+	}
 	// We do not need keyboard input focus.
+	wmhints.flags |= InputHint;
 	wmhints.input = False;
 	XSetWMHints(server.dsp, p->main_win, &wmhints);
 
