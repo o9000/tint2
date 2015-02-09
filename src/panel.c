@@ -90,7 +90,6 @@ void default_panel()
 	panel_strut_policy = STRUT_FOLLOW_SIZE;
 	panel_dock = 0;  // default not in the dock
 	panel_layer = BOTTOM_LAYER;  // default is bottom layer
-	free(panel_window_name);
 	panel_window_name = strdup("tint2");
 	wm_menu = 0;
 	max_tick_urgent = 14;
