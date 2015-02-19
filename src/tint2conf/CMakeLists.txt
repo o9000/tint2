@@ -2,7 +2,7 @@ project(tint2conf)
 cmake_minimum_required(VERSION 2.6)
 
 include( FindPkgConfig )
-pkg_check_modules( X11_T2C REQUIRED x11 xrender )
+pkg_check_modules( X11_T2C REQUIRED x11 xcomposite xdamage xinerama xrender xrandr>=1.3 )
 pkg_check_modules( GLIB2 REQUIRED glib-2.0 )
 pkg_check_modules( GOBJECT2 REQUIRED gobject-2.0 )
 pkg_check_modules( IMLIB2 REQUIRED imlib2 )
