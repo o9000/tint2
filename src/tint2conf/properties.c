@@ -1851,6 +1851,10 @@ void create_launcher(GtkWidget *parent)
 
 	fprintf(stderr, "Loading .desktop files\n"); fflush(stderr);
 	load_desktop_files("/usr/share/applications");
+	gchar *path = g_build_filename(g_get_home_dir(), ".local/share/applications", NULL);
+	load_desktop_files(path);
+	g_free(path);
+
 	load_icons(launcher_apps);
 	load_icons(all_apps);
 	fprintf(stderr, "Desktop files loaded\n"); fflush(stderr);

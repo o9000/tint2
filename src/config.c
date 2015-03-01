@@ -603,7 +603,7 @@ void add_entry (char *key, char *value)
 		launcher_max_icon_size = atoi(value);
 	}
 	else if (strcmp(key, "launcher_item_app") == 0) {
-		char *app = strdup(value);
+		char *app = expand_tilde(value);
 		panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, app);
 	}
 	else if (strcmp(key, "launcher_icon_theme") == 0) {

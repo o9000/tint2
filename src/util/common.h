@@ -43,6 +43,13 @@ int parse_line (const char *line, char **key, char **value);
 // execute a command by calling fork
 void tint_exec(const char* command);
 
+// Returns a copy of s in which "~" is expanded to the path to the user's home directory.
+// The returned string must be freed by the caller.
+char *expand_tilde(char *s);
+
+// The opposite of expand_tilde: replaces the path to the user's home directory with "~".
+// The returned string must be freed by the caller.
+char *contract_tilde(char *s);
 
 // conversion
 int hex_char_to_int (char c);

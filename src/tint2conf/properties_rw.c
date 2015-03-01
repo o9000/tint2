@@ -409,7 +409,9 @@ void config_write_launcher(FILE *fp)
 		gtk_tree_model_get(GTK_TREE_MODEL(launcher_apps), &iter,
 						   appsColPath, &app_path,
 						   -1);
-		fprintf(fp, "launcher_item_app = %s\n", app_path);
+		char *contracted = contract_tilde(app_path);
+		fprintf(fp, "launcher_item_app = %s\n", contracted);
+		free(contracted);
 		g_free(app_path);
 	}
 
@@ -1079,8 +1081,10 @@ void add_entry(char *key, char *value)
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_size), atoi(value));
 	}
 	else if (strcmp(key, "launcher_item_app") == 0) {
-		load_desktop_file(value, TRUE);
-		load_desktop_file(value, FALSE);
+		char *path = expand_tilde(value);
+		load_desktop_file(path, TRUE);
+		load_desktop_file(path, FALSE);
+		free(path);
 	}
 	else if (strcmp(key, "launcher_icon_theme") == 0) {
 		set_current_icon_theme(value);

@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <glib.h>
 #include "common.h"
 #include "../server.h"
 
@@ -95,6 +95,43 @@ void tint_exec(const char *command)
 	}
 }
 
+char *expand_tilde(char *s)
+{
+	const gchar *home = g_get_home_dir();
+	if (home &&
+		(strcmp(s, "~") == 0 ||
+		strstr(s, "~/") == s)) {
+		char *result = calloc(strlen(home) + strlen(s), 1);
+		strcat(result, home);
+		strcat(result, s + 1);
+		return result;
+	} else {
+		return strdup(s);
+	}
+}
+
+char *contract_tilde(char *s)
+{
+	const gchar *home = g_get_home_dir();
+	if (!home)
+		return strdup(s);
+
+	char *home_slash = calloc(strlen(home) + 1, 1);
+	strcat(home_slash, home);
+	strcat(home_slash, "/");
+
+	if ((strcmp(s, home) == 0 ||
+		strstr(s, home_slash) == s)) {
+		char *result = calloc(strlen(s) - strlen(home) + 1, 1);
+		strcat(result, "~");
+		strcat(result, s + strlen(home));
+		free(home_slash);
+		return result;
+	} else {
+		free(home_slash);
+		return strdup(s);
+	}
+}
 
 int hex_char_to_int (char c)
 {
@@ -296,7 +333,6 @@ void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright
 		}
 	}
 }
-
 
 void createHeuristicMask(DATA32* data, int w, int h)
 {
