@@ -149,6 +149,25 @@ int config_get_monitor(char* monitor)
 	return -1;
 }
 
+void load_launcher_app_dir(const char *path)
+{
+	GDir *d = g_dir_open(path, 0, NULL);
+	if (d) {
+		const gchar *name;
+		while ((name = g_dir_read_name(d))) {
+			gchar *file = g_build_filename(path, name, NULL);
+			if (!g_file_test(file, G_FILE_TEST_IS_DIR) &&
+				g_str_has_suffix(file, ".desktop")) {
+				panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, (char *)strdup(file));
+			} else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
+				load_launcher_app_dir(file);
+			}
+			g_free(file);
+		}
+		g_dir_close(d);
+	}
+}
+
 void add_entry (char *key, char *value)
 {
 	char *value1=0, *value2=0, *value3=0;
@@ -605,6 +624,11 @@ void add_entry (char *key, char *value)
 	else if (strcmp(key, "launcher_item_app") == 0) {
 		char *app = expand_tilde(value);
 		panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, app);
+	}
+	else if (strcmp(key, "launcher_apps_dir") == 0) {
+		char *path = expand_tilde(value);
+		load_launcher_app_dir(path);
+		free(path);
 	}
 	else if (strcmp(key, "launcher_icon_theme") == 0) {
 		// if XSETTINGS manager running, tint2 use it.

@@ -415,6 +415,18 @@ void config_write_launcher(FILE *fp)
 		g_free(app_path);
 	}
 
+	gchar **app_dirs = g_strsplit(gtk_entry_get_text(GTK_ENTRY(launcher_apps_dirs)), ",", 0);
+	for (index = 0; app_dirs[index]; index++) {
+		gchar *dir = app_dirs[index];
+		g_strstrip(dir);
+		if (strlen(dir) > 0) {
+			char *contracted = contract_tilde(dir);
+			fprintf(fp, "launcher_item_app = %s\n", contracted);
+			free(contracted);
+		}
+	}
+	g_strfreev(app_dirs);
+
 	fprintf(fp, "\n");
 }
 
@@ -1084,6 +1096,16 @@ void add_entry(char *key, char *value)
 		char *path = expand_tilde(value);
 		load_desktop_file(path, TRUE);
 		load_desktop_file(path, FALSE);
+		free(path);
+	}
+	else if (strcmp(key, "launcher_apps_dir") == 0) {
+		char *path = expand_tilde(value);
+
+		if (gtk_entry_get_text_length(GTK_ENTRY(launcher_apps_dirs)) > 0) {
+			gtk_entry_append_text(GTK_ENTRY(launcher_apps_dirs), ",");
+		}
+		gtk_entry_append_text(GTK_ENTRY(launcher_apps_dirs), path);
+
 		free(path);
 	}
 	else if (strcmp(key, "launcher_icon_theme") == 0) {

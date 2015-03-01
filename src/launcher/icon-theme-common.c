@@ -428,7 +428,7 @@ IconThemeWrapper *load_themes(const char *icon_theme_name)
 			while ((name = g_dir_read_name(d))) {
 				gchar *file_name = g_build_filename(path, name, "index.theme", NULL);
 				if (g_file_test(file_name, G_FILE_TEST_EXISTS) &&
-					g_file_test(file_name, G_FILE_TEST_IS_REGULAR)) {
+					!g_file_test(file_name, G_FILE_TEST_IS_DIR)) {
 					load_themes_helper(name, &wrapper->themes_fallback, &queued);
 				}
 				g_free(file_name);

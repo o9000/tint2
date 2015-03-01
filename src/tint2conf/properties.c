@@ -102,6 +102,7 @@ GtkWidget *tooltip_background;
 
 GtkListStore *launcher_apps, *all_apps;
 GtkWidget *launcher_apps_view, *all_apps_view;
+GtkWidget *launcher_apps_dirs;
 
 GtkWidget *launcher_icon_size, *launcher_icon_theme, *launcher_padding_x, *launcher_padding_y, *launcher_spacing;
 GtkWidget *margin_x, *margin_y;
@@ -1538,7 +1539,7 @@ void load_desktop_files(const gchar *path)
 	const gchar *name;
 	while ((name = g_dir_read_name(d))) {
 		gchar *file = g_build_filename(path, name, NULL);
-		if (g_file_test(file, G_FILE_TEST_IS_REGULAR) &&
+		if (!g_file_test(file, G_FILE_TEST_IS_DIR) &&
 			g_str_has_suffix(file, ".desktop")) {
 			load_desktop_file(file, FALSE);
 		} else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
@@ -1761,6 +1762,16 @@ void create_launcher(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), addScrollBarToWidget(all_apps_view), 2, 3, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL, 0, 0);
 
 	change_paragraph(parent);
+
+	label = gtk_label_new(_("<b>Additional application directories</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
+
+	launcher_apps_dirs = gtk_entry_new();
+	gtk_widget_show(launcher_apps_dirs);
+	gtk_box_pack_start(GTK_BOX(parent), launcher_apps_dirs, FALSE, FALSE, 0);
 
 	label = gtk_label_new(_("<b>Appearance</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
