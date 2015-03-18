@@ -5,7 +5,7 @@ option( ENABLE_BATTERY "Enable battery status plugin" ON )
 option( ENABLE_TINT2CONF "Enable tint2conf build, a GTK+2 theme configurator for tint2" ON )
 option( ENABLE_EXAMPLES "Install additional tin2rc examples" OFF )
 option( ENABLE_RSVG "Rsvg support (launcher only)" ON )
-option( ENABLE_SN "Startup notification support" ON )
+option( ENABLE_SN "Startup notification support" OFF )
 
 include( FindPkgConfig )
 include( CheckLibraryExists )
