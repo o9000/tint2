@@ -51,12 +51,12 @@ void xsettings_notify_cb (const char *name, XSettingsAction action, XSettingsSet
 	//printf("xsettings_notify_cb\n");
 	if ((action == XSETTINGS_ACTION_NEW || action == XSETTINGS_ACTION_CHANGED) && name != NULL && setting != NULL) {
 		if (!strcmp(name, "Net/IconThemeName") && setting->type == XSETTINGS_TYPE_STRING) {
-			if (icon_theme_name) {
-				if (strcmp(icon_theme_name, setting->data.v_string) == 0)
+			if (icon_theme_name_xsettings) {
+				if (strcmp(icon_theme_name_xsettings, setting->data.v_string) == 0)
 					return;
-				free(icon_theme_name);
+				free(icon_theme_name_xsettings);
 			}
-			icon_theme_name = strdup(setting->data.v_string);
+			icon_theme_name_xsettings = strdup(setting->data.v_string);
 			
 			int i;
 			for (i = 0 ; i < nb_panel ; i++) {

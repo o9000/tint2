@@ -635,8 +635,9 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp(key, "launcher_icon_theme") == 0) {
 		// if XSETTINGS manager running, tint2 use it.
-		if (!icon_theme_name)
-			icon_theme_name = strdup(value);
+		if (icon_theme_name_config)
+			free(icon_theme_name_config);
+		icon_theme_name_config = strdup(value);
 	}
 	else if (strcmp(key, "launcher_icon_asb") == 0) {
 		extract_values(value, &value1, &value2, &value3);

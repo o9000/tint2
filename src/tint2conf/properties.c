@@ -1867,6 +1867,7 @@ void create_launcher(GtkWidget *parent)
 	load_desktop_files(path);
 	g_free(path);
 
+	icon_theme_changed();
 	load_icons(launcher_apps);
 	load_icons(all_apps);
 	fprintf(stderr, "Desktop files loaded\n"); fflush(stderr);

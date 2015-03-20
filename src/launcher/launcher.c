@@ -52,7 +52,8 @@ int launcher_tooltip_enabled;
 int launcher_alpha;
 int launcher_saturation;
 int launcher_brightness;
-char *icon_theme_name; 
+char *icon_theme_name_config;
+char *icon_theme_name_xsettings;
 XSettingsClient *xsettings_client;
 
 Imlib_Image scale_icon(Imlib_Image original, int icon_size);
@@ -66,7 +67,8 @@ void default_launcher()
 	launcher_alpha = 100;
 	launcher_saturation = 0;
 	launcher_brightness = 0;
-	icon_theme_name = NULL;
+	icon_theme_name_config = NULL;
+	icon_theme_name_xsettings = NULL;
 	xsettings_client = NULL;
 }
 
@@ -124,8 +126,10 @@ void cleanup_launcher()
 	}
 	g_slist_free(panel_config.launcher.list_apps);
 	panel_config.launcher.list_apps = NULL;
-	free(icon_theme_name);
-	icon_theme_name = NULL;
+	free(icon_theme_name_config);
+	icon_theme_name_config = NULL;
+	free(icon_theme_name_xsettings);
+	icon_theme_name_xsettings = NULL;
 	launcher_enabled = 0;
 }
 
@@ -474,5 +478,9 @@ void launcher_load_icons(Launcher *launcher)
 // Populates the list_themes list
 void launcher_load_themes(Launcher *launcher)
 {
-	launcher->list_themes = load_themes(icon_theme_name);
+	launcher->list_themes = load_themes(icon_theme_name_config
+										? icon_theme_name_config
+										: icon_theme_name_xsettings
+										  ? icon_theme_name_xsettings
+										  : "hicolor");
 }

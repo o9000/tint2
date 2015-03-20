@@ -387,7 +387,7 @@ void config_write_launcher(FILE *fp)
 	fprintf(fp, "launcher_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(launcher_background)));
 	fprintf(fp, "launcher_icon_size = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_icon_size)));
 	gchar *icon_theme = get_current_icon_theme();
-	if (icon_theme) {
+	if (icon_theme && !g_str_equal(icon_theme, "")) {
 		fprintf(fp, "launcher_icon_theme = %s\n", icon_theme);
 		g_free(icon_theme);
 		icon_theme = NULL;

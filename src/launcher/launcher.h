@@ -40,7 +40,8 @@ extern int launcher_tooltip_enabled;
 extern int launcher_alpha;
 extern int launcher_saturation;
 extern int launcher_brightness;
-extern char *icon_theme_name; 	// theme name
+extern char *icon_theme_name_xsettings; 	// theme name
+extern char *icon_theme_name_config;
 extern XSettingsClient *xsettings_client;
 
 // default global data
