@@ -813,8 +813,6 @@ void autohide_show(void* p)
 	Panel* panel = p;
 	stop_autohide_timeout(panel);
 	panel->is_hidden = 0;
-	if (panel_strut_policy == STRUT_FOLLOW_SIZE)
-		update_strut(p);
 
 	XMapSubwindows(server.dsp, panel->main_win);  // systray windows
 	if (panel_horizontal) {
@@ -829,6 +827,8 @@ void autohide_show(void* p)
 		else
 			XMoveResizeWindow(server.dsp, panel->main_win, panel->posx, panel->posy, panel->area.width, panel->area.height);
 	}
+	if (panel_strut_policy == STRUT_FOLLOW_SIZE)
+		update_strut(p);
 	refresh_systray = 1;   // ugly hack, because we actually only need to call XSetBackgroundPixmap
 	panel_refresh = 1;
 }
