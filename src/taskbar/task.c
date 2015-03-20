@@ -115,12 +115,13 @@ Task *add_task (Window win)
 	g_hash_table_insert(win_to_task_table, key, task_group);
 	set_task_state(new_tsk2, new_tsk.current_state);
 
-	if (window_is_urgent(win))
-		add_urgent(new_tsk2);
-
 	if (panel_mode == MULTI_DESKTOP) {
 		Panel *panel = new_tsk2->area.panel;
 		panel->area.resize = 1;
+	}
+
+	if (window_is_urgent(win)) {
+		add_urgent(new_tsk2);
 	}
 
 	return new_tsk2;
@@ -595,6 +596,10 @@ void add_urgent(Task *tsk)
 
 	if (urgent_timeout == 0)
 		urgent_timeout = add_timeout(10, 1000, blink_urgent, 0);
+
+	Panel *panel = tsk->area.panel;
+	if (panel->is_hidden)
+		autohide_show(panel);
 }
 
 
