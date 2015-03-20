@@ -125,6 +125,9 @@ void init (int argc, char *argv[])
 //	sigprocmask(SIG_BLOCK, &block_mask, 0);
 }
 
+static int sn_pipe_valid = 0;
+static int sn_pipe[2];
+
 #ifdef HAVE_SN
 static int error_trap_depth = 0;
 
@@ -145,6 +148,14 @@ static void error_trap_pop(SnDisplay *display, Display *xdisplay)
 }
 
 static void sigchld_handler(int sig) {
+	if (!sn_pipe_valid)
+		return;
+	ssize_t wur = write(sn_pipe[1], "x", 1);
+	(void) wur;
+	fsync(sn_pipe[1]);
+}
+
+static void sigchld_handler_async() {
 	// Wait for all dead processes
 	pid_t pid;
 	while ((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
@@ -168,7 +179,8 @@ static gint cmp_ptr(gconstpointer a, gconstpointer b) {
 	else
 		return 1;
 }
-
+#else
+static void sigchld_handler_async() {}
 #endif // HAVE_SN
 
 void init_X11_pre_config()
@@ -204,11 +216,16 @@ void init_X11_post_config()
 	server.sn_dsp = sn_display_new (server.dsp, error_trap_push, error_trap_pop);
 	server.pids = g_tree_new (cmp_ptr);
 	// Setup a handler for child termination
-	struct sigaction act;
-	memset (&act, 0, sizeof (struct sigaction));
-	act.sa_handler = sigchld_handler;
-	if (sigaction(SIGCHLD, &act, 0)) {
-		perror("sigaction");
+	if (pipe(sn_pipe) != 0) {
+		fprintf(stderr, "Creating pipe failed.\n");
+	} else {
+		sn_pipe_valid = 1;
+		struct sigaction act;
+		memset (&act, 0, sizeof (struct sigaction));
+		act.sa_handler = sigchld_handler;
+		if (sigaction(SIGCHLD, &act, 0)) {
+			perror("sigaction");
+		}
 	}
 #endif // HAVE_SN
 
@@ -254,6 +271,14 @@ void cleanup()
 	cleanup_server();
 	cleanup_timeout();
 	if (server.dsp) XCloseDisplay(server.dsp);
+
+#ifdef HAVE_SN
+	if (sn_pipe_valid) {
+		sn_pipe_valid = 0;
+		close(sn_pipe[1]);
+		close(sn_pipe[0]);
+	}
+#endif
 }
 
 
@@ -1106,6 +1131,11 @@ start:
 		// Create a File Description Set containing x11_fd
 		FD_ZERO (&fdset);
 		FD_SET (x11_fd, &fdset);
+		int maxfd = x11_fd;
+		if (sn_pipe_valid) {
+			FD_SET (sn_pipe[0], &fdset);
+			maxfd = maxfd < sn_pipe[0] ? sn_pipe[0] : maxfd;
+		}
 		update_next_timeout();
 		if (next_timeout.tv_sec >= 0 && next_timeout.tv_usec >= 0)
 			timeout = &next_timeout;
@@ -1113,34 +1143,41 @@ start:
 			timeout = 0;
 
 		// Wait for X Event or a Timer
-		if (select(x11_fd+1, &fdset, 0, 0, timeout) > 0) {
-			while (XPending (server.dsp)) {
-				XNextEvent(server.dsp, &e);
+		if (select(maxfd+1, &fdset, 0, 0, timeout) > 0) {
+			if (FD_ISSET(sn_pipe[0], &fdset)) {
+				char buffer[1];
+				ssize_t wur = read(sn_pipe[0], buffer, 1);
+				(void) wur;
+				sigchld_handler_async();
+			}
+			if (FD_ISSET(x11_fd, &fdset)) {
+				while (XPending (server.dsp)) {
+					XNextEvent(server.dsp, &e);
 #if HAVE_SN
-				sn_display_process_event (server.sn_dsp, &e);
+					sn_display_process_event (server.sn_dsp, &e);
 #endif // HAVE_SN
 
-				panel = get_panel(e.xany.window);
-				if (panel && panel_autohide) {
-					if (e.type == EnterNotify)
-						autohide_trigger_show(panel);
-					else if (e.type == LeaveNotify)
-						autohide_trigger_hide(panel);
-					if (panel->is_hidden) {
-						if (e.type == ClientMessage && e.xclient.message_type == server.atom.XdndPosition) {
-							hidden_dnd = 1;
-							autohide_show(panel);
+					panel = get_panel(e.xany.window);
+					if (panel && panel_autohide) {
+						if (e.type == EnterNotify)
+							autohide_trigger_show(panel);
+						else if (e.type == LeaveNotify)
+							autohide_trigger_hide(panel);
+						if (panel->is_hidden) {
+							if (e.type == ClientMessage && e.xclient.message_type == server.atom.XdndPosition) {
+								hidden_dnd = 1;
+								autohide_show(panel);
+							}
+							else
+								continue;   // discard further processing of this event because the panel is not visible yet
 						}
-						else
-							continue;   // discard further processing of this event because the panel is not visible yet
+						else if (hidden_dnd && e.type == ClientMessage && e.xclient.message_type == server.atom.XdndLeave) {
+							hidden_dnd = 0;
+							autohide_hide(panel);
+						}
 					}
-					else if (hidden_dnd && e.type == ClientMessage && e.xclient.message_type == server.atom.XdndLeave) {
-						hidden_dnd = 0;
-						autohide_hide(panel);
-					}
-				}
 
-				switch (e.type) {
+					switch (e.type) {
 					case ButtonPress:
 						tooltip_hide(0);
 						event_button_press (&e);
@@ -1230,109 +1267,109 @@ start:
 						break;
 
 					case SelectionNotify:
-						{
-							Atom target = e.xselection.target;
+					{
+						Atom target = e.xselection.target;
 
-							fprintf(stderr, "DnD %s:%d: A selection notify has arrived!\n", __FILE__, __LINE__);
-							fprintf(stderr, "DnD %s:%d: Requestor = %lu\n", __FILE__, __LINE__, e.xselectionrequest.requestor);
-							fprintf(stderr, "DnD %s:%d: Selection atom = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e.xselection.selection));
-							fprintf(stderr, "DnD %s:%d: Target atom    = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, target));
-							fprintf(stderr, "DnD %s:%d: Property atom  = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e.xselection.property));
+						fprintf(stderr, "DnD %s:%d: A selection notify has arrived!\n", __FILE__, __LINE__);
+						fprintf(stderr, "DnD %s:%d: Requestor = %lu\n", __FILE__, __LINE__, e.xselectionrequest.requestor);
+						fprintf(stderr, "DnD %s:%d: Selection atom = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e.xselection.selection));
+						fprintf(stderr, "DnD %s:%d: Target atom    = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, target));
+						fprintf(stderr, "DnD %s:%d: Property atom  = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e.xselection.property));
 
-							if (e.xselection.property != None && dnd_launcher_exec) {
-								Property prop = read_property(server.dsp, dnd_target_window, dnd_selection);
+						if (e.xselection.property != None && dnd_launcher_exec) {
+							Property prop = read_property(server.dsp, dnd_target_window, dnd_selection);
 
-								//If we're being given a list of targets (possible conversions)
-								if (target == server.atom.TARGETS && !dnd_sent_request) {
-									dnd_sent_request = 1;
-									dnd_atom = pick_target_from_targets(server.dsp, prop);
+							//If we're being given a list of targets (possible conversions)
+							if (target == server.atom.TARGETS && !dnd_sent_request) {
+								dnd_sent_request = 1;
+								dnd_atom = pick_target_from_targets(server.dsp, prop);
 
-									if (dnd_atom == None) {
-										fprintf(stderr, "No matching datatypes.\n");
-									} else {
-										//Request the data type we are able to select
-										fprintf(stderr, "Now requsting type %s", GetAtomName(server.dsp, dnd_atom));
-										XConvertSelection(server.dsp, dnd_selection, dnd_atom, dnd_selection, dnd_target_window, CurrentTime);
-									}
-								} else if (target == dnd_atom) {
-									//Dump the binary data
-									fprintf(stderr, "DnD %s:%d: Data begins:\n", __FILE__, __LINE__);
-									fprintf(stderr, "--------\n");
-									int i;
-									for (i = 0; i < prop.nitems * prop.format/8; i++)
-										fprintf(stderr, "%c", ((char*)prop.data)[i]);
-									fprintf(stderr, "--------\n");
-
-									int cmd_length = 0;
-									cmd_length += 1; // (
-									cmd_length += strlen(dnd_launcher_exec) + 1; // exec + space
-									cmd_length += 1; // open double quotes
-									for (i = 0; i < prop.nitems * prop.format/8; i++) {
-										char c = ((char*)prop.data)[i];
-										if (c == '\n') {
-											if (i < prop.nitems * prop.format/8 - 1) {
-												cmd_length += 3; // close double quotes, space, open double quotes
-											}
-										} else if (c == '\r') {
-										} else {
-											cmd_length += 1; // 1 character
-											if (c == '`' || c == '$' || c == '\\') {
-												cmd_length += 1; // escape with one backslash
-											}
-										}
-									}
-									cmd_length += 1; // close double quotes
-									cmd_length += 2; // &)
-									cmd_length += 1; // terminator
-
-									char *cmd = malloc(cmd_length);
-									cmd[0] = '\0';
-									strcat(cmd, "(");
-									strcat(cmd, dnd_launcher_exec);
-									strcat(cmd, " \"");
-									for (i = 0; i < prop.nitems * prop.format/8; i++) {
-										char c = ((char*)prop.data)[i];
-										if (c == '\n') {
-											if (i < prop.nitems * prop.format/8 - 1) {
-												strcat(cmd, "\" \"");
-											}
-										} else if (c == '\r') {
-										} else {
-											if (c == '`' || c == '$' || c == '\\') {
-												strcat(cmd, "\\");
-											}
-											char sc[2];
-											sc[0] = c;
-											sc[1] = '\0';
-											strcat(cmd, sc);
-										}
-									}
-									strcat(cmd, "\"");
-									strcat(cmd, "&)");
-									fprintf(stderr, "DnD %s:%d: Running command: %s\n", __FILE__, __LINE__, cmd);
-									tint_exec(cmd);
-									free(cmd);
-
-									// Reply OK.
-									XClientMessageEvent m;
-									memset(&m, 0, sizeof(m));
-									m.type = ClientMessage;
-									m.display = server.dsp;
-									m.window = dnd_source_window;
-									m.message_type = server.atom.XdndFinished;
-									m.format = 32;
-									m.data.l[0] = dnd_target_window;
-									m.data.l[1] = 1;
-									m.data.l[2] = server.atom.XdndActionCopy; //We only ever copy.
-									XSendEvent(server.dsp, dnd_source_window, False, NoEventMask, (XEvent*)&m);
-									XSync(server.dsp, False);
+								if (dnd_atom == None) {
+									fprintf(stderr, "No matching datatypes.\n");
+								} else {
+									//Request the data type we are able to select
+									fprintf(stderr, "Now requsting type %s", GetAtomName(server.dsp, dnd_atom));
+									XConvertSelection(server.dsp, dnd_selection, dnd_atom, dnd_selection, dnd_target_window, CurrentTime);
 								}
+							} else if (target == dnd_atom) {
+								//Dump the binary data
+								fprintf(stderr, "DnD %s:%d: Data begins:\n", __FILE__, __LINE__);
+								fprintf(stderr, "--------\n");
+								int i;
+								for (i = 0; i < prop.nitems * prop.format/8; i++)
+									fprintf(stderr, "%c", ((char*)prop.data)[i]);
+								fprintf(stderr, "--------\n");
 
-								XFree(prop.data);
+								int cmd_length = 0;
+								cmd_length += 1; // (
+								cmd_length += strlen(dnd_launcher_exec) + 1; // exec + space
+								cmd_length += 1; // open double quotes
+								for (i = 0; i < prop.nitems * prop.format/8; i++) {
+									char c = ((char*)prop.data)[i];
+									if (c == '\n') {
+										if (i < prop.nitems * prop.format/8 - 1) {
+											cmd_length += 3; // close double quotes, space, open double quotes
+										}
+									} else if (c == '\r') {
+									} else {
+										cmd_length += 1; // 1 character
+										if (c == '`' || c == '$' || c == '\\') {
+											cmd_length += 1; // escape with one backslash
+										}
+									}
+								}
+								cmd_length += 1; // close double quotes
+								cmd_length += 2; // &)
+								cmd_length += 1; // terminator
+
+								char *cmd = malloc(cmd_length);
+								cmd[0] = '\0';
+								strcat(cmd, "(");
+								strcat(cmd, dnd_launcher_exec);
+								strcat(cmd, " \"");
+								for (i = 0; i < prop.nitems * prop.format/8; i++) {
+									char c = ((char*)prop.data)[i];
+									if (c == '\n') {
+										if (i < prop.nitems * prop.format/8 - 1) {
+											strcat(cmd, "\" \"");
+										}
+									} else if (c == '\r') {
+									} else {
+										if (c == '`' || c == '$' || c == '\\') {
+											strcat(cmd, "\\");
+										}
+										char sc[2];
+										sc[0] = c;
+										sc[1] = '\0';
+										strcat(cmd, sc);
+									}
+								}
+								strcat(cmd, "\"");
+								strcat(cmd, "&)");
+								fprintf(stderr, "DnD %s:%d: Running command: %s\n", __FILE__, __LINE__, cmd);
+								tint_exec(cmd);
+								free(cmd);
+
+								// Reply OK.
+								XClientMessageEvent m;
+								memset(&m, 0, sizeof(m));
+								m.type = ClientMessage;
+								m.display = server.dsp;
+								m.window = dnd_source_window;
+								m.message_type = server.atom.XdndFinished;
+								m.format = 32;
+								m.data.l[0] = dnd_target_window;
+								m.data.l[1] = 1;
+								m.data.l[2] = server.atom.XdndActionCopy; //We only ever copy.
+								XSendEvent(server.dsp, dnd_source_window, False, NoEventMask, (XEvent*)&m);
+								XSync(server.dsp, False);
 							}
 
-							break;
+							XFree(prop.data);
 						}
+
+						break;
+					}
 
 					default:
 						if (e.type == XDamageNotify+damage_event) {
@@ -1349,6 +1386,7 @@ start:
 								}
 							}
 						}
+					}
 				}
 			}
 		}
