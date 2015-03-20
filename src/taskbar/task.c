@@ -541,6 +541,19 @@ void set_task_state(Task *tsk, int state)
 					tsk1->area.redraw = 1;
 				if (state == TASK_ACTIVE && g_slist_find(urgent_list, tsk1))
 					del_urgent(tsk1);
+				// Show only the active task
+				if (hide_inactive_tasks) {
+					if (state != TASK_ACTIVE) {
+						tsk1->area.on_screen = 0;
+					} else {
+						tsk1->area.on_screen = 1;
+					}
+					set_task_redraw(tsk1);
+					Panel *p = (Panel*)tsk->area.panel;
+					tsk->area.resize = 1;
+					p->taskbar->area.resize = 1;
+					p->area.resize = 1;
+				}
 			}
 			panel_refresh = 1;
 		}

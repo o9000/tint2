@@ -41,6 +41,7 @@ GtkWidget *panel_background;
 
 // taskbar
 GtkWidget *taskbar_show_desktop, *taskbar_show_name, *taskbar_padding_x, *taskbar_padding_y, *taskbar_spacing;
+GtkWidget *taskbar_hide_inactive_tasks;
 GtkWidget *taskbar_name_padding_x, *taskbar_name_inactive_color, *taskbar_name_active_color, *taskbar_name_font;
 GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
@@ -1875,7 +1876,7 @@ void create_taskbar(GtkWidget *parent)
 {
 	GtkWidget *table, *label;
 
-	table = gtk_table_new(2, 2, FALSE);
+	table = gtk_table_new(3, 2, FALSE);
 	gtk_widget_show(table);
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
@@ -1898,6 +1899,15 @@ void create_taskbar(GtkWidget *parent)
 	taskbar_show_name = gtk_check_button_new();
 	gtk_widget_show(taskbar_show_name);
 	gtk_table_attach(GTK_TABLE(table), taskbar_show_name, 1, 2, 1, 2, GTK_FILL, 0, 0, 0);
+
+	label = gtk_label_new(_("Hide inactive tasks"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 2, 3, GTK_FILL, 0, 0, 0);
+
+	taskbar_hide_inactive_tasks = gtk_check_button_new();
+	gtk_widget_show(taskbar_hide_inactive_tasks);
+	gtk_table_attach(GTK_TABLE(table), taskbar_hide_inactive_tasks, 1, 2, 2, 3, GTK_FILL, 0, 0, 0);
 
 	change_paragraph(parent);
 

@@ -191,6 +191,7 @@ void config_write_taskbar(FILE *fp)
 	fprintf(fp, "taskbar_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_inactive_background)));
 	fprintf(fp, "taskbar_active_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_active_background)));
 	fprintf(fp, "taskbar_name = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_show_name)) ? 1 : 0);
+	fprintf(fp, "taskbar_hide_inactive_tasks = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_hide_inactive_tasks)) ? 1 : 0);
 	fprintf(fp,
 			"taskbar_name_padding = %d\n",
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(taskbar_name_padding_x)));
@@ -870,6 +871,9 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "taskbar_name") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_show_name), atoi(value));
+	}
+	else if (strcmp(key, "taskbar_hide_inactive_tasks") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_hide_inactive_tasks), atoi(value));
 	}
 	else if (strcmp(key, "taskbar_name_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);

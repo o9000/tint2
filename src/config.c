@@ -497,6 +497,9 @@ void add_entry (char *key, char *value)
 		if (value2) taskbarname_active_font.alpha = (atoi (value2) / 100.0);
 		else taskbarname_active_font.alpha = 0.5;
 	}
+	else if (strcmp (key, "taskbar_hide_inactive_tasks") == 0) {
+		hide_inactive_tasks = atoi (value);
+	}
 
 	/* Task */
 	else if (strcmp (key, "task_text") == 0)
