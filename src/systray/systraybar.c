@@ -600,7 +600,9 @@ void systray_render_icon_now(void* t)
 		adjust_asb(data, traywin->width, traywin->height, systray.alpha, (float)systray.saturation/100, (float)systray.brightness/100);
 	imlib_image_put_back_data(data);
 	XCopyArea(server.dsp, render_background, systray.area.pix, server.gc, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height, traywin->x-systray.area.posx, traywin->y-systray.area.posy);
-	render_image(systray.area.pix, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height);
+	imlib_context_set_blend(1);
+	imlib_context_set_drawable(systray.area.pix);
+	imlib_render_image_on_drawable(traywin->x-systray.area.posx, traywin->y-systray.area.posy);
 	XCopyArea(server.dsp, systray.area.pix, panel->main_win, server.gc, traywin->x-systray.area.posx, traywin->y-systray.area.posy, traywin->width, traywin->height, traywin->x, traywin->y);
 	imlib_free_image_and_decache();
 	XFreePixmap(server.dsp, tmp_pmap);

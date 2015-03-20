@@ -348,13 +348,9 @@ void draw_launcher_icon(void *obj, cairo_t *c)
 	Imlib_Image icon_scaled = launcherIcon->icon_scaled;
 	// Render
 	imlib_context_set_image (icon_scaled);
-	if (server.real_transparency) {
-		// TODO with compton this does not work with Firefox and Chrome but it works with the other icons ?!
-		render_image(launcherIcon->area.pix, 0, 0, imlib_image_get_width(), imlib_image_get_height() );
-	} else {
-		imlib_context_set_drawable(launcherIcon->area.pix);
-		imlib_render_image_on_drawable (0, 0);
-	}
+	imlib_context_set_blend(1);
+	imlib_context_set_drawable(launcherIcon->area.pix);
+	imlib_render_image_on_drawable(0, 0);
 }
 
 Imlib_Image scale_icon(Imlib_Image original, int icon_size)
