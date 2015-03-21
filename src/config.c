@@ -651,6 +651,9 @@ void add_entry (char *key, char *value)
 	else if (strcmp(key, "launcher_tooltip") == 0) {
 		launcher_tooltip_enabled = atoi(value);
 	}
+	else if (strcmp(key, "startup_notifications") == 0) {
+		startup_notifications = atoi(value);
+	}
 
 	/* Tooltip */
 	else if (strcmp (key, "tooltip_show_timeout") == 0) {

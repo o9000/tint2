@@ -148,6 +148,8 @@ static void error_trap_pop(SnDisplay *display, Display *xdisplay)
 }
 
 static void sigchld_handler(int sig) {
+	if (!startup_notifications)
+		return;
 	if (!sn_pipe_valid)
 		return;
 	ssize_t wur = write(sn_pipe[1], "x", 1);
@@ -156,6 +158,8 @@ static void sigchld_handler(int sig) {
 }
 
 static void sigchld_handler_async() {
+	if (!startup_notifications)
+		return;
 	// Wait for all dead processes
 	pid_t pid;
 	while ((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
@@ -213,18 +217,20 @@ void init_X11_post_config()
 
 #ifdef HAVE_SN
 	// Initialize startup-notification
-	server.sn_dsp = sn_display_new (server.dsp, error_trap_push, error_trap_pop);
-	server.pids = g_tree_new (cmp_ptr);
-	// Setup a handler for child termination
-	if (pipe(sn_pipe) != 0) {
-		fprintf(stderr, "Creating pipe failed.\n");
-	} else {
-		sn_pipe_valid = 1;
-		struct sigaction act;
-		memset (&act, 0, sizeof (struct sigaction));
-		act.sa_handler = sigchld_handler;
-		if (sigaction(SIGCHLD, &act, 0)) {
-			perror("sigaction");
+	if (startup_notifications) {
+		server.sn_dsp = sn_display_new (server.dsp, error_trap_push, error_trap_pop);
+		server.pids = g_tree_new (cmp_ptr);
+		// Setup a handler for child termination
+		if (pipe(sn_pipe) != 0) {
+			fprintf(stderr, "Creating pipe failed.\n");
+		} else {
+			sn_pipe_valid = 1;
+			struct sigaction act;
+			memset (&act, 0, sizeof (struct sigaction));
+			act.sa_handler = sigchld_handler;
+			if (sigaction(SIGCHLD, &act, 0)) {
+				perror("sigaction");
+			}
 		}
 	}
 #endif // HAVE_SN
@@ -273,10 +279,12 @@ void cleanup()
 	if (server.dsp) XCloseDisplay(server.dsp);
 
 #ifdef HAVE_SN
-	if (sn_pipe_valid) {
-		sn_pipe_valid = 0;
-		close(sn_pipe[1]);
-		close(sn_pipe[0]);
+	if (startup_notifications) {
+		if (sn_pipe_valid) {
+			sn_pipe_valid = 0;
+			close(sn_pipe[1]);
+			close(sn_pipe[0]);
+		}
 	}
 #endif
 }
@@ -1160,7 +1168,8 @@ start:
 				while (XPending (server.dsp)) {
 					XNextEvent(server.dsp, &e);
 #if HAVE_SN
-					sn_display_process_event (server.sn_dsp, &e);
+					if (startup_notifications)
+						sn_display_process_event(server.sn_dsp, &e);
 #endif // HAVE_SN
 
 					panel = get_panel(e.xany.window);

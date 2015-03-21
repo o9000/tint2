@@ -43,6 +43,7 @@ extern int launcher_brightness;
 extern char *icon_theme_name_xsettings; 	// theme name
 extern char *icon_theme_name_config;
 extern XSettingsClient *xsettings_client;
+extern int startup_notifications;
 
 // default global data
 void default_launcher();

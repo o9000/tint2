@@ -121,7 +121,7 @@ extern GtkWidget *launcher_apps_dirs;
 extern GtkWidget *launcher_icon_size, *launcher_icon_theme, *launcher_padding_x, *launcher_padding_y, *launcher_spacing;
 extern GtkWidget *margin_x, *margin_y;
 extern GtkWidget *launcher_background;
-
+extern GtkWidget *startup_notifications;
 extern IconThemeWrapper *icon_theme;
 
 void load_desktop_file(const char *file, gboolean selected);

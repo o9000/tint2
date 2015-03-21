@@ -108,7 +108,7 @@ GtkWidget *launcher_apps_dirs;
 GtkWidget *launcher_icon_size, *launcher_icon_theme, *launcher_padding_x, *launcher_padding_y, *launcher_spacing;
 GtkWidget *margin_x, *margin_y;
 GtkWidget *launcher_background;
-
+GtkWidget *startup_notifications;
 IconThemeWrapper *icon_theme;
 
 GtkListStore *backgrounds;
@@ -1780,7 +1780,7 @@ void create_launcher(GtkWidget *parent)
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
 
-	table = gtk_table_new(6, 10, FALSE);
+	table = gtk_table_new(7, 10, FALSE);
 	gtk_widget_show(table);
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
@@ -1836,7 +1836,6 @@ void create_launcher(GtkWidget *parent)
 	gtk_widget_show(label);
 	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
 
-
 	launcher_icon_theme = gtk_combo_box_new_with_model(GTK_TREE_MODEL(icon_themes));
 	GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(launcher_icon_theme), renderer, FALSE);
@@ -1844,6 +1843,15 @@ void create_launcher(GtkWidget *parent)
 	g_signal_connect(G_OBJECT(launcher_icon_theme), "changed", G_CALLBACK(launcher_icon_theme_changed), NULL);
 	gtk_widget_show(launcher_icon_theme);
 	gtk_table_attach(GTK_TABLE(table), launcher_icon_theme, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+
+	label = gtk_label_new(_("Startup notifications"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 3, 4, GTK_FILL, 0, 0, 0);
+
+	startup_notifications = gtk_check_button_new();
+	gtk_widget_show(startup_notifications);
+	gtk_table_attach(GTK_TABLE(table), startup_notifications, 3, 4, 3, 4, GTK_FILL, 0, 0, 0);
 
 	change_paragraph(parent);
 

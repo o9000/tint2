@@ -55,6 +55,7 @@ int launcher_brightness;
 char *icon_theme_name_config;
 char *icon_theme_name_xsettings;
 XSettingsClient *xsettings_client;
+int startup_notifications;
 
 Imlib_Image scale_icon(Imlib_Image original, int icon_size);
 void free_icon(Imlib_Image icon);
@@ -70,6 +71,7 @@ void default_launcher()
 	icon_theme_name_config = NULL;
 	icon_theme_name_xsettings = NULL;
 	xsettings_client = NULL;
+	startup_notifications = 0;
 }
 
 
@@ -118,7 +120,7 @@ void cleanup_launcher()
 		xsettings_client_destroy(xsettings_client);
 	for (i = 0 ; i < nb_panel ; i++) {
 		Panel *panel = &panel1[i];
-		Launcher *launcher = &panel->launcher;		
+		Launcher *launcher = &panel->launcher;
 		cleanup_launcher_theme(launcher);
 	}
 	for (l = panel_config.launcher.list_apps; l ; l = l->next) {
@@ -243,10 +245,10 @@ int resize_launcher(void *obj)
 					free(new_icon_path);
 				} else {
 					// Loaded icon successfully
-				launcherIcon->icon_scaled = scale_icon(launcherIcon->icon_original, launcherIcon->icon_size);
-				free(launcherIcon->icon_path);
-				launcherIcon->icon_path = new_icon_path;
-				fprintf(stderr, "launcher.c %d: Using icon %s\n", __LINE__, launcherIcon->icon_path);
+					launcherIcon->icon_scaled = scale_icon(launcherIcon->icon_original, launcherIcon->icon_size);
+					free(launcherIcon->icon_path);
+					launcherIcon->icon_path = new_icon_path;
+					fprintf(stderr, "launcher.c %d: Using icon %s\n", __LINE__, launcherIcon->icon_path);
 				}
 			}
 		}
@@ -386,49 +388,54 @@ void launcher_action(LauncherIcon *icon, XEvent* evt)
 	char *cmd = malloc(strlen(icon->cmd) + 10);
 	sprintf(cmd, "(%s&)", icon->cmd);
 #if HAVE_SN
-		SnLauncherContext* ctx;
-		Time time;
-
+	SnLauncherContext* ctx;
+	Time time;
+	if (startup_notifications) {
 		ctx = sn_launcher_context_new(server.sn_dsp, server.screen);
 		sn_launcher_context_set_name(ctx, icon->icon_tooltip);
 		sn_launcher_context_set_description(ctx, "Application launched from tint2");
 		sn_launcher_context_set_binary_name (ctx, icon->cmd);
 		// Get a timestamp from the X event
 		if (evt->type == ButtonPress || evt->type == ButtonRelease) {
-		    time = evt->xbutton.time;
-		}
-		else {
-		    	fprintf(stderr, "Unknown X event: %d\n", evt->type);
+			time = evt->xbutton.time;
+		} else {
+			fprintf(stderr, "Unknown X event: %d\n", evt->type);
 			free(cmd);
 			return;
 		}
 		sn_launcher_context_initiate(ctx, "tint2", icon->cmd, time);
+	}
 #endif /* HAVE_SN */
 	pid_t pid;
 	pid = fork();
 	if (pid < 0) {
 		fprintf(stderr, "Could not fork\n");
-	}
-	else if (pid == 0) {
+	} else if (pid == 0) {
+		// Child process
 #if HAVE_SN
-	        sn_launcher_context_setup_child_process (ctx);
+		if (startup_notifications) {
+			sn_launcher_context_setup_child_process(ctx);
+		}
 #endif // HAVE_SN
 		// Allow children to exist after parent destruction
-		setsid ();
+		setsid();
 		// Run the command
 		execl("/bin/sh", "/bin/sh", "-c", icon->cmd, NULL);
-
 		fprintf(stderr, "Failed to execlp %s\n", icon->cmd);
 #if HAVE_SN
-		sn_launcher_context_unref (ctx);
+		if (startup_notifications) {
+			sn_launcher_context_unref(ctx);
+		}
 #endif // HAVE_SN
-		_exit(1);
-	}
+		exit(1);
+	} else {
+		// Parent process
 #if HAVE_SN
-	else {
-	        g_tree_insert (server.pids, GINT_TO_POINTER (pid), ctx);
-	}
+		if (startup_notifications) {
+			g_tree_insert(server.pids, GINT_TO_POINTER (pid), ctx);
+		}
 #endif // HAVE_SN
+	}
 	free(cmd);
 }
 

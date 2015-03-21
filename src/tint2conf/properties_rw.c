@@ -393,6 +393,7 @@ void config_write_launcher(FILE *fp)
 		g_free(icon_theme);
 		icon_theme = NULL;
 	}
+	fprintf(fp, "startup_notifications = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(startup_notifications)) ? 1 : 0);
 
 	int index;
 	for (index = 0; ; index++) {
@@ -1118,6 +1119,9 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "launcher_icon_theme") == 0) {
 		set_current_icon_theme(value);
+	}
+	else if (strcmp(key, "startup_notifications") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(startup_notifications), atoi(value));
 	}
 
 	/* Tooltip */
