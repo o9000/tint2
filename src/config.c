@@ -500,6 +500,9 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "taskbar_hide_inactive_tasks") == 0) {
 		hide_inactive_tasks = atoi (value);
 	}
+	else if (strcmp (key, "taskbar_hide_different_monitor") == 0) {
+		hide_task_diff_monitor = atoi (value);
+	}
 
 	/* Task */
 	else if (strcmp (key, "task_text") == 0)

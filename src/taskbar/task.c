@@ -524,7 +524,7 @@ void set_task_state(Task *tsk, int state)
 	if (tsk == 0 || state < 0 || state >= TASK_STATE_COUNT)
 		return;
 
-	if (tsk->current_state != state) {
+	if (tsk->current_state != state || hide_task_diff_monitor) {
 		GPtrArray* task_group = task_get_tasks(tsk->win);
 		if (task_group) {
 			int i;
@@ -538,12 +538,17 @@ void set_task_state(Task *tsk, int state)
 				if (state == TASK_ACTIVE && g_slist_find(urgent_list, tsk1))
 					del_urgent(tsk1);
 				// Show only the active task
+				int hide = 0;
 				if (hide_inactive_tasks) {
 					if (state != TASK_ACTIVE) {
-						tsk1->area.on_screen = 0;
-					} else {
-						tsk1->area.on_screen = 1;
+						hide = 1;
 					}
+				}
+				if (window_get_monitor(tsk->win) != ((Panel*)tsk->area.panel)->monitor) {
+					hide = 1;
+				}
+				if (1 - hide != tsk1->area.on_screen) {
+					tsk1->area.on_screen = 1 - hide;
 					set_task_redraw(tsk1);
 					Panel *p = (Panel*)tsk->area.panel;
 					tsk->area.resize = 1;

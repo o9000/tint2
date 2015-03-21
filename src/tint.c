@@ -819,12 +819,18 @@ void event_configure_notify (Window win)
 	}
 
 	// 'win' move in another monitor
-	if (nb_panel == 1) return;
+	if (nb_panel == 1 && !hide_task_diff_monitor)
+		return;
+
 	Task *tsk = task_get_task (win);
-	if (!tsk) return;
+	if (!tsk)
+		return;
 
 	Panel *p = tsk->area.panel;
-	if (p->monitor != window_get_monitor (win)) {
+	int monitor = window_get_monitor(win);
+	if ((hide_task_diff_monitor && p->monitor != monitor && tsk->area.on_screen) ||
+		(hide_task_diff_monitor && p->monitor == monitor && !tsk->area.on_screen) ||
+		(p->monitor != monitor && nb_panel > 1)) {
 		remove_task (tsk);
 		tsk = add_task (win);
 		if (win == window_get_active ()) {

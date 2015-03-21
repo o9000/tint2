@@ -18,6 +18,7 @@ extern Task *task_drag;
 extern int taskbar_enabled;
 extern int taskbar_distribute_size;
 extern int hide_inactive_tasks;
+extern int hide_task_diff_monitor;
 
 typedef struct {
 	// always start with area

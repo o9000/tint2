@@ -44,6 +44,7 @@ Task *task_drag;
 int taskbar_enabled;
 int taskbar_distribute_size;
 int hide_inactive_tasks;
+int hide_task_diff_monitor;
 
 guint win_hash(gconstpointer key) { return (guint)*((Window*)key); }
 gboolean win_compare(gconstpointer a, gconstpointer b) { return (*((Window*)a) == *((Window*)b)); }
@@ -58,6 +59,7 @@ void default_taskbar()
 	taskbar_enabled = 0;
 	taskbar_distribute_size = 0;
 	hide_inactive_tasks = 0;
+	hide_task_diff_monitor = 0;
 	default_taskbarname();
 }
 
