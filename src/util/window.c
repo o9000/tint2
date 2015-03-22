@@ -144,6 +144,11 @@ int window_get_monitor (Window win)
 	else return i;
 }
 
+void window_get_position (Window win, int *x, int *y)
+{
+	Window src;
+	XTranslateCoordinates(server.dsp, win, server.root_win, 0, 0, x, y, &src);
+}
 
 int window_is_iconified (Window win)
 {

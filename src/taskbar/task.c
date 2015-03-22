@@ -63,6 +63,7 @@ Task *add_task (Window win)
 	new_tsk.desktop = window_get_desktop (win);
 	new_tsk.area.panel = &panel1[monitor];
 	new_tsk.current_state = window_is_iconified(win) ? TASK_ICONIFIED : TASK_NORMAL;
+	window_get_position(win, &new_tsk.win_x, &new_tsk.win_y);
 
 	// allocate only one title and one icon
 	// even with task_on_all_desktop and with task_on_all_panel
@@ -114,6 +115,8 @@ Task *add_task (Window win)
 	*key = new_tsk.win;
 	g_hash_table_insert(win_to_task_table, key, task_group);
 	set_task_state(new_tsk2, new_tsk.current_state);
+
+	sort_tasks(tskbar);
 
 	if (panel_mode == MULTI_DESKTOP) {
 		Panel *panel = new_tsk2->area.panel;

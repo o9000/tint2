@@ -45,6 +45,7 @@ int taskbar_enabled;
 int taskbar_distribute_size;
 int hide_inactive_tasks;
 int hide_task_diff_monitor;
+int sort_tasks_method;
 
 guint win_hash(gconstpointer key) { return (guint)*((Window*)key); }
 gboolean win_compare(gconstpointer a, gconstpointer b) { return (*((Window*)a) == *((Window*)b)); }
@@ -60,6 +61,7 @@ void default_taskbar()
 	taskbar_distribute_size = 0;
 	hide_inactive_tasks = 0;
 	hide_task_diff_monitor = 0;
+	sort_tasks_method = TASKBAR_NOSORT;
 	default_taskbarname();
 }
 
@@ -408,3 +410,48 @@ void visible_taskbar(void *p)
 	panel_refresh = 1;
 }
 
+gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
+{
+	if (a == b)
+		return 0;
+	if (taskbarname_enabled) {
+		if (a == taskbar->area.list->data)
+			return -1;
+		if (b == taskbar->area.list->data)
+			return 1;
+	}
+	if (a->win_x != b->win_x) {
+		return a->win_x - b->win_x;
+	}
+	return a->win_y - b->win_y;
+}
+
+int taskbar_needs_sort(Taskbar *taskbar)
+{
+	if (sort_tasks_method == TASKBAR_NOSORT)
+		return 0;
+
+	if (sort_tasks_method == TASKBAR_SORT_POSITION) {
+		GSList *i, *j;
+		for (i = taskbar->area.list, j = i ? i->next : NULL; i && j; i = i->next, j = j->next) {
+			if (compare_tasks(i->data, j->data, taskbar) > 0) {
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+void sort_tasks(Taskbar *taskbar)
+{
+	if (!taskbar)
+		return;
+	if (!taskbar_needs_sort(taskbar))
+		return;
+	if (sort_tasks_method == TASKBAR_SORT_POSITION) {
+		taskbar->area.list = g_slist_sort_with_data(taskbar->area.list, (GCompareDataFunc)compare_tasks, taskbar);
+		taskbar->area.resize = 1;
+		panel_refresh = 1;
+	}
+}

@@ -827,25 +827,31 @@ void event_configure_notify (Window win)
 	}
 
 	// 'win' move in another monitor
-	if (nb_panel == 1 && !hide_task_diff_monitor)
-		return;
-
-	Task *tsk = task_get_task (win);
-	if (!tsk)
-		return;
-
-	Panel *p = tsk->area.panel;
-	int monitor = window_get_monitor(win);
-	if ((hide_task_diff_monitor && p->monitor != monitor && tsk->area.on_screen) ||
-		(hide_task_diff_monitor && p->monitor == monitor && !tsk->area.on_screen) ||
-		(p->monitor != monitor && nb_panel > 1)) {
-		remove_task (tsk);
-		tsk = add_task (win);
-		if (win == window_get_active ()) {
-			set_task_state(tsk, TASK_ACTIVE);
-			task_active = tsk;
+	if (nb_panel > 1 || hide_task_diff_monitor) {
+		Task *tsk = task_get_task (win);
+		if (tsk) {
+			Panel *p = tsk->area.panel;
+			int monitor = window_get_monitor(win);
+			if ((hide_task_diff_monitor && p->monitor != monitor && tsk->area.on_screen) ||
+				(hide_task_diff_monitor && p->monitor == monitor && !tsk->area.on_screen) ||
+				(p->monitor != monitor && nb_panel > 1)) {
+				remove_task (tsk);
+				tsk = add_task (win);
+				if (win == window_get_active ()) {
+					set_task_state(tsk, TASK_ACTIVE);
+					task_active = tsk;
+				}
+				panel_refresh = 1;
+			}
 		}
-		panel_refresh = 1;
+	}
+
+	if (sort_tasks_method == TASKBAR_SORT_POSITION) {
+		Task *tsk = task_get_task (win);
+		if (tsk) {
+			window_get_position(win, &tsk->win_x, &tsk->win_y);
+			sort_tasks(tsk->area.parent);
+		}
 	}
 }
 

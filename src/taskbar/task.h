@@ -63,6 +63,9 @@ typedef struct {
 	unsigned int icon_height;
 	char *title;
 	int urgent_tick;
+	// These may not be up-to-date
+	int win_x;
+	int win_y;
 } Task;
 
 

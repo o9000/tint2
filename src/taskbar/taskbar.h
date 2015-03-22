@@ -19,6 +19,8 @@ extern int taskbar_enabled;
 extern int taskbar_distribute_size;
 extern int hide_inactive_tasks;
 extern int hide_task_diff_monitor;
+enum { TASKBAR_NOSORT, TASKBAR_SORT_POSITION };
+extern int sort_tasks_method;
 
 typedef struct {
 	// always start with area
@@ -74,6 +76,7 @@ void set_taskbar_state(Taskbar *tskbar, int state);
 // show/hide taskbar according to current desktop
 void visible_taskbar(void *p);
 
+void sort_tasks(Taskbar *taskbar);
 
 #endif
 
