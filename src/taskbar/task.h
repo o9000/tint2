@@ -66,6 +66,8 @@ typedef struct {
 	// These may not be up-to-date
 	int win_x;
 	int win_y;
+	int win_w;
+	int win_h;
 } Task;
 
 

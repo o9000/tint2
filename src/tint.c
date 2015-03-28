@@ -475,6 +475,9 @@ void event_button_motion_notify (XEvent *e)
 				task_dragged = 1;
 			}
 		}
+		if (sort_tasks_method == TASKBAR_SORT_POSITION) {
+			sort_tasks(event_taskbar);
+		}
 	}
 	else { // The event is on another taskbar than the task being dragged
 		if(task_drag->desktop == ALLDESKTOP || panel_mode != MULTI_DESKTOP)
@@ -495,6 +498,10 @@ void event_button_motion_notify (XEvent *e)
 		task_drag->desktop = event_taskbar->desktop;
 
 		windows_set_desktop(task_drag->win, event_taskbar->desktop);
+
+		if (sort_tasks_method == TASKBAR_SORT_POSITION) {
+			sort_tasks(event_taskbar);
+		}
 
 		event_taskbar->area.resize = 1;
 		drag_taskbar->area.resize = 1;
@@ -846,13 +853,7 @@ void event_configure_notify (Window win)
 		}
 	}
 
-	if (sort_tasks_method == TASKBAR_SORT_POSITION) {
-		Task *tsk = task_get_task (win);
-		if (tsk) {
-			window_get_position(win, &tsk->win_x, &tsk->win_y);
-			sort_tasks(tsk->area.parent);
-		}
-	}
+	sort_taskbar_for_win(win);
 }
 
 char *GetAtomName(Display* disp, Atom a)

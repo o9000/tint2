@@ -412,6 +412,8 @@ void visible_taskbar(void *p)
 
 gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
 {
+	int a_horiz_c, a_vert_c, b_horiz_c, b_vert_c;
+
 	if (a == b)
 		return 0;
 	if (taskbarname_enabled) {
@@ -420,10 +422,14 @@ gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
 		if (b == taskbar->area.list->data)
 			return 1;
 	}
-	if (a->win_x != b->win_x) {
-		return a->win_x - b->win_x;
+	a_horiz_c = a->win_x + a->win_w / 2;
+	b_horiz_c = b->win_x + b->win_w / 2;
+	a_vert_c = a->win_y + a->win_h / 2;
+	b_vert_c = b->win_y + b->win_h / 2;
+	if (a_horiz_c != b_horiz_c) {
+		return a_horiz_c - b_horiz_c;
 	}
-	return a->win_y - b->win_y;
+	return a_vert_c - b_vert_c;
 }
 
 int taskbar_needs_sort(Taskbar *taskbar)
@@ -453,5 +459,28 @@ void sort_tasks(Taskbar *taskbar)
 		taskbar->area.list = g_slist_sort_with_data(taskbar->area.list, (GCompareDataFunc)compare_tasks, taskbar);
 		taskbar->area.resize = 1;
 		panel_refresh = 1;
+	}
+}
+
+
+void sort_taskbar_for_win(Window win)
+{
+	if (sort_tasks_method == TASKBAR_SORT_POSITION) {
+		GPtrArray* task_group = task_get_tasks(win);
+		if (task_group) {
+			int i;
+			Task* tsk0 = g_ptr_array_index(task_group, 0);
+			if (tsk0) {
+				window_get_coordinates(win, &tsk0->win_x, &tsk0->win_y, &tsk0->win_w, &tsk0->win_h);
+			}
+			for (i = 0; i < task_group->len; ++i) {
+				Task* tsk = g_ptr_array_index(task_group, i);
+				tsk->win_x = tsk0->win_x;
+				tsk->win_y = tsk0->win_y;
+				tsk->win_w = tsk0->win_w;
+				tsk->win_h = tsk0->win_h;
+				sort_tasks(tsk->area.parent);
+			}
+		}
 	}
 }

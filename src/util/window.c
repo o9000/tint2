@@ -144,10 +144,15 @@ int window_get_monitor (Window win)
 	else return i;
 }
 
-void window_get_position (Window win, int *x, int *y)
+void window_get_coordinates (Window win, int *x, int *y, int *w, int *h)
 {
-	Window src;
-	XTranslateCoordinates(server.dsp, win, server.root_win, 0, 0, x, y, &src);
+	int dummy_int;
+	unsigned ww, wh, bw, bh;
+ 	Window src;
+ 	XTranslateCoordinates(server.dsp, win, server.root_win, 0, 0, x, y, &src);
+	XGetGeometry(server.dsp, win, &src, &dummy_int, &dummy_int, &ww, &wh, &bw, &bh);
+	*w = ww + bw;
+	*h = wh + bh;
 }
 
 int window_is_iconified (Window win)

@@ -63,7 +63,7 @@ Task *add_task (Window win)
 	new_tsk.desktop = window_get_desktop (win);
 	new_tsk.area.panel = &panel1[monitor];
 	new_tsk.current_state = window_is_iconified(win) ? TASK_ICONIFIED : TASK_NORMAL;
-	window_get_position(win, &new_tsk.win_x, &new_tsk.win_y);
+	window_get_coordinates(win, &new_tsk.win_x, &new_tsk.win_y, &new_tsk.win_w, &new_tsk.win_h);
 
 	// allocate only one title and one icon
 	// even with task_on_all_desktop and with task_on_all_panel
@@ -92,6 +92,10 @@ Task *add_task (Window win)
 		new_tsk2->area.parent = tskbar;
 		new_tsk2->win = new_tsk.win;
 		new_tsk2->desktop = new_tsk.desktop;
+		new_tsk2->win_x = new_tsk.win_x;
+		new_tsk2->win_y = new_tsk.win_y;
+		new_tsk2->win_w = new_tsk.win_w;
+		new_tsk2->win_h = new_tsk.win_h;
 		new_tsk2->current_state = -1;  // to update the current state later in set_task_state...
 		if (new_tsk2->desktop == ALLDESKTOP && server.desktop != j) {
 			// hide ALLDESKTOP task on non-current desktop
@@ -116,7 +120,7 @@ Task *add_task (Window win)
 	g_hash_table_insert(win_to_task_table, key, task_group);
 	set_task_state(new_tsk2, new_tsk.current_state);
 
-	sort_tasks(tskbar);
+	sort_taskbar_for_win(win);
 
 	if (panel_mode == MULTI_DESKTOP) {
 		Panel *panel = new_tsk2->area.panel;

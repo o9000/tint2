@@ -76,6 +76,7 @@ void set_taskbar_state(Taskbar *tskbar, int state);
 // show/hide taskbar according to current desktop
 void visible_taskbar(void *p);
 
+void sort_taskbar_for_win(Window win);
 void sort_tasks(Taskbar *taskbar);
 
 #endif
