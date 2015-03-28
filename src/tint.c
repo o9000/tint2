@@ -462,21 +462,22 @@ void event_button_motion_notify (XEvent *e)
 
 	// If the event takes place on the same taskbar as the task being dragged
 	if(event_taskbar == task_drag->area.parent)	{
-		// Swap the task_drag with the task on the event's location (if they differ)
-		if(event_task && event_task != task_drag) {
-			GSList * drag_iter = g_slist_find(event_taskbar->area.list, task_drag);
-			GSList * task_iter = g_slist_find(event_taskbar->area.list, event_task);
-			if(drag_iter && task_iter) {
-				gpointer temp = task_iter->data;
-				task_iter->data = drag_iter->data;
-				drag_iter->data = temp;
-				event_taskbar->area.resize = 1;
-				panel_refresh = 1;
-				task_dragged = 1;
-			}
-		}
 		if (sort_tasks_method == TASKBAR_SORT_POSITION) {
 			sort_tasks(event_taskbar);
+		} else {
+			// Swap the task_drag with the task on the event's location (if they differ)
+			if(event_task && event_task != task_drag) {
+				GSList * drag_iter = g_slist_find(event_taskbar->area.list, task_drag);
+				GSList * task_iter = g_slist_find(event_taskbar->area.list, event_task);
+				if(drag_iter && task_iter) {
+					gpointer temp = task_iter->data;
+					task_iter->data = drag_iter->data;
+					drag_iter->data = temp;
+					event_taskbar->area.resize = 1;
+					panel_refresh = 1;
+					task_dragged = 1;
+				}
+			}
 		}
 	}
 	else { // The event is on another taskbar than the task being dragged
