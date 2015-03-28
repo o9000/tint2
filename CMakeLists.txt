@@ -140,8 +140,8 @@ endif( RT_LIBRARY )
 target_link_libraries( tint2 m )
 
 add_dependencies( tint2 version )
-set_target_properties( tint2 PROPERTIES COMPILE_FLAGS "-Wall -pthread ${DBG_C_FLAGS}" )
-set_target_properties( tint2 PROPERTIES LINK_FLAGS "-pthread ${DBG_L_FLAGS}" )
+set_target_properties( tint2 PROPERTIES COMPILE_FLAGS "-Wall -fno-strict-aliasing -pthread ${DBG_C_FLAGS}" )
+set_target_properties( tint2 PROPERTIES LINK_FLAGS "-pthread -fno-strict-aliasing ${DBG_L_FLAGS}" )
 
 install( TARGETS tint2 DESTINATION bin )
 install( FILES sample/tint2rc DESTINATION ${SYSCONFDIR}/xdg/tint2 )
