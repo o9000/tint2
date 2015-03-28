@@ -68,6 +68,7 @@ set( SOURCES src/config.c
              src/tooltip/tooltip.c
              src/util/area.c
              src/util/common.c
+             src/util/strnatcmp.c
              src/util/timer.c
              src/util/window.c )
 

@@ -462,7 +462,7 @@ void event_button_motion_notify (XEvent *e)
 
 	// If the event takes place on the same taskbar as the task being dragged
 	if(event_taskbar == task_drag->area.parent)	{
-		if (sort_tasks_method == TASKBAR_SORT_POSITION) {
+		if (taskbar_sort_method != TASKBAR_NOSORT) {
 			sort_tasks(event_taskbar);
 		} else {
 			// Swap the task_drag with the task on the event's location (if they differ)
@@ -500,7 +500,7 @@ void event_button_motion_notify (XEvent *e)
 
 		windows_set_desktop(task_drag->win, event_taskbar->desktop);
 
-		if (sort_tasks_method == TASKBAR_SORT_POSITION) {
+		if (taskbar_sort_method != TASKBAR_NOSORT) {
 			sort_tasks(event_taskbar);
 		}
 
@@ -751,6 +751,8 @@ void event_property_notify (XEvent *e)
 					tooltip_copy_text((Area*)tsk);
 					tooltip_update();
 				}
+				if (taskbar_sort_method == TASKBAR_SORT_TITLE)
+					sort_taskbar_for_win(win);
 				panel_refresh = 1;
 			}
 		}

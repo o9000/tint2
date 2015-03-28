@@ -503,6 +503,15 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "taskbar_hide_different_monitor") == 0) {
 		hide_task_diff_monitor = atoi (value);
 	}
+	else if (strcmp (key, "taskbar_sort_order") == 0) {
+		if (strcmp(value, "center") == 0) {
+			taskbar_sort_method = TASKBAR_SORT_CENTER;
+		} else if (strcmp(value, "title") == 0) {
+			taskbar_sort_method = TASKBAR_SORT_TITLE;
+		} else {
+			taskbar_sort_method = TASKBAR_NOSORT;
+		}
+	}
 
 	/* Task */
 	else if (strcmp (key, "task_text") == 0)

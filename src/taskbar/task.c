@@ -184,7 +184,10 @@ int get_title(Task *tsk)
 	Panel *panel = tsk->area.panel;
 	char *title, *name;
 
-	if (!panel->g_task.text && !panel->g_task.tooltip_enabled) return 0;
+	if (!panel->g_task.text &&
+		!panel->g_task.tooltip_enabled &&
+		taskbar_sort_method != TASKBAR_SORT_TITLE)
+		return 0;
 
 	name = server_get_property (tsk->win, server.atom._NET_WM_VISIBLE_NAME, server.atom.UTF8_STRING, 0);
 	if (!name || !strlen(name)) {
