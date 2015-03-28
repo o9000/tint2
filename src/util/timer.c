@@ -166,6 +166,8 @@ void callback_timeout_expired()
 
 void stop_timeout(timeout* t)
 {
+	if (!multi_timeouts || !t)
+		return;
 	// if not in the list, it was deleted in callback_timeout_expired
 	if (g_slist_find(timeout_list, t) || g_hash_table_lookup(multi_timeouts, t)) {
 		if (t->multi_timeout)
