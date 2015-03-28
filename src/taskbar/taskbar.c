@@ -426,10 +426,17 @@ gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
 	b_horiz_c = b->win_x + b->win_w / 2;
 	a_vert_c = a->win_y + a->win_h / 2;
 	b_vert_c = b->win_y + b->win_h / 2;
-	if (a_horiz_c != b_horiz_c) {
+	if (panel_horizontal) {
+		if (a_horiz_c != b_horiz_c) {
+			return a_horiz_c - b_horiz_c;
+		}
+		return a_vert_c - b_vert_c;
+	} else {
+		if (a_vert_c != b_vert_c) {
+			return a_vert_c - b_vert_c;
+		}
 		return a_horiz_c - b_horiz_c;
 	}
-	return a_vert_c - b_vert_c;
 }
 
 int taskbar_needs_sort(Taskbar *taskbar)
