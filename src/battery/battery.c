@@ -80,8 +80,7 @@ void update_battery_tick(void* arg)
 		// Reconfigure
 		init_battery();
 		// Try again
-		if (update_battery() != 0)
-			return;
+		update_battery();
 	}
 	if (old_found == battery_found &&
 		old_percentage == battery_state.percentage &&
