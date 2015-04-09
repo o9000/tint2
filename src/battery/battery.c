@@ -54,7 +54,7 @@ static char buf_bat_percentage[10];
 static char buf_bat_time[20];
 
 int8_t battery_low_status;
-unsigned char battery_low_cmd_send;
+unsigned char battery_low_cmd_sent;
 char *battery_low_cmd;
 char *path_energy_now;
 char *path_energy_full;
@@ -80,13 +80,26 @@ void update_battery_tick(void* arg)
 		// Reconfigure
 		init_battery();
 		// Try again
-		update_battery();
+		if (update_battery() != 0)
+			return;
 	}
 	if (old_found == battery_found &&
 		old_percentage == battery_state.percentage &&
 		old_hours == battery_state.time.hours &&
 		old_minutes == battery_state.time.minutes) {
 		return;
+	}
+
+	if (battery_state.percentage < battery_low_status &&
+		battery_state.state == BATTERY_DISCHARGING &&
+		!battery_low_cmd_sent) {
+		tint_exec(battery_low_cmd);
+		battery_low_cmd_sent = 1;
+	}
+	if (battery_state.percentage > battery_low_status &&
+		battery_state.state == BATTERY_CHARGING &&
+		battery_low_cmd_sent) {
+		battery_low_cmd_sent = 0;
 	}
 
 	int i;
@@ -113,7 +126,7 @@ void default_battery()
 	battery_enabled = 0;
 	battery_found = 0;
 	percentage_hide = 101;
-	battery_low_cmd_send = 0;
+	battery_low_cmd_sent = 0;
 	battery_timeout = 0;
 	bat1_font_desc = 0;
 	bat2_font_desc = 0;
@@ -454,13 +467,6 @@ int update_battery() {
 	if (energy_full > 0)
 		new_percentage = ((energy_now <= energy_full ? energy_now : energy_full) * 100) / energy_full;
 
-	if (battery_low_status > new_percentage && battery_state.state == BATTERY_DISCHARGING && !battery_low_cmd_send) {
-		tint_exec(battery_low_cmd);
-		battery_low_cmd_send = 1;
-	}
-	if (battery_low_status < new_percentage && battery_state.state == BATTERY_CHARGING && battery_low_cmd_send) {
-		battery_low_cmd_send = 0;
-	}
 	battery_state.percentage = new_percentage;
 
 	// clamp percentage to 100 in case battery is misreporting that its current charge is more than its max
