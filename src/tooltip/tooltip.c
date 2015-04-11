@@ -28,6 +28,7 @@
 #include "timer.h"
 
 static int x, y, width, height;
+static int just_shown;
 
 // the next functions are helper functions for tooltip handling
 void start_show_timeout();
@@ -46,6 +47,7 @@ void default_tooltip()
 	g_tooltip.font_color.color[1] = 1;
 	g_tooltip.font_color.color[2] = 1;
 	g_tooltip.font_color.alpha = 1;
+	just_shown = 0;
 }
 
 void cleanup_tooltip()
@@ -86,8 +88,7 @@ void tooltip_trigger_show(Area* area, Panel* p, XEvent *e)
 	// Position the tooltip in the center of the area
 	x = area->posx + area->width / 2 + e->xmotion.x_root - e->xmotion.x;
 	y = area->posy + area->height / 2 + e->xmotion.y_root - e->xmotion.y;
-	if (!panel_horizontal)
-		y -= height/2;
+	just_shown = 1;
 	g_tooltip.panel = p;
 	if (g_tooltip.mapped && g_tooltip.area != area) {
 		tooltip_copy_text(area);
@@ -106,8 +107,6 @@ void tooltip_show(void* arg)
 	Window w;
 	XTranslateCoordinates( server.dsp, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
 	Area* area;
-	if (!panel_horizontal)
-		my += height/2; /* we adjusted y in tooltip_trigger_show, revert or we won't find the correct area anymore */
 	area = click_area(g_tooltip.panel, mx, my);
 	stop_tooltip_timeout();
 	if (!g_tooltip.mapped && area->_get_tooltip_text) {
@@ -205,6 +204,11 @@ void tooltip_update()
 	}
 
 	tooltip_update_geometry();
+	if (just_shown) {
+		if (!panel_horizontal)
+			y -= height/2; // center vertically
+		just_shown = 0;
+	}
 	tooltip_adjust_geometry();
 	XMoveResizeWindow(server.dsp, g_tooltip.window, x, y, width, height);
 
