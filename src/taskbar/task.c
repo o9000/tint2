@@ -618,7 +618,7 @@ void add_urgent(Task *tsk)
 	// not yet in the list, so we have to add it
 	urgent_list = g_slist_prepend(urgent_list, tsk);
 
-	if (urgent_timeout == 0)
+	if (!urgent_timeout)
 		urgent_timeout = add_timeout(10, 1000, blink_urgent, 0);
 
 	Panel *panel = tsk->area.panel;
@@ -630,8 +630,8 @@ void add_urgent(Task *tsk)
 void del_urgent(Task *tsk)
 {
 	urgent_list = g_slist_remove(urgent_list, tsk);
-	if (urgent_list == 0) {
+	if (!urgent_list) {
 		stop_timeout(urgent_timeout);
-		urgent_timeout = 0;
+		urgent_timeout = NULL;
 	}
 }

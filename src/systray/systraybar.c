@@ -100,7 +100,7 @@ void init_systray_panel(void *p)
 {
 	systray.area.parent = p;
 	systray.area.panel = p;
-	if (systray.area.bg == 0)
+	if (!systray.area.bg)
 		systray.area.bg = &g_array_index(backgrounds, Background, 0);
 
 	GSList *l;
@@ -308,7 +308,7 @@ void stop_net()
 			remove_icon((TrayWindow*)systray.list_icons->data);
 
 		g_slist_free(systray.list_icons);
-		systray.list_icons = 0;
+		systray.list_icons = NULL;
 	}
 
 	if (net_sel_win != None) {
@@ -501,7 +501,7 @@ void remove_icon(TrayWindow *traywin)
 	// check empty systray
 	int count = 0;
 	GSList *l;
-	for (l = systray.list_icons; l ; l = l->next) {
+	for (l = systray.list_icons; l; l = l->next) {
 		if (!((TrayWindow*)l->data)->hide)
 			count++;
 	}

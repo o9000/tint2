@@ -12,7 +12,7 @@
 #include "taskbarname.h"
 
 enum { TASKBAR_NORMAL, TASKBAR_ACTIVE, TASKBAR_STATE_COUNT };
-extern GHashTable* win_to_task_table;
+extern GHashTable *win_to_task_table;
 extern Task *task_active;
 extern Task *task_drag;
 extern int taskbar_enabled;
@@ -27,7 +27,7 @@ typedef struct {
 	Area area;
 	Pixmap state_pix[TASKBAR_STATE_COUNT];
 
-	char *name;
+	gchar *name;
 	int  posy;
 } Taskbarname;
 

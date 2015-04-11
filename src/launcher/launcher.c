@@ -96,7 +96,7 @@ void init_launcher_panel(void *p)
 	launcher->area._resize = resize_launcher;
 	launcher->area.resize = 1;
 	launcher->area.redraw = 1;
-	if (launcher->area.bg == 0)
+	if (!launcher->area.bg)
 		launcher->area.bg = &g_array_index(backgrounds, Background, 0);
 
 	// check consistency
@@ -118,20 +118,26 @@ void cleanup_launcher()
 
 	if (xsettings_client)
 		xsettings_client_destroy(xsettings_client);
-	for (i = 0 ; i < nb_panel ; i++) {
+	xsettings_client = NULL;
+
+	for (i = 0; i < nb_panel; i++) {
 		Panel *panel = &panel1[i];
 		Launcher *launcher = &panel->launcher;
 		cleanup_launcher_theme(launcher);
 	}
+
 	for (l = panel_config.launcher.list_apps; l ; l = l->next) {
 		free(l->data);
 	}
 	g_slist_free(panel_config.launcher.list_apps);
 	panel_config.launcher.list_apps = NULL;
+
 	free(icon_theme_name_config);
 	icon_theme_name_config = NULL;
+
 	free(icon_theme_name_xsettings);
 	icon_theme_name_xsettings = NULL;
+
 	launcher_enabled = 0;
 }
 
@@ -153,9 +159,9 @@ void cleanup_launcher_theme(Launcher *launcher)
 		free(launcherIcon);
 	}
 	g_slist_free(launcher->list_icons);
+	launcher->list_icons = NULL;
 
 	free_themes(launcher->list_themes);
-	launcher->list_icons = NULL;
 	launcher->list_themes = NULL;
 }
 

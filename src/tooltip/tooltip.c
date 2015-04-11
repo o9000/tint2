@@ -51,17 +51,20 @@ void default_tooltip()
 void cleanup_tooltip()
 {
 	stop_tooltip_timeout();
-	tooltip_hide(0);
-	tooltip_copy_text(0);
-	if (g_tooltip.window) XDestroyWindow(server.dsp, g_tooltip.window);
-	if (g_tooltip.font_desc) pango_font_description_free(g_tooltip.font_desc);
+	tooltip_hide(NULL);
+	tooltip_copy_text(NULL);
+	if (g_tooltip.window)
+		XDestroyWindow(server.dsp, g_tooltip.window);
+	g_tooltip.window = 0;
+	pango_font_description_free(g_tooltip.font_desc);
+	g_tooltip.font_desc = NULL;
 }
 
 
 void init_tooltip()
 {
 	if (!g_tooltip.font_desc)
-		g_tooltip.font_desc = pango_font_description_from_string("sans 10");
+		g_tooltip.font_desc = pango_font_description_from_string(DEFAULT_FONT);
 	if (g_tooltip.bg == 0)
 		g_tooltip.bg = &g_array_index(backgrounds, Background, 0);
 
@@ -72,7 +75,8 @@ void init_tooltip()
 	attr.background_pixel = 0;
 	attr.border_pixel = 0;
 	unsigned long mask = CWEventMask|CWColormap|CWBorderPixel|CWBackPixel|CWOverrideRedirect;
-	if (g_tooltip.window) XDestroyWindow(server.dsp, g_tooltip.window);
+	if (g_tooltip.window)
+		XDestroyWindow(server.dsp, g_tooltip.window);
 	g_tooltip.window = XCreateWindow(server.dsp, server.root_win, 0, 0, 100, 20, 0, server.depth, InputOutput, server.visual, mask, &attr);
 }
 
@@ -296,10 +300,8 @@ void start_hide_timeout()
 
 void stop_tooltip_timeout()
 {
-	if (g_tooltip.timeout) {
-		stop_timeout(g_tooltip.timeout);
-		g_tooltip.timeout = 0;
-	}
+	stop_timeout(g_tooltip.timeout);
+	g_tooltip.timeout = NULL;
 }
 
 
@@ -309,6 +311,6 @@ void tooltip_copy_text(Area* area)
 	if (area && area->_get_tooltip_text)
 		g_tooltip.tooltip_text = strdup(area->_get_tooltip_text(area));
 	else
-		g_tooltip.tooltip_text = 0;
+		g_tooltip.tooltip_text = NULL;
 	g_tooltip.area = area;
 }

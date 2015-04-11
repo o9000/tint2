@@ -72,15 +72,17 @@ static int new_config_file;
 
 void default_config()
 {
-	config_path = 0;
-	snapshot_path = 0;
+	config_path = NULL;
+	snapshot_path = NULL;
 	new_config_file = 0;
 }
 
 void cleanup_config()
 {
-	if (config_path) g_free(config_path);
-	if (snapshot_path) g_free(snapshot_path);
+	free(config_path);
+	config_path = NULL;
+	free(snapshot_path);
+	snapshot_path = NULL;
 }
 
 
@@ -158,7 +160,7 @@ void load_launcher_app_dir(const char *path)
 			gchar *file = g_build_filename(path, name, NULL);
 			if (!g_file_test(file, G_FILE_TEST_IS_DIR) &&
 				g_str_has_suffix(file, ".desktop")) {
-				panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, (char *)strdup(file));
+				panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, strdup(file));
 			} else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
 				load_launcher_app_dir(file);
 			}
@@ -373,12 +375,13 @@ void add_entry (char *key, char *value)
 		if (new_config_file == 0) {
 			clock_enabled = 1;
 			if (panel_items_order) {
-				char* tmp = g_strconcat(panel_items_order, "C", NULL);
-				g_free( panel_items_order );
-				panel_items_order = tmp;
+				gchar* tmp = g_strconcat(panel_items_order, "C", NULL);
+				free(panel_items_order);
+				panel_items_order = strdup(tmp);
+				g_free(tmp);
 			}
 			else 
-				panel_items_order = g_strdup("C");
+				panel_items_order = strdup("C");
 		}
 		if (strlen(value) > 0) {
 			time1_format = strdup (value);
@@ -581,12 +584,13 @@ void add_entry (char *key, char *value)
 		if (new_config_file == 0 && systray_enabled == 0) {
 			systray_enabled = 1;
 			if (panel_items_order) {
-				char* tmp = g_strconcat(panel_items_order, "S", NULL);
-				g_free( panel_items_order );
-				panel_items_order = tmp;
+				gchar* tmp = g_strconcat(panel_items_order, "S", NULL);
+				free(panel_items_order);
+				panel_items_order = strdup(tmp);
+				g_free(tmp);
 			}
 			else
-				panel_items_order = g_strdup("S");
+				panel_items_order = strdup("S");
 		}
 		extract_values(value, &value1, &value2, &value3);
 		systray.area.paddingxlr = systray.area.paddingx = atoi (value1);
@@ -734,12 +738,13 @@ void add_entry (char *key, char *value)
 			systray_enabled = atoi(value);
 			if (systray_enabled) {
 				if (panel_items_order) {
-					char* tmp = g_strconcat(panel_items_order, "S", NULL);
-					g_free( panel_items_order );
-					panel_items_order = tmp;
+					gchar* tmp = g_strconcat(panel_items_order, "S", NULL);
+					free(panel_items_order);
+					panel_items_order = strdup(tmp);
+					g_free(tmp);
 				}
 				else
-					panel_items_order = g_strdup("S");
+					panel_items_order = strdup("S");
 			}
 		}
 	}
@@ -749,12 +754,13 @@ void add_entry (char *key, char *value)
 			battery_enabled = atoi(value);
 			if (battery_enabled) {
 				if (panel_items_order) {
-					char* tmp = g_strconcat(panel_items_order, "B", NULL);
-					g_free( panel_items_order );
-					panel_items_order = tmp;
+					gchar* tmp = g_strconcat(panel_items_order, "B", NULL);
+					free(panel_items_order);
+					panel_items_order = strdup(tmp);
+					g_free(tmp);
 				}
 				else
-					panel_items_order = g_strdup("B");
+					panel_items_order = strdup("B");
 			}
 		}
 	}
@@ -771,7 +777,7 @@ void add_entry (char *key, char *value)
 int config_read ()
 {
 	const gchar * const * system_dirs;
-	char *path1;
+	gchar *path1;
 	gint i;
 
 	// follow XDG specification
@@ -786,19 +792,19 @@ int config_read ()
 	g_free(path1);
 
 	// copy tint2rc from system directory to user directory
-	char *path2 = 0;
+	gchar *path2 = 0;
 	system_dirs = g_get_system_config_dirs();
 	for (i = 0; system_dirs[i]; i++) {
 		path2 = g_build_filename(system_dirs[i], "tint2", "tint2rc", NULL);
 
 		if (g_file_test(path2, G_FILE_TEST_EXISTS)) break;
-		g_free (path2);
+		g_free(path2);
 		path2 = 0;
 	}
 
 	if (path2) {
 		// copy file in user directory (path1)
-		char *dir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
+		gchar *dir = g_build_filename (g_get_user_config_dir(), "tint2", NULL);
 		if (!g_file_test (dir, G_FILE_TEST_IS_DIR)) g_mkdir(dir, 0777);
 		g_free(dir);
 
@@ -836,12 +842,13 @@ int config_read_file (const char *path)
 	if (new_config_file == 0) {
 		taskbar_enabled = 1;
 		if (panel_items_order) {
-			char* tmp = g_strconcat( "T", panel_items_order, NULL );
-			g_free(panel_items_order);
-			panel_items_order = tmp;
+			gchar* tmp = g_strconcat("T", panel_items_order, NULL);
+			free(panel_items_order);
+			panel_items_order = strdup(tmp);
+			g_free(tmp);
 		}
 		else 
-			panel_items_order = g_strdup("T");
+			panel_items_order = strdup("T");
 	}
 
 	return 1;

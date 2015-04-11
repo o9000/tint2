@@ -271,12 +271,15 @@ void cleanup()
 	if (default_icon) {
 		imlib_context_set_image(default_icon);
 		imlib_free_image();
+		default_icon = NULL;
 	}
 	imlib_context_disconnect_display();
 
 	cleanup_server();
 	cleanup_timeout();
-	if (server.dsp) XCloseDisplay(server.dsp);
+	if (server.dsp)
+		XCloseDisplay(server.dsp);
+	server.dsp = NULL;
 
 #ifdef HAVE_SN
 	if (startup_notifications) {

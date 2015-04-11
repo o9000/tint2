@@ -228,7 +228,7 @@ void load_theme_from_fs_dir(IconTheme *theme, char *dir_name)
 
 IconTheme *load_theme_from_fs(char *name, IconTheme *theme)
 {
-	char *dir_name = NULL;
+	gchar *dir_name = NULL;
 	const GSList *location;
 	for (location = get_icon_locations(); location; location = g_slist_next(location)) {
 		gchar *path = (gchar*) location->data;
@@ -255,7 +255,7 @@ IconTheme *load_theme(char *name)
 	if (name == NULL)
 		return NULL;
 
-	char *file_name = NULL;
+	gchar *file_name = NULL;
 	const GSList *location;
 	for (location = get_icon_locations(); location; location = g_slist_next(location)) {
 		gchar *path = (gchar*) location->data;

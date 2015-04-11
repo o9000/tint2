@@ -55,9 +55,9 @@ void free_ptr_array(gpointer data) { g_ptr_array_free(data, 1); }
 
 void default_taskbar()
 {
-	win_to_task_table = 0;
-	urgent_timeout = 0;
-	urgent_list = 0;
+	win_to_task_table = NULL;
+	urgent_timeout = NULL;
+	urgent_list = NULL;
 	taskbar_enabled = 0;
 	taskbar_distribute_size = 0;
 	hide_inactive_tasks = 0;
@@ -78,33 +78,38 @@ void cleanup_taskbar()
 			GHashTableIter iter;
 			gpointer key, value;
 
-			g_hash_table_iter_init (&iter, win_to_task_table);
-			if (g_hash_table_iter_next (&iter, &key, &value)) {
+			g_hash_table_iter_init(&iter, win_to_task_table);
+			if (g_hash_table_iter_next(&iter, &key, &value)) {
 				taskbar_remove_task(key, 0, 0);
 			}
 		}
+		g_hash_table_destroy(win_to_task_table);
+		win_to_task_table = NULL;
 	}
-	for (i=0 ; i < nb_panel ; i++) {
+	for (i = 0 ; i < nb_panel; i++) {
 		panel = &panel1[i];
-		for (j=0 ; j < panel->nb_desktop ; j++) {
+		for (j = 0; j < panel->nb_desktop; j++) {
 			tskbar = &panel->taskbar[j];
-			for (k=0; k<TASKBAR_STATE_COUNT; ++k) {
-				if (tskbar->state_pix[k]) XFreePixmap(server.dsp, tskbar->state_pix[k]);
+			for (k = 0; k < TASKBAR_STATE_COUNT; ++k) {
+				if (tskbar->state_pix[k])
+					XFreePixmap(server.dsp, tskbar->state_pix[k]);
+				tskbar->state_pix[k] = 0;
 			}
-			free_area (&tskbar->area);
+			free_area(&tskbar->area);
 			// remove taskbar from the panel
 			panel->area.list = g_slist_remove(panel->area.list, tskbar);
 		}
 		if (panel->taskbar) {
 			free(panel->taskbar);
-			panel->taskbar = 0;
+			panel->taskbar = NULL;
 		}
 	}
 
-	if (win_to_task_table) {
-		g_hash_table_destroy(win_to_task_table);
-		win_to_task_table = 0;
-	}
+	g_slist_free(urgent_list);
+	urgent_list = NULL;
+
+	stop_timeout(urgent_timeout);
+	urgent_timeout = NULL;
 }
 
 
@@ -131,6 +136,8 @@ void init_taskbar_panel(void *p)
 		panel->g_taskbar.background_name[TASKBAR_NORMAL] = &g_array_index(backgrounds, Background, 0);
 		panel->g_taskbar.background_name[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, 0);
 	}
+	if (!panel->g_task.font_desc)
+		panel->g_task.font_desc = pango_font_description_from_string(DEFAULT_FONT);
 	if (panel->g_task.area.bg == 0)
 		panel->g_task.area.bg = &g_array_index(backgrounds, Background, 0);
 

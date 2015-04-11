@@ -64,8 +64,8 @@ void stop_multi_timeout(timeout* t);
 
 void default_timeout()
 {
-	timeout_list = 0;
-	multi_timeouts = 0;
+	timeout_list = NULL;
+	multi_timeouts = NULL;
 }
 
 void cleanup_timeout()
@@ -79,7 +79,7 @@ void cleanup_timeout()
 	}
 	if (multi_timeouts) {
 		g_hash_table_destroy(multi_timeouts);
-		multi_timeouts = 0;
+		multi_timeouts = NULL;
 	}
 }
 

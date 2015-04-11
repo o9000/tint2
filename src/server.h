@@ -97,7 +97,7 @@ typedef struct Monitor
 	int y;
 	int width;
 	int height;
-	char** names;
+	gchar** names;
 } Monitor;
 
 

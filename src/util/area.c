@@ -456,6 +456,9 @@ void add_area (Area *a)
 
 void free_area (Area *a)
 {
+	if (!a)
+		return;
+
 	GSList *l0;
 	for (l0 = a->list; l0 ; l0 = l0->next)
 		free_area (l0->data);

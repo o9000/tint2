@@ -68,6 +68,8 @@ extern int  max_tick_urgent;
 extern GArray* backgrounds;
 
 extern Imlib_Image default_icon;
+// TODO maybe this should be a config option
+#define DEFAULT_FONT "sans 10"
 
 
 // tint2 use one panel per monitor and one taskbar per desktop.

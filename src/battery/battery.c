@@ -56,10 +56,10 @@ static char buf_bat_time[20];
 int8_t battery_low_status;
 unsigned char battery_low_cmd_sent;
 char *battery_low_cmd;
-char *path_energy_now;
-char *path_energy_full;
-char *path_current_now;
-char *path_status;
+gchar *path_energy_now;
+gchar *path_energy_full;
+gchar *path_current_now;
+gchar *path_status;
 int battery_found;
 
 #if defined(__OpenBSD__) || defined(__NetBSD__)
@@ -126,17 +126,19 @@ void default_battery()
 	battery_found = 0;
 	percentage_hide = 101;
 	battery_low_cmd_sent = 0;
-	battery_timeout = 0;
-	bat1_font_desc = 0;
-	bat2_font_desc = 0;
-	battery_low_cmd = 0;
-	path_energy_now = 0;
-	path_energy_full = 0;
-	path_current_now = 0;
-	path_status = 0;
+	battery_timeout = NULL;
+	bat1_font_desc = NULL;
+	bat2_font_desc = NULL;
+	battery_low_cmd = NULL;
+	path_energy_now = NULL;
+	path_energy_full = NULL;
+	path_current_now = NULL;
+	path_status = NULL;
 	battery_state.percentage = 0;
 	battery_state.time.hours = 0;
 	battery_state.time.minutes = 0;
+	battery_state.time.seconds = 0;
+	battery_state.state = BATTERY_UNKNOWN;
 #if defined(__OpenBSD__) || defined(__NetBSD__)
 	apm_fd = -1;
 #endif
@@ -145,21 +147,21 @@ void default_battery()
 void cleanup_battery()
 {
 	pango_font_description_free(bat1_font_desc);
-	bat1_font_desc = 0;
+	bat1_font_desc = NULL;
 	pango_font_description_free(bat2_font_desc);
-	bat2_font_desc = 0;
+	bat2_font_desc = NULL;
 	g_free(path_energy_now);
-	path_energy_now = 0;
+	path_energy_now = NULL;
 	g_free(path_energy_full);
-	path_energy_full = 0;
+	path_energy_full = NULL;
 	g_free(path_current_now);
-	path_current_now = 0;
+	path_current_now = NULL;
 	g_free(path_status);
-	path_status = 0;
-	g_free(battery_low_cmd);
-	battery_low_cmd = 0;
+	path_status = NULL;
+	free(battery_low_cmd);
+	battery_low_cmd = NULL;
 	stop_timeout(battery_timeout);
-	battery_timeout = 0;
+	battery_timeout = NULL;
 	battery_found = 0;
 
 #if defined(__OpenBSD__) || defined(__NetBSD__)
@@ -191,7 +193,7 @@ void init_battery()
 	GDir *directory = 0;
 	GError *error = NULL;
 	const char *entryname;
-	char *battery_dir = 0;
+	gchar *battery_dir = 0;
 
 	directory = g_dir_open("/sys/class/power_supply", 0, &error);
 	if (error) {
@@ -285,6 +287,11 @@ void init_battery_panel(void *p)
 
 	if (!battery_enabled)
 		return;
+
+	if (!bat1_font_desc)
+		bat1_font_desc = pango_font_description_from_string(DEFAULT_FONT);
+	if (!bat2_font_desc)
+		bat2_font_desc = pango_font_description_from_string(DEFAULT_FONT);
 
 	if (battery->area.bg == 0)
 		battery->area.bg = &g_array_index(backgrounds, Background, 0);

@@ -53,32 +53,43 @@ static timeout* clock_timeout;
 void default_clock()
 {
 	clock_enabled = 0;
-	clock_timeout = 0;
-	time1_format = 0;
-	time1_timezone = 0;
-	time2_format = 0;
-	time2_timezone = 0;
-	time_tooltip_format = 0;
-	time_tooltip_timezone = 0;
-	clock_lclick_command = 0;
-	clock_rclick_command = 0;
-	time1_font_desc = 0;
-	time2_font_desc = 0;
+	clock_timeout = NULL;
+	time1_format = NULL;
+	time1_timezone = NULL;
+	time2_format = NULL;
+	time2_timezone = NULL;
+	time_tooltip_format = NULL;
+	time_tooltip_timezone = NULL;
+	clock_lclick_command = NULL;
+	clock_rclick_command = NULL;
+	time1_font_desc = NULL;
+	time2_font_desc = NULL;
 }
 
 void cleanup_clock()
 {
-	if (time1_font_desc) pango_font_description_free(time1_font_desc);
-	if (time2_font_desc) pango_font_description_free(time2_font_desc);
-	if (time1_format) g_free(time1_format);
-	if (time2_format) g_free(time2_format);
-	if (time_tooltip_format) g_free(time_tooltip_format);
-	if (time1_timezone) g_free(time1_timezone);
-	if (time2_timezone) g_free(time2_timezone);
-	if (time_tooltip_timezone) g_free(time_tooltip_timezone);
-	if (clock_lclick_command) g_free(clock_lclick_command);
-	if (clock_rclick_command) g_free(clock_rclick_command);
-	if (clock_timeout) stop_timeout(clock_timeout);
+	pango_font_description_free(time1_font_desc);
+	time1_font_desc = NULL;
+	pango_font_description_free(time2_font_desc);
+	time2_font_desc = NULL;
+	free(time1_format);
+	time1_format = NULL;
+	free(time2_format);
+	time2_format = NULL;
+	free(time_tooltip_format);
+	time_tooltip_format = NULL;
+	free(time1_timezone);
+	time1_timezone = NULL;
+	free(time2_timezone);
+	time2_timezone = NULL;
+	free(time_tooltip_timezone);
+	time_tooltip_timezone = NULL;
+	free(clock_lclick_command);
+	clock_lclick_command = NULL;
+	free(clock_rclick_command);
+	clock_rclick_command = NULL;
+	stop_timeout(clock_timeout);
+	clock_timeout = NULL;
 }
 
 
@@ -138,7 +149,7 @@ int time_format_needs_sec_ticks(char *time_format)
 
 void init_clock()
 {
-	if (clock_timeout == 0) {
+	if (!clock_timeout) {
 		if (time_format_needs_sec_ticks(time1_format) ||
 			time_format_needs_sec_ticks(time2_format)) {
 			clock_timeout = add_timeout(10, 1000, update_clocks_sec, 0);
@@ -154,7 +165,11 @@ void init_clock_panel(void *p)
 	Panel *panel =(Panel*)p;
 	Clock *clock = &panel->clock;
 	
-	if (clock->area.bg == 0)
+	if (!time1_font_desc)
+		time1_font_desc = pango_font_description_from_string(DEFAULT_FONT);
+	if (!time2_font_desc)
+		time2_font_desc = pango_font_description_from_string(DEFAULT_FONT);
+	if (!clock->area.bg)
 		clock->area.bg = &g_array_index(backgrounds, Background, 0);
 	clock->area.parent = p;
 	clock->area.panel = p;
@@ -162,7 +177,7 @@ void init_clock_panel(void *p)
 	clock->area.size_mode = SIZE_BY_CONTENT;
 	clock->area._resize = resize_clock;
 	// check consistency
-	if (time1_format == 0)
+	if (!time1_format)
 		return;
 
 	clock->area.resize = 1;

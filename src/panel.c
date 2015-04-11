@@ -82,7 +82,7 @@ void default_panel()
 	task_dragged = 0;
 	panel_horizontal = 1;
 	panel_position = CENTER;
-	panel_items_order = 0;
+	panel_items_order = NULL;
 	panel_autohide = 0;
 	panel_autohide_show_timeout = 0;
 	panel_autohide_hide_timeout = 0;
@@ -106,29 +106,39 @@ void default_panel()
 
 void cleanup_panel()
 {
-	if (!panel1) return;
+	if (!panel1)
+		return;
 
 	cleanup_taskbar();
-	// taskbarname_font_desc freed here because cleanup_taskbarname() called on _NET_NUMBER_OF_DESKTOPS
-	if (taskbarname_font_desc)	pango_font_description_free(taskbarname_font_desc);
 
 	int i;
 	Panel *p;
-	for (i=0 ; i < nb_panel ; i++) {
+	for (i = 0; i < nb_panel; i++) {
 		p = &panel1[i];
 
 		free_area(&p->area);
-		if (p->temp_pmap) XFreePixmap(server.dsp, p->temp_pmap);
-		if (p->hidden_pixmap) XFreePixmap(server.dsp, p->hidden_pixmap);
-		if (p->main_win) XDestroyWindow(server.dsp, p->main_win);
+		if (p->temp_pmap)
+			XFreePixmap(server.dsp, p->temp_pmap);
+		p->temp_pmap = 0;
+		if (p->hidden_pixmap)
+			XFreePixmap(server.dsp, p->hidden_pixmap);
+		p->hidden_pixmap = 0;
+		if (p->main_win)
+			XDestroyWindow(server.dsp, p->main_win);
+		p->main_win = 0;
 	}
 
-	if (panel_items_order) g_free(panel_items_order);
+	free(panel_items_order);
+	panel_items_order = NULL;
 	free(panel_window_name);
-	if (panel1) free(panel1);
+	panel_window_name = NULL;
+	free(panel1);
+	panel1 = NULL;
 	if (backgrounds)
 		g_array_free(backgrounds, 1);
-	if (panel_config.g_task.font_desc) pango_font_description_free(panel_config.g_task.font_desc);
+	backgrounds = NULL;
+	pango_font_description_free(panel_config.g_task.font_desc);
+	panel_config.g_task.font_desc = NULL;
 }
 
 void init_panel()
@@ -168,7 +178,7 @@ void init_panel()
 
 		if (panel_config.monitor < 0)
 			p->monitor = i;
-		if ( p->area.bg == 0 )
+		if (!p->area.bg)
 			p->area.bg = &g_array_index(backgrounds, Background, 0);
 		p->area.parent = p;
 		p->area.panel = p;

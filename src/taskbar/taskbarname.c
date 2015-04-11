@@ -41,7 +41,7 @@ Color taskbarname_active_font;
 void default_taskbarname()
 {
 	taskbarname_enabled = 0;
-	taskbarname_font_desc = 0;
+	taskbarname_font_desc = NULL;
 }
 
 
@@ -51,7 +51,11 @@ void init_taskbarname_panel(void *p)
 	Taskbar *tskbar;
 	int j;
 	
-	if (!taskbarname_enabled) return;
+	if (!taskbarname_enabled)
+		return;
+
+	if (!taskbarname_font_desc)
+		taskbarname_font_desc = pango_font_description_from_string(DEFAULT_FONT);
 
 	GSList *l, *list = server_get_name_of_desktop();
 	for (j=0, l=list ; j < panel->nb_desktop ; j++) {
@@ -87,18 +91,24 @@ void cleanup_taskbarname()
 	Panel *panel;
 	Taskbar *tskbar;
 
-	for (i=0 ; i < nb_panel ; i++) {
+	for (i = 0; i < nb_panel; i++) {
 		panel = &panel1[i];
-		for (j=0 ; j < panel->nb_desktop ; j++) {
+		for (j = 0; j < panel->nb_desktop; j++) {
 			tskbar = &panel->taskbar[j];
-			if (tskbar->bar_name.name)	g_free(tskbar->bar_name.name);
-			free_area (&tskbar->bar_name.area);
-			for (k=0; k<TASKBAR_STATE_COUNT; ++k) {
-				if (tskbar->bar_name.state_pix[k]) XFreePixmap(server.dsp, tskbar->bar_name.state_pix[k]);
+			g_free(tskbar->bar_name.name);
+			tskbar->bar_name.name = NULL;
+			free_area(&tskbar->bar_name.area);
+			for (k = 0; k < TASKBAR_STATE_COUNT; ++k) {
+				if (tskbar->bar_name.state_pix[k])
+					XFreePixmap(server.dsp, tskbar->bar_name.state_pix[k]);
+				tskbar->bar_name.state_pix[k] = 0;
 			}
 			tskbar->area.list = g_slist_remove(tskbar->area.list, &tskbar->bar_name);
 		}
 	}
+
+	pango_font_description_free(taskbarname_font_desc);
+	taskbarname_font_desc = NULL;
 }
 
 

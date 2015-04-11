@@ -83,7 +83,7 @@ void server_init_atoms ()
 	server.atom.__SWM_VROOT = XInternAtom(server.dsp, "__SWM_VROOT", False);
 	server.atom._MOTIF_WM_HINTS = XInternAtom(server.dsp, "_MOTIF_WM_HINTS", False);
 	server.atom.WM_HINTS = XInternAtom(server.dsp, "WM_HINTS", False);
-	char *name = g_strdup_printf("_XSETTINGS_S%d", DefaultScreen(server.dsp));
+	gchar *name = g_strdup_printf("_XSETTINGS_S%d", DefaultScreen(server.dsp));
 	server.atom._XSETTINGS_SCREEN = XInternAtom(server.dsp, name, False);
 	g_free(name);
 	server.atom._XSETTINGS_SETTINGS = XInternAtom(server.dsp, "_XSETTINGS_SETTINGS", False);
@@ -116,16 +116,24 @@ void server_init_atoms ()
 
 void cleanup_server()
 {
-	if (server.colormap) XFreeColormap(server.dsp, server.colormap);
-	if (server.colormap32) XFreeColormap(server.dsp, server.colormap32);
+	if (server.colormap)
+		XFreeColormap(server.dsp, server.colormap);
+	server.colormap = 0;
+	if (server.colormap32)
+		XFreeColormap(server.dsp, server.colormap32);
+	server.colormap32 = 0;
 	if (server.monitor) {
 		int i;
-		for (i=0; i<server.nb_monitor; ++i)
-			if (server.monitor[i].names)
-				g_strfreev(server.monitor[i].names);
+		for (i = 0; i < server.nb_monitor; ++i) {
+			g_strfreev(server.monitor[i].names);
+			server.monitor[i].names = NULL;
+		}
 		free(server.monitor);
+		server.monitor = NULL;
 	}
-	if (server.gc) XFreeGC(server.dsp, server.gc);
+	if (server.gc)
+		XFreeGC(server.dsp, server.gc);
+	server.gc = NULL;
 	server.disable_transparency = 0;
 }
 
@@ -294,7 +302,7 @@ void get_monitors()
 				server.monitor[i].y = crtc_info->y;
 				server.monitor[i].width = crtc_info->width;
 				server.monitor[i].height = crtc_info->height;
-				server.monitor[i].names = malloc((crtc_info->noutput+1) * sizeof(char*));
+				server.monitor[i].names = malloc((crtc_info->noutput+1) * sizeof(gchar*));
 				for (j=0; j<crtc_info->noutput; ++j) {
 					XRROutputInfo* output_info = XRRGetOutputInfo(server.dsp, res, crtc_info->outputs[j]);
 					printf("xRandr: Linking output %s with crtc %d\n", output_info->name, i);
