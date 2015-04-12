@@ -554,7 +554,8 @@ void set_task_state(Task *tsk, int state)
 						hide = 1;
 					}
 				}
-				if (window_get_monitor(tsk->win) != ((Panel*)tsk->area.panel)->monitor) {
+				if (window_get_monitor(tsk->win) != ((Panel*)tsk->area.panel)->monitor &&
+					(hide_task_diff_monitor || nb_panel > 1)) {
 					hide = 1;
 				}
 				if (1 - hide != tsk1->area.on_screen) {
