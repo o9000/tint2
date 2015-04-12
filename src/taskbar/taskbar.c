@@ -432,11 +432,40 @@ gint compare_tasks_trivial(Task *a, Task *b, Taskbar *taskbar)
 	return NONTRIVIAL;
 }
 
+gint contained_within(Task *a, Task *b)
+{
+	if ((a->win_x <= b->win_x) &&
+		(a->win_y <= b->win_y) &&
+		(a->win_x + a->win_w >= b->win_x + b->win_w) &&
+		(a->win_y + a->win_h >= b->win_y + b->win_h)) {
+		return 1;
+	}
+	return 0;
+}
+
 gint compare_task_centers(Task *a, Task *b, Taskbar *taskbar)
 {
 	int trivial = compare_tasks_trivial(a, b, taskbar);
 	if (trivial != NONTRIVIAL)
 		return trivial;
+
+	// If a window has the same coordinates and size as the other,
+	// they are considered to be equal in the comparison.
+	if ((a->win_x == b->win_x) &&
+		(a->win_y == b->win_y) &&
+		(a->win_w == b->win_w) &&
+		(a->win_h == b->win_h)) {
+		return 0;
+	}
+
+	// If a window is completely contained in another,
+	// then it is considered to come after (to the right/bottom) of the other.
+	if (contained_within(a, b))
+		return -1;
+	if (contained_within(b, a))
+		return 1;
+
+	// Compare centers
 	int a_horiz_c, a_vert_c, b_horiz_c, b_vert_c;
 	a_horiz_c = a->win_x + a->win_w / 2;
 	b_horiz_c = b->win_x + b->win_w / 2;
