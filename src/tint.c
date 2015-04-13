@@ -832,9 +832,8 @@ void event_configure_notify (Window win)
 		traywin = (TrayWindow*)l->data;
 		if (traywin->tray_id == win) {
 			//printf("move tray %d\n", traywin->x);
-			XResizeWindow(server.dsp, traywin->tray_id, traywin->width, traywin->width);
-			traywin->ignore_remaps = 2;
-			XReparentWindow(server.dsp, traywin->tray_id, ((Panel*)systray.area.panel)->main_win, traywin->x, traywin->y);
+			XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
+			XResizeWindow(server.dsp, traywin->tray_id, traywin->width, traywin->height);
 			panel_refresh = 1;
 			return;
 		}
@@ -1265,11 +1264,7 @@ start:
 							break;
 						for (it = systray.list_icons; it; it = g_slist_next(it)) {
 							if (((TrayWindow*)it->data)->tray_id == e.xany.window) {
-								if (((TrayWindow*)it->data)->ignore_remaps > 0) {
-									((TrayWindow*)it->data)->ignore_remaps--;
-								} else {
 									remove_icon((TrayWindow*)it->data);
-								}
 								break;
 							}
 						}
@@ -1413,7 +1408,10 @@ start:
 							XDamageNotifyEvent* de = &event_union.de;
 							for (l = systray.list_icons; l ; l = l->next) {
 								traywin = (TrayWindow*)l->data;
+								if ( traywin->id == de->drawable ) {
 								systray_render_icon(traywin);
+									break;
+								}
 							}
 						}
 					}

@@ -34,6 +34,7 @@ typedef struct {
 
 typedef struct
 {
+	Window id;
 	Window tray_id;
 	int x, y;
 	int width, height;
@@ -42,7 +43,6 @@ typedef struct
 	int depth;
 	Damage damage;
 	timeout* render_timeout;
-	int ignore_remaps;
 } TrayWindow;
 
 

@@ -41,6 +41,8 @@ GSList *icons;
 #define SYSTEM_TRAY_BEGIN_MESSAGE   1
 #define SYSTEM_TRAY_CANCEL_MESSAGE  2
 
+#define FORCE_COMPOSITED_RENDERING  1
+
 // selection window
 Window net_sel_win = None;
 
@@ -119,7 +121,7 @@ void init_systray_panel(void *p)
 
 void draw_systray(void *obj, cairo_t *c)
 {
-	if (server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+	if (FORCE_COMPOSITED_RENDERING || server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		if (render_background) XFreePixmap(server.dsp, render_background);
 		render_background = XCreatePixmap(server.dsp, server.root_win, systray.area.width, systray.area.height, server.depth);
 		XCopyArea(server.dsp, systray.area.pix, render_background, server.gc, 0, 0, systray.area.width, systray.area.height, 0, 0);
@@ -217,9 +219,8 @@ void on_change_systray (void *obj)
 		}
 
 		// position and size the icon window
+		XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, sysbar->icon_size, sysbar->icon_size);
 		XResizeWindow(server.dsp, traywin->tray_id, sysbar->icon_size, sysbar->icon_size);
-		traywin->ignore_remaps = 2;
-		XReparentWindow(server.dsp, traywin->tray_id, ((Panel*)systray.area.panel)->main_win, traywin->x, traywin->y);
 	}
 }
 
@@ -272,7 +273,7 @@ void start_net()
 	long orient = 0;
 	XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_ORIENTATION, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &orient, 1);
 	VisualID vid;
-	if (server.visual32 && (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0))
+	if (server.visual32 && (FORCE_COMPOSITED_RENDERING || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0))
 		vid = XVisualIDFromVisual(server.visual32);
 	else
 		vid = XVisualIDFromVisual(server.visual);
@@ -374,7 +375,7 @@ gboolean add_icon(Window id)
 	Visual* visual = server.visual;
 	//printf("icon with depth: %d, width %d, height %d\n", attr.depth, attr.width, attr.height);
 	//printf("icon with depth: %d\n", attr.depth);
-	if (attr.depth != server.depth || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+	if (attr.depth != server.depth || FORCE_COMPOSITED_RENDERING || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		visual = attr.visual;
 		set_attr.colormap = attr.colormap;
 		set_attr.background_pixel = 0;
@@ -385,7 +386,8 @@ gboolean add_icon(Window id)
 		set_attr.background_pixmap = ParentRelative;
 		mask = CWBackPixmap;
 	}
-	Window parent_window = panel->main_win;
+	Window parent_window;
+	parent_window = XCreateWindow(server.dsp, panel->main_win, 0, 0, 30, 30, 0, attr.depth, InputOutput, visual, mask, &set_attr);
 	old = XSetErrorHandler(window_error_handler);
 	XReparentWindow(server.dsp, id, parent_window, 0, 0);
 	// watch for the icon trying to resize itself / closing again!
@@ -394,6 +396,7 @@ gboolean add_icon(Window id)
 	XSetErrorHandler(old);
 	if (error != FALSE) {
 		fprintf(stderr, "tint2 : not icon_swallow\n");
+		XDestroyWindow(server.dsp, parent_window);
 		return FALSE;
 	}
 
@@ -416,6 +419,7 @@ gboolean add_icon(Window id)
 		}
 		else {
 			fprintf(stderr, "tint2 : xembed error\n");
+			XDestroyWindow(server.dsp, parent_window);
 			return FALSE;
 		}
 	}
@@ -436,6 +440,7 @@ gboolean add_icon(Window id)
 	}
 
 	traywin = g_new0(TrayWindow, 1);
+	traywin->id = parent_window;
 	traywin->tray_id = id;
 	traywin->hide = hide;
 	traywin->depth = attr.depth;
@@ -452,9 +457,16 @@ gboolean add_icon(Window id)
 		systray.list_icons = g_slist_insert_sorted(systray.list_icons, traywin, compare_traywindows);
 	//printf("add_icon id %lx, %d\n", id, g_slist_length(systray.list_icons));
 
+	if (FORCE_COMPOSITED_RENDERING || server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+		traywin->damage = XDamageCreate(server.dsp, traywin->id, XDamageReportRawRectangles);
+		XCompositeRedirectWindow(server.dsp, traywin->id, CompositeRedirectManual);
+	}
+
 	// show the window
 	if (!traywin->hide)
 		XMapWindow(server.dsp, traywin->tray_id);
+	if (!traywin->hide && !panel->is_hidden)
+		XMapRaised(server.dsp, traywin->id);
 
 	// changed in systray
 	systray.area.resize = 1;
@@ -481,6 +493,7 @@ void remove_icon(TrayWindow *traywin)
 	if (!traywin->hide)
 		XUnmapWindow(server.dsp, traywin->tray_id);
 	XReparentWindow(server.dsp, traywin->tray_id, server.root_win, 0, 0);
+	XDestroyWindow(server.dsp, traywin->id);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
 	if (traywin->render_timeout)
@@ -604,18 +617,15 @@ void systray_render_icon_now(void* t)
 
 void systray_render_icon(TrayWindow* traywin)
 {
-	if (server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
+	if (FORCE_COMPOSITED_RENDERING || server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		// wine tray icons update whenever mouse is over them, so we limit the updates to 50 ms
 		if (traywin->render_timeout == 0)
 			traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin);
 	}
 	else {
-		// comment by andreas: I'm still not sure, what exactly we need to do here... Somehow trayicons which do not
-		// offer the same depth as tint2 does, need to draw a background pixmap, but this cannot be done with
-		// XCopyArea... So we actually need XRenderComposite???
-//			Pixmap pix = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
-//			XCopyArea(server.dsp, panel->temp_pmap, pix, server.gc, traywin->x, traywin->y, traywin->width, traywin->height, 0, 0);
-//			XSetWindowBackgroundPixmap(server.dsp, traywin->id, pix);
+		//			Pixmap pix = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
+		//			XCopyArea(server.dsp, panel->temp_pmap, pix, server.gc, traywin->x, traywin->y, traywin->width, traywin->height, 0, 0);
+		//			XSetWindowBackgroundPixmap(server.dsp, traywin->id, pix);
 		XClearArea(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height, True);
 	}
 }
