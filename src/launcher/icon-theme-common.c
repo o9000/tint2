@@ -394,7 +394,6 @@ void load_themes_helper(const char *name, GSList **themes, GSList **queued)
 		free(name);
 	}
 	fprintf(stderr, "\n");
-	fflush(stderr);
 
 	// Free the queue
 	GSList *l;

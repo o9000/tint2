@@ -517,7 +517,6 @@ void config_write_tooltip(FILE *fp)
 
 void config_save_file(const char *path) {
 	printf("config_save_file : %s\n", path);
-	fflush(stdout);
 
 	FILE *fp;
 	if ((fp = fopen(path, "wt")) == NULL)

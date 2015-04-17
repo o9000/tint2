@@ -1082,6 +1082,10 @@ int main (int argc, char *argv[])
 	struct timeval* timeout;
 	int hidden_dnd = 0;
 
+	// Make stdout/stderr flush after a newline (for some reason they don't even if tint2 is started from a terminal)
+	setlinebuf(stdout);
+	setlinebuf(stderr);
+
 start:
 	init (argc, argv);
 

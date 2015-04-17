@@ -433,7 +433,6 @@ void menuApply()
 		}
 		// Write config file
 		printf("Writing %s to %s\n", g_default_theme, g_path_config);
-		fflush(stdout);
 		copy_file(g_default_theme, g_path_config);
 		// Restart panel
 		int unused = system("killall -SIGUSR1 tint2");
