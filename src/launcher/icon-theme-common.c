@@ -561,8 +561,8 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 					char *theme_name = ((IconTheme*)theme->data)->name;
 					char *dir_name = ((IconThemeDir*)dir->data)->name;
 					char *extension = (char*) ext->data;
-					char *file_name = malloc(strlen(base_name) + strlen(theme_name) +
-					strlen(dir_name) + strlen(icon_name) + strlen(extension) + 100);
+					char *file_name = calloc(strlen(base_name) + strlen(theme_name) +
+											 strlen(dir_name) + strlen(icon_name) + strlen(extension) + 100, 1);
 					// filename = directory/$(themename)/subdirectory/iconname.extension
 					sprintf(file_name, "%s/%s/%s/%s%s", base_name, theme_name, dir_name, icon_name, extension);
 					if (DEBUG_ICON_SEARCH)
@@ -620,8 +620,8 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 			for (ext = extensions; ext; ext = g_slist_next(ext)) {
 				char *base_name = (char*) base->data;
 				char *extension = (char*) ext->data;
-				char *file_name = malloc(strlen(base_name) + strlen(icon_name) +
-					strlen(extension) + 100);
+				char *file_name = calloc(strlen(base_name) + strlen(icon_name) +
+										 strlen(extension) + 100, 1);
 				// filename = directory/iconname.extension
 				sprintf(file_name, "%s/%s%s", base_name, icon_name, extension);
 				if (DEBUG_ICON_SEARCH)

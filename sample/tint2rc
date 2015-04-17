@@ -2,26 +2,38 @@
 # For information on manually configuring tint2 see http://code.google.com/p/tint2/wiki/Configure
 
 # Background definitions
-# ID 1
+# Background 1: panel
 rounded = 7
-border_width = 2
+border_width = 1
 background_color = #000000 60
 border_color = #FFFFFF 16
 
-# ID 2
+# Background 2: normal/iconified tasks
 rounded = 5
 border_width = 0
-background_color = #777777 40
-border_color = #FFFFFF 48
+background_color = #777777 20
+border_color = #777777 30
 
-# ID 3
+# Background 3: active tasks
 rounded = 5
 border_width = 1
-background_color = #777777 40
-border_color = #FFFFFF 60
+background_color = #777777 20
+border_color = #ffffff 40
+
+# Background 4: urgent tasks
+rounded = 5
+border_width = 1
+background_color = #aa4400 100
+border_color = #aa7733 100
+
+# Background 5: tooltips
+rounded = 2
+border_width = 1
+background_color = #ffffaa 100
+border_color = #999999 100
 
 # Panel
-panel_items = LTSC
+panel_items = LTSBC
 panel_monitor = all
 panel_position = bottom center horizontal
 panel_size = 95% 30
@@ -34,8 +46,8 @@ panel_background_id = 1
 
 # Panel Autohide
 autohide = 0
-autohide_show_timeout = 0.3
-autohide_hide_timeout = 2
+autohide_show_timeout = 0
+autohide_hide_timeout = 0.5
 autohide_height = 2
 strut_policy = follow_size
 
@@ -63,13 +75,13 @@ task_maximum_size = 140 35
 task_padding = 6 2
 task_background_id = 2
 task_active_background_id = 3
-task_urgent_background_id = 2
+task_urgent_background_id = 4
 task_iconified_background_id = 2
-task_tooltip = 0
+task_tooltip = 1
 urgent_nb_of_blink = 100000
 
 # Task Icons
-task_icon_asb = 80 0 0
+task_icon_asb = 100 0 0
 task_active_icon_asb = 100 0 0
 task_urgent_icon_asb = 100 0 0
 task_iconified_icon_asb = 70 0 0
@@ -86,8 +98,8 @@ font_shadow = 0
 mouse_left = toggle_iconify
 mouse_middle = none
 mouse_right = close
-mouse_scroll_up = toggle
-mouse_scroll_down = iconify
+mouse_scroll_up = prev_task
+mouse_scroll_down = next_task
 
 # System Tray
 systray_padding = 0 4 5
@@ -101,18 +113,18 @@ time1_format = %H:%M
 time1_font = sans 8
 time2_format = %A %d %B
 time2_font = sans 7
-clock_font_color = #FFFFFF 74
+clock_font_color = #FFFFFF 90
 clock_padding = 1 0
 clock_background_id = 0
 clock_rclick_command = orage
 
 # Tooltips
 tooltip_padding = 2 2
-tooltip_show_timeout = 0.7
-tooltip_hide_timeout = 0.3
-tooltip_background_id = 1
-tooltip_font = sans 10
-tooltip_font_color = #000000 80
+tooltip_show_timeout = 0.5
+tooltip_hide_timeout = 0.1
+tooltip_background_id = 5
+tooltip_font = sans 9
+tooltip_font_color = #222222 100
 
 # Battery
 battery_low_status = 10
@@ -120,7 +132,7 @@ battery_low_cmd = notify-send "battery low"
 battery_hide = 98
 bat1_font = sans 8
 bat2_font = sans 6
-battery_font_color = #FFFFFF 74
+battery_font_color = #FFFFFF 94
 battery_padding = 1 0
 battery_background_id = 0
 

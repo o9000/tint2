@@ -21,7 +21,6 @@
 
 #include <glib.h>
 
-extern GSList* timeout_list;
 extern struct timeval next_timeout;
 
 
@@ -30,26 +29,33 @@ typedef struct _timeout timeout;
 
 // timer functions
 /**
-  * Single shot timer (i.e. timer with interval_msec == 0) are deleted automatically as soon as they expire
+  * Single shot timers (i.e. timers with interval_msec == 0) are deleted automatically as soon as they expire,
   * i.e. you do not need to stop them, however it is safe to call stop_timeout for these timers.
+  * You can pass the address of the variable storing the pointer to the timer as 'self' in add_timeout, in which
+  * case it is used to clear the pointer if the timer is destroyed automatically. This enforces the timeout pointers
+  * to be either valid or NULL.
   * Periodic timeouts are aligned to each other whenever possible, i.e. one interval_msec is an
   * integral multiple of the other.
 **/
 
-/** default global data **/
+/** Initializes default global data. **/
 void default_timeout();
 
-/** freed memory : stops all timeouts **/
+/** Cleans up: stops all timers and frees memory. **/
 void cleanup_timeout();
 
-/** installs a timeout with the first timeout of 'value_msec' and then a periodic timeout with
-  * 'interval_msec'. '_callback' is the callback function when the timer reaches the timeout.
-  * returns a pointer to the timeout, which is needed for stopping it again
+/** Installs a timer with the first timeout after 'value_msec' and then an optional periodic timeout every
+  * 'interval_msec' (set it to 0 to prevent periodic timeouts).
+  * '_callback' is the function called when the timer reaches the timeout.
+  * 'arg' is the argument passed to the callback function.
+  * 'self' is an optional pointer to a timeout* variable. If non-NULL, the variable is set to NULL when the timer
+  * is destroyed (with stop_timeout, cleanup_timeout or when the timer expires and it is single-shot).
+  * Returns a pointer to the timer, which is needed for stopping/changing it.
 **/
-timeout* add_timeout(int value_msec, int interval_msec, void (*_callback)(void*), void* arg);
+timeout* add_timeout(int value_msec, int interval_msec, void (*_callback)(void*), void* arg, timeout **self);
 
-/** changes timeout 't'. If timeout 't' does not exist, nothing happens **/
-void change_timeout(timeout* t, int value_msec, int interval_msec, void (*_callback)(void*), void* arg);
+/** Changes timer 't'. If it does not exist, a new timer is created, with self set to 't'. **/
+void change_timeout(timeout** t, int value_msec, int interval_msec, void (*_callback)(void*), void* arg);
 
 /** stops the timeout 't' **/
 void stop_timeout(timeout* t);

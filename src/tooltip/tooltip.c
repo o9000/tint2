@@ -86,7 +86,7 @@ void init_tooltip()
 void tooltip_trigger_show(Area* area, Panel* p, XEvent *e)
 {
 	// Position the tooltip in the center of the area
-	x = area->posx + area->width / 2 + e->xmotion.x_root - e->xmotion.x;
+	x = area->posx + MIN(area->width / 3, 22) + e->xmotion.x_root - e->xmotion.x;
 	y = area->posy + area->height / 2 + e->xmotion.y_root - e->xmotion.y;
 	just_shown = 1;
 	g_tooltip.panel = p;
@@ -108,7 +108,6 @@ void tooltip_show(void* arg)
 	XTranslateCoordinates( server.dsp, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
 	Area* area;
 	area = click_area(g_tooltip.panel, mx, my);
-	stop_tooltip_timeout();
 	if (!g_tooltip.mapped && area->_get_tooltip_text) {
 		tooltip_copy_text(area);
 		g_tooltip.mapped = True;
@@ -275,7 +274,6 @@ void tooltip_trigger_hide(Tooltip* tooltip)
 
 void tooltip_hide(void* arg)
 {
-	stop_tooltip_timeout();
 	if (g_tooltip.mapped) {
 		g_tooltip.mapped = False;
 		XUnmapWindow(server.dsp, g_tooltip.window);
@@ -286,26 +284,19 @@ void tooltip_hide(void* arg)
 
 void start_show_timeout()
 {
-	if (g_tooltip.timeout)
-		change_timeout(g_tooltip.timeout, g_tooltip.show_timeout_msec, 0, tooltip_show, 0);
-	else
-		g_tooltip.timeout = add_timeout(g_tooltip.show_timeout_msec, 0, tooltip_show, 0);
+	change_timeout(&g_tooltip.timeout, g_tooltip.show_timeout_msec, 0, tooltip_show, 0);
 }
 
 
 void start_hide_timeout()
 {
-	if (g_tooltip.timeout)
-		change_timeout(g_tooltip.timeout, g_tooltip.hide_timeout_msec, 0, tooltip_hide, 0);
-	else
-		g_tooltip.timeout = add_timeout(g_tooltip.hide_timeout_msec, 0, tooltip_hide, 0);
+	change_timeout(&g_tooltip.timeout, g_tooltip.hide_timeout_msec, 0, tooltip_hide, 0);
 }
 
 
 void stop_tooltip_timeout()
 {
 	stop_timeout(g_tooltip.timeout);
-	g_tooltip.timeout = NULL;
 }
 
 

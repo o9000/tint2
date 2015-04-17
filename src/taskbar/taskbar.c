@@ -109,7 +109,6 @@ void cleanup_taskbar()
 	urgent_list = NULL;
 
 	stop_timeout(urgent_timeout);
-	urgent_timeout = NULL;
 }
 
 

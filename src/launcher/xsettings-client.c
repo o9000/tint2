@@ -235,14 +235,14 @@ static XSettingsList *parse_settings (unsigned char *data, size_t len)
 			goto out;
 		}
 
-		setting = malloc (sizeof *setting);
+		setting = calloc (1, sizeof *setting);
 		if (!setting) {
 			result = XSETTINGS_NO_MEM;
 			goto out;
 		}
 		setting->type = XSETTINGS_TYPE_INT; /* No allocated memory */
 
-		setting->name = malloc (name_len + 1);
+		setting->name = calloc (name_len + 1, 1);
 		if (!setting->name) {
 			result = XSETTINGS_NO_MEM;
 			goto out;
@@ -276,7 +276,7 @@ static XSettingsList *parse_settings (unsigned char *data, size_t len)
 				goto out;
 			}
 
-			setting->data.v_string = malloc (v_int + 1);
+			setting->data.v_string = calloc (v_int + 1, 1);
 			if (!setting->data.v_string) {
 				result = XSETTINGS_NO_MEM;
 				goto out;
@@ -400,7 +400,7 @@ XSettingsClient *xsettings_client_new (Display *display, int screen, XSettingsNo
 {
 	XSettingsClient *client;
 
-	client = malloc (sizeof *client);
+	client = calloc (1, sizeof *client);
 	if (!client)
 		return NULL;
 

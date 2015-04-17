@@ -44,6 +44,7 @@ struct _timeout {
 	void (*_callback)(void*);
 	void* arg;
 	multi_timeout* multi_timeout;
+	timeout **self;
 };
 
 void add_timeout_intern(int value_msec, int interval_msec, void(*_callback)(void*), void* arg, timeout* t);
@@ -74,6 +75,8 @@ void cleanup_timeout()
 		timeout* t = timeout_list->data;
 		if (t->multi_timeout)
 			stop_multi_timeout(t);
+		if (t->self)
+			*t->self = NULL;
 		free(t);
 		timeout_list = g_slist_remove(timeout_list, t);
 	}
@@ -95,25 +98,26 @@ void cleanup_timeout()
 	* however it's save to call it.
 **/
 
-timeout* add_timeout(int value_msec, int interval_msec, void (*_callback)(void*), void* arg)
+timeout* add_timeout(int value_msec, int interval_msec, void (*_callback)(void*), void* arg, timeout **self)
 {
-	timeout* t = malloc(sizeof(timeout));
-	t->multi_timeout = 0;
+	timeout* t = calloc(1, sizeof(timeout));
+	t->self = self;
 	add_timeout_intern(value_msec, interval_msec, _callback, arg, t);
 	return t;
 }
 
 
-void change_timeout(timeout *t, int value_msec, int interval_msec, void(*_callback)(), void* arg)
+void change_timeout(timeout **t, int value_msec, int interval_msec, void(*_callback)(), void* arg)
 {
-	if ( g_slist_find(timeout_list, t) == 0 && g_hash_table_lookup(multi_timeouts, t) == 0)
-		printf("programming error: timeout already deleted...");
+	if (!((timeout_list && g_slist_find(timeout_list, *t)) ||
+		  (multi_timeouts && g_hash_table_lookup(multi_timeouts, *t))))
+		*t = add_timeout(value_msec, interval_msec, _callback, arg, t);
 	else {
-		if (t->multi_timeout)
-			remove_from_multi_timeout((timeout*)t);
+		if ((*t)->multi_timeout)
+			remove_from_multi_timeout(*t);
 		else
-			timeout_list = g_slist_remove(timeout_list, t);
-		add_timeout_intern(value_msec, interval_msec, _callback, arg, (timeout*)t);
+			timeout_list = g_slist_remove(timeout_list, *t);
+		add_timeout_intern(value_msec, interval_msec, _callback, arg, *t);
 	}
 }
 
@@ -149,31 +153,40 @@ void callback_timeout_expired()
 		if (compare_timespecs(&t->timeout_expires, &cur_time) <= 0) {
 			// it's time for the callback function
 			t->_callback(t->arg);
+			// If _callback() calls stop_timeout(t) the timer 't' was freed and is not in the timeout_list
 			if (g_slist_find(timeout_list, t)) {
-				// if _callback() calls stop_timeout(t) the timeout 't' was freed and is not in the timeout_list
+				// Timer still exists
 				timeout_list = g_slist_remove(timeout_list, t);
-				if (t->interval_msec > 0)
+				if (t->interval_msec > 0) {
 					add_timeout_intern(t->interval_msec, t->interval_msec, t->_callback, t->arg, t);
-				else
+				} else {
+					// Destroy single-shot timer
+					if (t->self)
+						*t->self = NULL;
 					free(t);
+				}
 			}
-		}
-		else
+		} else {
 			return;
+		}
 	}
 }
 
 
 void stop_timeout(timeout* t)
 {
-	if (!multi_timeouts || !t)
+	if (!t)
 		return;
 	// if not in the list, it was deleted in callback_timeout_expired
-	if (g_slist_find(timeout_list, t) || g_hash_table_lookup(multi_timeouts, t)) {
-		if (t->multi_timeout)
-			remove_from_multi_timeout((timeout*)t);
-		timeout_list = g_slist_remove(timeout_list, t);
-		free((void*)t);
+	if ((timeout_list && g_slist_find(timeout_list, t)) ||
+		(multi_timeouts && g_hash_table_lookup(multi_timeouts, t))) {
+		if (multi_timeouts && t->multi_timeout)
+			remove_from_multi_timeout(t);
+		if (timeout_list)
+			timeout_list = g_slist_remove(timeout_list, t);
+		if (t->self)
+			*t->self = NULL;
+		free(t);
 	}
 }
 
@@ -198,7 +211,7 @@ void add_timeout_intern(int value_msec, int interval_msec, void(*_callback)(), v
 gint compare_timeouts(gconstpointer t1, gconstpointer t2)
 {
 	return compare_timespecs(&((timeout*)t1)->timeout_expires,
-													 &((timeout*)t2)->timeout_expires);
+							 &((timeout*)t2)->timeout_expires);
 }
 
 
@@ -262,12 +275,13 @@ int align_with_existing_timeouts(timeout *t)
 			if (t->interval_msec % t2->interval_msec == 0 || t2->interval_msec % t->interval_msec == 0) {
 				if (multi_timeouts == 0)
 					multi_timeouts = g_hash_table_new(0, 0);
-				if (!t->multi_timeout && !t2->multi_timeout)
+				if (!t->multi_timeout && !t2->multi_timeout) {
 					// both timeouts can be aligned, but there is no multi timeout for them
 					create_multi_timeout(t, t2);
-				else
+				} else {
 					// there is already a multi timeout, so we append the new timeout to the multi timeout
 					append_multi_timeout(t, t2);
+				}
 				return 1;
 			}
 		}
@@ -295,10 +309,10 @@ int calc_multi_timeout_interval(multi_timeout_handler* mth)
 
 void create_multi_timeout(timeout* t1, timeout* t2)
 {
-	multi_timeout* mt1 = malloc(sizeof(multi_timeout));
-	multi_timeout* mt2 = malloc(sizeof(multi_timeout));
-	multi_timeout_handler* mth = malloc(sizeof(multi_timeout_handler));
-	timeout* real_timeout = malloc(sizeof(timeout));
+	multi_timeout* mt1 = calloc(1, sizeof(multi_timeout));
+	multi_timeout* mt2 = calloc(1, sizeof(multi_timeout));
+	multi_timeout_handler* mth = calloc(1, sizeof(multi_timeout_handler));
+	timeout* real_timeout = calloc(1, sizeof(timeout));
 
 	mth->timeout_list = 0;
 	mth->timeout_list = g_slist_prepend(mth->timeout_list, t1);
@@ -331,7 +345,7 @@ void append_multi_timeout(timeout* t1, timeout* t2)
 		t1 = tmp;
 	}
 
-	multi_timeout* mt = malloc(sizeof(multi_timeout));
+	multi_timeout* mt = calloc(1, sizeof(multi_timeout));
 	multi_timeout_handler* mth = g_hash_table_lookup(multi_timeouts, t1);
 
 	mth->timeout_list = g_slist_prepend(mth->timeout_list, t2);

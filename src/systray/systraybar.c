@@ -496,8 +496,7 @@ void remove_icon(TrayWindow *traywin)
 	XDestroyWindow(server.dsp, traywin->id);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
-	if (traywin->render_timeout)
-		stop_timeout(traywin->render_timeout);
+	stop_timeout(traywin->render_timeout);
 	g_free(traywin);
 
 	// check empty systray
@@ -619,8 +618,8 @@ void systray_render_icon(TrayWindow* traywin)
 {
 	if (FORCE_COMPOSITED_RENDERING || server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
 		// wine tray icons update whenever mouse is over them, so we limit the updates to 50 ms
-		if (traywin->render_timeout == 0)
-			traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin);
+		if (!traywin->render_timeout)
+			traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin, &traywin->render_timeout);
 	}
 	else {
 		//			Pixmap pix = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);

@@ -1350,7 +1350,7 @@ start:
 								cmd_length += 2; // &)
 								cmd_length += 1; // terminator
 
-								char *cmd = malloc(cmd_length);
+								char *cmd = calloc(cmd_length, 1);
 								cmd[0] = '\0';
 								strcat(cmd, "(");
 								strcat(cmd, dnd_launcher_exec);

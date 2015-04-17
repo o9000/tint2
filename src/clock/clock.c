@@ -152,9 +152,9 @@ void init_clock()
 	if (!clock_timeout) {
 		if (time_format_needs_sec_ticks(time1_format) ||
 			time_format_needs_sec_ticks(time2_format)) {
-			clock_timeout = add_timeout(10, 1000, update_clocks_sec, 0);
+			clock_timeout = add_timeout(10, 1000, update_clocks_sec, 0, &clock_timeout);
 		} else {
-			clock_timeout = add_timeout(10, 1000, update_clocks_min, 0);
+			clock_timeout = add_timeout(10, 1000, update_clocks_min, 0, &clock_timeout);
 		}
 	}
 }

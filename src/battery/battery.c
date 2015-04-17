@@ -274,9 +274,8 @@ void init_battery()
 	}
 #endif
 
-	if (battery_timeout == 0) {
-		battery_timeout = add_timeout(10, 10000, update_battery_tick, 0);
-	}
+	if (!battery_timeout)
+		battery_timeout = add_timeout(10, 10000, update_battery_tick, 0, &battery_timeout);
 }
 
 

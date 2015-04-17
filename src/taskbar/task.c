@@ -87,7 +87,7 @@ Task *add_task (Window win)
 		if (new_tsk.desktop != ALLDESKTOP && new_tsk.desktop != j) continue;
 
 		tskbar = &panel1[monitor].taskbar[j];
-		new_tsk2 = malloc(sizeof(Task));
+		new_tsk2 = calloc(1, sizeof(Task));
 		memcpy(&new_tsk2->area, &panel1[monitor].g_task.area, sizeof(Area));
 		new_tsk2->area.parent = tskbar;
 		new_tsk2->win = new_tsk.win;
@@ -115,7 +115,7 @@ Task *add_task (Window win)
 		g_ptr_array_add(task_group, new_tsk2);
 		//printf("add_task panel %d, desktop %d, task %s\n", i, j, new_tsk2->title);
 	}
-	Window* key = malloc(sizeof(Window));
+	Window* key = calloc(1, sizeof(Window));
 	*key = new_tsk.win;
 	g_hash_table_insert(win_to_task_table, key, task_group);
 	set_task_state(new_tsk2, new_tsk.current_state);
@@ -195,14 +195,14 @@ int get_title(Task *tsk)
 		if (!name || !strlen(name)) {
 			name = server_get_property (tsk->win, server.atom.WM_NAME, XA_STRING, 0);
 			if (!name || !strlen(name)) {
-				name = malloc(10);
+				name = calloc(10, 1);
 				strcpy(name, "Untitled");
 			}
 		}
 	}
 
 	// add space before title
-	title = malloc(strlen(name)+2);
+	title = calloc(strlen(name)+2, 1);
 	if (panel->g_task.icon) strcpy(title, " ");
 	else title[0] = 0;
 	strcat(title, name);
@@ -620,7 +620,7 @@ void add_urgent(Task *tsk)
 	urgent_list = g_slist_prepend(urgent_list, tsk);
 
 	if (!urgent_timeout)
-		urgent_timeout = add_timeout(10, 1000, blink_urgent, 0);
+		urgent_timeout = add_timeout(10, 1000, blink_urgent, 0, &urgent_timeout);
 
 	Panel *panel = tsk->area.panel;
 	if (panel->is_hidden)

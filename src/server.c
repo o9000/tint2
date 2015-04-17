@@ -295,14 +295,14 @@ void get_monitors()
 			}
 
 			printf("xRandr: Found crtc's: %d\n", res->ncrtc );
-			server.monitor = malloc(res->ncrtc * sizeof(Monitor));
+			server.monitor = calloc(res->ncrtc, sizeof(Monitor));
 			for (i=0; i<res->ncrtc; ++i) {
 				XRRCrtcInfo* crtc_info = XRRGetCrtcInfo(server.dsp, res, res->crtcs[i]);
 				server.monitor[i].x = crtc_info->x;
 				server.monitor[i].y = crtc_info->y;
 				server.monitor[i].width = crtc_info->width;
 				server.monitor[i].height = crtc_info->height;
-				server.monitor[i].names = malloc((crtc_info->noutput+1) * sizeof(gchar*));
+				server.monitor[i].names = calloc((crtc_info->noutput+1), sizeof(gchar*));
 				for (j=0; j<crtc_info->noutput; ++j) {
 					XRROutputInfo* output_info = XRRGetOutputInfo(server.dsp, res, crtc_info->outputs[j]);
 					printf("xRandr: Linking output %s with crtc %d\n", output_info->name, i);
@@ -315,7 +315,7 @@ void get_monitors()
 			nbmonitor = res->ncrtc;
 		}
 		else if (info && nbmonitor > 0) {
-			server.monitor = malloc(nbmonitor * sizeof(Monitor));
+			server.monitor = calloc(nbmonitor, sizeof(Monitor));
 			for (i=0 ; i < nbmonitor ; i++) {
 				server.monitor[i].x = info[i].x_org;
 				server.monitor[i].y = info[i].y_org;
@@ -353,7 +353,7 @@ next:
 
 	if (!server.nb_monitor) {
 		server.nb_monitor = 1;
-		server.monitor = malloc(sizeof(Monitor));
+		server.monitor = calloc(1, sizeof(Monitor));
 		server.monitor[0].x = server.monitor[0].y = 0;
 		server.monitor[0].width = DisplayWidth (server.dsp, server.screen);
 		server.monitor[0].height = DisplayHeight (server.dsp, server.screen);

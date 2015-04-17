@@ -34,12 +34,12 @@ xsettings_setting_copy (XSettingsSetting *setting)
 	XSettingsSetting *result;
 	size_t str_len;
 
-	result = malloc (sizeof *result);
+	result = calloc (1, sizeof *result);
 	if (!result)
 		return NULL;
 
 	str_len = strlen (setting->name);
-	result->name = malloc (str_len + 1);
+	result->name = calloc (str_len + 1, 1);
 	if (!result->name)
 		goto err;
 
@@ -57,7 +57,7 @@ xsettings_setting_copy (XSettingsSetting *setting)
 		break;
 	case XSETTINGS_TYPE_STRING:
 		str_len = strlen (setting->data.v_string);
-		result->data.v_string = malloc (str_len + 1);
+		result->data.v_string = calloc (str_len + 1, 1);
 		if (!result->data.v_string)
 			goto err;
 
@@ -90,7 +90,7 @@ xsettings_list_copy (XSettingsList *list)
 	{
 		XSettingsList *new_node;
 
-		new_node = malloc (sizeof *new_node);
+		new_node = calloc (1, sizeof *new_node);
 		if (!new_node)
 			goto error;
 
@@ -180,7 +180,7 @@ xsettings_list_insert (XSettingsList    **list,
 	XSettingsList *iter;
 	XSettingsList *last = NULL;
 
-	node = malloc (sizeof *node);
+	node = calloc (1, sizeof *node);
 	if (!node)
 		return XSETTINGS_NO_MEM;
 	node->setting = setting;

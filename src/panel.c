@@ -126,6 +126,7 @@ void cleanup_panel()
 		if (p->main_win)
 			XDestroyWindow(server.dsp, p->main_win);
 		p->main_win = 0;
+		stop_timeout(p->autohide_timeout);
 	}
 
 	free(panel_items_order);
@@ -167,7 +168,7 @@ void init_panel()
 	else
 		nb_panel = server.nb_monitor;
 
-	panel1 = malloc(nb_panel * sizeof(Panel));
+	panel1 = calloc(nb_panel, sizeof(Panel));
 	for (i=0 ; i < nb_panel ; i++) {
 		memcpy(&panel1[i], &panel_config, sizeof(Panel));
 	}
@@ -231,7 +232,7 @@ void init_panel()
 		}
 
 		if (panel_autohide)
-			add_timeout(panel_autohide_hide_timeout, 0, autohide_hide, p);
+			autohide_trigger_hide(p);
 		
 		visible_taskbar(p);
 	}
@@ -811,10 +812,7 @@ Area* click_area(Panel *panel, int x, int y)
 
 void stop_autohide_timeout(Panel* p)
 {
-	if (p->autohide_timeout) {
-		stop_timeout(p->autohide_timeout);
-		p->autohide_timeout = 0;
-	}
+	stop_timeout(p->autohide_timeout);
 }
 
 
@@ -875,10 +873,7 @@ void autohide_trigger_show(Panel* p)
 {
 	if (!p)
 		return;
-	if (p->autohide_timeout)
-		change_timeout(p->autohide_timeout, panel_autohide_show_timeout, 0, autohide_show, p);
-	else
-		p->autohide_timeout = add_timeout(panel_autohide_show_timeout, 0, autohide_show, p);
+	change_timeout(&p->autohide_timeout, panel_autohide_show_timeout, 0, autohide_show, p);
 }
 
 
@@ -893,8 +888,5 @@ void autohide_trigger_hide(Panel* p)
 	if (XQueryPointer(server.dsp, p->main_win, &root, &child, &xr, &yr, &xw, &yw, &mask))
 		if (child) return;  // mouse over one of the system tray icons
 
-	if (p->autohide_timeout)
-		change_timeout(p->autohide_timeout, panel_autohide_hide_timeout, 0, autohide_hide, p);
-	else
-		p->autohide_timeout = add_timeout(panel_autohide_hide_timeout, 0, autohide_hide, p);
+	change_timeout(&p->autohide_timeout, panel_autohide_hide_timeout, 0, autohide_hide, p);
 }

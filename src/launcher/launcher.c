@@ -391,7 +391,7 @@ void free_icon(Imlib_Image icon)
 
 void launcher_action(LauncherIcon *icon, XEvent* evt)
 {
-	char *cmd = malloc(strlen(icon->cmd) + 10);
+	char *cmd = calloc(strlen(icon->cmd) + 10, 1);
 	sprintf(cmd, "(%s&)", icon->cmd);
 #if HAVE_SN
 	SnLauncherContext* ctx;
