@@ -110,6 +110,8 @@ void get_action (char *event, int *action)
 		*action = NEXT_TASK;
 	else if (strcmp (event, "prev_task") == 0)
 		*action = PREV_TASK;
+	else
+		fprintf(stderr, "Error: unrecognized action '%s'. Please fix your config file.\n", event);
 }
 
 
