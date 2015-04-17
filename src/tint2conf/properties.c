@@ -1861,15 +1861,15 @@ void create_launcher(GtkWidget *parent)
 					   0, "",
 					   -1);
 
-	fprintf(stderr, "Loading icon themes\n"); fflush(stderr);
+	fprintf(stderr, "Loading icon themes\n");
 	const GSList *location;
 	for (location = get_icon_locations(); location; location = g_slist_next(location)) {
 		const gchar *path = (gchar*) location->data;
 		load_icon_themes(path, NULL);
 	}
-	fprintf(stderr, "Icon themes loaded\n"); fflush(stderr);
+	fprintf(stderr, "Icon themes loaded\n");
 
-	fprintf(stderr, "Loading .desktop files\n"); fflush(stderr);
+	fprintf(stderr, "Loading .desktop files\n");
 	load_desktop_files("/usr/share/applications");
 	gchar *path = g_build_filename(g_get_home_dir(), ".local/share/applications", NULL);
 	load_desktop_files(path);
@@ -1878,7 +1878,7 @@ void create_launcher(GtkWidget *parent)
 	icon_theme_changed();
 	load_icons(launcher_apps);
 	load_icons(all_apps);
-	fprintf(stderr, "Desktop files loaded\n"); fflush(stderr);
+	fprintf(stderr, "Desktop files loaded\n");
 }
 
 void create_taskbar(GtkWidget *parent)
