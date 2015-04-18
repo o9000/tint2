@@ -172,6 +172,7 @@ void config_write_panel(FILE *fp)
 
 	fprintf(fp, "panel_window_name = %s\n", gtk_entry_get_text(GTK_ENTRY(panel_window_name)));
 	fprintf(fp, "disable_transparency = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(disable_transparency)) ? 1 : 0);
+	fprintf(fp, "font_shadow = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(font_shadow)) ? 1 : 0);
 
 	fprintf(fp, "\n");
 }
@@ -274,7 +275,6 @@ void config_write_task(FILE *fp)
 	fprintf(fp, "task_text = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(task_show_text)) ? 1 : 0);
 	fprintf(fp, "task_icon = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(task_show_icon)) ? 1 : 0);
 	fprintf(fp, "task_centered = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(task_align_center)) ? 1 : 0);
-	fprintf(fp, "font_shadow = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(task_font_shadow)) ? 1 : 0);
 	fprintf(fp, "urgent_nb_of_blink = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(task_urgent_blinks)));
 	fprintf(fp,
 			"task_maximum_size = %d %d\n",
@@ -721,6 +721,9 @@ void add_entry(char *key, char *value)
 	else if (strcmp(key, "disable_transparency") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(disable_transparency), atoi(value));
 	}
+	else if (strcmp(key, "font_shadow") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(font_shadow), atoi(value));
+	}
 	else if (strcmp(key, "wm_menu") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(panel_wm_menu), atoi(value));
 	}
@@ -965,9 +968,6 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "task_centered") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_align_center), atoi(value));
-	}
-	else if (strcmp(key, "font_shadow") == 0) {
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_font_shadow), atoi(value));
 	}
 	else if (strcmp(key, "urgent_nb_of_blink") == 0) {
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_urgent_blinks), atoi(value));

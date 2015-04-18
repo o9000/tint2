@@ -51,7 +51,7 @@ GtkWidget *taskbar_distribute_size, *taskbar_sort_order;
 
 // task
 GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
-GtkWidget *task_show_icon, *task_show_text, *task_align_center, *task_font_shadow;
+GtkWidget *task_show_icon, *task_show_text, *task_align_center, *font_shadow;
 GtkWidget *task_maximum_width, *task_maximum_height, *task_padding_x, *task_padding_y, *task_font;
 GtkWidget *task_default_color, *task_default_color_set,
 		  *task_default_icon_opacity, *task_default_icon_osb_set,
@@ -970,6 +970,18 @@ void create_panel(GtkWidget *parent)
 	disable_transparency = gtk_check_button_new();
 	gtk_widget_show(disable_transparency);
 	gtk_table_attach(GTK_TABLE(table), disable_transparency, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Font shadows"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	font_shadow = gtk_check_button_new();
+	gtk_widget_show(font_shadow);
+	gtk_table_attach(GTK_TABLE(table), font_shadow, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
 	change_paragraph(parent);
@@ -2505,18 +2517,6 @@ void create_task(GtkWidget *parent)
 	tooltip_task_show = gtk_check_button_new();
 	gtk_widget_show(tooltip_task_show);
 	gtk_table_attach(GTK_TABLE(table), tooltip_task_show, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
-	col++;
-
-	row++, col = 2;
-	label = gtk_label_new(_("Font shadow"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
-	col++;
-
-	task_font_shadow = gtk_check_button_new();
-	gtk_widget_show(task_font_shadow);
-	gtk_table_attach(GTK_TABLE(table), task_font_shadow, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
 	row++, col = 2;

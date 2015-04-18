@@ -55,7 +55,7 @@ extern GtkWidget *taskbar_distribute_size, *taskbar_sort_order;
 
 // task
 extern GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
-extern GtkWidget *task_show_icon, *task_show_text, *task_align_center, *task_font_shadow;
+extern GtkWidget *task_show_icon, *task_show_text, *task_align_center, *font_shadow;
 extern GtkWidget *task_maximum_width, *task_maximum_height, *task_padding_x, *task_padding_y, *task_font;
 extern GtkWidget *task_default_color, *task_default_color_set,
 		  *task_default_icon_opacity, *task_default_icon_osb_set,
