@@ -13,6 +13,7 @@
 extern GtkWidget *panel_width, *panel_height, *panel_margin_x, *panel_margin_y, *panel_padding_x, *panel_padding_y, *panel_spacing;
 extern GtkWidget *panel_wm_menu, *panel_dock, *panel_autohide, *panel_autohide_show_time, *panel_autohide_hide_time, *panel_autohide_size;
 extern GtkWidget *panel_combo_strut_policy, *panel_combo_layer, *panel_combo_width_type, *panel_combo_height_type, *panel_combo_monitor;
+extern GtkWidget *panel_window_name, *disable_transparency;
 
 enum {
 	itemsColName = 0,
@@ -50,6 +51,7 @@ extern GtkWidget *taskbar_hide_inactive_tasks, *taskbar_hide_diff_monitor;
 extern GtkWidget *taskbar_name_padding_x, *taskbar_name_inactive_color, *taskbar_name_active_color, *taskbar_name_font;
 extern GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 extern GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
+extern GtkWidget *taskbar_distribute_size, *taskbar_sort_order;
 
 // task
 extern GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
@@ -96,7 +98,7 @@ extern GtkWidget *battery_background;
 // systray
 extern GtkWidget *systray_icon_order, *systray_padding_x, *systray_padding_y, *systray_spacing;
 extern GtkWidget *systray_icon_size, *systray_icon_opacity, *systray_icon_saturation, *systray_icon_brightness;
-extern GtkWidget *systray_background;
+extern GtkWidget *systray_background, *systray_monitor;
 
 // tooltip
 extern GtkWidget *tooltip_padding_x, *tooltip_padding_y, *tooltip_font, *tooltip_font_color;
@@ -123,6 +125,7 @@ extern GtkWidget *margin_x, *margin_y;
 extern GtkWidget *launcher_background;
 extern GtkWidget *startup_notifications;
 extern IconThemeWrapper *icon_theme;
+extern GtkWidget *launcher_tooltip;
 
 void load_desktop_file(const char *file, gboolean selected);
 void set_current_icon_theme(const char *theme);

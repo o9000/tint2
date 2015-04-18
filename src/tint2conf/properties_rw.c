@@ -170,6 +170,9 @@ void config_write_panel(FILE *fp)
 	}
 	fprintf(fp, "\n");
 
+	fprintf(fp, "panel_window_name = %s\n", gtk_entry_get_text(GTK_ENTRY(panel_window_name)));
+	fprintf(fp, "disable_transparency = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(disable_transparency)) ? 1 : 0);
+
 	fprintf(fp, "\n");
 }
 
@@ -212,6 +215,18 @@ void config_write_taskbar(FILE *fp)
 					   "taskbar_name_active_font_color",
 					   color,
 					   gtk_color_button_get_alpha(GTK_COLOR_BUTTON(taskbar_name_active_color)) * 100 / 0xffff);
+
+	fprintf(fp, "taskbar_distribute_size = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_distribute_size)) ? 1 : 0);
+
+	fprintf(fp, "taskbar_sort_order = ");
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_sort_order)) == 0) {
+		fprintf(fp, "none");
+	} else if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_sort_order)) == 1) {
+		fprintf(fp, "title");
+	} else {
+		fprintf(fp, "center");
+	}
+	fprintf(fp, "\n");
 
 	fprintf(fp, "\n");
 }
@@ -372,6 +387,10 @@ void config_write_systray(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(systray_icon_saturation)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(systray_icon_brightness)));
 
+	fprintf(fp, "systray_monitor = ");
+	fprintf(fp, "%d", gtk_combo_box_get_active(GTK_COMBO_BOX(systray_monitor)));
+	fprintf(fp, "\n");
+
 	fprintf(fp, "\n");
 }
 
@@ -394,6 +413,7 @@ void config_write_launcher(FILE *fp)
 		icon_theme = NULL;
 	}
 	fprintf(fp, "startup_notifications = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(startup_notifications)) ? 1 : 0);
+	fprintf(fp, "launcher_tooltip = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(launcher_tooltip)) ? 1 : 0);
 
 	int index;
 	for (index = 0; ; index++) {
@@ -695,6 +715,12 @@ void add_entry(char *key, char *value)
 		int id = background_index_safe(atoi(value));
 		gtk_combo_box_set_active(GTK_COMBO_BOX(panel_background), id);
 	}
+	else if (strcmp(key, "panel_window_name") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(panel_window_name), value);
+	}
+	else if (strcmp(key, "disable_transparency") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(disable_transparency), atoi(value));
+	}
 	else if (strcmp(key, "wm_menu") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(panel_wm_menu), atoi(value));
 	}
@@ -852,6 +878,19 @@ void add_entry(char *key, char *value)
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_show_desktop), 1);
 		else
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_show_desktop), 0);
+	}
+	else if (strcmp(key, "taskbar_distribute_size") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_distribute_size), atoi(value));
+	}
+	else if (strcmp(key, "taskbar_sort_order") == 0) {
+		if (strcmp(value, "none") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
+		else if (strcmp(value, "title") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 1);
+		else if (strcmp(value, "center") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 2);
+		else
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
 	}
 	else if (strcmp(key, "taskbar_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
@@ -1078,6 +1117,22 @@ void add_entry(char *key, char *value)
 	else if (strcmp(key, "systray_icon_size") == 0) {
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_size), atoi(value));
 	}
+	else if (strcmp(key, "systray_monitor") == 0) {
+		if (strcmp(value, "0") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 1);
+		else if (strcmp(value, "1") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 2);
+		else if (strcmp(value, "2") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 3);
+		else if (strcmp(value, "3") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 4);
+		else if (strcmp(value, "4") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 5);
+		else if (strcmp(value, "5") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 6);
+		else if (strcmp(value, "6") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 7);
+	}
 	else if (strcmp(key, "systray_icon_asb") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_opacity), atoi(value1));
@@ -1118,6 +1173,9 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "launcher_icon_theme") == 0) {
 		set_current_icon_theme(value);
+	}
+	else if (strcmp(key, "launcher_tooltip") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(launcher_tooltip), atoi(value));
 	}
 	else if (strcmp(key, "startup_notifications") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(startup_notifications), atoi(value));

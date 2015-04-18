@@ -31,6 +31,7 @@
 GtkWidget *panel_width, *panel_height, *panel_margin_x, *panel_margin_y, *panel_padding_x, *panel_padding_y, *panel_spacing;
 GtkWidget *panel_wm_menu, *panel_dock, *panel_autohide, *panel_autohide_show_time, *panel_autohide_hide_time, *panel_autohide_size;
 GtkWidget *panel_combo_strut_policy, *panel_combo_layer, *panel_combo_width_type, *panel_combo_height_type, *panel_combo_monitor;
+GtkWidget *panel_window_name, *disable_transparency;
 
 GtkListStore *panel_items, *all_items;
 GtkWidget *panel_items_view, *all_items_view;
@@ -45,6 +46,7 @@ GtkWidget *taskbar_hide_inactive_tasks, *taskbar_hide_diff_monitor;
 GtkWidget *taskbar_name_padding_x, *taskbar_name_inactive_color, *taskbar_name_active_color, *taskbar_name_font;
 GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
+GtkWidget *taskbar_distribute_size, *taskbar_sort_order;
 
 // task
 GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
@@ -91,7 +93,7 @@ GtkWidget *battery_background;
 // systray
 GtkWidget *systray_icon_order, *systray_padding_x, *systray_padding_y, *systray_spacing;
 GtkWidget *systray_icon_size, *systray_icon_opacity, *systray_icon_saturation, *systray_icon_brightness;
-GtkWidget *systray_background;
+GtkWidget *systray_background, *systray_monitor;
 
 // tooltip
 GtkWidget *tooltip_padding_x, *tooltip_padding_y, *tooltip_font, *tooltip_font_color;
@@ -110,6 +112,7 @@ GtkWidget *margin_x, *margin_y;
 GtkWidget *launcher_background;
 GtkWidget *startup_notifications;
 IconThemeWrapper *icon_theme;
+GtkWidget *launcher_tooltip;
 
 GtkListStore *backgrounds;
 GtkWidget *current_background,
@@ -195,6 +198,7 @@ GtkWidget *create_properties()
 	view = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(view), _("Properties"));
 	gtk_window_set_modal(GTK_WINDOW(view), TRUE);
+	gtk_window_set_default_size(GTK_WINDOW(view), 800, 600);
 	gtk_window_set_skip_pager_hint(GTK_WINDOW(view), TRUE);
 	gtk_window_set_type_hint(GTK_WINDOW(view), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -231,7 +235,7 @@ GtkWidget *create_properties()
 	page_background = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
 	gtk_container_set_border_width(GTK_CONTAINER(page_background), 10);
 	gtk_widget_show(page_background);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_background, label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_background), label);
 	create_background(page_background);
 
 	label = gtk_label_new(_("Panel"));
@@ -239,7 +243,7 @@ GtkWidget *create_properties()
 	page_panel = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
 	gtk_container_set_border_width(GTK_CONTAINER(page_panel), 10);
 	gtk_widget_show(page_panel);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_panel, label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_panel), label);
 	create_panel(page_panel);
 
 	label = gtk_label_new(_("Panel items"));
@@ -247,7 +251,7 @@ GtkWidget *create_properties()
 	page_panel_items = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
 	gtk_container_set_border_width(GTK_CONTAINER(page_panel_items), 10);
 	gtk_widget_show(page_panel_items);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_panel_items, label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_panel_items), label);
 	create_panel_items(page_panel_items);
 
 	label = gtk_label_new(_("Launcher"));
@@ -255,7 +259,7 @@ GtkWidget *create_properties()
 	page_launcher = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
 	gtk_container_set_border_width(GTK_CONTAINER(page_launcher), 10);
 	gtk_widget_show(page_launcher);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_launcher, label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_launcher), label);
 	create_launcher(page_launcher);
 
 	label = gtk_label_new(_("Taskbar"));
@@ -263,15 +267,15 @@ GtkWidget *create_properties()
 	page_taskbar = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
 	gtk_container_set_border_width(GTK_CONTAINER(page_taskbar), 10);
 	gtk_widget_show(page_taskbar);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_taskbar, label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_taskbar), label);
 	create_taskbar(page_taskbar);
 
-	label = gtk_label_new(_("Task"));
+	label = gtk_label_new(_("Task buttons"));
 	gtk_widget_show(label);
 	page_task = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
 	gtk_container_set_border_width(GTK_CONTAINER(page_task), 10);
 	gtk_widget_show(page_task);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_task, label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_task), label);
 	create_task(page_task);
 
 	label = gtk_label_new(_("Clock"));
@@ -279,15 +283,15 @@ GtkWidget *create_properties()
 	page_clock = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
 	gtk_container_set_border_width(GTK_CONTAINER(page_clock), 10);
 	gtk_widget_show(page_clock);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_clock, label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_clock), label);
 	create_clock(page_clock);
 
-	label = gtk_label_new(_("Notification"));
+	label = gtk_label_new(_("Notification area"));
 	gtk_widget_show(label);
 	page_systemtray = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
 	gtk_container_set_border_width(GTK_CONTAINER(page_systemtray), 10);
 	gtk_widget_show(page_systemtray);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_systemtray, label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_systemtray), label);
 	create_systemtray(page_systemtray);
 
 	label = gtk_label_new(_("Battery"));
@@ -295,7 +299,7 @@ GtkWidget *create_properties()
 	page_battery = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
 	gtk_container_set_border_width(GTK_CONTAINER(page_battery), 10);
 	gtk_widget_show(page_battery);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_battery, label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_battery), label);
 	create_battery(page_battery);
 
 	label = gtk_label_new(_("Tooltip"));
@@ -303,7 +307,7 @@ GtkWidget *create_properties()
 	page_tooltip = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
 	gtk_container_set_border_width(GTK_CONTAINER(page_tooltip), 10);
 	gtk_widget_show(page_tooltip);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_tooltip, label);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_tooltip), label);
 	create_tooltip(page_tooltip);
 
 	return view;
@@ -354,6 +358,7 @@ void create_background(GtkWidget *parent)
 									 GTK_TYPE_INT);
 
 	GtkWidget *table, *label, *button;
+	int row, col;
 
 	table = gtk_table_new(1, 4, FALSE);
 	gtk_widget_show(table);
@@ -361,26 +366,30 @@ void create_background(GtkWidget *parent)
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
 
-	label = gtk_label_new(_("Background"));
+	row = 0, col = 0;
+	label = gtk_label_new(_("<b>Background</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	current_background = create_background_combo();
 	gtk_widget_show(current_background);
-	gtk_table_attach(GTK_TABLE(table), current_background, 1, 2, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), current_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	button = gtk_button_new_from_stock("gtk-add");
 	gtk_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(background_duplicate), NULL);
 	gtk_widget_show(button);
-	gtk_table_attach(GTK_TABLE(table), button, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), button, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	button = gtk_button_new_from_stock("gtk-remove");
 	gtk_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(background_delete), NULL);
 	gtk_widget_show(button);
-	gtk_table_attach(GTK_TABLE(table), button, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
-
-	change_paragraph(parent);
+	gtk_table_attach(GTK_TABLE(table), button, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	table = gtk_table_new(4, 4, FALSE);
 	gtk_widget_show(table);
@@ -388,48 +397,55 @@ void create_background(GtkWidget *parent)
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
 
-	label = gtk_label_new(_("    "));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 0, 1, GTK_FILL, 0, 0, 0);
-
+	row++, col = 2;
 	label = gtk_label_new(_("Fill color"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	background_fill_color = gtk_color_button_new();
 	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(background_fill_color), TRUE);
 	gtk_widget_show(background_fill_color);
-	gtk_table_attach(GTK_TABLE(table), background_fill_color, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), background_fill_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Border color"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	background_border_color = gtk_color_button_new();
 	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(background_border_color), TRUE);
 	gtk_widget_show(background_border_color);
-	gtk_table_attach(GTK_TABLE(table), background_border_color, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), background_border_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Border width"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	background_border_width = gtk_spin_button_new_with_range(0, 100, 1);
 	gtk_widget_show(background_border_width);
-	gtk_table_attach(GTK_TABLE(table), background_border_width, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), background_border_width, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Corner radius"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	background_corner_radius = gtk_spin_button_new_with_range(0, 100, 1);
 	gtk_widget_show(background_corner_radius);
-	gtk_table_attach(GTK_TABLE(table), background_corner_radius, 2, 3, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), background_corner_radius, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	g_signal_connect(G_OBJECT(current_background), "changed", G_CALLBACK(current_background_changed), NULL);
 	g_signal_connect(G_OBJECT(background_fill_color), "color-set", G_CALLBACK(background_update), NULL);
@@ -728,10 +744,11 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 void create_panel(GtkWidget *parent)
 {
 	int i;
-	GtkWidget *table, *hbox, *frame;
+	GtkWidget *table, *hbox, *position;
 	GtkWidget *label;
+	int row, col;
 
-	label = gtk_label_new(_("<b>Position and size</b>"));
+	label = gtk_label_new(_("<b>Geometry</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_widget_show(label);
@@ -740,77 +757,22 @@ void create_panel(GtkWidget *parent)
 	gtk_widget_show(hbox);
 	gtk_box_pack_start(GTK_BOX(parent), hbox, FALSE, FALSE, 0);
 
-	// left marging
-	table = gtk_table_new(2, 1, FALSE);
+	table = gtk_table_new(2, 10, FALSE);
 	gtk_widget_show(table);
-	gtk_box_pack_start(GTK_BOX(hbox), table, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
 
-	table = gtk_table_new(3, 8, FALSE);
-	gtk_widget_show(table);
-	gtk_box_pack_start(GTK_BOX(hbox), table, FALSE, FALSE, 0);
-	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
-	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
-
-	label = gtk_label_new(_("Width"));
+	row = 0;
+	col = 2;
+	label = gtk_label_new(_("Position"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
-	panel_width = gtk_spin_button_new_with_range(0, 9000, 1);
-	gtk_widget_show(panel_width);
-	gtk_table_attach(GTK_TABLE(table), panel_width, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
-
-	panel_combo_width_type = gtk_combo_box_new_text();
-	gtk_widget_show(panel_combo_width_type);
-	gtk_table_attach(GTK_TABLE(table), panel_combo_width_type, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_width_type), _("Percent"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_width_type), _("Pixels"));
-
-	label = gtk_label_new(_("Margin x"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
-
-	panel_margin_x = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(panel_margin_x);
-	gtk_table_attach(GTK_TABLE(table), panel_margin_x, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
-
-	label = gtk_label_new(_("Height"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 1, 2, GTK_FILL, 0, 0, 0);
-
-	panel_height = gtk_spin_button_new_with_range(0, 9000, 1);
-	gtk_widget_show(panel_height);
-	gtk_table_attach(GTK_TABLE(table), panel_height, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
-
-	change_paragraph(parent);
-
-	panel_combo_height_type = gtk_combo_box_new_text();
-	gtk_widget_show(panel_combo_height_type);
-	gtk_table_attach(GTK_TABLE(table), panel_combo_height_type, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_height_type), _("Percent"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_height_type), _("Pixels"));
-
-	label = gtk_label_new(_("Margin y"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
-
-	panel_margin_y = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(panel_margin_y);
-	gtk_table_attach(GTK_TABLE(table), panel_margin_y, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
-
-	frame = gtk_frame_new(NULL);
-	gtk_widget_show(frame);
-	gtk_box_pack_start(GTK_BOX(hbox), frame, FALSE, TRUE, 0);
-	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
-
-	table = gtk_table_new(5, 5, FALSE);
-	gtk_widget_show(table);
-	gtk_box_pack_start(GTK_BOX(hbox), table, FALSE, FALSE, 0);
+	position = gtk_table_new(5, 5, FALSE);
+	gtk_widget_show(position);
 	for (i = 0; i < 12; ++i) {
 		GSList *group = i == 0 ? NULL : gtk_radio_button_get_group(GTK_RADIO_BUTTON(screen_position[0]));
 		screen_position[i] = gtk_radio_button_new(group);
@@ -823,18 +785,186 @@ void create_panel(GtkWidget *parent)
 			gtk_widget_set_size_request(screen_position[i], 15, 25);
 		}
 	}
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[0], 1, 2, 0, 1);
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[1], 2, 3, 0, 1);
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[2], 3, 4, 0, 1);
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[3], 0, 1, 1, 2);
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[4], 0, 1, 2, 3);
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[5], 0, 1, 3, 4);
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[6], 4, 5, 1, 2);
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[7], 4, 5, 2, 3);
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[8], 4, 5, 3, 4);
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[9], 1, 2, 4, 5);
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[10], 2, 3, 4, 5);
-	gtk_table_attach_defaults(GTK_TABLE(table), screen_position[11], 3, 4, 4, 5);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[0], 1, 2, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[1], 2, 3, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[2], 3, 4, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[3], 0, 1, 1, 2);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[4], 0, 1, 2, 3);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[5], 0, 1, 3, 4);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[6], 4, 5, 1, 2);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[7], 4, 5, 2, 3);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[8], 4, 5, 3, 4);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[9], 1, 2, 4, 5);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[10], 2, 3, 4, 5);
+	gtk_table_attach_defaults(GTK_TABLE(position), screen_position[11], 3, 4, 4, 5);
+	gtk_table_attach(GTK_TABLE(table), position, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Monitor"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_combo_monitor = gtk_combo_box_new_text();
+	gtk_widget_show(panel_combo_monitor);
+	gtk_table_attach(GTK_TABLE(table), panel_combo_monitor, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("All"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("1"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("2"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("3"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("4"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("5"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("6"));
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Width"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_width = gtk_spin_button_new_with_range(0, 9000, 1);
+	gtk_widget_show(panel_width);
+	gtk_table_attach(GTK_TABLE(table), panel_width, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_combo_width_type = gtk_combo_box_new_text();
+	gtk_widget_show(panel_combo_width_type);
+	gtk_table_attach(GTK_TABLE(table), panel_combo_width_type, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_width_type), _("Percent"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_width_type), _("Pixels"));
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Height"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_height = gtk_spin_button_new_with_range(0, 9000, 1);
+	gtk_widget_show(panel_height);
+	gtk_table_attach(GTK_TABLE(table), panel_height, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_combo_height_type = gtk_combo_box_new_text();
+	gtk_widget_show(panel_combo_height_type);
+	gtk_table_attach(GTK_TABLE(table), panel_combo_height_type, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_height_type), _("Percent"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_height_type), _("Pixels"));
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Horizontal margin"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_margin_x = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(panel_margin_x);
+	gtk_table_attach(GTK_TABLE(table), panel_margin_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Vertical margin"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_margin_y = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(panel_margin_y);
+	gtk_table_attach(GTK_TABLE(table), panel_margin_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	change_paragraph(parent);
+
+	label = gtk_label_new(_("<b>Appearance</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
+
+	table = gtk_table_new(2, 10, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+
+	row = 0;
+	col = 2;
+	label = gtk_label_new(_("Background"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_background = create_background_combo();
+	gtk_widget_show(panel_background);
+	gtk_table_attach(GTK_TABLE(table), panel_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Horizontal padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(panel_padding_x);
+	gtk_table_attach(GTK_TABLE(table), panel_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Vertical padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(panel_padding_y);
+	gtk_table_attach(GTK_TABLE(table), panel_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Spacing"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_spacing = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(panel_spacing);
+	gtk_table_attach(GTK_TABLE(table), panel_spacing, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Ignore compositor"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	disable_transparency = gtk_check_button_new();
+	gtk_widget_show(disable_transparency);
+	gtk_table_attach(GTK_TABLE(table), disable_transparency, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	change_paragraph(parent);
 
 	label = gtk_label_new(_("<b>Autohide</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -848,105 +978,73 @@ void create_panel(GtkWidget *parent)
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
 
+	row = 0;
+	col = 2;
 	label = gtk_label_new(_("Autohide"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	panel_autohide = gtk_check_button_new();
 	gtk_widget_show(panel_autohide);
-	gtk_table_attach(GTK_TABLE(table), panel_autohide, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), panel_autohide, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++;
+	col = 2;
 	label = gtk_label_new(_("Show panel after"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	panel_autohide_show_time = gtk_spin_button_new_with_range(0, 10000, 0.1);
 	gtk_widget_show(panel_autohide_show_time);
-	gtk_table_attach(GTK_TABLE(table), panel_autohide_show_time, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), panel_autohide_show_time, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	label = gtk_label_new(_("seconds"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 8, 9, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++;
+	col = 2;
 	label = gtk_label_new(_("Hidden size"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	panel_autohide_size = gtk_spin_button_new_with_range(1, 500, 1);
 	gtk_widget_show(panel_autohide_size);
-	gtk_table_attach(GTK_TABLE(table), panel_autohide_size, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), panel_autohide_size, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++;
+	col = 2;
 	label = gtk_label_new(_("Hide panel after"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	panel_autohide_hide_time = gtk_spin_button_new_with_range(0, 10000, 0.1);
 	gtk_widget_show(panel_autohide_hide_time);
-	gtk_table_attach(GTK_TABLE(table), panel_autohide_hide_time, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), panel_autohide_hide_time, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	label = gtk_label_new(_("seconds"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 8, 9, 1, 2, GTK_FILL, 0, 0, 0);
-
-	change_paragraph(parent);
-	
-	label = gtk_label_new(_("<b>Appearance</b>"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-	gtk_widget_show(label);
-	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
-
-	table = gtk_table_new(2, 10, FALSE);
-	gtk_widget_show(table);
-	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
-	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
-	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
-
-	label = gtk_label_new(_("Horizontal padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
-
-	panel_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(panel_padding_x);
-	gtk_table_attach(GTK_TABLE(table), panel_padding_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
-
-	label = gtk_label_new(_("Background"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
-
-	panel_background = create_background_combo();
-	gtk_widget_show(panel_background);
-	gtk_table_attach(GTK_TABLE(table), panel_background, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
-
-	label = gtk_label_new(_("Vertical padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
-
-	panel_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(panel_padding_y);
-	gtk_table_attach(GTK_TABLE(table), panel_padding_y, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
-
-	label = gtk_label_new(_("Spacing"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
-
-	panel_spacing = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(panel_spacing);
-	gtk_table_attach(GTK_TABLE(table), panel_spacing, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 
-	label = gtk_label_new(_("<b>Window manager</b>"));
+	label = gtk_label_new(_("<b>Window manager interaction</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_widget_show(label);
@@ -958,63 +1056,78 @@ void create_panel(GtkWidget *parent)
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
 
-	label = gtk_label_new(_("Show WM menu"));
+	row = 0;
+	col = 2;
+	label = gtk_label_new(_("Forward mouse clicks"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	panel_wm_menu = gtk_check_button_new();
 	gtk_widget_show(panel_wm_menu);
-	gtk_table_attach(GTK_TABLE(table), panel_wm_menu, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), panel_wm_menu, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
-	label = gtk_label_new(_("Place in dock"));
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Place panel in dock"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	panel_dock = gtk_check_button_new();
 	gtk_widget_show(panel_dock);
-	gtk_table_attach(GTK_TABLE(table), panel_dock, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), panel_dock, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
-	label = gtk_label_new(_("Panel's layer"));
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Panel layer"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	panel_combo_layer = gtk_combo_box_new_text();
 	gtk_widget_show(panel_combo_layer);
-	gtk_table_attach(GTK_TABLE(table), panel_combo_layer, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), panel_combo_layer, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_layer), _("Top"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_layer), _("Normal"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_layer), _("Bottom"));
 
-	label = gtk_label_new(_("Maximized window"));
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Maximized windows"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	panel_combo_strut_policy = gtk_combo_box_new_text();
 	gtk_widget_show(panel_combo_strut_policy);
-	gtk_table_attach(GTK_TABLE(table), panel_combo_strut_policy, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_strut_policy), _("Follow panel size"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_strut_policy), _("Follow hidden size"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_strut_policy), _("Full screen"));
+	gtk_table_attach(GTK_TABLE(table), panel_combo_strut_policy, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_strut_policy), _("Match the panel size"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_strut_policy), _("Match the hidden panel size"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_strut_policy), _("Fill the screen"));
 
-	label = gtk_label_new(_("Monitor"));
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Window name"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 10, 11, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
-	panel_combo_monitor = gtk_combo_box_new_text();
-	gtk_widget_show(panel_combo_monitor);
-	gtk_table_attach(GTK_TABLE(table), panel_combo_monitor, 11, 12, 0, 1, GTK_FILL, 0, 0, 0);
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("All"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("1"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("2"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("3"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("4"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("5"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("6"));
+	panel_window_name = gtk_entry_new();
+	gtk_widget_show(panel_window_name);
+	gtk_entry_set_width_chars(GTK_ENTRY(panel_window_name), 28);
+	gtk_entry_set_text(GTK_ENTRY(panel_window_name), "tint2");
+	gtk_table_attach(GTK_TABLE(table), panel_window_name, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 }
@@ -1697,6 +1810,7 @@ void create_launcher(GtkWidget *parent)
 	g_object_unref(all_apps);
 
 	GtkWidget *table, *label, *button;
+	int row, col;
 
 	table = gtk_table_new(2, 3, FALSE);
 	gtk_widget_show(table);
@@ -1786,55 +1900,72 @@ void create_launcher(GtkWidget *parent)
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
 	
-	label = gtk_label_new(_("Horizontal padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
-
-	launcher_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(launcher_padding_x);
-	gtk_table_attach(GTK_TABLE(table), launcher_padding_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
-
-	label = gtk_label_new(_("Vertical padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
-
-	launcher_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(launcher_padding_y);
-	gtk_table_attach(GTK_TABLE(table), launcher_padding_y, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
-
-	label = gtk_label_new(_("Spacing"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
-
-	launcher_spacing = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(launcher_spacing);
-	gtk_table_attach(GTK_TABLE(table), launcher_spacing, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
-
+	row = 0, col = 2;
 	label = gtk_label_new(_("Background"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	launcher_background = create_background_combo();
 	gtk_widget_show(launcher_background);
-	gtk_table_attach(GTK_TABLE(table), launcher_background, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), launcher_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
+	label = gtk_label_new(_("Horizontal padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	launcher_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(launcher_padding_x);
+	gtk_table_attach(GTK_TABLE(table), launcher_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Vertical padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	launcher_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(launcher_padding_y);
+	gtk_table_attach(GTK_TABLE(table), launcher_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Spacing"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	launcher_spacing = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(launcher_spacing);
+	gtk_table_attach(GTK_TABLE(table), launcher_spacing, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
 	label = gtk_label_new(_("Icon size"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	launcher_icon_size = gtk_spin_button_new_with_range(0, 500, 1);
 	gtk_widget_show(launcher_icon_size);
-	gtk_table_attach(GTK_TABLE(table), launcher_icon_size, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), launcher_icon_size, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Icon theme"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	launcher_icon_theme = gtk_combo_box_new_with_model(GTK_TREE_MODEL(icon_themes));
 	GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
@@ -1842,16 +1973,32 @@ void create_launcher(GtkWidget *parent)
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(launcher_icon_theme), renderer, "text", iconsColDescr, NULL);
 	g_signal_connect(G_OBJECT(launcher_icon_theme), "changed", G_CALLBACK(launcher_icon_theme_changed), NULL);
 	gtk_widget_show(launcher_icon_theme);
-	gtk_table_attach(GTK_TABLE(table), launcher_icon_theme, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), launcher_icon_theme, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Startup notifications"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	startup_notifications = gtk_check_button_new();
 	gtk_widget_show(startup_notifications);
-	gtk_table_attach(GTK_TABLE(table), startup_notifications, 3, 4, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), startup_notifications, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Tooltips"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	launcher_tooltip = gtk_check_button_new();
+	gtk_widget_show(launcher_tooltip);
+	gtk_table_attach(GTK_TABLE(table), launcher_tooltip, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 
@@ -1884,52 +2031,92 @@ void create_launcher(GtkWidget *parent)
 void create_taskbar(GtkWidget *parent)
 {
 	GtkWidget *table, *label;
+	int row, col;
+
+	label = gtk_label_new(_("<b>Options</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
 
 	table = gtk_table_new(4, 2, FALSE);
 	gtk_widget_show(table);
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = col = 0;
 
-	label = gtk_label_new(_("Show all desktop"));
+	col = 2;
+	row++;
+	label = gtk_label_new(_("Show a taskbar for each desktop"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_show_desktop = gtk_check_button_new();
 	gtk_widget_show(taskbar_show_desktop);
-	gtk_table_attach(GTK_TABLE(table), taskbar_show_desktop, 1, 2, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_show_desktop, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
-	label = gtk_label_new(_("Show taskbar name"));
+	col = 2;
+	row++;
+	label = gtk_label_new(_("Distribute size between taskbars"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
-	taskbar_show_name = gtk_check_button_new();
-	gtk_widget_show(taskbar_show_name);
-	gtk_table_attach(GTK_TABLE(table), taskbar_show_name, 1, 2, 1, 2, GTK_FILL, 0, 0, 0);
+	taskbar_distribute_size = gtk_check_button_new();
+	gtk_widget_show(taskbar_distribute_size);
+	gtk_table_attach(GTK_TABLE(table), taskbar_distribute_size, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Hide inactive tasks"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_hide_inactive_tasks = gtk_check_button_new();
 	gtk_widget_show(taskbar_hide_inactive_tasks);
-	gtk_table_attach(GTK_TABLE(table), taskbar_hide_inactive_tasks, 1, 2, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_hide_inactive_tasks, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Hide tasks from different monitors"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_hide_diff_monitor = gtk_check_button_new();
 	gtk_widget_show(taskbar_hide_diff_monitor);
-	gtk_table_attach(GTK_TABLE(table), taskbar_hide_diff_monitor, 1, 2, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_hide_diff_monitor, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Task sorting"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	taskbar_sort_order = gtk_combo_box_new_text();
+	gtk_widget_show(taskbar_sort_order);
+	gtk_table_attach(GTK_TABLE(table), taskbar_sort_order, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("None"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("By title"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("By center"));
 
 	change_paragraph(parent);
 
-	label = gtk_label_new(_("<b>Taskbar Appearance</b>"));
+	label = gtk_label_new(_("<b>Appearance</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_widget_show(label);
@@ -1940,55 +2127,75 @@ void create_taskbar(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = col = 0;
 
+	col = 2;
 	label = gtk_label_new(_("Horizontal padding"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
 	gtk_widget_show(taskbar_padding_x);
-	gtk_table_attach(GTK_TABLE(table), taskbar_padding_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Vertical padding"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
 	gtk_widget_show(taskbar_padding_y);
-	gtk_table_attach(GTK_TABLE(table), taskbar_padding_y, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Spacing"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_spacing = gtk_spin_button_new_with_range(0, 500, 1);
 	gtk_widget_show(taskbar_spacing);
-	gtk_table_attach(GTK_TABLE(table), taskbar_spacing, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_spacing, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Inactive background"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_inactive_background = create_background_combo();
 	gtk_widget_show(taskbar_inactive_background);
-	gtk_table_attach(GTK_TABLE(table), taskbar_inactive_background, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_inactive_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Active background"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_active_background = create_background_combo();
 	gtk_widget_show(taskbar_active_background);
-	gtk_table_attach(GTK_TABLE(table), taskbar_active_background, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_active_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 
-	label = gtk_label_new(_("<b>Name appearance</b>"));
+	label = gtk_label_new(_("<b>Desktop name</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_widget_show(label);
@@ -1999,63 +2206,101 @@ void create_taskbar(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = col = 0;
 
+	col = 2;
+	row++;
+	label = gtk_label_new(_("Show desktop name"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	taskbar_show_name = gtk_check_button_new();
+	gtk_widget_show(taskbar_show_name);
+	gtk_table_attach(GTK_TABLE(table), taskbar_show_name, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Horizontal padding"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_name_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
 	gtk_widget_show(taskbar_name_padding_x);
-	gtk_table_attach(GTK_TABLE(table), taskbar_name_padding_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_name_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Inactive font color"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_name_inactive_color = gtk_color_button_new();
 	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(taskbar_name_inactive_color), TRUE);
 	gtk_widget_show(taskbar_name_inactive_color);
-	gtk_table_attach(GTK_TABLE(table), taskbar_name_inactive_color, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_name_inactive_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Active font color"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_name_active_color = gtk_color_button_new();
 	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(taskbar_name_active_color), TRUE);
 	gtk_widget_show(taskbar_name_active_color);
-	gtk_table_attach(GTK_TABLE(table), taskbar_name_active_color, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_name_active_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Font"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_name_font = gtk_font_button_new();
 	gtk_widget_show(taskbar_name_font);
-	gtk_table_attach(GTK_TABLE(table), taskbar_name_font, 7, 22, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_name_font, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 	//gtk_font_button_set_show_style(GTK_FONT_BUTTON(taskbar_name_font), FALSE);
 
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Inactive background"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_name_inactive_background = create_background_combo();
 	gtk_widget_show(taskbar_name_inactive_background);
-	gtk_table_attach(GTK_TABLE(table), taskbar_name_inactive_background, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_name_inactive_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	col = 2;
+	row++;
 	label = gtk_label_new(_("Active background"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	taskbar_name_active_background = create_background_combo();
 	gtk_widget_show(taskbar_name_active_background);
-	gtk_table_attach(GTK_TABLE(table), taskbar_name_active_background, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), taskbar_name_active_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 }
@@ -2063,8 +2308,9 @@ void create_taskbar(GtkWidget *parent)
 void create_task(GtkWidget *parent)
 {
 	GtkWidget *table, *label, *notebook;
+	int row, col;
 
-	label = gtk_label_new(_("<b>Mouse action</b>"));
+	label = gtk_label_new(_("<b>Mouse events</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_widget_show(label);
@@ -2075,15 +2321,18 @@ void create_task(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
 
 	label = gtk_label_new(_("Left click"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_mouse_left = gtk_combo_box_new_text();
 	gtk_widget_show(task_mouse_left);
-	gtk_table_attach(GTK_TABLE(table), task_mouse_left, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_mouse_left, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("None"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Close"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Toggle"));
@@ -2096,14 +2345,17 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Previous task"));
 
+	row++, col = 2;
 	label = gtk_label_new(_("Wheel scroll up"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_mouse_scroll_up = gtk_combo_box_new_text();
 	gtk_widget_show(task_mouse_scroll_up);
-	gtk_table_attach(GTK_TABLE(table), task_mouse_scroll_up, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_mouse_scroll_up, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_up), _("None"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_up), _("Close"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_up), _("Toggle"));
@@ -2116,14 +2368,17 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_up), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_up), _("Previous task"));
 
+	row++, col = 2;
 	label = gtk_label_new(_("Middle click"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_mouse_middle = gtk_combo_box_new_text();
 	gtk_widget_show(task_mouse_middle);
-	gtk_table_attach(GTK_TABLE(table), task_mouse_middle, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_mouse_middle, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("None"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Close"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Toggle"));
@@ -2136,14 +2391,17 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Previous task"));
 
+	row++, col = 2;
 	label = gtk_label_new(_("Wheel scroll down"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_mouse_scroll_down = gtk_combo_box_new_text();
 	gtk_widget_show(task_mouse_scroll_down);
-	gtk_table_attach(GTK_TABLE(table), task_mouse_scroll_down, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_mouse_scroll_down, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_down), _("None"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_down), _("Close"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_down), _("Toggle"));
@@ -2156,14 +2414,17 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_down), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_down), _("Previous task"));
 
+	row++, col = 2;
 	label = gtk_label_new(_("Right click"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_mouse_right = gtk_combo_box_new_text();
 	gtk_widget_show(task_mouse_right);
-	gtk_table_attach(GTK_TABLE(table), task_mouse_right, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_mouse_right, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("None"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Close"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Toggle"));
@@ -2175,15 +2436,6 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Desktop right"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Previous task"));
-
-	label = gtk_label_new(_("Tooltip"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
-
-	tooltip_task_show = gtk_check_button_new();
-	gtk_widget_show(tooltip_task_show);
-	gtk_table_attach(GTK_TABLE(table), tooltip_task_show, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
 
 	change_paragraph(parent);
 
@@ -2198,90 +2450,130 @@ void create_task(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
 
 	label = gtk_label_new(_("Show icon"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_show_icon = gtk_check_button_new();
 	gtk_widget_show(task_show_icon);
-	gtk_table_attach(GTK_TABLE(table), task_show_icon, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_show_icon, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Show text"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_show_text = gtk_check_button_new();
 	gtk_widget_show(task_show_text);
-	gtk_table_attach(GTK_TABLE(table), task_show_text, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_show_text, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
-	label = gtk_label_new(_("Align center"));
+	row++, col = 2;
+	label = gtk_label_new(_("Center text"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_align_center = gtk_check_button_new();
 	gtk_widget_show(task_align_center);
-	gtk_table_attach(GTK_TABLE(table), task_align_center, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_align_center, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
+	label = gtk_label_new(_("Show tooltips"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	tooltip_task_show = gtk_check_button_new();
+	gtk_widget_show(tooltip_task_show);
+	gtk_table_attach(GTK_TABLE(table), tooltip_task_show, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
 	label = gtk_label_new(_("Font shadow"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_font_shadow = gtk_check_button_new();
 	gtk_widget_show(task_font_shadow);
-	gtk_table_attach(GTK_TABLE(table), task_font_shadow, 3, 4, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_font_shadow, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Maximum width"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_maximum_width = gtk_spin_button_new_with_range(0, 9000, 1);
 	gtk_widget_show(task_maximum_width);
-	gtk_table_attach(GTK_TABLE(table), task_maximum_width, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_maximum_width, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Maximum height"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_maximum_height = gtk_spin_button_new_with_range(0, 9000, 1);
 	gtk_widget_show(task_maximum_height);
-	gtk_table_attach(GTK_TABLE(table), task_maximum_height, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_maximum_height, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Horizontal padding"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_padding_x = gtk_spin_button_new_with_range(0, 9000, 1);
 	gtk_widget_show(task_padding_x);
-	gtk_table_attach(GTK_TABLE(table), task_padding_x, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Vertical padding"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_padding_y = gtk_spin_button_new_with_range(0, 9000, 1);
 	gtk_widget_show(task_padding_y);
-	gtk_table_attach(GTK_TABLE(table), task_padding_y, 7, 8, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Font"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 10, 11, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	task_font = gtk_font_button_new();
 	gtk_widget_show(task_font);
-	gtk_table_attach(GTK_TABLE(table), task_font, 11, 12, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), task_font, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 //	gtk_font_button_set_show_style(GTK_FONT_BUTTON(task_font), FALSE);
 
-	// notebook
+	change_paragraph(parent);
+
 	notebook = gtk_notebook_new();
 	gtk_widget_show(notebook);
 	gtk_container_set_border_width(GTK_CONTAINER(notebook), 0);
@@ -2507,14 +2799,16 @@ void create_clock(GtkWidget *parent)
 {
 	GtkWidget *table;
 	GtkWidget *label;
+	int row, col;
 
 	table = gtk_table_new(1, 2, FALSE);
 	gtk_widget_show(table);
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
 
-	label = gtk_label_new(_("<b>Format and timezone</b>"));
+	label = gtk_label_new(_("<b>Format</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
@@ -2524,50 +2818,62 @@ void create_clock(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
 
 	label = gtk_label_new(_("First line format"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_format_line1 = gtk_entry_new();
 	gtk_widget_show(clock_format_line1);
 	gtk_entry_set_width_chars(GTK_ENTRY(clock_format_line1), 16);
-	gtk_table_attach(GTK_TABLE(table), clock_format_line1, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), clock_format_line1, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Second line format"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_format_line2 = gtk_entry_new();
 	gtk_widget_show(clock_format_line2);
 	gtk_entry_set_width_chars(GTK_ENTRY(clock_format_line2), 16);
-	gtk_table_attach(GTK_TABLE(table), clock_format_line2, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), clock_format_line2, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("First line timezone"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_tmz_line1 = gtk_entry_new();
 	gtk_widget_show(clock_tmz_line1);
 	gtk_entry_set_width_chars(GTK_ENTRY(clock_tmz_line1), 16);
-	gtk_table_attach(GTK_TABLE(table), clock_tmz_line1, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), clock_tmz_line1, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Second line timezone"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_tmz_line2 = gtk_entry_new();
 	gtk_widget_show(clock_tmz_line2);
 	gtk_entry_set_width_chars(GTK_ENTRY(clock_tmz_line2), 16);
-	gtk_table_attach(GTK_TABLE(table), clock_tmz_line2, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), clock_tmz_line2, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 
-	label = gtk_label_new(_("<b>Mouse action</b>"));
+	label = gtk_label_new(_("<b>Mouse events</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_widget_show(label);
@@ -2578,26 +2884,32 @@ void create_clock(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
 
 	label = gtk_label_new(_("Left click command"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_left_command = gtk_entry_new();
 	gtk_widget_show(clock_left_command);
-	gtk_entry_set_width_chars(GTK_ENTRY(clock_left_command), 16);
-	gtk_table_attach(GTK_TABLE(table), clock_left_command, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_entry_set_width_chars(GTK_ENTRY(clock_left_command), 50);
+	gtk_table_attach(GTK_TABLE(table), clock_left_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Right click command"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_right_command = gtk_entry_new();
 	gtk_widget_show(clock_right_command);
-	gtk_entry_set_width_chars(GTK_ENTRY(clock_right_command), 16);
-	gtk_table_attach(GTK_TABLE(table), clock_right_command, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_entry_set_width_chars(GTK_ENTRY(clock_right_command), 50);
+	gtk_table_attach(GTK_TABLE(table), clock_right_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 
@@ -2612,63 +2924,81 @@ void create_clock(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
-
-	label = gtk_label_new(_("Horizontal padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
-
-	clock_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(clock_padding_x);
-	gtk_table_attach(GTK_TABLE(table), clock_padding_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
-
-	label = gtk_label_new(_("Vertical padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
-
-	clock_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(clock_padding_y);
-	gtk_table_attach(GTK_TABLE(table), clock_padding_y, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	row = 0, col = 2;
 
 	label = gtk_label_new(_("Background"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_background = create_background_combo();
 	gtk_widget_show(clock_background);
-	gtk_table_attach(GTK_TABLE(table), clock_background, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), clock_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
+	label = gtk_label_new(_("Horizontal padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	clock_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(clock_padding_x);
+	gtk_table_attach(GTK_TABLE(table), clock_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Vertical padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	clock_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(clock_padding_y);
+	gtk_table_attach(GTK_TABLE(table), clock_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
 	label = gtk_label_new(_("Font first line"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_font_line1 = gtk_font_button_new();
 	gtk_widget_show(clock_font_line1);
-	gtk_table_attach(GTK_TABLE(table), clock_font_line1, 7, 22, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), clock_font_line1, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 //	gtk_font_button_set_show_style(GTK_FONT_BUTTON(clock_font_line1), FALSE);
 
+	row++, col = 2;
 	label = gtk_label_new(_("Font second line"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_font_line2 = gtk_font_button_new();
 	gtk_widget_show(clock_font_line2);
-	gtk_table_attach(GTK_TABLE(table), clock_font_line2, 7, 22, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), clock_font_line2, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 //	gtk_font_button_set_show_style(GTK_FONT_BUTTON(clock_font_line2), FALSE);
 
+	row++, col = 2;
 	label = gtk_label_new(_("Font color"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_font_color = gtk_color_button_new();
 	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(clock_font_color), TRUE);
 	gtk_widget_show(clock_font_color);
-	gtk_table_attach(GTK_TABLE(table), clock_font_color, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), clock_font_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 
@@ -2683,26 +3013,32 @@ void create_clock(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
 
-	label = gtk_label_new(_("Clock tooltip format"));
+	label = gtk_label_new(_("Format"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_format_tooltip = gtk_entry_new();
 	gtk_widget_show(clock_format_tooltip);
-	gtk_entry_set_width_chars(GTK_ENTRY(clock_format_tooltip), 16);
-	gtk_table_attach(GTK_TABLE(table), clock_format_tooltip, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_entry_set_width_chars(GTK_ENTRY(clock_format_tooltip), 30);
+	gtk_table_attach(GTK_TABLE(table), clock_format_tooltip, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
-	label = gtk_label_new(_("Clock tooltip timezone"));
+	row++, col = 2;
+	label = gtk_label_new(_("Timezone"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	clock_tmz_tooltip = gtk_entry_new();
 	gtk_widget_show(clock_tmz_tooltip);
 	gtk_entry_set_width_chars(GTK_ENTRY(clock_tmz_tooltip), 16);
-	gtk_table_attach(GTK_TABLE(table), clock_tmz_tooltip, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), clock_tmz_tooltip, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 }
@@ -2711,25 +3047,55 @@ void create_systemtray(GtkWidget *parent)
 {
 	GtkWidget *table;
 	GtkWidget *label;
+	int row, col;
+
+	label = gtk_label_new(_("<b>Options</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
 
 	table = gtk_table_new(2, 2, FALSE);
 	gtk_widget_show(table);
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0;
+	col = 2;
 
 	label = gtk_label_new(_("Icon ordering"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 0, 1, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	systray_icon_order = gtk_combo_box_new_text();
 	gtk_widget_show(systray_icon_order);
-	gtk_table_attach(GTK_TABLE(table), systray_icon_order, 1, 2, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), systray_icon_order, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_icon_order), _("Ascending"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_icon_order), _("Descending"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_icon_order), _("Left to right"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_icon_order), _("Right to left"));
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Monitor"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	systray_monitor = gtk_combo_box_new_text();
+	gtk_widget_show(systray_monitor);
+	gtk_table_attach(GTK_TABLE(table), systray_monitor, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("1"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("2"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("3"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("4"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("5"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("6"));
 
 	change_paragraph(parent);
 
@@ -2744,91 +3110,124 @@ void create_systemtray(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
-	
-	label = gtk_label_new(_("Horizontal padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
-
-	systray_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(systray_padding_x);
-	gtk_table_attach(GTK_TABLE(table), systray_padding_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
-
-	label = gtk_label_new(_("Vertical padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
-
-	systray_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(systray_padding_y);
-	gtk_table_attach(GTK_TABLE(table), systray_padding_y, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
-
-	label = gtk_label_new(_("Spacing"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
-
-	systray_spacing = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(systray_spacing);
-	gtk_table_attach(GTK_TABLE(table), systray_spacing, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	row = 0, col = 2;
 
 	label = gtk_label_new(_("Background"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	systray_background = create_background_combo();
 	gtk_widget_show(systray_background);
-	gtk_table_attach(GTK_TABLE(table), systray_background, 3, 4, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), systray_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Horizontal padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	systray_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(systray_padding_x);
+	gtk_table_attach(GTK_TABLE(table), systray_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Vertical padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	systray_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(systray_padding_y);
+	gtk_table_attach(GTK_TABLE(table), systray_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Spacing"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	systray_spacing = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(systray_spacing);
+	gtk_table_attach(GTK_TABLE(table), systray_spacing, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++;
+	col = 2;
 	label = gtk_label_new(_("Icon size"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	systray_icon_size = gtk_spin_button_new_with_range(0, 500, 1);
 	gtk_widget_show(systray_icon_size);
-	gtk_table_attach(GTK_TABLE(table), systray_icon_size, 7, 8, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), systray_icon_size, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++;
+	col = 2;
 	label = gtk_label_new(_("Icon opacity"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	systray_icon_opacity = gtk_spin_button_new_with_range(0, 100, 1);
 	gtk_widget_show(systray_icon_opacity);
-	gtk_table_attach(GTK_TABLE(table), systray_icon_opacity, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), systray_icon_opacity, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++;
+	col = 2;
 	label = gtk_label_new(_("Icon saturation"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	systray_icon_saturation = gtk_spin_button_new_with_range(-100, 100, 1);
 	gtk_widget_show(systray_icon_saturation);
-	gtk_table_attach(GTK_TABLE(table), systray_icon_saturation, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), systray_icon_saturation, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++;
+	col = 2;
 	label = gtk_label_new(_("Icon brightness"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	systray_icon_brightness = gtk_spin_button_new_with_range(-100, 100, 1);
 	gtk_widget_show(systray_icon_brightness);
-	gtk_table_attach(GTK_TABLE(table), systray_icon_brightness, 7, 8, 3, 4, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), systray_icon_brightness, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 }
 
 void create_battery(GtkWidget *parent)
 {
 	GtkWidget *table, *label;
+	int row, col;
 
 	table = gtk_table_new(1, 2, FALSE);
 	gtk_widget_show(table);
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
 
-	label = gtk_label_new(_("<b>Event</b>"));
+	label = gtk_label_new(_("<b>Thresholds</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_widget_show(label);
@@ -2839,45 +3238,55 @@ void create_battery(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
 
 	label = gtk_label_new(_("Hide if charge higher than"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	battery_hide_if_higher = gtk_spin_button_new_with_range(0, 101, 1);
 	gtk_widget_show(battery_hide_if_higher);
-	gtk_table_attach(GTK_TABLE(table), battery_hide_if_higher, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), battery_hide_if_higher, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	label = gtk_label_new(_("%"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 4, 5, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Alert if charge lower than"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	battery_alert_if_lower = gtk_spin_button_new_with_range(0, 100, 1);
 	gtk_widget_show(battery_alert_if_lower);
-	gtk_table_attach(GTK_TABLE(table), battery_alert_if_lower, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), battery_alert_if_lower, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	label = gtk_label_new(_("%"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 4, 5, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
 	label = gtk_label_new(_("Alert command"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	battery_alert_cmd = gtk_entry_new();
 	gtk_widget_show(battery_alert_cmd);
-	gtk_entry_set_width_chars(GTK_ENTRY(battery_alert_cmd), 28);
-	gtk_table_attach(GTK_TABLE(table), battery_alert_cmd, 8, 9, 1, 2, GTK_FILL, 0, 0, 0);
-
+	gtk_entry_set_width_chars(GTK_ENTRY(battery_alert_cmd), 50);
+	gtk_table_attach(GTK_TABLE(table), battery_alert_cmd, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 
@@ -2892,63 +3301,81 @@ void create_battery(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
-
-	label = gtk_label_new(_("Horizontal padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
-
-	battery_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(battery_padding_x);
-	gtk_table_attach(GTK_TABLE(table), battery_padding_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
-
-	label = gtk_label_new(_("Vertical padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
-
-	battery_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(battery_padding_y);
-	gtk_table_attach(GTK_TABLE(table), battery_padding_y, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	row = 0, col = 2;
 
 	label = gtk_label_new(_("Background"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	battery_background = create_background_combo();
 	gtk_widget_show(battery_background);
-	gtk_table_attach(GTK_TABLE(table), battery_background, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), battery_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
+	label = gtk_label_new(_("Horizontal padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	battery_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(battery_padding_x);
+	gtk_table_attach(GTK_TABLE(table), battery_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Vertical padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	battery_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(battery_padding_y);
+	gtk_table_attach(GTK_TABLE(table), battery_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
 	label = gtk_label_new(_("Font first line"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	battery_font_line1 = gtk_font_button_new();
 	gtk_widget_show(battery_font_line1);
-	gtk_table_attach(GTK_TABLE(table), battery_font_line1, 7, 22, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), battery_font_line1, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 //	gtk_font_button_set_show_style(GTK_FONT_BUTTON(battery_font_line1), FALSE);
 
+	row++, col = 2;
 	label = gtk_label_new(_("Font second line"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	battery_font_line2 = gtk_font_button_new();
 	gtk_widget_show(battery_font_line2);
-	gtk_table_attach(GTK_TABLE(table), battery_font_line2, 7, 22, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), battery_font_line2, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 //	gtk_font_button_set_show_style(GTK_FONT_BUTTON(battery_font_line2), FALSE);
 
+	row++, col = 2;
 	label = gtk_label_new(_("Font color"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	battery_font_color = gtk_color_button_new();
 	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(battery_font_color), TRUE);
 	gtk_widget_show(battery_font_color);
-	gtk_table_attach(GTK_TABLE(table), battery_font_color, 7, 8, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), battery_font_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 }
@@ -2957,6 +3384,7 @@ void create_tooltip(GtkWidget *parent)
 {
 	GtkWidget *table;
 	GtkWidget *label;
+	int row, col;
 
 	label = gtk_label_new(_("<b>Timing</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -2969,34 +3397,42 @@ void create_tooltip(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
 
-	label = gtk_label_new(_("Show tooltip after"));
+	label = gtk_label_new(_("Show delay"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	tooltip_show_after = gtk_spin_button_new_with_range(0, 10000, 0.1);
 	gtk_widget_show(tooltip_show_after);
-	gtk_table_attach(GTK_TABLE(table), tooltip_show_after, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), tooltip_show_after, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	label = gtk_label_new(_("seconds"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 4, 5, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
-	label = gtk_label_new(_("Hide tooltip after"));
+	row++, col = 2;
+	label = gtk_label_new(_("Hide delay"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	tooltip_hide_after = gtk_spin_button_new_with_range(0, 10000, 0.1);
 	gtk_widget_show(tooltip_hide_after);
-	gtk_table_attach(GTK_TABLE(table), tooltip_hide_after, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), tooltip_hide_after, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	label = gtk_label_new(_("seconds"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 4, 5, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 	
@@ -3011,53 +3447,68 @@ void create_tooltip(GtkWidget *parent)
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
-
-	label = gtk_label_new(_("Horizontal padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
-
-	tooltip_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(tooltip_padding_x);
-	gtk_table_attach(GTK_TABLE(table), tooltip_padding_x, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
-
-	label = gtk_label_new(_("Vertical padding"));
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
-
-	tooltip_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
-	gtk_widget_show(tooltip_padding_y);
-	gtk_table_attach(GTK_TABLE(table), tooltip_padding_y, 3, 4, 1, 2, GTK_FILL, 0, 0, 0);
+	row = 0, col = 2;
 
 	label = gtk_label_new(_("Background"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	tooltip_background = create_background_combo();
 	gtk_widget_show(tooltip_background);
-	gtk_table_attach(GTK_TABLE(table), tooltip_background, 3, 4, 2, 3, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), tooltip_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
+	row++, col = 2;
+	label = gtk_label_new(_("Horizontal padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	tooltip_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(tooltip_padding_x);
+	gtk_table_attach(GTK_TABLE(table), tooltip_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Vertical padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	tooltip_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(tooltip_padding_y);
+	gtk_table_attach(GTK_TABLE(table), tooltip_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
 	label = gtk_label_new(_("Font"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	tooltip_font = gtk_font_button_new();
 	gtk_widget_show(tooltip_font);
-	gtk_table_attach(GTK_TABLE(table), tooltip_font, 7, 22, 0, 1, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), tooltip_font, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 //	gtk_font_button_set_show_style(GTK_FONT_BUTTON(tooltip_font), FALSE);
 
+	row++, col = 2;
 	label = gtk_label_new(_("Font color"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
-	gtk_table_attach(GTK_TABLE(table), label, 6, 7, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	tooltip_font_color = gtk_color_button_new();
 	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(tooltip_font_color), TRUE);
 	gtk_widget_show(tooltip_font_color);
-	gtk_table_attach(GTK_TABLE(table), tooltip_font_color, 7, 8, 1, 2, GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), tooltip_font_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	change_paragraph(parent);
 }
