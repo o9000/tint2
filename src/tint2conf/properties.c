@@ -22,6 +22,7 @@
 #include "properties_rw.h"
 #include "../launcher/apps-common.h"
 #include "../launcher/icon-theme-common.h"
+#include "../util/common.h"
 
 #define ROW_SPACING 10
 #define COL_SPACING 8
@@ -163,8 +164,15 @@ void panel_move_item_up(GtkWidget *widget, gpointer data);
 void applyClicked(GtkWidget *widget, gpointer data)
 {
 	char *file = get_current_theme_file_name();
-	if (file)
+	if (file) {
+		if (config_is_manual(file)) {
+			gchar *backup_path = g_strdup_printf("%s.backup.%ld", file, time(NULL));
+			copy_file(file, backup_path);
+			g_free(backup_path);
+		}
+
 		config_save_file(file);
+	}
 	int unused = system("killall -SIGUSR1 tint2");
 	(void)unused;
 	g_free(file);
