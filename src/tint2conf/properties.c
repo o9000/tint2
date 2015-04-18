@@ -165,10 +165,10 @@ void applyClicked(GtkWidget *widget, gpointer data)
 	char *file = get_current_theme_file_name();
 	if (file)
 		config_save_file(file);
+	int unused = system("killall -SIGUSR1 tint2");
+	(void)unused;
 	g_free(file);
 	g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
-	// TODO if this is not the current theme, don't do anything
-	menuApply();
 }
 
 void cancelClicked(GtkWidget *widget, gpointer data)
