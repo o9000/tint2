@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <unistd.h>
 #include <glib.h>
 #include "common.h"
@@ -380,4 +381,25 @@ void render_image(Drawable d, int x, int y, int w, int h)
 	XFreePixmap(server.dsp, pmap_tmp);
 	XRenderFreePicture(server.dsp, pict_image);
 	XRenderFreePicture(server.dsp, pict_drawable);
+}
+
+void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow)
+{
+	if (font_shadow) {
+		const int shadow_size = 3;
+		const double shadow_edge_alpha = 0.0;
+		int i, j;
+		for (i = -shadow_size; i <= shadow_size; i++) {
+			for (j = -shadow_size; j <= shadow_size; j++) {
+				cairo_set_source_rgba(c, 0.0, 0.0, 0.0, 1.0 - (1.0 - shadow_edge_alpha) * sqrt((i*i + j*j)/(double)(shadow_size*shadow_size)));
+				pango_cairo_update_layout(c, layout);
+				cairo_move_to(c, posx + i, posy + j);
+				pango_cairo_show_layout(c, layout);
+			}
+		}
+	}
+	cairo_set_source_rgba (c, color->color[0], color->color[1], color->color[2], color->alpha);
+	pango_cairo_update_layout (c, layout);
+	cairo_move_to (c, posx, posy);
+	pango_cairo_show_layout (c, layout);
 }

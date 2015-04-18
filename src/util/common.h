@@ -10,6 +10,7 @@
 #define WM_CLASS_TINT   "panel"
 
 #include <Imlib2.h>
+#include <pango/pangocairo.h>
 #include "area.h"
 
 /*
@@ -64,5 +65,8 @@ void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright
 void createHeuristicMask(DATA32* data, int w, int h);
 
 void render_image(Drawable d, int x, int y, int w, int h);
+
+void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow);
+
 #endif
 

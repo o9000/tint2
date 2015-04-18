@@ -287,7 +287,7 @@ void add_entry (char *key, char *value)
 		}
 	}
 	else if (strcmp (key, "font_shadow") == 0)
-		panel_config.g_task.font_shadow = atoi (value);
+		panel_config.font_shadow = atoi (value);
 	else if (strcmp (key, "panel_background_id") == 0) {
 		int id = atoi (value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;

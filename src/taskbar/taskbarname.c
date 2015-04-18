@@ -132,8 +132,7 @@ void draw_taskbarname (void *obj, cairo_t *c)
 	cairo_set_source_rgba (c, config_text->color[0], config_text->color[1], config_text->color[2], config_text->alpha);
 
 	pango_cairo_update_layout (c, layout);
-	cairo_move_to (c, 0, taskbar_name->posy);
-	pango_cairo_show_layout (c, layout);
+	draw_text(layout, c, 0, taskbar_name->posy, config_text, ((Panel*)taskbar_name->area.panel)->font_shadow);
 
 	g_object_unref (layout);
 	//printf("draw_taskbarname %s ******************************\n", taskbar_name->name);

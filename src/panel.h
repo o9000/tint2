@@ -89,6 +89,7 @@ typedef struct {
 	int pourcentx, pourcenty;
 	// location of the panel (monitor number)
 	int monitor;
+	int font_shadow;
 
 	// --------------------------------------------------
 	// task and taskbar parameter per panel

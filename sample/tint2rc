@@ -36,13 +36,14 @@ border_color = #999999 100
 panel_items = LTSBC
 panel_monitor = all
 panel_position = bottom center horizontal
-panel_size = 95% 30
+panel_size = 85% 30
 panel_margin = 0 0
 panel_padding = 7 0 7
 panel_dock = 0
 wm_menu = 1
 panel_layer = top
 panel_background_id = 1
+font_shadow = 0
 
 # Panel Autohide
 autohide = 0
@@ -92,7 +93,6 @@ task_font_color = #FFFFFF 90
 task_active_font_color = #FFFFFF 90
 task_urgent_font_color = #FFFFFF 90
 task_iconified_font_color = #FFFFFF 90
-font_shadow = 0
 
 # Mouse
 mouse_left = toggle_iconify
@@ -129,7 +129,7 @@ tooltip_font_color = #222222 100
 # Battery
 battery_low_status = 10
 battery_low_cmd = notify-send "battery low"
-battery_hide = 98
+battery_hide = 101
 bat1_font = sans 8
 bat2_font = sans 6
 battery_font_color = #FFFFFF 94
