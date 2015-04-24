@@ -18,15 +18,15 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 
 ### I want it!
 
-  * [Install tint2](Install)
+  * [Install tint2](https://gitlab.com/o9000/tint2/wikis/Install)
 
 ### How do I ...
 
-  * [Install](Install)
-  * [Configure](Configure)
-  * [Add applet X not supported by tint2](ThirdPartyApplets)
-  * [Other frequently asked questions](FAQ)
-  * [Debug](Debug)  
+  * [Install](https://gitlab.com/o9000/tint2/wikis/Install)
+  * [Configure](https://gitlab.com/o9000/tint2/wikis/Configure)
+  * [Add applet not supported by tint2](https://gitlab.com/o9000/tint2/wikis/ThirdPartyApplets)
+  * [Other frequently asked questions](https://gitlab.com/o9000/tint2/wikis/FAQ)
+  * [Debug](https://gitlab.com/o9000/tint2/wikis/Debug)  
 
 ### How can I help out?
 
@@ -35,7 +35,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 
 ### Links
   * Home page: https://gitlab.com/o9000/tint2
-  * Repository: https://gitlab.com/o9000/tint2.git
+  * Git repository: https://gitlab.com/o9000/tint2.git
   * Documentation: https://gitlab.com/o9000/tint2/wikis/home
   * Downloads: https://gitlab.com/o9000/tint2-archive/tree/master or https://code.google.com/p/tint2/downloads/list
   * Old project location (inactive): https://code.google.com/p/tint2
