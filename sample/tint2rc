@@ -33,7 +33,7 @@ background_color = #ffffaa 100
 border_color = #999999 100
 
 # Panel
-panel_items = LTSBC
+panel_items = LTSC
 panel_monitor = all
 panel_position = bottom center horizontal
 panel_size = 85% 30
@@ -98,8 +98,8 @@ task_iconified_font_color = #FFFFFF 90
 mouse_left = toggle_iconify
 mouse_middle = none
 mouse_right = close
-mouse_scroll_up = prev_task
-mouse_scroll_down = next_task
+mouse_scroll_up = toggle
+mouse_scroll_down = iconify
 
 # System Tray
 systray_padding = 0 4 5
