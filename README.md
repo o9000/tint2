@@ -8,4 +8,5 @@ Execute `tint2` or `tint2 -c path_to_config_file`.
 # Links
 * Project location: https://gitlab.com/o9000/tint2
 * Documentation: https://gitlab.com/o9000/tint2/wikis/home
+* Downloads: https://code.google.com/p/tint2/downloads/list or https://gitlab.com/o9000/tint2-archive/tree/master
 * Old project location (inactive): https://code.google.com/p/tint2
