@@ -45,4 +45,4 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
   * Next release: planned for mid 2015
 
 ### Screenshots
-![alt text](https://gitlab.com/o9000/tint2/wikis/screenshot.png)
+![screenshot](https://gitlab.com/o9000/tint2/wikis/screenshot.png)
