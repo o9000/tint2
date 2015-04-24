@@ -20,6 +20,11 @@
 # git checkout master
 
 VERSION=$(./get_version.sh)
+if [ ! $? -eq 0 ]
+then
+    echo >&2 "Error: get_version.sh failed!"
+    exit 1
+fi
 
 DIR=tint2-$VERSION
 echo "Making release $DIR"
