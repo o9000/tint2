@@ -19,7 +19,7 @@
 #
 # git checkout master
 
-VERSION=$(./get_version.sh)
+VERSION=$(./get_version.sh --strict)
 if [ ! $? -eq 0 ]
 then
     echo >&2 "Error: get_version.sh failed!"
