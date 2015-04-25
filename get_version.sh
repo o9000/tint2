@@ -1,5 +1,7 @@
 #!/bin/sh
 
+DIRTY=""
+
 git update-index -q --ignore-submodules --refresh
 # Disallow unstaged changes in the working tree
 if ! git diff-files --quiet --ignore-submodules --
@@ -10,7 +12,7 @@ then
         git diff-files --name-status -r --ignore-submodules -- >&2
         exit 1
     else
-        echo "dirty"
+        DIRTY="-dirty"
     fi
 fi
 
@@ -23,8 +25,10 @@ then
         git diff-index --cached --name-status -r --ignore-submodules HEAD -- >&2
         exit 1
     else
-        echo "dirty"
+        DIRTY="-dirty"
     fi
 fi
 
-git describe --exact-match 2>/dev/null || echo "0.11-git$(git show -s --pretty=format:%cI.%h | tr -d ':' | tr -d '-' | tr '.' '-' | sed 's/T[0-9\+]*//g')"
+VERSION=$(git describe --exact-match 2>/dev/null || echo "0.11-git$(git show -s --pretty=format:%cI.%h | tr -d ':' | tr -d '-' | tr '.' '-' | sed 's/T[0-9\+]*//g')")$DIRTY
+
+echo '#define VERSION_STRING "'$VERSION'"' > version.h
