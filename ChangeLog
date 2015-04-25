@@ -1,3 +1,54 @@
+2015-04-25 tint2-0.12-rc1
+- Note: the changes listed here are based on the previous release tint2 0.11, however some distributions (e.g. Debian)
+  offered packages using newer commits and/or patches; thus from the user's perspective some of these features are
+  already present. They are marked with '(already released by distros)'.
+- Major changes:
+  - Launcher:
+    - The launcher is now considered stable
+    - Enhancement: SVG icon support
+    - Enhancement: more thorough search for icons
+  - Configuration GUI: tint2conf
+    - Experimental, testing/feedback needed
+  - System tray:
+    - Changed rendering method to fix icon corruptions (need user feedback)
+  - Many bugfixes
+- New config options (see https://gitlab.com/o9000/tint2/wikis/Configure):
+  - Panel:
+    - panel_window_name
+    - panel_items (already released by distros)
+    - disable_transparency
+  - Taskbar:
+    - taskbar_distribute_size
+    - taskbar_hide_different_monitor
+    - taskbar_hide_inactive_tasks
+    - taskbar_sort_order
+    - taskbar_name (already released by distros)
+  - Launcher:
+    - launcher* (already released by distros)
+    - launcher_apps_dir (previously patched in by some distros)
+    - startup_notifications
+  - System tray:
+    - systray_monitor
+- Config options with changed behavior:
+  - Panel:
+    - panel_dock: previously, 'panel_dock = 1' was actually not placing the panel into the dock. This option now
+      functions correctly. Due to the fact that OpenBox forcefully draws a border around dock windows, you might want to
+      set it to zero (or change the border color/style to match tint2). If you set it to zero, make sure you do not have
+      reserved space at the edge of the screen in the OpenBox config.
+      Reason for change: issues 257, 394, 461, 465, 481.
+    - font_shadow: shadows are thicker and softer, and are now applied to all text elements, not just the taskbar.
+      Reason for change: legibility improved for transparent panels.
+  - Launcher:
+    - launcher_icon_theme: previously, this parameter had a lower priority than the icon theme provided through the
+      XSettings manager; as virtually all DEs provide one, it was useless. Now the parameter has a higher priority.
+      Remove it to respect the XSettings manager settings.
+      Reasons for change:
+      * ability to use a custom icon theme only in tint2
+      * several DEs do not allow selecting the hicolor theme
+    - launcher_item_app: now it expands leading ~ to the path to the user's home directory.
+- Project hosting:
+  - Migrated from https://code.google.com/p/tint2 to https://gitlab.com/o9000/tint2 and switched from svn to git
+
 2010-06-26
 - unhide tint2 panel when dragging something
 - battery FreeBSD uses the new ACPI API (thx to yamagi.burmeister)
