@@ -1,4 +1,8 @@
 ### New unstable release: 0.12-rc1
+Changes: https://gitlab.com/o9000/tint2/blob/master/ChangeLog
+
+Documentation: https://gitlab.com/o9000/tint2/wikis/home
+
 Try it out with:
 ```
 mkdir tint2-0.12-rc1
@@ -13,7 +17,7 @@ make -j4
 ./tint2 &
 ./src/tint2conf/tint2conf &
 ```
-Your feedback is much appreciated.
+Please report any problems to https://gitlab.com/o9000/tint2/issues. Your feedback is much appreciated.
 
 ### What is tint2?
 
