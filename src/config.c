@@ -123,7 +123,7 @@ int get_task_status(char* status)
 		return TASK_ICONIFIED;
 	if (strcmp(status, "urgent") == 0)
 		return TASK_URGENT;
-	return TASK_NORMAL;
+	return -1;
 }
 
 
@@ -548,34 +548,40 @@ void add_entry (char *key, char *value)
 	}
 	else if (g_regex_match_simple("task.*_font_color", key, 0, 0)) {
 		gchar** split = g_regex_split_simple("_", key, 0, 0);
-		int status = get_task_status(split[1]);
+		int status = g_strv_length(split) == 3 ? TASK_NORMAL : get_task_status(split[1]);
 		g_strfreev(split);
-		extract_values(value, &value1, &value2, &value3);
-		float alpha = 1;
-		if (value2) alpha = (atoi (value2) / 100.0);
-		get_color (value1, panel_config.g_task.font[status].color);
-		panel_config.g_task.font[status].alpha = alpha;
-		panel_config.g_task.config_font_mask |= (1<<status);
+		if (status >= 0) {
+			extract_values(value, &value1, &value2, &value3);
+			float alpha = 1;
+			if (value2) alpha = (atoi (value2) / 100.0);
+			get_color (value1, panel_config.g_task.font[status].color);
+			panel_config.g_task.font[status].alpha = alpha;
+			panel_config.g_task.config_font_mask |= (1<<status);
+		}
 	}
 	else if (g_regex_match_simple("task.*_icon_asb", key, 0, 0)) {
 		gchar** split = g_regex_split_simple("_", key, 0, 0);
-		int status = get_task_status(split[1]);
+		int status = g_strv_length(split) == 3 ? TASK_NORMAL : get_task_status(split[1]);
 		g_strfreev(split);
-		extract_values(value, &value1, &value2, &value3);
-		panel_config.g_task.alpha[status] = atoi(value1);
-		panel_config.g_task.saturation[status] = atoi(value2);
-		panel_config.g_task.brightness[status] = atoi(value3);
-		panel_config.g_task.config_asb_mask |= (1<<status);
+		if (status >= 0) {
+			extract_values(value, &value1, &value2, &value3);
+			panel_config.g_task.alpha[status] = atoi(value1);
+			panel_config.g_task.saturation[status] = atoi(value2);
+			panel_config.g_task.brightness[status] = atoi(value3);
+			panel_config.g_task.config_asb_mask |= (1<<status);
+		}
 	}
 	else if (g_regex_match_simple("task.*_background_id", key, 0, 0)) {
 		gchar** split = g_regex_split_simple("_", key, 0, 0);
-		int status = get_task_status(split[1]);
+		int status = g_strv_length(split) == 3 ? TASK_NORMAL : get_task_status(split[1]);
 		g_strfreev(split);
-		int id = atoi (value);
-		id = (id < backgrounds->len && id >= 0) ? id : 0;
-		panel_config.g_task.background[status] = &g_array_index(backgrounds, Background, id);
-		panel_config.g_task.config_background_mask |= (1<<status);
-		if (status == TASK_NORMAL) panel_config.g_task.area.bg = panel_config.g_task.background[TASK_NORMAL];
+		if (status >= 0) {
+			int id = atoi (value);
+			id = (id < backgrounds->len && id >= 0) ? id : 0;
+			panel_config.g_task.background[status] = &g_array_index(backgrounds, Background, id);
+			panel_config.g_task.config_background_mask |= (1<<status);
+			if (status == TASK_NORMAL) panel_config.g_task.area.bg = panel_config.g_task.background[TASK_NORMAL];
+		}
 	}
 	// "tooltip" is deprecated but here for backwards compatibility
 	else if (strcmp (key, "task_tooltip") == 0 || strcmp(key, "tooltip") == 0)
