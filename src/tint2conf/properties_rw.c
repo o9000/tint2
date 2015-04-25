@@ -13,6 +13,14 @@ void add_entry(char *key, char *value);
 void hex2gdk(char *hex, GdkColor *color);
 void get_action(char *event, GtkWidget *combo);
 
+int config_has_panel_items;
+int config_has_battery;
+int config_has_systray;
+int config_battery_enabled;
+int config_systray_enabled;
+int no_items_clock_enabled;
+int no_items_systray_enabled;
+int no_items_battery_enabled;
 
 void config_read_file(const char *path)
 {
@@ -23,6 +31,15 @@ void config_read_file(const char *path)
 	if ((fp = fopen(path, "r")) == NULL)
 		return;
 
+	config_has_panel_items = 0;
+	config_has_battery = 0;
+	config_battery_enabled = 0;
+	config_has_systray = 0;
+	config_systray_enabled = 0;
+	no_items_clock_enabled = 0;
+	no_items_systray_enabled = 0;
+	no_items_battery_enabled = 0;
+
 	while (fgets(line, sizeof(line), fp) != NULL) {
 		if (parse_line(line, &key, &value)) {
 			add_entry(key, value);
@@ -31,6 +48,29 @@ void config_read_file(const char *path)
 		}
 	}
 	fclose(fp);
+
+	if (!config_has_panel_items) {
+		char panel_items[256];
+		panel_items[0] = 0;
+		strcat(panel_items, "T");
+		if (config_has_battery) {
+			if (config_battery_enabled)
+				strcat(panel_items, "B");
+		} else {
+			if (no_items_battery_enabled)
+				strcat(panel_items, "B");
+		}
+		if (config_has_systray) {
+			if (config_systray_enabled)
+				strcat(panel_items, "S");
+		} else {
+			if (no_items_systray_enabled)
+				strcat(panel_items, "S");
+		}
+		if (no_items_clock_enabled)
+			strcat(panel_items, "C");
+		set_panel_items(panel_items);
+	}
 }
 
 void config_write_color(FILE *fp, char *name, GdkColor color, int opacity)
@@ -635,6 +675,7 @@ void add_entry(char *key, char *value)
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_height), atoi(value2));
 	}
 	else if (strcmp(key, "panel_items") == 0) {
+		config_has_panel_items = 1;
 		set_panel_items(value);
 	}
 	else if (strcmp(key, "panel_margin") == 0) {
@@ -785,6 +826,11 @@ void add_entry(char *key, char *value)
 	}
 
 	/* Battery */
+	else if (strcmp(key, "systray") == 0) {
+		// Obsolete option
+		config_has_battery = 1;
+		config_battery_enabled = atoi(value);
+	}
 	else if (strcmp(key, "battery_low_status") == 0) {
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_alert_if_lower), atof(value));
 	}
@@ -827,6 +873,7 @@ void add_entry(char *key, char *value)
 	/* Clock */
 	else if (strcmp(key, "time1_format") == 0) {
 		gtk_entry_set_text(GTK_ENTRY(clock_format_line1), value);
+		no_items_clock_enabled = strlen(value) > 0;
 	}
 	else if (strcmp(key, "time2_format") == 0) {
 		gtk_entry_set_text(GTK_ENTRY(clock_format_line2), value);
@@ -1093,7 +1140,14 @@ void add_entry(char *key, char *value)
 	}
 
 	/* Systray */
+	else if (strcmp(key, "systray") == 0) {
+		// Obsolete option
+		config_has_systray = 1;
+		config_systray_enabled = atoi(value);
+	}
 	else if (strcmp(key, "systray_padding") == 0) {
+		no_items_systray_enabled = 1;
+
 		extract_values(value, &value1, &value2, &value3);
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_padding_x), atoi(value1));
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_spacing), atoi(value1));
