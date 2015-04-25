@@ -163,7 +163,7 @@ void panel_move_item_up(GtkWidget *widget, gpointer data);
 
 void applyClicked(GtkWidget *widget, gpointer data)
 {
-	char *file = get_current_theme_file_name();
+	gchar *file = get_current_theme_file_name();
 	if (file) {
 		if (config_is_manual(file)) {
 			gchar *backup_path = g_strdup_printf("%s.backup.%ld", file, time(NULL));
