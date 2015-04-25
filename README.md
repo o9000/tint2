@@ -19,6 +19,11 @@ make -j4
 ```
 Please report any problems to https://gitlab.com/o9000/tint2/issues. Your feedback is much appreciated.
 
+P.S. GitLab is now the official location of the tint2 project,
+migrated from Google Code, which is shutting down. In case you are wondering
+why not GitHub, BitBucket etc., we chose GitLab because it is open source,
+it is mature and works well, looks cool and has a very nice team.
+
 ### What is tint2?
 
 tint2 is a simple panel/taskbar made for modern X window managers. It was specifically made for Openbox but it should also work with other window managers (GNOME, KDE, XFCE etc.). It is based on ttm http://code.google.com/p/ttm/.
