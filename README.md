@@ -1,3 +1,20 @@
+### New unstable release: 0.12-rc1
+Try it out with:
+```
+mkdir tint2-0.12-rc1
+cd tint2-0.12-rc1
+wget 'https://gitlab.com/o9000/tint2/repository/archive.tar.gz?ref=v0.12-rc1' --output-document tint2-0.12-rc1.tar.gz
+tar -xzf tint2-0.12-rc1.tar.gz
+cd tint2.git
+mkdir build
+cd build
+cmake ..
+make -j4
+./tint2 &
+./src/tint2conf/tint2conf &
+```
+Your feedback is much appreciated.
+
 ### What is tint2?
 
 tint2 is a simple panel/taskbar made for modern X window managers. It was specifically made for Openbox but it should also work with other window managers (GNOME, KDE, XFCE etc.). It is based on ttm http://code.google.com/p/ttm/.
