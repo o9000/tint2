@@ -295,7 +295,7 @@ GtkWidget *create_properties()
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_clock), label);
 	create_clock(page_clock);
 
-	label = gtk_label_new(_("Notification area"));
+	label = gtk_label_new(_("System tray"));
 	gtk_widget_show(label);
 	page_systemtray = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
 	gtk_container_set_border_width(GTK_CONTAINER(page_systemtray), 10);
