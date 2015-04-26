@@ -374,7 +374,7 @@ void draw_task (void *obj, cairo_t *c)
 		// pango use U+22EF or U+2026
 		pango_layout_set_width(layout, ((Taskbar*)tsk->area.parent)->text_width * PANGO_SCALE);
 		pango_layout_set_height(layout, panel->g_task.text_height * PANGO_SCALE);
-		pango_layout_set_wrap(layout, PANGO_WRAP_CHAR);
+		pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
 		pango_layout_set_ellipsize (layout, PANGO_ELLIPSIZE_END);
 
 		/* Center text */
