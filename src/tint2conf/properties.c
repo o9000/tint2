@@ -491,7 +491,6 @@ int get_model_length(GtkTreeModel *model)
 
 int background_index_safe(int index)
 {
-	index--;
 	if (index <= 0)
 		index = 0;
 	if (index >= get_model_length(GTK_TREE_MODEL(backgrounds)))
@@ -501,14 +500,14 @@ int background_index_safe(int index)
 
 void background_create_new()
 {
-	int r = 12;
-	int b = 1;
+	int r = 0;
+	int b = 0;
 	GdkColor fillColor;
-	cairoColor2GdkColor(0, 0, 0.3, &fillColor);
-	int fillOpacity = 100;
+	cairoColor2GdkColor(0, 0, 0, &fillColor);
+	int fillOpacity = 0;
 	GdkColor borderColor;
-	cairoColor2GdkColor(0, 0, 0.7, &borderColor);
-	int borderOpacity = 100;
+	cairoColor2GdkColor(0, 0, 0, &borderColor);
+	int borderOpacity = 0;
 
 	int index = 0;
 	GtkTreeIter iter;

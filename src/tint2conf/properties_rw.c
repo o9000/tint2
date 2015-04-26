@@ -24,6 +24,8 @@ int no_items_battery_enabled;
 
 void config_read_file(const char *path)
 {
+	background_create_new();
+
 	FILE *fp;
 	char line[512];
 	char *key, *value;
@@ -90,7 +92,7 @@ void config_write_backgrounds(FILE *fp)
 	fprintf(fp, "# Backgrounds\n");
 
 	int index;
-	for (index = 0; ; index++) {
+	for (index = 1; ; index++) {
 		GtkTreePath *path;
 		GtkTreeIter iter;
 
@@ -145,7 +147,7 @@ void config_write_panel(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(panel_padding_x)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(panel_padding_y)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(panel_spacing)));
-	fprintf(fp, "panel_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(panel_background)));
+	fprintf(fp, "panel_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(panel_background)));
 	fprintf(fp, "wm_menu = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(panel_wm_menu)) ? 1 : 0);
 	fprintf(fp, "panel_dock = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(panel_dock)) ? 1 : 0);
 
@@ -232,16 +234,16 @@ void config_write_taskbar(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(taskbar_padding_x)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(taskbar_padding_y)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(taskbar_spacing)));
-	fprintf(fp, "taskbar_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_inactive_background)));
-	fprintf(fp, "taskbar_active_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_active_background)));
+	fprintf(fp, "taskbar_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_inactive_background)));
+	fprintf(fp, "taskbar_active_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_active_background)));
 	fprintf(fp, "taskbar_name = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_show_name)) ? 1 : 0);
 	fprintf(fp, "taskbar_hide_inactive_tasks = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_hide_inactive_tasks)) ? 1 : 0);
 	fprintf(fp, "taskbar_hide_different_monitor = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_hide_diff_monitor)) ? 1 : 0);
 	fprintf(fp,
 			"taskbar_name_padding = %d\n",
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(taskbar_name_padding_x)));
-	fprintf(fp, "taskbar_name_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_name_inactive_background)));
-	fprintf(fp, "taskbar_name_active_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_name_active_background)));
+	fprintf(fp, "taskbar_name_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_name_inactive_background)));
+	fprintf(fp, "taskbar_name_active_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_name_active_background)));
 	fprintf(fp, "taskbar_name_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(taskbar_name_font)));
 
 	GdkColor color;
@@ -304,7 +306,7 @@ void config_write_task_background(FILE *fp, char *name, GtkWidget *task_backgrou
 {
 	char full_name[128];
 	sprintf(full_name, "task%s_background_id", name);
-	fprintf(fp, "%s = %d\n", full_name, 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(task_background)));
+	fprintf(fp, "%s = %d\n", full_name, gtk_combo_box_get_active(GTK_COMBO_BOX(task_background)));
 }
 
 void config_write_task(FILE *fp)
@@ -406,7 +408,7 @@ void config_write_systray(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(systray_padding_x)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(systray_padding_y)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(systray_spacing)));
-	fprintf(fp, "systray_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(systray_background)));
+	fprintf(fp, "systray_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(systray_background)));
 
 	fprintf(fp, "systray_sort = ");
 	if (gtk_combo_box_get_active(GTK_COMBO_BOX(systray_icon_order)) == 0) {
@@ -444,7 +446,7 @@ void config_write_launcher(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_padding_x)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_padding_y)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_spacing)));
-	fprintf(fp, "launcher_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(launcher_background)));
+	fprintf(fp, "launcher_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(launcher_background)));
 	fprintf(fp, "launcher_icon_size = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_icon_size)));
 	gchar *icon_theme = get_current_icon_theme();
 	if (icon_theme && !g_str_equal(icon_theme, "")) {
@@ -516,7 +518,7 @@ void config_write_clock(FILE *fp)
 			"clock_padding = %d %d\n",
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(clock_padding_x)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(clock_padding_x)));
-	fprintf(fp, "clock_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(clock_background)));
+	fprintf(fp, "clock_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(clock_background)));
 	fprintf(fp, "clock_tooltip = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_format_tooltip)));
 	fprintf(fp, "clock_tooltip_timezone = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_tmz_tooltip)));
 	fprintf(fp, "clock_lclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_left_command)));
@@ -544,7 +546,7 @@ void config_write_battery(FILE *fp)
 			"battery_padding = %d %d\n",
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(battery_padding_x)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(battery_padding_y)));
-	fprintf(fp, "battery_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(battery_background)));
+	fprintf(fp, "battery_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(battery_background)));
 	fprintf(fp, "battery_hide = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(battery_hide_if_higher)));
 
 	fprintf(fp, "\n");
@@ -561,7 +563,7 @@ void config_write_tooltip(FILE *fp)
 			"tooltip_padding = %d %d\n",
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(tooltip_padding_x)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(tooltip_padding_y)));
-	fprintf(fp, "tooltip_background_id = %d\n", 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(tooltip_background)));
+	fprintf(fp, "tooltip_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(tooltip_background)));
 
 	GdkColor color;
 	gtk_color_button_get_color(GTK_COLOR_BUTTON(tooltip_font_color), &color);
