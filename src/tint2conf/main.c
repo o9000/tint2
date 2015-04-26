@@ -69,6 +69,7 @@ static void refresh_current_theme();
 static void menuAbout();
 static gboolean view_onPopupMenu(GtkWidget *treeview, gpointer userdata);
 static gboolean view_onButtonPressed(GtkWidget *treeview, GdkEventButton *event, gpointer userdata);
+static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data);
 static gboolean theme_selected(GtkTreeSelection *selection,
 							   GtkTreeModel *model,
 							   GtkTreePath *path,
@@ -204,6 +205,7 @@ int main(int argc, char **argv)
 	gtk_widget_show(g_theme_view);
 	g_signal_connect(g_theme_view, "button-press-event", (GCallback)view_onButtonPressed, NULL);
 	g_signal_connect(g_theme_view, "popup-menu", (GCallback)view_onPopupMenu, NULL);
+	g_signal_connect(g_theme_view, "row-activated", G_CALLBACK(viewRowActivated), NULL);
 	gtk_tree_selection_set_select_function(gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view)), theme_selected, NULL, NULL);
 
 	// load themes
@@ -244,6 +246,7 @@ static void menuImport()
 {
 	GtkWidget *dialog = gtk_file_chooser_dialog_new(_("Import theme(s)"), GTK_WINDOW(g_window), GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_ADD, GTK_RESPONSE_ACCEPT, NULL);
 	GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+	gtk_file_chooser_set_select_multiple(chooser, TRUE);
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT) {
 		gtk_widget_destroy(dialog);
@@ -474,6 +477,11 @@ static void edit_current_theme()
 		gtk_window_present(GTK_WINDOW(prop));
 		g_free(file);
 	}
+}
+
+static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data)
+{
+	edit_current_theme();
 }
 
 // ====== Theme load/reload ======

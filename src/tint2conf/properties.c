@@ -109,6 +109,7 @@ GtkWidget *launcher_apps_view, *all_apps_view;
 GtkWidget *launcher_apps_dirs;
 
 GtkWidget *launcher_icon_size, *launcher_icon_theme, *launcher_padding_x, *launcher_padding_y, *launcher_spacing;
+GtkWidget *launcher_icon_opacity, *launcher_icon_saturation, *launcher_icon_brightness;
 GtkWidget *margin_x, *margin_y;
 GtkWidget *launcher_background;
 GtkWidget *startup_notifications;
@@ -700,9 +701,9 @@ void background_update(GtkWidget *widget, gpointer data)
 	r = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_corner_radius));
 	b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_border_width));
 	gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color), &fillColor);
-	fillOpacity = gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color)) * 100 / 0xffff;
+	fillOpacity = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color)) * 100.0 / 0xffff);
 	gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color), &borderColor);
-	borderOpacity = gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color)) * 100 / 0xffff;
+	borderOpacity = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color)) * 100.0 / 0xffff);
 
 	gtk_list_store_set(backgrounds, &iter,
 					   bgColPixbuf, NULL,
@@ -846,6 +847,7 @@ void create_panel(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("4"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("5"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("6"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 0);
 	gtk_tooltips_set_tip(tooltips, panel_combo_monitor, "The monitor on which the panel is placed", NULL);
 
 	row++;
@@ -868,6 +870,7 @@ void create_panel(GtkWidget *parent)
 	col++;
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_width_type), _("Percent"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_width_type), _("Pixels"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_width_type), 0);
 	gtk_tooltips_set_tip(tooltips, panel_combo_width_type, "The units used to specify the width of the panel: pixels or percentage of the monitor size", NULL);
 
 	row++;
@@ -890,6 +893,7 @@ void create_panel(GtkWidget *parent)
 	col++;
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_height_type), _("Percent"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_height_type), _("Pixels"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_height_type), 0);
 	gtk_tooltips_set_tip(tooltips, panel_combo_height_type, "The units used to specify the height of the panel: pixels or percentage of the monitor size", NULL);
 
 	row++;
@@ -1171,6 +1175,7 @@ void create_panel(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_layer), _("Top"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_layer), _("Normal"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_layer), _("Bottom"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_layer), 1);
 	gtk_tooltips_set_tip(tooltips, panel_combo_layer, "Specifies the layer on which the panel window should be placed. \n"
 						 "Top means the panel should always cover other windows. \n"
 						 "Bottom means other windows should always cover the panel. \n"
@@ -1192,6 +1197,7 @@ void create_panel(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_strut_policy), _("Match the panel size"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_strut_policy), _("Match the hidden panel size"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_strut_policy), _("Fill the screen"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_strut_policy), 0);
 	gtk_tooltips_set_tip(tooltips, panel_combo_strut_policy, "Specifies the size of maximized windows. \n"
 						 "Match the panel size means that maximized windows should extend to the edge of the panel. \n"
 						 "Match the hidden panel size means that maximized windows should extend to the edge of the panel when hidden; "
@@ -1739,6 +1745,14 @@ void load_desktop_file(const char *file, gboolean selected)
 			g_object_unref(pixbuf);
 	} else {
 		printf("Could not load %s\n", file);
+		GtkTreeIter iter;
+		gtk_list_store_append(selected ? launcher_apps : all_apps, &iter);
+		gtk_list_store_set(selected ? launcher_apps :all_apps, &iter,
+						   appsColIcon, NULL,
+						   appsColText, g_strdup(file),
+						   appsColPath, g_strdup(file),
+						   appsColIconName, g_strdup(""),
+						   -1);
 	}
 	free_desktop_entry(&entry);
 }
@@ -2078,6 +2092,48 @@ void create_launcher(GtkWidget *parent)
 	col++;
 	gtk_tooltips_set_tip(tooltips, launcher_icon_size, "Specifies the size of the launcher icons, in pixels.", NULL);
 
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Icon opacity"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	launcher_icon_opacity = gtk_spin_button_new_with_range(0, 100, 1);
+	gtk_widget_show(launcher_icon_opacity);
+	gtk_table_attach(GTK_TABLE(table), launcher_icon_opacity, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, launcher_icon_opacity, "Specifies the opacity of the launcher icons, in percent.", NULL);
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Icon saturation"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	launcher_icon_saturation = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_widget_show(launcher_icon_saturation);
+	gtk_table_attach(GTK_TABLE(table), launcher_icon_saturation, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, launcher_icon_saturation, "Specifies the saturation adjustment of the launcher icons, in percent.", NULL);
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Icon brightness"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	launcher_icon_brightness = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_widget_show(launcher_icon_brightness);
+	gtk_table_attach(GTK_TABLE(table), launcher_icon_brightness, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, launcher_icon_brightness, "Specifies the brightness adjustment of the launcher icons, in percent.", NULL);
+
 	row++, col = 2;
 	label = gtk_label_new(_("Icon theme"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -2244,6 +2300,7 @@ void create_taskbar(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("None"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("By title"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("By center"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
 	gtk_tooltips_set_tip(tooltips, taskbar_sort_order, "Specifies how tasks should be sorted on the taskbar. \n"
 						 "'None' means that new tasks are added to the end, and the user can also reorder task buttons by mouse dragging. \n"
 						 "'By title' means that tasks are sorted by their window titles. \n"
@@ -2514,6 +2571,7 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Desktop right"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_left), _("Previous task"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(task_mouse_left), 5);
 	gtk_tooltips_set_tip(tooltips, task_mouse_left, "Specifies the action performed when task buttons receive a left click event: \n"
 						 "'None' means that no action is taken. \n"
 						 "'Close' closes the task. \n"
@@ -2549,6 +2607,7 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_up), _("Desktop right"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_up), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_up), _("Previous task"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(task_mouse_scroll_up), 0);
 	gtk_tooltips_set_tip(tooltips, task_mouse_scroll_up, "Specifies the action performed when task buttons receive a scroll up event: \n"
 						 "'None' means that no action is taken. \n"
 						 "'Close' closes the task. \n"
@@ -2584,6 +2643,7 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Desktop right"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Previous task"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(task_mouse_middle), 0);
 	gtk_tooltips_set_tip(tooltips, task_mouse_middle, "Specifies the action performed when task buttons receive a middle click event: \n"
 						 "'None' means that no action is taken. \n"
 						 "'Close' closes the task. \n"
@@ -2619,6 +2679,7 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_down), _("Desktop right"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_down), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_scroll_down), _("Previous task"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(task_mouse_scroll_down), 0);
 	gtk_tooltips_set_tip(tooltips, task_mouse_scroll_down, "Specifies the action performed when task buttons receive a scroll down event: \n"
 						 "'None' means that no action is taken. \n"
 						 "'Close' closes the task. \n"
@@ -2654,6 +2715,7 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Desktop right"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Next task"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_right), _("Previous task"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(task_mouse_right), 1);
 	gtk_tooltips_set_tip(tooltips, task_mouse_right, "Specifies the action performed when task buttons receive a right click event: \n"
 						 "'None' means that no action is taken. \n"
 						 "'Close' closes the task. \n"
@@ -3348,6 +3410,7 @@ void create_systemtray(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_icon_order), _("Descending"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_icon_order), _("Left to right"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_icon_order), _("Right to left"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(systray_icon_order), 0);
 	gtk_tooltips_set_tip(tooltips, systray_icon_order, "Specifies the order used to arrange the system tray icons. \n"
 						 "'Ascending' means that icons are sorted in ascending order of their window names. \n"
 						 "'Descending' means that icons are sorted in descending order of their window names. \n"
@@ -3372,6 +3435,7 @@ void create_systemtray(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("4"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("5"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("6"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 0);
 	gtk_tooltips_set_tip(tooltips, systray_monitor, "Specifies the monitor on which to place the system tray. "
 						 "Due to technical limitations, the system tray cannot be displayed on multiple monitors.", NULL);
 

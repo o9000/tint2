@@ -121,6 +121,7 @@ extern GtkWidget *launcher_apps_view, *all_apps_view;
 extern GtkWidget *launcher_apps_dirs;
 
 extern GtkWidget *launcher_icon_size, *launcher_icon_theme, *launcher_padding_x, *launcher_padding_y, *launcher_spacing;
+extern GtkWidget *launcher_icon_opacity, *launcher_icon_saturation, *launcher_icon_brightness;
 extern GtkWidget *margin_x, *margin_y;
 extern GtkWidget *launcher_background;
 extern GtkWidget *startup_notifications;

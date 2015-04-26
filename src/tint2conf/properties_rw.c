@@ -11,7 +11,8 @@
 
 void add_entry(char *key, char *value);
 void hex2gdk(char *hex, GdkColor *color);
-void get_action(char *event, GtkWidget *combo);
+void set_action(char *event, GtkWidget *combo);
+char *get_action(GtkWidget *combo);
 
 int config_has_panel_items;
 int config_has_battery;
@@ -119,7 +120,7 @@ void config_write_backgrounds(FILE *fp)
 						   bgColBorderWidth, &b,
 						   bgColCornerRadius, &r,
 						   -1);
-		fprintf(fp, "#%d\n", index + 1);
+		fprintf(fp, "# Background %d\n", index);
 		fprintf(fp, "rounded = %d\n", r);
 		fprintf(fp, "border_width = %d\n", b);
 		config_write_color(fp, "background_color", *fillColor, fillOpacity);
@@ -396,6 +397,13 @@ void config_write_task(FILE *fp)
 		config_write_task_background(fp, "_iconified", task_iconified_background);
 	}
 
+
+	fprintf(fp, "mouse_left = %s\n", get_action(task_mouse_left));
+	fprintf(fp, "mouse_middle = %s\n", get_action(task_mouse_middle));
+	fprintf(fp, "mouse_right = %s\n", get_action(task_mouse_right));
+	fprintf(fp, "mouse_scroll_up = %s\n", get_action(task_mouse_scroll_up));
+	fprintf(fp, "mouse_scroll_down = %s\n", get_action(task_mouse_scroll_down));
+
 	fprintf(fp, "\n");
 }
 
@@ -431,7 +439,7 @@ void config_write_systray(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(systray_icon_brightness)));
 
 	fprintf(fp, "systray_monitor = ");
-	fprintf(fp, "%d", gtk_combo_box_get_active(GTK_COMBO_BOX(systray_monitor)));
+	fprintf(fp, "%d", MAX(1, 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(systray_monitor))));
 	fprintf(fp, "\n");
 
 	fprintf(fp, "\n");
@@ -449,6 +457,11 @@ void config_write_launcher(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_spacing)));
 	fprintf(fp, "launcher_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(launcher_background)));
 	fprintf(fp, "launcher_icon_size = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_icon_size)));
+	fprintf(fp,
+			"launcher_icon_asb = %d %d %d\n",
+			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_icon_opacity)),
+			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_icon_saturation)),
+			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_icon_brightness)));
 	gchar *icon_theme = get_current_icon_theme();
 	if (icon_theme && !g_str_equal(icon_theme, "")) {
 		fprintf(fp, "launcher_icon_theme = %s\n", icon_theme);
@@ -518,7 +531,7 @@ void config_write_clock(FILE *fp)
 	fprintf(fp,
 			"clock_padding = %d %d\n",
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(clock_padding_x)),
-			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(clock_padding_x)));
+			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(clock_padding_y)));
 	fprintf(fp, "clock_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(clock_background)));
 	fprintf(fp, "clock_tooltip = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_format_tooltip)));
 	fprintf(fp, "clock_tooltip_timezone = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_tmz_tooltip)));
@@ -1213,20 +1226,18 @@ void add_entry(char *key, char *value)
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_size), atoi(value));
 	}
 	else if (strcmp(key, "systray_monitor") == 0) {
-		if (strcmp(value, "0") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 1);
-		else if (strcmp(value, "1") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 2);
+		if (strcmp(value, "1") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 0);
 		else if (strcmp(value, "2") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 3);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 1);
 		else if (strcmp(value, "3") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 4);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 2);
 		else if (strcmp(value, "4") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 5);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 3);
 		else if (strcmp(value, "5") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 6);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 4);
 		else if (strcmp(value, "6") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 7);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 5);
 	}
 	else if (strcmp(key, "systray_icon_asb") == 0) {
 		extract_values(value, &value1, &value2, &value3);
@@ -1275,6 +1286,12 @@ void add_entry(char *key, char *value)
 	else if (strcmp(key, "startup_notifications") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(startup_notifications), atoi(value));
 	}
+	else if (strcmp(key, "launcher_icon_asb") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_opacity), atoi(value1));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_saturation), atoi(value2));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_brightness), atoi(value3));
+	}
 
 	/* Tooltip */
 	else if (strcmp(key, "tooltip_show_timeout") == 0) {
@@ -1308,19 +1325,19 @@ void add_entry(char *key, char *value)
 
 	/* Mouse actions */
 	else if (strcmp(key, "mouse_left") == 0) {
-		get_action(value, task_mouse_left);
+		set_action(value, task_mouse_left);
 	}
 	else if (strcmp(key, "mouse_middle") == 0) {
-		get_action(value, task_mouse_middle);
+		set_action(value, task_mouse_middle);
 	}
 	else if (strcmp(key, "mouse_right") == 0) {
-		get_action(value, task_mouse_right);
+		set_action(value, task_mouse_right);
 	}
 	else if (strcmp(key, "mouse_scroll_up") == 0) {
-		get_action(value, task_mouse_scroll_up);
+		set_action(value, task_mouse_scroll_up);
 	}
 	else if (strcmp(key, "mouse_scroll_down") == 0) {
-		get_action(value, task_mouse_scroll_down);
+		set_action(value, task_mouse_scroll_down);
 	}
 
 	if (value1) free(value1);
@@ -1338,7 +1355,7 @@ void hex2gdk(char *hex, GdkColor *color)
 	color->pixel = 0;
 }
 
-void get_action(char *event, GtkWidget *combo)
+void set_action(char *event, GtkWidget *combo)
 {
 	if (strcmp(event, "none") == 0)
 		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
@@ -1362,4 +1379,31 @@ void get_action(char *event, GtkWidget *combo)
 		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 9);
 	else if (strcmp(event, "prev_task") == 0)
 		gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 10);
+}
+
+char *get_action(GtkWidget *combo)
+{
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 0)
+		return "none";
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 1)
+		return "close";
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 2)
+		return "toggle";
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 3)
+		return "iconify";
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 4)
+		return "shade";
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 5)
+		return "toggle_iconify";
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 6)
+		return "maximize_restore";
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 7)
+		return "desktop_left";
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 8)
+		return "desktop_right";
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 9)
+		return "next_task";
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 10)
+		return "prev_task";
+	return "none";
 }
