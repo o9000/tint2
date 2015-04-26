@@ -10,7 +10,7 @@
   - Configuration GUI: tint2conf
     - Experimental, testing/feedback needed
   - System tray:
-    - Changed rendering method to fix icon corruptions (need user feedback)
+    - Changed rendering method to fix icon corruptions (need user feedback; see known issues)
   - Many bugfixes
 - New config options (see https://gitlab.com/o9000/tint2/wikis/Configure):
   - Panel:
@@ -48,6 +48,9 @@
     - launcher_item_app: now it expands leading ~ to the path to the user's home directory.
 - Project hosting:
   - Migrated from https://code.google.com/p/tint2 to https://gitlab.com/o9000/tint2 and switched from svn to git
+- Known issues
+  - System tray:
+    - The opacity (alpha) in systray_icon_asb must be set to 100 otherwise icon corruptions might occur
 
 2010-06-26
 - unhide tint2 panel when dragging something
