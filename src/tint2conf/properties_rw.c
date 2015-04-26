@@ -183,7 +183,7 @@ void config_write_panel(FILE *fp)
 	if (gtk_combo_box_get_active(GTK_COMBO_BOX(panel_combo_layer)) == 0) {
 		fprintf(fp, "top");
 	} else if (gtk_combo_box_get_active(GTK_COMBO_BOX(panel_combo_layer)) == 1) {
-		fprintf(fp, "center");
+		fprintf(fp, "normal");
 	} else {
 		fprintf(fp, "bottom");
 	}
@@ -240,8 +240,9 @@ void config_write_taskbar(FILE *fp)
 	fprintf(fp, "taskbar_hide_inactive_tasks = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_hide_inactive_tasks)) ? 1 : 0);
 	fprintf(fp, "taskbar_hide_different_monitor = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_hide_diff_monitor)) ? 1 : 0);
 	fprintf(fp,
-			"taskbar_name_padding = %d\n",
-			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(taskbar_name_padding_x)));
+			"taskbar_name_padding = %d %d\n",
+			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(taskbar_name_padding_x)),
+			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(taskbar_name_padding_y)));
 	fprintf(fp, "taskbar_name_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_name_inactive_background)));
 	fprintf(fp, "taskbar_name_active_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_name_active_background)));
 	fprintf(fp, "taskbar_name_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(taskbar_name_font)));
@@ -262,7 +263,7 @@ void config_write_taskbar(FILE *fp)
 	fprintf(fp, "taskbar_distribute_size = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_distribute_size)) ? 1 : 0);
 
 	fprintf(fp, "taskbar_sort_order = ");
-	if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_sort_order)) == 0) {
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_sort_order)) <= 0) {
 		fprintf(fp, "none");
 	} else if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_sort_order)) == 1) {
 		fprintf(fp, "title");
@@ -1010,6 +1011,7 @@ void add_entry(char *key, char *value)
 	else if (strcmp(key, "taskbar_name_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_name_padding_x), atoi(value1));
+		if (value2) gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_name_padding_y), atoi(value2));
 	}
 	else if (strcmp(key, "taskbar_name_background_id") == 0) {
 		int id = background_index_safe(atoi(value));

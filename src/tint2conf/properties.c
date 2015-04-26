@@ -44,7 +44,7 @@ GtkWidget *panel_background;
 // taskbar
 GtkWidget *taskbar_show_desktop, *taskbar_show_name, *taskbar_padding_x, *taskbar_padding_y, *taskbar_spacing;
 GtkWidget *taskbar_hide_inactive_tasks, *taskbar_hide_diff_monitor;
-GtkWidget *taskbar_name_padding_x, *taskbar_name_inactive_color, *taskbar_name_active_color, *taskbar_name_font;
+GtkWidget *taskbar_name_padding_x, *taskbar_name_padding_y, *taskbar_name_inactive_color, *taskbar_name_active_color, *taskbar_name_font;
 GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
 GtkWidget *taskbar_distribute_size, *taskbar_sort_order;
@@ -2379,6 +2379,21 @@ void create_taskbar(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), taskbar_name_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 	gtk_tooltips_set_tip(tooltips, taskbar_name_padding_x, "Specifies the horizontal padding of the desktop name. "
+						 "This is the space between the border and the text inside.", NULL);
+
+	col = 2;
+	row++;
+	label = gtk_label_new(_("Vertical padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	taskbar_name_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(taskbar_name_padding_y);
+	gtk_table_attach(GTK_TABLE(table), taskbar_name_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, taskbar_name_padding_y, "Specifies the vertical padding of the desktop name. "
 						 "This is the space between the border and the text inside.", NULL);
 
 	col = 2;
