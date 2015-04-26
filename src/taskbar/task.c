@@ -193,18 +193,14 @@ int get_title(Task *tsk)
 		name = server_get_property (tsk->win, server.atom._NET_WM_NAME, server.atom.UTF8_STRING, 0);
 		if (!name || !strlen(name)) {
 			name = server_get_property (tsk->win, server.atom.WM_NAME, XA_STRING, 0);
-			if (!name || !strlen(name)) {
-				name = calloc(10, 1);
-				strcpy(name, "Untitled");
-			}
 		}
 	}
 
-	// add space before title
-	title = calloc(strlen(name)+2, 1);
-	if (panel->g_task.icon) strcpy(title, " ");
-	else title[0] = 0;
-	strcat(title, name);
+	if (name && strlen(name)) {
+		title = strdup(name);
+	} else {
+		title = strdup("Untitled");
+	}
 	if (name) XFree (name);
 	
 	if (tsk->title) {

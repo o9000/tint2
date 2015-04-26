@@ -325,9 +325,10 @@ void config_write_task(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(task_maximum_width)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(task_maximum_height)));
 	fprintf(fp,
-			"task_padding = %d %d\n",
+			"task_padding = %d %d %d\n",
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(task_padding_x)),
-			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(task_padding_y)));
+			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(task_padding_y)),
+			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(task_spacing)));
 	fprintf(fp, "task_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(task_font)));
 	fprintf(fp, "task_tooltip = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tooltip_task_show)) ? 1 : 0);
 
@@ -1088,7 +1089,9 @@ void add_entry(char *key, char *value)
 	else if (strcmp(key, "task_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_padding_x), atoi(value1));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_spacing), atoi(value1));
 		if (value2) gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_padding_y), atoi(value2));
+		if (value3) gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_spacing), atoi(value3));
 	}
 	else if (strcmp(key, "task_font") == 0) {
 		gtk_font_button_set_font_name(GTK_FONT_BUTTON(task_font), value);

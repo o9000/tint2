@@ -239,7 +239,7 @@ void init_taskbar_panel(void *p)
 	panel->g_task.text_height = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
 	if (panel->g_task.icon) {
 		panel->g_task.icon_size1 = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
-		panel->g_task.text_posx += panel->g_task.icon_size1;
+		panel->g_task.text_posx += panel->g_task.icon_size1 + panel->g_task.area.paddingx;
 		panel->g_task.icon_posy = (panel->g_task.area.height - panel->g_task.icon_size1) / 2;
 	}
 	//printf("monitor %d, task_maximum_width %d\n", panel->monitor, panel->g_task.maximum_width);
@@ -342,12 +342,12 @@ int resize_taskbar(void *obj)
 				break;
 			}
 		}
-		taskbar->text_width = text_width - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingx;
+		taskbar->text_width = text_width - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingxlr;
 	}
 	else {
 		resize_by_layout(obj, panel->g_task.maximum_height);
 		
-		taskbar->text_width = taskbar->area.width - (2 * panel->g_taskbar.area.paddingy) - panel->g_task.text_posx -	panel->g_task.area.bg->border.width - panel->g_task.area.paddingx;
+		taskbar->text_width = taskbar->area.width - (2 * panel->g_taskbar.area.paddingy) - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingxlr;
 	}
 	return 0;
 }

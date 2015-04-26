@@ -52,7 +52,7 @@ GtkWidget *taskbar_distribute_size, *taskbar_sort_order;
 // task
 GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
 GtkWidget *task_show_icon, *task_show_text, *task_align_center, *font_shadow;
-GtkWidget *task_maximum_width, *task_maximum_height, *task_padding_x, *task_padding_y, *task_font;
+GtkWidget *task_maximum_width, *task_maximum_height, *task_padding_x, *task_padding_y, *task_spacing, *task_font;
 GtkWidget *task_default_color, *task_default_color_set,
 		  *task_default_icon_opacity, *task_default_icon_osb_set,
 		  *task_default_icon_saturation,
@@ -2848,6 +2848,19 @@ void create_task(GtkWidget *parent)
 	col++;
 	gtk_tooltips_set_tip(tooltips, task_padding_y, "Specifies the vertical padding of the task buttons. "
 						 "This is the space between the border and the content inside.", NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Spacing"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	task_spacing = gtk_spin_button_new_with_range(0, 9000, 1);
+	gtk_widget_show(task_spacing);
+	gtk_table_attach(GTK_TABLE(table), task_spacing, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, task_spacing, "Specifies the spacing between the icon and the text.", NULL);
 
 	row++, col = 2;
 	label = gtk_label_new(_("Font"));
