@@ -3,7 +3,7 @@ Changes: https://gitlab.com/o9000/tint2/blob/master/ChangeLog
 
 Documentation: https://gitlab.com/o9000/tint2/wikis/home
 
-Try it out with:
+Try it out with (for dependencies see https://gitlab.com/o9000/tint2/wikis/Install#dependencies):
 ```
 mkdir tint2-0.12-rc2
 cd tint2-0.12-rc2
