@@ -34,7 +34,6 @@
 
 #ifdef HAVE_RSVG
 #include <librsvg/rsvg.h>
-#include <librsvg/rsvg-cairo.h>
 #endif
 
 #include "window.h"

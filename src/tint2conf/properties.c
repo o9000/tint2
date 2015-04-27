@@ -1882,7 +1882,7 @@ void create_launcher(GtkWidget *parent)
 	icon_theme = NULL;
 
 	launcher_apps = gtk_list_store_new(appsNumCols, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
-	all_apps = gtk_list_store_new(appsNumCols, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
+	all_apps = gtk_list_store_new(appsNumCols, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 	icon_themes = gtk_list_store_new(iconsNumCols, G_TYPE_STRING, G_TYPE_STRING);
 
 	launcher_apps_view = gtk_tree_view_new();
