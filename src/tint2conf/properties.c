@@ -174,7 +174,7 @@ void applyClicked(GtkWidget *widget, gpointer data)
 
 		config_save_file(file);
 	}
-	int unused = system("killall -SIGUSR1 tint2");
+	int unused = system("killall -SIGUSR1 tint2 || pkill -SIGUSR1 -x tint2");
 	(void)unused;
 	g_free(file);
 	g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
@@ -2198,6 +2198,7 @@ void create_launcher(GtkWidget *parent)
 
 	fprintf(stderr, "Loading .desktop files\n");
 	load_desktop_files("/usr/share/applications");
+	load_desktop_files("/usr/local/share/applications");
 	gchar *path = g_build_filename(g_get_home_dir(), ".local/share/applications", NULL);
 	load_desktop_files(path);
 	g_free(path);
