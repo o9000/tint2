@@ -147,7 +147,7 @@ set_target_properties( tint2 PROPERTIES LINK_FLAGS "-pthread -fno-strict-aliasin
 install( TARGETS tint2 DESTINATION bin )
 install( FILES sample/tint2rc DESTINATION ${SYSCONFDIR}/xdg/tint2 )
 install( FILES default_icon.png DESTINATION ${DATADIR}/tint2 )
-install( FILES AUTHORS ChangeLog README DESTINATION ${DOCDIR} )
+install( FILES AUTHORS ChangeLog README.md DESTINATION ${DOCDIR} )
 install( FILES doc/tint2.1 DESTINATION ${MANDIR}/man1 )
 if( ENABLE_EXAMPLES )
   file( GLOB SAMPLEFILES sample/*.tint2rc )
