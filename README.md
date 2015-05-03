@@ -1,14 +1,14 @@
-### New unstable release: 0.12-rc2
+### New unstable release: 0.12-rc3
 Changes: https://gitlab.com/o9000/tint2/blob/master/ChangeLog
 
 Documentation: https://gitlab.com/o9000/tint2/wikis/home
 
 Try it out with (see also [dependencies](https://gitlab.com/o9000/tint2/wikis/Install#dependencies)):
 ```
-mkdir tint2-0.12-rc2
-cd tint2-0.12-rc2
-wget 'https://gitlab.com/o9000/tint2/repository/archive.tar.gz?ref=v0.12-rc2' --output-document tint2-0.12-rc2.tar.gz
-tar -xzf tint2-0.12-rc2.tar.gz
+mkdir tint2-0.12-rc3
+cd tint2-0.12-rc3
+wget 'https://gitlab.com/o9000/tint2/repository/archive.tar.gz?ref=v0.12-rc3' --output-document tint2-0.12-rc3.tar.gz
+tar -xzf tint2-0.12-rc3.tar.gz
 cd tint2.git
 mkdir build
 cd build
