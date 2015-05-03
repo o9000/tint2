@@ -115,6 +115,7 @@ GtkWidget *launcher_background;
 GtkWidget *startup_notifications;
 IconThemeWrapper *icon_theme;
 GtkWidget *launcher_tooltip;
+GtkWidget *launcher_icon_theme_override;
 
 GtkListStore *backgrounds;
 GtkWidget *current_background,
@@ -2152,6 +2153,12 @@ void create_launcher(GtkWidget *parent)
 	gtk_tooltips_set_tip(tooltips, launcher_icon_theme, "The icon theme used to display launcher icons. If left blank, "
 						 "tint2 will detect and use the icon theme of your desktop as long as you have "
 						 "an XSETTINGS manager running (most desktop environments do).", NULL);
+
+	launcher_icon_theme_override = gtk_check_button_new_with_label("Overrides XSETTINGS");
+	gtk_widget_show(launcher_icon_theme_override);
+	gtk_table_attach(GTK_TABLE(table), launcher_icon_theme_override, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, launcher_icon_theme_override, "If enabled, the icon theme selected here will override the one provided by XSETTINGS.", NULL);
 
 	row++, col = 2;
 	label = gtk_label_new(_("Startup notifications"));

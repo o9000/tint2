@@ -53,6 +53,7 @@ int launcher_saturation;
 int launcher_brightness;
 char *icon_theme_name_config;
 char *icon_theme_name_xsettings;
+int launcher_icon_theme_override;
 XSettingsClient *xsettings_client;
 int startup_notifications;
 
@@ -69,6 +70,7 @@ void default_launcher()
 	launcher_brightness = 0;
 	icon_theme_name_config = NULL;
 	icon_theme_name_xsettings = NULL;
+	launcher_icon_theme_override = 0;
 	xsettings_client = NULL;
 	startup_notifications = 0;
 }
@@ -486,9 +488,15 @@ void launcher_load_icons(Launcher *launcher)
 // Populates the list_themes list
 void launcher_load_themes(Launcher *launcher)
 {
-	launcher->list_themes = load_themes(icon_theme_name_config
-										? icon_theme_name_config
-										: icon_theme_name_xsettings
-										  ? icon_theme_name_xsettings
-										  : "hicolor");
+	launcher->list_themes = load_themes(launcher_icon_theme_override
+										? (icon_theme_name_config
+										   ? icon_theme_name_config
+										   : icon_theme_name_xsettings
+											 ? icon_theme_name_xsettings
+											 : "hicolor")
+										: (icon_theme_name_xsettings
+										   ? icon_theme_name_xsettings
+										   : icon_theme_name_config
+											 ? icon_theme_name_config
+											 : "hicolor"));
 }

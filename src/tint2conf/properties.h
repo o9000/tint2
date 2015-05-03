@@ -127,6 +127,7 @@ extern GtkWidget *launcher_background;
 extern GtkWidget *startup_notifications;
 extern IconThemeWrapper *icon_theme;
 extern GtkWidget *launcher_tooltip;
+extern GtkWidget *launcher_icon_theme_override;
 
 void load_desktop_file(const char *file, gboolean selected);
 void set_current_icon_theme(const char *theme);

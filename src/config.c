@@ -664,6 +664,9 @@ void add_entry (char *key, char *value)
 			free(icon_theme_name_config);
 		icon_theme_name_config = strdup(value);
 	}
+	else if (strcmp(key, "launcher_icon_theme_override") == 0) {
+		launcher_icon_theme_override = atoi(value);
+	}
 	else if (strcmp(key, "launcher_icon_asb") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		launcher_alpha = atoi(value1);

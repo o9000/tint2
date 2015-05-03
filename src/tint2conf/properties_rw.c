@@ -469,6 +469,7 @@ void config_write_launcher(FILE *fp)
 		g_free(icon_theme);
 		icon_theme = NULL;
 	}
+	fprintf(fp, "launcher_icon_theme_override = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(launcher_icon_theme_override)) ? 1 : 0);
 	fprintf(fp, "startup_notifications = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(startup_notifications)) ? 1 : 0);
 	fprintf(fp, "launcher_tooltip = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(launcher_tooltip)) ? 1 : 0);
 
@@ -1282,6 +1283,9 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "launcher_icon_theme") == 0) {
 		set_current_icon_theme(value);
+	}
+	else if (strcmp(key, "launcher_icon_theme_override") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(launcher_icon_theme_override), atoi(value));
 	}
 	else if (strcmp(key, "launcher_tooltip") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(launcher_tooltip), atoi(value));
