@@ -363,24 +363,30 @@ void createHeuristicMask(DATA32* data, int w, int h)
 }
 
 
-void render_image(Drawable d, int x, int y, int w, int h)
+void render_image(Drawable d, int x, int y)
 {
-	// in real_transparency mode imlib_render_image_on_drawable does not the right thing, because
-	// the operation is IMLIB_OP_COPY, but we would need IMLIB_OP_OVER (which does not exist)
-	// Therefore we have to do it with the XRender extension (i.e. copy what imlib is doing internally)
-	// But first we need to render the image onto itself with PictOpIn to adjust the colors to the alpha channel
-	Pixmap pmap_tmp = XCreatePixmap(server.dsp, server.root_win, w, h, 32);
-	imlib_context_set_drawable(pmap_tmp);
+	int w = imlib_image_get_width(), h = imlib_image_get_height();
+
+	Pixmap pixmap = XCreatePixmap(server.dsp, server.root_win, w, h, 32);
+	imlib_context_set_drawable(pixmap);
 	imlib_context_set_blend(0);
 	imlib_render_image_on_drawable(0, 0);
-	Picture pict_image = XRenderCreatePicture(server.dsp, pmap_tmp, XRenderFindStandardFormat(server.dsp, PictStandardARGB32), 0, 0);
+
+	Pixmap mask = XCreatePixmap(server.dsp, server.root_win, w, h, 32);
+	imlib_context_set_drawable(mask);
+	imlib_context_set_blend(0);
+	imlib_render_image_on_drawable(0, 0);
+
+	Picture pict = XRenderCreatePicture(server.dsp, pixmap, XRenderFindStandardFormat(server.dsp, PictStandardARGB32), 0, 0);
 	Picture pict_drawable = XRenderCreatePicture(server.dsp, d, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
-	XRenderComposite(server.dsp, PictOpIn, pict_image, None, pict_image, 0, 0, 0, 0, 0, 0, w, h);
-	XRenderComposite(server.dsp, PictOpOver, pict_image, None, pict_drawable, 0, 0, 0, 0, x, y, w, h);
-	imlib_context_set_blend(1);
-	XFreePixmap(server.dsp, pmap_tmp);
-	XRenderFreePicture(server.dsp, pict_image);
+	Picture pict_mask = XRenderCreatePicture(server.dsp, mask, XRenderFindStandardFormat(server.dsp, PictStandardARGB32), 0, 0);
+	XRenderComposite(server.dsp, PictOpOver, pict, pict_mask, pict_drawable, 0, 0, 0, 0, x, y, w, h);
+
+	XRenderFreePicture(server.dsp, pict_mask);
 	XRenderFreePicture(server.dsp, pict_drawable);
+	XRenderFreePicture(server.dsp, pict);
+	XFreePixmap(server.dsp, mask);
+	XFreePixmap(server.dsp, pixmap);
 }
 
 void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow)

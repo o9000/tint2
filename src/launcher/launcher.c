@@ -356,10 +356,14 @@ void draw_launcher_icon(void *obj, cairo_t *c)
 
 	Imlib_Image icon_scaled = launcherIcon->icon_scaled;
 	// Render
-	imlib_context_set_image (icon_scaled);
-	imlib_context_set_blend(1);
-	imlib_context_set_drawable(launcherIcon->area.pix);
-	imlib_render_image_on_drawable(0, 0);
+	imlib_context_set_image(icon_scaled);
+	if (server.real_transparency) {
+		render_image(launcherIcon->area.pix, 0, 0);
+	} else {
+		imlib_context_set_blend(1);
+		imlib_context_set_drawable(launcherIcon->area.pix);
+		imlib_render_image_on_drawable(0, 0);
+	}
 }
 
 Imlib_Image scale_icon(Imlib_Image original, int icon_size)
@@ -368,11 +372,14 @@ Imlib_Image scale_icon(Imlib_Image original, int icon_size)
 	if (original) {
 		imlib_context_set_image (original);
 		icon_scaled = imlib_create_cropped_scaled_image(0, 0, imlib_image_get_width(), imlib_image_get_height(), icon_size, icon_size);
+
 		imlib_context_set_image (icon_scaled);
 		imlib_image_set_has_alpha(1);
 		DATA32* data = imlib_image_get_data();
 		adjust_asb(data, icon_size, icon_size, launcher_alpha, (float)launcher_saturation/100, (float)launcher_brightness/100);
 		imlib_image_put_back_data(data);
+
+		imlib_context_set_image (icon_scaled);
 	} else {
 		icon_scaled = imlib_create_image(icon_size, icon_size);
 		imlib_context_set_image (icon_scaled);

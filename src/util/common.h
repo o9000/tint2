@@ -6,7 +6,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-
 #define WM_CLASS_TINT   "panel"
 
 #include <Imlib2.h>
@@ -64,7 +63,7 @@ void extract_values (const char *value, char **value1, char **value2, char **val
 void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright);
 void createHeuristicMask(DATA32* data, int w, int h);
 
-void render_image(Drawable d, int x, int y, int w, int h);
+void render_image(Drawable d, int x, int y);
 
 void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow);
 
