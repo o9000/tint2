@@ -213,8 +213,9 @@ int resize_launcher(void *obj)
 				free_icon(launcherIcon->icon_scaled);
 				launcherIcon->icon_original = launcherIcon->icon_scaled = NULL;
 				// Load the new file and scale
+				launcherIcon->icon_original = imlib_load_image_immediately(new_icon_path);
 #ifdef HAVE_RSVG
-				if (g_str_has_suffix(new_icon_path, ".svg")) {
+				if (!launcherIcon->icon_original && g_str_has_suffix(new_icon_path, ".svg")) {
 					GError* err = NULL;
 					RsvgHandle* svg = rsvg_handle_new_from_file(new_icon_path, &err);
 
