@@ -188,7 +188,11 @@ void init_battery()
 		battery_found = 1;
 	}
 #elif defined(__FreeBSD__)
-	// Nothing to do
+	int sysctl_out = 0;
+	size_t len = sizeof(sysctl_out);
+	battery_found = (sysctlbyname("hw.acpi.battery.state", &sysctl_out, &len, NULL, 0) == 0) ||
+					(sysctlbyname("hw.acpi.battery.time", &sysctl_out, &len, NULL, 0) == 0) ||
+					(sysctlbyname("hw.acpi.battery.life", &sysctl_out, &len, NULL, 0) == 0);
 #else // Linux
 	GDir *directory = 0;
 	GError *error = NULL;
