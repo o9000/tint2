@@ -145,6 +145,9 @@ set_target_properties( tint2 PROPERTIES COMPILE_FLAGS "-Wall -fno-strict-aliasin
 set_target_properties( tint2 PROPERTIES LINK_FLAGS "-pthread -fno-strict-aliasing ${ASAN_L_FLAGS}" )
 
 install( TARGETS tint2 DESTINATION bin )
+install( FILES tint2.svg DESTINATION ${DATADIR}/icons/hicolor/scalable/apps )
+install( FILES tint2.desktop DESTINATION ${DATADIR}/applications )
+install( CODE "execute_process(COMMAND gtk-update-icon-cache -f -t ${DATADIR}/icons/hicolor WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX})" )
 install( FILES sample/tint2rc DESTINATION ${SYSCONFDIR}/xdg/tint2 )
 install( FILES default_icon.png DESTINATION ${DATADIR}/tint2 )
 install( FILES AUTHORS ChangeLog README.md DESTINATION ${DOCDIR} )
