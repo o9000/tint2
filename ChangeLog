@@ -1,7 +1,4 @@
 2015-04-26 tint2-0.12-rc2
-- Bumped RC version due to multiple bugfixes (mostly in tint2conf)
-
-2015-04-25 tint2-0.12-rc1
 - Note: the changes listed here are based on the previous release tint2 0.11, however some distributions (e.g. Debian)
   offered packages using newer commits and/or patches; thus from the user's perspective some of these features are
   already present. They are marked with '(already released by distros)'.
@@ -30,6 +27,7 @@
     - launcher* (already released by distros)
     - launcher_apps_dir (previously patched in by some distros)
     - startup_notifications
+    - launcher_icon_theme_override
   - System tray:
     - systray_monitor
 - Config options with changed behavior:
@@ -45,12 +43,6 @@
     - font_shadow: shadows are thicker and softer, and are now applied to all text elements, not just the taskbar.
       Reason for change: legibility improved for transparent panels.
   - Launcher:
-    - launcher_icon_theme: previously, this parameter had a lower priority than the icon theme provided through the
-      XSettings manager; as virtually all DEs provide one, it was useless. Now the parameter has a higher priority.
-      Remove it to respect the XSettings manager settings.
-      Reasons for change:
-      * ability to use a custom icon theme only in tint2
-      * several DEs do not allow selecting the hicolor theme
     - launcher_item_app: now it expands leading ~ to the path to the user's home directory.
 - Project hosting:
   - Migrated from https://code.google.com/p/tint2 to https://gitlab.com/o9000/tint2 and switched from svn to git
