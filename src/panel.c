@@ -524,7 +524,9 @@ void set_panel_properties(Panel *p)
 	}
 
 	// Dock
-	long val = panel_dock ? server.atom._NET_WM_WINDOW_TYPE_DOCK : server.atom._NET_WM_WINDOW_TYPE_SPLASH;
+	long val = (!panel_dock && panel_layer == NORMAL_LAYER)
+			   ? server.atom._NET_WM_WINDOW_TYPE_SPLASH
+			   : server.atom._NET_WM_WINDOW_TYPE_DOCK;
 	XChangeProperty (server.dsp, p->main_win, server.atom._NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (unsigned char *) &val, 1);
 
 	val = ALLDESKTOP;
