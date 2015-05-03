@@ -1,4 +1,4 @@
-2015-04-26 tint2-0.12-rc2
+2015-05-03 master
 - Note: the changes listed here are based on the previous release tint2 0.11, however some distributions (e.g. Debian)
   offered packages using newer commits and/or patches; thus from the user's perspective some of these features are
   already present. They are marked with '(already released by distros)'.
@@ -9,8 +9,8 @@
     - Enhancement: more thorough search for icons
   - Configuration GUI: tint2conf
     - Experimental, testing/feedback needed
-  - System tray:
-    - Changed rendering method to fix icon corruptions (need user feedback; see known issues)
+  - Icons (system tray, task buttons, launcher):
+    - Changed rendering method to fix icon corruptions (please report any problems)
   - Many bugfixes
 - New config options (see https://gitlab.com/o9000/tint2/wikis/Configure):
   - Panel:
@@ -46,9 +46,6 @@
     - launcher_item_app: now it expands leading ~ to the path to the user's home directory.
 - Project hosting:
   - Migrated from https://code.google.com/p/tint2 to https://gitlab.com/o9000/tint2 and switched from svn to git
-- Known issues
-  - System tray:
-    - The opacity (alpha) in systray_icon_asb must be set to 100 otherwise icon corruptions might occur
 
 2010-06-26
 - unhide tint2 panel when dragging something
