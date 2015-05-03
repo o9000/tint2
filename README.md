@@ -49,7 +49,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
   * [Configure](https://gitlab.com/o9000/tint2/wikis/Configure)
   * [Add applet not supported by tint2](https://gitlab.com/o9000/tint2/wikis/ThirdPartyApplets)
   * [Other frequently asked questions](https://gitlab.com/o9000/tint2/wikis/FAQ)
-  * [Debug](https://gitlab.com/o9000/tint2/wikis/Debug)  
+  * [Debug](https://gitlab.com/o9000/tint2/wikis/Debug)
 
 ### How can I help out?
 
