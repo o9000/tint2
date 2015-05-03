@@ -853,7 +853,7 @@ void create_panel(GtkWidget *parent)
 
 	row++;
 	col = 2;
-	label = gtk_label_new(_("Width"));
+	label = gtk_label_new(_("Length"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
@@ -863,7 +863,7 @@ void create_panel(GtkWidget *parent)
 	gtk_widget_show(panel_width);
 	gtk_table_attach(GTK_TABLE(table), panel_width, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
-	gtk_tooltips_set_tip(tooltips, panel_width, "The width of the panel", NULL);
+	gtk_tooltips_set_tip(tooltips, panel_width, "The length of the panel (width for horizontal panels, height for vertical panels)", NULL);
 
 	panel_combo_width_type = gtk_combo_box_new_text();
 	gtk_widget_show(panel_combo_width_type);
@@ -872,11 +872,11 @@ void create_panel(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_width_type), _("Percent"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_width_type), _("Pixels"));
 	gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_width_type), 0);
-	gtk_tooltips_set_tip(tooltips, panel_combo_width_type, "The units used to specify the width of the panel: pixels or percentage of the monitor size", NULL);
+	gtk_tooltips_set_tip(tooltips, panel_combo_width_type, "The units used to specify the length of the panel: pixels or percentage of the monitor size", NULL);
 
 	row++;
 	col = 2;
-	label = gtk_label_new(_("Height"));
+	label = gtk_label_new(_("Size"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
@@ -886,7 +886,7 @@ void create_panel(GtkWidget *parent)
 	gtk_widget_show(panel_height);
 	gtk_table_attach(GTK_TABLE(table), panel_height, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
-	gtk_tooltips_set_tip(tooltips, panel_height, "The height of the panel", NULL);
+	gtk_tooltips_set_tip(tooltips, panel_height, "The size of the panel (height for horizontal panels, width for vertical panels)", NULL);
 
 	panel_combo_height_type = gtk_combo_box_new_text();
 	gtk_widget_show(panel_combo_height_type);
@@ -895,7 +895,7 @@ void create_panel(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_height_type), _("Percent"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_height_type), _("Pixels"));
 	gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_height_type), 0);
-	gtk_tooltips_set_tip(tooltips, panel_combo_height_type, "The units used to specify the height of the panel: pixels or percentage of the monitor size", NULL);
+	gtk_tooltips_set_tip(tooltips, panel_combo_height_type, "The units used to specify the size of the panel: pixels or percentage of the monitor size", NULL);
 
 	row++;
 	col = 2;
@@ -1203,7 +1203,10 @@ void create_panel(GtkWidget *parent)
 						 "Match the panel size means that maximized windows should extend to the edge of the panel. \n"
 						 "Match the hidden panel size means that maximized windows should extend to the edge of the panel when hidden; "
 						 "when visible, the panel and the windows will overlap. \n"
-						 "Fill the screen means that maximized windows will always have the same size as the screen.", NULL);
+						 "Fill the screen means that maximized windows will always have the same size as the screen. \n"
+						 "\n"
+						 "Note: on multi-monitor (Xinerama) setups, the panel must be placed at the edge (not in the middle) "
+						 "of the virtual screen for this to work correctly.", NULL);
 
 	row++;
 	col = 2;
