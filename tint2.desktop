@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=Tint2
+Comment=Lightweight panel
+Comment[fr_FR]=Panel léger
+Exec=tint2
+Icon=tint2
+Terminal=false
+Categories=System;
