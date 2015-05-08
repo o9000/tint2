@@ -50,6 +50,9 @@ Task *add_task (Window win)
 	if (!win) return 0;
 	if (window_is_hidden(win)) return 0;
 
+	XSelectInput(server.dsp, win, PropertyChangeMask|StructureNotifyMask);
+	XFlush(server.dsp);
+
 	int monitor;
 	if (nb_panel > 1) {
 		monitor = window_get_monitor (win);
@@ -75,8 +78,7 @@ Task *add_task (Window win)
 	get_title(&new_tsk);
 	get_icon(&new_tsk);
 
-	//printf("task %s : desktop %d, monitor %d\n", new_tsk->title, desktop, monitor);
-	XSelectInput (server.dsp, new_tsk.win, PropertyChangeMask|StructureNotifyMask);
+	//printf("new task %s win %u: desktop %d, monitor %d\n", new_tsk.title, win, new_tsk.desktop, monitor);
 
 	GPtrArray* task_group = g_ptr_array_new();
 	Taskbar *tskbar;

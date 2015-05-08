@@ -727,6 +727,7 @@ void event_property_notify (XEvent *e)
 	}
 	else {
 		tsk = task_get_task (win);
+		//printf("change win = %u, task = %p\n", win, tsk);
 		if (!tsk) {
 			if (at != server.atom._NET_WM_STATE)
 				return;
