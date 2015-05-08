@@ -76,6 +76,9 @@ void update_battery_tick(void* arg)
 	int16_t old_hours = battery_state.time.hours;
 	int8_t old_minutes = battery_state.time.minutes;
 	
+	if (!battery_found) {
+		init_battery();
+	}
 	if (update_battery() != 0) {
 		// Reconfigure
 		init_battery();
@@ -103,15 +106,23 @@ void update_battery_tick(void* arg)
 
 	int i;
 	for (i = 0; i < nb_panel; i++) {
-		if (!battery_found && panel1[i].battery.area.on_screen == 1) {
-			hide(&panel1[i].battery.area);
-			panel_refresh = 1;
-		} else if (battery_state.percentage >= percentage_hide && panel1[i].battery.area.on_screen == 1) {
-			hide(&panel1[i].battery.area);
-			panel_refresh = 1;
-		} else if (battery_state.percentage < percentage_hide && panel1[i].battery.area.on_screen == 0) {
-			show(&panel1[i].battery.area);
-			panel_refresh = 1;
+		if (!battery_found) {
+			if (panel1[i].battery.area.on_screen == 1) {
+				hide(&panel1[i].battery.area);
+				panel_refresh = 1;
+			}
+		} else {
+			if (battery_state.percentage >= percentage_hide) {
+				if (panel1[i].battery.area.on_screen == 1) {
+					hide(&panel1[i].battery.area);
+					panel_refresh = 1;
+				}
+			} else {
+				if (panel1[i].battery.area.on_screen == 0) {
+					show(&panel1[i].battery.area);
+					panel_refresh = 1;
+				}
+			}
 		}
 		if (panel1[i].battery.area.on_screen == 1) {
 			panel1[i].battery.area.resize = 1;
@@ -279,7 +290,7 @@ void init_battery()
 #endif
 
 	if (!battery_timeout)
-		battery_timeout = add_timeout(10, 10000, update_battery_tick, 0, &battery_timeout);
+		battery_timeout = add_timeout(10, 30000, update_battery_tick, 0, &battery_timeout);
 }
 
 
@@ -474,7 +485,7 @@ int update_battery() {
 	battery_state.time.seconds = seconds;
 
 	if (energy_full > 0)
-		new_percentage = ((energy_now <= energy_full ? energy_now : energy_full) * 100) / energy_full;
+		new_percentage = 0.5 + ((energy_now <= energy_full ? energy_now : energy_full) * 100.0) / energy_full;
 
 	battery_state.percentage = new_percentage;
 
