@@ -536,6 +536,9 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 	char *next_larger = NULL;
 	GSList *next_larger_theme = NULL;
 
+	int file_name_size = 4096;
+	char *file_name = calloc(file_name_size, 1);
+
 	for (theme = themes; theme; theme = g_slist_next(theme)) {
 		((IconTheme*)theme->data)->list_directories = g_slist_sort_with_data(((IconTheme*)theme->data)->list_directories,
 																			 compare_theme_directories,
@@ -560,8 +563,13 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 					char *theme_name = ((IconTheme*)theme->data)->name;
 					char *dir_name = ((IconThemeDir*)dir->data)->name;
 					char *extension = (char*) ext->data;
-					char *file_name = calloc(strlen(base_name) + strlen(theme_name) +
-											 strlen(dir_name) + strlen(icon_name) + strlen(extension) + 100, 1);
+					if (strlen(base_name) + strlen(theme_name) +
+						strlen(dir_name) + strlen(icon_name) + strlen(extension) + 100 > file_name_size) {
+						file_name_size = strlen(base_name) + strlen(theme_name) +
+										 strlen(dir_name) + strlen(icon_name) + strlen(extension) + 100;
+						file_name = realloc(file_name, file_name_size);
+					}
+					file_name[0] = 0;
 					// filename = directory/$(themename)/subdirectory/iconname.extension
 					sprintf(file_name, "%s/%s/%s/%s%s", base_name, theme_name, dir_name, icon_name, extension);
 					if (DEBUG_ICON_SEARCH)
@@ -596,11 +604,12 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 								printf("next_larger = %s; next_larger_size = %d\n", next_larger, next_larger_size);
 						}
 					}
-					free(file_name);
 				}
 			}
 		}
 	}
+	free(file_name);
+	file_name = NULL;
 	if (next_larger) {
 		g_slist_free(extensions);
 		free(best_file_name);
