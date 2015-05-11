@@ -108,8 +108,9 @@ void init_systray_panel(void *p)
 	GSList *l;
 	int count = 0;
 	for (l = systray.list_icons; l ; l = l->next) {
-		if (!((TrayWindow*)l->data)->hide)
-			count++;
+		if (((TrayWindow*)l->data)->hide)
+			continue;
+		count++;
 	}
 	if (count == 0)
 		hide(&systray.area);
@@ -146,8 +147,9 @@ int resize_systray(void *obj)
 		sysbar->icon_size = systray_max_icon_size;
 	count = 0;
 	for (l = systray.list_icons; l ; l = l->next) {
-		if (!((TrayWindow*)l->data)->hide)
-			count++;
+		if (((TrayWindow*)l->data)->hide || ((TrayWindow*)l->data)->empty)
+			continue;
+		count++;
 	}
 	//printf("count %d\n", count);
 
@@ -194,11 +196,12 @@ void on_change_systray (void *obj)
 	GSList *l;
 	for (i=1, l = systray.list_icons; l ; i++, l = l->next) {
 		traywin = (TrayWindow*)l->data;
-		if (traywin->hide) continue;
+		if (traywin->hide)
+			continue;
 
 		traywin->y = posy;
 		traywin->x = posx;
-		//printf("systray %d : %d,%d\n", i, posx, posy);
+		// printf("systray %d : pos %d, %d\n", traywin->tray_id, posx, posy);
 		traywin->width = sysbar->icon_size;
 		traywin->height = sysbar->icon_size;
 		if (panel_horizontal) {
@@ -336,6 +339,15 @@ static gint compare_traywindows(gconstpointer a, gconstpointer b)
 {
 	const TrayWindow * traywin_a = (TrayWindow*)a;
 	const TrayWindow * traywin_b = (TrayWindow*)b;
+
+	if (traywin_a->empty && !traywin_b->empty)
+		return 1;
+	if (!traywin_a->empty && traywin_b->empty)
+		return -1;
+
+	if (systray.sort < 2)
+		return 0;
+
 	XTextProperty name_a, name_b;
 
 	if(XGetWMName(server.dsp, traywin_a->tray_id, &name_a) == 0) {
@@ -361,11 +373,41 @@ gboolean add_icon(Window id)
 	Panel *panel = systray.area.panel;
 	int hide = 0;
 
+	int pid = 0;
+	{
+		Atom actual_type;
+		int actual_format;
+		unsigned long nitems;
+		unsigned long bytes_after;
+		unsigned char *prop = 0;
+		int ret = XGetWindowProperty(server.dsp, id, server.atom._NET_WM_PID, 0, 1024, False, AnyPropertyType, &actual_type, &actual_format, &nitems, &bytes_after, &prop);
+		if (ret == Success && prop) {
+			pid = prop[1] * 256;
+			pid += prop[0];
+		}
+	}
+
 	GSList *l;
+	int num_empty_same_pid = 0;
 	for (l = systray.list_icons; l; l = l->next) {
 		if (((TrayWindow*)l->data)->tray_id == id)
 			return FALSE;
+		if (pid && ((TrayWindow*)l->data)->pid == pid && ((TrayWindow*)l->data)->empty)
+			num_empty_same_pid++;
 	}
+
+	const int max_num_empty_same_pid = 0;
+	if (num_empty_same_pid > max_num_empty_same_pid) {
+		for (l = systray.list_icons; l; l = l->next) {
+			if (pid && ((TrayWindow*)l->data)->pid == pid && ((TrayWindow*)l->data)->empty) {
+				num_empty_same_pid++;
+				fprintf(stderr, "Removing tray icon %lu from misbehaving application with pid=%d\n", ((TrayWindow*)l->data)->tray_id, pid);
+				remove_icon((TrayWindow*)l->data);
+				break;
+			}
+		}
+	}
+	//printf("add_icon: %d, pid %d, %d\n", id, pid, num_empty_same_pid);
 
 	error = FALSE;
 	XWindowAttributes attr;
@@ -445,6 +487,8 @@ gboolean add_icon(Window id)
 	traywin->hide = hide;
 	traywin->depth = attr.depth;
 	traywin->damage = 0;
+	traywin->empty = 0;
+	traywin->pid = pid;
 
 	if (systray.area.on_screen == 0)
 		show(&systray.area);
@@ -481,7 +525,7 @@ void remove_icon(TrayWindow *traywin)
 
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
-	//printf("remove_icon id %lx, %d\n", traywin->id);
+	//printf("remove_icon: %d\n", traywin->tray_id);
 
 	XSelectInput(server.dsp, traywin->tray_id, NoEventMask);
 	if (traywin->damage)
@@ -503,8 +547,9 @@ void remove_icon(TrayWindow *traywin)
 	int count = 0;
 	GSList *l;
 	for (l = systray.list_icons; l; l = l->next) {
-		if (!((TrayWindow*)l->data)->hide)
-			count++;
+		if (((TrayWindow*)l->data)->hide || ((TrayWindow*)l->data)->empty)
+			continue;
+		count++;
 	}
 	if (count == 0)
 		hide(&systray.area);
@@ -546,12 +591,34 @@ void systray_render_icon_now(void* t)
 	// we end up in this function only in real transparency mode or if systray_task_asb != 100 0 0
 	// we made also sure, that we always have a 32 bit visual, i.e. we can safely create 32 bit pixmaps here
 	TrayWindow* traywin = t;
+
 	traywin->render_timeout = 0;
 	if ( traywin->width == 0 || traywin->height == 0 ) {
 		// reschedule rendering since the geometry information has not yet been processed (can happen on slow cpu)
 		systray_render_icon(traywin);
 		return;
 	}
+
+	XImage *ximage = XGetImage(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height, AllPlanes, XYPixmap);
+	XColor color;
+	int x, y, empty = 1;
+	for (x = 0; empty && x < traywin->width; x++) {
+		for (y = 0; empty && y < traywin->height; y++) {
+			color.pixel = XGetPixel(ximage, x, y);
+			if (color.pixel != 0)
+				empty = 0;
+		}
+	}
+	XFree(ximage);
+	if (traywin->empty != empty) {
+		traywin->empty = empty;
+		systray.area.resize = 1;
+		panel_refresh = 1;
+		systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
+	}
+	//printf("systray_render_icon_now: %d empty %d\n", traywin->tray_id, empty);
+	if (empty)
+		return;
 
 	// good systray icons support 32 bit depth, but some icons are still 24 bit.
 	// We create a heuristic mask for these icons, i.e. we get the rgb value in the top left corner, and
@@ -636,7 +703,8 @@ void refresh_systray_icon()
 	GSList *l;
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
-		if (traywin->hide) continue;
+		if (traywin->hide)
+			continue;
 		systray_render_icon(traywin);
 	}
 }

@@ -98,6 +98,7 @@ void server_init_atoms ()
 	server.atom._NET_SYSTEM_TRAY_ORIENTATION = XInternAtom(server.dsp, "_NET_SYSTEM_TRAY_ORIENTATION", False);
 	server.atom._XEMBED = XInternAtom(server.dsp, "_XEMBED", False);
 	server.atom._XEMBED_INFO = XInternAtom(server.dsp, "_XEMBED_INFO", False);
+	server.atom._NET_WM_PID = XInternAtom(server.dsp, "_NET_WM_PID", True);
 
 	// drag 'n' drop
 	server.atom.XdndAware = XInternAtom(server.dsp, "XdndAware", False);

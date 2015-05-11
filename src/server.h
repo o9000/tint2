@@ -74,6 +74,7 @@ typedef struct Global_atom
 	Atom _NET_SYSTEM_TRAY_ORIENTATION;
 	Atom _XEMBED;
 	Atom _XEMBED_INFO;
+	Atom _NET_WM_PID;
 	Atom _XSETTINGS_SCREEN;
 	Atom _XSETTINGS_SETTINGS;
 	Atom XdndAware;

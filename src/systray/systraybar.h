@@ -43,6 +43,8 @@ typedef struct
 	int depth;
 	Damage damage;
 	timeout* render_timeout;
+	int empty;
+	int pid;
 } TrayWindow;
 
 
