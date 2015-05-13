@@ -148,7 +148,7 @@ int resize_systray(void *obj)
 		sysbar->icon_size = systray_max_icon_size;
 	count = 0;
 	for (l = systray.list_icons; l ; l = l->next) {
-		if (((TrayWindow*)l->data)->hide || ((TrayWindow*)l->data)->empty)
+		if (((TrayWindow*)l->data)->hide)
 			continue;
 		count++;
 	}
@@ -558,7 +558,7 @@ void remove_icon(TrayWindow *traywin)
 	int count = 0;
 	GSList *l;
 	for (l = systray.list_icons; l; l = l->next) {
-		if (((TrayWindow*)l->data)->hide || ((TrayWindow*)l->data)->empty)
+		if (((TrayWindow*)l->data)->hide)
 			continue;
 		count++;
 	}
