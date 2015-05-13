@@ -613,13 +613,13 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp(key, "systray_sort") == 0) {
 		if (strcmp(value, "descending") == 0)
-			systray.sort = -1;
+			systray.sort = SYSTRAY_SORT_DESCENDING;
 		else if (strcmp(value, "ascending") == 0)
-			systray.sort = 1;
+			systray.sort = SYSTRAY_SORT_ASCENDING;
 		else if (strcmp(value, "left2right") == 0)
-			systray.sort = 2;
+			systray.sort = SYSTRAY_SORT_LEFT2RIGHT;
 		else  if (strcmp(value, "right2left") == 0)
-			systray.sort = 3;
+			systray.sort = SYSTRAY_SORT_RIGHT2LEFT;
 	}
 	else if (strcmp(key, "systray_icon_size") == 0) {
 		systray_max_icon_size = atoi(value);

@@ -20,6 +20,7 @@
 // Flags for _XEMBED_INFO
 #define XEMBED_MAPPED		(1 << 0)
 
+enum { SYSTRAY_SORT_ASCENDING, SYSTRAY_SORT_DESCENDING, SYSTRAY_SORT_LEFT2RIGHT, SYSTRAY_SORT_RIGHT2LEFT };
 
 typedef struct {
 	// always start with area
@@ -45,6 +46,7 @@ typedef struct
 	timeout* render_timeout;
 	int empty;
 	int pid;
+	int chrono;
 } TrayWindow;
 
 

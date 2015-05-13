@@ -52,7 +52,7 @@ int refresh_systray;
 int systray_enabled;
 int systray_max_icon_size;
 int systray_monitor;
-
+int chrono;
 // background pixmap if we render ourselves the icons
 static Pixmap render_background;
 
@@ -61,8 +61,9 @@ void default_systray()
 {
 	memset(&systray, 0, sizeof(Systraybar));
 	render_background = 0;
+	chrono = 0;
 	systray.alpha = 100;
-	systray.sort = 3;
+	systray.sort = SYSTRAY_SORT_LEFT2RIGHT;
 	systray.area._draw_foreground = draw_systray;
 	systray.area._on_change_layout = on_change_systray;
 	systray.area.size_mode = SIZE_BY_CONTENT;
@@ -345,24 +346,33 @@ static gint compare_traywindows(gconstpointer a, gconstpointer b)
 	if (!traywin_a->empty && traywin_b->empty)
 		return -1;
 
-	if (systray.sort < 2)
-		return 0;
+	if (systray.sort == SYSTRAY_SORT_ASCENDING ||
+		systray.sort == SYSTRAY_SORT_DESCENDING) {
+		XTextProperty name_a, name_b;
 
-	XTextProperty name_a, name_b;
+		if (XGetWMName(server.dsp, traywin_a->tray_id, &name_a) == 0) {
+			return -1;
+		}
+		else if (XGetWMName(server.dsp, traywin_b->tray_id, &name_b) == 0) {
+			XFree(name_a.value);
+			return 1;
+		}
+		else {
+			gint retval = g_ascii_strncasecmp((char*)name_a.value, (char*)name_b.value, -1) *
+						  (systray.sort == SYSTRAY_SORT_ASCENDING ? 1 : -1);
+			XFree(name_a.value);
+			XFree(name_b.value);
+			return retval;
+		}
+	}
 
-	if(XGetWMName(server.dsp, traywin_a->tray_id, &name_a) == 0) {
-		return -1;
+	if (systray.sort == SYSTRAY_SORT_LEFT2RIGHT ||
+		systray.sort == SYSTRAY_SORT_RIGHT2LEFT) {
+		return (traywin_a->chrono - traywin_b->chrono) *
+				(systray.sort == SYSTRAY_SORT_LEFT2RIGHT ? 1 : -1);
 	}
-	else if(XGetWMName(server.dsp, traywin_b->tray_id, &name_b) == 0) {
-		XFree(name_a.value);
-		return 1;
-	}
-	else {
-		gint retval = g_ascii_strncasecmp((char*)name_a.value, (char*)name_b.value, -1) * systray.sort;
-		XFree(name_a.value);
-		XFree(name_b.value);
-		return retval;
-	}
+
+	return 0;
 }
 
 
@@ -489,11 +499,13 @@ gboolean add_icon(Window id)
 	traywin->damage = 0;
 	traywin->empty = 0;
 	traywin->pid = pid;
+	traywin->chrono = chrono;
+	chrono++;
 
 	if (systray.area.on_screen == 0)
 		show(&systray.area);
 
-	if (systray.sort == 3)
+	if (systray.sort == SYSTRAY_SORT_RIGHT2LEFT)
 		systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
 	else
 		systray.list_icons = g_slist_append(systray.list_icons, traywin);
