@@ -15,9 +15,8 @@
 
 #ifdef HAVE_SN
 #include <libsn/sn.h>
-#include <glib.h>
 #endif
-
+#include <glib.h>
 
 typedef struct Global_atom
 {
