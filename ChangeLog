@@ -11,6 +11,8 @@
     - Experimental, testing/feedback needed
   - Icons (system tray, task buttons, launcher):
     - Changed rendering method to fix icon corruptions (please report any problems)
+  - System tray:
+    - Workaround for misbehaving applications leaving empty tray icons
   - Many bugfixes
 - New config options (see https://gitlab.com/o9000/tint2/wikis/Configure):
   - Panel:
