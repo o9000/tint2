@@ -1,14 +1,14 @@
-### New unstable release: 0.12-rc3
+### New unstable release: 0.12-rc4
 Changes: https://gitlab.com/o9000/tint2/blob/master/ChangeLog
 
 Documentation: https://gitlab.com/o9000/tint2/wikis/home
 
 Try it out with (see also [dependencies](https://gitlab.com/o9000/tint2/wikis/Install#dependencies)):
 ```
-mkdir tint2-0.12-rc3
-cd tint2-0.12-rc3
-wget 'https://gitlab.com/o9000/tint2/repository/archive.tar.gz?ref=v0.12-rc3' --output-document tint2-0.12-rc3.tar.gz
-tar -xzf tint2-0.12-rc3.tar.gz
+mkdir tint2-0.12-rc4
+cd tint2-0.12-rc4
+wget 'https://gitlab.com/o9000/tint2/repository/archive.tar.gz?ref=v0.12-rc4' --output-document tint2-0.12-rc4.tar.gz
+tar -xzf tint2-0.12-rc4.tar.gz
 cd tint2.git
 mkdir build
 cd build
@@ -49,7 +49,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
   * [Configure](https://gitlab.com/o9000/tint2/wikis/Configure)
   * [Add applet not supported by tint2](https://gitlab.com/o9000/tint2/wikis/ThirdPartyApplets)
   * [Other frequently asked questions](https://gitlab.com/o9000/tint2/wikis/FAQ)
-  * [Debug](https://gitlab.com/o9000/tint2/wikis/Debug)
+  * [Debug](https://gitlab.com/o9000/tint2/wikis/Debug)  
 
 ### How can I help out?
 
