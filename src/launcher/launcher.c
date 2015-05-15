@@ -404,7 +404,7 @@ void launcher_action(LauncherIcon *icon, XEvent* evt)
 	char *cmd = calloc(strlen(icon->cmd) + 10, 1);
 	sprintf(cmd, "(%s&)", icon->cmd);
 #if HAVE_SN
-	SnLauncherContext* ctx;
+	SnLauncherContext* ctx = 0;
 	Time time;
 	if (startup_notifications) {
 		ctx = sn_launcher_context_new(server.sn_dsp, server.screen);
