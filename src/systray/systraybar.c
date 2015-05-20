@@ -610,17 +610,20 @@ void systray_render_icon_now(void* t)
 		return;
 	}
 
+	int empty = 1;
 	XImage *ximage = XGetImage(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height, AllPlanes, XYPixmap);
-	XColor color;
-	int x, y, empty = 1;
-	for (x = 0; empty && x < traywin->width; x++) {
-		for (y = 0; empty && y < traywin->height; y++) {
-			color.pixel = XGetPixel(ximage, x, y);
-			if (color.pixel != 0)
-				empty = 0;
+	if (ximage) {
+		XColor color;
+		int x, y;
+		for (x = 0; empty && x < traywin->width; x++) {
+			for (y = 0; empty && y < traywin->height; y++) {
+				color.pixel = XGetPixel(ximage, x, y);
+				if (color.pixel != 0)
+					empty = 0;
+			}
 		}
+		XFree(ximage);
 	}
-	XFree(ximage);
 	if (traywin->empty != empty) {
 		traywin->empty = empty;
 		systray.area.resize = 1;
