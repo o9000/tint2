@@ -56,12 +56,16 @@ target_link_libraries( tint2conf ${X11_T2C_LIBRARIES}
                                  ${RSVG_LIBRARIES} )
 
 if ( NOT DATADIR )
-  set( DATADIR share )
+  set(DATADIR share)
 endif( NOT DATADIR )
 
 add_definitions( -DINSTALL_PREFIX=\"${CMAKE_INSTALL_PREFIX}\" )
+add_definitions( -DLOCALEDIR=\"${CMAKE_INSTALL_PREFIX}/${DATADIR}/locale\" )
+add_definitions( -DGETTEXT_PACKAGE=\"tint2conf\" )
 set_target_properties( tint2conf PROPERTIES COMPILE_FLAGS "-Wall -pthread" )
 set_target_properties( tint2conf PROPERTIES LINK_FLAGS "-pthread" )
+
+add_subdirectory(po)
 
 install( TARGETS tint2conf DESTINATION bin )
 install( FILES tint2conf.svg DESTINATION ${DATADIR}/icons/hicolor/scalable/apps )

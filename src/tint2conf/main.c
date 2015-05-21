@@ -119,26 +119,12 @@ static const char *global_ui =
 	"  </popup>"
 	"</ui>";
 
-
-// define menubar and toolbar action
-static GtkActionEntry entries[] = {
-	{"ThemeMenu", NULL, _("Theme"), NULL, NULL, NULL},
-	{"ThemeAdd", GTK_STOCK_ADD, _("_Import theme..."), "<Control>N", _("Import theme"), G_CALLBACK(menuImport)},
-	{"ThemeDefault", GTK_STOCK_NEW, _("_Import default theme..."), NULL, _("Import default theme"), G_CALLBACK(menuImportDefault)},
-	{"ThemeSaveAs", GTK_STOCK_SAVE_AS, _("_Save as..."), NULL, _("Save theme as"), G_CALLBACK(menuSaveAs)},
-	{"ThemeDelete", GTK_STOCK_DELETE, _("_Delete"), NULL, _("Delete theme"), G_CALLBACK(menuDelete)},
-	{"ThemeProperties", GTK_STOCK_PROPERTIES, _("_Edit theme..."), NULL, _("Edit selected theme"), G_CALLBACK(edit_current_theme)},
-	{"ThemeQuit", GTK_STOCK_QUIT, _("_Quit"), "<control>Q", _("Quit"), G_CALLBACK(gtk_main_quit)},
-	{"EditMenu", NULL, "Edit", NULL, NULL, NULL},
-	{"EditRefresh", GTK_STOCK_REFRESH, _("Refresh"), NULL, _("Refresh"), G_CALLBACK(refresh_current_theme)},
-	{"EditRefreshAll", GTK_STOCK_REFRESH, _("Refresh all"), NULL, _("Refresh all"), G_CALLBACK(load_all_themes)},
-	{"HelpMenu", NULL, _("Help"), NULL, NULL, NULL},
-	{"HelpAbout", GTK_STOCK_ABOUT, _("_About"), "<Control>A", _("About"), G_CALLBACK(menuAbout)}
-};
-
-
 int main(int argc, char **argv)
 {
+	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+	textdomain(GETTEXT_PACKAGE);
+
 	GtkWidget *vBox = NULL, *scrollbar = NULL;
 	GtkActionGroup *actionGroup;
 
@@ -167,6 +153,23 @@ int main(int argc, char **argv)
 	gtk_container_add(GTK_CONTAINER(g_window), vBox);
 
 	actionGroup = gtk_action_group_new("menuActionGroup");
+
+	// Menubar and toolbar entries
+	GtkActionEntry entries[] = {
+		{"ThemeMenu", NULL, _("Theme"), NULL, NULL, NULL},
+		{"ThemeAdd", GTK_STOCK_ADD, _("_Import theme..."), "<Control>N", _("Import theme"), G_CALLBACK(menuImport)},
+		{"ThemeDefault", GTK_STOCK_NEW, _("_Import default theme..."), NULL, _("Import default theme"), G_CALLBACK(menuImportDefault)},
+		{"ThemeSaveAs", GTK_STOCK_SAVE_AS, _("_Save as..."), NULL, _("Save theme as"), G_CALLBACK(menuSaveAs)},
+		{"ThemeDelete", GTK_STOCK_DELETE, _("_Delete"), NULL, _("Delete theme"), G_CALLBACK(menuDelete)},
+		{"ThemeProperties", GTK_STOCK_PROPERTIES, _("_Edit theme..."), NULL, _("Edit selected theme"), G_CALLBACK(edit_current_theme)},
+		{"ThemeQuit", GTK_STOCK_QUIT, _("_Quit"), "<control>Q", _("Quit"), G_CALLBACK(gtk_main_quit)},
+		{"EditMenu", NULL, _("Edit"), NULL, NULL, NULL},
+		{"EditRefresh", GTK_STOCK_REFRESH, _("Refresh"), NULL, _("Refresh"), G_CALLBACK(refresh_current_theme)},
+		{"EditRefreshAll", GTK_STOCK_REFRESH, _("Refresh all"), NULL, _("Refresh all"), G_CALLBACK(load_all_themes)},
+		{"HelpMenu", NULL, _("Help"), NULL, NULL, NULL},
+		{"HelpAbout", GTK_STOCK_ABOUT, _("_About"), "<Control>A", _("About"), G_CALLBACK(menuAbout)}
+	};
+
 	gtk_action_group_add_actions(actionGroup, entries, G_N_ELEMENTS(entries), NULL);
 	globalUIManager = gtk_ui_manager_new();
 	gtk_ui_manager_insert_action_group(globalUIManager, actionGroup, 0);
