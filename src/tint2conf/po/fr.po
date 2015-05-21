@@ -12,119 +12,123 @@ msgstr ""
 "PO-Revision-Date: 2015-05-21 11:45+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: French\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../main.c:126
-msgid "Theme"
-msgstr ""
-
-#: ../main.c:127
-msgid "_Import theme..."
-msgstr ""
-
-#: ../main.c:127
-msgid "Import theme"
-msgstr ""
-
-#: ../main.c:128
-msgid "_Import default theme..."
-msgstr ""
-
-#: ../main.c:128
-msgid "Import default theme"
-msgstr ""
-
-#: ../main.c:129
-msgid "_Save as..."
-msgstr ""
-
-#: ../main.c:129 ../main.c:329
-msgid "Save theme as"
-msgstr ""
-
-#: ../main.c:130
-msgid "_Delete"
-msgstr ""
-
-#: ../main.c:130
-msgid "Delete theme"
-msgstr ""
-
-#: ../main.c:131
-msgid "_Edit theme..."
-msgstr ""
-
-#: ../main.c:131
-msgid "Edit selected theme"
-msgstr ""
-
-#: ../main.c:132
-msgid "_Quit"
-msgstr ""
-
-#: ../main.c:132
-msgid "Quit"
-msgstr ""
-
-#: ../main.c:134
-msgid "Refresh"
-msgstr ""
-
-#: ../main.c:135
-msgid "Refresh all"
-msgstr ""
-
-#: ../main.c:136
-msgid "Help"
-msgstr ""
-
-#: ../main.c:137
-msgid "_About"
-msgstr ""
-
-#: ../main.c:137
-msgid "About"
-msgstr ""
-
-#: ../main.c:160
+#: ../main.c:141
 msgid "tint2conf"
 msgstr ""
 
-#: ../main.c:168
+#: ../main.c:149
 msgid "Panel theming"
 msgstr ""
 
-#: ../main.c:192
+#: ../main.c:159
+msgid "Theme"
+msgstr ""
+
+#: ../main.c:160
+msgid "_Import theme..."
+msgstr ""
+
+#: ../main.c:160
+msgid "Import theme"
+msgstr ""
+
+#: ../main.c:161
+msgid "_Import default theme..."
+msgstr ""
+
+#: ../main.c:161
+msgid "Import default theme"
+msgstr ""
+
+#: ../main.c:162
+msgid "_Save as..."
+msgstr ""
+
+#: ../main.c:162 ../main.c:327
+msgid "Save theme as"
+msgstr ""
+
+#: ../main.c:163
+msgid "_Delete"
+msgstr ""
+
+#: ../main.c:163
+msgid "Delete theme"
+msgstr ""
+
+#: ../main.c:164
+msgid "_Edit theme..."
+msgstr ""
+
+#: ../main.c:164
+msgid "Edit selected theme"
+msgstr ""
+
+#: ../main.c:165
+msgid "_Quit"
+msgstr ""
+
+#: ../main.c:165
+msgid "Quit"
+msgstr ""
+
+#: ../main.c:166
+msgid "Edit"
+msgstr ""
+
+#: ../main.c:167
+msgid "Refresh"
+msgstr ""
+
+#: ../main.c:168
+msgid "Refresh all"
+msgstr ""
+
+#: ../main.c:169
+msgid "Help"
+msgstr ""
+
+#: ../main.c:170
+msgid "_About"
+msgstr ""
+
+#: ../main.c:170
+msgid "About"
+msgstr ""
+
+#: ../main.c:190
 msgid "Command to run tint2: "
 msgstr ""
 
-#: ../main.c:236
+#: ../main.c:234
 msgid "Theming tool for tint2 panel"
 msgstr ""
 
-#: ../main.c:238
+#: ../main.c:236
 msgid ""
 "Copyright 2009-2015 tint2 team\n"
 "Tint2 License GNU GPL version 2\n"
 "Tintwizard License GNU GPL version 3"
 msgstr ""
 
-#: ../main.c:243
+#: ../main.c:241
 msgid "translator-credits"
 msgstr ""
 
-#: ../main.c:252
+#: ../main.c:250
 msgid "Import theme(s)"
 msgstr ""
 
-#: ../main.c:287
+#: ../main.c:285
 msgid "Save default theme as"
 msgstr ""
 
-#: ../main.c:319
+#: ../main.c:317
 msgid "Select the theme to be saved."
 msgstr ""
 
