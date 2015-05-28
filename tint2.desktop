@@ -54,6 +54,7 @@ Name[zh_CN]=面板 tint2
 Name[zh_TW]=面板 tint2
 Comment=Lightweight panel
 Comment[fr_FR]=Panel léger
+Comment[pl]=Lekki panel
 Exec=tint2
 Icon=taskbar
 Terminal=false
