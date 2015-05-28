@@ -1,0 +1,1834 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tint2conf 0.12\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-05-21 11:45+0200\n"
+"PO-Revision-Date: 2015-05-28 21:01+0100\n"
+"Last-Translator: Daniel Napora <napcok@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.9\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+"Language: pl\n"
+
+#: ../main.c:141
+msgid "tint2conf"
+msgstr "tint2conf"
+
+#: ../main.c:149
+msgid "Panel theming"
+msgstr "Wygląd panelu"
+
+#: ../main.c:159
+msgid "Theme"
+msgstr "Motyw"
+
+#: ../main.c:160
+msgid "_Import theme..."
+msgstr "_Importuj motyw..."
+
+#: ../main.c:160
+msgid "Import theme"
+msgstr "Import motywu"
+
+#: ../main.c:161
+msgid "_Import default theme..."
+msgstr "_Importuj domyślny motyw..."
+
+#: ../main.c:161
+msgid "Import default theme"
+msgstr "Import domyślnego motywu"
+
+#: ../main.c:162
+msgid "_Save as..."
+msgstr "_Zapisz jako..."
+
+#: ../main.c:162 ../main.c:327
+msgid "Save theme as"
+msgstr "Zapisz motyw jako"
+
+#: ../main.c:163
+msgid "_Delete"
+msgstr "_Usuń"
+
+#: ../main.c:163
+msgid "Delete theme"
+msgstr "Usuń motyw"
+
+#: ../main.c:164
+msgid "_Edit theme..."
+msgstr "_Edytuj motyw..."
+
+#: ../main.c:164
+msgid "Edit selected theme"
+msgstr "Edycja wybranego motywu"
+
+#: ../main.c:165
+msgid "_Quit"
+msgstr "_Zakończ"
+
+#: ../main.c:165
+msgid "Quit"
+msgstr "Wyjdź"
+
+#: ../main.c:166
+msgid "Edit"
+msgstr "Edytuj"
+
+#: ../main.c:167
+msgid "Refresh"
+msgstr "Odśwież"
+
+#: ../main.c:168
+msgid "Refresh all"
+msgstr "Odśwież wszystkie"
+
+#: ../main.c:169
+msgid "Help"
+msgstr "Pomoc"
+
+#: ../main.c:170
+msgid "_About"
+msgstr "_O programie"
+
+#: ../main.c:170
+msgid "About"
+msgstr "O programie"
+
+#: ../main.c:190
+msgid "Command to run tint2: "
+msgstr "Polecenie uruchamiające tint2:"
+
+#: ../main.c:234
+msgid "Theming tool for tint2 panel"
+msgstr "Narzędzie do edycji motywów tint2"
+
+#: ../main.c:236
+msgid ""
+"Copyright 2009-2015 tint2 team\n"
+"Tint2 License GNU GPL version 2\n"
+"Tintwizard License GNU GPL version 3"
+msgstr ""
+"Copyright 2009-2015 tint2 team\n"
+"Tint2 License GNU GPL version 2\n"
+"Tintwizard License GNU GPL version 3"
+
+#: ../main.c:241
+msgid "translator-credits"
+msgstr "Daniel Napora <napcok@gmail.com>"
+
+#: ../main.c:250
+msgid "Import theme(s)"
+msgstr "Importuj motyw(y)"
+
+#: ../main.c:285
+msgid "Save default theme as"
+msgstr "Zapisz domyślny motyw jako"
+
+#: ../main.c:317
+msgid "Select the theme to be saved."
+msgstr "Wybierz motyw do zapisu"
+
+#: ../properties.c:209
+msgid "Properties"
+msgstr "Ustawienia"
+
+#: ../properties.c:243
+msgid "Backgrounds"
+msgstr "Tła"
+
+#: ../properties.c:251
+msgid "Panel"
+msgstr "Panel"
+
+#: ../properties.c:259
+msgid "Panel items"
+msgstr "Elementy panelu"
+
+#: ../properties.c:267 ../properties.c:1263 ../properties.c:1443
+msgid "Launcher"
+msgstr "Programy"
+
+#: ../properties.c:275 ../properties.c:1258 ../properties.c:1440
+msgid "Taskbar"
+msgstr "Pasek zadań"
+
+#: ../properties.c:283
+msgid "Task buttons"
+msgstr "Przyciski paska zadań"
+
+#: ../properties.c:291 ../properties.c:1248 ../properties.c:1434
+msgid "Clock"
+msgstr "Zegar"
+
+#: ../properties.c:299 ../properties.c:1253 ../properties.c:1437
+msgid "System tray"
+msgstr "Zasobnik systemowy"
+
+#: ../properties.c:307 ../properties.c:1243 ../properties.c:1431
+msgid "Battery"
+msgstr "Bateria"
+
+#: ../properties.c:315
+msgid "Tooltip"
+msgstr "Podpowiedzi"
+
+#: ../properties.c:381
+msgid "<b>Background</b>"
+msgstr "<b>Tło</b>"
+
+#: ../properties.c:392
+msgid "Selects the background you would like to modify"
+msgstr "Wybiera tło, które chcesz edytować"
+
+#: ../properties.c:399
+msgid "Creates a copy of the current background"
+msgstr "Tworzy kopię zaznaczonego tła"
+
+#: ../properties.c:406
+msgid "Deletes the current background"
+msgstr "Usuwa zaznaczone tło"
+
+#: ../properties.c:415
+msgid "Fill color"
+msgstr "Kolor wypelnienia"
+
+#: ../properties.c:426
+msgid "The fill color of the current background"
+msgstr "Kolor wypełnienia zaznaczonego tła"
+
+#: ../properties.c:429
+msgid "Border color"
+msgstr "Kolor obramowania"
+
+#: ../properties.c:440
+msgid "The border color of the current background"
+msgstr "Kolor obramowania zaznaczonego tła"
+
+#: ../properties.c:443
+msgid "Border width"
+msgstr "Szerokość obramowania"
+
+#: ../properties.c:453
+msgid "The width of the border of the current background, in pixels"
+msgstr "Szerokość obramowania zaznaczonego tła, w pikselach"
+
+#: ../properties.c:456
+msgid "Corner radius"
+msgstr "Zaokrąglone rogi"
+
+#: ../properties.c:466
+msgid "The corner radius of the current background"
+msgstr "Zaokrąglenie rogów zaznaczonego tła"
+
+#: ../properties.c:769
+msgid "<b>Geometry</b>"
+msgstr "<b>Geometria</b>"
+
+#: ../properties.c:786
+msgid "Position"
+msgstr "Pozycja"
+
+#: ../properties.c:807
+msgid "Position on screen: top-left, horizontal panel"
+msgstr "Pozycja: góra-lewo, poziomy panel"
+
+#: ../properties.c:809
+msgid "Position on screen: top-center, horizontal panel"
+msgstr "Pozycja: góra-środek, poziomy panel"
+
+#: ../properties.c:811
+msgid "Position on screen: top-right, horizontal panel"
+msgstr "Pozycja: góra-prawo, poziomy panel"
+
+#: ../properties.c:813
+msgid "Position on screen: top-left, vertical panel"
+msgstr "Pozycja: góra-lewo, pionowy panel"
+
+#: ../properties.c:815
+msgid "Position on screen: center-left, vertical panel"
+msgstr "Pozycja: środek-lewo, pionowy panel"
+
+#: ../properties.c:817
+msgid "Position on screen: bottom-left, vertical panel"
+msgstr "Pozycja: dół-lewo, pionowy panel"
+
+#: ../properties.c:819
+msgid "Position on screen: top-right, vertical panel"
+msgstr "Pozycja: góra-prawo, pionowy panel"
+
+#: ../properties.c:821
+msgid "Position on screen: center-right, vertical panel"
+msgstr "Pozycja: środek-prawo, pionowy panel"
+
+#: ../properties.c:823
+msgid "Position on screen: bottom-right, vertical panel"
+msgstr "Pozycja: dół-prawo, pionowy panel"
+
+#: ../properties.c:825
+msgid "Position on screen: bottom-left, horizontal panel"
+msgstr "Pozycja: dół-lewo, poziomy panel"
+
+#: ../properties.c:827
+msgid "Position on screen: bottom-center, horizontal panel"
+msgstr "Pozycja: dół-środek, poziomy panel"
+
+#: ../properties.c:829
+msgid "Position on screen: bottom-right, horizontal panel"
+msgstr "Pozycja: dół-prawo, poziomy panel"
+
+#: ../properties.c:834 ../properties.c:3446
+msgid "Monitor"
+msgstr "Monitor"
+
+#: ../properties.c:844
+msgid "All"
+msgstr "Wszystkie"
+
+#: ../properties.c:845 ../properties.c:3456
+msgid "1"
+msgstr "1"
+
+#: ../properties.c:846 ../properties.c:3457
+msgid "2"
+msgstr "2"
+
+#: ../properties.c:847 ../properties.c:3458
+msgid "3"
+msgstr "3"
+
+#: ../properties.c:848 ../properties.c:3459
+msgid "4"
+msgstr "4"
+
+#: ../properties.c:849 ../properties.c:3460
+msgid "5"
+msgstr "5"
+
+#: ../properties.c:850 ../properties.c:3461
+msgid "6"
+msgstr "6"
+
+#: ../properties.c:852
+msgid "The monitor on which the panel is placed"
+msgstr "Monitor na którym ma być umieszczony panel"
+
+#: ../properties.c:856
+msgid "Length"
+msgstr "Długość"
+
+#: ../properties.c:866
+msgid ""
+"The length of the panel (width for horizontal panels, height for vertical "
+"panels)"
+msgstr ""
+"Długość panelu (szerokość dla panelu poziomego, wysokość dla panelu "
+"pionowego)"
+
+#: ../properties.c:872 ../properties.c:895
+msgid "Percent"
+msgstr "procent"
+
+#: ../properties.c:873 ../properties.c:896
+msgid "Pixels"
+msgstr "piksel(e)"
+
+#: ../properties.c:875
+msgid ""
+"The units used to specify the length of the panel: pixels or percentage of "
+"the monitor size"
+msgstr ""
+"Jednostka używana do określenia długości panelu: piksele lub procenty "
+"wielkości monitora"
+
+#: ../properties.c:879
+msgid "Size"
+msgstr "Rozmiar"
+
+#: ../properties.c:889
+msgid ""
+"The size of the panel (height for horizontal panels, width for vertical "
+"panels)"
+msgstr ""
+"Rozmiar panelu (wysokość dla panelu poziomego, szerokość dla panelu "
+"pionowego)"
+
+#: ../properties.c:898
+msgid ""
+"The units used to specify the size of the panel: pixels or percentage of the "
+"monitor size"
+msgstr ""
+"Jednostka używana do określenia rozmiaru panelu: piksele lub procenty "
+"wielkości monitora"
+
+#: ../properties.c:902
+msgid "Horizontal margin"
+msgstr "Margines poziomy"
+
+#: ../properties.c:912
+msgid ""
+"Creates a space between the panel and the edge of the monitor. For left-"
+"aligned panels, the space is created on the right of the panel; for right-"
+"aligned panels, it is created on the left; for centered panels, it is evenly "
+"distributed on both sides of the panel."
+msgstr ""
+"Tworzy przestrzeń pomiędzy panelem a krawędzią monitora. Dla panelu "
+"wyrównanego do lewej, odstęp jest tworzony po prawej stronie; dla panelu "
+"wyrównanego do prawej, odstęp tworzony jest po lewej stronie; dla panelu "
+"wycentrowanego, wartość jest dzielona dla obu stron panelu."
+
+#: ../properties.c:919
+msgid "Vertical margin"
+msgstr "Margines pionowy"
+
+#: ../properties.c:929
+msgid ""
+"Creates a space between the panel and the edge of the monitor. For top-"
+"aligned panels, the space is created on the bottom of the panel; for bottom-"
+"aligned panels, it is created on the top; for centered panels, it is evenly "
+"distributed on both sides of the panel."
+msgstr ""
+"Tworzy przestrzeń pomiędzy panelem a krawędzią monitora. Dla panelu "
+"wyrównanego do góry, odstęp jest tworzony na dole panelu; dla panelu "
+"wyrównanego do dołu, odstęp tworzony jest na górze panelu; dla panelu "
+"wycentrowanego, wartość jest dzielona dla obu stron panelu."
+
+#: ../properties.c:936 ../properties.c:2019 ../properties.c:2322
+#: ../properties.c:2745 ../properties.c:3259 ../properties.c:3468
+#: ../properties.c:3674 ../properties.c:3832
+msgid "<b>Appearance</b>"
+msgstr "<b>Wygląd</b>"
+
+#: ../properties.c:950 ../properties.c:2032 ../properties.c:3096
+#: ../properties.c:3272 ../properties.c:3481 ../properties.c:3687
+#: ../properties.c:3845
+msgid "Background"
+msgstr "Tło"
+
+#: ../properties.c:960
+msgid ""
+"Selects the background used to display the panel. Backgrounds can be edited "
+"in the Backgrounds tab."
+msgstr "Wybierz tło dla panelu. Tła mogą być edytowane na karcie \"Tła\"."
+
+#: ../properties.c:965 ../properties.c:2046 ../properties.c:2336
+#: ../properties.c:2439 ../properties.c:2836 ../properties.c:3286
+#: ../properties.c:3496 ../properties.c:3701 ../properties.c:3859
+msgid "Horizontal padding"
+msgstr "Poziomy margines wewnętrzny"
+
+#: ../properties.c:975
+msgid ""
+"Specifies the horizontal padding of the panel. This is the space between the "
+"border of the panel and the elements inside."
+msgstr ""
+"Wyznacza poziomy margines wewnętrzny dla panelu. Jest to odstęp pomiędzy "
+"krawędzią panelu, a elementami na nim umieszczonymi."
+
+#: ../properties.c:980 ../properties.c:2060 ../properties.c:2351
+#: ../properties.c:2454 ../properties.c:2850 ../properties.c:3300
+#: ../properties.c:3511 ../properties.c:3715 ../properties.c:3873
+msgid "Vertical padding"
+msgstr "Pionowy margines wewnętrzny"
+
+#: ../properties.c:990
+msgid ""
+"Specifies the vertical padding of the panel. This is the space between the "
+"border of the panel and the elements inside."
+msgstr ""
+"Wyznacza pionowy margines wewnętrzny dla panelu. Jest to odstęp pomiędzy "
+"krawędzią panelu, a elementami na nim umieszczonymi"
+
+#: ../properties.c:995 ../properties.c:2074 ../properties.c:2366
+#: ../properties.c:2864 ../properties.c:3526
+msgid "Spacing"
+msgstr "Odstęp"
+
+#: ../properties.c:1005
+msgid "Specifies the spacing between elements inside the panel."
+msgstr "Wyznacza odstep pomiędzy elementami umieszczonymi na panelu."
+
+#: ../properties.c:1009
+msgid "Ignore compositor"
+msgstr "Ignoruj menedżer kompozycji"
+
+#: ../properties.c:1019
+msgid ""
+"If enabled, the compositor will not be used to draw a transparent panel. May "
+"fix display corruption problems on broken graphics stacks."
+msgstr ""
+"Jeśli zaznaczone, menedżer kompozycji nie będzie używany do wyświetlania "
+"przezroczystego panelu. Może pomóc w przypadku błędów wyświetlania."
+
+#: ../properties.c:1023
+msgid "Font shadows"
+msgstr "Cieniowane czcionki"
+
+#: ../properties.c:1033
+msgid ""
+"If enabled, a shadow will be drawn behind text. This may improve legibility "
+"on transparent panels."
+msgstr ""
+"Jeśli zaznaczone, tekst na panelu będzie cieniowany. To może pomoc uzyskać "
+"lepszą czytelność na panelach z przezroczystością."
+
+#: ../properties.c:1038
+msgid "<b>Autohide</b>"
+msgstr "<b>Autoukrywanie</b>"
+
+#: ../properties.c:1052
+msgid "Autohide"
+msgstr "Ukryj automatycznie"
+
+#: ../properties.c:1062
+msgid "If enabled, the panel is hidden when the mouse cursor leaves the panel."
+msgstr ""
+"Jeśli zaznaczone, panel będzie ukrywany, po opuszczeniu go przez kursor myszy"
+
+#: ../properties.c:1066
+msgid "Show panel after"
+msgstr "Pokaż panel po "
+
+#: ../properties.c:1076
+msgid ""
+"Specifies a delay after which the panel is shown when the mouse cursor "
+"enters the panel."
+msgstr "Opóźnienie pojawiania się panelu po najechaniu nań kursorem myszy"
+
+#: ../properties.c:1078 ../properties.c:1112 ../properties.c:3805
+#: ../properties.c:3824
+msgid "seconds"
+msgstr "sekundy"
+
+#: ../properties.c:1086
+msgid "Hidden size"
+msgstr "Rozmiar gdy ukryty"
+
+#: ../properties.c:1096
+msgid "Specifies the size of the panel when hidden, in pixels."
+msgstr "Rozmiar panelu gdy ukryty, w pikselach."
+
+#: ../properties.c:1100
+msgid "Hide panel after"
+msgstr "Ukryj panel po"
+
+#: ../properties.c:1110
+msgid ""
+"Specifies a delay after which the panel is hidden when the mouse cursor "
+"leaves the panel."
+msgstr "Opóznienie ukrywania panelu, gdy kursor myszy opuści panel."
+
+#: ../properties.c:1120
+msgid "<b>Window manager interaction</b>"
+msgstr "<b>Interakcje z menedżerem okien</b>"
+
+#: ../properties.c:1134
+msgid "Forward mouse events"
+msgstr "Przekazywanie zdarzeń myszy"
+
+#: ../properties.c:1144
+msgid ""
+"If enabled, mouse events not handled by panel elements are forwarded to the "
+"desktop. Useful on desktop environments that show a start menu when right "
+"clicking the desktop, or switch the desktop when rotating the mouse wheel "
+"over the desktop."
+msgstr ""
+"Jeśli zaznaczone, zdarzenia myszy nie przypisane do elementów panelu będą "
+"przekazywane do menedżera okien. Użyteczne dla środowisk graficznych, które "
+"pokazują menu po prawym kliknięciu na pulpit lub które przełączają obszar "
+"roboczy za pomocą kołka myszy."
+
+#: ../properties.c:1150
+msgid "Place panel in dock"
+msgstr "Umieść panel w doku"
+
+#: ../properties.c:1160
+msgid ""
+"If enabled, places the panel in the dock area of the window manager. Windows "
+"placed in the dock are usually treated differently than normal windows. The "
+"exact behavior depends on the window manager and its configuration."
+msgstr ""
+"Jeśli zaznaczone, panel zostanie umieszczony w obszarze zwanym dokiem "
+"menedżera okien. Okna umieszczone w doku są zazwyczaj traktowane inaczej niż "
+"zwykłe okna. Dokładne zachowanie zależy od menedżera okien i jego "
+"konfiguracji."
+
+#: ../properties.c:1166
+msgid "Panel layer"
+msgstr "Warstwa panelu"
+
+#: ../properties.c:1176
+msgid "Top"
+msgstr "Góra"
+
+#: ../properties.c:1177
+msgid "Normal"
+msgstr "Normalna"
+
+#: ../properties.c:1178
+msgid "Bottom"
+msgstr "Dół"
+
+#: ../properties.c:1180
+msgid ""
+"Specifies the layer on which the panel window should be placed. \n"
+"Top means the panel should always cover other windows. \n"
+"Bottom means other windows should always cover the panel. \n"
+"Normal means that other windows may or may not cover the panel, depending on "
+"which has focus. \n"
+"Note that some window managers prevent this option from working correctly if "
+"the panel is placed in the dock."
+msgstr ""
+"Warstwa na której umieszczony będzie panel. \n"
+"Góra - panel zawsze przykrywa inne okna. \n"
+"Doł - inne okna mogą przykrywać panel. \n"
+"Normalna - inne okna mogą lub nie przykrywać panel, w zależności od tego "
+"które okno jest aktywne. \n"
+"Niektóre menedźery okien nie pozwalają na poprawne działanie tej opcji, gdy "
+"panel jest umieszczony w doku."
+
+#: ../properties.c:1188
+msgid "Maximized windows"
+msgstr "Zmaksymalizowane okna"
+
+#: ../properties.c:1198
+msgid "Match the panel size"
+msgstr "Dopasowane do rozmiaru panelu"
+
+#: ../properties.c:1199
+msgid "Match the hidden panel size"
+msgstr "Dopasowane do rozmiaru ukrytego panelu"
+
+#: ../properties.c:1200
+msgid "Fill the screen"
+msgstr "Wypełniają ekran"
+
+#: ../properties.c:1202
+msgid ""
+"Specifies the size of maximized windows. \n"
+"Match the panel size means that maximized windows should extend to the edge "
+"of the panel. \n"
+"Match the hidden panel size means that maximized windows should extend to "
+"the edge of the panel when hidden; when visible, the panel and the windows "
+"will overlap. \n"
+"Fill the screen means that maximized windows will always have the same size "
+"as the screen. \n"
+"\n"
+"Note: on multi-monitor (Xinerama) setups, the panel must be placed at the "
+"edge (not in the middle) of the virtual screen for this to work correctly."
+msgstr ""
+"Rozmiar zmaksymalizowanych okien. \n"
+"Dopasowane do rozmiaru panelu - zmaksymalizowane okna powiększają się do "
+"krawędzi panelu. \n"
+"Dopasowane do rozmiaru ukrytego panelu - zmaksymalizowane okna powiększają "
+"się do krawędzi ukrytego panelu; gdy panel jest widoczny, okna i panel będą "
+"się pokrywać. \n"
+"Wypełniają ekran - zmaksymalizowane okna zawsze będą miały ten sam rozmiar "
+"co ekran. \n"
+"\n"
+"Notka: w przypadku użycia wielu monitorów (Xinerama), panel musi być "
+"umieszczony na krawędzi (nie po środku) wirtualnego ekranu, aby ta opcja "
+"działała poprawnie."
+
+#: ../properties.c:1213
+msgid "Window name"
+msgstr "Nazwa okna"
+
+#: ../properties.c:1225
+msgid ""
+"Specifies the name of the panel window. This is useful if you want to "
+"configure special treatment of tint2 windows in your window manager or "
+"compositor."
+msgstr ""
+"Nazwa \"okna\" panelu. Może być użyteczne jeśli chcesz skonfigurować "
+"specjalne traktowanie tint2 przez menedżer okien lub kompozycji."
+
+#: ../properties.c:1278
+msgid ""
+"Specifies the elements that will appear in the panel and their order. "
+"Elements can be added by selecting them in the list of available elements, "
+"then clicking on the add left button."
+msgstr ""
+"Określa, które elementy zostaną umieszczone na panelu oraz ich "
+"uporządkowanie. Elementy można dodać poprzez ich zaznaczenie na liście "
+"dostępnych elementów, oraz kliknięcie na przycisk dodawania (strzałka w "
+"lewo)."
+
+#: ../properties.c:1294
+msgid ""
+"Lists all the possible elements that can appear in the panel. Elements can "
+"be added to the panel by selecting them, then clicking on the add left "
+"button."
+msgstr ""
+"Wszystkie dostępne elementy, które mogą być umieszczone na panelu. Elementy "
+"można dodać do panelu poprzez zaznaczenie oraz kliknięcie strzałki w lewo."
+
+#: ../properties.c:1304
+msgid "<b>Elements selected</b>"
+msgstr "<b>Wybrane elementy</b>"
+
+#: ../properties.c:1310
+msgid "<b>Elements available</b>"
+msgstr "<b>Dostępne elementy</b>"
+
+#: ../properties.c:1327
+msgid "Moves up the current element in the list of selected elements."
+msgstr "Przesuwa do góry wybrany element."
+
+#: ../properties.c:1335
+msgid "Moves down the current element in the list of selected elements."
+msgstr "Przesuwa w dół wybrany element."
+
+#: ../properties.c:1337 ../properties.c:1976
+msgid " "
+msgstr " "
+
+#: ../properties.c:1348
+msgid ""
+"Copies the current element in the list of available elements to the list of "
+"selected elements."
+msgstr "Kopije zaznaczony element z listy dostępnych na listę wybranych."
+
+#: ../properties.c:1356
+msgid "Removes the current element from the list of selected elements."
+msgstr "Usuwa zaznaczony element z listy wybranych."
+
+#: ../properties.c:1909
+msgid ""
+"Specifies the application launchers that will appear in the launcher and "
+"their order. Launchers can be added by selecting an item in the list of "
+"available applications, then clicking on the add left button."
+msgstr ""
+"Określa jakie ikony aplikacji zostaną umieszczone na panelu oraz ich "
+"kolejność. Programy można dodać poprzez wybranie ich na liście dostępnych "
+"oraz kliknięcie strzałki w lewo. "
+
+#: ../properties.c:1930
+msgid ""
+"Lists all the applications detected on the system. Launchers can be added to "
+"the launcher by selecting an application, then clicking on the add left "
+"button."
+msgstr ""
+"Wyświetla wszystkie aplikacje wykryte w systemie. Można je dodać do panelu "
+"poprzez  zaznaczenie i kliknięcie strzałki w lewo."
+
+#: ../properties.c:1943
+msgid "<b>Applications selected</b>"
+msgstr "<b>Wybrane aplikacje</b>"
+
+#: ../properties.c:1949
+msgid "<b>Applications available</b>"
+msgstr "<b>Dostepne aplikacje</b>"
+
+#: ../properties.c:1966
+msgid "Moves up the current launcher in the list of selected applications."
+msgstr "Przesuwa do góry wybrany program "
+
+#: ../properties.c:1974
+msgid "Moves down the current launcher in the list of selected applications."
+msgstr "Przesuwa w dól wybrany program."
+
+#: ../properties.c:1987
+msgid ""
+"Copies the current application in the list of available applications to the "
+"list of selected applications."
+msgstr "Umieszcza zaznaczony program na liście wybranych aplikacji."
+
+#: ../properties.c:1995
+msgid "Removes the current application from the list of selected application."
+msgstr "Usuwa zaznaczony program z listy wybranych aplikacji."
+
+#: ../properties.c:2007
+msgid "<b>Additional application directories</b>"
+msgstr "<b>Dodatkowe katalogi aplikacji</b>"
+
+#: ../properties.c:2016
+msgid ""
+"Specifies a path to a directory from which the launcher is loading all ."
+"desktop files (all subdirectories are explored recursively). Can be used "
+"multiple times, in which case the paths must be separated by commas. Leading "
+"~ is expaned to the path of the user's home directory."
+msgstr ""
+"Ścieżka do katalogu, z którego będą wczytywane wszystkie pliki .desktop "
+"(rekurencyjne również z podkatalogów). Można podać wiele ścieżek, w takim "
+"przypadku rozdzielamy je za pomocą przecinka. Znak ~ oznacza katalog domowy "
+"użytkownika."
+
+#: ../properties.c:2042
+msgid ""
+"Selects the background used to display the launcher. Backgrounds can be "
+"edited in the Backgrounds tab."
+msgstr ""
+"Wybiera tło które, będzie użyte jako tło pod programami. Tła mogą być "
+"edytowane w karcie Tła."
+
+#: ../properties.c:2056
+msgid ""
+"Specifies the horizontal padding of the launcher. This is the space between "
+"the border and the elements inside."
+msgstr ""
+"Określa poziomy margines wewnętrzny. Jest to obszar pomiędzy obramowaniem, a "
+"elementami znajdującymi się w środku."
+
+#: ../properties.c:2070
+msgid ""
+"Specifies the vertical padding of the launcher. This is the space between "
+"the border and the elements inside."
+msgstr ""
+"Określa pionowy margines wewnętrzny. Jest to obszar pomiędzy obramowaniem, a "
+"elementami znajdującymi się w środku."
+
+#: ../properties.c:2084
+msgid "Specifies the spacing between the elements inside the launcher."
+msgstr "Określa odstęp pomiędzy elementami (ikonami)."
+
+#: ../properties.c:2087 ../properties.c:3540
+msgid "Icon size"
+msgstr "Rozmiar ikon"
+
+#: ../properties.c:2097
+msgid "Specifies the size of the launcher icons, in pixels."
+msgstr "Określa rozmiar ikon, w pikselach."
+
+#: ../properties.c:2101 ../properties.c:3060 ../properties.c:3554
+msgid "Icon opacity"
+msgstr "Przeźroczystość ikon"
+
+#: ../properties.c:2111
+msgid "Specifies the opacity of the launcher icons, in percent."
+msgstr "Określa stopień przeźroczystości ikon, w procentach."
+
+#: ../properties.c:2115 ../properties.c:3070 ../properties.c:3568
+msgid "Icon saturation"
+msgstr "Nasycenie kolor ikon"
+
+#: ../properties.c:2125
+msgid "Specifies the saturation adjustment of the launcher icons, in percent."
+msgstr "Określa poziom nasycenia kolorów dla ikon, w procentach."
+
+#: ../properties.c:2129 ../properties.c:3080 ../properties.c:3582
+msgid "Icon brightness"
+msgstr "Jasność ikon"
+
+#: ../properties.c:2139
+msgid "Specifies the brightness adjustment of the launcher icons, in percent."
+msgstr "Określa jasność ikon, w procentach."
+
+#: ../properties.c:2142
+msgid "Icon theme"
+msgstr "Motyw ikon"
+
+#: ../properties.c:2156
+msgid ""
+"The icon theme used to display launcher icons. If left blank, tint2 will "
+"detect and use the icon theme of your desktop as long as you have an "
+"XSETTINGS manager running (most desktop environments do)."
+msgstr ""
+"Motyw ikon używany do ich wyświetlania. Jeśli pozostawione puste, tint2 sam "
+"określi i użyje motywu ikon dla twojego pulpitu, jeśli menedżer XSETTINGS "
+"jest uruchomiony (w przypadku większości środowisk tak jest)."
+
+#: ../properties.c:2160
+msgid "Overrides XSETTINGS"
+msgstr "Nadpisz XSETTINGS"
+
+#: ../properties.c:2164
+msgid ""
+"If enabled, the icon theme selected here will override the one provided by "
+"XSETTINGS."
+msgstr ""
+"Jeśli zaznaczone, wybrany motyw ikon nadpisze ustawienia dostarczone przez "
+"XSETTINGS."
+
+#: ../properties.c:2167
+msgid "Startup notifications"
+msgstr "Powiadomienia startowe"
+
+#: ../properties.c:2177
+msgid ""
+"If enabled, startup notifications are shown when starting applications from "
+"the launcher. The appearance may vary depending on your desktop environment "
+"configuration; normally, a busy mouse cursor is displayed until the "
+"application starts."
+msgstr ""
+"Jeśli zaznaczone, powiadomienia startowe będą pokazywana podczas "
+"uruchamiania aplikacji. Zachowanie może być różne w zależności od  "
+"konfiguracji środowiska graficznego; zwykle, pokazywany jest \"zajęty\" "
+"kursor myszy dopóki aplikacja nie uruchomi się."
+
+#: ../properties.c:2181
+msgid "Tooltips"
+msgstr "Podpowiedzi"
+
+#: ../properties.c:2191
+msgid ""
+"If enabled, shows a tooltip with the application name when the mouse is "
+"moved over an application launcher."
+msgstr ""
+"Jeśli zaznaczone, pokazywane będą podpowiedzi w momencie gdy kursor myszy "
+"znajdzie się nad ikoną aplikacji."
+
+#: ../properties.c:2228 ../properties.c:3409
+msgid "<b>Options</b>"
+msgstr "<b>Opcje</b>"
+
+#: ../properties.c:2243
+msgid "Show a taskbar for each desktop"
+msgstr "Pokaż pasek zadań dla każdego pulpitu"
+
+#: ../properties.c:2253
+msgid ""
+"If enabled, the taskbar is split into multiple smaller taskbars, one for "
+"each virtual desktop."
+msgstr ""
+"Jeśli zaznaczone, pasek zadań zostanie podzielony na wiele pasków zadań, po "
+"jednym dla każdego wirtualnego pulpitu."
+
+#: ../properties.c:2257
+msgid "Distribute size between taskbars"
+msgstr "Rozdzielaj miejsce pomiądzy paskami zadań"
+
+#: ../properties.c:2267
+msgid ""
+"If enabled and 'Show a taskbar for each desktop' is also enabled, the "
+"available size is distributed between taskbars proportionally to the number "
+"of tasks."
+msgstr ""
+"Jeśli zaznaczone oraz 'Pokaż pasek zadań dla każdego pulpitu' również "
+"zaznaczone, dostępny obszar będzie rozdzielony pomiędzy paski zadań "
+"proporcjonalnie do ilości zadan na każdym z nich."
+
+#: ../properties.c:2272
+msgid "Hide inactive tasks"
+msgstr "Ukryj nieaktywne zadnia"
+
+#: ../properties.c:2282
+msgid "If enabled, only the active task will be shown in the taskbar."
+msgstr ""
+"Jeśli zaznaczone, tylko aktywne zadania będą pokazywane na pasku zadań."
+
+#: ../properties.c:2286
+msgid "Hide tasks from different monitors"
+msgstr "Ukryj zadania z innych ekranów"
+
+#: ../properties.c:2296
+msgid ""
+"If enabled, tasks that are not on the same monitor as the panel will not be "
+"displayed. This behavior is enabled automatically if the panel monitor is "
+"set to 'All'."
+msgstr ""
+"Jeśli zaznaczone, zadania z innych pulpitów nie będą wyświetlane. Takie "
+"zachowanie jest włączone automatycznie, gdy wybrana jest opcja Monitor - "
+"Wszystkie w konfiguracji panelu."
+
+#: ../properties.c:2301
+msgid "Task sorting"
+msgstr "Sortowanie zadań"
+
+#: ../properties.c:2311 ../properties.c:2574 ../properties.c:2610
+#: ../properties.c:2646 ../properties.c:2682 ../properties.c:2718
+msgid "None"
+msgstr "Brak"
+
+#: ../properties.c:2312
+msgid "By title"
+msgstr "Wg tytułu"
+
+#: ../properties.c:2313
+msgid "By center"
+msgstr "Wg środka okna"
+
+#: ../properties.c:2315
+msgid ""
+"Specifies how tasks should be sorted on the taskbar. \n"
+"'None' means that new tasks are added to the end, and the user can also "
+"reorder task buttons by mouse dragging. \n"
+"'By title' means that tasks are sorted by their window titles. \n"
+"'By center' means that tasks are sorted geometrically by their window "
+"centers."
+msgstr ""
+"Określa sposób sortowania zadań na pasku. \n"
+"'Brak' - oznacza że nowe zadania są dodawane na końcu, użytkownik może "
+"zmieniać kolejność poprzez przeciąganie. \n"
+"'Wg tytułu' - zadania są sortowane według tytułu okna. \n"
+"'Wg środka okna' - zadania są sortowane wg geometrii okien, a dokładnie ich "
+"środka."
+
+#: ../properties.c:2346
+msgid ""
+"Specifies the horizontal padding of the taskbar. This is the space between "
+"the border and the elements inside."
+msgstr ""
+"Wyznacza poziomy margines wewnętrzny dla paska zadań. Jest to odstęp "
+"pomiędzy krawędzią a elementami umieszczonymi wewnątrz."
+
+#: ../properties.c:2361
+msgid ""
+"Specifies the vertical padding of the taskbar. This is the space between the "
+"border and the elements inside."
+msgstr ""
+"Wyznacza pionowy margines wewnętrzny dla paska zadań. Jest to odstęp "
+"pomiędzy krawędzią a elementami umieszczonymi wewnątrz."
+
+#: ../properties.c:2376
+msgid "Specifies the spacing between the elements inside the taskbar."
+msgstr "Wyznacza odstęp pomiędzy elementami umieszczonymi na pasku zadań."
+
+#: ../properties.c:2380 ../properties.c:2514
+msgid "Active background"
+msgstr "Tło dla nazwy aktywnego pulpitu"
+
+#: ../properties.c:2390
+msgid ""
+"Selects the background used to display the taskbar of the current desktop. "
+"Backgrounds can be edited in the Backgrounds tab."
+msgstr ""
+"Wybiera tło, które będzie użyte do wyświetlania paska zadań dla bieżącego "
+"pulpitu. Tła mogą być edytowane na karcie Tła."
+
+#: ../properties.c:2394 ../properties.c:2529
+msgid "Inactive background"
+msgstr "Tło dla nazw nieaktywnych pulpitów"
+
+#: ../properties.c:2404
+msgid ""
+"Selects the background used to display taskbars of inactive desktops. "
+"Backgrounds can be edited in the Backgrounds tab."
+msgstr ""
+"Wybiera tło, które będzie użyte do wyświetlania pasków zadań dla "
+"nieaktywnych pulpitów. Tła mogą być edytowane na karcie Tła."
+
+#: ../properties.c:2409
+msgid "<b>Desktop name</b>"
+msgstr "<b>Nazwa pulpitu</b>"
+
+#: ../properties.c:2424
+msgid "Show desktop name"
+msgstr "Pokaż nazwy pulpitów"
+
+#: ../properties.c:2434
+msgid ""
+"If enabled, displays the name of the desktop at the top/left of the taskbar. "
+"The name is set by your window manager; you might be able to configure it "
+"there."
+msgstr ""
+"Jeśli zaznaczone, nazwy pulpitów będą wyświetlane na górze lub po lewej "
+"stronie pasków zadań. Nazwy pulpitów są ustawiane przez menedżer okien; "
+"można je konfigurować w jego ustawieniach."
+
+#: ../properties.c:2449
+msgid ""
+"Specifies the horizontal padding of the desktop name. This is the space "
+"between the border and the text inside."
+msgstr ""
+"Wyznacza poziomy margines wewnętrzny dla nazwy pulpitu. Jest to odstęp "
+"pomiędzy krawędzią, a tekstem znajdującym się w środku."
+
+#: ../properties.c:2464
+msgid ""
+"Specifies the vertical padding of the desktop name. This is the space "
+"between the border and the text inside."
+msgstr ""
+"Wyznacza pionowy margines wewnętrzny dla nazwy pulpitu. Jest to odstęp "
+"pomiędzy krawędzią, a tekstem znajdującym się w środku."
+
+#: ../properties.c:2469
+msgid "Active font color"
+msgstr "Kolor czcionki aktywnego pulpitu"
+
+#: ../properties.c:2480
+msgid ""
+"Specifies the font color used to display the name of the current desktop."
+msgstr ""
+"Określa kolor czcionki używany do wyświetlania nazwy aktywnego pulpitu."
+
+#: ../properties.c:2484
+msgid "Inactive font color"
+msgstr "Kolor czcionki nieaktywnego pulpitu"
+
+#: ../properties.c:2495
+msgid "Specifies the font color used to display the name of inactive desktops."
+msgstr ""
+"Określa kolor czcionki używany do wyświetlania nazwy nieaktywnego pulpitu."
+
+#: ../properties.c:2499 ../properties.c:2877 ../properties.c:3887
+msgid "Font"
+msgstr "Czcionka"
+
+#: ../properties.c:2510
+msgid "Specifies the font used to display the desktop name."
+msgstr "Określa czcionkę używaną do wyświetlania nazw pulpitów."
+
+#: ../properties.c:2524
+msgid ""
+"Selects the background used to display the name of the current desktop. "
+"Backgrounds can be edited in the Backgrounds tab."
+msgstr ""
+"Wybiera tło, które zostanie użyte do wyświetlania nazwy aktywnego pulpitu. "
+"Tła mogą być edytowane na karcie Tła."
+
+#: ../properties.c:2539
+msgid ""
+"Selects the background used to display the name of inactive desktops. "
+"Backgrounds can be edited in the Backgrounds tab."
+msgstr ""
+"Wybiera tło, które zostanie użyte do wyświetlania nazw nieaktywnych "
+"pulpitów. Tła mogą być edytowane na karcie Tła."
+
+#: ../properties.c:2551 ../properties.c:3215
+msgid "<b>Mouse events</b>"
+msgstr "<b>Zdarzenia myszy</b>"
+
+#: ../properties.c:2564
+msgid "Left click"
+msgstr "Lewy klik"
+
+#: ../properties.c:2575 ../properties.c:2611 ../properties.c:2647
+#: ../properties.c:2683 ../properties.c:2719
+msgid "Close"
+msgstr "Zamknij"
+
+#: ../properties.c:2576 ../properties.c:2612 ../properties.c:2648
+#: ../properties.c:2684 ../properties.c:2720
+msgid "Toggle"
+msgstr "Przełącz"
+
+#: ../properties.c:2577 ../properties.c:2613 ../properties.c:2649
+#: ../properties.c:2685 ../properties.c:2721
+msgid "Iconify"
+msgstr "Zminimalizuj"
+
+#: ../properties.c:2578 ../properties.c:2614 ../properties.c:2686
+#: ../properties.c:2722
+msgid "Shade"
+msgstr "Zwiń"
+
+#: ../properties.c:2579 ../properties.c:2615 ../properties.c:2651
+#: ../properties.c:2687 ../properties.c:2723
+msgid "Toggle or iconify"
+msgstr "Przełącz lub minimalizuj"
+
+#: ../properties.c:2580 ../properties.c:2616 ../properties.c:2652
+#: ../properties.c:2688 ../properties.c:2724
+msgid "Maximize or restore"
+msgstr "Maksymalizuj lub przywróć"
+
+#: ../properties.c:2581 ../properties.c:2617 ../properties.c:2653
+#: ../properties.c:2689 ../properties.c:2725
+msgid "Desktop left"
+msgstr "Wyślij na pulpit po lewej"
+
+#: ../properties.c:2582 ../properties.c:2618 ../properties.c:2654
+#: ../properties.c:2690 ../properties.c:2726
+msgid "Desktop right"
+msgstr "Wyślij na pulpit po prawej"
+
+#: ../properties.c:2583 ../properties.c:2619 ../properties.c:2655
+#: ../properties.c:2691 ../properties.c:2727
+msgid "Next task"
+msgstr "Następne zadanie"
+
+#: ../properties.c:2584 ../properties.c:2620 ../properties.c:2656
+#: ../properties.c:2692 ../properties.c:2728
+msgid "Previous task"
+msgstr "Poprzednie zadanie"
+
+#: ../properties.c:2586
+msgid ""
+"Specifies the action performed when task buttons receive a left click "
+"event: \n"
+"'None' means that no action is taken. \n"
+"'Close' closes the task. \n"
+"'Toggle' toggles the task. \n"
+"'Iconify' iconifies (minimizes) the task. \n"
+"'Shade' shades (collapses) the task. \n"
+"'Toggle or iconify' toggles or iconifies the task. \n"
+"'Maximize or restore' maximizes or minimizes the task. \n"
+"'Desktop left' sends the task to the previous desktop. \n"
+"'Desktop right' sends the task to the next desktop. \n"
+"'Next task' sends the focus to the next task. \n"
+"'Previous task' sends the focus to the previous task."
+msgstr ""
+"Określa akcję, która zostanie wykonana po lewym kliknięciu w przycisk "
+"zadania: \n"
+"'Brak\" - brak akcji. \n"
+"'Zamknij' - zamyka zadanie. \n"
+"'Przełącz' - przełącza stan zadania. \n"
+"'Zminimalizuj' - minimalizuje zadanie. \n"
+"'Zwiń' - zwija okno, tak że widoczny pozostaje tylko pasek tytułowy. \n"
+"'Przełącz lub minimalizuj' - przełącza lub minimalizuje zadanie. \n"
+"'Maksymalizuj lub przywróć' - maksymalizuje lub przywraca zadanie. \n"
+"'Wyślij na pulpit po prawej' - przenosi zadanie na następny pulpit. \n"
+"'Wyślij na pulpit po lewej' - przenosi zadanie na poprzedni pulpit. \n"
+"'Następne zadanie' - przenosi fokus na następne zadanie. \n"
+"'Poprzednie zadanie' - przenosi fokus na poprzednie zadanie."
+
+#: ../properties.c:2600
+msgid "Wheel scroll up"
+msgstr "Kółko myszy w górę"
+
+#: ../properties.c:2622
+msgid ""
+"Specifies the action performed when task buttons receive a scroll up "
+"event: \n"
+"'None' means that no action is taken. \n"
+"'Close' closes the task. \n"
+"'Toggle' toggles the task. \n"
+"'Iconify' iconifies (minimizes) the task. \n"
+"'Shade' shades (collapses) the task. \n"
+"'Toggle or iconify' toggles or iconifies the task. \n"
+"'Maximize or restore' maximizes or minimizes the task. \n"
+"'Desktop left' sends the task to the previous desktop. \n"
+"'Desktop right' sends the task to the next desktop. \n"
+"'Next task' sends the focus to the next task. \n"
+"'Previous task' sends the focus to the previous task."
+msgstr ""
+"Określa akcję, która zostanie wykonana po poruszeniu kółka myszy w górę : \n"
+"'Brak\" - brak akcji. \n"
+"'Zamknij' - zamyka zadanie. \n"
+"'Przełącz' - przełącza stan zadania. \n"
+"'Zminimalizuj' - minimalizuje zadanie. \n"
+"'Przełącz lub minimalizuj' - przełącza lub minimalizuje zadanie. \n"
+"'Maksymalizuj lub przywróć' - maksymalizuje lub przywraca zadanie. \n"
+"'Wyślij na pulpit po prawej' - przenosi zadanie na następny pulpit. \n"
+"'Wyślij na pulpit po lewej' - przenosi zadanie na poprzedni pulpit. \n"
+"'Następne zadanie' - przenosi fokus na następne zadanie. \n"
+"Poprzednie zadanie' - przenosi fokus na poprzednie zadanie."
+
+#: ../properties.c:2636
+msgid "Middle click"
+msgstr "Klik środkowym"
+
+#: ../properties.c:2650
+msgid "sShade"
+msgstr "Zwiń"
+
+#: ../properties.c:2658
+msgid ""
+"Specifies the action performed when task buttons receive a middle click "
+"event: \n"
+"'None' means that no action is taken. \n"
+"'Close' closes the task. \n"
+"'Toggle' toggles the task. \n"
+"'Iconify' iconifies (minimizes) the task. \n"
+"'Shade' shades (collapses) the task. \n"
+"'Toggle or iconify' toggles or iconifies the task. \n"
+"'Maximize or restore' maximizes or minimizes the task. \n"
+"'Desktop left' sends the task to the previous desktop. \n"
+"'Desktop right' sends the task to the next desktop. \n"
+"'Next task' sends the focus to the next task. \n"
+"'Previous task' sends the focus to the previous task."
+msgstr ""
+"Określa akcję, która zostanie wykonana po środkowym kliknięciu w przycisk "
+"zadania: \n"
+"'Brak\" - brak akcji. \n"
+"'Zamknij' - zamyka zadanie. \n"
+"'Przełącz' - przełącza stan zadania. \n"
+"'Zminimalizuj' - minimalizuje zadanie. \n"
+"'Przełącz lub minimalizuj' - przełącza lub minimalizuje zadanie. \n"
+"'Maksymalizuj lub przywróć' - maksymalizuje lub przywraca zadanie. \n"
+"'Wyślij na pulpit po prawej' - przenosi zadanie na następny pulpit. \n"
+"'Wyślij na pulpit po lewej' - przenosi zadanie na poprzedni pulpit. \n"
+"'Następne zadanie' - przenosi fokus na następne zadanie. \n"
+"Poprzednie zadanie' - przenosi fokus na poprzednie zadanie."
+
+#: ../properties.c:2672
+msgid "Wheel scroll down"
+msgstr "Kółko myszy w dół"
+
+#: ../properties.c:2694
+msgid ""
+"Specifies the action performed when task buttons receive a scroll down "
+"event: \n"
+"'None' means that no action is taken. \n"
+"'Close' closes the task. \n"
+"'Toggle' toggles the task. \n"
+"'Iconify' iconifies (minimizes) the task. \n"
+"'Shade' shades (collapses) the task. \n"
+"'Toggle or iconify' toggles or iconifies the task. \n"
+"'Maximize or restore' maximizes or minimizes the task. \n"
+"'Desktop left' sends the task to the previous desktop. \n"
+"'Desktop right' sends the task to the next desktop. \n"
+"'Next task' sends the focus to the next task. \n"
+"'Previous task' sends the focus to the previous task."
+msgstr ""
+"Określa akcję, która zostanie wykonana po poruszeniu kółka myszy w dół : \n"
+"'Brak\" - brak akcji. \n"
+"'Zamknij' - zamyka zadanie. \n"
+"'Przełącz' - przełącza stan zadania. \n"
+"'Zminimalizuj' - minimalizuje zadanie. \n"
+"'Przełącz lub minimalizuj' - przełącza lub minimalizuje zadanie. \n"
+"'Maksymalizuj lub przywróć' - maksymalizuje lub przywraca zadanie. \n"
+"'Wyślij na pulpit po prawej' - przenosi zadanie na następny pulpit. \n"
+"'Wyślij na pulpit po lewej' - przenosi zadanie na poprzedni pulpit. \n"
+"'Następne zadanie' - przenosi fokus na następne zadanie. \n"
+"Poprzednie zadanie' - przenosi fokus na poprzednie zadanie."
+
+#: ../properties.c:2708
+msgid "Right click"
+msgstr "Prawy klik"
+
+#: ../properties.c:2730
+msgid ""
+"Specifies the action performed when task buttons receive a right click "
+"event: \n"
+"'None' means that no action is taken. \n"
+"'Close' closes the task. \n"
+"'Toggle' toggles the task. \n"
+"'Iconify' iconifies (minimizes) the task. \n"
+"'Shade' shades (collapses) the task. \n"
+"'Toggle or iconify' toggles or iconifies the task. \n"
+"'Maximize or restore' maximizes or minimizes the task. \n"
+"'Desktop left' sends the task to the previous desktop. \n"
+"'Desktop right' sends the task to the next desktop. \n"
+"'Next task' sends the focus to the next task. \n"
+"'Previous task' sends the focus to the previous task."
+msgstr ""
+"Określa akcję, która zostanie wykonana po prawym kliknięciu w przycisk "
+"zadania: \n"
+"'Brak\" - brak akcji. \n"
+"'Zamknij' - zamyka zadanie. \n"
+"'Przełącz' - przełącza stan zadania. \n"
+"'Zminimalizuj' - minimalizuje zadanie. \n"
+"'Przełącz lub minimalizuj' - przełącza lub minimalizuje zadanie. \n"
+"'Maksymalizuj lub przywróć' - maksymalizuje lub przywraca zadanie. \n"
+"'Wyślij na pulpit po prawej' - przenosi zadanie na następny pulpit. \n"
+"'Wyślij na pulpit po lewej' - przenosi zadanie na poprzedni pulpit. \n"
+"'Następne zadanie' - przenosi fokus na następne zadanie. \n"
+"Poprzednie zadanie' - przenosi fokus na poprzednie zadanie."
+
+#: ../properties.c:2758
+msgid "Show icon"
+msgstr "Pokaż ikony"
+
+#: ../properties.c:2768
+msgid "If enabled, the window icon is shown on task buttons."
+msgstr "Jeśli zaznaczone, ikona okna jest pokazywana na panelu."
+
+#: ../properties.c:2771
+msgid "Show text"
+msgstr "Pokaż tekst"
+
+#: ../properties.c:2781
+msgid "If enabled, the window title is shown on task buttons."
+msgstr "Jeśli zaznaczone, tytuł okna jest pokazywany na przyciskach zadań."
+
+#: ../properties.c:2784
+msgid "Center text"
+msgstr "Tekst wycentrowany"
+
+#: ../properties.c:2794
+msgid ""
+"If enabled, the text is centered on task buttons. Otherwise, it is left-"
+"aligned."
+msgstr ""
+"Jeśli zaznaczone, tekst na przyciskach zadań jest wyśrodkowany. Jeśli nie, "
+"tekst jest wyrównany do lewej."
+
+#: ../properties.c:2797
+msgid "Show tooltips"
+msgstr "Pokaż podpowiedzi"
+
+#: ../properties.c:2807
+msgid ""
+"If enabled, a tooltip showing the window title is displayed when the mouse "
+"cursor moves over task buttons."
+msgstr ""
+"Jeśli zaznaczone, po najechaniu myszą nad przycisk zadania wyświetlane będą "
+"podpowiedzi."
+
+#: ../properties.c:2810
+msgid "Maximum width"
+msgstr "Maksymalna szerokość"
+
+#: ../properties.c:2820
+msgid "Specifies the maximum width of the task buttons."
+msgstr "Określa maksymalną szerokość przycisku zadania."
+
+#: ../properties.c:2823
+msgid "Maximum height"
+msgstr "Maksymalna wysokość"
+
+#: ../properties.c:2833
+msgid "Specifies the maximum height of the task buttons."
+msgstr "Określa maksymalną wysokość przycisku zadania."
+
+#: ../properties.c:2846
+msgid ""
+"Specifies the horizontal padding of the task buttons. This is the space "
+"between the border and the content inside."
+msgstr ""
+"Określa poziomy margines wewnętrzny dla przycisków zadań. To odległość "
+"między krawędzią, a zawartością."
+
+#: ../properties.c:2860
+msgid ""
+"Specifies the vertical padding of the task buttons. This is the space "
+"between the border and the content inside."
+msgstr ""
+"Określa pionowy margines wewnętrzny dla przycisków zadań. To odległość "
+"między krawędzią, a zawartością."
+
+#: ../properties.c:2874
+msgid "Specifies the spacing between the icon and the text."
+msgstr "Określa odstęp pomiędzy ikoną a tekstem."
+
+#: ../properties.c:2888
+msgid "Specifies the font used to display the task button text."
+msgstr "Określa czcionkę używaną do wyświetlania tekstu na przyciskach zadań."
+
+#: ../properties.c:2898
+msgid "Default style"
+msgstr "Domyślny styl"
+
+#: ../properties.c:2908
+msgid "Normal task"
+msgstr "Normalne zadanie"
+
+#: ../properties.c:2918
+msgid "Active task"
+msgstr "Aktywne"
+
+#: ../properties.c:2928
+msgid "Urgent task"
+msgstr "Pilne"
+
+#: ../properties.c:2938
+msgid "Iconified task"
+msgstr "Zminimalizowane"
+
+#: ../properties.c:3041
+msgid "If enabled, a custom font color is used to display the task text."
+msgstr "Jeśli zaznaczone, wybrany kolor jest użyty do wyświetlania tekstu."
+
+#: ../properties.c:3043 ../properties.c:3342 ../properties.c:3757
+#: ../properties.c:3901
+msgid "Font color"
+msgstr "Kolor czcionki"
+
+#: ../properties.c:3052
+msgid "Specifies the font color used to display the task text."
+msgstr "Określa kolor czcionki użyty do wyświetlenia tekstu."
+
+#: ../properties.c:3058
+msgid ""
+"If enabled, a custom opacity/saturation/brightness is used to display the "
+"task icon."
+msgstr ""
+"Jeśli zaznaczone, można określić własne wartości dla przeźroczystości/"
+"nasycenia/jasności ikon."
+
+#: ../properties.c:3068
+msgid "Specifies the opacity (in %) used to display the task icon."
+msgstr "Określa przeźroczystość (w %) użytą do wyświetlania ikon."
+
+#: ../properties.c:3078
+msgid ""
+"Specifies the saturation adjustment (in %) used to display the task icon."
+msgstr "Określa nasycenie koloru (w %) użyte do wyświetlania ikon."
+
+#: ../properties.c:3088
+msgid ""
+"Specifies the brightness adjustment (in %) used to display the task icon."
+msgstr "Określa jasność (w %) użytą dla wyświetlania ikon."
+
+#: ../properties.c:3094
+msgid "If enabled, a custom background is used to display the task."
+msgstr "Jeśli zaznaczone, wybrane tło zostanie użyte do wyświetlenia zadania."
+
+#: ../properties.c:3104
+msgid ""
+"Selects the background used to display the task. Backgrounds can be edited "
+"in the Backgrounds tab."
+msgstr ""
+"Wybiera tło, które będzie użyte do wyświetlenia zadania. Tła można edytować "
+"na karcie Tła."
+
+#: ../properties.c:3108
+msgid "Blinks"
+msgstr "Miganie"
+
+#: ../properties.c:3116
+msgid "Specifies how many times urgent tasks blink."
+msgstr "Określa ile razy pilne zadanie ma zamigać."
+
+#: ../properties.c:3138
+msgid "<b>Format</b>"
+msgstr "<b>Format</b>"
+
+#: ../properties.c:3150
+msgid "First line format"
+msgstr "Format pierwszej linii"
+
+#: ../properties.c:3162
+msgid ""
+"Specifies the format used to display the first line of the clock text. See "
+"'man strftime' for all the available options."
+msgstr ""
+"Określa format używany do wyświetlania pierwszej linii zegara. Zobacz 'man "
+"strftime', aby dowiedzieć się o opcjach."
+
+#: ../properties.c:3166
+msgid "Second line format"
+msgstr "Format drugiej linii"
+
+#: ../properties.c:3178
+msgid ""
+"Specifies the format used to display the second line of the clock text. See "
+"'man strftime' for all the available options."
+msgstr ""
+"Określa format używany do wyświetlania drugiej linii zegara. Zobacz 'man "
+"strftime', aby dowiedzieć się o opcjach."
+
+#: ../properties.c:3182
+msgid "First line timezone"
+msgstr "Strefa czasowa pierwszej linii"
+
+#: ../properties.c:3194
+msgid ""
+"Specifies the timezone used to display the first line of the clock text. If "
+"empty, the current timezone is used. Otherwise, it must be set to a valid "
+"value of the TZ environment variable."
+msgstr ""
+"Określa strefę czasową używaną do wyświetlania pierwszej linii tekstu "
+"zegara. Jeśli puste, użyta będzie obecna strefa czasowa."
+
+#: ../properties.c:3198
+msgid "Second line timezone"
+msgstr "Strefa czasowa drugiej linii"
+
+#: ../properties.c:3210
+msgid ""
+"Specifies the timezone used to display the second line of the clock text. If "
+"empty, the current timezone is used. Otherwise, it must be set to a valid "
+"value of the TZ environment variable."
+msgstr ""
+"Określa strefę czasową używaną do wyświetlania pierwszej linii tekstu "
+"zegara. Jeśli puste, użyta będzie obecna strefa czasowa."
+
+#: ../properties.c:3228
+msgid "Left click command"
+msgstr "Komenda po lewym kliknięciu"
+
+#: ../properties.c:3240
+msgid ""
+"Specifies a command that will be executed when the clock receives a left "
+"click."
+msgstr "Określa komendę, która będzie uruchamiana po lewym kliknięciu w zegar."
+
+#: ../properties.c:3243
+msgid "Right click command"
+msgstr "Komenda po prawym kliknięciu"
+
+#: ../properties.c:3255
+msgid ""
+"Specifies a command that will be executed when the clock receives a right "
+"click."
+msgstr ""
+"Określa komendę, która będzie uruchamiana po prawym kliknięciu w zegar."
+
+#: ../properties.c:3282
+msgid ""
+"Selects the background used to display the clock. Backgrounds can be edited "
+"in the Backgrounds tab."
+msgstr ""
+"Wybiera tło, które będzie użyte jako tło zegara. Tła można edytować na "
+"karcie tła."
+
+#: ../properties.c:3296
+msgid ""
+"Specifies the horizontal padding of the clock. This is the space between the "
+"border and the content inside."
+msgstr ""
+"Określa poziomy margines wewnętrzny dla zegara. To odstęp pomiędzy krawędzią "
+"a zawartością."
+
+#: ../properties.c:3310
+msgid ""
+"Specifies the vertical padding of the clock. This is the space between the "
+"border and the content inside."
+msgstr ""
+"Określa pionowy margines wewnętrzny dla zegara. To odstęp pomiędzy krawędzią "
+"a zawartością."
+
+#: ../properties.c:3314 ../properties.c:3729
+msgid "Font first line"
+msgstr "Czcionka pierwszej linii"
+
+#: ../properties.c:3325
+msgid "Specifies the font used to display the first line of the clock."
+msgstr "Określa czcionkę używaną w pierwszej linii zegara."
+
+#: ../properties.c:3328 ../properties.c:3743
+msgid "Font second line"
+msgstr "Czcionka drugiej linii"
+
+#: ../properties.c:3339
+msgid "Specifies the font used to display the second line of the clock."
+msgstr "Określa czcionkę używaną w drugiej linii zegara."
+
+#: ../properties.c:3353
+msgid "Specifies the font color used to display the clock."
+msgstr "Określa kolor czcionki dla zegara."
+
+#: ../properties.c:3357
+msgid "<b>Tooltip</b>"
+msgstr "<b>Podpowiedź</b>"
+
+#: ../properties.c:3370
+msgid "Format"
+msgstr "Format"
+
+#: ../properties.c:3381
+msgid ""
+"Specifies the format used to display the clock tooltip. See 'man strftime' "
+"for the available options."
+msgstr ""
+"Określa format w jakim pokazywana ma być podpowiedź dla zegara. Zobacz 'man "
+"strftime' aby dowiedzieć się o dostepnych opcjach."
+
+#: ../properties.c:3385
+msgid "Timezone"
+msgstr "Strefa czasowa"
+
+#: ../properties.c:3396
+msgid ""
+"Specifies the timezone used to display the clock tooltip. If empty, the "
+"current timezone is used. Otherwise, it must be set to a valid value of the "
+"TZ environment variable."
+msgstr ""
+"Określa strefę czasową użytą do wyświetlania podpowiedzi dla zegara. Jeśli "
+"puste, użyta zostanie strefa czasowa obecnie ustawiona w systemie. "
+
+#: ../properties.c:3423
+msgid "Icon ordering"
+msgstr "Sortowanie ikon"
+
+#: ../properties.c:3433
+msgid "Ascending"
+msgstr "Rosnąco"
+
+#: ../properties.c:3434
+msgid "Descending"
+msgstr "Malejąco"
+
+#: ../properties.c:3435
+msgid "Left to right"
+msgstr "Od lewej do prawej"
+
+#: ../properties.c:3436
+msgid "Right to left"
+msgstr "Od prawej do lewej"
+
+#: ../properties.c:3438
+msgid ""
+"Specifies the order used to arrange the system tray icons. \n"
+"'Ascending' means that icons are sorted in ascending order of their window "
+"names. \n"
+"'Descending' means that icons are sorted in descending order of their window "
+"names. \n"
+"'Left to right' means that icons are always added to the left. \n"
+"'Right to left' means that icons are always added to the right."
+msgstr ""
+"Określa porządek wyświetlania ikon w zasobniku systemowym. \n"
+"'Rosnąco' - alfabetycznie według nazw okien. \n"
+"'Malejąco' - według nazw okien od Z do A. \n"
+"'Od lewej do prawej' - ikony zawsze będą dodawane po lewej. \n"
+"'Od prawej do lewej' - ikony zawsze będą dodawane po prawej."
+
+#: ../properties.c:3463
+msgid ""
+"Specifies the monitor on which to place the system tray. Due to technical "
+"limitations, the system tray cannot be displayed on multiple monitors."
+msgstr ""
+"Określa monitor na którym będzie umieszczony zasobnik systemowy. Z powodu "
+"ograniczeń technicznych zasobnik systemowy nie może być wyświetlany na wielu "
+"monitorach."
+
+#: ../properties.c:3491
+msgid ""
+"Selects the background used to display the system tray. Backgrounds can be "
+"edited in the Backgrounds tab."
+msgstr ""
+"Wybiera tło używane do wyświetlania zasobnika systemowego. Tła mogą być "
+"edytowane na karcie Tła."
+
+#: ../properties.c:3506
+msgid ""
+"Specifies the horizontal padding of the system tray. This is the space "
+"between the border and the content inside."
+msgstr ""
+"Określa poziomy margines wewnętrzny dla zasobnik systemowego. To jest odstęp "
+"pomiędzy krawędzią a zawartością."
+
+#: ../properties.c:3521
+msgid ""
+"Specifies the vertical padding of the system tray. This is the space between "
+"the border and the content inside."
+msgstr ""
+"Określa pionowy margines wewnętrzny dla zasobnik systemowego. To jest odstęp "
+"pomiędzy krawędzią a zawartością."
+
+#: ../properties.c:3536
+msgid "Specifies the spacing between system tray icons."
+msgstr "Określa odstęp pomiędzy ikonami w zasobniku systemowym."
+
+#: ../properties.c:3550
+msgid "Specifies the size of the system tray icons, in pixels."
+msgstr "Określa rozmiar ikon w zasobniku systemowym, w pikselach."
+
+#: ../properties.c:3564
+msgid "Specifies the opacity of the system tray icons, in percent."
+msgstr "Określa przeźroczystość ikon w zasobniku systemowym, w procentach."
+
+#: ../properties.c:3578
+msgid ""
+"Specifies the saturation adjustment of the system tray icons, in percent."
+msgstr "Określa nasycenie koloru ikon w zasobniku systemowym, w procentach."
+
+#: ../properties.c:3592
+msgid ""
+"Specifies the brightness adjustment of the system tray icons, in percent."
+msgstr "Określa jasność ikon w zasobniku systemowym, w procentach."
+
+#: ../properties.c:3608
+msgid "<b>Thresholds</b>"
+msgstr "<b>Progi</b>"
+
+#: ../properties.c:3621
+msgid "Hide if charge higher than"
+msgstr "Ukryj jeśli poziom naładowania wyższy od"
+
+#: ../properties.c:3631
+msgid ""
+"Minimum battery level for which to hide the batter applet. Use 101 to always "
+"show the batter applet."
+msgstr ""
+"Minimalny poziom naładowania baterii, dla którego aplet baterii będzie "
+"ukrywany. Użyj 101, aby aplet baterii był zawsze widoczny."
+
+#: ../properties.c:3633 ../properties.c:3652
+msgid "%"
+msgstr "%"
+
+#: ../properties.c:3640
+msgid "Alert if charge lower than"
+msgstr "Alert jeśli poziom baterii niższy niż"
+
+#: ../properties.c:3650
+msgid "Battery level for which to display an alert."
+msgstr "Poziom naładowania baterii, dla którego wyświetlany będzie alert."
+
+#: ../properties.c:3659
+msgid "Alert command"
+msgstr "Komenda alarmu"
+
+#: ../properties.c:3670
+msgid "Command to be executed when the alert threshold is reached."
+msgstr "Komenda do wykonania, gdy zostanie osiągnięty próg dla alertu."
+
+#: ../properties.c:3697
+msgid ""
+"Selects the background used to display the battery. Backgrounds can be "
+"edited in the Backgrounds tab."
+msgstr ""
+"Wybiera tło, które będzie użyte do wyświetlania apletu baterii. Tła mogą być "
+"edytowane na karcie Tła."
+
+#: ../properties.c:3711
+msgid ""
+"Specifies the horizontal padding of the battery. This is the space between "
+"the border and the content inside."
+msgstr ""
+"Określa poziomy margines wewnętrzny dla apletu baterii. Jest to odstęp "
+"pomiędzy krawędzią a zawartością."
+
+#: ../properties.c:3725
+msgid ""
+"Specifies the vertical padding of the battery. This is the space between the "
+"border and the content inside."
+msgstr ""
+"Określa pionowy margines wewnętrzny dla apletu baterii. Jest to odstęp "
+"pomiędzy krawędzią a zawartością."
+
+#: ../properties.c:3740
+msgid "Specifies the font used to display the first line of the battery text."
+msgstr ""
+"Określa czcionkę użytą do wyświetlania pierwszej linii tekstu w aplecie "
+"baterii."
+
+#: ../properties.c:3754
+msgid "Specifies the font used to display the second line of the battery text."
+msgstr ""
+"Określa czcionkę użytą do wyświetlania drugiej linii tekstu w aplecie "
+"baterii."
+
+#: ../properties.c:3768
+msgid "Specifies the font clor used to display the battery text."
+msgstr "Określa kolor czcionki dla apletu baterii."
+
+#: ../properties.c:3780
+msgid "<b>Timing</b>"
+msgstr "<b>Czasy</b>"
+
+#: ../properties.c:3793
+msgid "Show delay"
+msgstr "Opóźnienie pokazywania"
+
+#: ../properties.c:3803
+msgid ""
+"Specifies a delay after which to show the tooltip when moving the mouse over "
+"an element."
+msgstr ""
+"Określa czas po jakim pokazana zostanie podpowiedź, gdy kursor myszy "
+"znajduje się nad elementem."
+
+#: ../properties.c:3812
+msgid "Hide delay"
+msgstr "Opóźnienie ukrywania"
+
+#: ../properties.c:3821
+msgid ""
+"Specifies a delay after which to hide the tooltip when moving the mouse "
+"outside an element."
+msgstr ""
+"Określa czas po jakim ukryta zostanie podpowiedź, gdy kursor myszy znajdzie "
+"się poza elementem."
+
+#: ../properties.c:3855
+msgid ""
+"Selects the background used to display the tooltip. Backgrounds can be "
+"edited in the Backgrounds tab."
+msgstr "Wybiera tło dla podpowiedzi. Tła mogą być edytowane na karcie tła."
+
+#: ../properties.c:3869
+msgid ""
+"Specifies the horizontal padding of the tooltip. This is the space between "
+"the border and the content inside."
+msgstr ""
+"Określa poziomy margines wewnętrzny dla podpowiedzi. Jest to odstęp pomiędzy "
+"krawędzią a zawartością."
+
+#: ../properties.c:3883
+msgid ""
+"Specifies the vertical padding of the tooltip. This is the space between the "
+"border and the content inside."
+msgstr ""
+"Określa pionowy margines wewnętrzny dla podpowiedzi. Jest to odstęp pomiędzy "
+"krawędzią a zawartością."
+
+#: ../properties.c:3898
+msgid "Specifies the font used to display the text of the tooltip."
+msgstr "Określa czcionkę użytą do wyświetlania tekstu w podpowiedziach."
+
+#: ../properties.c:3912
+msgid "Specifies the font color used to display the text of the tooltip."
+msgstr "Określa kolor czcionki użyty w podpowiedziach."
