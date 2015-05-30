@@ -14,8 +14,6 @@
 #include "area.h"
 #include "timer.h"
 #include <X11/extensions/Xdamage.h>
-#include <time.h>
-#include <sys/time.h>
 
 // XEMBED messages
 #define XEMBED_EMBEDDED_NOTIFY		0
@@ -49,7 +47,6 @@ typedef struct
 	int empty;
 	int pid;
 	int chrono;
-    struct timespec time_last_render;
 } TrayWindow;
 
 

@@ -49,7 +49,10 @@ struct _timeout {
 
 void add_timeout_intern(int value_msec, int interval_msec, void(*_callback)(void*), void* arg, timeout* t);
 gint compare_timeouts(gconstpointer t1, gconstpointer t2);
+gint compare_timespecs(const struct timespec* t1, const struct timespec* t2);
 int timespec_subtract(struct timespec* result, struct timespec* x, struct timespec* y);
+struct timespec add_msec_to_timespec(struct timespec ts, int msec);
+
 
 int align_with_existing_timeouts(timeout* t);
 void create_multi_timeout(timeout* t1, timeout* t2);

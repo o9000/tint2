@@ -66,7 +66,4 @@ void update_next_timeout();
 /** Callback of all expired timeouts **/
 void callback_timeout_expired();
 
-gint compare_timespecs(const struct timespec* t1, const struct timespec* t2);
-struct timespec add_msec_to_timespec(struct timespec ts, int msec);
-
 #endif // TIMER_H
