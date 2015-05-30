@@ -342,9 +342,9 @@ static gint compare_traywindows(gconstpointer a, gconstpointer b)
 	const TrayWindow * traywin_b = (TrayWindow*)b;
 
 	if (traywin_a->empty && !traywin_b->empty)
-		return 1;
+		return 1 * (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? -1 : 1);
 	if (!traywin_a->empty && traywin_b->empty)
-		return -1;
+		return -1 * (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? -1 : 1);
 
 	if (systray.sort == SYSTRAY_SORT_ASCENDING ||
 		systray.sort == SYSTRAY_SORT_DESCENDING) {
