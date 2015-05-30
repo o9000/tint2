@@ -20,6 +20,8 @@
 #define TIMER_H
 
 #include <glib.h>
+#include <time.h>
+#include <sys/time.h>
 
 extern struct timeval next_timeout;
 
@@ -65,5 +67,10 @@ void update_next_timeout();
 
 /** Callback of all expired timeouts **/
 void callback_timeout_expired();
+
+/** Returns -1 if t1 < t2, 0 if t1 == t2, 1 if t1 > t2 **/
+gint compare_timespecs(const struct timespec* t1, const struct timespec* t2);
+
+struct timespec add_msec_to_timespec(struct timespec ts, int msec);
 
 #endif // TIMER_H

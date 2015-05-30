@@ -603,7 +603,18 @@ void systray_render_icon_now(void* t)
 	// we made also sure, that we always have a 32 bit visual, i.e. we can safely create 32 bit pixmaps here
 	TrayWindow* traywin = t;
 
-	traywin->render_timeout = 0;
+    // wine tray icons update whenever mouse is over them, so we limit the updates to 50 ms
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    struct timespec earliest_render = add_msec_to_timespec(traywin->time_last_render, 50);
+    if (compare_timespecs(&earliest_render, &now) > 0) {
+        traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin, &traywin->render_timeout);
+        return;
+    }
+    traywin->time_last_render.tv_sec = now.tv_sec;
+    traywin->time_last_render.tv_nsec = now.tv_nsec;
+    traywin->render_timeout = NULL;
+
 	if ( traywin->width == 0 || traywin->height == 0 ) {
 		// reschedule rendering since the geometry information has not yet been processed (can happen on slow cpu)
 		systray_render_icon(traywin);
@@ -698,9 +709,8 @@ void systray_render_icon_now(void* t)
 void systray_render_icon(TrayWindow* traywin)
 {
 	if (FORCE_COMPOSITED_RENDERING || server.real_transparency || systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0) {
-		// wine tray icons update whenever mouse is over them, so we limit the updates to 50 ms
-		if (!traywin->render_timeout)
-			traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin, &traywin->render_timeout);
+        if (!traywin->render_timeout)
+            systray_render_icon_now(traywin);
 	}
 	else {
 		//			Pixmap pix = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
