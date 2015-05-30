@@ -613,13 +613,17 @@ void systray_render_icon_now(void* t)
     }
     traywin->time_last_render.tv_sec = now.tv_sec;
     traywin->time_last_render.tv_nsec = now.tv_nsec;
-    traywin->render_timeout = NULL;
 
 	if ( traywin->width == 0 || traywin->height == 0 ) {
 		// reschedule rendering since the geometry information has not yet been processed (can happen on slow cpu)
-		systray_render_icon(traywin);
+		traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin, &traywin->render_timeout);
 		return;
 	}
+
+    if (traywin->render_timeout) {
+        stop_timeout(traywin->render_timeout);
+        traywin->render_timeout = NULL;
+    }
 
 	int empty = 1;
 	XImage *ximage = XGetImage(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height, AllPlanes, XYPixmap);
