@@ -117,12 +117,12 @@ void init (int argc, char *argv[])
 	// BSD does not support pselect(), therefore we have to use select and hope that we do not
 	// end up in a race condition there (see 'man select()' on a linux machine for more information)
 	// block all signals, such that no race conditions occur before pselect in our main loop
-//	sigset_t block_mask;
-//	sigaddset(&block_mask, SIGINT);
-//	sigaddset(&block_mask, SIGTERM);
-//	sigaddset(&block_mask, SIGHUP);
-//	sigaddset(&block_mask, SIGUSR1);
-//	sigprocmask(SIG_BLOCK, &block_mask, 0);
+	//	sigset_t block_mask;
+	//	sigaddset(&block_mask, SIGINT);
+	//	sigaddset(&block_mask, SIGTERM);
+	//	sigaddset(&block_mask, SIGHUP);
+	//	sigaddset(&block_mask, SIGUSR1);
+	//	sigprocmask(SIG_BLOCK, &block_mask, 0);
 }
 
 static int sn_pipe_valid = 0;
@@ -241,7 +241,7 @@ void init_X11_post_config()
 
 	/* Catch events */
 	XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
-	
+
 	// load default icon
 	gchar *path;
 	const gchar * const *data_dirs;
@@ -323,60 +323,60 @@ void window_action (Task *tsk, int action)
 	if (!tsk) return;
 	int desk;
 	switch (action) {
-		case CLOSE:
-			set_close (tsk->win);
-			break;
-		case TOGGLE:
-			set_active(tsk->win);
-			break;
-		case ICONIFY:
+	case CLOSE:
+		set_close (tsk->win);
+		break;
+	case TOGGLE:
+		set_active(tsk->win);
+		break;
+	case ICONIFY:
+		XIconifyWindow (server.dsp, tsk->win, server.screen);
+		break;
+	case TOGGLE_ICONIFY:
+		if (task_active && tsk->win == task_active->win)
 			XIconifyWindow (server.dsp, tsk->win, server.screen);
-			break;
-		case TOGGLE_ICONIFY:
-			if (task_active && tsk->win == task_active->win)
-				XIconifyWindow (server.dsp, tsk->win, server.screen);
-			else
-				set_active (tsk->win);
-			break;
-		case SHADE:
-			window_toggle_shade (tsk->win);
-			break;
-		case MAXIMIZE_RESTORE:
-			window_maximize_restore (tsk->win);
-			break;
-		case MAXIMIZE:
-			window_maximize_restore (tsk->win);
-			break;
-		case RESTORE:
-			window_maximize_restore (tsk->win);
-			break;
-		case DESKTOP_LEFT:
-			if ( tsk->desktop == 0 ) break;
-			desk = tsk->desktop - 1;
-			windows_set_desktop(tsk->win, desk);
-			if (desk == server.desktop)
-				set_active(tsk->win);
-			break;
-		case DESKTOP_RIGHT:
-			if (tsk->desktop == server.nb_desktop ) break;
-			desk = tsk->desktop + 1;
-			windows_set_desktop(tsk->win, desk);
-			if (desk == server.desktop)
-				set_active(tsk->win);
-			break;
-		case NEXT_TASK:
-			{
-				Task *tsk1;
-				tsk1 = next_task(find_active_task(tsk, task_active));
-				set_active(tsk1->win);
-			}
-			break;
-		case PREV_TASK:
-			{
-				Task *tsk1;
-				tsk1 = prev_task(find_active_task(tsk, task_active));
-				set_active(tsk1->win);
-			}
+		else
+			set_active (tsk->win);
+		break;
+	case SHADE:
+		window_toggle_shade (tsk->win);
+		break;
+	case MAXIMIZE_RESTORE:
+		window_maximize_restore (tsk->win);
+		break;
+	case MAXIMIZE:
+		window_maximize_restore (tsk->win);
+		break;
+	case RESTORE:
+		window_maximize_restore (tsk->win);
+		break;
+	case DESKTOP_LEFT:
+		if ( tsk->desktop == 0 ) break;
+		desk = tsk->desktop - 1;
+		windows_set_desktop(tsk->win, desk);
+		if (desk == server.desktop)
+			set_active(tsk->win);
+		break;
+	case DESKTOP_RIGHT:
+		if (tsk->desktop == server.nb_desktop ) break;
+		desk = tsk->desktop + 1;
+		windows_set_desktop(tsk->win, desk);
+		if (desk == server.desktop)
+			set_active(tsk->win);
+		break;
+	case NEXT_TASK:
+	{
+		Task *tsk1;
+		tsk1 = next_task(find_active_task(tsk, task_active));
+		set_active(tsk1->win);
+	}
+		break;
+	case PREV_TASK:
+	{
+		Task *tsk1;
+		tsk1 = prev_task(find_active_task(tsk, task_active));
+		set_active(tsk1->win);
+	}
 	}
 }
 
@@ -386,10 +386,10 @@ int tint2_handles_click(Panel* panel, XButtonEvent* e)
 	Task* task = click_task(panel, e->x, e->y);
 	if (task) {
 		if(   (e->button == 1 && mouse_left != 0)
-			 || (e->button == 2 && mouse_middle != 0)
-			 || (e->button == 3 && mouse_right != 0)
-			 || (e->button == 4 && mouse_scroll_up != 0)
-			 || (e->button == 5 && mouse_scroll_down !=0) )
+			  || (e->button == 2 && mouse_middle != 0)
+			  || (e->button == 3 && mouse_right != 0)
+			  || (e->button == 4 && mouse_scroll_up != 0)
+			  || (e->button == 5 && mouse_scroll_down !=0) )
 		{
 			return 1;
 		}
@@ -530,27 +530,27 @@ void event_button_release (XEvent *e)
 
 	int action = TOGGLE_ICONIFY;
 	switch (e->xbutton.button) {
-		case 1:
-			action = mouse_left;
-			break;
-		case 2:
-			action = mouse_middle;
-			break;
-		case 3:
-			action = mouse_right;
-			break;
-		case 4:
-			action = mouse_scroll_up;
-			break;
-		case 5:
-			action = mouse_scroll_down;
-			break;
-		case 6:
-			action = mouse_tilt_left;
-			break;
-		case 7:
-			action = mouse_tilt_right;
-			break;
+	case 1:
+		action = mouse_left;
+		break;
+	case 2:
+		action = mouse_middle;
+		break;
+	case 3:
+		action = mouse_right;
+		break;
+	case 4:
+		action = mouse_scroll_up;
+		break;
+	case 5:
+		action = mouse_scroll_down;
+		break;
+	case 6:
+		action = mouse_tilt_left;
+		break;
+	case 7:
+		action = mouse_tilt_right;
+		break;
 	}
 
 	if ( click_clock(panel, e->xbutton.x, e->xbutton.y)) {
@@ -834,8 +834,9 @@ void event_configure_notify (Window win)
 		if (traywin->tray_id == win) {
 			//printf("move tray %d\n", traywin->x);
 			XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
-			XResizeWindow(server.dsp, traywin->tray_id, traywin->width, traywin->height);
+			XMoveResizeWindow(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height);
 			panel_refresh = 1;
+			refresh_systray = 1;
 			return;
 		}
 	}
@@ -895,8 +896,8 @@ struct Property read_property(Display* disp, Window w, Atom property)
 		if (ret != 0)
 			XFree(ret);
 		XGetWindowProperty(disp, w, property, 0, read_bytes, False, AnyPropertyType,
-							&actual_type, &actual_format, &nitems, &bytes_after,
-							&ret);
+						   &actual_type, &actual_format, &nitems, &bytes_after,
+						   &ret);
 		read_bytes *= 2;
 	} while (bytes_after != 0);
 
@@ -1126,8 +1127,8 @@ start:
 	dnd_sent_request = 0;
 	dnd_launcher_exec = 0;
 
-//	sigset_t empty_mask;
-//	sigemptyset(&empty_mask);
+	//	sigset_t empty_mask;
+	//	sigemptyset(&empty_mask);
 
 	while (1) {
 		if (panel_refresh) {
@@ -1269,7 +1270,7 @@ start:
 							break;
 						for (it = systray.list_icons; it; it = g_slist_next(it)) {
 							if (((TrayWindow*)it->data)->tray_id == e.xany.window) {
-									remove_icon((TrayWindow*)it->data);
+								remove_icon((TrayWindow*)it->data);
 								break;
 							}
 						}
@@ -1414,7 +1415,7 @@ start:
 							for (l = systray.list_icons; l ; l = l->next) {
 								traywin = (TrayWindow*)l->data;
 								if ( traywin->id == de->drawable ) {
-								systray_render_icon(traywin);
+									systray_render_icon(traywin);
 									break;
 								}
 							}
