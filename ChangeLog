@@ -12,7 +12,9 @@
   - Icons (system tray, task buttons, launcher):
     - Changed rendering method to fix icon corruptions (please report any problems)
   - System tray:
-    - Workaround for misbehaving applications leaving empty tray icons
+    - Icon rendering is faster
+    - Several kinds of graphical corruptions have been fixed
+    - Added workaround for misbehaving applications leaving empty tray icons
   - Many bugfixes
 - New config options (see https://gitlab.com/o9000/tint2/wikis/Configure):
   - Panel:
@@ -46,8 +48,36 @@
       Reason for change: legibility improved for transparent panels.
   - Launcher:
     - launcher_item_app: now it expands leading ~ to the path to the user's home directory.
+- Known issues:
+  - tint2 might close unexpectedly and/or cause X to freeze on certain ATI graphics cards.
+    Workaround: set 'disable_transparency = 1' in the config.
+    Reference: https://gitlab.com/o9000/tint2/issues/497
 - Project hosting:
   - Migrated from https://code.google.com/p/tint2 to https://gitlab.com/o9000/tint2 and switched from svn to git
+- Bugfixes:
+  - task switching from tint2 using the mouse wheel (mouse_scroll_up = prev_task and mouse_scroll_down = next_task) with
+    multiple desktops and taskbar_mode = multi_desktop when hovering over the first/last window in the taskbar was broken;
+    also when a window is set to appear on all desktops;
+  - the launcher was not loading an icon if the icon theme was not providing it in a size close to the value of launcher_icon_size;
+  - the launcher was not loading an icon if the extension was incorrect (e.g. file contents were PNG but the file name
+    had extension SVG);
+  - some launcher icons (PNG files saved with an indexed colormap and alpha mask) were sometimes rendered with white instead of
+    transparency;
+  - icons looked washed out when the panel was very transparent;
+  - the panel border was rendered in the background of every systray icon; sometimes systray icons were rendered in the
+    background of other icons;
+  - a crash caused by a change that prevents Google Chrome (and possibly other misbehaving applications) from leaving a large
+    number of empty icons in the system tray;
+  - the panel window had a shadow;
+  - some ATI drivers return an extra monitor with size zero which should be ignored when using panel_monitor = all;
+  - the battery applet was sometimes working incorrectly with certain laptop models (the battery applet stopped updating after
+    suspend with the battery unplugged);
+  - crashed caused by incomplete or malformed config files;
+  - with the fvwm window manager, the window title was sometimes not displayed correctly if it changed right after an
+    application was started;
+  - seconds were not updating in the clock;
+  - tint2 hang triggered when an application started from the launcher was closed and startup notifications were enabled;
+  - the code that loads SVG icons was using a lot of memory.
 
 2010-06-26
 - unhide tint2 panel when dragging something
