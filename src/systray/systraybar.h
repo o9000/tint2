@@ -35,8 +35,8 @@ typedef struct {
 
 typedef struct
 {
-	Window id;
-	Window tray_id;
+	Window parent;
+	Window win;
 	int x, y;
 	int width, height;
 	// TODO: manage icon's show/hide

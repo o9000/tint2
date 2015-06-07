@@ -831,10 +831,10 @@ void event_configure_notify (Window win)
 	GSList *l;
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
-		if (traywin->tray_id == win) {
+		if (traywin->win == win) {
 			//printf("move tray %d\n", traywin->x);
-			XMoveResizeWindow(server.dsp, traywin->id, traywin->x, traywin->y, traywin->width, traywin->height);
-			XMoveResizeWindow(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height);
+			XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
+			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
 			panel_refresh = 1;
 			refresh_systray = 1;
 			return;
@@ -1269,7 +1269,7 @@ start:
 						if (e.xany.window == g_tooltip.window || !systray_enabled)
 							break;
 						for (it = systray.list_icons; it; it = g_slist_next(it)) {
-							if (((TrayWindow*)it->data)->tray_id == e.xany.window) {
+							if (((TrayWindow*)it->data)->win == e.xany.window) {
 								remove_icon((TrayWindow*)it->data);
 								break;
 							}
@@ -1414,7 +1414,7 @@ start:
 							XDamageNotifyEvent* de = &event_union.de;
 							for (l = systray.list_icons; l ; l = l->next) {
 								traywin = (TrayWindow*)l->data;
-								if ( traywin->id == de->drawable ) {
+								if ( traywin->parent == de->drawable ) {
 									systray_render_icon(traywin);
 									break;
 								}
