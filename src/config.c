@@ -41,6 +41,7 @@
 
 #include "common.h"
 #include "server.h"
+#include "strnatcmp.h"
 #include "panel.h"
 #include "task.h"
 #include "taskbar.h"
@@ -153,23 +154,48 @@ int config_get_monitor(char* monitor)
 	return -1;
 }
 
+static gint compare_strings(gconstpointer a, gconstpointer b)
+{
+   return strnatcasecmp((const char*)a, (const char*)b);
+}
+
 void load_launcher_app_dir(const char *path)
 {
-	GDir *d = g_dir_open(path, 0, NULL);
+    GList *subdirs = NULL;
+	GList *files = NULL;
+
+    GDir *d = g_dir_open(path, 0, NULL);
 	if (d) {
 		const gchar *name;
 		while ((name = g_dir_read_name(d))) {
 			gchar *file = g_build_filename(path, name, NULL);
-			if (!g_file_test(file, G_FILE_TEST_IS_DIR) &&
-				g_str_has_suffix(file, ".desktop")) {
-				panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, strdup(file));
+			if (!g_file_test(file, G_FILE_TEST_IS_DIR) && g_str_has_suffix(file, ".desktop")) {
+				files = g_list_append(files, file);
 			} else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
-				load_launcher_app_dir(file);
-			}
-			g_free(file);
+				subdirs = g_list_append(subdirs, file);
+			} else {
+                g_free(file);
+            }
 		}
 		g_dir_close(d);
 	}
+
+    subdirs = g_list_sort(subdirs, compare_strings);
+    GList *l;
+    for (l = subdirs; l; l = g_list_next(l)) {
+        gchar *dir = (gchar *)l->data;
+        load_launcher_app_dir(dir);
+        g_free(dir);
+    }
+    g_list_free(subdirs);
+
+    files = g_list_sort(files, compare_strings);
+    for (l = files; l; l = g_list_next(l)) {
+        gchar *file = (gchar *)l->data;
+        panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, strdup(file));
+        g_free(file);
+    }
+    g_list_free(files);
 }
 
 void add_entry (char *key, char *value)
