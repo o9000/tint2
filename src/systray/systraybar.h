@@ -48,6 +48,7 @@ typedef struct
 	int pid;
 	int chrono;
     struct timespec time_last_render;
+	int reparented;
 } TrayWindow;
 
 

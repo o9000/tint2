@@ -382,10 +382,10 @@ static gint compare_traywindows(gconstpointer a, gconstpointer b)
 gboolean add_icon(Window id)
 {
 	TrayWindow *traywin;
-	XErrorHandler old;
 	Panel *panel = systray.area.panel;
 	int hide = 0;
 
+	// Get the process ID of the application that created the window
 	int pid = 0;
 	{
 		Atom actual_type;
@@ -400,6 +400,7 @@ gboolean add_icon(Window id)
 		}
 	}
 
+	// Check if the application leaves behind empty icons
 	GSList *l;
 	int num_empty_same_pid = 0;
 	for (l = systray.list_icons; l; l = l->next) {
@@ -409,6 +410,7 @@ gboolean add_icon(Window id)
 			num_empty_same_pid++;
 	}
 
+	// Remove empty icons if the application leaves behind more than 1
 	const int max_num_empty_same_pid = 0;
 	if (num_empty_same_pid > max_num_empty_same_pid) {
 		for (l = systray.list_icons; l; l = l->next) {
@@ -422,82 +424,47 @@ gboolean add_icon(Window id)
 	}
 	//printf("add_icon: %d, pid %d, %d\n", id, pid, num_empty_same_pid);
 
+	// Create the parent window that will embed the icon
 	error = FALSE;
 	XWindowAttributes attr;
-	if ( XGetWindowAttributes(server.dsp, id, &attr) == False ) return FALSE;
+	if (XGetWindowAttributes(server.dsp, id, &attr) == False)
+		return FALSE;
 	unsigned long mask = 0;
 	XSetWindowAttributes set_attr;
 	Visual* visual = server.visual;
 	//printf("icon with depth: %d, width %d, height %d\n", attr.depth, attr.width, attr.height);
-	//printf("icon with depth: %d\n", attr.depth);
 	if (systray_composited || attr.depth != server.depth) {
 		visual = attr.visual;
 		set_attr.colormap = attr.colormap;
 		set_attr.background_pixel = 0;
 		set_attr.border_pixel = 0;
 		mask = CWColormap|CWBackPixel|CWBorderPixel;
-	}
-	else {
+	} else {
 		set_attr.background_pixmap = ParentRelative;
 		mask = CWBackPixmap;
 	}
 	Window parent_window = XCreateWindow(server.dsp, panel->main_win, 0, 0, 30, 30, 0, attr.depth, InputOutput, visual, mask, &set_attr);
-	old = XSetErrorHandler(window_error_handler);
-	XReparentWindow(server.dsp, id, parent_window, 0, 0);
-	// watch for the icon trying to resize itself / closing again!
+
+	// Watch for the icon trying to resize itself / closing again
+	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	XSelectInput(server.dsp, id, StructureNotifyMask);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
 	if (error != FALSE) {
-		fprintf(stderr, "tint2 : not icon_swallow\n");
+		fprintf(stderr, "tint2 : cannot add systray icon\n");
 		XDestroyWindow(server.dsp, parent_window);
 		return FALSE;
 	}
 
-	{
-		Atom acttype;
-		int actfmt;
-		unsigned long nbitem, bytes;
-		unsigned char *data = 0;
-		int ret;
-
-		ret = XGetWindowProperty(server.dsp, id, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data);
-		if (ret == Success) {
-			if (data) {
-				if (nbitem == 2) {
-					//hide = ((data[1] & XEMBED_MAPPED) == 0);
-					//printf("hide %d\n", hide);
-				}
-				XFree(data);
-			}
-		}
-		else {
-			fprintf(stderr, "tint2 : xembed error\n");
-			XDestroyWindow(server.dsp, parent_window);
-			return FALSE;
-		}
-	}
-	{
-		XEvent e;
-		e.xclient.type = ClientMessage;
-		e.xclient.serial = 0;
-		e.xclient.send_event = True;
-		e.xclient.message_type = server.atom._XEMBED;
-		e.xclient.window = id;
-		e.xclient.format = 32;
-		e.xclient.data.l[0] = CurrentTime;
-		e.xclient.data.l[1] = XEMBED_EMBEDDED_NOTIFY;
-		e.xclient.data.l[2] = 0;
-		e.xclient.data.l[3] = parent_window;
-		e.xclient.data.l[4] = 0;
-		XSendEvent(server.dsp, id, False, 0xFFFFFF, &e);
-	}
-
+	// Add the icon to the list
 	traywin = g_new0(TrayWindow, 1);
 	traywin->id = parent_window;
 	traywin->tray_id = id;
 	traywin->hide = hide;
 	traywin->depth = attr.depth;
+	// Reparenting is done at the first paint event when the window is positioned correctly over its empty background,
+	// to prevent graphical corruptions in icons with fake transparency
+	traywin->reparented = 0;
 	traywin->damage = 0;
 	traywin->empty = 0;
 	traywin->pid = pid;
@@ -512,25 +479,92 @@ gboolean add_icon(Window id)
 	else
 		systray.list_icons = g_slist_append(systray.list_icons, traywin);
 	systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
-	//printf("add_icon id %lx, %d\n", id, g_slist_length(systray.list_icons));
+	// printf("add_icon id %lx, %d\n", id, g_slist_length(systray.list_icons));
 
-	if (systray_composited) {
-		traywin->damage = XDamageCreate(server.dsp, traywin->id, XDamageReportRawRectangles);
-		XCompositeRedirectWindow(server.dsp, traywin->id, CompositeRedirectManual);
-	}
-
-	// show the window
-	if (!traywin->hide)
-		XMapWindow(server.dsp, traywin->tray_id);
-	if (!traywin->hide && !panel->is_hidden)
-		XMapRaised(server.dsp, traywin->id);
-
-	// changed in systray
+	// Resize and redraw the systray
 	systray.area.resize = 1;
 	panel_refresh = 1;
 	return TRUE;
 }
 
+gboolean reparent_icon(TrayWindow *traywin)
+{
+	if (traywin->reparented)
+		return TRUE;
+
+	Panel* panel = systray.area.panel;
+
+	XErrorHandler old = XSetErrorHandler(window_error_handler);
+
+	// Reparent
+	XReparentWindow(server.dsp, traywin->tray_id, traywin->id, 0, 0);
+	XSync(server.dsp, False);
+
+	traywin->reparented = 1;
+
+	// Embed into parent
+	{
+		XEvent e;
+		e.xclient.type = ClientMessage;
+		e.xclient.serial = 0;
+		e.xclient.send_event = True;
+		e.xclient.message_type = server.atom._XEMBED;
+		e.xclient.window = traywin->id;
+		e.xclient.format = 32;
+		e.xclient.data.l[0] = CurrentTime;
+		e.xclient.data.l[1] = XEMBED_EMBEDDED_NOTIFY;
+		e.xclient.data.l[2] = 0;
+		e.xclient.data.l[3] = traywin->id;
+		e.xclient.data.l[4] = 0;
+		XSendEvent(server.dsp, traywin->tray_id, False, 0xFFFFFF, &e);
+		XSync(server.dsp, False);
+	}
+
+	// Check if window was embedded
+	{
+		Atom acttype;
+		int actfmt;
+		unsigned long nbitem, bytes;
+		unsigned char *data = 0;
+		int ret;
+
+		ret = XGetWindowProperty(server.dsp, traywin->tray_id, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data);
+		if (ret == Success) {
+			if (data) {
+				if (nbitem == 2) {
+					//hide = ((data[1] & XEMBED_MAPPED) == 0);
+					//printf("hide %d\n", hide);
+				}
+				XFree(data);
+			}
+		} else {
+			fprintf(stderr, "tint2 : xembed error\n");
+			remove_icon(traywin);
+			return FALSE;
+		}
+	}
+
+	// Redirect rendering when using compositing
+	if (systray_composited) {
+		traywin->damage = XDamageCreate(server.dsp, traywin->id, XDamageReportRawRectangles);
+		XCompositeRedirectWindow(server.dsp, traywin->id, CompositeRedirectManual);
+	}
+
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+	if (error != FALSE) {
+		remove_icon(traywin);
+		return FALSE;
+	}
+
+	// Make the icon visible
+	if (!traywin->hide)
+		XMapWindow(server.dsp, traywin->tray_id);
+	if (!traywin->hide && !panel->is_hidden)
+		XMapRaised(server.dsp, traywin->id);
+
+	return TRUE;
+}
 
 void remove_icon(TrayWindow *traywin)
 {
@@ -599,7 +633,7 @@ void net_message(XClientMessageEvent *e)
 	}
 }
 
-void systray_render_icon_now(void* t)
+void systray_render_icon_composited(void* t)
 {
 	// we end up in this function only in real transparency mode or if systray_task_asb != 100 0 0
 	// we made also sure, that we always have a 32 bit visual, i.e. we can safely create 32 bit pixmaps here
@@ -610,7 +644,7 @@ void systray_render_icon_now(void* t)
 	clock_gettime(CLOCK_MONOTONIC, &now);
 	struct timespec earliest_render = add_msec_to_timespec(traywin->time_last_render, 50);
 	if (compare_timespecs(&earliest_render, &now) > 0) {
-		traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin, &traywin->render_timeout);
+		traywin->render_timeout = add_timeout(50, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
 		return;
 	}
 	traywin->time_last_render.tv_sec = now.tv_sec;
@@ -618,7 +652,7 @@ void systray_render_icon_now(void* t)
 
 	if ( traywin->width == 0 || traywin->height == 0 ) {
 		// reschedule rendering since the geometry information has not yet been processed (can happen on slow cpu)
-		traywin->render_timeout = add_timeout(50, 0, systray_render_icon_now, traywin, &traywin->render_timeout);
+		traywin->render_timeout = add_timeout(50, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
 		return;
 	}
 
@@ -714,14 +748,15 @@ void systray_render_icon_now(void* t)
 
 void systray_render_icon(TrayWindow* traywin)
 {
+	if (!reparent_icon(traywin))
+		return;
+
 	if (systray_composited) {
 		if (!traywin->render_timeout)
-			systray_render_icon_now(traywin);
-	}
-	else {
-		// Pixmap pix = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, server.depth);
-		// XCopyArea(server.dsp, panel->temp_pmap, pix, server.gc, traywin->x, traywin->y, traywin->width, traywin->height, 0, 0);
-		// XSetWindowBackgroundPixmap(server.dsp, traywin->id, pix);
+			systray_render_icon_composited(traywin);
+	} else {
+		// Trigger window repaint
+		XClearArea(server.dsp, traywin->id, 0, 0, traywin->width, traywin->height, True);
 		XClearArea(server.dsp, traywin->tray_id, 0, 0, traywin->width, traywin->height, True);
 	}
 }
