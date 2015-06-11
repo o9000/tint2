@@ -354,7 +354,7 @@ int resize_panel(void *obj)
 			}
 
 			Taskbar *taskbar = &panel->taskbar[i];
-			GSList *l;
+			GList *l;
 			for (l = taskbar->area.list; l; l = l->next) {
 				Area *child = l->data;
 				if (!child->on_screen)
@@ -389,7 +389,7 @@ int resize_panel(void *obj)
 
 				int requested_size = (2 * taskbar->area.bg->border.width) + (2 * taskbar->area.paddingxlr);
 				int items = 0;
-				GSList *l = taskbar->area.list;
+				GList *l = taskbar->area.list;
 				if (taskbarname_enabled)
 					l = l->next;
 				for (; l; l = l->next) {
@@ -482,29 +482,29 @@ void set_panel_items_order(Panel *p)
 	int k, j;
 	
 	if (p->area.list) {
-		g_slist_free(p->area.list);
+		g_list_free(p->area.list);
 		p->area.list = 0;
 	}
 
 	for (k=0 ; k < strlen(panel_items_order) ; k++) {
 		if (panel_items_order[k] == 'L') {
-			p->area.list = g_slist_append(p->area.list, &p->launcher);
+			p->area.list = g_list_append(p->area.list, &p->launcher);
 			p->launcher.area.resize = 1;
 		}
 		if (panel_items_order[k] == 'T') {
 			for (j=0 ; j < p->nb_desktop ; j++)
-				p->area.list = g_slist_append(p->area.list, &p->taskbar[j]);
+				p->area.list = g_list_append(p->area.list, &p->taskbar[j]);
 		}
 #ifdef ENABLE_BATTERY
 		if (panel_items_order[k] == 'B') 
-			p->area.list = g_slist_append(p->area.list, &p->battery);
+			p->area.list = g_list_append(p->area.list, &p->battery);
 #endif
 		int i = p - panel1;
 		if (panel_items_order[k] == 'S' && systray_on_monitor(i, nb_panel)) {
-			p->area.list = g_slist_append(p->area.list, &systray);
+			p->area.list = g_list_append(p->area.list, &systray);
 		}
 		if (panel_items_order[k] == 'C')
-			p->area.list = g_slist_append(p->area.list, &p->clock);
+			p->area.list = g_list_append(p->area.list, &p->clock);
 	}
 	init_rendering(&p->area, 0);
 }
@@ -629,7 +629,7 @@ void set_panel_background(Panel *p)
 	}
 
 	// redraw panel's object
-	GSList *l0;
+	GList *l0;
 	Area *a;
 	for (l0 = p->area.list; l0 ; l0 = l0->next) {
 		a = l0->data;
@@ -695,7 +695,7 @@ Taskbar *click_taskbar (Panel *panel, int x, int y)
 
 Task *click_task (Panel *panel, int x, int y)
 {
-	GSList *l0;
+	GList *l0;
 	Taskbar *tskbar;
 
 	if ( (tskbar = click_taskbar(panel, x, y)) ) {
@@ -797,7 +797,7 @@ Area* click_area(Panel *panel, int x, int y)
 	Area* new_result = result;
 	do {
 		result = new_result;
-		GSList* it = result->list;
+		GList* it = result->list;
 		while (it) {
 			Area* a = it->data;
 			if (a->on_screen && x >= a->posx && x <= (a->posx + a->width)

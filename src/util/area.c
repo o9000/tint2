@@ -76,7 +76,7 @@ void init_rendering(void *obj, int pos)
 	Area *a = (Area*)obj;
 	
 	// initialize fixed position/size
-	GSList *l;
+	GList *l;
 	for (l = a->list; l ; l = l->next) {
 		Area *child = ((Area*)l->data);
 		if (panel_horizontal) {
@@ -102,7 +102,7 @@ void rendering(void *obj)
 	Panel *panel = (Panel*)obj;
 
 	size_by_content(&panel->area);
-	size_by_layout(&panel->area, 0, 1);
+	size_by_layout(&panel->area, 1);
 	
 	refresh(&panel->area);
 }
@@ -111,10 +111,11 @@ void rendering(void *obj)
 void size_by_content (Area *a)
 {
 	// don't resize hiden objects
-	if (!a->on_screen) return;
+	if (!a->on_screen)
+		return;
 
 	// children node are resized before its parent
-	GSList *l;
+	GList *l;
 	for (l = a->list; l ; l = l->next)
 		size_by_content(l->data);
 	
@@ -134,14 +135,15 @@ void size_by_content (Area *a)
 }
 
 
-void size_by_layout (Area *a, int pos, int level)
+void size_by_layout (Area *a, int level)
 {
 	// don't resize hiden objects
-	if (!a->on_screen) return;
+	if (!a->on_screen)
+		return;
 
 	// parent node is resized before its children
 	// calculate area's size
-	GSList *l;
+	GList *l;
 	if (a->resize && a->size_mode == SIZE_BY_LAYOUT) {
 		a->resize = 0;
 
@@ -156,40 +158,103 @@ void size_by_layout (Area *a, int pos, int level)
 		}
 	}
 
-	// update position of childs
-	pos += a->paddingxlr + a->bg->border.width;
-	int i=0;
-	for (l = a->list; l ; l = l->next) {
-		Area *child = ((Area*)l->data);
-		if (!child->on_screen) continue;
-		i++;
-		
-		if (panel_horizontal) {
-			if (pos != child->posx) {
-				// pos changed => redraw
-				child->posx = pos;
-				child->on_changed = 1;
+	// update position of children
+	if (a->list) {
+		if (a->alignment == ALIGN_LEFT) {
+			int pos = (panel_horizontal ? a->posx : a->posy) + a->bg->border.width + a->paddingxlr;
+
+			for (l = a->list; l ; l = l->next) {
+				Area *child = ((Area*)l->data);
+				if (!child->on_screen)
+					continue;
+
+				if (panel_horizontal) {
+					if (pos != child->posx) {
+						// pos changed => redraw
+						child->posx = pos;
+						child->on_changed = 1;
+					}
+				} else {
+					if (pos != child->posy) {
+						// pos changed => redraw
+						child->posy = pos;
+						child->on_changed = 1;
+					}
+				}
+
+				size_by_layout(child, level+1);
+
+				pos += panel_horizontal ? child->width + a->paddingx : child->height + a->paddingx;
+			}
+		} else if (a->alignment == ALIGN_RIGHT) {
+			int pos = (panel_horizontal ? a->posx + a->width : a->posy + a->height) - a->bg->border.width - a->paddingxlr;
+
+			for (l = g_list_last(a->list); l ; l = l->prev) {
+				Area *child = ((Area*)l->data);
+				if (!child->on_screen)
+					continue;
+
+				pos -= panel_horizontal ? child->width : child->height;
+
+				if (panel_horizontal) {
+					if (pos != child->posx) {
+						// pos changed => redraw
+						child->posx = pos;
+						child->on_changed = 1;
+					}
+				} else {
+					if (pos != child->posy) {
+						// pos changed => redraw
+						child->posy = pos;
+						child->on_changed = 1;
+					}
+				}
+
+				size_by_layout(child, level+1);
+
+				pos -= a->paddingx;
+			}
+		} else if (a->alignment == ALIGN_CENTER) {
+
+			int children_size = 0;
+
+			for (l = a->list; l ; l = l->next) {
+				Area *child = ((Area*)l->data);
+				if (!child->on_screen)
+					continue;
+
+				children_size += panel_horizontal ? child->width : child->height;
+				children_size += (l == a->list) ? 0 : a->paddingx;
+			}
+
+			int pos = (panel_horizontal ? a->posx : a->posy) + a->bg->border.width + a->paddingxlr;
+			pos += ((panel_horizontal ? a->width : a->height) - children_size) / 2;
+
+			for (l = a->list; l ; l = l->next) {
+				Area *child = ((Area*)l->data);
+				if (!child->on_screen)
+					continue;
+
+				if (panel_horizontal) {
+					if (pos != child->posx) {
+						// pos changed => redraw
+						child->posx = pos;
+						child->on_changed = 1;
+					}
+				} else {
+					if (pos != child->posy) {
+						// pos changed => redraw
+						child->posy = pos;
+						child->on_changed = 1;
+					}
+				}
+
+				size_by_layout(child, level+1);
+
+				pos += panel_horizontal ? child->width + a->paddingx : child->height + a->paddingx;
 			}
 		}
-		else {
-			if (pos != child->posy) {
-				// pos changed => redraw
-				child->posy = pos;
-				child->on_changed = 1;
-			}
-		}
-		
-		/*// position of each visible object
-		int k;
-		for (k=0 ; k < level ; k++) printf("  ");
-		printf("tree level %d, object %d, pos %d, %s\n", level, i, pos, (child->size_mode == SIZE_BY_LAYOUT) ? "SIZE_BY_LAYOUT" : "SIZE_BY_CONTENT");*/
-		size_by_layout(child, pos, level+1);
-		
-		if (panel_horizontal)
-			pos += child->width + a->paddingx;
-		else
-			pos += child->height + a->paddingx;
-	}	
+	}
 
 	if (a->on_changed) {
 		// pos/size changed
@@ -209,7 +274,7 @@ void refresh (Area *a)
 	if (a->redraw) {
 		a->redraw = 0;
 		// force redraw of child
-		//GSList *l;
+		//GList *l;
 		//for (l = a->list ; l ; l = l->next)
 			//((Area*)l->data)->redraw = 1;
 
@@ -222,7 +287,7 @@ void refresh (Area *a)
 	XCopyArea (server.dsp, a->pix, ((Panel *)a->panel)->temp_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
 
 	// and then refresh child object
-	GSList *l;
+	GList *l;
 	for (l = a->list; l ; l = l->next)
 		refresh(l->data);
 }
@@ -236,7 +301,7 @@ int resize_by_layout(void *obj, int maximum_size)
 	if (panel_horizontal) {		
 		// detect free size for SIZE_BY_LAYOUT's Area
 		size = a->width - (2 * (a->paddingxlr + a->bg->border.width));
-		GSList *l;
+		GList *l;
 		for (l = a->list ; l ; l = l->next) {
 			child = (Area*)l->data;
 			if (child->on_screen && child->size_mode == SIZE_BY_CONTENT) {
@@ -278,7 +343,7 @@ int resize_by_layout(void *obj, int maximum_size)
 	else {
 		// detect free size for SIZE_BY_LAYOUT's Area
 		size = a->height - (2 * (a->paddingxlr + a->bg->border.width));
-		GSList *l;
+		GList *l;
 		for (l = a->list ; l ; l = l->next) {
 			child = (Area*)l->data;
 			if (child->on_screen && child->size_mode == SIZE_BY_CONTENT) {
@@ -291,7 +356,7 @@ int resize_by_layout(void *obj, int maximum_size)
 		if (nb_by_content+nb_by_layout)
 			size -= ((nb_by_content+nb_by_layout-1) * a->paddingx);
 
-		int height=0, modulo=0, old_height;
+		int height=0, modulo=0;
 		if (nb_by_layout) {
 			height = size / nb_by_layout;
 			modulo = size % nb_by_layout;
@@ -305,7 +370,7 @@ int resize_by_layout(void *obj, int maximum_size)
 		for (l = a->list ; l ; l = l->next) {
 			child = (Area*)l->data;
 			if (child->on_screen && child->size_mode == SIZE_BY_LAYOUT) {
-				old_height = child->height;
+				int old_height = child->height;
 				child->height = height;
 				if (modulo) {
 					child->height++;
@@ -324,7 +389,7 @@ void set_redraw (Area *a)
 {
 	a->redraw = 1;
 
-	GSList *l;
+	GList *l;
 	for (l = a->list ; l ; l = l->next)
 		set_redraw(l->data);
 }
@@ -438,7 +503,7 @@ void remove_area (Area *a)
 {
 	Area *parent = (Area*)a->parent;
 
-	parent->list = g_slist_remove(parent->list, a);
+	parent->list = g_list_remove(parent->list, a);
 	set_redraw (parent);
 
 }
@@ -448,7 +513,7 @@ void add_area (Area *a)
 {
 	Area *parent = (Area*)a->parent;
 
-	parent->list = g_slist_append(parent->list, a);
+	parent->list = g_list_append(parent->list, a);
 	set_redraw (parent);
 
 }
@@ -459,12 +524,12 @@ void free_area (Area *a)
 	if (!a)
 		return;
 
-	GSList *l0;
+	GList *l0;
 	for (l0 = a->list; l0 ; l0 = l0->next)
 		free_area (l0->data);
 
 	if (a->list) {
-		g_slist_free(a->list);
+		g_list_free(a->list);
 		a->list = 0;
 	}
 	if (a->pix) {

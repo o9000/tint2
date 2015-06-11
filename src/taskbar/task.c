@@ -111,7 +111,7 @@ Task *add_task (Window win)
 		}
 		new_tsk2->icon_width = new_tsk.icon_width;
 		new_tsk2->icon_height = new_tsk.icon_height;
-		tskbar->area.list = g_slist_append(tskbar->area.list, new_tsk2);
+		tskbar->area.list = g_list_append(tskbar->area.list, new_tsk2);
 		tskbar->area.resize = 1;
 		g_ptr_array_add(task_group, new_tsk2);
 		//printf("add_task panel %d, desktop %d, task %s\n", i, j, new_tsk2->title);
@@ -169,7 +169,7 @@ void remove_task (Task *tsk)
 	for (i=0; i<task_group->len; ++i) {
 		tsk2 = g_ptr_array_index(task_group, i);
 		tskbar = tsk2->area.parent;
-		tskbar->area.list = g_slist_remove(tskbar->area.list, tsk2);
+		tskbar->area.list = g_list_remove(tskbar->area.list, tsk2);
 		tskbar->area.resize = 1;
 		if (tsk2 == task_active) task_active = 0;
 		if (tsk2 == task_drag) task_drag = 0;
@@ -424,15 +424,13 @@ Task *find_active_task(Task *current_task, Task *active_task)
 	if (active_task == NULL)
 		return current_task;
 
-	GSList *l0;
-	Task *tsk;
 	Taskbar* tskbar = current_task->area.parent;
 
-	l0 = tskbar->area.list;
+	GList *l0 = tskbar->area.list;
 	if (taskbarname_enabled)
 		l0 = l0->next;
 	for (; l0 ; l0 = l0->next) {
-		tsk = l0->data;
+		Task *tsk = l0->data;
 		if (tsk->win == active_task->win)
 			return tsk;
 	}
@@ -445,15 +443,13 @@ Task *next_task(Task *tsk)
 	if (tsk == 0)
 		return 0;
 
-	GSList *l0, *lfirst_tsk;
-	Task *tsk1;
 	Taskbar* tskbar = tsk->area.parent;
 
-	l0 = tskbar->area.list;
+	GList *l0 = tskbar->area.list;
 	if (taskbarname_enabled) l0 = l0->next;
-	lfirst_tsk = l0;
+	GList *lfirst_tsk = l0;
 	for (; l0 ; l0 = l0->next) {
-		tsk1 = l0->data;
+		Task *tsk1 = l0->data;
 		if (tsk1 == tsk) {
 			if (l0->next == 0) l0 = lfirst_tsk;
 			else l0 = l0->next;
@@ -469,19 +465,18 @@ Task *prev_task(Task *tsk)
 	if (tsk == 0)
 		return 0;
 
-	GSList *l0, *lfirst_tsk;
 	Task *tsk1, *tsk2;
 	Taskbar* tskbar = tsk->area.parent;
 
 	tsk2 = 0;
-	l0 = tskbar->area.list;
+	GList *l0 = tskbar->area.list;
 	if (taskbarname_enabled) l0 = l0->next;
-	lfirst_tsk = l0;
+	GList *lfirst_tsk = l0;
 	for (; l0 ; l0 = l0->next) {
 		tsk1 = l0->data;
 		if (tsk1 == tsk) {
 			if (l0 == lfirst_tsk) {
-				l0 = g_slist_last ( l0 );
+				l0 = g_list_last ( l0 );
 				tsk2 = l0->data;
 			}
 			return tsk2;

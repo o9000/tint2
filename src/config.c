@@ -544,6 +544,15 @@ void add_entry (char *key, char *value)
 			taskbar_sort_method = TASKBAR_NOSORT;
 		}
 	}
+	else if (strcmp (key, "task_align") == 0) {
+		if (strcmp(value, "center") == 0) {
+			taskbar_alignment = ALIGN_CENTER;
+		} else if (strcmp(value, "right") == 0) {
+			taskbar_alignment = ALIGN_RIGHT;
+		} else {
+			taskbar_alignment = ALIGN_LEFT;
+		}
+	}
 
 	/* Task */
 	else if (strcmp (key, "task_text") == 0)

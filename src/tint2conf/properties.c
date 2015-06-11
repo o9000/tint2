@@ -47,7 +47,7 @@ GtkWidget *taskbar_hide_inactive_tasks, *taskbar_hide_diff_monitor;
 GtkWidget *taskbar_name_padding_x, *taskbar_name_padding_y, *taskbar_name_inactive_color, *taskbar_name_active_color, *taskbar_name_font;
 GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
-GtkWidget *taskbar_distribute_size, *taskbar_sort_order;
+GtkWidget *taskbar_distribute_size, *taskbar_sort_order, *taskbar_alignment;
 
 // task
 GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
@@ -2316,6 +2316,24 @@ void create_taskbar(GtkWidget *parent)
 						 "'None' means that new tasks are added to the end, and the user can also reorder task buttons by mouse dragging. \n"
 						 "'By title' means that tasks are sorted by their window titles. \n"
 						 "'By center' means that tasks are sorted geometrically by their window centers."), NULL);
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Task alignment"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	taskbar_alignment = gtk_combo_box_new_text();
+	gtk_widget_show(taskbar_alignment);
+	gtk_table_attach(GTK_TABLE(table), taskbar_alignment, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_alignment), _("Left"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_alignment), _("Center"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_alignment), _("Right"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_alignment), 0);
+	gtk_tooltips_set_tip(tooltips, taskbar_alignment, _("Specifies how tasks should be positioned on the taskbar."), NULL);
 
 	change_paragraph(parent);
 

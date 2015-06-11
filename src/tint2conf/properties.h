@@ -51,7 +51,7 @@ extern GtkWidget *taskbar_hide_inactive_tasks, *taskbar_hide_diff_monitor;
 extern GtkWidget *taskbar_name_padding_x, *taskbar_name_padding_y, *taskbar_name_inactive_color, *taskbar_name_active_color, *taskbar_name_font;
 extern GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 extern GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
-extern GtkWidget *taskbar_distribute_size, *taskbar_sort_order;
+extern GtkWidget *taskbar_distribute_size, *taskbar_sort_order, *taskbar_alignment;
 
 // task
 extern GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;

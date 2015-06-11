@@ -21,6 +21,7 @@ extern int hide_inactive_tasks;
 extern int hide_task_diff_monitor;
 enum { TASKBAR_NOSORT, TASKBAR_SORT_CENTER, TASKBAR_SORT_TITLE };
 extern int taskbar_sort_method;
+extern int taskbar_alignment;
 
 typedef struct {
 	// always start with area

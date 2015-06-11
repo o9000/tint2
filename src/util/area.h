@@ -51,6 +51,7 @@ typedef struct
 // SIZE_BY_LAYOUT objects : taskbar and task
 // SIZE_BY_CONTENT objects : clock, battery, launcher, systray
 enum { SIZE_BY_LAYOUT, SIZE_BY_CONTENT };
+enum { ALIGN_LEFT = 0, ALIGN_CENTER = 1, ALIGN_RIGHT = 2 };
 
 typedef struct {
 	// coordinate relative to panel window
@@ -61,13 +62,15 @@ typedef struct {
 	Background *bg;
 
 	// list of child : Area object
-	GSList *list;
+	GList *list;
 
 	// object visible on screen. 
 	// An object (like systray) could be enabled but hidden (because no tray icon).
 	int on_screen;
 	// way to calculate the size (SIZE_BY_CONTENT or SIZE_BY_LAYOUT)
 	int size_mode;
+
+	int alignment;
 	// need to calculate position and width
 	int resize;
 	// need redraw Pixmap
@@ -96,7 +99,7 @@ void init_rendering(void *obj, int pos);
 
 void rendering(void *obj);
 void size_by_content (Area *a);
-void size_by_layout (Area *a, int pos, int level);
+void size_by_layout (Area *a, int level);
 // draw background and foreground
 void refresh (Area *a);
  

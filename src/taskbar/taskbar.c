@@ -47,6 +47,7 @@ int taskbar_distribute_size;
 int hide_inactive_tasks;
 int hide_task_diff_monitor;
 int taskbar_sort_method;
+int taskbar_alignment;
 
 guint win_hash(gconstpointer key) { return (guint)*((Window*)key); }
 gboolean win_compare(gconstpointer a, gconstpointer b) { return (*((Window*)a) == *((Window*)b)); }
@@ -63,6 +64,7 @@ void default_taskbar()
 	hide_inactive_tasks = 0;
 	hide_task_diff_monitor = 0;
 	taskbar_sort_method = TASKBAR_NOSORT;
+	taskbar_alignment = ALIGN_LEFT;
 	default_taskbarname();
 }
 
@@ -97,7 +99,7 @@ void cleanup_taskbar()
 			}
 			free_area(&tskbar->area);
 			// remove taskbar from the panel
-			panel->area.list = g_slist_remove(panel->area.list, tskbar);
+			panel->area.list = g_list_remove(panel->area.list, tskbar);
 		}
 		if (panel->taskbar) {
 			free(panel->taskbar);
@@ -153,6 +155,7 @@ void init_taskbar_panel(void *p)
 	panel->g_taskbar.area.parent = panel;
 	panel->g_taskbar.area.panel = panel;
 	panel->g_taskbar.area.size_mode = SIZE_BY_LAYOUT;
+	panel->g_taskbar.area.alignment = taskbar_alignment;
 	panel->g_taskbar.area._resize = resize_taskbar;
 	panel->g_taskbar.area._draw_foreground = draw_taskbar;
 	panel->g_taskbar.area._on_change_layout = on_change_taskbar;
@@ -334,7 +337,7 @@ int resize_taskbar(void *obj)
 		resize_by_layout(obj, panel->g_task.maximum_width);
 		
 		text_width = panel->g_task.maximum_width;
-		GSList *l = taskbar->area.list;
+		GList *l = taskbar->area.list;
 		if (taskbarname_enabled) l = l->next;
 		for (; l != NULL; l = l->next) {
 			if (((Task *)l->data)->area.on_screen) {
@@ -388,7 +391,7 @@ void set_taskbar_state(Taskbar *tskbar, int state)
 		if (taskbarname_enabled && tskbar->bar_name.state_pix[state] == 0)
 			tskbar->bar_name.area.redraw = 1;
 		if (panel_mode == MULTI_DESKTOP && panel1[0].g_taskbar.background[TASKBAR_NORMAL] != panel1[0].g_taskbar.background[TASKBAR_ACTIVE]) {
-			GSList *l = tskbar->area.list;
+			GList *l = tskbar->area.list;
 			if (taskbarname_enabled) l = l->next;
 			for ( ; l ; l = l->next)
 				set_task_redraw(l->data);
@@ -511,7 +514,7 @@ int taskbar_needs_sort(Taskbar *taskbar)
 	if (taskbar_sort_method == TASKBAR_NOSORT)
 		return 0;
 
-	GSList *i, *j;
+	GList *i, *j;
 	for (i = taskbar->area.list, j = i ? i->next : NULL; i && j; i = i->next, j = j->next) {
 		if (compare_tasks(i->data, j->data, taskbar) > 0) {
 			return 1;
@@ -528,7 +531,7 @@ void sort_tasks(Taskbar *taskbar)
 	if (!taskbar_needs_sort(taskbar)) {
 		return;
 	}
-	taskbar->area.list = g_slist_sort_with_data(taskbar->area.list, (GCompareDataFunc)compare_tasks, taskbar);
+	taskbar->area.list = g_list_sort_with_data(taskbar->area.list, (GCompareDataFunc)compare_tasks, taskbar);
 	taskbar->area.resize = 1;
 	panel_refresh = 1;
 	((Panel*)taskbar->area.panel)->area.resize = 1;

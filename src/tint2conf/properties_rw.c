@@ -272,6 +272,16 @@ void config_write_taskbar(FILE *fp)
 	}
 	fprintf(fp, "\n");
 
+	fprintf(fp, "task_align = ");
+	if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_alignment)) <= 0) {
+		fprintf(fp, "left");
+	} else if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_alignment)) == 1) {
+		fprintf(fp, "center");
+	} else {
+		fprintf(fp, "right");
+	}
+	fprintf(fp, "\n");
+
 	fprintf(fp, "\n");
 }
 
@@ -994,6 +1004,16 @@ void add_entry(char *key, char *value)
 		else if (strcmp(value, "title") == 0)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 1);
 		else if (strcmp(value, "center") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 2);
+		else
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
+	}
+	else if (strcmp(key, "task_align") == 0) {
+		if (strcmp(value, "left") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
+		else if (strcmp(value, "center") == 0)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 1);
+		else if (strcmp(value, "right") == 0)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 2);
 		else
 			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
