@@ -330,7 +330,7 @@ int window_error_handler(Display *d, XErrorEvent *e)
 {
 	error = TRUE;
 	if (e->error_code != BadWindow) {
-		printf("error_handler %d\n", e->error_code);
+		printf("systray: error code %d\n", e->error_code);
 	}
 	return 0;
 }
@@ -489,12 +489,17 @@ gboolean reparent_icon(TrayWindow *traywin)
 
 	Panel* panel = systray.area.panel;
 
+	// Reparent
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
-
-	// Reparent
 	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
 	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+	if (error != FALSE) {
+		printf("systray %d: cannot embed icon for window %lu pid %d\n", __LINE__, traywin->win, traywin->pid);
+		remove_icon(traywin);
+		return FALSE;
+	}
 
 	traywin->reparented = 1;
 
@@ -512,8 +517,16 @@ gboolean reparent_icon(TrayWindow *traywin)
 		e.xclient.data.l[2] = 0;
 		e.xclient.data.l[3] = traywin->parent;
 		e.xclient.data.l[4] = 0;
+		error = FALSE;
+		XErrorHandler old = XSetErrorHandler(window_error_handler);
 		XSendEvent(server.dsp, traywin->win, False, 0xFFFFFF, &e);
 		XSync(server.dsp, False);
+		XSetErrorHandler(old);
+		if (error != FALSE) {
+			printf("systray %d: cannot embed icon for window %lu pid %d\n", __LINE__, traywin->win, traywin->pid);
+			remove_icon(traywin);
+			return FALSE;
+		}
 	}
 
 	// Check if window was embedded
@@ -544,13 +557,6 @@ gboolean reparent_icon(TrayWindow *traywin)
 	if (systray_composited) {
 		traywin->damage = XDamageCreate(server.dsp, traywin->parent, XDamageReportRawRectangles);
 		XCompositeRedirectWindow(server.dsp, traywin->parent, CompositeRedirectManual);
-	}
-
-	XSync(server.dsp, False);
-	XSetErrorHandler(old);
-	if (error != FALSE) {
-		remove_icon(traywin);
-		return FALSE;
 	}
 
 	// Make the icon visible
