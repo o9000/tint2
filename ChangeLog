@@ -27,6 +27,7 @@
     - taskbar_hide_inactive_tasks
     - taskbar_sort_order
     - taskbar_name (already released by distros)
+	- task_align (already released by distros)
   - Launcher:
     - launcher* (already released by distros)
     - launcher_apps_dir (previously patched in by some distros)
@@ -34,6 +35,7 @@
     - launcher_icon_theme_override
   - System tray:
     - systray_monitor
+  - Freespace (already released by distros)
 - Config options with changed behavior:
   - Panel:
     - panel_dock: previously, 'panel_dock = 1' was actually not placing the panel into the dock. This option now

@@ -204,6 +204,8 @@ void init_panel()
 			}
 			if (panel_items_order[k] == 'C')
 				init_clock_panel(p);
+			if (panel_items_order[k] == 'F')
+				init_freespace_panel(p);
 		}
 		set_panel_items_order(p);
 
@@ -322,13 +324,13 @@ void init_panel_size_and_position(Panel *panel)
 
 int resize_panel(void *obj)
 {
-	resize_by_layout(obj, 0);
+	Panel *panel = (Panel*)obj;
+	resize_by_layout(panel, 0);
 	
 	//printf("resize_panel\n");
 	if (panel_mode != MULTI_DESKTOP && taskbar_enabled) {
 		// propagate width/height on hidden taskbar
 		int i, width, height;
-		Panel *panel = (Panel*)obj;
 		width = panel->taskbar[server.desktop].area.width;
 		height = panel->taskbar[server.desktop].area.height;
 		for (i=0 ; i < panel->nb_desktop ; i++) {
@@ -339,7 +341,6 @@ int resize_panel(void *obj)
 	}
 	if (panel_mode == MULTI_DESKTOP && taskbar_enabled && taskbar_distribute_size) {
 		// Distribute the available space between taskbars
-		Panel *panel = (Panel*)obj;
 
 		// Compute the total available size, and the total size requested by the taskbars
 		int total_size = 0;
@@ -418,6 +419,8 @@ int resize_panel(void *obj)
 			}
 		}
 	}
+	if (panel->freespace.area.on_screen)
+		panel->freespace.area.resize = 1;
 	return 0;
 }
 
@@ -505,6 +508,8 @@ void set_panel_items_order(Panel *p)
 		}
 		if (panel_items_order[k] == 'C')
 			p->area.list = g_list_append(p->area.list, &p->clock);
+		if (panel_items_order[k] == 'F')
+			p->area.list = g_list_append(p->area.list, &p->freespace);
 	}
 	init_rendering(&p->area, 0);
 }

@@ -1263,6 +1263,11 @@ void create_panel_items(GtkWidget *parent)
 					   itemsColName, _("Launcher"),
 					   itemsColValue, "L",
 					   -1);
+	gtk_list_store_append(all_items, &iter);
+	gtk_list_store_set(all_items, &iter,
+					   itemsColName, _("Free space"),
+					   itemsColValue, "F",
+					   -1);
 
 	panel_items_view = gtk_tree_view_new();
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(panel_items_view),
@@ -1441,6 +1446,9 @@ void set_panel_items(const char *items)
 		} else if (v == 'L') {
 			value = "L";
 			name = _("Launcher");
+		} else if (v == 'F') {
+			value = "F";
+			name = _("Free space");
 		} else {
 			continue;
 		}
