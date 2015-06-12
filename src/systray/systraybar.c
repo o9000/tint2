@@ -441,19 +441,6 @@ gboolean add_icon(Window win)
 	}
 	Window parent = XCreateWindow(server.dsp, panel->main_win, 0, 0, 30, 30, 0, attr.depth, InputOutput, visual, mask, &set_attr);
 
-	// Watch for the icon trying to resize itself / closing again
-	XSync(server.dsp, False);
-	error = FALSE;
-	XErrorHandler old = XSetErrorHandler(window_error_handler);
-	XSelectInput(server.dsp, win, StructureNotifyMask);
-	XSync(server.dsp, False);
-	XSetErrorHandler(old);
-	if (error != FALSE) {
-		fprintf(stderr, "tint2 : cannot add systray icon\n");
-		XDestroyWindow(server.dsp, parent);
-		return FALSE;
-	}
-
 	// Add the icon to the list
 	traywin = g_new0(TrayWindow, 1);
 	traywin->parent = parent;
@@ -482,6 +469,7 @@ gboolean add_icon(Window win)
 	// Resize and redraw the systray
 	systray.area.resize = 1;
 	systray.area.redraw = 1;
+	panel->area.resize = 1;
 	panel_refresh = 1;
 	return TRUE;
 }
@@ -506,8 +494,18 @@ gboolean reparent_icon(TrayWindow *traywin)
 		return FALSE;
 	}
 
-	XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
-	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+	// Watch for the icon trying to resize itself / closing again
+	XSync(server.dsp, False);
+	error = FALSE;
+	old = XSetErrorHandler(window_error_handler);
+	XSelectInput(server.dsp, traywin->win, StructureNotifyMask);
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+	if (error != FALSE) {
+		printf("systray %d: cannot embed icon for window %lu parent %lu pid %d\n", __LINE__, traywin->win, traywin->parent, traywin->pid);
+		remove_icon(traywin);
+		return FALSE;
+	}
 
 	traywin->reparented = 1;
 
@@ -573,6 +571,11 @@ gboolean reparent_icon(TrayWindow *traywin)
 		XMapWindow(server.dsp, traywin->win);
 	if (!traywin->hide && !panel->is_hidden)
 		XMapRaised(server.dsp, traywin->parent);
+
+	XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
+	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+
+	XFlush(server.dsp);
 
 	return TRUE;
 }
