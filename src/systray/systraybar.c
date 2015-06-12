@@ -88,7 +88,7 @@ void init_systray()
 	if (!systray_enabled)
 		return;
 
-	systray_composited = !server.disable_transparency && server.visual32;
+	systray_composited = !server.disable_transparency && server.visual32 && server.colormap32;
 	printf("Systray composited rendering %s\n", systray_composited ? "on" : "off");
 
 	if (!systray_composited) {
@@ -582,8 +582,6 @@ gboolean reparent_icon(TrayWindow *traywin)
 
 void remove_icon(TrayWindow *traywin)
 {
-	XErrorHandler old;
-
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
 	printf("remove_icon: %lu\n", traywin->win);
@@ -595,7 +593,7 @@ void remove_icon(TrayWindow *traywin)
 	// reparent to root
 	XSync(server.dsp, False);
 	error = FALSE;
-	old = XSetErrorHandler(window_error_handler);
+	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	if (!traywin->hide)
 		XUnmapWindow(server.dsp, traywin->win);
 	XReparentWindow(server.dsp, traywin->win, server.root_win, 0, 0);
@@ -715,7 +713,10 @@ void systray_render_icon_composited(void* t)
 	// so we first render the tray window onto a pixmap, and then we tell imlib2 to use this pixmap as
 	// drawable. If someone knows why it does not work with the traywindow itself, please tell me ;)
 	Pixmap tmp_pmap = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, 32);
-	XRenderPictFormat* f;
+	if (!tmp_pmap) {
+		goto on_error;
+	}
+	XRenderPictFormat *f;
 	if (traywin->depth == 24) {
 		f = XRenderFindStandardFormat(server.dsp, PictStandardRGB24);
 	} else if (traywin->depth == 32) {
@@ -724,12 +725,32 @@ void systray_render_icon_composited(void* t)
 		printf("Strange tray icon found with depth: %d\n", traywin->depth);
 		return;
 	}
-	Picture pict_image;
+	XRenderPictFormat *f32 = XRenderFindVisualFormat(server.dsp, server.visual32);
+	if (!f || !f32) {
+		XFreePixmap(server.dsp, tmp_pmap);
+		goto on_error;
+	}
+
+	XSync(server.dsp, False);
+	error = FALSE;
+	XErrorHandler old = XSetErrorHandler(window_error_handler);
+
 	//if (server.real_transparency)
-	//pict_image = XRenderCreatePicture(server.dsp, traywin->parent, f, 0, 0);
+	//Picture pict_image = XRenderCreatePicture(server.dsp, traywin->parent, f, 0, 0);
 	// reverted Rev 407 because here it's breaking alls icon with systray + xcompmgr
-	pict_image = XRenderCreatePicture(server.dsp, traywin->win, f, 0, 0);
+	Picture pict_image = XRenderCreatePicture(server.dsp, traywin->win, f, 0, 0);
+	if (!pict_image) {
+		XFreePixmap(server.dsp, tmp_pmap);
+		XSetErrorHandler(old);
+		goto on_error;
+	}
 	Picture pict_drawable = XRenderCreatePicture(server.dsp, tmp_pmap, XRenderFindVisualFormat(server.dsp, server.visual32), 0, 0);
+	if (!pict_drawable) {
+		XRenderFreePicture(server.dsp, pict_image);
+		XFreePixmap(server.dsp, tmp_pmap);
+		XSetErrorHandler(old);
+		goto on_error;
+	}
 	XRenderComposite(server.dsp, PictOpSrc, pict_image, None, pict_drawable, 0, 0, 0, 0, 0, 0, traywin->width, traywin->height);
 	XRenderFreePicture(server.dsp, pict_image);
 	XRenderFreePicture(server.dsp, pict_drawable);
@@ -739,8 +760,13 @@ void systray_render_icon_composited(void* t)
 	imlib_context_set_colormap(server.colormap32);
 	imlib_context_set_drawable(tmp_pmap);
 	Imlib_Image image = imlib_create_image_from_drawable(0, 0, 0, traywin->width, traywin->height, 1);
-	if (image == 0)
-		return;
+	if (!image) {
+		imlib_context_set_visual(server.visual);
+		imlib_context_set_colormap(server.colormap);
+		XFreePixmap(server.dsp, tmp_pmap);
+		XSetErrorHandler(old);
+		goto on_error;
+	}
 
 	imlib_context_set_image(image);
 	//if (traywin->depth == 24)
@@ -764,6 +790,21 @@ void systray_render_icon_composited(void* t)
 	if (traywin->damage)
 		XDamageSubtract(server.dsp, traywin->damage, None, None);
 	XFlush(server.dsp);
+
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+
+	if (error)
+		goto on_error;
+
+	return;
+
+on_error:
+	printf("systray: rendering error. Disabling compositing and restarting systray...\n");
+	systray_composited = 0;
+	stop_net();
+	start_net();
+	return;
 }
 
 
