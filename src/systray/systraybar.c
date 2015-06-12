@@ -442,6 +442,7 @@ gboolean add_icon(Window win)
 	Window parent = XCreateWindow(server.dsp, panel->main_win, 0, 0, 30, 30, 0, attr.depth, InputOutput, visual, mask, &set_attr);
 
 	// Watch for the icon trying to resize itself / closing again
+	XSync(server.dsp, False);
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	XSelectInput(server.dsp, win, StructureNotifyMask);
@@ -493,6 +494,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 	Panel* panel = systray.area.panel;
 
 	// Reparent
+	XSync(server.dsp, False);
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
@@ -523,6 +525,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 		e.xclient.data.l[2] = 0;
 		e.xclient.data.l[3] = traywin->parent;
 		e.xclient.data.l[4] = 0;
+		XSync(server.dsp, False);
 		error = FALSE;
 		XErrorHandler old = XSetErrorHandler(window_error_handler);
 		XSendEvent(server.dsp, traywin->win, False, 0xFFFFFF, &e);
@@ -587,6 +590,7 @@ void remove_icon(TrayWindow *traywin)
 		XDamageDestroy(server.dsp, traywin->damage);
 
 	// reparent to root
+	XSync(server.dsp, False);
 	error = FALSE;
 	old = XSetErrorHandler(window_error_handler);
 	if (!traywin->hide)
