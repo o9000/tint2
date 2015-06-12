@@ -833,7 +833,8 @@ void event_configure_notify (Window win)
 		if (traywin->win == win) {
 			//printf("move tray %d\n", traywin->x);
 			XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
-			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+			if (traywin->reparented)
+				XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
 			panel_refresh = 1;
 			refresh_systray = 1;
 			return;

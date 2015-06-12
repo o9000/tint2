@@ -224,7 +224,9 @@ void on_change_systray (void *obj)
 
 		// position and size the icon window
 		XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
-		XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+		if (traywin->reparented) {
+			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+		}
 	}
 	refresh_systray = 1;
 }
@@ -478,6 +480,7 @@ gboolean add_icon(Window win)
 
 	// Resize and redraw the systray
 	systray.area.resize = 1;
+	systray.area.redraw = 1;
 	panel_refresh = 1;
 	return TRUE;
 }
@@ -496,7 +499,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
 	if (error != FALSE) {
-		printf("systray %d: cannot embed icon for window %lu pid %d\n", __LINE__, traywin->win, traywin->pid);
+		printf("systray %d: cannot embed icon for window %lu parent %lu pid %d\n", __LINE__, traywin->win, traywin->parent, traywin->pid);
 		remove_icon(traywin);
 		return FALSE;
 	}
@@ -574,7 +577,7 @@ void remove_icon(TrayWindow *traywin)
 
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
-	//printf("remove_icon: %d\n", traywin->win);
+	printf("remove_icon: %lu\n", traywin->win);
 
 	XSelectInput(server.dsp, traywin->win, NoEventMask);
 	if (traywin->damage)

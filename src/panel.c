@@ -204,7 +204,7 @@ void init_panel()
 			}
 			if (panel_items_order[k] == 'C')
 				init_clock_panel(p);
-			if (panel_items_order[k] == 'F')
+			if (panel_items_order[k] == 'F' && !strstr(panel_items_order, "T"))
 				init_freespace_panel(p);
 		}
 		set_panel_items_order(p);
@@ -420,7 +420,7 @@ int resize_panel(void *obj)
 		}
 	}
 	if (panel->freespace.area.on_screen)
-		panel->freespace.area.resize = 1;
+		resize_freespace(&panel->freespace);
 	return 0;
 }
 
