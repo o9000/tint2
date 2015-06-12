@@ -504,6 +504,9 @@ gboolean reparent_icon(TrayWindow *traywin)
 		return FALSE;
 	}
 
+	XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
+	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+
 	traywin->reparented = 1;
 
 	// Embed into parent
