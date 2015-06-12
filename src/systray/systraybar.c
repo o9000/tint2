@@ -647,17 +647,26 @@ void net_message(XClientMessageEvent *e)
 	}
 }
 
+Display *display = NULL;
 XImage *tintXGetImage(Window win)
 {
+	char *display_name = XDisplayName(NULL);
+	if (!display_name)
+		return NULL;
+	if (!display)
+		display = XOpenDisplay(display_name);
+	if (!display)
+		return NULL;
+
 	unsigned int border_width;
 	int xpos, ypos;
 	unsigned int width, height, depth;
 	Window root;
-	if (!XGetGeometry(server.dsp, win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
+	if (!XGetGeometry(display, win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
 		fprintf(stderr, "Couldn't get geometry of window!\n");
 		return NULL;
 	}
-	return XGetImage(server.dsp, win, 0, 0, width, height, AllPlanes, XYPixmap);
+	return XGetImage(display, win, 0, 0, width, height, AllPlanes, XYPixmap);
 }
 
 void systray_render_icon_composited(void* t)
@@ -694,6 +703,8 @@ void systray_render_icon_composited(void* t)
 		if (ximage->width != traywin->width ||
 			ximage->height != traywin->height) {
 			XFree(ximage);
+			XCloseDisplay(display);
+			display = NULL;
 			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
 			return;
 		}
@@ -712,6 +723,8 @@ void systray_render_icon_composited(void* t)
 			}
 		}
 		XFree(ximage);
+		XCloseDisplay(display);
+		display = NULL;
 	}
 	if (traywin->empty != empty) {
 		traywin->empty = empty;
