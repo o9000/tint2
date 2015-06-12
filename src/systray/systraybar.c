@@ -518,7 +518,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 		e.xclient.serial = 0;
 		e.xclient.send_event = True;
 		e.xclient.message_type = server.atom._XEMBED;
-		e.xclient.window = traywin->parent;
+		e.xclient.window = traywin->win;
 		e.xclient.format = 32;
 		e.xclient.data.l[0] = CurrentTime;
 		e.xclient.data.l[1] = XEMBED_EMBEDDED_NOTIFY;
