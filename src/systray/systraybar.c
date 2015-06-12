@@ -647,6 +647,19 @@ void net_message(XClientMessageEvent *e)
 	}
 }
 
+XImage *tintXGetImage(Window win)
+{
+	unsigned int border_width;
+	int xpos, ypos;
+	unsigned int width, height, depth;
+	Window root;
+	if (!XGetGeometry(server.dsp, win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
+		fprintf(stderr, "Couldn't get geometry of window!\n");
+		return NULL;
+	}
+	return XGetImage(server.dsp, win, 0, 0, width, height, AllPlanes, XYPixmap);
+}
+
 void systray_render_icon_composited(void* t)
 {
 	// we end up in this function only in real transparency mode or if systray_task_asb != 100 0 0
@@ -676,16 +689,22 @@ void systray_render_icon_composited(void* t)
 	}
 
 	int empty = 1;
-	XImage *ximage = XGetImage(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height, AllPlanes, XYPixmap);
+	XImage *ximage = tintXGetImage(traywin->win);
 	if (ximage) {
+		if (ximage->width != traywin->width ||
+			ximage->height != traywin->height) {
+			XFree(ximage);
+			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+			return;
+		}
 		XColor color;
-		if (traywin->width > 0 && traywin->height > 0) {
-			color.pixel = XGetPixel(ximage, traywin->width/2, traywin->height/2);
+		if (ximage->width > 0 && ximage->height > 0) {
+			color.pixel = XGetPixel(ximage, ximage->width/2, ximage->height/2);
 			if (color.pixel != 0)
 				empty = 0;
 			int x, y;
-			for (x = 0; empty && x < traywin->width; x++) {
-				for (y = 0; empty && y < traywin->height; y++) {
+			for (x = 0; empty && x < ximage->width; x++) {
+				for (y = 0; empty && y < ximage->height; y++) {
 					color.pixel = XGetPixel(ximage, x, y);
 					if (color.pixel != 0)
 						empty = 0;
@@ -712,7 +731,7 @@ void systray_render_icon_composited(void* t)
 	// Very ugly hack, but somehow imlib2 is not able to get the image from the traywindow itself,
 	// so we first render the tray window onto a pixmap, and then we tell imlib2 to use this pixmap as
 	// drawable. If someone knows why it does not work with the traywindow itself, please tell me ;)
-	Pixmap tmp_pmap = XCreatePixmap(server.dsp, server.root_win, traywin->width, traywin->height, 32);
+	Pixmap tmp_pmap = XCreatePixmap(server.dsp, traywin->win, traywin->width, traywin->height, 32);
 	if (!tmp_pmap) {
 		goto on_error;
 	}
@@ -723,6 +742,7 @@ void systray_render_icon_composited(void* t)
 		f = XRenderFindStandardFormat(server.dsp, PictStandardARGB32);
 	} else {
 		printf("Strange tray icon found with depth: %d\n", traywin->depth);
+		XFreePixmap(server.dsp, tmp_pmap);
 		return;
 	}
 	XRenderPictFormat *f32 = XRenderFindVisualFormat(server.dsp, server.visual32);
