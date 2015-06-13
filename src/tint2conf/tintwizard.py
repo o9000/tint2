@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 #**************************************************************************
 # Tintwizard
@@ -2150,4 +2150,3 @@ if __name__ == "__main__":
 	
 	tw = TintWizardGUI()
 	tw.main()
-
