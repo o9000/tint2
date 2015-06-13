@@ -1,4 +1,4 @@
-2015-05-23 master
+2015-06-12 master
 - Note: the changes listed here are based on the previous release tint2 0.11, however some distributions (e.g. Debian)
   offered packages using newer commits and/or patches; thus from the user's perspective some of these features are
   already present. They are marked with '(already released by distros)'.
@@ -70,6 +70,7 @@
     background of other icons;
   - a crash caused by a change that prevents Google Chrome (and possibly other misbehaving applications) from leaving a large
     number of empty icons in the system tray;
+  - a crash caused by the system tray code on computers with ATI cards;
   - the panel window had a shadow;
   - some ATI drivers return an extra monitor with size zero which should be ignored when using panel_monitor = all;
   - the battery applet was sometimes working incorrectly with certain laptop models (the battery applet stopped updating after
