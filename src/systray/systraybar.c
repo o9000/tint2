@@ -746,7 +746,7 @@ void systray_render_icon_composited(void* t)
 	// drawable. If someone knows why it does not work with the traywindow itself, please tell me ;)
 	Pixmap tmp_pmap = XCreatePixmap(server.dsp, traywin->win, traywin->width, traywin->height, 32);
 	if (!tmp_pmap) {
-		goto on_error;
+		goto on_systray_error;
 	}
 	XRenderPictFormat *f;
 	if (traywin->depth == 24) {
@@ -761,7 +761,7 @@ void systray_render_icon_composited(void* t)
 	XRenderPictFormat *f32 = XRenderFindVisualFormat(server.dsp, server.visual32);
 	if (!f || !f32) {
 		XFreePixmap(server.dsp, tmp_pmap);
-		goto on_error;
+		goto on_systray_error;
 	}
 
 	XSync(server.dsp, False);
@@ -833,7 +833,11 @@ void systray_render_icon_composited(void* t)
 	return;
 
 on_error:
-	printf("systray: rendering error. Disabling compositing and restarting systray...\n");
+	printf("systray %d: rendering error for icon %lu pid %d\n", __LINE__, traywin->win, traywin->pid);
+	return;
+
+on_systray_error:
+	printf("systray %d: rendering error for icon %lu pid %d. Disabling compositing and restarting systray...\n", __LINE__, traywin->win, traywin->pid);
 	systray_composited = 0;
 	stop_net();
 	start_net();
