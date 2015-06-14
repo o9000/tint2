@@ -362,6 +362,37 @@ void createHeuristicMask(DATA32* data, int w, int h)
 	}
 }
 
+int pixelEmpty(DATA32 argb)
+{
+
+	DATA32 a = (argb >> 24) & 0xff;
+	if (a == 0)
+		return 1;
+
+	DATA32 rgb = argb & 0xffFFff;
+	return rgb == 0;
+}
+
+int imageEmpty(DATA32* data, int w, int h)
+{
+	unsigned int x, y;
+
+	if (w > 0 && h > 0) {
+		x = w / 2;
+		y = h / 2;
+		if (!pixelEmpty(data[y * w + x]))
+			return 0;
+	}
+
+	for (y = 0; y < h; y++) {
+		for (x = 0; x < w; x++) {
+			if (!pixelEmpty(data[y * w + x]))
+				return 0;
+		}
+	}
+
+	return 1;
+}
 
 void render_image(Drawable d, int x, int y)
 {

@@ -466,6 +466,10 @@ gboolean add_icon(Window win)
 	systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
 	// printf("add_icon win %lx, %d\n", win, g_slist_length(systray.list_icons));
 
+	if (!traywin->hide && !panel->is_hidden)
+		XMapRaised(server.dsp, traywin->parent);
+	XSync(server.dsp, False);
+
 	// Resize and redraw the systray
 	systray.area.resize = 1;
 	systray.area.redraw = 1;
@@ -548,8 +552,13 @@ gboolean reparent_icon(TrayWindow *traywin)
 		if (ret == Success) {
 			if (data) {
 				if (nbitem == 2) {
-					//hide = ((data[1] & XEMBED_MAPPED) == 0);
-					//printf("hide %d\n", hide);
+					int hide = ((data[1] & XEMBED_MAPPED) == 0);
+					if (hide) {
+						//fprintf(stderr, "tint2: window refused embedding\n");
+						//remove_icon(traywin);
+						//XFree(data);
+						//return FALSE;
+					}
 				}
 				XFree(data);
 			}
@@ -575,7 +584,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 	XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
 	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
 
-	XFlush(server.dsp);
+	XSync(server.dsp, False);
 
 	return TRUE;
 }
@@ -647,28 +656,6 @@ void net_message(XClientMessageEvent *e)
 	}
 }
 
-Display *display = NULL;
-XImage *tintXGetImage(Window win)
-{
-	char *display_name = XDisplayName(NULL);
-	if (!display_name)
-		return NULL;
-	if (!display)
-		display = XOpenDisplay(display_name);
-	if (!display)
-		return NULL;
-
-	unsigned int border_width;
-	int xpos, ypos;
-	unsigned int width, height, depth;
-	Window root;
-	if (!XGetGeometry(display, win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
-		fprintf(stderr, "Couldn't get geometry of window!\n");
-		return NULL;
-	}
-	return XGetImage(display, win, 0, 0, width, height, AllPlanes, XYPixmap);
-}
-
 void systray_render_icon_composited(void* t)
 {
 	// we end up in this function only in real transparency mode or if systray_task_asb != 100 0 0
@@ -686,7 +673,7 @@ void systray_render_icon_composited(void* t)
 	traywin->time_last_render.tv_sec = now.tv_sec;
 	traywin->time_last_render.tv_nsec = now.tv_nsec;
 
-	if ( traywin->width == 0 || traywin->height == 0 ) {
+	if (traywin->width == 0 || traywin->height == 0) {
 		// reschedule rendering since the geometry information has not yet been processed (can happen on slow cpu)
 		traywin->render_timeout = add_timeout(50, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
 		return;
@@ -697,44 +684,21 @@ void systray_render_icon_composited(void* t)
 		traywin->render_timeout = NULL;
 	}
 
-	int empty = 1;
-	XImage *ximage = tintXGetImage(traywin->win);
-	if (ximage) {
-		if (ximage->width != traywin->width ||
-			ximage->height != traywin->height) {
-			XFree(ximage);
-			XCloseDisplay(display);
-			display = NULL;
-			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+	{
+		unsigned int border_width;
+		int xpos, ypos;
+		unsigned int width, height, depth;
+		Window root;
+		if (!XGetGeometry(server.dsp, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
+			fprintf(stderr, "Couldn't get geometry of window!\n");
 			return;
 		}
-		XColor color;
-		if (ximage->width > 0 && ximage->height > 0) {
-			color.pixel = XGetPixel(ximage, ximage->width/2, ximage->height/2);
-			if (color.pixel != 0)
-				empty = 0;
-			int x, y;
-			for (x = 0; empty && x < ximage->width; x++) {
-				for (y = 0; empty && y < ximage->height; y++) {
-					color.pixel = XGetPixel(ximage, x, y);
-					if (color.pixel != 0)
-						empty = 0;
-				}
-			}
+		if (width != traywin->width || height != traywin->height) {
+			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+			traywin->render_timeout = add_timeout(50, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
+			return;
 		}
-		XFree(ximage);
-		XCloseDisplay(display);
-		display = NULL;
 	}
-	if (traywin->empty != empty) {
-		traywin->empty = empty;
-		systray.area.resize = 1;
-		panel_refresh = 1;
-		systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
-	}
-	//printf("systray_render_icon_now: %d empty %d\n", traywin->win, empty);
-	if (empty)
-		return;
 
 	// good systray icons support 32 bit depth, but some icons are still 24 bit.
 	// We create a heuristic mask for these icons, i.e. we get the rgb value in the top left corner, and
@@ -809,6 +773,8 @@ void systray_render_icon_composited(void* t)
 	if (traywin->depth == 24) {
 		createHeuristicMask(data, traywin->width, traywin->height);
 	}
+
+	int empty = imageEmpty(data, traywin->width, traywin->height);
 	if (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
 		adjust_asb(data, traywin->width, traywin->height, systray.alpha, (float)systray.saturation/100, (float)systray.brightness/100);
 	imlib_image_put_back_data(data);
@@ -822,13 +788,18 @@ void systray_render_icon_composited(void* t)
 
 	if (traywin->damage)
 		XDamageSubtract(server.dsp, traywin->damage, None, None);
-	XFlush(server.dsp);
-
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
 
 	if (error)
 		goto on_error;
+
+	if (traywin->empty != empty) {
+		traywin->empty = empty;
+		systray.area.resize = 1;
+		panel_refresh = 1;
+		systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
+	}
 
 	return;
 
@@ -847,8 +818,16 @@ on_systray_error:
 
 void systray_render_icon(TrayWindow* traywin)
 {
-	if (!reparent_icon(traywin))
-		return;
+	if (!traywin->reparented) {
+		if (!reparent_icon(traywin))
+			return;
+		if (systray_composited) {
+			// We need to process the events in the main loop first
+			stop_timeout(traywin->render_timeout);
+			traywin->render_timeout = add_timeout(50, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
+			return;
+		}
+	}
 
 	if (systray_composited) {
 		if (!traywin->render_timeout)
