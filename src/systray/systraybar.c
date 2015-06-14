@@ -308,6 +308,34 @@ void start_net()
 }
 
 
+void net_message(XClientMessageEvent *e)
+{
+	unsigned long opcode;
+	Window win;
+
+	opcode = e->data.l[1];
+	switch (opcode) {
+	case SYSTEM_TRAY_REQUEST_DOCK:
+		win = e->data.l[2];
+		if (win)
+			add_icon(win);
+		break;
+
+	case SYSTEM_TRAY_BEGIN_MESSAGE:
+	case SYSTEM_TRAY_CANCEL_MESSAGE:
+		// we don't show baloons messages.
+		break;
+
+	default:
+		if (opcode == server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA)
+			printf("message from dockapp: %s\n", e->data.b);
+		else
+			fprintf(stderr, "SYSTEM_TRAY : unknown message type\n");
+		break;
+	}
+}
+
+
 void stop_net()
 {
 	//fprintf(stderr, "tint2 : systray stopped\n");
@@ -554,6 +582,9 @@ gboolean reparent_icon(TrayWindow *traywin)
 				if (nbitem == 2) {
 					int hide = ((data[1] & XEMBED_MAPPED) == 0);
 					if (hide) {
+						// In theory we have to check the embedding with this and remove icons that refuse embedding.
+						// In practice we have no idea when the other application processes the event and accepts the embed so we cannot check without a race.
+						// Race can be triggered with PyGtk(2) apps.
 						//fprintf(stderr, "tint2: window refused embedding\n");
 						//remove_icon(traywin);
 						//XFree(data);
@@ -628,33 +659,25 @@ void remove_icon(TrayWindow *traywin)
 	panel_refresh = 1;
 }
 
-
-void net_message(XClientMessageEvent *e)
+void systray_reconfigure_event(TrayWindow *traywin)
 {
-	unsigned long opcode;
-	Window win;
-
-	opcode = e->data.l[1];
-	switch (opcode) {
-	case SYSTEM_TRAY_REQUEST_DOCK:
-		win = e->data.l[2];
-		if (win)
-			add_icon(win);
-		break;
-
-	case SYSTEM_TRAY_BEGIN_MESSAGE:
-	case SYSTEM_TRAY_CANCEL_MESSAGE:
-		// we don't show baloons messages.
-		break;
-
-	default:
-		if (opcode == server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA)
-			printf("message from dockapp: %s\n", e->data.b);
-		else
-			fprintf(stderr, "SYSTEM_TRAY : unknown message type\n");
-		break;
+	//printf("move tray %d\n", traywin->x);
+	XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
+	if (traywin->reparented) {
+		XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+		// Trigger window repaint
+		stop_timeout(traywin->render_timeout);
+		traywin->render_timeout = add_timeout(50, 0, systray_render_icon, traywin, &traywin->render_timeout);
 	}
+	panel_refresh = 1;
+	refresh_systray = 1;
 }
+
+void systray_destroy_event(TrayWindow *traywin)
+{
+	remove_icon(traywin);
+}
+
 
 void systray_render_icon_composited(void* t)
 {
@@ -685,6 +708,8 @@ void systray_render_icon_composited(void* t)
 	}
 
 	{
+		// We shouldn't have to do this as we already listen for structure notify events.
+		// But things work fine so why change it.
 		unsigned int border_width;
 		int xpos, ypos;
 		unsigned int width, height, depth;
@@ -816,22 +841,22 @@ on_systray_error:
 }
 
 
-void systray_render_icon(TrayWindow* traywin)
+void systray_render_icon(void* t)
 {
+	TrayWindow* traywin = t;
 	if (!traywin->reparented) {
 		if (!reparent_icon(traywin))
 			return;
 		if (systray_composited) {
 			// We need to process the events in the main loop first
 			stop_timeout(traywin->render_timeout);
-			traywin->render_timeout = add_timeout(50, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
+			traywin->render_timeout = add_timeout(50, 0, systray_render_icon, traywin, &traywin->render_timeout);
 			return;
 		}
 	}
 
 	if (systray_composited) {
-		if (!traywin->render_timeout)
-			systray_render_icon_composited(traywin);
+		systray_render_icon_composited(traywin);
 	} else {
 		// Trigger window repaint
 		XClearArea(server.dsp, traywin->parent, 0, 0, traywin->width, traywin->height, True);

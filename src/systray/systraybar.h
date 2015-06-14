@@ -85,7 +85,9 @@ gboolean add_icon(Window id);
 void remove_icon(TrayWindow *traywin);
 
 void refresh_systray_icon();
-void systray_render_icon(TrayWindow* traywin);
+void systray_render_icon(void *t);
+void systray_reconfigure_event(TrayWindow *traywin);
+void systray_destroy_event(TrayWindow *traywin);
 void kde_update_icons();
 
 #endif
