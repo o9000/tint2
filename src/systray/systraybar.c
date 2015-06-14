@@ -730,7 +730,7 @@ void systray_render_icon_composited(void* t)
 			fprintf(stderr, "Couldn't get geometry of window!\n");
 			return;
 		}
-		if (width != traywin->width || height != traywin->height) {
+		if (width != traywin->width || height != traywin->height || xpos != 0 || ypos != 0) {
 			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
 			traywin->render_timeout = add_timeout(50, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
 			return;
