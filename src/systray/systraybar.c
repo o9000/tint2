@@ -503,6 +503,7 @@ gboolean add_icon(Window win)
 	systray.area.redraw = 1;
 	panel->area.resize = 1;
 	panel_refresh = 1;
+	refresh_systray = 1;
 	return TRUE;
 }
 
@@ -622,6 +623,8 @@ gboolean reparent_icon(TrayWindow *traywin)
 
 void remove_icon(TrayWindow *traywin)
 {
+	Panel* panel = systray.area.panel;
+
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
 	printf("remove_icon: %lu\n", traywin->win);
@@ -654,13 +657,18 @@ void remove_icon(TrayWindow *traywin)
 	if (count == 0)
 		hide(&systray.area);
 
-	// changed in systray
+	// Resize and redraw the systray
 	systray.area.resize = 1;
+	systray.area.redraw = 1;
+	panel->area.resize = 1;
 	panel_refresh = 1;
+	refresh_systray = 1;
 }
 
 void systray_reconfigure_event(TrayWindow *traywin)
 {
+	Panel* panel = systray.area.panel;
+
 	//printf("move tray %d\n", traywin->x);
 	XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
 	if (traywin->reparented) {
@@ -669,6 +677,10 @@ void systray_reconfigure_event(TrayWindow *traywin)
 		stop_timeout(traywin->render_timeout);
 		traywin->render_timeout = add_timeout(50, 0, systray_render_icon, traywin, &traywin->render_timeout);
 	}
+	// Resize and redraw the systray
+	systray.area.resize = 1;
+	systray.area.redraw = 1;
+	panel->area.resize = 1;
 	panel_refresh = 1;
 	refresh_systray = 1;
 }
@@ -821,9 +833,13 @@ void systray_render_icon_composited(void* t)
 
 	if (traywin->empty != empty) {
 		traywin->empty = empty;
-		systray.area.resize = 1;
-		panel_refresh = 1;
 		systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
+		// Resize and redraw the systray
+		systray.area.resize = 1;
+		systray.area.redraw = 1;
+		panel->area.resize = 1;
+		panel_refresh = 1;
+		refresh_systray = 1;
 	}
 
 	return;
