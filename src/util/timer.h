@@ -73,4 +73,9 @@ gint compare_timespecs(const struct timespec* t1, const struct timespec* t2);
 
 struct timespec add_msec_to_timespec(struct timespec ts, int msec);
 
+/** Returns the time difference in seconds between the current time and the last time this function was called.
+  * At the first call returns zero.
+**/
+double profiling_get_time();
+
 #endif // TIMER_H

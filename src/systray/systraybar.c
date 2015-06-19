@@ -52,6 +52,7 @@ int systray_max_icon_size;
 int systray_monitor;
 int chrono;
 int systray_composited;
+int systray_profile;
 // background pixmap if we render ourselves the icons
 static Pixmap render_background;
 
@@ -67,6 +68,7 @@ void default_systray()
 	systray.area._on_change_layout = on_change_systray;
 	systray.area.size_mode = SIZE_BY_CONTENT;
 	systray.area._resize = resize_systray;
+	systray_profile = getenv("SYSTRAY_PROFILING") != NULL;
 }
 
 void cleanup_systray()
@@ -125,6 +127,8 @@ void init_systray_panel(void *p)
 
 void draw_systray(void *obj, cairo_t *c)
 {
+	if (systray_profile)
+		printf("[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	if (systray_composited) {
 		if (render_background)
 			XFreePixmap(server.dsp, render_background);
@@ -138,6 +142,8 @@ void draw_systray(void *obj, cairo_t *c)
 
 int resize_systray(void *obj)
 {
+	if (systray_profile)
+		printf("[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	Systraybar *sysbar = obj;
 	GSList *l;
 	int count;
@@ -155,7 +161,8 @@ int resize_systray(void *obj)
 			continue;
 		count++;
 	}
-	//printf("count %d\n", count);
+	if (systray_profile)
+		printf("%s:%d number of icons = %d\n", __FUNCTION__, __LINE__, count);
 
 	if (panel_horizontal) {
 		int height = sysbar->area.height - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
@@ -178,6 +185,8 @@ int resize_systray(void *obj)
 
 void on_change_systray (void *obj)
 {
+	if (systray_profile)
+		printf("[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	// here, systray.area.posx/posy are defined by rendering engine. so we can calculate position of tray icon.
 	Systraybar *sysbar = obj;
 	if (sysbar->icons_per_column == 0 || sysbar->icons_per_row == 0)
@@ -203,7 +212,8 @@ void on_change_systray (void *obj)
 
 		traywin->y = posy;
 		traywin->x = posx;
-		// printf("systray %d %d : pos %d, %d\n", traywin->parent, traywin->win, posx, posy);
+		if (systray_profile)
+			printf("%s:%d win = %lu, parent = %lu, x = %d, y = %d\n", __FUNCTION__, __LINE__, traywin->win, traywin->parent, posx, posy);
 		traywin->width = sysbar->icon_size;
 		traywin->height = sysbar->icon_size;
 		if (panel_horizontal) {
@@ -237,6 +247,8 @@ void on_change_systray (void *obj)
 
 void start_net()
 {
+	if (systray_profile)
+		printf("[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	if (net_sel_win) {
 		// protocol already started
 		if (!systray_enabled)
@@ -294,6 +306,7 @@ void start_net()
 	}
 
 	//fprintf(stderr, "tint2 : systray started\n");
+	printf("[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	XClientMessageEvent ev;
 	ev.type = ClientMessage;
 	ev.window = server.root_win;
@@ -310,6 +323,8 @@ void start_net()
 
 void net_message(XClientMessageEvent *e)
 {
+	if (systray_profile)
+		printf("[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	unsigned long opcode;
 	Window win;
 
@@ -338,7 +353,8 @@ void net_message(XClientMessageEvent *e)
 
 void stop_net()
 {
-	//fprintf(stderr, "tint2 : systray stopped\n");
+	if (systray_profile)
+		printf("[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	if (systray.list_icons) {
 		// remove_icon change systray.list_icons
 		while(systray.list_icons)
@@ -358,6 +374,8 @@ void stop_net()
 gboolean error;
 int window_error_handler(Display *d, XErrorEvent *e)
 {
+	if (systray_profile)
+		printf("[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	error = TRUE;
 	if (e->error_code != BadWindow) {
 		printf("systray: error code %d\n", e->error_code);
@@ -406,6 +424,8 @@ static gint compare_traywindows(gconstpointer a, gconstpointer b)
 
 gboolean add_icon(Window win)
 {
+	if (systray_profile)
+		printf("[%f] %s:%d win = %lu\n", profiling_get_time(), __FUNCTION__, __LINE__, win);
 	TrayWindow *traywin;
 	Panel *panel = systray.area.panel;
 	int hide = 0;
@@ -447,7 +467,7 @@ gboolean add_icon(Window win)
 			}
 		}
 	}
-	//printf("add_icon: %d, pid %d, %d\n", win, pid, num_empty_same_pid);
+	printf("add_icon: %lu, pid %d, %d\n", win, pid, num_empty_same_pid);
 
 	// Create the parent window that will embed the icon
 	XWindowAttributes attr;
@@ -498,6 +518,9 @@ gboolean add_icon(Window win)
 		XMapRaised(server.dsp, traywin->parent);
 	XSync(server.dsp, False);
 
+	if (systray_profile)
+		printf("[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+
 	// Resize and redraw the systray
 	systray.area.resize = 1;
 	systray.area.redraw = 1;
@@ -509,6 +532,8 @@ gboolean add_icon(Window win)
 
 gboolean reparent_icon(TrayWindow *traywin)
 {
+	if (systray_profile)
+		printf("[%f] %s:%d win = %lu\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win);
 	if (traywin->reparented)
 		return TRUE;
 
@@ -539,8 +564,6 @@ gboolean reparent_icon(TrayWindow *traywin)
 		remove_icon(traywin);
 		return FALSE;
 	}
-
-	traywin->reparented = 1;
 
 	// Embed into parent
 	{
@@ -618,11 +641,18 @@ gboolean reparent_icon(TrayWindow *traywin)
 
 	XSync(server.dsp, False);
 
+	traywin->reparented = 1;
+
+	if (systray_profile)
+		printf("[%f] %s:%d win = %lu\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win);
+
 	return TRUE;
 }
 
 void remove_icon(TrayWindow *traywin)
 {
+	if (systray_profile)
+		printf("[%f] %s:%d win = %lu\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win);
 	Panel* panel = systray.area.panel;
 
 	// remove from our list
@@ -667,6 +697,8 @@ void remove_icon(TrayWindow *traywin)
 
 void systray_reconfigure_event(TrayWindow *traywin)
 {
+	if (systray_profile)
+		printf("[%f] %s:%d win = %lu\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win);
 	Panel* panel = systray.area.panel;
 
 	//printf("move tray %d\n", traywin->x);
@@ -687,6 +719,8 @@ void systray_reconfigure_event(TrayWindow *traywin)
 
 void systray_destroy_event(TrayWindow *traywin)
 {
+	if (systray_profile)
+		printf("[%f] %s:%d win = %lu\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win);
 	remove_icon(traywin);
 }
 
@@ -696,6 +730,9 @@ void systray_render_icon_composited(void* t)
 	// we end up in this function only in real transparency mode or if systray_task_asb != 100 0 0
 	// we made also sure, that we always have a 32 bit visual, i.e. we can safely create 32 bit pixmaps here
 	TrayWindow* traywin = t;
+
+	if (systray_profile)
+		printf("[%f] %s:%d win = %lu\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win);
 
 	// wine tray icons update whenever mouse is over them, so we limit the updates to 50 ms
 	struct timespec now;
@@ -842,6 +879,9 @@ void systray_render_icon_composited(void* t)
 		refresh_systray = 1;
 	}
 
+	if (systray_profile)
+		printf("[%f] %s:%d win = %lu\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win);
+
 	return;
 
 on_error:
@@ -860,6 +900,8 @@ on_systray_error:
 void systray_render_icon(void* t)
 {
 	TrayWindow* traywin = t;
+	if (systray_profile)
+		printf("[%f] %s:%d win = %lu\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win);
 	if (!traywin->reparented) {
 		if (!reparent_icon(traywin))
 			return;
