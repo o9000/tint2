@@ -1133,28 +1133,26 @@ start:
 				fprintf(stderr, BLUE "[%f] %s:%d redrawing panel\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
 			panel_refresh = 0;
 
-			for (i=0 ; i < nb_panel ; i++) {
+			for (i = 0; i < nb_panel ;i++) {
 				panel = &panel1[i];
 
 				if (panel->is_hidden) {
 					XCopyArea(server.dsp, panel->hidden_pixmap, panel->main_win, server.gc, 0, 0, panel->hidden_width, panel->hidden_height, 0, 0);
 					XSetWindowBackgroundPixmap(server.dsp, panel->main_win, panel->hidden_pixmap);
-				}
-				else {
-					if (panel->temp_pmap) XFreePixmap(server.dsp, panel->temp_pmap);
+				} else {
+					if (panel->temp_pmap)
+						XFreePixmap(server.dsp, panel->temp_pmap);
 					panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
 					rendering(panel);
+					if (panel == (Panel*)systray.area.panel) {
+						if (refresh_systray && panel && !panel->is_hidden) {
+							refresh_systray = 0;
+							XSetWindowBackgroundPixmap(server.dsp, panel->main_win, panel->temp_pmap);
+							refresh_systray_icons();
+						}
+					}
 					XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
 				}
-			}
-
-			panel = (Panel*)systray.area.panel;
-			if (refresh_systray && panel && !panel->is_hidden) {
-				refresh_systray = 0;
-				// tint2 doen't draw systray icons. it just redraw background.
-				XSetWindowBackgroundPixmap(server.dsp, panel->main_win, panel->temp_pmap);
-				// force icon's refresh
-				refresh_systray_icons();
 			}
 			XFlush(server.dsp);
 		}
