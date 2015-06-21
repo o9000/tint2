@@ -48,7 +48,9 @@ typedef struct
 	int pid;
 	int chrono;
     struct timespec time_last_render;
+	int num_fast_renders;
 	int reparented;
+	char *name;
 } TrayWindow;
 
 
@@ -59,6 +61,7 @@ extern int refresh_systray;
 extern int systray_enabled;
 extern int systray_max_icon_size;
 extern int systray_monitor;
+extern int systray_profile;
 
 // default global data
 void default_systray();
@@ -84,9 +87,9 @@ void net_message(XClientMessageEvent *e);
 gboolean add_icon(Window id);
 void remove_icon(TrayWindow *traywin);
 
-void refresh_systray_icon();
+void refresh_systray_icons();
 void systray_render_icon(void *t);
-void systray_reconfigure_event(TrayWindow *traywin);
+void systray_reconfigure_event(TrayWindow *traywin, XEvent *e);
 void systray_destroy_event(TrayWindow *traywin);
 void kde_update_icons();
 

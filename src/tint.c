@@ -817,8 +817,10 @@ void event_expose (XEvent *e)
 }
 
 
-void event_configure_notify (Window win)
+void event_configure_notify(XEvent *e)
 {
+	Window win = e->xconfigure.window;
+
 	// change in root window (xrandr)
 	if (win == server.root_win) {
 		signal_pending = SIGUSR1;
@@ -831,7 +833,7 @@ void event_configure_notify (Window win)
 	for (l = systray.list_icons; l ; l = l->next) {
 		traywin = (TrayWindow*)l->data;
 		if (traywin->win == win) {
-			systray_reconfigure_event(traywin);
+			systray_reconfigure_event(traywin, e);
 			return;
 		}
 	}
@@ -1127,6 +1129,8 @@ start:
 
 	while (1) {
 		if (panel_refresh) {
+			if (systray_profile)
+				fprintf(stderr, BLUE "[%f] %s:%d redrawing panel\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
 			panel_refresh = 0;
 
 			for (i=0 ; i < nb_panel ; i++) {
@@ -1143,16 +1147,16 @@ start:
 					XCopyArea(server.dsp, panel->temp_pmap, panel->main_win, server.gc, 0, 0, panel->area.width, panel->area.height, 0, 0);
 				}
 			}
-			XFlush (server.dsp);
 
 			panel = (Panel*)systray.area.panel;
 			if (refresh_systray && panel && !panel->is_hidden) {
 				refresh_systray = 0;
 				// tint2 doen't draw systray icons. it just redraw background.
-				XSetWindowBackgroundPixmap (server.dsp, panel->main_win, panel->temp_pmap);
+				XSetWindowBackgroundPixmap(server.dsp, panel->main_win, panel->temp_pmap);
 				// force icon's refresh
-				refresh_systray_icon();
+				refresh_systray_icons();
 			}
+			XFlush(server.dsp);
 		}
 
 		// thanks to AngryLlama for the timer
@@ -1243,7 +1247,7 @@ start:
 						break;
 
 					case ConfigureNotify:
-						event_configure_notify (e.xconfigure.window);
+						event_configure_notify(&e);
 						break;
 
 					case ReparentNotify:

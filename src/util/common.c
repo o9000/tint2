@@ -380,17 +380,22 @@ int imageEmpty(DATA32* data, int w, int h)
 	if (w > 0 && h > 0) {
 		x = w / 2;
 		y = h / 2;
-		if (!pixelEmpty(data[y * w + x]))
+		if (!pixelEmpty(data[y * w + x])) {
+			//fprintf(stderr, "Non-empty pixel: [%u, %u] = %x\n", x, y, data[y * w + x]);
 			return 0;
+		}
 	}
 
 	for (y = 0; y < h; y++) {
 		for (x = 0; x < w; x++) {
-			if (!pixelEmpty(data[y * w + x]))
+			if (!pixelEmpty(data[y * w + x])) {
+				//fprintf(stderr, "Non-empty pixel: [%u, %u] = %x\n", x, y, data[y * w + x]);
 				return 0;
+			}
 		}
 	}
 
+	//fprintf(stderr, "All pixels are empty\n");
 	return 1;
 }
 
