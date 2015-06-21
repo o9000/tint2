@@ -452,45 +452,48 @@ gboolean add_icon(Window win)
 			free(name);
 			return FALSE;
 		}
-		if (pid && other->pid == pid) {
-			if (!systray_composited) {
-				// Empty icon detection: we compare the contents of the icon with the contents of the panel pixmap.
-				// If any pixel is different, the icon is not empty.
-				imlib_context_set_visual(server.visual);
-				imlib_context_set_colormap(server.colormap);
-				imlib_context_set_drawable(other->win);
-				Imlib_Image image = imlib_create_image_from_drawable(0, 0, 0, other->width, other->height, 1);
-				if (image) {
-					fprintf(stderr, "Got image\n");
-					imlib_context_set_drawable(panel->temp_pmap);
-					Imlib_Image bg = imlib_create_image_from_drawable(0, other->x, other->y, other->width, other->height, 1);
-					imlib_context_set_image(bg);
-					DATA32* data_bg = imlib_image_get_data_for_reading_only();
-					imlib_context_set_image(image);
-					imlib_image_set_has_alpha(other->depth > 24);
-					DATA32* data = imlib_image_get_data_for_reading_only();
-					int x, y;
-					int empty = 1;
-					for (x = 0; x < other->width && empty; x++) {
-						for (y = 0; y < other->height && empty; y++) {
-							DATA32 pixel = data[y * other->width + x];
-							DATA32 a = (pixel >> 24) & 0xff;
-							if (a == 0)
-								continue;
+		if (!systray_composited) {
+			// Empty icon detection: we compare the contents of the icon with the contents of the panel pixmap.
+			// If any pixel is different, the icon is not empty.
+			imlib_context_set_visual(server.visual);
+			imlib_context_set_colormap(server.colormap);
+			imlib_context_set_drawable(other->win);
+			Imlib_Image image = imlib_create_image_from_drawable(0, 0, 0, other->width, other->height, 1);
+			if (image) {
+				imlib_context_set_drawable(panel->temp_pmap);
+				Imlib_Image bg = imlib_create_image_from_drawable(0, other->x, other->y, other->width, other->height, 1);
+				imlib_context_set_image(bg);
+				DATA32* data_bg = imlib_image_get_data_for_reading_only();
+				imlib_context_set_image(image);
+				imlib_image_set_has_alpha(other->depth > 24);
+				DATA32* data = imlib_image_get_data_for_reading_only();
+				int x, y;
+				int empty = 1;
+				for (x = 0; x < other->width && empty; x++) {
+					for (y = 0; y < other->height && empty; y++) {
+						DATA32 pixel = data[y * other->width + x];
+						DATA32 a = (pixel >> 24) & 0xff;
+						if (a == 0)
+							continue;
 
-							DATA32 rgb = pixel & 0xffFFff;
-							DATA32 rgb_bg = data_bg[y * other->width + x] & 0xffFFff;
-							if (rgb != rgb_bg) {
-								empty = 0;
-							}
+						DATA32 rgb = pixel & 0xffFFff;
+						DATA32 pixel_bg = data_bg[y * other->width + x];
+						DATA32 rgb_bg = pixel_bg & 0xffFFff;
+						if (rgb != rgb_bg) {
+							fprintf(stderr, "Pixel: %x different from bg %x at pos %d %d\n", pixel, pixel_bg, x, y);
+							empty = 0;
 						}
 					}
-					other->empty = empty;
-					imlib_free_image_and_decache();
-					imlib_context_set_image(bg);
-					imlib_free_image_and_decache();
 				}
+				other->empty = empty;
+				imlib_free_image_and_decache();
+				imlib_context_set_image(bg);
+				imlib_free_image_and_decache();
+				if (systray_profile)
+					fprintf(stderr, "[%f] %s:%d win = %lu (%s) empty = %d\n", profiling_get_time(), __FUNCTION__, __LINE__, other->win, other->name, other->empty);
 			}
+		}
+		if (pid && other->pid == pid) {
 			if (other->empty)
 				num_empty_same_pid++;
 		}
@@ -992,6 +995,7 @@ void systray_render_icon(void* t)
 	} else {
 		// Trigger window repaint
 		XClearArea(server.dsp, traywin->parent, 0, 0, traywin->width, traywin->height, True);
+		XClearArea(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height, True);
 	}
 }
 
