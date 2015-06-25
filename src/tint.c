@@ -224,9 +224,11 @@ void init_X11_post_config()
 		if (pipe(sn_pipe) != 0) {
 			fprintf(stderr, "Creating pipe failed.\n");
 		} else {
+			fcntl(sn_pipe[0], F_SETFL, O_NONBLOCK | fcntl(sn_pipe[0], F_GETFL));
+			fcntl(sn_pipe[1], F_SETFL, O_NONBLOCK | fcntl(sn_pipe[1], F_GETFL));
 			sn_pipe_valid = 1;
 			struct sigaction act;
-			memset (&act, 0, sizeof (struct sigaction));
+			memset(&act, 0, sizeof(struct sigaction));
 			act.sa_handler = sigchld_handler;
 			if (sigaction(SIGCHLD, &act, 0)) {
 				perror("sigaction");
@@ -1173,245 +1175,247 @@ start:
 			timeout = 0;
 
 		// Wait for X Event or a Timer
-		if (select(maxfd+1, &fdset, 0, 0, timeout) > 0) {
-			if (FD_ISSET(sn_pipe[0], &fdset)) {
+		if (systray_profile)
+			fprintf(stderr, "[%f] %s:%d waiting for events...\n", profiling_get_time(), __FUNCTION__, __LINE__);
+		if (XPending(server.dsp) > 0 || select(maxfd+1, &fdset, 0, 0, timeout) >= 0) {
+			if (systray_profile)
+				fprintf(stderr, "[%f] %s:%d processing events\n", profiling_get_time(), __FUNCTION__, __LINE__);
+			if (sn_pipe_valid) {
 				char buffer[1];
-				ssize_t wur = read(sn_pipe[0], buffer, 1);
-				(void) wur;
-				sigchld_handler_async();
+				while (read(sn_pipe[0], buffer, sizeof(buffer)) > 0) {
+					sigchld_handler_async();
+				}
 			}
-			if (FD_ISSET(x11_fd, &fdset)) {
-				while (XPending (server.dsp)) {
-					XNextEvent(server.dsp, &e);
+			while (XPending(server.dsp)) {
+				XNextEvent(server.dsp, &e);
 #if HAVE_SN
-					if (startup_notifications)
-						sn_display_process_event(server.sn_dsp, &e);
+				if (startup_notifications)
+					sn_display_process_event(server.sn_dsp, &e);
 #endif // HAVE_SN
 
-					panel = get_panel(e.xany.window);
-					if (panel && panel_autohide) {
-						if (e.type == EnterNotify)
-							autohide_trigger_show(panel);
-						else if (e.type == LeaveNotify)
-							autohide_trigger_hide(panel);
-						if (panel->is_hidden) {
-							if (e.type == ClientMessage && e.xclient.message_type == server.atom.XdndPosition) {
-								hidden_dnd = 1;
-								autohide_show(panel);
-							}
-							else
-								continue;   // discard further processing of this event because the panel is not visible yet
+				panel = get_panel(e.xany.window);
+				if (panel && panel_autohide) {
+					if (e.type == EnterNotify)
+						autohide_trigger_show(panel);
+					else if (e.type == LeaveNotify)
+						autohide_trigger_hide(panel);
+					if (panel->is_hidden) {
+						if (e.type == ClientMessage && e.xclient.message_type == server.atom.XdndPosition) {
+							hidden_dnd = 1;
+							autohide_show(panel);
 						}
-						else if (hidden_dnd && e.type == ClientMessage && e.xclient.message_type == server.atom.XdndLeave) {
-							hidden_dnd = 0;
-							autohide_hide(panel);
-						}
-					}
-
-					switch (e.type) {
-					case ButtonPress:
-						tooltip_hide(0);
-						event_button_press (&e);
-						break;
-
-					case ButtonRelease:
-						event_button_release(&e);
-						break;
-
-					case MotionNotify: {
-						unsigned int button_mask = Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask;
-						if (e.xmotion.state & button_mask)
-							event_button_motion_notify (&e);
-
-						Panel* panel = get_panel(e.xmotion.window);
-						Area* area = click_area(panel, e.xmotion.x, e.xmotion.y);
-						if (area->_get_tooltip_text)
-							tooltip_trigger_show(area, panel, &e);
 						else
-							tooltip_trigger_hide();
+							continue;   // discard further processing of this event because the panel is not visible yet
+					}
+					else if (hidden_dnd && e.type == ClientMessage && e.xclient.message_type == server.atom.XdndLeave) {
+						hidden_dnd = 0;
+						autohide_hide(panel);
+					}
+				}
+
+				switch (e.type) {
+				case ButtonPress:
+					tooltip_hide(0);
+					event_button_press (&e);
+					break;
+
+				case ButtonRelease:
+					event_button_release(&e);
+					break;
+
+				case MotionNotify: {
+					unsigned int button_mask = Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask;
+					if (e.xmotion.state & button_mask)
+						event_button_motion_notify (&e);
+
+					Panel* panel = get_panel(e.xmotion.window);
+					Area* area = click_area(panel, e.xmotion.x, e.xmotion.y);
+					if (area->_get_tooltip_text)
+						tooltip_trigger_show(area, panel, &e);
+					else
+						tooltip_trigger_hide();
+					break;
+				}
+
+				case LeaveNotify:
+					tooltip_trigger_hide();
+					break;
+
+				case Expose:
+					event_expose(&e);
+					break;
+
+				case PropertyNotify:
+					event_property_notify(&e);
+					break;
+
+				case ConfigureNotify:
+					event_configure_notify(&e);
+					break;
+
+				case ReparentNotify:
+					if (!systray_enabled)
+						break;
+					panel = (Panel*)systray.area.panel;
+					if (e.xany.window == panel->main_win) // reparented to us
+						break;
+					// FIXME: 'reparent to us' badly detected => disabled
+					break;
+				case UnmapNotify:
+				case DestroyNotify:
+					if (e.xany.window == server.composite_manager) {
+						// Stop real_transparency
+						signal_pending = SIGUSR1;
 						break;
 					}
-
-					case LeaveNotify:
-						tooltip_trigger_hide();
+					if (e.xany.window == g_tooltip.window || !systray_enabled)
 						break;
-
-					case Expose:
-						event_expose(&e);
-						break;
-
-					case PropertyNotify:
-						event_property_notify(&e);
-						break;
-
-					case ConfigureNotify:
-						event_configure_notify(&e);
-						break;
-
-					case ReparentNotify:
-						if (!systray_enabled)
+					for (it = systray.list_icons; it; it = g_slist_next(it)) {
+						if (((TrayWindow*)it->data)->win == e.xany.window) {
+							systray_destroy_event((TrayWindow*)it->data);
 							break;
-						panel = (Panel*)systray.area.panel;
-						if (e.xany.window == panel->main_win) // reparented to us
-							break;
-						// FIXME: 'reparent to us' badly detected => disabled
-						break;
-					case UnmapNotify:
-					case DestroyNotify:
-						if (e.xany.window == server.composite_manager) {
+						}
+					}
+					break;
+
+				case ClientMessage:
+					ev = &e.xclient;
+					if (ev->data.l[1] == server.atom._NET_WM_CM_S0) {
+						if (ev->data.l[2] == None)
 							// Stop real_transparency
 							signal_pending = SIGUSR1;
-							break;
-						}
-						if (e.xany.window == g_tooltip.window || !systray_enabled)
-							break;
-						for (it = systray.list_icons; it; it = g_slist_next(it)) {
-							if (((TrayWindow*)it->data)->win == e.xany.window) {
-								systray_destroy_event((TrayWindow*)it->data);
-								break;
+						else
+							// Start real_transparency
+							signal_pending = SIGUSR1;
+					}
+					if (systray_enabled && e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
+						net_message(&e.xclient);
+					}
+					else if (e.xclient.message_type == server.atom.XdndEnter) {
+						dnd_enter(&e.xclient);
+					}
+					else if (e.xclient.message_type == server.atom.XdndPosition) {
+						dnd_position(&e.xclient);
+					}
+					else if (e.xclient.message_type == server.atom.XdndDrop) {
+						dnd_drop(&e.xclient);
+					}
+					break;
+
+				case SelectionNotify:
+				{
+					Atom target = e.xselection.target;
+
+					fprintf(stderr, "DnD %s:%d: A selection notify has arrived!\n", __FILE__, __LINE__);
+					fprintf(stderr, "DnD %s:%d: Requestor = %lu\n", __FILE__, __LINE__, e.xselectionrequest.requestor);
+					fprintf(stderr, "DnD %s:%d: Selection atom = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e.xselection.selection));
+					fprintf(stderr, "DnD %s:%d: Target atom    = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, target));
+					fprintf(stderr, "DnD %s:%d: Property atom  = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e.xselection.property));
+
+					if (e.xselection.property != None && dnd_launcher_exec) {
+						Property prop = read_property(server.dsp, dnd_target_window, dnd_selection);
+
+						//If we're being given a list of targets (possible conversions)
+						if (target == server.atom.TARGETS && !dnd_sent_request) {
+							dnd_sent_request = 1;
+							dnd_atom = pick_target_from_targets(server.dsp, prop);
+
+							if (dnd_atom == None) {
+								fprintf(stderr, "No matching datatypes.\n");
+							} else {
+								//Request the data type we are able to select
+								fprintf(stderr, "Now requsting type %s", GetAtomName(server.dsp, dnd_atom));
+								XConvertSelection(server.dsp, dnd_selection, dnd_atom, dnd_selection, dnd_target_window, CurrentTime);
 							}
-						}
-						break;
+						} else if (target == dnd_atom) {
+							//Dump the binary data
+							fprintf(stderr, "DnD %s:%d: Data begins:\n", __FILE__, __LINE__);
+							fprintf(stderr, "--------\n");
+							int i;
+							for (i = 0; i < prop.nitems * prop.format/8; i++)
+								fprintf(stderr, "%c", ((char*)prop.data)[i]);
+							fprintf(stderr, "--------\n");
 
-					case ClientMessage:
-						ev = &e.xclient;
-						if (ev->data.l[1] == server.atom._NET_WM_CM_S0) {
-							if (ev->data.l[2] == None)
-								// Stop real_transparency
-								signal_pending = SIGUSR1;
-							else
-								// Start real_transparency
-								signal_pending = SIGUSR1;
-						}
-						if (systray_enabled && e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE && e.xclient.format == 32 && e.xclient.window == net_sel_win) {
-							net_message(&e.xclient);
-						}
-						else if (e.xclient.message_type == server.atom.XdndEnter) {
-							dnd_enter(&e.xclient);
-						}
-						else if (e.xclient.message_type == server.atom.XdndPosition) {
-							dnd_position(&e.xclient);
-						}
-						else if (e.xclient.message_type == server.atom.XdndDrop) {
-							dnd_drop(&e.xclient);
-						}
-						break;
-
-					case SelectionNotify:
-					{
-						Atom target = e.xselection.target;
-
-						fprintf(stderr, "DnD %s:%d: A selection notify has arrived!\n", __FILE__, __LINE__);
-						fprintf(stderr, "DnD %s:%d: Requestor = %lu\n", __FILE__, __LINE__, e.xselectionrequest.requestor);
-						fprintf(stderr, "DnD %s:%d: Selection atom = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e.xselection.selection));
-						fprintf(stderr, "DnD %s:%d: Target atom    = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, target));
-						fprintf(stderr, "DnD %s:%d: Property atom  = %s\n", __FILE__, __LINE__, GetAtomName(server.dsp, e.xselection.property));
-
-						if (e.xselection.property != None && dnd_launcher_exec) {
-							Property prop = read_property(server.dsp, dnd_target_window, dnd_selection);
-
-							//If we're being given a list of targets (possible conversions)
-							if (target == server.atom.TARGETS && !dnd_sent_request) {
-								dnd_sent_request = 1;
-								dnd_atom = pick_target_from_targets(server.dsp, prop);
-
-								if (dnd_atom == None) {
-									fprintf(stderr, "No matching datatypes.\n");
+							int cmd_length = 0;
+							cmd_length += 1; // (
+							cmd_length += strlen(dnd_launcher_exec) + 1; // exec + space
+							cmd_length += 1; // open double quotes
+							for (i = 0; i < prop.nitems * prop.format/8; i++) {
+								char c = ((char*)prop.data)[i];
+								if (c == '\n') {
+									if (i < prop.nitems * prop.format/8 - 1) {
+										cmd_length += 3; // close double quotes, space, open double quotes
+									}
+								} else if (c == '\r') {
 								} else {
-									//Request the data type we are able to select
-									fprintf(stderr, "Now requsting type %s", GetAtomName(server.dsp, dnd_atom));
-									XConvertSelection(server.dsp, dnd_selection, dnd_atom, dnd_selection, dnd_target_window, CurrentTime);
-								}
-							} else if (target == dnd_atom) {
-								//Dump the binary data
-								fprintf(stderr, "DnD %s:%d: Data begins:\n", __FILE__, __LINE__);
-								fprintf(stderr, "--------\n");
-								int i;
-								for (i = 0; i < prop.nitems * prop.format/8; i++)
-									fprintf(stderr, "%c", ((char*)prop.data)[i]);
-								fprintf(stderr, "--------\n");
-
-								int cmd_length = 0;
-								cmd_length += 1; // (
-								cmd_length += strlen(dnd_launcher_exec) + 1; // exec + space
-								cmd_length += 1; // open double quotes
-								for (i = 0; i < prop.nitems * prop.format/8; i++) {
-									char c = ((char*)prop.data)[i];
-									if (c == '\n') {
-										if (i < prop.nitems * prop.format/8 - 1) {
-											cmd_length += 3; // close double quotes, space, open double quotes
-										}
-									} else if (c == '\r') {
-									} else {
-										cmd_length += 1; // 1 character
-										if (c == '`' || c == '$' || c == '\\') {
-											cmd_length += 1; // escape with one backslash
-										}
+									cmd_length += 1; // 1 character
+									if (c == '`' || c == '$' || c == '\\') {
+										cmd_length += 1; // escape with one backslash
 									}
 								}
-								cmd_length += 1; // close double quotes
-								cmd_length += 2; // &)
-								cmd_length += 1; // terminator
-
-								char *cmd = calloc(cmd_length, 1);
-								cmd[0] = '\0';
-								strcat(cmd, "(");
-								strcat(cmd, dnd_launcher_exec);
-								strcat(cmd, " \"");
-								for (i = 0; i < prop.nitems * prop.format/8; i++) {
-									char c = ((char*)prop.data)[i];
-									if (c == '\n') {
-										if (i < prop.nitems * prop.format/8 - 1) {
-											strcat(cmd, "\" \"");
-										}
-									} else if (c == '\r') {
-									} else {
-										if (c == '`' || c == '$' || c == '\\') {
-											strcat(cmd, "\\");
-										}
-										char sc[2];
-										sc[0] = c;
-										sc[1] = '\0';
-										strcat(cmd, sc);
-									}
-								}
-								strcat(cmd, "\"");
-								strcat(cmd, "&)");
-								fprintf(stderr, "DnD %s:%d: Running command: %s\n", __FILE__, __LINE__, cmd);
-								tint_exec(cmd);
-								free(cmd);
-
-								// Reply OK.
-								XClientMessageEvent m;
-								memset(&m, 0, sizeof(m));
-								m.type = ClientMessage;
-								m.display = server.dsp;
-								m.window = dnd_source_window;
-								m.message_type = server.atom.XdndFinished;
-								m.format = 32;
-								m.data.l[0] = dnd_target_window;
-								m.data.l[1] = 1;
-								m.data.l[2] = server.atom.XdndActionCopy; //We only ever copy.
-								XSendEvent(server.dsp, dnd_source_window, False, NoEventMask, (XEvent*)&m);
-								XSync(server.dsp, False);
 							}
+							cmd_length += 1; // close double quotes
+							cmd_length += 2; // &)
+							cmd_length += 1; // terminator
 
-							XFree(prop.data);
+							char *cmd = calloc(cmd_length, 1);
+							cmd[0] = '\0';
+							strcat(cmd, "(");
+							strcat(cmd, dnd_launcher_exec);
+							strcat(cmd, " \"");
+							for (i = 0; i < prop.nitems * prop.format/8; i++) {
+								char c = ((char*)prop.data)[i];
+								if (c == '\n') {
+									if (i < prop.nitems * prop.format/8 - 1) {
+										strcat(cmd, "\" \"");
+									}
+								} else if (c == '\r') {
+								} else {
+									if (c == '`' || c == '$' || c == '\\') {
+										strcat(cmd, "\\");
+									}
+									char sc[2];
+									sc[0] = c;
+									sc[1] = '\0';
+									strcat(cmd, sc);
+								}
+							}
+							strcat(cmd, "\"");
+							strcat(cmd, "&)");
+							fprintf(stderr, "DnD %s:%d: Running command: %s\n", __FILE__, __LINE__, cmd);
+							tint_exec(cmd);
+							free(cmd);
+
+							// Reply OK.
+							XClientMessageEvent m;
+							memset(&m, 0, sizeof(m));
+							m.type = ClientMessage;
+							m.display = server.dsp;
+							m.window = dnd_source_window;
+							m.message_type = server.atom.XdndFinished;
+							m.format = 32;
+							m.data.l[0] = dnd_target_window;
+							m.data.l[1] = 1;
+							m.data.l[2] = server.atom.XdndActionCopy; //We only ever copy.
+							XSendEvent(server.dsp, dnd_source_window, False, NoEventMask, (XEvent*)&m);
+							XSync(server.dsp, False);
 						}
 
-						break;
+						XFree(prop.data);
 					}
 
-					default:
-						if (e.type == XDamageNotify+damage_event) {
-							XDamageNotifyEvent *de = (XDamageNotifyEvent*)&e;
-							GSList *l;
-							for (l = systray.list_icons; l ; l = l->next) {
-								TrayWindow *traywin = (TrayWindow*)l->data;
-								if (traywin->parent == de->drawable) {
-									systray_render_icon(traywin);
-									break;
-								}
+					break;
+				}
+
+				default:
+					if (e.type == XDamageNotify+damage_event) {
+						XDamageNotifyEvent *de = (XDamageNotifyEvent*)&e;
+						GSList *l;
+						for (l = systray.list_icons; l ; l = l->next) {
+							TrayWindow *traywin = (TrayWindow*)l->data;
+							if (traywin->parent == de->drawable) {
+								systray_render_icon(traywin);
+								break;
 							}
 						}
 					}
@@ -1426,7 +1430,6 @@ start:
 			if (signal_pending == SIGUSR1) {
 				// restart tint2
 				// SIGUSR1 used when : user's signal, composite manager stop/start or xrandr
-				FD_CLR (x11_fd, &fdset); // not sure if needed
 				goto start;
 			}
 			else {
