@@ -80,6 +80,7 @@
     application was started;
   - seconds were not updating in the clock;
   - tint2 hang triggered when an application started from the launcher was closed and startup notifications were enabled;
+  - tint2 may fail to process X events for a few seconds when a new icon is added to the system tray; 
   - the code that loads SVG icons was using a lot of memory.
 
 2010-06-26
