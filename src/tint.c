@@ -165,9 +165,7 @@ static void sigchld_handler_async() {
 	while ((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
 		SnLauncherContext *ctx;
 		ctx = (SnLauncherContext *) g_tree_lookup (server.pids, GINT_TO_POINTER (pid));
-		if (ctx == NULL) {
-			fprintf(stderr, "Unknown child %d terminated!\n", pid);
-		} else {
+		if (ctx) {
 			g_tree_remove (server.pids, GINT_TO_POINTER (pid));
 			sn_launcher_context_complete (ctx);
 			sn_launcher_context_unref (ctx);
@@ -1176,7 +1174,7 @@ start:
 
 		// Wait for X Event or a Timer
 		if (systray_profile)
-			fprintf(stderr, "[%f] %s:%d waiting for events...\n", profiling_get_time(), __FUNCTION__, __LINE__);
+			fprintf(stderr, "[%f] %s:%d waiting for events, timeout = %f...\n", profiling_get_time(), __FUNCTION__, __LINE__, timeout ? (timeout->tv_sec + timeout->tv_usec * 1.0e-6) : 0);
 		if (XPending(server.dsp) > 0 || select(maxfd+1, &fdset, 0, 0, timeout) >= 0) {
 			if (systray_profile)
 				fprintf(stderr, "[%f] %s:%d processing events\n", profiling_get_time(), __FUNCTION__, __LINE__);
@@ -1186,7 +1184,7 @@ start:
 					sigchld_handler_async();
 				}
 			}
-			while (XPending(server.dsp)) {
+			while (XPending(server.dsp) > 0) {
 				XNextEvent(server.dsp, &e);
 #if HAVE_SN
 				if (startup_notifications)
