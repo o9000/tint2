@@ -1174,11 +1174,7 @@ start:
 			timeout = 0;
 
 		// Wait for X Event or a Timer
-		if (systray_profile)
-			fprintf(stderr, "[%f] %s:%d waiting for events, timeout = %f...\n", profiling_get_time(), __FUNCTION__, __LINE__, timeout ? (timeout->tv_sec + timeout->tv_usec * 1.0e-6) : 0);
 		if (XPending(server.dsp) > 0 || select(maxfd+1, &fdset, 0, 0, timeout) >= 0) {
-			if (systray_profile)
-				fprintf(stderr, "[%f] %s:%d processing events\n", profiling_get_time(), __FUNCTION__, __LINE__);
 			if (sn_pipe_valid) {
 				char buffer[1];
 				while (read(sn_pipe[0], buffer, sizeof(buffer)) > 0) {
