@@ -511,7 +511,7 @@ void config_write_launcher(FILE *fp)
 		g_strstrip(dir);
 		if (strlen(dir) > 0) {
 			char *contracted = contract_tilde(dir);
-			fprintf(fp, "launcher_item_app = %s\n", contracted);
+			fprintf(fp, "launcher_apps_dir = %s\n", contracted);
 			free(contracted);
 		}
 	}
