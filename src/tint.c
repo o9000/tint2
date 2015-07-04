@@ -59,6 +59,43 @@ Atom dnd_atom;
 int dnd_sent_request;
 char *dnd_launcher_exec;
 
+timeout* detect_compositor_timer = NULL;
+int detect_compositor_timer_counter = 0;
+
+void detect_compositor(void *arg)
+{
+	if (server.composite_manager) {
+		stop_timeout(detect_compositor_timer);
+		return;
+	}
+
+	detect_compositor_timer_counter--;
+	if (detect_compositor_timer_counter < 0) {
+		stop_timeout(detect_compositor_timer);
+		return;
+	}
+
+	// No compositor, check for one
+	if (XGetSelectionOwner(server.dsp, server.atom._NET_WM_CM_S0) != None) {
+		stop_timeout(detect_compositor_timer);
+		// Restart tint2
+		fprintf(stderr, "Detected compositor, restarting tint2...\n");
+		kill(getpid(), SIGUSR1);
+	}
+}
+
+void start_detect_compositor()
+{
+	// Already have a compositor, nothing to do
+	if (server.composite_manager)
+		return;
+
+	stop_timeout(detect_compositor_timer);
+	// Check every 0.5 seconds for up to 30 seconds
+	detect_compositor_timer_counter = 60;
+	detect_compositor_timer = add_timeout(500, 500, detect_compositor, 0, &detect_compositor_timer);
+}
+
 void signal_handler(int sig)
 {
 	// signal handler is light as it should be
@@ -1079,7 +1116,7 @@ int main (int argc, char *argv[])
 	int x11_fd, i;
 	Panel *panel;
 	GSList *it;
-	struct timeval* timeout;
+	struct timeval* select_timeout;
 	int hidden_dnd = 0;
 
 	// Make stdout/stderr flush after a newline (for some reason they don't even if tint2 is started from a terminal)
@@ -1103,6 +1140,7 @@ start:
 	}
 
 	init_X11_post_config();
+	start_detect_compositor();
 
 	init_panel();
 	if (snapshot_path) {
@@ -1169,12 +1207,12 @@ start:
 		}
 		update_next_timeout();
 		if (next_timeout.tv_sec >= 0 && next_timeout.tv_usec >= 0)
-			timeout = &next_timeout;
+			select_timeout = &next_timeout;
 		else
-			timeout = 0;
+			select_timeout = 0;
 
 		// Wait for X Event or a Timer
-		if (XPending(server.dsp) > 0 || select(maxfd+1, &fdset, 0, 0, timeout) >= 0) {
+		if (XPending(server.dsp) > 0 || select(maxfd+1, &fdset, 0, 0, select_timeout) >= 0) {
 			if (sn_pipe_valid) {
 				char buffer[1];
 				while (read(sn_pipe[0], buffer, sizeof(buffer)) > 0) {
@@ -1260,6 +1298,7 @@ start:
 				case DestroyNotify:
 					if (e.xany.window == server.composite_manager) {
 						// Stop real_transparency
+						fprintf(stderr, "Detected compositor shutdown, restarting tint2...\n");
 						signal_pending = SIGUSR1;
 						break;
 					}
