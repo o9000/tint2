@@ -117,13 +117,13 @@ char *contract_tilde(char *s)
 	if (!home)
 		return strdup(s);
 
-	char *home_slash = calloc(strlen(home) + 1, 1);
+	char *home_slash = calloc(strlen(home) + 2, 1);
 	strcat(home_slash, home);
 	strcat(home_slash, "/");
 
 	if ((strcmp(s, home) == 0 ||
 		strstr(s, home_slash) == s)) {
-		char *result = calloc(strlen(s) - strlen(home) + 1, 1);
+		char *result = calloc(strlen(s) - strlen(home) + 2, 1);
 		strcat(result, "~");
 		strcat(result, s + strlen(home));
 		free(home_slash);
