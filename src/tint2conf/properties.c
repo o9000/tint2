@@ -1836,7 +1836,7 @@ void load_desktop_entries(const char *path, GList **entries)
 	GList *l;
 	for (l = subdirs; l; l = g_list_next(l)) {
 		gchar *dir = (gchar *)l->data;
-		load_desktop_entry(dir, entries);
+		load_desktop_entries(dir, entries);
 		g_free(dir);
 	}
 	g_list_free(subdirs);
