@@ -1,8 +1,11 @@
-2015-06-12 master
+2015-07-04 master
 - Note: the changes listed here are based on the previous release tint2 0.11, however some distributions (e.g. Debian)
   offered packages using newer commits and/or patches; thus from the user's perspective some of these features are
   already present. They are marked with '(already released by distros)'.
 - Major changes:
+  - Panel:
+	- Checks if a compositor is launched during the first 30 seconds after startup and if found, restarts the panel with
+	  transparency enabled.
   - Launcher:
     - The launcher is now considered stable
     - Enhancement: SVG icon support
