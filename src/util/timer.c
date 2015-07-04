@@ -389,7 +389,6 @@ void callback_multi_timeout(void* arg)
 	struct timespec cur_time;
 	clock_gettime(CLOCK_MONOTONIC, &cur_time);
 	GSList* it = mth->timeout_list;
-start:
 	while (it) {
 		timeout* t = it->data;
 		if (++t->multi_timeout->current_count >= t->multi_timeout->count_to_expiration) {
@@ -399,8 +398,7 @@ start:
 				t->multi_timeout->current_count = 0;
 				t->timeout_expires = add_msec_to_timespec(cur_time, t->interval_msec);
 			} else {
-				it = mth->timeout_list;
-				goto start;
+				return;
 			}
 		}
 		it = it->next;
