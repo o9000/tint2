@@ -23,6 +23,7 @@
 #include "../launcher/apps-common.h"
 #include "../launcher/icon-theme-common.h"
 #include "../util/common.h"
+#include "strnatcmp.h"
 
 #define ROW_SPACING 10
 #define COL_SPACING 8
@@ -1769,23 +1770,84 @@ void load_desktop_file(const char *file, gboolean selected)
 	free_desktop_entry(&entry);
 }
 
-void load_desktop_files(const gchar *path)
+void populate_from_entries(GList *entries, gboolean selected)
 {
+	GList *l;
+	for (l = entries; l; l = l->next) {
+		DesktopEntry *entry = (DesktopEntry *)l->data;
+		GdkPixbuf *pixbuf = load_icon(entry->icon);
+		GtkTreeIter iter;
+		gtk_list_store_append(selected ? launcher_apps : all_apps, &iter);
+		gtk_list_store_set(selected ? launcher_apps :all_apps, &iter,
+						   appsColIcon, pixbuf,
+						   appsColText, g_strdup(entry->name),
+						   appsColPath, g_strdup(entry->path),
+						   appsColIconName, g_strdup(entry->icon),
+						   -1);
+		if (pixbuf)
+			g_object_unref(pixbuf);
+	}
+}
+
+static gint compare_entries(gconstpointer a, gconstpointer b)
+{
+   return strnatcasecmp(((DesktopEntry*)a)->name, ((DesktopEntry*)b)->name);
+}
+
+void load_desktop_entry(const char *file, GList **entries)
+{
+	DesktopEntry *entry = calloc(1, sizeof(DesktopEntry));
+	if (!read_desktop_file(file, entry))
+		printf("Could not load %s\n", file);
+	if (!entry->name)
+		entry->name = strdup(file);
+	if (!entry->icon)
+		entry->icon = strdup("");
+	*entries = g_list_append(*entries, entry);
+}
+
+static gint compare_strings(gconstpointer a, gconstpointer b)
+{
+   return strnatcasecmp((const char*)a, (const char*)b);
+}
+
+void load_desktop_entries(const char *path, GList **entries)
+{
+	GList *subdirs = NULL;
+	GList *files = NULL;
+
 	GDir *d = g_dir_open(path, 0, NULL);
-	if (!d)
-		return;
-	const gchar *name;
-	while ((name = g_dir_read_name(d))) {
-		gchar *file = g_build_filename(path, name, NULL);
-		if (!g_file_test(file, G_FILE_TEST_IS_DIR) &&
-			g_str_has_suffix(file, ".desktop")) {
-			load_desktop_file(file, FALSE);
-		} else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
-			load_desktop_files(file);
+	if (d) {
+		const gchar *name;
+		while ((name = g_dir_read_name(d))) {
+			gchar *file = g_build_filename(path, name, NULL);
+			if (!g_file_test(file, G_FILE_TEST_IS_DIR) && g_str_has_suffix(file, ".desktop")) {
+				files = g_list_append(files, file);
+			} else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
+				subdirs = g_list_append(subdirs, file);
+			} else {
+				g_free(file);
+			}
 		}
+		g_dir_close(d);
+	}
+
+	subdirs = g_list_sort(subdirs, compare_strings);
+	GList *l;
+	for (l = subdirs; l; l = g_list_next(l)) {
+		gchar *dir = (gchar *)l->data;
+		load_desktop_entry(dir, entries);
+		g_free(dir);
+	}
+	g_list_free(subdirs);
+
+	files = g_list_sort(files, compare_strings);
+	for (l = files; l; l = g_list_next(l)) {
+		gchar *file = (gchar *)l->data;
+		load_desktop_entry(file, entries);
 		g_free(file);
 	}
-	g_dir_close(d);
+	g_list_free(files);
 }
 
 void load_theme_file(const char *file_name, const char *theme)
@@ -2215,10 +2277,20 @@ void create_launcher(GtkWidget *parent)
 	fprintf(stderr, "Icon themes loaded\n");
 
 	fprintf(stderr, "Loading .desktop files\n");
-	load_desktop_files("/usr/share/applications");
-	load_desktop_files("/usr/local/share/applications");
+	GList *entries = NULL;
+	load_desktop_entries("/usr/share/applications", &entries);
+	load_desktop_entries("/usr/local/share/applications", &entries);
 	gchar *path = g_build_filename(g_get_home_dir(), ".local/share/applications", NULL);
-	load_desktop_files(path);
+	load_desktop_entries(path, &entries);
+	entries = g_list_sort(entries, compare_entries);
+	populate_from_entries(entries, FALSE);
+
+	GList *l;
+	for (l = entries; l; l = l->next) {
+		free_desktop_entry((DesktopEntry*)l->data);
+	}
+	g_list_free(entries);
+
 	g_free(path);
 
 	icon_theme_changed();

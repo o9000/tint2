@@ -105,6 +105,7 @@ int read_desktop_file(const char *path, DesktopEntry *entry)
 	char *key, *value;
 	int i;
 
+	entry->path = strdup(path);
 	entry->name = entry->icon = entry->exec = NULL;
 
 	if ((fp = fopen(path, "rt")) == NULL) {
@@ -174,7 +175,8 @@ void free_desktop_entry(DesktopEntry *entry)
 	free(entry->name);
 	free(entry->icon);
 	free(entry->exec);
-	entry->name = entry->icon = entry->exec = NULL;
+	free(entry->path);
+	entry->name = entry->icon = entry->exec = entry->path = NULL;
 }
 
 void test_read_desktop_file()
