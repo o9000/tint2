@@ -284,7 +284,7 @@ void get_monitors()
 		if (res && res->ncrtc >= nbmonitor) {
 			// use xrandr to identify monitors (does not work with proprietery nvidia drivers)
 
-			// Workaround for issue https://code.google.com/p/tint2/issues/detail?id=353
+			// Workaround for issue https://gitlab.com/o9000/tint2/issues/353
 			// on some recent configs, XRRGetScreenResourcesCurrent returns a fantom monitor at last position
 			{
 				int i = res->ncrtc - 1;

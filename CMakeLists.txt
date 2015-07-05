@@ -23,7 +23,7 @@ pkg_check_modules( SN libstartup-notification-1.0>=0.12 )
 find_library( RT_LIBRARY rt )
 
 if( NOT X11_FOUND OR NOT PANGOCAIRO_FOUND OR NOT PANGO_FOUND OR NOT CAIRO_FOUND OR NOT GLIB2_FOUND OR NOT GOBJECT2_FOUND OR NOT IMLIB2_FOUND )
-  message( FATAL_ERROR "Not all dependencies fulfilled. See https://code.google.com/p/tint2/wiki/Install" )
+  message( FATAL_ERROR "Not all dependencies fulfilled. See https://gitlab.com/o9000/tint2/wikis/Install" )
 endif( NOT X11_FOUND OR NOT PANGOCAIRO_FOUND OR NOT PANGO_FOUND OR NOT CAIRO_FOUND OR NOT GLIB2_FOUND OR NOT GOBJECT2_FOUND OR NOT IMLIB2_FOUND )
 
 string( REPLACE ";" " " FLAGS_REPLACED "${IMLIB2_LDFLAGS}" )
