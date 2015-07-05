@@ -7,5 +7,4 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr ../
 make
 sudo make install
 
-To see additional options you can do after the cmake step a 'cmake -L ../'
-
+To see additional options you can set at the 'cmake' step, run 'cmake -L ../'
