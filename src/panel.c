@@ -549,7 +549,7 @@ void set_panel_properties(Panel *p)
 	memset(&wmhints, 0, sizeof(wmhints));
 	if (panel_dock) {
 		// Necessary for placing the panel into the dock on Openbox and Fluxbox.
-		// See https://code.google.com/p/tint2/issues/detail?id=465
+		// See https://gitlab.com/o9000/tint2/issues/465
 		wmhints.icon_window = wmhints.window_group = p->main_win;
 		wmhints.flags = StateHint | IconWindowHint;
 		wmhints.initial_state = WithdrawnState;
