@@ -747,7 +747,7 @@ void add_entry(char *key, char *value)
 	else if (strcmp(key, "panel_margin") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_margin_x), atoi(value1));
-		gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_margin_y), atoi(value1));
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_margin_y), atoi(value2));
 	}
 	else if (strcmp(key, "panel_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
