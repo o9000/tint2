@@ -135,7 +135,7 @@ launcher_item_app = /usr/share/applications/tint2conf.desktop
 launcher_item_app = /usr/local/share/applications/tint2conf.desktop
 launcher_item_app = /usr/share/applications/firefox.desktop
 launcher_item_app = /usr/share/applications/iceweasel.desktop
-launcher_item_app = /usr/share/applications/chromium.desktop
+launcher_item_app = /usr/share/applications/chromium-browser.desktop
 launcher_item_app = /usr/share/applications/google-chrome.desktop
 
 #-------------------------------------
