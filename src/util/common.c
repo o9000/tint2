@@ -35,6 +35,9 @@
 
 void copy_file(const char *pathSrc, const char *pathDest)
 {
+	if (g_str_equal(pathSrc, pathDest))
+		return;
+
 	FILE *fileSrc, *fileDest;
 	char buffer[100];
 	int  nb;
