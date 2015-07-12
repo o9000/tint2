@@ -59,8 +59,12 @@ launcher_icon_size = 18
 launcher_icon_asb = 100 0 0
 launcher_tooltip = 1
 startup_notifications = 1
+launcher_item_app = /usr/share/applications/tint2conf.desktop
+launcher_item_app = /usr/local/share/applications/tint2conf.desktop
 launcher_item_app = /usr/share/applications/firefox.desktop
 launcher_item_app = /usr/share/applications/iceweasel.desktop
+launcher_item_app = /usr/share/applications/chromium.desktop
+launcher_item_app = /usr/share/applications/google-chrome.desktop
 
 # Taskbar
 taskbar_mode = single_desktop
@@ -85,7 +89,7 @@ urgent_nb_of_blink = 100000
 task_icon_asb = 100 0 0
 task_active_icon_asb = 100 0 0
 task_urgent_icon_asb = 100 0 0
-task_iconified_icon_asb = 70 0 0
+task_iconified_icon_asb = 100 0 0
 
 # Fonts
 task_font = sans 8
@@ -113,7 +117,7 @@ time1_format = %H:%M
 time1_font = sans 8
 time2_format = %A %d %B
 time2_font = sans 7
-clock_font_color = #FFFFFF 90
+clock_font_color = #FFFFFF 100
 clock_padding = 1 0
 clock_background_id = 0
 clock_rclick_command = orage
@@ -132,7 +136,7 @@ battery_low_cmd = notify-send "battery low"
 battery_hide = 101
 bat1_font = sans 8
 bat2_font = sans 6
-battery_font_color = #FFFFFF 94
+battery_font_color = #FFFFFF 100
 battery_padding = 1 0
 battery_background_id = 0
 
