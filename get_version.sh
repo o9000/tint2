@@ -1,5 +1,6 @@
 #!/bin/sh
 
+MAJOR=0.12
 DIRTY=""
 
 git update-index -q --ignore-submodules --refresh
@@ -29,7 +30,7 @@ then
     fi
 fi
 
-VERSION=$(git describe --exact-match 2>/dev/null || echo "0.11-git$(git show -s --pretty=format:%cI.%h | tr -d ':' | tr -d '-' | tr '.' '-' | sed 's/T[0-9\+]*//g')")$DIRTY
+VERSION=$(git describe --exact-match 2>/dev/null || echo "$MAJOR-git$(git show -s --pretty=format:%cI.%h | tr -d ':' | tr -d '-' | tr '.' '-' | sed 's/T[0-9\+]*//g')")$DIRTY
 
 echo '#define VERSION_STRING "'$VERSION'"' > version.h
 echo $VERSION
