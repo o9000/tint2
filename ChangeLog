@@ -1,11 +1,11 @@
-2015-07-04 master
+2015-07-12 master
 - Note: the changes listed here are based on the previous release tint2 0.11, however some distributions (e.g. Debian)
   offered packages using newer commits and/or patches; thus from the user's perspective some of these features are
   already present. They are marked with '(already released by distros)'.
 - Major changes:
   - Panel:
-	- Checks if a compositor is launched during the first 30 seconds after startup and if found, restarts the panel with
-	  transparency enabled.
+  - Checks if a compositor is launched during the first 30 seconds after startup and if found, restarts the panel with
+    transparency enabled.
   - Launcher:
     - The launcher is now considered stable
     - Enhancement: SVG icon support
@@ -30,7 +30,7 @@
     - taskbar_hide_inactive_tasks
     - taskbar_sort_order
     - taskbar_name (already released by distros)
-	- task_align (already released by distros)
+    - task_align (already released by distros)
   - Launcher:
     - launcher* (already released by distros)
     - launcher_apps_dir (previously patched in by some distros)
@@ -83,8 +83,10 @@
     application was started;
   - seconds were not updating in the clock;
   - tint2 hang triggered when an application started from the launcher was closed and startup notifications were enabled;
-  - tint2 may fail to process X events for a few seconds when a new icon is added to the system tray; 
-  - the code that loads SVG icons was using a lot of memory.
+  - tint2 may fail to process X events for a few seconds when a new icon is added to the system tray;
+  - the code that loads SVG icons was using a lot of memory;
+  - fixed occasional race at startup in detecting screen resolution changes;
+  - modified timer code to prevent some rare double-frees or duplicate timers.
 
 2010-06-26
 - unhide tint2 panel when dragging something
