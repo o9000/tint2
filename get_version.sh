@@ -31,6 +31,7 @@ then
 fi
 
 VERSION=$(git describe --exact-match 2>/dev/null || echo "$MAJOR-git$(git show -s --pretty=format:%cI.%h | tr -d ':' | tr -d '-' | tr '.' '-' | sed 's/T[0-9\+]*//g')")$DIRTY
+VERSION=$(echo "$VERSION" | sed 's/^v//')
 
 echo '#define VERSION_STRING "'$VERSION'"' > version.h
 echo $VERSION
