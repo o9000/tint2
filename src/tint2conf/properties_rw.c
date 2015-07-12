@@ -1010,13 +1010,13 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "task_align") == 0) {
 		if (strcmp(value, "left") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_alignment), 0);
 		else if (strcmp(value, "center") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 1);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_alignment), 1);
 		else if (strcmp(value, "right") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 2);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_alignment), 2);
 		else
-			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_alignment), 0);
 	}
 	else if (strcmp(key, "taskbar_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
