@@ -132,7 +132,10 @@ int main(int argc, char **argv)
 	GtkActionGroup *actionGroup;
 
 	gtk_init(&argc, &argv);
-	g_thread_init((NULL));
+
+#if !GLIB_CHECK_VERSION(2, 31, 0)
+	g_thread_init(NULL);
+#endif
 
 	{
 		gchar *tint2_config_dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
