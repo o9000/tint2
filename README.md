@@ -1,14 +1,14 @@
-### New unstable release: 0.12-rc6
+### New stable release: 0.12
 Changes: https://gitlab.com/o9000/tint2/blob/master/ChangeLog
 
 Documentation: https://gitlab.com/o9000/tint2/wikis/home
 
 Try it out with (see also [dependencies](https://gitlab.com/o9000/tint2/wikis/Install#dependencies)):
 ```
-mkdir tint2-0.12-rc6
-cd tint2-0.12-rc6
-wget 'https://gitlab.com/o9000/tint2/repository/archive.tar.gz?ref=v0.12-rc6' --output-document tint2-0.12-rc6.tar.gz
-tar -xzf tint2-0.12-rc6.tar.gz
+mkdir tint2-0.12
+cd tint2-0.12
+wget 'https://gitlab.com/o9000/tint2/repository/archive.tar.gz?ref=v0.12' --output-document tint2-0.12.tar.gz
+tar -xzf tint2-0.12.tar.gz
 cd tint2.git
 mkdir build
 cd build
@@ -17,6 +17,12 @@ make -j4
 ./tint2 &
 ./src/tint2conf/tint2conf &
 ```
+
+To install from source, also run (as root):
+```
+make install
+```
+
 Please report any problems to https://gitlab.com/o9000/tint2/issues. Your feedback is much appreciated.
 
 P.S. GitLab is now the official location of the tint2 project, migrated from Google Code, which is shutting down. In case you are wondering why not GitHub, BitBucket etc., we chose GitLab because it is open source, it is mature and works well, looks cool and has a very nice team.
