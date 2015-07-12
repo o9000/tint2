@@ -33,6 +33,8 @@ if( NOT IMLIB_BUILD_WITH_X )
   message( FATAL_ERROR "Imlib is not built with X support" )
 endif( NOT IMLIB_BUILD_WITH_X )
 
+add_definitions( -D_GNU_SOURCE )
+
 include_directories( ${PROJECT_BINARY_DIR}
                      src
                      src/battery
