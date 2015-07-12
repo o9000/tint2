@@ -239,6 +239,9 @@ void init_X11_pre_config()
 	// config file use '.' as decimal separator
 	setlocale(LC_NUMERIC, "POSIX");
 
+	/* Catch events */
+	XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
+
 	// get monitor and desktop config
 	get_monitors();
 	get_desktops();
@@ -276,9 +279,6 @@ void init_X11_post_config()
 	imlib_context_set_display (server.dsp);
 	imlib_context_set_visual (server.visual);
 	imlib_context_set_colormap (server.colormap);
-
-	/* Catch events */
-	XSelectInput (server.dsp, server.root_win, PropertyChangeMask|StructureNotifyMask);
 
 	// load default icon
 	gchar *path;
