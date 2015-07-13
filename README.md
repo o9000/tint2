@@ -5,11 +5,9 @@ Documentation: https://gitlab.com/o9000/tint2/wikis/home
 
 Try it out with (see also [dependencies](https://gitlab.com/o9000/tint2/wikis/Install#dependencies)):
 ```
-mkdir tint2-0.12
-cd tint2-0.12
-wget 'https://gitlab.com/o9000/tint2/repository/archive.tar.gz?ref=v0.12' --output-document tint2-0.12.tar.gz
-tar -xzf tint2-0.12.tar.gz
-cd tint2.git
+git clone https://gitlab.com/o9000/tint2.git
+cd tint2
+git checkout tags/v0.12
 mkdir build
 cd build
 cmake ..
