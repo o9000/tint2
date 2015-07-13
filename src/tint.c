@@ -456,6 +456,18 @@ int tint2_handles_click(Panel* panel, XButtonEvent* e)
 		else
 			return 0;
 	}
+	#ifdef ENABLE_BATTERY
+	if (click_battery(panel, e->x, e->y)) {
+		if (	(e->button == 1 && battery_lclick_command) ||
+			(e->button == 2 && battery_mclick_command) ||
+			(e->button == 3 && battery_rclick_command) ||
+			(e->button == 4 && battery_uwheel_command) ||
+			(e->button == 5 && battery_dwheel_command) )
+			return 1;
+		else
+			return 0;
+	}
+	#endif
 	return 0;
 }
 
@@ -602,6 +614,16 @@ void event_button_release (XEvent *e)
 		task_drag = 0;
 		return;
 	}
+
+	#ifdef ENABLE_BATTERY
+	if (click_battery(panel, e->xbutton.x, e->xbutton.y)) {
+		battery_action(e->xbutton.button);
+		if (panel_layer == BOTTOM_LAYER)
+			XLowerWindow (server.dsp, panel->main_win);
+		task_drag = 0;
+		return;
+	}
+	#endif
 
 	if (e->xbutton.button == 1 && click_launcher(panel, e->xbutton.x, e->xbutton.y)) {
 		LauncherIcon *icon = click_launcher_icon(panel, e->xbutton.x, e->xbutton.y);
