@@ -1219,7 +1219,7 @@ start:
 					sigchld_handler_async();
 				}
 			}
-			while (XPending(server.dsp) > 0) {
+			if (XPending(server.dsp) > 0) {
 				XNextEvent(server.dsp, &e);
 #if HAVE_SN
 				if (startup_notifications)
