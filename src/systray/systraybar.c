@@ -761,13 +761,17 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 	Panel* panel = systray.area.panel;
 
 	//fprintf(stderr, "move tray %d\n", traywin->x);
-	XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
-	if (traywin->reparented) {
-		XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
-		// Trigger window repaint
-		stop_timeout(traywin->render_timeout);
-		traywin->render_timeout = add_timeout(min_refresh_period, 0, systray_render_icon, traywin, &traywin->render_timeout);
+
+	if (e->xconfigure.width != traywin->width || e->xconfigure.height != traywin->height || e->xconfigure.x != 0 || e->xconfigure.y != 0) {
+		XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
+		if (traywin->reparented) {
+			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+			// Trigger window repaint
+			stop_timeout(traywin->render_timeout);
+			traywin->render_timeout = add_timeout(min_refresh_period, 0, systray_render_icon, traywin, &traywin->render_timeout);
+		}
 	}
+
 	// Resize and redraw the systray
 	if (systray_profile)
 		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
