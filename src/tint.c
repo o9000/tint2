@@ -1287,7 +1287,6 @@ start:
 					break;
 
 				case ReparentNotify:
-					fprintf(stderr, "ReparentNotify\n");
 					if (!systray_enabled)
 						break;
 					panel = (Panel*)systray.area.panel;
