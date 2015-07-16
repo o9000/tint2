@@ -246,21 +246,6 @@ void on_change_systray (void *obj)
 				fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->parent = %ld, traywin->x = %d, traywin->y = %d, traywin->width = %d, traywin->height = %d)\n", traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
 			XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
 		}
-
-		if (traywin->reparented) {
-			unsigned int border_width;
-			int xpos, ypos;
-			unsigned int width, height, depth;
-			Window root;
-			if (!XGetGeometry(server.dsp, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
-				fprintf(stderr, RED "Couldn't get geometry of window!\n" RESET);
-			}
-			if (width != traywin->width || height != traywin->height || xpos != 0 || ypos != 0) {
-				if (systray_profile)
-					fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
-				XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
-			}
-		}
 	}
 	refresh_systray = 1;
 }
@@ -635,6 +620,10 @@ gboolean reparent_icon(TrayWindow *traywin)
 	if (systray_profile)
 		fprintf(stderr, "XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0)\n");
 	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
+	if (systray_profile)
+		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
+	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
 	if (error != FALSE) {
@@ -746,9 +735,6 @@ gboolean reparent_icon(TrayWindow *traywin)
 	if (systray_profile)
 		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->parent = %ld, traywin->x = %d, traywin->y = %d, traywin->width = %d, traywin->height = %d)\n", traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
 	XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
-	if (systray_profile)
-		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
-	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
 
 	if (systray_profile)
 		fprintf(stderr, "XSync(server.dsp, False)\n");
@@ -821,16 +807,12 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 	//fprintf(stderr, "move tray %d\n", traywin->x);
 
 	if (e->xconfigure.width != traywin->width || e->xconfigure.height != traywin->height || e->xconfigure.x != 0 || e->xconfigure.y != 0) {
-		if (systray_profile)
-			fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->parent = %ld, traywin->x = %d, traywin->y = %d, traywin->width = %d, traywin->height = %d)\n", traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
-		XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
 		if (traywin->reparented) {
-			if (systray_profile)
-				fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
-			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
-			// Trigger window repaint
-			stop_timeout(traywin->render_timeout);
-			traywin->render_timeout = add_timeout(min_refresh_period, 0, systray_render_icon, traywin, &traywin->render_timeout);
+			// FIXME Normally we should force the icon to resize back to the size we resized it to when we embedded it.
+			// However this triggers a resize loop in new versions of GTK, which we must avoid.
+			//	if (systray_profile)
+			//		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
+			//	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
 		}
 	}
 
@@ -906,11 +888,11 @@ void systray_render_icon_composited(void* t)
 		if (width != traywin->width || height != traywin->height || xpos != 0 || ypos != 0) {
 			if (systray_profile)
 				fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
-			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
-			traywin->render_timeout = add_timeout(min_refresh_period, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
-			if (systray_profile)
-				fprintf(stderr, YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
-			return;
+			// XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+			// traywin->render_timeout = add_timeout(min_refresh_period, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
+//			if (systray_profile)
+//				fprintf(stderr, YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
+//			return;
 		}
 	}
 
