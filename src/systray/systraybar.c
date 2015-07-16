@@ -234,13 +234,32 @@ void on_change_systray (void *obj)
 		}
 
 		// position and size the icon window
-		if (systray_profile)
-			fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->parent = %ld, traywin->x = %d, traywin->y = %d, traywin->width = %d, traywin->height = %d)\n", traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
-		XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
-		if (traywin->reparented) {
+		unsigned int border_width;
+		int xpos, ypos;
+		unsigned int width, height, depth;
+		Window root;
+		if (!XGetGeometry(server.dsp, traywin->parent, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
+			fprintf(stderr, RED "Couldn't get geometry of window!\n" RESET);
+		}
+		if (width != traywin->width || height != traywin->height || xpos != traywin->x || ypos != traywin->y) {
 			if (systray_profile)
-				fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
-			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+				fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->parent = %ld, traywin->x = %d, traywin->y = %d, traywin->width = %d, traywin->height = %d)\n", traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
+			XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
+		}
+
+		if (traywin->reparented) {
+			unsigned int border_width;
+			int xpos, ypos;
+			unsigned int width, height, depth;
+			Window root;
+			if (!XGetGeometry(server.dsp, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
+				fprintf(stderr, RED "Couldn't get geometry of window!\n" RESET);
+			}
+			if (width != traywin->width || height != traywin->height || xpos != 0 || ypos != 0) {
+				if (systray_profile)
+					fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
+				XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+			}
 		}
 	}
 	refresh_systray = 1;
