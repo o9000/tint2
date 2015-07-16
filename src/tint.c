@@ -1291,16 +1291,15 @@ start:
 					if (!systray_enabled)
 						break;
 					panel = (Panel*)systray.area.panel;
-					if (e.xany.window == panel->main_win) // reparented to us
+					if (e.xany.window == panel->main_win) // don't care
 						break;
-					// FIXME: 'reparent to us' badly detected => disabled
 					for (it = systray.list_icons; it; it = g_slist_next(it)) {
 						TrayWindow *traywin = (TrayWindow*)it->data;
 						if (traywin->win == e.xreparent.window) {
-							fprintf(stderr, "win\n");
 							if (traywin->parent == e.xreparent.parent) {
-								fprintf(stderr, "parent\n");
 								embed_icon(traywin);
+							} else {
+								remove_icon(traywin);
 							}
 							break;
 						}
