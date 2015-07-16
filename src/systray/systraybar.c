@@ -611,19 +611,13 @@ gboolean reparent_icon(TrayWindow *traywin)
 
 	Panel* panel = systray.area.panel;
 
-	// Reparent
-	if (systray_profile)
-		fprintf(stderr, "XSync(server.dsp, False)\n");
+	// Watch for the icon trying to resize itself / closing again
 	XSync(server.dsp, False);
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	if (systray_profile)
-		fprintf(stderr, "XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0)\n");
-	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
-	if (systray_profile)
-		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
-	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
-
+		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, StructureNotifyMask)\n");
+	XSelectInput(server.dsp, traywin->win, StructureNotifyMask);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
 	if (error != FALSE) {
@@ -632,13 +626,19 @@ gboolean reparent_icon(TrayWindow *traywin)
 		return FALSE;
 	}
 
-	// Watch for the icon trying to resize itself / closing again
+	// Reparent
+	if (systray_profile)
+		fprintf(stderr, "XSync(server.dsp, False)\n");
 	XSync(server.dsp, False);
 	error = FALSE;
 	old = XSetErrorHandler(window_error_handler);
 	if (systray_profile)
-		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, StructureNotifyMask)\n");
-	XSelectInput(server.dsp, traywin->win, StructureNotifyMask);
+		fprintf(stderr, "XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0)\n");
+	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
+	if (systray_profile)
+		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
+	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
 	if (error != FALSE) {
