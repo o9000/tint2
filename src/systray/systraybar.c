@@ -634,6 +634,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 	old = XSetErrorHandler(window_error_handler);
 	if (systray_profile)
 		fprintf(stderr, "XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0)\n");
+	XWithdrawWindow(server.dsp, traywin->win, server.screen);
 	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
 	if (systray_profile)
 		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
