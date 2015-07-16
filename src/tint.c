@@ -1306,6 +1306,7 @@ start:
 					}
 					break;
 				case UnmapNotify:
+					break;
 				case DestroyNotify:
 					if (e.xany.window == server.composite_manager) {
 						// Stop real_transparency
