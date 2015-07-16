@@ -876,28 +876,6 @@ void systray_render_icon_composited(void* t)
 		traywin->render_timeout = NULL;
 	}
 
-	{
-		// We shouldn't have to do this as we already listen for structure notify events.
-		// But things work fine so why change it.
-		unsigned int border_width;
-		int xpos, ypos;
-		unsigned int width, height, depth;
-		Window root;
-		if (!XGetGeometry(server.dsp, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
-			fprintf(stderr, RED "Couldn't get geometry of window!\n" RESET);
-			return;
-		}
-		if (width != traywin->width || height != traywin->height || xpos != 0 || ypos != 0) {
-			if (systray_profile)
-				fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
-			// XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
-			// traywin->render_timeout = add_timeout(min_refresh_period, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
-//			if (systray_profile)
-//				fprintf(stderr, YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
-//			return;
-		}
-	}
-
 	// good systray icons support 32 bit depth, but some icons are still 24 bit.
 	// We create a heuristic mask for these icons, i.e. we get the rgb value in the top left corner, and
 	// mask out all pixel with the same rgb value
@@ -1049,10 +1027,10 @@ void systray_render_icon(void* t)
 		// Trigger window repaint
 		if (systray_profile)
 			fprintf(stderr, "XClearArea(server.dsp, traywin->parent = %ld, 0, 0, traywin->width, traywin->height, True)\n", traywin->parent);
-		XClearArea(server.dsp, traywin->parent, 0, 0, traywin->width, traywin->height, True);
+		XClearArea(server.dsp, traywin->parent, 0, 0, 0, 0, True);
 		if (systray_profile)
 			fprintf(stderr, "XClearArea(server.dsp, traywin->win = %ld, 0, 0, traywin->width, traywin->height, True)\n", traywin->win);
-		XClearArea(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height, True);
+		XClearArea(server.dsp, traywin->win, 0, 0, 0, 0, True);
 	}
 }
 
