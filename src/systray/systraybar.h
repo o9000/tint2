@@ -50,6 +50,7 @@ typedef struct
     struct timespec time_last_render;
 	int num_fast_renders;
 	int reparented;
+	int embedded;
 	char *name;
 } TrayWindow;
 
@@ -85,6 +86,8 @@ void stop_net();
 void net_message(XClientMessageEvent *e);
 
 gboolean add_icon(Window id);
+gboolean reparent_icon(TrayWindow *traywin);
+gboolean embed_icon(TrayWindow *traywin);
 void remove_icon(TrayWindow *traywin);
 
 void refresh_systray_icons();

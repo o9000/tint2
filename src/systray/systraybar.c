@@ -609,6 +609,58 @@ gboolean reparent_icon(TrayWindow *traywin)
 	if (traywin->reparented)
 		return TRUE;
 
+	// Watch for the icon trying to resize itself / closing again
+	XSync(server.dsp, False);
+	error = FALSE;
+	XErrorHandler old = XSetErrorHandler(window_error_handler);
+	if (systray_profile)
+		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, StructureNotifyMask)\n");
+	XSelectInput(server.dsp, traywin->win, StructureNotifyMask | PropertyChangeMask);
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+	if (error != FALSE) {
+		fprintf(stderr, RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d\n" RESET, __LINE__, traywin->win, traywin->name, traywin->parent, traywin->pid);
+		remove_icon(traywin);
+		return FALSE;
+	}
+
+	// Reparent
+	if (systray_profile)
+		fprintf(stderr, "XSync(server.dsp, False)\n");
+	XSync(server.dsp, False);
+	error = FALSE;
+	old = XSetErrorHandler(window_error_handler);
+	if (systray_profile)
+		fprintf(stderr, "XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0)\n");
+	XWithdrawWindow(server.dsp, traywin->win, server.screen);
+	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
+	if (systray_profile)
+		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
+	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+	if (error != FALSE) {
+		fprintf(stderr, RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d\n" RESET, __LINE__, traywin->win, traywin->name, traywin->parent, traywin->pid);
+		remove_icon(traywin);
+		return FALSE;
+	}
+
+	traywin->reparented = 1;
+
+	if (systray_profile)
+		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
+
+	return TRUE;
+}
+
+gboolean embed_icon(TrayWindow *traywin)
+{
+	if (systray_profile)
+		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
+	if (traywin->embedded)
+		return TRUE;
+
 	Panel* panel = systray.area.panel;
 
 	// Watch for the icon trying to resize itself / closing again
@@ -617,7 +669,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	if (systray_profile)
 		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, StructureNotifyMask)\n");
-	XSelectInput(server.dsp, traywin->win, StructureNotifyMask);
+	XSelectInput(server.dsp, traywin->win, StructureNotifyMask | PropertyChangeMask);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
 	if (error != FALSE) {
@@ -741,7 +793,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 		fprintf(stderr, "XSync(server.dsp, False)\n");
 	XSync(server.dsp, False);
 
-	traywin->reparented = 1;
+	traywin->embedded = 1;
 
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
