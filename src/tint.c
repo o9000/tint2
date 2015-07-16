@@ -1280,22 +1280,6 @@ start:
 
 				case PropertyNotify:
 					event_property_notify(&e);
-					if (e.xproperty.atom == server.atom._XEMBED_INFO) {
-						if (systray_profile)
-							fprintf(stderr, "XEMBED event\n");
-						for (it = systray.list_icons; it; it = g_slist_next(it)) {
-							TrayWindow *traywin = (TrayWindow*)it->data;
-							if (traywin->win == e.xany.window) {
-								if (!traywin->embedding_finalized) {
-									finalize_embedding_icon(traywin);
-								} else {
-									if (!icon_embedded(traywin))
-										remove_icon(traywin);
-								}
-								break;
-							}
-						}
-					}
 					break;
 
 				case ConfigureNotify:
@@ -1303,6 +1287,7 @@ start:
 					break;
 
 				case ReparentNotify:
+					fprintf(stderr, "ReparentNotify\n");
 					if (!systray_enabled)
 						break;
 					panel = (Panel*)systray.area.panel;
@@ -1311,10 +1296,8 @@ start:
 					for (it = systray.list_icons; it; it = g_slist_next(it)) {
 						TrayWindow *traywin = (TrayWindow*)it->data;
 						if (traywin->win == e.xreparent.window) {
-							if (systray_profile)
-								fprintf(stderr, "ReparentNotify\n");
 							if (traywin->parent == e.xreparent.parent) {
-								start_embedding_icon(traywin);
+								embed_icon(traywin);
 							} else {
 								remove_icon(traywin);
 							}

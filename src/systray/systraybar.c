@@ -28,7 +28,6 @@
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xrender.h>
-#include <unistd.h>
 
 
 #include "systraybar.h"
@@ -610,14 +609,12 @@ gboolean reparent_icon(TrayWindow *traywin)
 	if (traywin->reparented)
 		return TRUE;
 
-	Panel* panel = systray.area.panel;
-
 	// Watch for the icon trying to resize itself / closing again
 	XSync(server.dsp, False);
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	if (systray_profile)
-		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, StructureNotifyMask | PropertyChangeMask)\n");
+		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, StructureNotifyMask)\n");
 	XSelectInput(server.dsp, traywin->win, StructureNotifyMask | PropertyChangeMask);
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
@@ -634,17 +631,136 @@ gboolean reparent_icon(TrayWindow *traywin)
 	error = FALSE;
 	old = XSetErrorHandler(window_error_handler);
 	if (systray_profile)
-		fprintf(stderr, "XWithdrawWindow(server.dsp, traywin->win, server.screen)\n");
-	XWithdrawWindow(server.dsp, traywin->win, server.screen);
-	if (systray_profile)
 		fprintf(stderr, "XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0)\n");
+	XWithdrawWindow(server.dsp, traywin->win, server.screen);
 	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
-	if (systray_profile)
-		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->parent = %ld, traywin->x = %d, traywin->y = %d, traywin->width = %d, traywin->height = %d)\n", traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
-	XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
 	if (systray_profile)
 		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
 	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+	if (error != FALSE) {
+		fprintf(stderr, RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d\n" RESET, __LINE__, traywin->win, traywin->name, traywin->parent, traywin->pid);
+		remove_icon(traywin);
+		return FALSE;
+	}
+
+	traywin->reparented = 1;
+
+	if (systray_profile)
+		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
+
+	return TRUE;
+}
+
+gboolean embed_icon(TrayWindow *traywin)
+{
+	if (systray_profile)
+		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
+	if (traywin->embedded)
+		return TRUE;
+
+	Panel* panel = systray.area.panel;
+
+	// Watch for the icon trying to resize itself / closing again
+	XSync(server.dsp, False);
+	error = FALSE;
+	XErrorHandler old = XSetErrorHandler(window_error_handler);
+	if (systray_profile)
+		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, StructureNotifyMask)\n");
+	XSelectInput(server.dsp, traywin->win, StructureNotifyMask | PropertyChangeMask);
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+	if (error != FALSE) {
+		fprintf(stderr, RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d\n" RESET, __LINE__, traywin->win, traywin->name, traywin->parent, traywin->pid);
+		remove_icon(traywin);
+		return FALSE;
+	}
+
+	// Reparent
+	if (systray_profile)
+		fprintf(stderr, "XSync(server.dsp, False)\n");
+	XSync(server.dsp, False);
+	error = FALSE;
+	old = XSetErrorHandler(window_error_handler);
+	if (systray_profile)
+		fprintf(stderr, "XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0)\n");
+	XWithdrawWindow(server.dsp, traywin->win, server.screen);
+	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
+	if (systray_profile)
+		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
+	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+	if (error != FALSE) {
+		fprintf(stderr, RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d\n" RESET, __LINE__, traywin->win, traywin->name, traywin->parent, traywin->pid);
+		remove_icon(traywin);
+		return FALSE;
+	}
+
+	// Embed into parent
+	{
+		XEvent e;
+		e.xclient.type = ClientMessage;
+		e.xclient.serial = 0;
+		e.xclient.send_event = True;
+		e.xclient.message_type = server.atom._XEMBED;
+		e.xclient.window = traywin->win;
+		e.xclient.format = 32;
+		e.xclient.data.l[0] = CurrentTime;
+		e.xclient.data.l[1] = XEMBED_EMBEDDED_NOTIFY;
+		e.xclient.data.l[2] = 0;
+		e.xclient.data.l[3] = traywin->parent;
+		e.xclient.data.l[4] = 0;
+		XSync(server.dsp, False);
+		error = FALSE;
+		XErrorHandler old = XSetErrorHandler(window_error_handler);
+		if (systray_profile)
+			fprintf(stderr, "XSendEvent(server.dsp, traywin->win, False, 0xFFFFFF, &e)\n");
+		XSendEvent(server.dsp, traywin->win, False, 0xFFFFFF, &e);
+		XSync(server.dsp, False);
+		XSetErrorHandler(old);
+		if (error != FALSE) {
+			fprintf(stderr, RED "systray %d: cannot embed icon for window %lu (%s) pid %d\n" RESET, __LINE__, traywin->win, traywin->name, traywin->pid);
+			remove_icon(traywin);
+			return FALSE;
+		}
+	}
+
+	{
+		Atom acttype;
+		int actfmt;
+		unsigned long nbitem, bytes;
+		unsigned char *data = 0;
+		int ret;
+
+		if (systray_profile)
+			fprintf(stderr, "XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data)\n");
+		ret = XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data);
+		if (ret == Success) {
+			if (data) {
+				if (nbitem >= 2) {
+					int hide = ((data[1] & XEMBED_MAPPED) == 0);
+					if (hide) {
+						// In theory we have to check the embedding with this and remove icons that refuse embedding.
+						// In practice we have no idea when the other application processes the event and accepts the embed so we cannot check without a race.
+						// Race can be triggered with PyGtk(2) apps.
+						//fprintf(stderr, RED "tint2: window refused embedding\n" RESET);
+						//remove_icon(traywin);
+						//XFree(data);
+						//return FALSE;
+					}
+				}
+				XFree(data);
+			}
+		} else {
+			fprintf(stderr, RED "tint2 : xembed error\n" RESET);
+			remove_icon(traywin);
+			return FALSE;
+		}
+	}
 
 	// Redirect rendering when using compositing
 	if (systray_composited) {
@@ -669,103 +785,15 @@ gboolean reparent_icon(TrayWindow *traywin)
 	}
 	XSync(server.dsp, False);
 
+	if (systray_profile)
+		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->parent = %ld, traywin->x = %d, traywin->y = %d, traywin->width = %d, traywin->height = %d)\n", traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
+	XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
+
+	if (systray_profile)
+		fprintf(stderr, "XSync(server.dsp, False)\n");
 	XSync(server.dsp, False);
-	XSetErrorHandler(old);
-	if (error != FALSE) {
-		fprintf(stderr, RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d\n" RESET, __LINE__, traywin->win, traywin->name, traywin->parent, traywin->pid);
-		remove_icon(traywin);
-		return FALSE;
-	}
 
-	traywin->reparented = 1;
-
-	if (systray_profile)
-		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
-
-	return TRUE;
-}
-
-gboolean start_embedding_icon(TrayWindow *traywin)
-{
-	if (systray_profile)
-		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
-	if (traywin->embedding_started)
-		return TRUE;
-
-	// Embed into parent
-	XEvent e;
-	e.xclient.type = ClientMessage;
-	e.xclient.serial = 0;
-	e.xclient.send_event = True;
-	e.xclient.message_type = server.atom._XEMBED;
-	e.xclient.window = traywin->win;
-	e.xclient.format = 32;
-	e.xclient.data.l[0] = CurrentTime;
-	e.xclient.data.l[1] = XEMBED_EMBEDDED_NOTIFY;
-	e.xclient.data.l[2] = 0;
-	e.xclient.data.l[3] = traywin->parent;
-	e.xclient.data.l[4] = 0;
-	XSync(server.dsp, False);
-	error = FALSE;
-	XErrorHandler old = XSetErrorHandler(window_error_handler);
-	if (systray_profile)
-		fprintf(stderr, "XSendEvent(server.dsp, traywin->win, False, 0xFFFFFF, &e)\n");
-	XSendEvent(server.dsp, traywin->win, False, NoEventMask, &e);
-	XSync(server.dsp, False);
-	XSetErrorHandler(old);
-	if (error != FALSE) {
-		fprintf(stderr, RED "systray %d: cannot embed icon for window %lu (%s) pid %d\n" RESET, __LINE__, traywin->win, traywin->name, traywin->pid);
-		remove_icon(traywin);
-		return FALSE;
-	}
-
-	traywin->embedding_started = 1;
-
-	if (systray_profile)
-		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
-
-	return TRUE;
-}
-
-gboolean icon_embedded(TrayWindow *traywin)
-{
-	Atom acttype;
-	int actfmt;
-	unsigned long nbitem, bytes;
-	unsigned char *data = 0;
-	int ret;
-
-	if (systray_profile)
-		fprintf(stderr, "XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data)\n");
-	ret = XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data);
-	gboolean hide = False;
-	if (ret == Success) {
-		if (data) {
-			if (nbitem >= 2) {
-				hide = ((data[1] & XEMBED_MAPPED) == 0);
-			}
-			XFree(data);
-		}
-	} else {
-		fprintf(stderr, RED "tint2 : xembed error\n" RESET);
-		hide = TRUE;
-	}
-	return !hide;
-}
-
-gboolean finalize_embedding_icon(TrayWindow *traywin)
-{
-	if (systray_profile)
-		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
-	if (traywin->embedding_finalized)
-		return TRUE;
-
-	if (!icon_embedded(traywin)) {
-		remove_icon(traywin);
-		return FALSE;
-	}
-
-	traywin->embedding_finalized = 1;
+	traywin->embedded = 1;
 
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
