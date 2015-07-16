@@ -813,6 +813,8 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 			//	if (systray_profile)
 			//		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
 			//	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+			stop_timeout(traywin->render_timeout);
+			traywin->render_timeout = add_timeout(min_refresh_period, 0, systray_render_icon, traywin, &traywin->render_timeout);
 		}
 	}
 
@@ -1002,6 +1004,7 @@ void systray_render_icon_composited(void* t)
 		panel_refresh = 1;
 		refresh_systray = 1;
 	}
+	panel_refresh = 1;
 
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
