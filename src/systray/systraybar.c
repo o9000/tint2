@@ -60,9 +60,9 @@ const int min_refresh_period = 50;
 const int max_fast_refreshes = 5;
 const int resize_period_threshold = 1000;
 const int fast_resize_period = 50;
-const int slow_resize_period = 15000;
-const int min_bad_resize_events = 1;
-const int max_bad_resize_events = 2;
+const int slow_resize_period = 5000;
+const int min_bad_resize_events = 3;
+const int max_bad_resize_events = 10;
 
 void default_systray()
 {
@@ -619,9 +619,13 @@ gboolean reparent_icon(TrayWindow *traywin)
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	if (systray_profile)
 		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, StructureNotifyMask)\n");
-	XSelectInput(server.dsp, traywin->win, StructureNotifyMask | PropertyChangeMask);
+	XSelectInput(server.dsp, traywin->win, SubstructureNotifyMask | StructureNotifyMask | PropertyChangeMask);
 	XWithdrawWindow(server.dsp, traywin->win, server.screen);
 	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
+
+	if (systray_profile)
+		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
+	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
 
 	// Embed into parent
 	{
@@ -639,12 +643,8 @@ gboolean reparent_icon(TrayWindow *traywin)
 		e.xclient.data.l[4] = 0;
 		if (systray_profile)
 			fprintf(stderr, "XSendEvent(server.dsp, traywin->win, False, 0xFFFFFF, &e)\n");
-		XSendEvent(server.dsp, traywin->win, False, 0xFFFFFF, &e);
+		XSendEvent(server.dsp, traywin->win, False, NoEventMask, &e);
 	}
-
-	if (systray_profile)
-		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
-	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
 
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
@@ -821,6 +821,28 @@ void systray_resize_icon(void* t)
 			if (systray_profile)
 				fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
 			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+			if (0) {
+				XWindowChanges changes;
+				changes.x = changes.y = 0;
+				changes.width = traywin->width;
+				changes.height = traywin->height;
+				XConfigureWindow(server.dsp, traywin->win, CWX|CWY|CWWidth|CWHeight, &changes);
+
+				XConfigureEvent ev;
+				ev.type = ConfigureNotify;
+				ev.serial = 0;
+				ev.send_event = True;
+				ev.event = traywin->win;
+				ev.window = traywin->win;
+				ev.x = 0;
+				ev.y = 0;
+				ev.width = traywin->width;
+				ev.height = traywin->height;
+				ev.border_width = 0;
+				ev.above = None;
+				ev.override_redirect = False;
+				XSendEvent(server.dsp, traywin->win, False, StructureNotifyMask, (XEvent*)&ev);
+			}
 			XSync(server.dsp, False);
 		}
 	}
