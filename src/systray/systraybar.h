@@ -51,7 +51,11 @@ typedef struct
 	int num_fast_renders;
 	int reparented;
 	int embedded;
+	int bad_size_counter;
+	timeout* resize_timeout;
+	struct timespec time_last_resize;
 	char *name;
+	Imlib_Image image;
 } TrayWindow;
 
 
