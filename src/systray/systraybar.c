@@ -58,9 +58,11 @@ static Pixmap render_background;
 
 const int min_refresh_period = 50;
 const int max_fast_refreshes = 5;
-const int min_resize_period = 1000;
-const int slow_resize_period = 30000;
-const int max_bad_resize_events = 8;
+const int resize_period_threshold = 1000;
+const int fast_resize_period = 50;
+const int slow_resize_period = 15000;
+const int min_bad_resize_events = 1;
+const int max_bad_resize_events = 2;
 
 void default_systray()
 {
@@ -823,6 +825,7 @@ void systray_resize_icon(void* t)
 			if (systray_profile)
 				fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
 			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+			XSync(server.dsp, False);
 		}
 	}
 }
@@ -843,7 +846,7 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 		if (traywin->bad_size_counter < max_bad_resize_events) {
 			struct timespec now;
 			clock_gettime(CLOCK_MONOTONIC, &now);
-			struct timespec earliest_resize = add_msec_to_timespec(traywin->time_last_resize, min_resize_period);
+			struct timespec earliest_resize = add_msec_to_timespec(traywin->time_last_resize, resize_period_threshold);
 			if (compare_timespecs(&earliest_resize, &now) > 0) {
 				// Fast resize, but below the threshold
 				traywin->bad_size_counter++;
@@ -853,7 +856,12 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 				traywin->time_last_resize.tv_nsec = now.tv_nsec;
 				traywin->bad_size_counter = 0;
 			}
-			systray_resize_icon(traywin);
+			if (traywin->bad_size_counter < min_bad_resize_events) {
+				systray_resize_icon(traywin);
+			} else {
+				if (!traywin->resize_timeout)
+					traywin->resize_timeout = add_timeout(fast_resize_period, 0, systray_resize_icon, traywin, &traywin->resize_timeout);
+			}
 		} else {
 			if (traywin->bad_size_counter == max_bad_resize_events) {
 				traywin->bad_size_counter++;
@@ -874,9 +882,6 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 	// Resize and redraw the systray
 	if (systray_profile)
 		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
-	systray.area.resize = 1;
-	systray.area.redraw = 1;
-	panel->area.resize = 1;
 	panel_refresh = 1;
 	refresh_systray = 1;
 }
@@ -913,7 +918,7 @@ void systray_render_icon_composited(void* t)
 	struct timespec now;
 	clock_gettime(CLOCK_MONOTONIC, &now);
 	struct timespec earliest_render = add_msec_to_timespec(traywin->time_last_render, min_refresh_period);
-	if (compare_timespecs(&earliest_render, &now) > min_refresh_period) {
+	if (compare_timespecs(&earliest_render, &now) > 0) {
 		traywin->num_fast_renders++;
 		if (traywin->num_fast_renders > max_fast_refreshes) {
 			traywin->render_timeout = add_timeout(min_refresh_period, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
@@ -1083,7 +1088,7 @@ void systray_render_icon(void* t)
 		return;
 	}
 
-	{
+	if (systray_composited) {
 		XSync(server.dsp, False);
 		error = FALSE;
 		XErrorHandler old = XSetErrorHandler(window_error_handler);
