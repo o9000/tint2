@@ -733,10 +733,6 @@ gboolean embed_icon(TrayWindow *traywin)
 	}
 
 	if (systray_profile)
-		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->parent = %ld, traywin->x = %d, traywin->y = %d, traywin->width = %d, traywin->height = %d)\n", traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
-	XMoveResizeWindow(server.dsp, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
-
-	if (systray_profile)
 		fprintf(stderr, "XSync(server.dsp, False)\n");
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
