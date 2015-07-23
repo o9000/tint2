@@ -66,6 +66,7 @@ const int max_bad_resize_events = 10;
 
 void default_systray()
 {
+	systray_enabled = 0;
 	memset(&systray, 0, sizeof(Systraybar));
 	render_background = 0;
 	chrono = 0;
