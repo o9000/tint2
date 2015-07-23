@@ -359,13 +359,7 @@ void draw_launcher_icon(void *obj, cairo_t *c)
 
 	// Render
 	imlib_context_set_image(launcherIcon->image);
-	if (server.real_transparency) {
-		render_image(launcherIcon->area.pix, 0, 0);
-	} else {
-		imlib_context_set_blend(1);
-		imlib_context_set_drawable(launcherIcon->area.pix);
-		imlib_render_image_on_drawable(0, 0);
-	}
+	render_image(launcherIcon->area.pix, 0, 0);
 }
 
 Imlib_Image scale_icon(Imlib_Image original, int icon_size)

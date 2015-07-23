@@ -404,6 +404,13 @@ int imageEmpty(DATA32* data, int w, int h)
 
 void render_image(Drawable d, int x, int y)
 {
+	if (!server.real_transparency) {
+		imlib_context_set_blend(1);
+		imlib_context_set_drawable(d);
+		imlib_render_image_on_drawable(x, y);
+		return;
+	}
+
 	int w = imlib_image_get_width(), h = imlib_image_get_height();
 
 	Pixmap pixmap = XCreatePixmap(server.dsp, server.root_win, w, h, 32);

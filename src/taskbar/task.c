@@ -350,13 +350,7 @@ void draw_task_icon (Task *tsk, int text_width)
 
 	// Render
 	imlib_context_set_image (tsk->icon[tsk->current_state]);
-	if (server.real_transparency) {
-		render_image(tsk->area.pix, pos_x, panel->g_task.icon_posy);
-	} else {
-		imlib_context_set_blend(1);
-		imlib_context_set_drawable(tsk->area.pix);
-		imlib_render_image_on_drawable(pos_x, panel->g_task.icon_posy);
-	}
+	render_image(tsk->area.pix, pos_x, panel->g_task.icon_posy);
 }
 
 
