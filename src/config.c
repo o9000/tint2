@@ -260,7 +260,9 @@ void add_entry (char *key, char *value)
 		int j;
 		systray_enabled = 0;
 		launcher_enabled = 0;
+#ifdef ENABLE_BATTERY
 		battery_enabled = 0;
+#endif
 		clock_enabled = 0;
 		taskbar_enabled = 0;
 		for (j=0 ; j < strlen(panel_items_order) ; j++) {
