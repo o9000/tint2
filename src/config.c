@@ -258,6 +258,11 @@ void add_entry (char *key, char *value)
 		new_config_file = 1;
 		panel_items_order = strdup(value);
 		int j;
+		systray_enabled = 0;
+		launcher_enabled = 0;
+		battery_enabled = 0;
+		clock_enabled = 0;
+		taskbar_enabled = 0;
 		for (j=0 ; j < strlen(panel_items_order) ; j++) {
 			if (panel_items_order[j] == 'L')
 				launcher_enabled = 1;
