@@ -854,7 +854,6 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 	if (1 || systray_profile)
 		fprintf(stderr, "XConfigure event: win = %lu (%s), x = %d, y = %d, w = %d, h = %d\n",
 				traywin->win, traywin->name, e->xconfigure.x, e->xconfigure.y, e->xconfigure.width, e->xconfigure.height);
-	Panel* panel = systray.area.panel;
 
 	//fprintf(stderr, "move tray %d\n", traywin->x);
 
