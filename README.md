@@ -23,6 +23,9 @@ make install
 
 Please report any problems to https://gitlab.com/o9000/tint2/issues. Your feedback is much appreciated.
 
+Known issues:
+* [System tray resize loop with GTK applications](https://gitlab.com/o9000/tint2/issues/509), see also the [GTK bug report](https://bugzilla.gnome.org/show_bug.cgi?id=710375)
+
 P.S. GitLab is now the official location of the tint2 project, migrated from Google Code, which is shutting down. In case you are wondering why not GitHub, BitBucket etc., we chose GitLab because it is open source, it is mature and works well, looks cool and has a very nice team.
 
 ### What is tint2?
