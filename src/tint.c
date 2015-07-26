@@ -885,6 +885,12 @@ void event_configure_notify(XEvent *e)
 			if ((hide_task_diff_monitor && p->monitor != monitor && tsk->area.on_screen) ||
 				(hide_task_diff_monitor && p->monitor == monitor && !tsk->area.on_screen) ||
 				(p->monitor != monitor && nb_panel > 1)) {
+				fprintf(stderr, "%s %s task %ld '%s' (panel monitor = %d)\n",
+						__FUNCTION__,
+						p->monitor != monitor ? "hiding" : "showing",
+						tsk->win,
+						tsk->title ? tsk->title : "??",
+						((Panel*)tsk->area.panel)->monitor + 1);
 				remove_task (tsk);
 				tsk = add_task (win);
 				if (win == window_get_active ()) {
