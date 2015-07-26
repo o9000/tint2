@@ -130,7 +130,16 @@ int window_get_monitor (Window win)
 	int i, x, y;
 	Window src;
 
-	XTranslateCoordinates(server.dsp, win, server.root_win, 0, 0, &x, &y, &src);
+	XTextProperty xname;
+	char *name;
+	if (XGetWMName(server.dsp, win, &xname)) {
+		name = strdup((char*)xname.value);
+		XFree(xname.value);
+	} else {
+		name = strdup("??");
+	}
+
+	Bool result = XTranslateCoordinates(server.dsp, win, server.root_win, 0, 0, &x, &y, &src);
 	x += 2;
 	y += 2;
 	for (i = 0; i < server.nb_monitor; i++) {
@@ -139,9 +148,14 @@ int window_get_monitor (Window win)
 				break;
 	}
 
-	//printf("window %lx : ecran %d, (%d, %d)\n", win, i, x, y);
-	if (i == server.nb_monitor) return 0;
-	else return i;
+	if (i == server.nb_monitor)
+		i = 0;
+
+	printf("\n%s: window %ld '%s': monitor %d, x = %d, y = %d, result = %s\n", __FUNCTION__, win, name, i+1, x, y, result ? "True" : "False");
+	print_monitors();
+	free(name);
+
+	return i;
 }
 
 void window_get_coordinates (Window win, int *x, int *y, int *w, int *h)

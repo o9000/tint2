@@ -533,6 +533,12 @@ void set_task_state(Task *tsk, int state)
 					hide = 1;
 				}
 				if (1 - hide != tsk1->area.on_screen) {
+					fprintf(stderr, "%s %s task %ld '%s' (panel monitor = %d)\n",
+							__FUNCTION__,
+							hide ? "hiding" : "showing",
+							tsk->win,
+							tsk->title ? tsk->title : "??",
+							((Panel*)tsk->area.panel)->monitor + 1);
 					tsk1->area.on_screen = 1 - hide;
 					set_task_redraw(tsk1);
 					Panel *p = (Panel*)tsk->area.panel;
