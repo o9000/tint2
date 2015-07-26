@@ -106,30 +106,22 @@ void init_systray()
 		systray.alpha = 100;
 		systray.brightness = systray.saturation = 0;
 	}
-
-	start_net();
 }
 
 
 void init_systray_panel(void *p)
 {
-	systray.area.parent = p;
-	systray.area.panel = p;
+	Panel *panel = (Panel *)p;
+	systray.area.parent = panel;
+	systray.area.panel = panel;
 	if (!systray.area.bg)
 		systray.area.bg = &g_array_index(backgrounds, Background, 0);
-
-	GSList *l;
-	int count = 0;
-	for (l = systray.list_icons; l ; l = l->next) {
-		if (((TrayWindow*)l->data)->hide)
-			continue;
-		count++;
-	}
-	if (count == 0)
-		hide(&systray.area);
-	else
-		show(&systray.area);
-	refresh_systray = 0;
+	show(&systray.area);
+	systray.area.resize = 1;
+	systray.area.redraw = 1;
+	panel->area.resize = 1;
+	panel_refresh = 1;
+	refresh_systray = 1;
 }
 
 
@@ -163,6 +155,12 @@ int resize_systray(void *obj)
 	sysbar->icon_size = sysbar->icon_size - (2 * sysbar->area.bg->border.width) - (2 * sysbar->area.paddingy);
 	if (systray_max_icon_size > 0 && sysbar->icon_size > systray_max_icon_size)
 		sysbar->icon_size = systray_max_icon_size;
+
+	if (systray.icon_size > 0) {
+		long icon_size = systray.icon_size;
+		XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_ICON_SIZE, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &icon_size, 1);
+	}
+
 	count = 0;
 	for (l = systray.list_icons; l ; l = l->next) {
 		if (((TrayWindow*)l->data)->hide)
@@ -186,6 +184,11 @@ int resize_systray(void *obj)
 		sysbar->icons_per_column = count / sysbar->icons_per_row+ (count%sysbar->icons_per_row != 0);
 		systray.area.height = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) + (sysbar->icon_size * sysbar->icons_per_column) + ((sysbar->icons_per_column-1) * systray.area.paddingx);
 	}
+
+	if (net_sel_win == None) {
+		start_net();
+	}
+
 	return 1;
 }
 
@@ -303,11 +306,19 @@ void start_net()
 
 	// init systray protocol
 	net_sel_win = XCreateSimpleWindow(server.dsp, server.root_win, -1, -1, 1, 1, 0, 0, 0);
+	fprintf(stderr, "systray window %ld\n", net_sel_win);
 
 	// v0.3 trayer specification. tint2 always horizontal.
 	// Vertical panel will draw the systray horizontal.
-	long orient = 0;
-	XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_ORIENTATION, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &orient, 1);
+	long orientation = 0;
+	XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_ORIENTATION, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &orientation, 1);
+	if (systray.icon_size > 0) {
+		long icon_size = systray.icon_size;
+		XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_ICON_SIZE, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &icon_size, 1);
+	}
+	long padding = 0;
+	XChangeProperty(server.dsp, net_sel_win, server.atom._NET_SYSTEM_TRAY_PADDING, XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &padding, 1);
+
 	VisualID vid;
 	if (systray_composited)
 		vid = XVisualIDFromVisual(server.visual32);
@@ -563,7 +574,7 @@ gboolean add_icon(Window win)
 	}
 	if (systray_profile)
 		fprintf(stderr, "XCreateWindow(...)\n");
-	Window parent = XCreateWindow(server.dsp, panel->main_win, 0, 0, 30, 30, 0, attr.depth, InputOutput, visual, mask, &set_attr);
+	Window parent = XCreateWindow(server.dsp, panel->main_win, 0, 0, systray.icon_size, systray.icon_size, 0, attr.depth, InputOutput, visual, mask, &set_attr);
 
 	// Add the icon to the list
 	TrayWindow *traywin = g_new0(TrayWindow, 1);
