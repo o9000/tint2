@@ -627,6 +627,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 		return TRUE;
 
 	// Watch for the icon trying to resize itself / closing again
+	XSync(server.dsp, False);
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	if (systray_profile)
@@ -684,6 +685,7 @@ gboolean embed_icon(TrayWindow *traywin)
 
 	Panel* panel = systray.area.panel;
 
+	XSync(server.dsp, False);
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
 
