@@ -1,3 +1,14 @@
+2015-07-30 b0.12
+- Fixes:
+  - Config:
+	- Read config correctly when panel_items is at the end of the config file (issue #511)
+  - Panel:
+	- Do not use nested event loops (related: issue #509)
+  - System tray:
+	- Set _NET_SYSTEM_TRAY_ICON_SIZE and _NET_SYSTEM_TRAY_PADDING
+	- Throttle repeated resizes (workaround for issue #509)
+  - tint2conf:
+	- Bad read of option panel_margin
 2015-07-12 master
 - Note: the changes listed here are based on the previous release tint2 0.11, however some distributions (e.g. Debian)
   offered packages using newer commits and/or patches; thus from the user's perspective some of these features are
