@@ -364,20 +364,6 @@ next:
 	}
 }
 
-void print_monitors()
-{
-	fprintf(stderr, "Number of monitors: %d\n", server.nb_monitor);
-	int i;
-	for (i = 0; i < server.nb_monitor; i++) {
-		fprintf(stderr, "Monitor %d: x = %d, y = %d, w = %d, h = %d\n",
-				i+1,
-				server.monitor[i].x,
-				server.monitor[i].y,
-				server.monitor[i].width,
-				server.monitor[i].height);
-	}
-}
-
 int server_get_number_of_desktops()
 {
 	return get_property32(server.root_win, server.atom._NET_NUMBER_OF_DESKTOPS, XA_CARDINAL);
