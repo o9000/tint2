@@ -632,32 +632,13 @@ gboolean reparent_icon(TrayWindow *traywin)
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	if (systray_profile)
 		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, StructureNotifyMask)\n");
-	XSelectInput(server.dsp, traywin->win, SubstructureNotifyMask | StructureNotifyMask | PropertyChangeMask);
+	XSelectInput(server.dsp, traywin->win, SubstructureNotifyMask | StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask);
 	XWithdrawWindow(server.dsp, traywin->win, server.screen);
 	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
 
 	if (systray_profile)
 		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
 	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
-
-	// Embed into parent
-	{
-		XEvent e;
-		e.xclient.type = ClientMessage;
-		e.xclient.serial = 0;
-		e.xclient.send_event = True;
-		e.xclient.message_type = server.atom._XEMBED;
-		e.xclient.window = traywin->win;
-		e.xclient.format = 32;
-		e.xclient.data.l[0] = CurrentTime;
-		e.xclient.data.l[1] = XEMBED_EMBEDDED_NOTIFY;
-		e.xclient.data.l[2] = 0;
-		e.xclient.data.l[3] = traywin->parent;
-		e.xclient.data.l[4] = 0;
-		if (systray_profile)
-			fprintf(stderr, "XSendEvent(server.dsp, traywin->win, False, 0xFFFFFF, &e)\n");
-		XSendEvent(server.dsp, traywin->win, False, NoEventMask, &e);
-	}
 
 	XSync(server.dsp, False);
 	XSetErrorHandler(old);
@@ -675,6 +656,63 @@ gboolean reparent_icon(TrayWindow *traywin)
 	return TRUE;
 }
 
+gboolean is_embedded(TrayWindow *traywin)
+{
+	Atom acttype;
+	int actfmt;
+	unsigned long nbitem, bytes;
+	unsigned long *data = 0;
+	int ret;
+
+	if (systray_profile)
+		fprintf(stderr, "XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data)\n");
+	ret = XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, (unsigned char**)&data);
+	if (ret == Success) {
+		if (data) {
+			if (nbitem >= 2) {
+				int hide = ((data[1] & XEMBED_MAPPED) == 0);
+				if (hide) {
+					XFree(data);
+					return FALSE;
+				} else {
+					XFree(data);
+					return TRUE;
+				}
+			}
+			XFree(data);
+		}
+	}
+	return FALSE;
+}
+
+gboolean request_embed_icon(TrayWindow *traywin)
+{
+	if (traywin->embed_requested)
+		return TRUE;
+
+	{
+		XEvent e;
+		e.xclient.type = ClientMessage;
+		e.xclient.serial = 0;
+		e.xclient.send_event = True;
+		e.xclient.message_type = server.atom._XEMBED;
+		e.xclient.window = traywin->win;
+		e.xclient.format = 32;
+		e.xclient.data.l[0] = CurrentTime;
+		e.xclient.data.l[1] = XEMBED_EMBEDDED_NOTIFY;
+		e.xclient.data.l[2] = 0;
+		e.xclient.data.l[3] = traywin->parent;
+		e.xclient.data.l[4] = 0;
+		if (systray_profile)
+			fprintf(stderr, "XSendEvent(server.dsp, traywin->win, False, 0xFFFFFF, &e)\n");
+		XSendEvent(server.dsp, traywin->win, False, NoEventMask, &e);
+		XSync(server.dsp, False);
+	}
+
+	traywin->embed_requested = 1;
+	return TRUE;
+}
+
 gboolean embed_icon(TrayWindow *traywin)
 {
 	fprintf(stderr, "embedding tray icon\n");
@@ -682,45 +720,14 @@ gboolean embed_icon(TrayWindow *traywin)
 		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
 	if (traywin->embedded)
 		return TRUE;
+	if (!is_embedded(traywin))
+		return FALSE;
 
 	Panel* panel = systray.area.panel;
 
 	XSync(server.dsp, False);
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
-
-	if (0) {
-		Atom acttype;
-		int actfmt;
-		unsigned long nbitem, bytes;
-		unsigned char *data = 0;
-		int ret;
-
-		if (systray_profile)
-			fprintf(stderr, "XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data)\n");
-		ret = XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data);
-		if (ret == Success) {
-			if (data) {
-				if (nbitem >= 2) {
-					int hide = ((data[1] & XEMBED_MAPPED) == 0);
-					if (hide) {
-						// In theory we have to check the embedding with this and remove icons that refuse embedding.
-						// In practice we have no idea when the other application processes the event and accepts the embed so we cannot check without a race.
-						// Race can be triggered with PyGtk(2) apps.
-						//fprintf(stderr, RED "tint2: window refused embedding\n" RESET);
-						//remove_icon(traywin);
-						//XFree(data);
-						//return FALSE;
-					}
-				}
-				XFree(data);
-			}
-		} else {
-			fprintf(stderr, RED "tint2 : xembed error\n" RESET);
-			remove_icon(traywin);
-			return FALSE;
-		}
-	}
 
 	// Redirect rendering when using compositing
 	if (systray_composited) {
