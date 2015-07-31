@@ -1279,28 +1279,10 @@ start:
 					break;
 
 				case PropertyNotify:
-					for (it = systray.list_icons; it ; it = g_slist_next(it)) {
-						TrayWindow *traywin = (TrayWindow*)it->data;
-						if (traywin->win == e.xany.window && e.xproperty.atom == server.atom._XEMBED_INFO) {
-							fprintf(stderr, "PropertyNotify\n");
-							if (is_embedded(traywin))
-								embed_icon(traywin);
-							break;
-						}
-					}
 					event_property_notify(&e);
 					break;
 
 				case ConfigureNotify:
-					for (it = systray.list_icons; it ; it = g_slist_next(it)) {
-						TrayWindow *traywin = (TrayWindow*)it->data;
-						if (traywin->win == e.xany.window) {
-							fprintf(stderr, "ConfigureNotify\n");
-							if (is_embedded(traywin))
-								embed_icon(traywin);
-							break;
-						}
-					}
 					event_configure_notify(&e);
 					break;
 
@@ -1309,7 +1291,6 @@ start:
 					for (it = systray.list_icons; it ; it = g_slist_next(it)) {
 						TrayWindow *traywin = (TrayWindow*)it->data;
 						if (traywin->win == e.xany.window) {
-							fprintf(stderr, "ConfigureRequest\n");
 							systray_reconfigure_event(traywin, &e);
 							break;
 						}
@@ -1336,11 +1317,8 @@ start:
 					for (it = systray.list_icons; it; it = g_slist_next(it)) {
 						TrayWindow *traywin = (TrayWindow*)it->data;
 						if (traywin->win == e.xreparent.window) {
-							fprintf(stderr, "ReparentNotify\n");
 							if (traywin->parent == e.xreparent.parent) {
-								request_embed_icon(traywin);
-								if (is_embedded(traywin))
-									embed_icon(traywin);
+								embed_icon(traywin);
 							} else {
 								remove_icon(traywin);
 							}

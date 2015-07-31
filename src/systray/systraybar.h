@@ -50,7 +50,6 @@ typedef struct
     struct timespec time_last_render;
 	int num_fast_renders;
 	int reparented;
-	int embed_requested;
 	int embedded;
 	int bad_size_counter;
 	timeout* resize_timeout;
@@ -92,7 +91,6 @@ void net_message(XClientMessageEvent *e);
 
 gboolean add_icon(Window id);
 gboolean reparent_icon(TrayWindow *traywin);
-gboolean is_embedded(TrayWindow *traywin);
 gboolean embed_icon(TrayWindow *traywin);
 void remove_icon(TrayWindow *traywin);
 
@@ -100,6 +98,7 @@ void refresh_systray_icons();
 void systray_render_icon(void *t);
 gboolean request_embed_icon(TrayWindow *traywin);
 void systray_resize_request_event(TrayWindow *traywin, XEvent *e);
+gboolean request_embed_icon(TrayWindow *traywin);
 void systray_reconfigure_event(TrayWindow *traywin, XEvent *e);
 void systray_destroy_event(TrayWindow *traywin);
 void kde_update_icons();

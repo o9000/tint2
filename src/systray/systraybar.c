@@ -640,56 +640,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 		fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
 	XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
 
-	XSync(server.dsp, False);
-	XSetErrorHandler(old);
-	if (error != FALSE) {
-		fprintf(stderr, RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d\n" RESET, __LINE__, traywin->win, traywin->name, traywin->parent, traywin->pid);
-		remove_icon(traywin);
-		return FALSE;
-	}
-
-	traywin->reparented = 1;
-
-	if (systray_profile)
-		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
-
-	return TRUE;
-}
-
-gboolean is_embedded(TrayWindow *traywin)
-{
-	Atom acttype;
-	int actfmt;
-	unsigned long nbitem, bytes;
-	unsigned long *data = 0;
-	int ret;
-
-	if (systray_profile)
-		fprintf(stderr, "XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data)\n");
-	ret = XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, (unsigned char**)&data);
-	if (ret == Success) {
-		if (data) {
-			if (nbitem >= 2) {
-				int hide = ((data[1] & XEMBED_MAPPED) == 0);
-				if (hide) {
-					XFree(data);
-					return FALSE;
-				} else {
-					XFree(data);
-					return TRUE;
-				}
-			}
-			XFree(data);
-		}
-	}
-	return FALSE;
-}
-
-gboolean request_embed_icon(TrayWindow *traywin)
-{
-	if (traywin->embed_requested)
-		return TRUE;
-
+	// Embed into parent
 	{
 		XEvent e;
 		e.xclient.type = ClientMessage;
@@ -706,10 +657,21 @@ gboolean request_embed_icon(TrayWindow *traywin)
 		if (systray_profile)
 			fprintf(stderr, "XSendEvent(server.dsp, traywin->win, False, 0xFFFFFF, &e)\n");
 		XSendEvent(server.dsp, traywin->win, False, NoEventMask, &e);
-		XSync(server.dsp, False);
 	}
 
-	traywin->embed_requested = 1;
+	XSync(server.dsp, False);
+	XSetErrorHandler(old);
+	if (error != FALSE) {
+		fprintf(stderr, RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d\n" RESET, __LINE__, traywin->win, traywin->name, traywin->parent, traywin->pid);
+		remove_icon(traywin);
+		return FALSE;
+	}
+
+	traywin->reparented = 1;
+
+	if (systray_profile)
+		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
+
 	return TRUE;
 }
 
@@ -720,14 +682,45 @@ gboolean embed_icon(TrayWindow *traywin)
 		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
 	if (traywin->embedded)
 		return TRUE;
-	if (!is_embedded(traywin))
-		return FALSE;
 
 	Panel* panel = systray.area.panel;
 
 	XSync(server.dsp, False);
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
+
+	if (0) {
+		Atom acttype;
+		int actfmt;
+		unsigned long nbitem, bytes;
+		unsigned char *data = 0;
+		int ret;
+
+		if (systray_profile)
+			fprintf(stderr, "XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data)\n");
+		ret = XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data);
+		if (ret == Success) {
+			if (data) {
+				if (nbitem >= 2) {
+					int hide = ((data[1] & XEMBED_MAPPED) == 0);
+					if (hide) {
+						// In theory we have to check the embedding with this and remove icons that refuse embedding.
+						// In practice we have no idea when the other application processes the event and accepts the embed so we cannot check without a race.
+						// Race can be triggered with PyGtk(2) apps.
+						//fprintf(stderr, RED "tint2: window refused embedding\n" RESET);
+						//remove_icon(traywin);
+						//XFree(data);
+						//return FALSE;
+					}
+				}
+				XFree(data);
+			}
+		} else {
+			fprintf(stderr, RED "tint2 : xembed error\n" RESET);
+			remove_icon(traywin);
+			return FALSE;
+		}
+	}
 
 	// Redirect rendering when using compositing
 	if (systray_composited) {
