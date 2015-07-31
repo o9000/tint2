@@ -838,17 +838,20 @@ void systray_resize_icon(void* t)
 	if (!XGetGeometry(server.dsp, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
 		return;
 	} else {
-		if (xpos != 0 || ypos != 0 || width != traywin->width || height != traywin->height) {
+		if (1 || xpos != 0 || ypos != 0 || width != traywin->width || height != traywin->height) {
 			if (systray_profile)
 				fprintf(stderr, "XMoveResizeWindow(server.dsp, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n", traywin->win, traywin->width, traywin->height);
-			XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+			if (0) {
+				XMoveResizeWindow(server.dsp, traywin->win, 0, 0, traywin->width, traywin->height);
+			}
 			if (0) {
 				XWindowChanges changes;
 				changes.x = changes.y = 0;
 				changes.width = traywin->width;
 				changes.height = traywin->height;
 				XConfigureWindow(server.dsp, traywin->win, CWX|CWY|CWWidth|CWHeight, &changes);
-
+			}
+			if (1) {
 				XConfigureEvent ev;
 				ev.type = ConfigureNotify;
 				ev.serial = 0;
