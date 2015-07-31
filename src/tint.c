@@ -1316,6 +1316,17 @@ start:
 					}
 					break;
 
+				case ResizeRequest:
+					// 'win' is a trayer icon
+					for (it = systray.list_icons; it ; it = g_slist_next(it)) {
+						TrayWindow *traywin = (TrayWindow*)it->data;
+						if (traywin->win == e.xany.window) {
+							systray_resize_request_event(traywin, &e);
+							break;
+						}
+					}
+					break;
+
 				case ReparentNotify:
 					if (!systray_enabled)
 						break;

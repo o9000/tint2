@@ -99,6 +99,7 @@ void remove_icon(TrayWindow *traywin);
 void refresh_systray_icons();
 void systray_render_icon(void *t);
 gboolean request_embed_icon(TrayWindow *traywin);
+void systray_resize_request_event(TrayWindow *traywin, XEvent *e);
 void systray_reconfigure_event(TrayWindow *traywin, XEvent *e);
 void systray_destroy_event(TrayWindow *traywin);
 void kde_update_icons();

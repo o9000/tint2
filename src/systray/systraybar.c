@@ -924,6 +924,61 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 	refresh_systray = 1;
 }
 
+void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
+{
+	if (1 || systray_profile)
+		fprintf(stderr, "XResizeRequest event: win = %lu (%s), w = %d, h = %d\n",
+				traywin->win, traywin->name, e->xresizerequest.width, e->xresizerequest.height);
+
+	//fprintf(stderr, "move tray %d\n", traywin->x);
+
+	if (!traywin->reparented)
+		return;
+
+	if (e->xresizerequest.width != traywin->width || e->xresizerequest.height != traywin->height) {
+		if (traywin->bad_size_counter < max_bad_resize_events) {
+			struct timespec now;
+			clock_gettime(CLOCK_MONOTONIC, &now);
+			struct timespec earliest_resize = add_msec_to_timespec(traywin->time_last_resize, resize_period_threshold);
+			if (compare_timespecs(&earliest_resize, &now) > 0) {
+				// Fast resize, but below the threshold
+				traywin->bad_size_counter++;
+			} else {
+				// Slow resize, reset counter
+				traywin->time_last_resize.tv_sec = now.tv_sec;
+				traywin->time_last_resize.tv_nsec = now.tv_nsec;
+				traywin->bad_size_counter = 0;
+			}
+			if (traywin->bad_size_counter < min_bad_resize_events) {
+				systray_resize_icon(traywin);
+			} else {
+				if (!traywin->resize_timeout)
+					traywin->resize_timeout = add_timeout(fast_resize_period, 0, systray_resize_icon, traywin, &traywin->resize_timeout);
+			}
+		} else {
+			if (traywin->bad_size_counter == max_bad_resize_events) {
+				traywin->bad_size_counter++;
+				fprintf(stderr, RED "Detected resize loop for tray icon %lu (%s), throttling resize events\n" RESET, traywin->win, traywin->name);
+			}
+			// Delayed resize
+			// FIXME Normally we should force the icon to resize back to the size we resized it to when we embedded it.
+			// However this triggers a resize loop in new versions of GTK, which we must avoid.
+			if (!traywin->resize_timeout)
+				traywin->resize_timeout = add_timeout(slow_resize_period, 0, systray_resize_icon, traywin, &traywin->resize_timeout);
+			return;
+		}
+	} else {
+		// Correct size
+		stop_timeout(traywin->resize_timeout);
+	}
+
+	// Resize and redraw the systray
+	if (systray_profile)
+		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
+	panel_refresh = 1;
+	refresh_systray = 1;
+}
+
 void systray_destroy_event(TrayWindow *traywin)
 {
 	if (systray_profile)
