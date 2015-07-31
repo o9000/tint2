@@ -131,17 +131,28 @@ int window_get_monitor (Window win)
 	Window src;
 
 	XTranslateCoordinates(server.dsp, win, server.root_win, 0, 0, &x, &y, &src);
-	x += 2;
-	y += 2;
+	int best_match = -1;
+	int match_right = 0;
+	int match_bottom = 0;
+	// There is an ambiguity when a window is right on the edge between screens.
+	// In that case, prefer the monitor which is on the right and bottom of the window's top-left corner.
 	for (i = 0; i < server.nb_monitor; i++) {
 		if (x >= server.monitor[i].x && x <= (server.monitor[i].x + server.monitor[i].width))
-			if (y >= server.monitor[i].y && y <= (server.monitor[i].y + server.monitor[i].height))
-				break;
+			if (y >= server.monitor[i].y && y <= (server.monitor[i].y + server.monitor[i].height)) {
+				int current_right = x < (server.monitor[i].x + server.monitor[i].width);
+				int current_bottom = y < (server.monitor[i].y + server.monitor[i].height);
+				if (best_match < 0 ||
+					(!match_right && current_right) ||
+					(!match_bottom && current_bottom)) {
+					best_match = i;
+				}
+			}
 	}
 
-	//printf("window %lx : ecran %d, (%d, %d)\n", win, i, x, y);
-	if (i == server.nb_monitor) return 0;
-	else return i;
+	if (best_match < 0)
+		best_match = 0;
+	// printf("window %lx : ecran %d, (%d, %d)\n", win, best_match+1, x, y);
+	return best_match;
 }
 
 void window_get_coordinates (Window win, int *x, int *y, int *w, int *h)
