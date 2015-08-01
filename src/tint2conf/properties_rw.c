@@ -548,6 +548,9 @@ void config_write_clock(FILE *fp)
 	fprintf(fp, "clock_tooltip_timezone = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_tmz_tooltip)));
 	fprintf(fp, "clock_lclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_left_command)));
 	fprintf(fp, "clock_rclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_right_command)));
+	fprintf(fp, "clock_mclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_mclick_command)));
+	fprintf(fp, "clock_uwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_uwheel_command)));
+	fprintf(fp, "clock_dwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_dwheel_command)));
 
 	fprintf(fp, "\n");
 }
@@ -573,6 +576,11 @@ void config_write_battery(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(battery_padding_y)));
 	fprintf(fp, "battery_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(battery_background)));
 	fprintf(fp, "battery_hide = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(battery_hide_if_higher)));
+	fprintf(fp, "battery_lclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_left_command)));
+	fprintf(fp, "battery_rclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_right_command)));
+	fprintf(fp, "battery_mclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_mclick_command)));
+	fprintf(fp, "battery_uwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_uwheel_command)));
+	fprintf(fp, "battery_dwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_dwheel_command)));
 
 	fprintf(fp, "\n");
 }
@@ -935,6 +943,21 @@ void add_entry(char *key, char *value)
 		else
 			gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_hide_if_higher), atoi(value));
 	}
+	else if (strcmp(key, "battery_lclick_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(battery_left_command), value);
+	}
+	else if (strcmp(key, "battery_rclick_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(battery_right_command), value);
+	}
+	else if (strcmp(key, "battery_mclick_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(battery_mclick_command), value);
+	}
+	else if (strcmp(key, "battery_uwheel_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(battery_uwheel_command), value);
+	}
+	else if (strcmp(key, "battery_dwheel_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(battery_dwheel_command), value);
+	}
 
 	/* Clock */
 	else if (strcmp(key, "time1_format") == 0) {
@@ -986,6 +1009,15 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "clock_rclick_command") == 0) {
 		gtk_entry_set_text(GTK_ENTRY(clock_right_command), value);
+	}
+	else if (strcmp(key, "clock_mclick_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(clock_mclick_command), value);
+	}
+	else if (strcmp(key, "clock_uwheel_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(clock_uwheel_command), value);
+	}
+	else if (strcmp(key, "clock_dwheel_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(clock_dwheel_command), value);
 	}
 
 	/* Taskbar */

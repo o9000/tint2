@@ -87,6 +87,7 @@ extern GtkWidget *task_iconified_color, *task_iconified_color_set,
 // clock
 extern GtkWidget *clock_format_line1, *clock_format_line2, *clock_tmz_line1, *clock_tmz_line2;
 extern GtkWidget *clock_left_command, *clock_right_command;
+extern GtkWidget *clock_mclick_command, *clock_rclick_command, *clock_uwheel_command, *clock_dwheel_command;
 extern GtkWidget *clock_padding_x, *clock_padding_y, *clock_font_line1, *clock_font_line2, *clock_font_color;
 extern GtkWidget *clock_background;
 
@@ -94,6 +95,7 @@ extern GtkWidget *clock_background;
 extern GtkWidget *battery_hide_if_higher, *battery_alert_if_lower, *battery_alert_cmd;
 extern GtkWidget *battery_padding_x, *battery_padding_y, *battery_font_line1, *battery_font_line2, *battery_font_color;
 extern GtkWidget *battery_background;
+extern GtkWidget *battery_left_command, *battery_mclick_command, *battery_right_command, *battery_uwheel_command, *battery_dwheel_command;
 
 // systray
 extern GtkWidget *systray_icon_order, *systray_padding_x, *systray_padding_y, *systray_spacing;

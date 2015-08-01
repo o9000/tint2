@@ -84,6 +84,7 @@ GtkWidget *task_iconified_color, *task_iconified_color_set,
 // clock
 GtkWidget *clock_format_line1, *clock_format_line2, *clock_tmz_line1, *clock_tmz_line2;
 GtkWidget *clock_left_command, *clock_right_command;
+GtkWidget *clock_mclick_command, *clock_rclick_command, *clock_uwheel_command, *clock_dwheel_command;
 GtkWidget *clock_padding_x, *clock_padding_y, *clock_font_line1, *clock_font_line2, *clock_font_color;
 GtkWidget *clock_background;
 
@@ -91,6 +92,7 @@ GtkWidget *clock_background;
 GtkWidget *battery_hide_if_higher, *battery_alert_if_lower, *battery_alert_cmd;
 GtkWidget *battery_padding_x, *battery_padding_y, *battery_font_line1, *battery_font_line2, *battery_font_color;
 GtkWidget *battery_background;
+GtkWidget *battery_left_command, *battery_mclick_command, *battery_right_command, *battery_uwheel_command, *battery_dwheel_command;
 
 // systray
 GtkWidget *systray_icon_order, *systray_padding_x, *systray_padding_y, *systray_spacing;
@@ -3316,7 +3318,7 @@ void create_clock(GtkWidget *parent)
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
 
-	table = gtk_table_new(2, 10, FALSE);
+	table = gtk_table_new(5, 10, FALSE);
 	gtk_widget_show(table);
 	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
@@ -3351,6 +3353,51 @@ void create_clock(GtkWidget *parent)
 	col++;
 	gtk_tooltips_set_tip(tooltips, clock_right_command,
 						 _("Specifies a command that will be executed when the clock receives a right click."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Middle click command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	clock_mclick_command = gtk_entry_new();
+	gtk_widget_show(clock_mclick_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(clock_mclick_command), 50);
+	gtk_table_attach(GTK_TABLE(table), clock_mclick_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, clock_mclick_command,
+						 _("Specifies a command that will be executed when the clock receives a middle click."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Wheel scroll up command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	clock_uwheel_command = gtk_entry_new();
+	gtk_widget_show(clock_uwheel_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(clock_uwheel_command), 50);
+	gtk_table_attach(GTK_TABLE(table), clock_uwheel_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, clock_uwheel_command,
+						 _("Specifies a command that will be executed when the clock receives a mouse scroll up."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Wheel scroll down command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	clock_dwheel_command = gtk_entry_new();
+	gtk_widget_show(clock_dwheel_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(clock_dwheel_command), 50);
+	gtk_table_attach(GTK_TABLE(table), clock_dwheel_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, clock_dwheel_command,
+						 _("Specifies a command that will be executed when the clock receives a mouse scroll down."), NULL);
 
 	change_paragraph(parent);
 
@@ -3766,6 +3813,95 @@ void create_battery(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), battery_alert_cmd, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 	gtk_tooltips_set_tip(tooltips, battery_alert_cmd, _("Command to be executed when the alert threshold is reached."), NULL);
+
+	change_paragraph(parent);
+
+	label = gtk_label_new(_("<b>Mouse events</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
+
+	table = gtk_table_new(5, 10, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
+
+	label = gtk_label_new(_("Left click command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	battery_left_command = gtk_entry_new();
+	gtk_widget_show(battery_left_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(battery_left_command), 50);
+	gtk_table_attach(GTK_TABLE(table), battery_left_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, battery_left_command,
+						 _("Specifies a command that will be executed when the battery receives a left click."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Right click command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	battery_right_command = gtk_entry_new();
+	gtk_widget_show(battery_right_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(battery_right_command), 50);
+	gtk_table_attach(GTK_TABLE(table), battery_right_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, battery_right_command,
+						 _("Specifies a command that will be executed when the battery receives a right click."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Middle click command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	battery_mclick_command = gtk_entry_new();
+	gtk_widget_show(battery_mclick_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(battery_mclick_command), 50);
+	gtk_table_attach(GTK_TABLE(table), battery_mclick_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, battery_mclick_command,
+						 _("Specifies a command that will be executed when the battery receives a middle click."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Wheel scroll up command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	battery_uwheel_command = gtk_entry_new();
+	gtk_widget_show(battery_uwheel_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(battery_uwheel_command), 50);
+	gtk_table_attach(GTK_TABLE(table), battery_uwheel_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, battery_uwheel_command,
+						 _("Specifies a command that will be executed when the battery receives a mouse scroll up."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Wheel scroll down command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	battery_dwheel_command = gtk_entry_new();
+	gtk_widget_show(battery_dwheel_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(battery_dwheel_command), 50);
+	gtk_table_attach(GTK_TABLE(table), battery_dwheel_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, battery_dwheel_command,
+						 _("Specifies a command that will be executed when the battery receives a mouse scroll down."), NULL);
 
 	change_paragraph(parent);
 
