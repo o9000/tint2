@@ -693,20 +693,23 @@ gboolean embed_icon(TrayWindow *traywin)
 		Atom acttype;
 		int actfmt;
 		unsigned long nbitem, bytes;
-		unsigned char *data = 0;
+		unsigned long *data = 0;
 		int ret;
 
 		if (systray_profile)
 			fprintf(stderr, "XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data)\n");
-		ret = XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, &data);
+		ret = XGetWindowProperty(server.dsp, traywin->win, server.atom._XEMBED_INFO, 0, 2, False, server.atom._XEMBED_INFO, &acttype, &actfmt, &nbitem, &bytes, (unsigned char**)&data);
 		if (ret == Success) {
 			if (data) {
 				if (nbitem >= 2) {
 					int hide = ((data[1] & XEMBED_MAPPED) == 0);
 					if (hide) {
 						// In theory we have to check the embedding with this and remove icons that refuse embedding.
-						// In practice we have no idea when the other application processes the event and accepts the embed so we cannot check without a race.
+						// In practice we have no idea when the other application processes the event and accepts the embed
+						// so we cannot check now without a race.
 						// Race can be triggered with PyGtk(2) apps.
+						// We could defer this for later (if we set PropertyChangeMask in XSelectInput we get notified) but
+						// for some reason it breaks transparency for Qt icons. So we don't.
 						//fprintf(stderr, RED "tint2: window refused embedding\n" RESET);
 						//remove_icon(traywin);
 						//XFree(data);
