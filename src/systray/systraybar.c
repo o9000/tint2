@@ -633,7 +633,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	if (systray_profile)
 		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, ...)\n");
-	XSelectInput(server.dsp, traywin->win, SubstructureNotifyMask | StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask);
+	XSelectInput(server.dsp, traywin->win, StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask);
 	XWithdrawWindow(server.dsp, traywin->win, server.screen);
 	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
 
