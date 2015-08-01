@@ -1,4 +1,4 @@
-### New stable release: 0.12
+### New stable release: 0.12.1
 Changes: https://gitlab.com/o9000/tint2/blob/master/ChangeLog
 
 Documentation: https://gitlab.com/o9000/tint2/wikis/home
@@ -7,7 +7,7 @@ Try it out with (see also [dependencies](https://gitlab.com/o9000/tint2/wikis/In
 ```
 git clone https://gitlab.com/o9000/tint2.git
 cd tint2
-git checkout tags/v0.12
+git checkout v0.12.1
 mkdir build
 cd build
 cmake ..
@@ -24,7 +24,7 @@ make install
 Please report any problems to https://gitlab.com/o9000/tint2/issues. Your feedback is much appreciated.
 
 Known issues:
-* [System tray resize loop with GTK applications](https://gitlab.com/o9000/tint2/issues/509), see also the [GTK bug report](https://bugzilla.gnome.org/show_bug.cgi?id=710375)
+* [System tray resize loop with GTK applications](https://gitlab.com/o9000/tint2/issues/509), see also the [GTK bug report](https://bugzilla.gnome.org/show_bug.cgi?id=710375). Fix landed in 0.12.1, if there are still problems please let me know.
 
 P.S. GitLab is now the official location of the tint2 project, migrated from Google Code, which is shutting down. In case you are wondering why not GitHub, BitBucket etc., we chose GitLab because it is open source, it is mature and works well, looks cool and has a very nice team.
 
