@@ -521,9 +521,14 @@ void set_task_state(Task *tsk, int state)
 					tsk1->area.redraw = 1;
 				if (state == TASK_ACTIVE && g_slist_find(urgent_list, tsk1))
 					del_urgent(tsk1);
-				// Show only the active task
 				int hide = 0;
+				Taskbar *taskbar = (Taskbar *)tsk1->area.parent;
+				if (tsk->desktop == ALLDESKTOP && server.desktop != taskbar->desktop) {
+					// Hide ALLDESKTOP task on non-current desktop
+					hide = 1;
+				}
 				if (hide_inactive_tasks) {
+					// Show only the active task
 					if (state != TASK_ACTIVE) {
 						hide = 1;
 					}
