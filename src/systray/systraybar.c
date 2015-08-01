@@ -167,7 +167,8 @@ int resize_systray(void *obj)
 			continue;
 		count++;
 	}
-	fprintf(stderr, BLUE "%s:%d number of icons = %d\n" RESET, __FUNCTION__, __LINE__, count);
+	if (systray_profile)
+		fprintf(stderr, BLUE "%s:%d number of icons = %d\n" RESET, __FUNCTION__, __LINE__, count);
 
 	if (panel_horizontal) {
 		int height = sysbar->area.height - 2*sysbar->area.bg->border.width - 2*sysbar->area.paddingy;
@@ -507,7 +508,8 @@ gboolean add_icon(Window win)
 						DATA32 pixel_bg = data_bg[y * other->width + x];
 						DATA32 rgb_bg = pixel_bg & 0xffFFff;
 						if (rgb != rgb_bg) {
-							fprintf(stderr, "Pixel: %x different from bg %x at pos %d %d\n", pixel, pixel_bg, x, y);
+							if (systray_profile)
+								fprintf(stderr, "Pixel: %x different from bg %x at pos %d %d\n", pixel, pixel_bg, x, y);
 							empty = 0;
 						}
 					}
@@ -620,7 +622,6 @@ gboolean add_icon(Window win)
 
 gboolean reparent_icon(TrayWindow *traywin)
 {
-	fprintf(stderr, "reparenting tray icon\n");
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
 	if (traywin->reparented)
@@ -631,7 +632,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
 	if (systray_profile)
-		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, StructureNotifyMask)\n");
+		fprintf(stderr, "XSelectInput(server.dsp, traywin->win, ...)\n");
 	XSelectInput(server.dsp, traywin->win, SubstructureNotifyMask | StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask);
 	XWithdrawWindow(server.dsp, traywin->win, server.screen);
 	XReparentWindow(server.dsp, traywin->win, traywin->parent, 0, 0);
@@ -655,7 +656,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 		e.xclient.data.l[3] = traywin->parent;
 		e.xclient.data.l[4] = 0;
 		if (systray_profile)
-			fprintf(stderr, "XSendEvent(server.dsp, traywin->win, False, 0xFFFFFF, &e)\n");
+			fprintf(stderr, "XSendEvent(server.dsp, traywin->win, False, NoEventMask, &e)\n");
 		XSendEvent(server.dsp, traywin->win, False, NoEventMask, &e);
 	}
 
@@ -677,7 +678,6 @@ gboolean reparent_icon(TrayWindow *traywin)
 
 gboolean embed_icon(TrayWindow *traywin)
 {
-	fprintf(stderr, "embedding tray icon\n");
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, traywin->win, traywin->name);
 	if (traywin->embedded)
@@ -867,11 +867,9 @@ void systray_resize_icon(void* t)
 
 void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 {
-	if (1 || systray_profile)
+	if (systray_profile)
 		fprintf(stderr, "XConfigure event: win = %lu (%s), x = %d, y = %d, w = %d, h = %d\n",
 				traywin->win, traywin->name, e->xconfigure.x, e->xconfigure.y, e->xconfigure.width, e->xconfigure.height);
-
-	//fprintf(stderr, "move tray %d\n", traywin->x);
 
 	if (!traywin->reparented)
 		return;
@@ -922,11 +920,9 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 
 void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
 {
-	if (1 || systray_profile)
+	if (systray_profile)
 		fprintf(stderr, "XResizeRequest event: win = %lu (%s), w = %d, h = %d\n",
 				traywin->win, traywin->name, e->xresizerequest.width, e->xresizerequest.height);
-
-	//fprintf(stderr, "move tray %d\n", traywin->x);
 
 	if (!traywin->reparented)
 		return;
@@ -1208,7 +1204,8 @@ void systray_render_icon(void* t)
 		XSetErrorHandler(old);
 	}
 
-	fprintf(stderr, "rendering tray icon\n");
+	if (systray_profile)
+		fprintf(stderr, "rendering tray icon\n");
 
 	if (systray_composited) {
 		systray_render_icon_composited(traywin);
