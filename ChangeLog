@@ -12,7 +12,9 @@
 	- Compute monitor correctly for windows when Openbox animations are enabled (issue #511)
   - tint2conf:
 	- Bad read of option panel_margin
-2015-07-12 master
+- New config options:
+  - Battery mouse actions and clock middle click and wheel actions (thanks to Jeff Blake)
+2015-07-12 0.12
 - Note: the changes listed here are based on the previous release tint2 0.11, however some distributions (e.g. Debian)
   offered packages using newer commits and/or patches; thus from the user's perspective some of these features are
   already present. They are marked with '(already released by distros)'.
