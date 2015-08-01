@@ -1,4 +1,4 @@
-2015-07-30 b0.12
+2015-08-01 0.12.1
 - Fixes:
   - Config:
 	- Read config correctly when panel_items is at the end of the config file (issue #511)
@@ -7,6 +7,9 @@
   - System tray:
 	- Set _NET_SYSTEM_TRAY_ICON_SIZE and _NET_SYSTEM_TRAY_PADDING
 	- Throttle repeated resizes (workaround for issue #509)
+  - Taskbar:
+	- Use consistent visibility for sticky (all desktop) windows (related: issue #279)
+	- Compute monitor correctly for windows when Openbox animations are enabled (issue #511)
   - tint2conf:
 	- Bad read of option panel_margin
 2015-07-12 master
