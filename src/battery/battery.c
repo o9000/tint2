@@ -56,6 +56,11 @@ static char buf_bat_time[20];
 int8_t battery_low_status;
 unsigned char battery_low_cmd_sent;
 char *battery_low_cmd;
+char *battery_lclick_command;
+char *battery_mclick_command;
+char *battery_rclick_command;
+char *battery_uwheel_command;
+char *battery_dwheel_command;
 gchar *path_energy_now;
 gchar *path_energy_full;
 gchar *path_current_now;
@@ -141,6 +146,11 @@ void default_battery()
 	bat1_font_desc = NULL;
 	bat2_font_desc = NULL;
 	battery_low_cmd = NULL;
+	battery_lclick_command = NULL;
+	battery_mclick_command = NULL;
+	battery_rclick_command = NULL;
+	battery_uwheel_command = NULL;
+	battery_dwheel_command = NULL;
 	path_energy_now = NULL;
 	path_energy_full = NULL;
 	path_current_now = NULL;
@@ -171,6 +181,16 @@ void cleanup_battery()
 	path_status = NULL;
 	free(battery_low_cmd);
 	battery_low_cmd = NULL;
+	free(battery_lclick_command);
+	battery_lclick_command = NULL;
+	free(battery_mclick_command);
+	battery_mclick_command = NULL;
+	free(battery_rclick_command);
+	battery_rclick_command = NULL;
+	free(battery_uwheel_command);
+	battery_uwheel_command = NULL;
+	free(battery_dwheel_command);
+	battery_dwheel_command = NULL;
 	stop_timeout(battery_timeout);
 	battery_timeout = NULL;
 	battery_found = 0;
@@ -573,4 +593,27 @@ int resize_battery(void *obj)
 		}
 	}
 	return ret;
+}
+
+void battery_action(int button)
+{
+	char *command = 0;
+	switch (button) {
+		case 1:
+		command = battery_lclick_command;
+		break;
+		case 2:
+		command = battery_mclick_command;
+		break;
+		case 3:
+		command = battery_rclick_command;
+		break;
+		case 4:
+		command = battery_uwheel_command;
+		break;
+		case 5:
+		command = battery_dwheel_command;
+		break;
+	}
+	tint_exec(command);
 }

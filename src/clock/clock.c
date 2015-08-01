@@ -39,7 +39,10 @@ char *time2_timezone;
 char *time_tooltip_format;
 char *time_tooltip_timezone;
 char *clock_lclick_command;
+char *clock_mclick_command;
 char *clock_rclick_command;
+char *clock_uwheel_command;
+char *clock_dwheel_command;
 struct timeval time_clock;
 PangoFontDescription *time1_font_desc;
 PangoFontDescription *time2_font_desc;
@@ -61,7 +64,10 @@ void default_clock()
 	time_tooltip_format = NULL;
 	time_tooltip_timezone = NULL;
 	clock_lclick_command = NULL;
+	clock_mclick_command = NULL;
 	clock_rclick_command = NULL;
+	clock_uwheel_command = NULL;
+	clock_dwheel_command = NULL;
 	time1_font_desc = NULL;
 	time2_font_desc = NULL;
 }
@@ -86,8 +92,14 @@ void cleanup_clock()
 	time_tooltip_timezone = NULL;
 	free(clock_lclick_command);
 	clock_lclick_command = NULL;
+	free(clock_mclick_command);
+	clock_mclick_command = NULL;
 	free(clock_rclick_command);
 	clock_rclick_command = NULL;
+	free(clock_uwheel_command);
+	clock_uwheel_command = NULL;
+	free(clock_dwheel_command);
+	clock_dwheel_command = NULL;
 	stop_timeout(clock_timeout);
 	clock_timeout = NULL;
 }
@@ -277,8 +289,17 @@ void clock_action(int button)
 		case 1:
 		command = clock_lclick_command;
 		break;
+		case 2:
+		command = clock_mclick_command;
+		break;
 		case 3:
 		command = clock_rclick_command;
+		break;
+		case 4:
+		command = clock_uwheel_command;
+		break;
+		case 5:
+		command = clock_dwheel_command;
 		break;
 	}
 	tint_exec(command);
