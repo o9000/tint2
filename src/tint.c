@@ -123,23 +123,35 @@ void init (int argc, char *argv[])
 
 	// read options
 	for (i = 1; i < argc; ++i) {
-		if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help"))	{
-			printf("Usage: tint2 [-c] <config_file>\n");
+		int error = 0;
+		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+			printf("Usage: tint2 [[-c] <config_file>]\n");
 			exit(0);
-		}
-		if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--version"))	{
+		} else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
 			printf("tint2 version %s\n", VERSION_STRING);
 			exit(0);
-		}
-		if (!strcmp(argv[i], "-c")) {
-			i++;
-			if (i < argc)
+		} else if (strcmp(argv[i], "-c") == 0) {
+			if (i+1 < argc) {
+				i++;
 				config_path = strdup(argv[i]);
-		}
-		if (!strcmp(argv[i], "-s"))	{
-			i++;
-			if (i < argc)
+			} else {
+				error = 1;
+			}
+		} else if (strcmp(argv[i], "-s") == 0)	{
+			if (i+1 < argc) {
+				i++;
 				snapshot_path = strdup(argv[i]);
+			} else {
+				error = 1;
+			}
+		} else if (i+1 == argc)	{
+			config_path = strdup(argv[i]);
+		} else {
+			error = 1;
+		}
+		if (error) {
+			printf("Usage: tint2 [[-c] <config_file>]\n");
+			exit(1);
 		}
 	}
 	// Set signal handler
