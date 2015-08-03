@@ -419,10 +419,13 @@ static gint compare_traywindows(gconstpointer a, gconstpointer b)
 	const TrayWindow * traywin_a = (TrayWindow*)a;
 	const TrayWindow * traywin_b = (TrayWindow*)b;
 
+#if 0
+	// This breaks pygtk2 StatusIcon with blinking activated
 	if (traywin_a->empty && !traywin_b->empty)
 		return 1 * (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? -1 : 1);
 	if (!traywin_a->empty && traywin_b->empty)
 		return -1 * (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? -1 : 1);
+#endif
 
 	if (systray.sort == SYSTRAY_SORT_ASCENDING ||
 		systray.sort == SYSTRAY_SORT_DESCENDING) {
