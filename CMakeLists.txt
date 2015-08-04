@@ -78,7 +78,7 @@ set( SOURCES src/config.c
              src/util/window.c )
 
 if( ENABLE_BATTERY )
-  set( SOURCES ${SOURCES} src/battery/battery.c )
+  set( SOURCES ${SOURCES} src/battery/battery.c  src/battery/linux.c)
   add_definitions( -DENABLE_BATTERY )
 endif( ENABLE_BATTERY )
 

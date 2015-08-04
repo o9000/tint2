@@ -79,4 +79,10 @@ int  resize_battery(void *obj);
 
 void battery_action(int button);
 
+#ifdef __linux
+gboolean init_linux_batteries();
+void free_linux_batteries();
+void update_linux_batteries(enum chargestate *state, gint64 *energy_now, gint64 *energy_full, int *seconds);
+#endif
+
 #endif
