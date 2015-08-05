@@ -51,6 +51,7 @@ extern struct batstate battery_state;
 extern PangoFontDescription *bat1_font_desc;
 extern PangoFontDescription *bat2_font_desc;
 extern int battery_enabled;
+extern int battery_tooltip_enabled;
 extern int percentage_hide;
 
 extern int8_t battery_low_status;
@@ -61,6 +62,20 @@ extern char *battery_mclick_command;
 extern char *battery_rclick_command;
 extern char *battery_uwheel_command;
 extern char *battery_dwheel_command;
+
+static inline gchar* chargestate2str(enum chargestate state) {
+	switch(state) {
+		case BATTERY_CHARGING:
+			return "Charging";
+		case BATTERY_DISCHARGING:
+			return "Discharging";
+		case BATTERY_FULL:
+			return "Full";
+		case BATTERY_UNKNOWN:
+		default:
+			return "Unknown";
+	};
+}
 
 // default global data
 void default_battery();
@@ -83,6 +98,7 @@ void battery_action(int button);
 gboolean init_linux_batteries();
 void free_linux_batteries();
 void update_linux_batteries(enum chargestate *state, gint64 *energy_now, gint64 *energy_full, int *seconds);
+const char* linux_batteries_get_tooltip();
 #endif
 
 #endif

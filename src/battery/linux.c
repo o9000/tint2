@@ -284,4 +284,76 @@ void update_linux_batteries(enum chargestate *state, gint64 *energy_now, gint64 
 	}
 }
 
+static gchar* energy_human_readable(struct psy_battery *bat) {
+	gint now = bat->energy_now;
+	gint full = bat->energy_full;
+	gchar unit = bat->energy_in_uamp ? 'A' : 'W';
+
+	if (full >= 1000000) {
+		return g_strdup_printf("%d.%d / %d.%d %ch",
+			now / 1000000, (now % 1000000) / 100000,
+			full / 1000000, (full % 1000000) / 100000,
+			unit);
+	} else if (full >= 1000) {
+		return g_strdup_printf("%d.%d / %d.%d m%ch",
+		now / 1000, (now % 1000) / 100,
+		full / 1000, (full % 1000) / 100,
+		unit);
+	} else {
+		return g_strdup_printf("%d / %d µ%ch", now, full, unit);
+	}
+}
+
+static gchar* power_human_readable(struct psy_battery *bat) {
+	gint power = bat->power_now;
+	gchar unit = bat->power_in_uamp ? 'A' : 'W';
+
+	if (power >= 1000000) {
+		return g_strdup_printf("%d.%d %c", power / 1000000, (power % 1000000) / 100000, unit);
+	} else if (power >= 1000) {
+		return g_strdup_printf("%d.%d m%c", power / 1000, (power % 1000) / 100, unit);
+	} else if (power > 0) {
+		return g_strdup_printf("%d µ%c", power, unit);
+	} else {
+		return g_strdup_printf("0 %c", unit);
+	}
+}
+
+const char* linux_batteries_get_tooltip() {
+	GList *l;
+	GString *tooltip = g_string_new("");
+	gchar *result;
+
+	for (l = batteries; l != NULL; l = l->next) {
+		struct psy_battery *bat = l->data;
+
+		if (tooltip->len)
+			g_string_append_c(tooltip, '\n');
+
+		g_string_append_printf(tooltip, "%s\n", bat->name);
+
+		if (!bat->present) {
+			g_string_append_printf(tooltip, "\tnot connected");
+			continue;
+		}
+
+		gchar *power = power_human_readable(bat);
+		gchar *energy = energy_human_readable(bat);
+		gchar *state = (bat->status == BATTERY_UNKNOWN) ? "Level" : chargestate2str(bat->status);
+
+		guint percentage = 0.5 + ((bat->energy_now <= bat->energy_full ? bat->energy_now : bat->energy_full) * 100.0) / bat->energy_full;
+
+		g_string_append_printf(tooltip, "\t%s: %s (%u %%)\n\tPower: %s",
+			state, energy, percentage, power);
+
+		g_free(power);
+		g_free(energy);
+	}
+
+	result = tooltip->str;
+	g_string_free(tooltip, FALSE);
+
+	return result;
+}
+
 #endif

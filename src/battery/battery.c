@@ -47,6 +47,7 @@ PangoFontDescription *bat1_font_desc;
 PangoFontDescription *bat2_font_desc;
 struct batstate battery_state;
 int battery_enabled;
+int battery_tooltip_enabled;
 int percentage_hide;
 static timeout* battery_timeout;
 
@@ -135,6 +136,7 @@ void update_battery_tick(void* arg)
 void default_battery()
 {
 	battery_enabled = 0;
+	battery_tooltip_enabled = 1;
 	battery_found = 0;
 	percentage_hide = 101;
 	battery_low_cmd_sent = 0;
@@ -218,6 +220,13 @@ void init_battery()
 		battery_timeout = add_timeout(10, 30000, update_battery_tick, 0, &battery_timeout);
 }
 
+const char* battery_get_tooltip(void* obj) {
+#if defined(__linux)
+	return linux_batteries_get_tooltip();
+#else
+	return g_strdup("No tooltip support for this OS!");
+#endif
+}
 
 void init_battery_panel(void *p)
 {
@@ -242,6 +251,9 @@ void init_battery_panel(void *p)
 	battery->area._resize = resize_battery;
 	battery->area.on_screen = 1;
 	battery->area.resize = 1;
+
+	if (battery_tooltip_enabled)
+		battery->area._get_tooltip_text = battery_get_tooltip;
 }
 
 
