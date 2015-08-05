@@ -6,6 +6,7 @@ tint2 is developped by :
 - Christian Ruppert <Spooky85@gmail.com> (autotools build system)
 - Ovidiu M <mrovi9000 at gmail.com> : launcher, bug fixes
 - Mishael A Sibiryakov (death@junki.org) : freespace
+- Sebastian Reichel <sre@ring0.de> : battery, various fixes
 
 tint2 is based on ttm source code (http://code.google.com/p/ttm/)
 - 2007-2008 Pål Staurland <staura@gmail.com>
@@ -23,4 +24,3 @@ Contributors:
   Xico Atelo : startup notifications
   Craig Oakes : WM flags, issue tracker organization
   Jeff Blake (https://gitlab.com/u/berkley4) : more mouse event handlers
-  Sebastian Reichel <sre@debian.org> : various fixes
