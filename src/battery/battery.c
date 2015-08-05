@@ -2,7 +2,7 @@
 *
 * Tint2 : battery
 *
-* Copyright (C) 2009 Sebastian Reichel <elektranox@gmail.com>
+* Copyright (C) 2009-2015 Sebastian Reichel <sre@ring0.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2

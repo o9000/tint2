@@ -1,9 +1,8 @@
 /**************************************************************************
-* Copyright (C) 2009 Sebastian Reichel <elektranox@gmail.com>
+* Copyright (C) 2009-2015 Sebastian Reichel <sre@ring0.de>
 *
 * Battery with functional data (percentage, time to life) and drawing data
 * (area, font, ...). Each panel use his own drawing data.
-* Need kernel > 2.6.23.
 *
 **************************************************************************/
 
