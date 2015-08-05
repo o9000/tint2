@@ -295,7 +295,7 @@ void start_net()
 		_NET_WM_PID = XInternAtom(server.dsp, "_NET_WM_PID", True);
 		int ret = XGetWindowProperty(server.dsp, win, _NET_WM_PID, 0, 1024, False, AnyPropertyType, &actual_type, &actual_format, &nitems, &bytes_after, &prop);
 
-		fprintf(stderr, RED "tint2 : another systray is running");
+		fprintf(stderr, RED "tint2 : another systray is running" RESET);
 		if (ret == Success && prop) {
 			pid = prop[1] * 256;
 			pid += prop[0];
