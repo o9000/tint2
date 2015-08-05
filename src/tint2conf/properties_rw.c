@@ -900,7 +900,7 @@ void add_entry(char *key, char *value)
 	}
 
 	/* Battery */
-	else if (strcmp(key, "systray") == 0) {
+	else if (strcmp(key, "battery") == 0) {
 		// Obsolete option
 		config_has_battery = 1;
 		config_battery_enabled = atoi(value);
