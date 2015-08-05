@@ -92,6 +92,7 @@ GtkWidget *clock_background;
 GtkWidget *battery_hide_if_higher, *battery_alert_if_lower, *battery_alert_cmd;
 GtkWidget *battery_padding_x, *battery_padding_y, *battery_font_line1, *battery_font_line2, *battery_font_color;
 GtkWidget *battery_background;
+GtkWidget *battery_tooltip;
 GtkWidget *battery_left_command, *battery_mclick_command, *battery_right_command, *battery_uwheel_command, *battery_dwheel_command;
 
 // systray
@@ -3829,6 +3830,20 @@ void create_battery(GtkWidget *parent)
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
 	row = 0, col = 2;
 
+	label = gtk_label_new(_("Tooltips"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	battery_tooltip = gtk_check_button_new();
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(battery_tooltip), 1);
+	gtk_widget_show(battery_tooltip);
+	gtk_table_attach(GTK_TABLE(table), battery_tooltip, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, battery_tooltip, _("If enabled, shows a tooltip with detailed battery information when the mouse is moved over the battery widget."), NULL);
+
+	row++, col = 2;
 	label = gtk_label_new(_("Left click command"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
