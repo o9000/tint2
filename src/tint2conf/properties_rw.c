@@ -856,20 +856,18 @@ void add_entry(char *key, char *value)
 	else if (strcmp(key, "panel_monitor") == 0) {
 		if (strcmp(value, "all") == 0)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 0);
-		else if (strcmp(value, "0") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 1);
 		else if (strcmp(value, "1") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 2);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 1);
 		else if (strcmp(value, "2") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 3);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 2);
 		else if (strcmp(value, "3") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 4);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 3);
 		else if (strcmp(value, "4") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 5);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 4);
 		else if (strcmp(value, "5") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 6);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 5);
 		else if (strcmp(value, "6") == 0)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 7);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 6);
 	}
 	
 	/* autohide options */
