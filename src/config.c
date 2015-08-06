@@ -434,6 +434,11 @@ void add_entry (char *key, char *value)
 			percentage_hide = 101;
 #endif
 	}
+	else if (strcmp (key, "battery_tooltip") == 0) {
+#ifdef ENABLE_BATTERY
+		battery_tooltip_enabled = atoi(value);
+#endif
+	}
 
 	/* Clock */
 	else if (strcmp (key, "time1_format") == 0) {

@@ -2,7 +2,7 @@
 *
 * Tint2 : battery
 *
-* Copyright (C) 2009 Sebastian Reichel <elektranox@gmail.com>
+* Copyright (C) 2009-2015 Sebastian Reichel <sre@ring0.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2
@@ -47,6 +47,7 @@ PangoFontDescription *bat1_font_desc;
 PangoFontDescription *bat2_font_desc;
 struct batstate battery_state;
 int battery_enabled;
+int battery_tooltip_enabled;
 int percentage_hide;
 static timeout* battery_timeout;
 
@@ -61,10 +62,6 @@ char *battery_mclick_command;
 char *battery_rclick_command;
 char *battery_uwheel_command;
 char *battery_dwheel_command;
-gchar *path_energy_now;
-gchar *path_energy_full;
-gchar *path_current_now;
-gchar *path_status;
 int battery_found;
 
 #if defined(__OpenBSD__) || defined(__NetBSD__)
@@ -139,6 +136,7 @@ void update_battery_tick(void* arg)
 void default_battery()
 {
 	battery_enabled = 0;
+	battery_tooltip_enabled = 1;
 	battery_found = 0;
 	percentage_hide = 101;
 	battery_low_cmd_sent = 0;
@@ -151,10 +149,6 @@ void default_battery()
 	battery_rclick_command = NULL;
 	battery_uwheel_command = NULL;
 	battery_dwheel_command = NULL;
-	path_energy_now = NULL;
-	path_energy_full = NULL;
-	path_current_now = NULL;
-	path_status = NULL;
 	battery_state.percentage = 0;
 	battery_state.time.hours = 0;
 	battery_state.time.minutes = 0;
@@ -171,14 +165,6 @@ void cleanup_battery()
 	bat1_font_desc = NULL;
 	pango_font_description_free(bat2_font_desc);
 	bat2_font_desc = NULL;
-	g_free(path_energy_now);
-	path_energy_now = NULL;
-	g_free(path_energy_full);
-	path_energy_full = NULL;
-	g_free(path_current_now);
-	path_current_now = NULL;
-	g_free(path_status);
-	path_status = NULL;
 	free(battery_low_cmd);
 	battery_low_cmd = NULL;
 	free(battery_lclick_command);
@@ -199,6 +185,8 @@ void cleanup_battery()
 	if ((apm_fd != -1) && (close(apm_fd) == -1))
 		warn("cannot close /dev/apm");
 	apm_fd = -1;
+#elif defined(__linux)
+	free_linux_batteries();
 #endif
 }
 
@@ -224,95 +212,21 @@ void init_battery()
 	battery_found = (sysctlbyname("hw.acpi.battery.state", &sysctl_out, &len, NULL, 0) == 0) ||
 					(sysctlbyname("hw.acpi.battery.time", &sysctl_out, &len, NULL, 0) == 0) ||
 					(sysctlbyname("hw.acpi.battery.life", &sysctl_out, &len, NULL, 0) == 0);
-#else // Linux
-	GDir *directory = 0;
-	GError *error = NULL;
-	const char *entryname;
-	gchar *battery_dir = 0;
-
-	directory = g_dir_open("/sys/class/power_supply", 0, &error);
-	if (error) {
-		g_error_free(error);
-	} else {
-		while ((entryname = g_dir_read_name(directory))) {
-			if (strncmp(entryname, "AC", 2) == 0)
-				continue;
-
-			gchar *path1 = g_build_filename("/sys/class/power_supply", entryname, "present", NULL);
-			if (g_file_test(path1, G_FILE_TEST_EXISTS)) {
-				g_free(path1);
-				battery_dir = g_build_filename("/sys/class/power_supply", entryname, NULL);
-				break;
-			}
-			g_free(path1);
-		}
-	}
-	if (directory)
-		g_dir_close(directory);
-	if (!battery_dir) {
-		fprintf(stderr, "ERROR: battery applet cannot find any battery\n");
-		battery_found = 0;
-	} else {
-		battery_found = 1;
-
-		g_free(path_energy_now);
-		path_energy_now = g_build_filename(battery_dir, "energy_now", NULL);
-		if (!g_file_test(path_energy_now, G_FILE_TEST_EXISTS)) {
-			g_free(path_energy_now);
-			path_energy_now = g_build_filename(battery_dir, "charge_now", NULL);
-		}
-		if (!g_file_test(path_energy_now, G_FILE_TEST_EXISTS)) {
-			fprintf(stderr, "ERROR: battery applet cannot find energy_now nor charge_now\n");
-			g_free(path_energy_now);
-			path_energy_now = NULL;
-		}
-
-		g_free(path_energy_full);
-		path_energy_full = g_build_filename(battery_dir, "energy_full", NULL);
-		if (!g_file_test(path_energy_full, G_FILE_TEST_EXISTS)) {
-			g_free(path_energy_full);
-			path_energy_full = g_build_filename(battery_dir, "charge_full", NULL);
-		}
-		if (!g_file_test(path_energy_full, G_FILE_TEST_EXISTS)) {
-			fprintf(stderr, "ERROR: battery applet cannot find energy_now nor charge_now\n");
-			g_free(path_energy_full);
-			path_energy_full = NULL;
-		}
-
-		g_free(path_current_now);
-		path_current_now = g_build_filename(battery_dir, "power_now", NULL);
-		if (!g_file_test(path_current_now, G_FILE_TEST_EXISTS)) {
-			g_free(path_current_now);
-			path_current_now = g_build_filename(battery_dir, "current_now", NULL);
-		}
-		if (!g_file_test(path_current_now, G_FILE_TEST_EXISTS)) {
-			fprintf(stderr, "ERROR: battery applet cannot find power_now nor current_now\n");
-			g_free(path_current_now);
-			path_current_now = NULL;
-		}
-
-		g_free(path_status);
-		path_status = g_build_filename(battery_dir, "status", NULL);
-		if (!g_file_test(path_status, G_FILE_TEST_EXISTS)) {
-			fprintf(stderr, "ERROR: battery applet cannot find battery status\n");
-			g_free(path_status);
-			path_status = NULL;
-		}
-
-		g_free(battery_dir);
-		battery_dir = NULL;
-	}
-
-	if (!path_status) {
-		battery_found = 0;
-		fprintf(stderr, "ERROR: battery applet cannot find any batteries\n");
-	}
+#elif defined(__linux)
+	battery_found = init_linux_batteries();
 #endif
 
 	if (!battery_timeout)
 		battery_timeout = add_timeout(10, 30000, update_battery_tick, 0, &battery_timeout);
 }
 
+const char* battery_get_tooltip(void* obj) {
+#if defined(__linux)
+	return linux_batteries_get_tooltip();
+#else
+	return g_strdup("No tooltip support for this OS!");
+#endif
+}
 
 void init_battery_panel(void *p)
 {
@@ -337,6 +251,9 @@ void init_battery_panel(void *p)
 	battery->area._resize = resize_battery;
 	battery->area.on_screen = 1;
 	battery->area.resize = 1;
+
+	if (battery_tooltip_enabled)
+		battery->area._get_tooltip_text = battery_get_tooltip;
 }
 
 
@@ -420,82 +337,7 @@ int update_battery() {
 	else
 		new_percentage = sysctl_out;
 #else
-	FILE *fp = NULL;
-	char tmp[25] = "";
-	int64_t current_now = 0;
-	if (path_status) {
-		fp = fopen(path_status, "r");
-		if (fp != NULL) {
-			if (fgets(tmp, sizeof(tmp), fp)) {
-				if (strcasecmp(tmp, "Charging\n") == 0)
-					battery_state.state = BATTERY_CHARGING;
-				if (strcasecmp(tmp, "Discharging\n") == 0)
-					battery_state.state = BATTERY_DISCHARGING;
-				if (strcasecmp(tmp, "Full\n") == 0)
-					battery_state.state = BATTERY_FULL;
-			}
-			fclose(fp);
-		} else {
-			errors = 1;
-		}
-	} else {
-		errors = 1;
-	}
-
-	if (path_energy_now) {
-		fp = fopen(path_energy_now, "r");
-		if (fp != NULL) {
-			if (fgets(tmp, sizeof tmp, fp))
-				energy_now = atoi(tmp);
-			fclose(fp);
-		} else {
-			errors = 1;
-		}
-	} else {
-		errors = 1;
-	}
-
-	if (path_energy_full) {
-		fp = fopen(path_energy_full, "r");
-		if (fp != NULL) {
-			if (fgets(tmp, sizeof tmp, fp))
-				energy_full = atoi(tmp);
-			fclose(fp);
-		} else {
-			errors = 1;
-		}
-	} else {
-		errors = 1;
-	}
-
-	if (path_current_now) {
-		fp = fopen(path_current_now, "r");
-		if (fp != NULL) {
-			if (fgets(tmp, sizeof tmp, fp))
-				current_now = atoi(tmp);
-			fclose(fp);
-		} else {
-			errors = 1;
-		}
-	} else {
-		errors = 1;
-	}
-
-	if (current_now > 0) {
-		switch (battery_state.state) {
-		case BATTERY_CHARGING:
-			seconds = 3600 * (energy_full - energy_now) / current_now;
-			break;
-		case BATTERY_DISCHARGING:
-			seconds = 3600 * energy_now / current_now;
-			break;
-		default:
-			seconds = 0;
-			break;
-		}
-	} else {
-		seconds = 0;
-	}
+	update_linux_batteries(&battery_state.state, &energy_now, &energy_full, &seconds);
 #endif
 
 	battery_state.time.hours = seconds / 3600;
