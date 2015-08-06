@@ -151,3 +151,4 @@ src/tint2conf/po/tint2conf.pot
 src/freespace/freespace.c
 src/freespace/freespace.h
 src/tint2conf/po/readme.txt
+src/battery/linux.c
