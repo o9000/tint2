@@ -97,6 +97,7 @@ extern GtkWidget *battery_padding_x, *battery_padding_y, *battery_font_line1, *b
 extern GtkWidget *battery_background;
 extern GtkWidget *battery_tooltip;
 extern GtkWidget *battery_left_command, *battery_mclick_command, *battery_right_command, *battery_uwheel_command, *battery_dwheel_command;
+extern GtkWidget *ac_connected_cmd, *ac_disconnected_cmd;
 
 // systray
 extern GtkWidget *systray_icon_order, *systray_padding_x, *systray_padding_y, *systray_spacing;

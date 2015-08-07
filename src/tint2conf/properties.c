@@ -94,6 +94,7 @@ GtkWidget *battery_padding_x, *battery_padding_y, *battery_font_line1, *battery_
 GtkWidget *battery_background;
 GtkWidget *battery_tooltip;
 GtkWidget *battery_left_command, *battery_mclick_command, *battery_right_command, *battery_uwheel_command, *battery_dwheel_command;
+GtkWidget *ac_connected_cmd, *ac_disconnected_cmd;
 
 // systray
 GtkWidget *systray_icon_order, *systray_padding_x, *systray_padding_y, *systray_spacing;
@@ -3814,6 +3815,50 @@ void create_battery(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), battery_alert_cmd, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 	gtk_tooltips_set_tip(tooltips, battery_alert_cmd, _("Command to be executed when the alert threshold is reached."), NULL);
+
+	change_paragraph(parent);
+
+	label = gtk_label_new(_("<b>AC connection events</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
+
+	table = gtk_table_new(2, 10, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+
+	row = 0, col = 2;
+	label = gtk_label_new(_("AC connected command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	ac_connected_cmd = gtk_entry_new();
+	gtk_widget_show(ac_connected_cmd);
+	gtk_entry_set_width_chars(GTK_ENTRY(ac_connected_cmd), 50);
+	gtk_table_attach(GTK_TABLE(table), ac_connected_cmd, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, ac_connected_cmd,
+						 _("Specifies a command that will be executed when AC is connected to the system."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("AC disconnected command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	ac_disconnected_cmd = gtk_entry_new();
+	gtk_widget_show(ac_disconnected_cmd);
+	gtk_entry_set_width_chars(GTK_ENTRY(ac_disconnected_cmd), 50);
+	gtk_table_attach(GTK_TABLE(table), ac_disconnected_cmd, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, ac_disconnected_cmd,
+						 _("Specifies a command that will be executed when AC is disconnected to the system."), NULL);
 
 	change_paragraph(parent);
 

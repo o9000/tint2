@@ -583,6 +583,9 @@ void config_write_battery(FILE *fp)
 	fprintf(fp, "battery_uwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_uwheel_command)));
 	fprintf(fp, "battery_dwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_dwheel_command)));
 
+	fprintf(fp, "ac_connected_cmd = %s\n", gtk_entry_get_text(GTK_ENTRY(ac_connected_cmd)));
+	fprintf(fp, "ac_disconnected_cmd = %s\n", gtk_entry_get_text(GTK_ENTRY(ac_disconnected_cmd)));
+
 	fprintf(fp, "\n");
 }
 
@@ -957,6 +960,12 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "battery_dwheel_command") == 0) {
 		gtk_entry_set_text(GTK_ENTRY(battery_dwheel_command), value);
+	}
+	else if (strcmp(key, "ac_connected_cmd") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(ac_connected_cmd), value);
+	}
+	else if (strcmp(key, "ac_disconnected_cmd") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(ac_disconnected_cmd), value);
 	}
 
 	/* Clock */
