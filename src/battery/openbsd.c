@@ -17,7 +17,7 @@
 
 #if defined(__OpenBSD__) || defined(__NetBSD__)
 
-//#include <machine/apmvar.h>
+#include <machine/apmvar.h>
 #include <err.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -62,13 +62,16 @@ int battery_os_update(struct batstate *state) {
 			break;
 		}
 
+		if (info.battery_life > 100)
+			info.battery_life = 100;
 		if (info.battery_life == 100)
 			state->state = BATTERY_FULL;
 
+		state->percentage = info.battery_life;
 		if (info.minutes_left != -1)
 			batstate_set_time(state, info.minutes_left * 60);
 
-		state->percentage = info.battery_life;
+		state->ac_connected = info.ac_state == APM_AC_ON;
 	} else {
 		warn("power update: APM_IOC_GETPOWER");
 		return -1;
@@ -78,7 +81,23 @@ int battery_os_update(struct batstate *state) {
 }
 
 char* battery_os_tooltip() {
-	return strdup("Operating System not supported");
+	GString *tooltip = g_string_new("");
+	gchar *result;
+
+	g_string_append_printf(tooltip, "Battery\n");
+
+	gchar *state = (battery_state.state == BATTERY_UNKNOWN) ? "Level" : chargestate2str(battery_state.state);
+
+	g_string_append_printf(tooltip, "\t%s: %d%%", state, battery_state.percentage);
+
+	g_string_append_c(tooltip, '\n');
+	g_string_append_printf(tooltip, "AC\n");
+	g_string_append_printf(tooltip, battery_state.ac_connected ? "\tConnected" : "\tDisconnected");
+
+	result = tooltip->str;
+	g_string_free(tooltip, FALSE);
+
+	return result;
 }
 
 #endif
