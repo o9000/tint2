@@ -44,6 +44,7 @@ typedef struct batstate {
 	int percentage;
 	struct battime time;
 	enum chargestate state;
+	gboolean ac_connected;
 } batstate;
 
 extern struct batstate battery_state;
@@ -55,6 +56,9 @@ extern int percentage_hide;
 
 extern int8_t battery_low_status;
 extern char *battery_low_cmd;
+
+extern char *ac_connected_cmd;
+extern char *ac_disconnected_cmd;
 
 extern char *battery_lclick_command;
 extern char *battery_mclick_command;

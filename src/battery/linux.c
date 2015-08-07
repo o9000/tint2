@@ -343,6 +343,7 @@ int battery_os_update(struct batstate *state) {
 	gboolean charging = FALSE;
 	gboolean discharging = FALSE;
 	gboolean full = FALSE;
+	gboolean ac_connected = FALSE;
 
 	for (l = batteries; l != NULL; l = l->next) {
 		struct psy_battery *bat = l->data;
@@ -360,6 +361,7 @@ int battery_os_update(struct batstate *state) {
 	for (l = mains; l != NULL; l = l->next) {
 		struct psy_mains *ac = l->data;
 		update_linux_mains(ac);
+		ac_connected |= (ac->online);
 	}
 
 	/* build global state */
@@ -381,6 +383,9 @@ int battery_os_update(struct batstate *state) {
 
 	/* calculate percentage */
 	state->percentage = energy_to_percent(total_energy_now, total_energy_full);
+
+	/* AC state */
+	state->ac_connected = ac_connected;
 
 	return 0;
 }

@@ -44,6 +44,8 @@ static char buf_bat_time[20];
 
 int8_t battery_low_status;
 unsigned char battery_low_cmd_sent;
+char *ac_connected_cmd;
+char *ac_disconnected_cmd;
 char *battery_low_cmd;
 char *battery_lclick_command;
 char *battery_mclick_command;
@@ -59,6 +61,7 @@ void update_battery_tick(void* arg)
 
 	int old_found = battery_found;
 	int old_percentage = battery_state.percentage;
+	int old_ac_connected = battery_state.ac_connected;
 	int16_t old_hours = battery_state.time.hours;
 	int8_t old_minutes = battery_state.time.minutes;
 	
@@ -71,6 +74,14 @@ void update_battery_tick(void* arg)
 		// Try again
 		update_battery();
 	}
+
+	if (old_ac_connected != battery_state.ac_connected) {
+		if(battery_state.ac_connected)
+			tint_exec(ac_connected_cmd);
+		else
+			tint_exec(ac_disconnected_cmd);
+	}
+
 	if (old_found == battery_found &&
 		old_percentage == battery_state.percentage &&
 		old_hours == battery_state.time.hours &&
@@ -215,6 +226,7 @@ int update_battery() {
 	/* reset */
 	battery_state.state = BATTERY_UNKNOWN;
 	battery_state.percentage = 0;
+	battery_state.ac_connected = FALSE;
 	batstate_set_time(&battery_state, 0);
 
 	err = battery_os_update(&battery_state);
