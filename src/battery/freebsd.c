@@ -76,7 +76,23 @@ int battery_os_update(struct batstate *state) {
 }
 
 char* battery_os_tooltip() {
-	return strdup("Operating System not supported");
+	GString *tooltip = g_string_new("");
+	gchar *result;
+
+	g_string_append_printf(tooltip, "Battery\n");
+
+	gchar *state = (battery_state.state == BATTERY_UNKNOWN) ? "Level" : chargestate2str(battery_state.state);
+
+	g_string_append_printf(tooltip, "\t%s: %s", state, percentage);
+
+	g_string_append_c(tooltip, '\n');
+	g_string_append_printf(tooltip, "AC\n");
+	g_string_append_printf(tooltip, battery_state.ac_connected ? "\tconnected" : "\tdisconnected");
+
+	result = tooltip->str;
+	g_string_free(tooltip, FALSE);
+
+	return result;
 }
 
 #endif
