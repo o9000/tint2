@@ -48,6 +48,7 @@ PangoFontDescription *time1_font_desc;
 PangoFontDescription *time2_font_desc;
 static char buf_time[256];
 static char buf_date[256];
+static char buf_tooltip[512];
 int clock_enabled;
 static timeout* clock_timeout;
 
@@ -145,13 +146,8 @@ struct tm* clock_gettime_for_tz(const char* timezone) {
 
 char* clock_get_tooltip(void* obj)
 {
-	GTimeZone *tz = g_time_zone_new(time_tooltip_timezone);
-	GDateTime *now = g_date_time_new_now(tz);
-	char *result = g_date_time_format(now, time_tooltip_format);
-	g_date_time_unref(now);
-	g_time_zone_unref(tz);
-
-	return result;
+	strftime(buf_tooltip, sizeof(buf_tooltip), time_tooltip_format, clock_gettime_for_tz(time_tooltip_timezone));
+	return strdup(buf_tooltip);
 }
 
 int time_format_needs_sec_ticks(char *time_format)
@@ -201,6 +197,7 @@ void init_clock_panel(void *p)
 
 	if (time_tooltip_format) {
 		clock->area._get_tooltip_text = clock_get_tooltip;
+		strftime(buf_tooltip, sizeof(buf_tooltip), time_tooltip_format, clock_gettime_for_tz(time_tooltip_timezone));
 	}
 }
 
