@@ -258,8 +258,6 @@ void init_battery_panel(void *p)
 
 
 int update_battery() {
-	int64_t energy_now = 0,
-			energy_full = 0;
 	int seconds = 0;
 	int8_t new_percentage = 0;
 	int errors = 0;
@@ -337,7 +335,7 @@ int update_battery() {
 	else
 		new_percentage = sysctl_out;
 #else
-	update_linux_batteries(&battery_state.state, &energy_now, &energy_full, &seconds);
+	update_linux_batteries(&battery_state.state, &new_percentage, &seconds);
 #endif
 
 	battery_state.time.hours = seconds / 3600;
@@ -345,9 +343,6 @@ int update_battery() {
 	battery_state.time.minutes = seconds / 60;
 	seconds -= 60 * battery_state.time.minutes;
 	battery_state.time.seconds = seconds;
-
-	if (energy_full > 0)
-		new_percentage = 0.5 + ((energy_now <= energy_full ? energy_now : energy_full) * 100.0) / energy_full;
 
 	battery_state.percentage = new_percentage;
 

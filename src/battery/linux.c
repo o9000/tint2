@@ -48,6 +48,10 @@ struct psy_battery {
 
 static GList *batteries = NULL;
 
+static guint8 energy_to_percent(gint energy_now, gint energy_full) {
+	return 0.5 + ((energy_now <= energy_full ? energy_now : energy_full) * 100.0) / energy_full;
+}
+
 static gboolean power_supply_is_battery(const gchar *entryname) {
 	gchar *path_type = g_build_filename("/sys/class/power_supply", entryname, "type", NULL);
 	GError *error = NULL;
@@ -237,7 +241,7 @@ static gboolean update_linux_battery(struct psy_battery *bat) {
 	return TRUE;
 }
 
-void update_linux_batteries(enum chargestate *state, gint64 *energy_now, gint64 *energy_full, int *seconds) {
+void update_linux_batteries(enum chargestate *state, int8_t *percentage, int *seconds) {
 	GList *l;
 
 	gint64 total_energy_now = 0;
@@ -261,10 +265,6 @@ void update_linux_batteries(enum chargestate *state, gint64 *energy_now, gint64 
 		full |= (bat->status == BATTERY_FULL);
 	}
 
-	/* global energy stats */
-	*energy_now = total_energy_now;
-	*energy_full = total_energy_full;
-
 	/* build global state */
 	*state = BATTERY_UNKNOWN;
 	if (charging && !discharging)
@@ -282,6 +282,9 @@ void update_linux_batteries(enum chargestate *state, gint64 *energy_now, gint64 
 		else if(*state == BATTERY_DISCHARGING)
 			*seconds = 3600 * total_energy_now / total_power_now;
 	}
+
+	/* calculate percentage */
+	*percentage = energy_to_percent(total_energy_now, total_energy_full);
 }
 
 static gchar* energy_human_readable(struct psy_battery *bat) {
@@ -341,7 +344,7 @@ char* linux_batteries_get_tooltip() {
 		gchar *energy = energy_human_readable(bat);
 		gchar *state = (bat->status == BATTERY_UNKNOWN) ? "Level" : chargestate2str(bat->status);
 
-		guint percentage = 0.5 + ((bat->energy_now <= bat->energy_full ? bat->energy_now : bat->energy_full) * 100.0) / bat->energy_full;
+		guint8 percentage = energy_to_percent(bat->energy_now, bat->energy_full);
 
 		g_string_append_printf(tooltip, "\t%s: %s (%u %%)\n\tPower: %s",
 			state, energy, percentage, power);
