@@ -144,10 +144,10 @@ struct tm* clock_gettime_for_tz(const char* timezone) {
 	else return localtime(&time_clock.tv_sec);
 }
 
-const char* clock_get_tooltip(void* obj)
+char* clock_get_tooltip(void* obj)
 {
 	strftime(buf_tooltip, sizeof(buf_tooltip), time_tooltip_format, clock_gettime_for_tz(time_tooltip_timezone));
-	return buf_tooltip;
+	return strdup(buf_tooltip);
 }
 
 int time_format_needs_sec_ticks(char *time_format)

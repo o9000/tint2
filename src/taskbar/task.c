@@ -38,10 +38,10 @@
 timeout* urgent_timeout;
 GSList* urgent_list;
 
-const char* task_get_tooltip(void* obj)
+char* task_get_tooltip(void* obj)
 {
 	Task* t = obj;
-	return t->title;
+	return strdup(t->title);
 }
 
 

@@ -97,7 +97,7 @@ void battery_action(int button);
 gboolean init_linux_batteries();
 void free_linux_batteries();
 void update_linux_batteries(enum chargestate *state, gint64 *energy_now, gint64 *energy_full, int *seconds);
-const char* linux_batteries_get_tooltip();
+char* linux_batteries_get_tooltip();
 #endif
 
 #endif

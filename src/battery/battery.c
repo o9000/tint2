@@ -220,7 +220,7 @@ void init_battery()
 		battery_timeout = add_timeout(10, 30000, update_battery_tick, 0, &battery_timeout);
 }
 
-const char* battery_get_tooltip(void* obj) {
+char* battery_get_tooltip(void* obj) {
 #if defined(__linux)
 	return linux_batteries_get_tooltip();
 #else

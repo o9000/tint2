@@ -319,7 +319,7 @@ static gchar* power_human_readable(struct psy_battery *bat) {
 	}
 }
 
-const char* linux_batteries_get_tooltip() {
+char* linux_batteries_get_tooltip() {
 	GList *l;
 	GString *tooltip = g_string_new("");
 	gchar *result;
