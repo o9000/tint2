@@ -87,7 +87,7 @@ char* battery_os_tooltip() {
 
 	g_string_append_c(tooltip, '\n');
 	g_string_append_printf(tooltip, "AC\n");
-	g_string_append_printf(tooltip, battery_state.ac_connected ? "\tconnected" : "\tdisconnected");
+	g_string_append_printf(tooltip, battery_state.ac_connected ? "\tConnected" : "\tDisconnected");
 
 	result = tooltip->str;
 	g_string_free(tooltip, FALSE);
