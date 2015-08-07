@@ -61,7 +61,7 @@ void update_battery_tick(void* arg)
 
 	int old_found = battery_found;
 	int old_percentage = battery_state.percentage;
-	int old_ac_connected = battery_state.ac_connected;
+	gboolean old_ac_connected = battery_state.ac_connected;
 	int16_t old_hours = battery_state.time.hours;
 	int8_t old_minutes = battery_state.time.minutes;
 	
