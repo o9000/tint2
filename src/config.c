@@ -394,6 +394,18 @@ void add_entry (char *key, char *value)
 			battery_low_cmd = strdup (value);
 #endif
 	}
+	else if (strcmp (key, "ac_connected_cmd") == 0) {
+#ifdef ENABLE_BATTERY
+		if (strlen(value) > 0)
+			ac_connected_cmd = strdup (value);
+#endif
+	}
+	else if (strcmp (key, "ac_disconnected_cmd") == 0) {
+#ifdef ENABLE_BATTERY
+		if (strlen(value) > 0)
+			ac_disconnected_cmd = strdup (value);
+#endif
+	}
 	else if (strcmp (key, "bat1_font") == 0) {
 #ifdef ENABLE_BATTERY
 		bat1_font_desc = pango_font_description_from_string (value);

@@ -24,6 +24,12 @@
 #include "common.h"
 #include "battery.h"
 
+enum psy_type {
+	PSY_UNKNOWN,
+	PSY_BATTERY,
+	PSY_MAINS,
+};
+
 struct psy_battery {
 	/* generic properties */
 	gchar*               name;
@@ -44,11 +50,25 @@ struct psy_battery {
 	enum chargestate     status;
 };
 
+struct psy_mains {
+	/* generic properties */
+	gchar*               name;
+	/* sysfs files */
+	gchar*               path_online;
+	/* values */
+	gboolean             online;
+};
+
 #define RETURN_ON_ERROR(err) if(error) { g_error_free(err); return FALSE; }
 
 static GList *batteries = NULL;
+static GList *mains = NULL;
 
-static gboolean power_supply_is_battery(const gchar *entryname) {
+static guint8 energy_to_percent(gint energy_now, gint energy_full) {
+	return 0.5 + ((energy_now <= energy_full ? energy_now : energy_full) * 100.0) / energy_full;
+}
+
+static enum psy_type power_supply_get_type(const gchar *entryname) {
 	gchar *path_type = g_build_filename("/sys/class/power_supply", entryname, "type", NULL);
 	GError *error = NULL;
 	gchar *type;
@@ -56,16 +76,24 @@ static gboolean power_supply_is_battery(const gchar *entryname) {
 
 	g_file_get_contents(path_type, &type, &typelen, &error);
 	g_free(path_type);
-	RETURN_ON_ERROR(error);
+	if (error) {
+		g_error_free(error);
+		return PSY_UNKNOWN;
+	}
 
-	if(g_strcmp0(type, "Battery\n")) {
+	if(!g_strcmp0(type, "Battery\n")) {
 		g_free(type);
-		return FALSE;
+		return PSY_BATTERY;
+	}
+
+	if(!g_strcmp0(type, "Mains\n")) {
+		g_free(type);
+		return PSY_MAINS;
 	}
 
 	g_free(type);
 
-	return TRUE;
+	return PSY_UNKNOWN;
 }
 
 static gboolean init_linux_battery(struct psy_battery *bat) {
@@ -130,7 +158,19 @@ err0:
 	return FALSE;
 }
 
-void free_linux_batteries() {
+static gboolean init_linux_mains(struct psy_mains *ac) {
+	const gchar *entryname = ac->name;
+
+	ac->path_online = g_build_filename("/sys/class/power_supply", entryname, "online", NULL);
+	if (!g_file_test(ac->path_online, G_FILE_TEST_EXISTS)) {
+		g_free(ac->path_online);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+void battery_os_free() {
 	GList *l = batteries;
 
 	while (l != NULL) {
@@ -148,31 +188,70 @@ void free_linux_batteries() {
 		l = next;
 	}
 
+	l = mains;
+	while (l != NULL) {
+		GList *next = l->next;
+		struct psy_mains *ac = l->data;
+
+		g_free(ac->name);
+		g_free(ac->path_online);
+
+		mains = g_list_delete_link(mains, l);
+		l = next;
+	}
+
 	batteries = NULL;
+	mains = NULL;
 }
 
-gboolean init_linux_batteries() {
+static void add_battery(const char *entryname) {
+	struct psy_battery *bat = g_malloc0(sizeof(*bat));
+	bat->name = g_strdup(entryname);
+
+	if(init_linux_battery(bat)) {
+		batteries = g_list_append(batteries, bat);
+		fprintf(stdout, "found battery \"%s\"\n", bat->name);
+	} else {
+		g_free(bat);
+		fprintf(stderr, RED "failed to initialize battery \"%s\"\n" RESET, entryname);
+	}
+}
+
+static void add_mains(const char *entryname) {
+	struct psy_mains *ac = g_malloc0(sizeof(*ac));
+	ac->name = g_strdup(entryname);
+
+	if(init_linux_mains(ac)) {
+		mains = g_list_append(mains, ac);
+		fprintf(stdout, "found mains \"%s\"\n", ac->name);
+	} else {
+		g_free(ac);
+		fprintf(stderr, RED "failed to initialize mains \"%s\"\n" RESET, entryname);
+	}
+}
+
+gboolean battery_os_init() {
 	GDir *directory = 0;
 	GError *error = NULL;
 	const char *entryname;
 
-	free_linux_batteries();
+	battery_os_free();
 
 	directory = g_dir_open("/sys/class/power_supply", 0, &error);
 	RETURN_ON_ERROR(error);
 
 	while ((entryname = g_dir_read_name(directory))) {
-		if(!power_supply_is_battery(entryname))
-			continue;
+		enum psy_type type = power_supply_get_type(entryname);
 
-		struct psy_battery *bat = g_malloc0(sizeof(*bat));
-		bat->name = g_strdup(entryname);
-		if(init_linux_battery(bat)) {
-			batteries = g_list_append(batteries, bat);
-			fprintf(stdout, "found battery \"%s\"\n", bat->name);
-		} else {
-			g_free(bat);
-			fprintf(stderr, RED "failed to initialize battery \"%s\"\n" RESET, entryname);
+		switch(type) {
+			case PSY_BATTERY:
+				add_battery(entryname);
+				break;
+			case PSY_MAINS:
+				add_mains(entryname);
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -237,16 +316,34 @@ static gboolean update_linux_battery(struct psy_battery *bat) {
 	return TRUE;
 }
 
-void update_linux_batteries(enum chargestate *state, gint64 *energy_now, gint64 *energy_full, int *seconds) {
+
+static gboolean update_linux_mains(struct psy_mains *ac) {
+	GError *error = NULL;
+	gchar *data;
+	gsize datalen;
+	ac->online = FALSE;
+
+	/* online */
+	g_file_get_contents(ac->path_online, &data, &datalen, &error);
+	RETURN_ON_ERROR(error);
+	ac->online = (atoi(data) == 1);
+	g_free(data);
+
+	return TRUE;
+}
+
+int battery_os_update(struct batstate *state) {
 	GList *l;
 
 	gint64 total_energy_now = 0;
 	gint64 total_energy_full = 0;
 	gint64 total_power_now = 0;
+	gint seconds = 0;
 
 	gboolean charging = FALSE;
 	gboolean discharging = FALSE;
 	gboolean full = FALSE;
+	gboolean ac_connected = FALSE;
 
 	for (l = batteries; l != NULL; l = l->next) {
 		struct psy_battery *bat = l->data;
@@ -261,27 +358,36 @@ void update_linux_batteries(enum chargestate *state, gint64 *energy_now, gint64 
 		full |= (bat->status == BATTERY_FULL);
 	}
 
-	/* global energy stats */
-	*energy_now = total_energy_now;
-	*energy_full = total_energy_full;
+	for (l = mains; l != NULL; l = l->next) {
+		struct psy_mains *ac = l->data;
+		update_linux_mains(ac);
+		ac_connected |= (ac->online);
+	}
 
 	/* build global state */
-	*state = BATTERY_UNKNOWN;
 	if (charging && !discharging)
-		*state = BATTERY_CHARGING;
+		state->state = BATTERY_CHARGING;
 	else if (!charging && discharging)
-		*state = BATTERY_DISCHARGING;
+		state->state = BATTERY_DISCHARGING;
 	else if (!charging && !discharging && full)
-		*state = BATTERY_FULL;
+		state->state = BATTERY_FULL;
 
 	/* calculate seconds */
-	*seconds = 0;
 	if (total_power_now > 0) {
-		if(*state == BATTERY_CHARGING)
-			*seconds = 3600 * (total_energy_full - total_energy_now) / total_power_now;
-		else if(*state == BATTERY_DISCHARGING)
-			*seconds = 3600 * total_energy_now / total_power_now;
+		if(state->state == BATTERY_CHARGING)
+			seconds = 3600 * (total_energy_full - total_energy_now) / total_power_now;
+		else if(state->state == BATTERY_DISCHARGING)
+			seconds = 3600 * total_energy_now / total_power_now;
 	}
+	batstate_set_time(state, seconds);
+
+	/* calculate percentage */
+	state->percentage = energy_to_percent(total_energy_now, total_energy_full);
+
+	/* AC state */
+	state->ac_connected = ac_connected;
+
+	return 0;
 }
 
 static gchar* energy_human_readable(struct psy_battery *bat) {
@@ -319,7 +425,7 @@ static gchar* power_human_readable(struct psy_battery *bat) {
 	}
 }
 
-const char* linux_batteries_get_tooltip() {
+char* battery_os_tooltip() {
 	GList *l;
 	GString *tooltip = g_string_new("");
 	gchar *result;
@@ -341,13 +447,23 @@ const char* linux_batteries_get_tooltip() {
 		gchar *energy = energy_human_readable(bat);
 		gchar *state = (bat->status == BATTERY_UNKNOWN) ? "Level" : chargestate2str(bat->status);
 
-		guint percentage = 0.5 + ((bat->energy_now <= bat->energy_full ? bat->energy_now : bat->energy_full) * 100.0) / bat->energy_full;
+		guint8 percentage = energy_to_percent(bat->energy_now, bat->energy_full);
 
 		g_string_append_printf(tooltip, "\t%s: %s (%u %%)\n\tPower: %s",
 			state, energy, percentage, power);
 
 		g_free(power);
 		g_free(energy);
+	}
+
+	for (l = mains; l != NULL; l = l->next) {
+		struct psy_mains *ac = l->data;
+
+		if (tooltip->len)
+			g_string_append_c(tooltip, '\n');
+
+		g_string_append_printf(tooltip, "%s\n", ac->name);
+		g_string_append_printf(tooltip, ac->online ? "\tconnected" : "\tdisconnected");
 	}
 
 	result = tooltip->str;

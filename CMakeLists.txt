@@ -78,7 +78,20 @@ set( SOURCES src/config.c
              src/util/window.c )
 
 if( ENABLE_BATTERY )
-  set( SOURCES ${SOURCES} src/battery/battery.c  src/battery/linux.c)
+  set( SOURCES ${SOURCES} src/battery/battery.c)
+
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set( SOURCES ${SOURCES} src/battery/linux.c)
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+    set( SOURCES ${SOURCES} src/battery/freebsd.c)
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")
+    set( SOURCES ${SOURCES} src/battery/openbsd.c)
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
+    set( SOURCES ${SOURCES} src/battery/openbsd.c)
+  else(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set( SOURCES ${SOURCES} src/battery/dummy.c)
+  endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
   add_definitions( -DENABLE_BATTERY )
 endif( ENABLE_BATTERY )
 

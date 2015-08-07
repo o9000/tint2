@@ -91,7 +91,8 @@ typedef struct {
 	// after pos/size changed, the rendering engine will call _on_change_layout(Area*)
 	int on_changed;
 	void (*_on_change_layout)(void *obj);
-	const char* (*_get_tooltip_text)(void *obj);
+	// returns allocated string, that must be free'd after usage
+	char* (*_get_tooltip_text)(void *obj);
 } Area;
 
 // on startup, initialize fixed pos/size

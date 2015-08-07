@@ -347,10 +347,10 @@ void launcher_icon_on_change_layout(void *obj)
 	launcherIcon->area.height = launcherIcon->icon_size;
 }
 
-const char* launcher_icon_get_tooltip_text(void *obj)
+char* launcher_icon_get_tooltip_text(void *obj)
 {
 	LauncherIcon *launcherIcon = (LauncherIcon*)obj;
-	return launcherIcon->icon_tooltip;
+	return strdup(launcherIcon->icon_tooltip);
 }
 
 void draw_launcher_icon(void *obj, cairo_t *c)

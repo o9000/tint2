@@ -44,6 +44,7 @@ typedef struct batstate {
 	int percentage;
 	struct battime time;
 	enum chargestate state;
+	gboolean ac_connected;
 } batstate;
 
 extern struct batstate battery_state;
@@ -55,6 +56,9 @@ extern int percentage_hide;
 
 extern int8_t battery_low_status;
 extern char *battery_low_cmd;
+
+extern char *ac_connected_cmd;
+extern char *ac_disconnected_cmd;
 
 extern char *battery_lclick_command;
 extern char *battery_mclick_command;
@@ -76,6 +80,14 @@ static inline gchar* chargestate2str(enum chargestate state) {
 	};
 }
 
+static inline void batstate_set_time(struct batstate *state, int seconds) {
+	state->time.hours = seconds / 3600;
+	seconds -= 3600 * state->time.hours;
+	state->time.minutes = seconds / 60;
+	seconds -= 60 * state->time.minutes;
+	state->time.seconds = seconds;
+}
+
 // default global data
 void default_battery();
 
@@ -93,11 +105,10 @@ int  resize_battery(void *obj);
 
 void battery_action(int button);
 
-#ifdef __linux
-gboolean init_linux_batteries();
-void free_linux_batteries();
-void update_linux_batteries(enum chargestate *state, gint64 *energy_now, gint64 *energy_full, int *seconds);
-const char* linux_batteries_get_tooltip();
-#endif
+/* operating system specific functions */
+gboolean battery_os_init();
+void battery_os_free();
+int battery_os_update(struct batstate *state);
+char* battery_os_tooltip();
 
 #endif

@@ -304,7 +304,7 @@ void tooltip_copy_text(Area* area)
 {
 	free(g_tooltip.tooltip_text);
 	if (area && area->_get_tooltip_text)
-		g_tooltip.tooltip_text = strdup(area->_get_tooltip_text(area));
+		g_tooltip.tooltip_text = area->_get_tooltip_text(area);
 	else
 		g_tooltip.tooltip_text = NULL;
 	g_tooltip.area = area;
