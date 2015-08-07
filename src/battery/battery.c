@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-* Tint2 : battery
+* Tint2 : Generic battery
 *
 * Copyright (C) 2009-2015 Sebastian Reichel <sre@ring0.de>
 *
@@ -23,18 +23,6 @@
 #include <cairo.h>
 #include <cairo-xlib.h>
 #include <pango/pangocairo.h>
-
-#if defined(__OpenBSD__) || defined(__NetBSD__)
-#include <machine/apmvar.h>
-#include <err.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#endif
-
-#if defined(__FreeBSD__)
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#endif
 
 #include "window.h"
 #include "server.h"
@@ -63,10 +51,6 @@ char *battery_rclick_command;
 char *battery_uwheel_command;
 char *battery_dwheel_command;
 int battery_found;
-
-#if defined(__OpenBSD__) || defined(__NetBSD__)
-int apm_fd;
-#endif
 
 void update_battery_tick(void* arg)
 {
@@ -154,9 +138,6 @@ void default_battery()
 	battery_state.time.minutes = 0;
 	battery_state.time.seconds = 0;
 	battery_state.state = BATTERY_UNKNOWN;
-#if defined(__OpenBSD__) || defined(__NetBSD__)
-	apm_fd = -1;
-#endif
 }
 
 void cleanup_battery()
@@ -181,51 +162,22 @@ void cleanup_battery()
 	battery_timeout = NULL;
 	battery_found = 0;
 
-#if defined(__OpenBSD__) || defined(__NetBSD__)
-	if ((apm_fd != -1) && (close(apm_fd) == -1))
-		warn("cannot close /dev/apm");
-	apm_fd = -1;
-#elif defined(__linux)
-	free_linux_batteries();
-#endif
+	battery_os_free();
 }
 
 void init_battery()
 {
 	if (!battery_enabled)
 		return;
-	battery_found = 0;
 
-#if defined(__OpenBSD__) || defined(__NetBSD__)
-	if (apm_fd > 0)
-		close(apm_fd);
-	apm_fd = open("/dev/apm", O_RDONLY);
-	if (apm_fd < 0) {
-		warn("ERROR: battery applet cannot open /dev/apm.");
-		battery_found = 0;
-	} else {
-		battery_found = 1;
-	}
-#elif defined(__FreeBSD__)
-	int sysctl_out = 0;
-	size_t len = sizeof(sysctl_out);
-	battery_found = (sysctlbyname("hw.acpi.battery.state", &sysctl_out, &len, NULL, 0) == 0) ||
-					(sysctlbyname("hw.acpi.battery.time", &sysctl_out, &len, NULL, 0) == 0) ||
-					(sysctlbyname("hw.acpi.battery.life", &sysctl_out, &len, NULL, 0) == 0);
-#elif defined(__linux)
-	battery_found = init_linux_batteries();
-#endif
+	battery_found = battery_os_init();
 
 	if (!battery_timeout)
 		battery_timeout = add_timeout(10, 30000, update_battery_tick, 0, &battery_timeout);
 }
 
 char* battery_get_tooltip(void* obj) {
-#if defined(__linux)
-	return linux_batteries_get_tooltip();
-#else
-	return g_strdup("No tooltip support for this OS!");
-#endif
+	return battery_os_tooltip();
 }
 
 void init_battery_panel(void *p)
@@ -258,100 +210,21 @@ void init_battery_panel(void *p)
 
 
 int update_battery() {
-	int seconds = 0;
-	int8_t new_percentage = 0;
-	int errors = 0;
+	int err;
 
+	/* reset */
 	battery_state.state = BATTERY_UNKNOWN;
+	battery_state.percentage = 0;
+	batstate_set_time(&battery_state, 0);
 
-#if defined(__OpenBSD__) || defined(__NetBSD__)
-	struct apm_power_info info;
-	if (apm_fd > 0 && ioctl(apm_fd, APM_IOC_GETPOWER, &(info)) == 0) {
-		// best attempt at mapping to Linux battery states
-		switch (info.battery_state) {
-		case APM_BATT_CHARGING:
-			battery_state.state = BATTERY_CHARGING;
-			break;
-		default:
-			battery_state.state = BATTERY_DISCHARGING;
-			break;
-		}
-
-		if (info.battery_life == 100)
-			battery_state.state = BATTERY_FULL;
-
-		// no mapping for openbsd really
-		energy_full = 0;
-		energy_now = 0;
-
-		if (info.minutes_left != -1)
-			seconds = info.minutes_left * 60;
-		else
-			seconds = -1;
-
-		new_percentage = info.battery_life;
-	} else {
-		warn("power update: APM_IOC_GETPOWER");
-		errors = 1;
-	}
-#elif defined(__FreeBSD__)
-	int sysctl_out = 0;
-	size_t len = sizeof(sysctl_out);
-
-	if (sysctlbyname("hw.acpi.battery.state", &sysctl_out, &len, NULL, 0) == 0) {
-		// attemp to map the battery state to Linux
-		battery_state.state = BATTERY_UNKNOWN;
-		switch(sysctl_out) {
-		case 1:
-			battery_state.state = BATTERY_DISCHARGING;
-			break;
-		case 2:
-			battery_state.state = BATTERY_CHARGING;
-			break;
-		default:
-			battery_state.state = BATTERY_FULL;
-			break;
-		}
-	} else {
-		fprintf(stderr, "power update: no such sysctl");
-		errors = 1;
-	}
-
-	// no mapping for freebsd
-	energy_full = 0;
-	energy_now = 0;
-
-	if (sysctlbyname("hw.acpi.battery.time", &sysctl_out, &len, NULL, 0) != 0)
-		seconds = -1;
-	else
-		seconds = sysctl_out * 60;
-
-	// charging or error
-	if (seconds < 0)
-		seconds = 0;
-
-	if (sysctlbyname("hw.acpi.battery.life", &sysctl_out, &len, NULL, 0) != 0)
-		new_percentage = -1;
-	else
-		new_percentage = sysctl_out;
-#else
-	update_linux_batteries(&battery_state.state, &new_percentage, &seconds);
-#endif
-
-	battery_state.time.hours = seconds / 3600;
-	seconds -= 3600 * battery_state.time.hours;
-	battery_state.time.minutes = seconds / 60;
-	seconds -= 60 * battery_state.time.minutes;
-	battery_state.time.seconds = seconds;
-
-	battery_state.percentage = new_percentage;
+	err = battery_os_update(&battery_state);
 
 	// clamp percentage to 100 in case battery is misreporting that its current charge is more than its max
 	if (battery_state.percentage > 100) {
 		battery_state.percentage = 100;
 	}
 
-	return errors;
+	return err;
 }
 
 

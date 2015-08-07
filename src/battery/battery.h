@@ -76,6 +76,14 @@ static inline gchar* chargestate2str(enum chargestate state) {
 	};
 }
 
+static inline void batstate_set_time(struct batstate *state, int seconds) {
+	state->time.hours = seconds / 3600;
+	seconds -= 3600 * state->time.hours;
+	state->time.minutes = seconds / 60;
+	seconds -= 60 * state->time.minutes;
+	state->time.seconds = seconds;
+}
+
 // default global data
 void default_battery();
 
@@ -93,11 +101,10 @@ int  resize_battery(void *obj);
 
 void battery_action(int button);
 
-#ifdef __linux
-gboolean init_linux_batteries();
-void free_linux_batteries();
-void update_linux_batteries(enum chargestate *state, int8_t *percentage, int *seconds);
-char* linux_batteries_get_tooltip();
-#endif
+/* operating system specific functions */
+gboolean battery_os_init();
+void battery_os_free();
+int battery_os_update(struct batstate *state);
+char* battery_os_tooltip();
 
 #endif

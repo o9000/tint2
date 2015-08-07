@@ -170,7 +170,7 @@ static gboolean init_linux_mains(struct psy_mains *ac) {
 	return TRUE;
 }
 
-void free_linux_batteries() {
+void battery_os_free() {
 	GList *l = batteries;
 
 	while (l != NULL) {
@@ -230,12 +230,12 @@ static void add_mains(const char *entryname) {
 	}
 }
 
-gboolean init_linux_batteries() {
+gboolean battery_os_init() {
 	GDir *directory = 0;
 	GError *error = NULL;
 	const char *entryname;
 
-	free_linux_batteries();
+	battery_os_free();
 
 	directory = g_dir_open("/sys/class/power_supply", 0, &error);
 	RETURN_ON_ERROR(error);
@@ -332,12 +332,13 @@ static gboolean update_linux_mains(struct psy_mains *ac) {
 	return TRUE;
 }
 
-void update_linux_batteries(enum chargestate *state, int8_t *percentage, int *seconds) {
+int battery_os_update(struct batstate *state) {
 	GList *l;
 
 	gint64 total_energy_now = 0;
 	gint64 total_energy_full = 0;
 	gint64 total_power_now = 0;
+	gint seconds = 0;
 
 	gboolean charging = FALSE;
 	gboolean discharging = FALSE;
@@ -362,25 +363,26 @@ void update_linux_batteries(enum chargestate *state, int8_t *percentage, int *se
 	}
 
 	/* build global state */
-	*state = BATTERY_UNKNOWN;
 	if (charging && !discharging)
-		*state = BATTERY_CHARGING;
+		state->state = BATTERY_CHARGING;
 	else if (!charging && discharging)
-		*state = BATTERY_DISCHARGING;
+		state->state = BATTERY_DISCHARGING;
 	else if (!charging && !discharging && full)
-		*state = BATTERY_FULL;
+		state->state = BATTERY_FULL;
 
 	/* calculate seconds */
-	*seconds = 0;
 	if (total_power_now > 0) {
-		if(*state == BATTERY_CHARGING)
-			*seconds = 3600 * (total_energy_full - total_energy_now) / total_power_now;
-		else if(*state == BATTERY_DISCHARGING)
-			*seconds = 3600 * total_energy_now / total_power_now;
+		if(state->state == BATTERY_CHARGING)
+			seconds = 3600 * (total_energy_full - total_energy_now) / total_power_now;
+		else if(state->state == BATTERY_DISCHARGING)
+			seconds = 3600 * total_energy_now / total_power_now;
 	}
+	batstate_set_time(state, seconds);
 
 	/* calculate percentage */
-	*percentage = energy_to_percent(total_energy_now, total_energy_full);
+	state->percentage = energy_to_percent(total_energy_now, total_energy_full);
+
+	return 0;
 }
 
 static gchar* energy_human_readable(struct psy_battery *bat) {
@@ -418,7 +420,7 @@ static gchar* power_human_readable(struct psy_battery *bat) {
 	}
 }
 
-char* linux_batteries_get_tooltip() {
+char* battery_os_tooltip() {
 	GList *l;
 	GString *tooltip = g_string_new("");
 	gchar *result;
