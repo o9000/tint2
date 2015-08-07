@@ -152,3 +152,9 @@ src/freespace/freespace.c
 src/freespace/freespace.h
 src/tint2conf/po/readme.txt
 src/battery/linux.c
+src/battery/battery.c
+src/battery/battery.h
+src/battery/dummy.c
+src/battery/freebsd.c
+src/battery/linux.c
+src/battery/openbsd.c
