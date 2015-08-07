@@ -17,11 +17,12 @@
 
 #if defined(__OpenBSD__) || defined(__NetBSD__)
 
-#include <machine/apmvar.h>
+#include <stdint.h>
 #include <err.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <string.h>
+#include <machine/apmvar.h>
 
 #include "common.h"
 #include "battery.h"
