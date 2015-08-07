@@ -148,9 +148,13 @@ target_link_libraries( tint2 ${X11_LIBRARIES}
                              ${CAIRO_LIBRARIES}
                              ${GLIB2_LIBRARIES}
                              ${GOBJECT2_LIBRARIES}
-                             ${IMLIB2_LIBRARIES}
-                             ${RSVG_LIBRARIES}
-                             ${SN_LIBRARIES} )
+                             ${IMLIB2_LIBRARIES} )
+if( ENABLE_RSVG )
+  target_link_libraries( tint2 ${RSVG_LIBRARIES} )
+endif( ENABLE_RSVG )
+if( ENABLE_SN )
+  target_link_libraries( tint2 ${SN_LIBRARIES} )
+endif( ENABLE_SN )
 if( RT_LIBRARY )
   target_link_libraries( tint2 ${RT_LIBRARY} )
 endif( RT_LIBRARY )
