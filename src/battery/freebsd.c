@@ -68,6 +68,9 @@ int battery_os_update(struct batstate *state) {
 		state->percentage = sysctl_out;
 	else
 		err = -1;
+
+	if (sysctlbyname("hw.acpi.acline", &sysctl_out, &len, NULL, 0) == 0)
+		state->ac_connected = sysctl_out;
 	
 	return err;
 }
