@@ -354,7 +354,7 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "battery_low_status") == 0) {
 #ifdef ENABLE_BATTERY
 		battery_low_status = atoi(value);
-		if(battery_low_status < 0 || battery_low_status > 100)
+		if (battery_low_status < 0 || battery_low_status > 100)
 			battery_low_status = 0;
 #endif
 	}

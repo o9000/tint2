@@ -20,15 +20,15 @@
 
 /*
 void fxfree(void** ptr){
-  if(*ptr){
+  if (*ptr){
     free(*ptr);
     *ptr=NULL;
     }
   }
 FXint fxmalloc(void** ptr,unsigned long size){
   *ptr=NULL;
-  if(size!=0){
-    if((*ptr=malloc(size))==NULL) return FALSE;
+  if (size!=0){
+    if ((*ptr=malloc(size))==NULL) return FALSE;
     }
   return TRUE;
   }

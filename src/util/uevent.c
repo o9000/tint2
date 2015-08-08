@@ -108,7 +108,7 @@ static struct uevent *uevent_new(char *buffer, int size) {
 				val = strchr(s, '=');
 				if (val) {
 					struct uevent_parameter *param = malloc(sizeof(*param));
-					if(param) {
+					if (param) {
 						param->key = strndup(s, val-s);
 						param->val = strdup(val+1);
 						ev->params = g_list_append(ev->params, param);
@@ -132,7 +132,7 @@ void uevent_unregister_notifier(struct uevent_notify *nb) {
 		GList *next = l->next;
 		struct uevent_notify *lnb = l->data;
 
-		if(memcmp(nb, lnb, sizeof(struct uevent_notify)) == 0)
+		if (memcmp(nb, lnb, sizeof(struct uevent_notify)) == 0)
 			notifiers = g_list_delete_link(notifiers, l);
 
 		l = next;
@@ -152,7 +152,7 @@ void uevent_handler() {
 		return;
 
 	ev = uevent_new(buf, len);
-	if(ev) {
+	if (ev) {
 		for (l = notifiers; l != NULL; l = l->next) {
 			struct uevent_notify *nb = l->data;
 

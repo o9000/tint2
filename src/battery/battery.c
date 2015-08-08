@@ -75,7 +75,7 @@ void update_battery_tick(void* arg)
 	}
 
 	if (old_ac_connected != battery_state.ac_connected) {
-		if(battery_state.ac_connected)
+		if (battery_state.ac_connected)
 			tint_exec(ac_connected_cmd);
 		else
 			tint_exec(ac_disconnected_cmd);

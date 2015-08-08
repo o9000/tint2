@@ -82,7 +82,7 @@ static struct uevent_notify psy_plug = {
 	uevent_battery_plug
 };
 
-#define RETURN_ON_ERROR(err) if(error) { g_error_free(err); return FALSE; }
+#define RETURN_ON_ERROR(err) if (error) { g_error_free(err); return FALSE; }
 
 static GList *batteries = NULL;
 static GList *mains = NULL;
@@ -104,12 +104,12 @@ static enum psy_type power_supply_get_type(const gchar *entryname) {
 		return PSY_UNKNOWN;
 	}
 
-	if(!g_strcmp0(type, "Battery\n")) {
+	if (!g_strcmp0(type, "Battery\n")) {
 		g_free(type);
 		return PSY_BATTERY;
 	}
 
-	if(!g_strcmp0(type, "Mains\n")) {
+	if (!g_strcmp0(type, "Mains\n")) {
 		g_free(type);
 		return PSY_MAINS;
 	}
@@ -140,7 +140,7 @@ static gboolean init_linux_battery(struct psy_battery *bat) {
 		goto err1;
 	}
 
-	if(!bat->energy_in_uamp) {
+	if (!bat->energy_in_uamp) {
 		bat->path_energy_full = g_build_filename("/sys/class/power_supply", entryname, "energy_full", NULL);
 		if (!g_file_test(bat->path_energy_full, G_FILE_TEST_EXISTS))
 			goto err2;
@@ -234,7 +234,7 @@ static void add_battery(const char *entryname) {
 	struct psy_battery *bat = g_malloc0(sizeof(*bat));
 	bat->name = g_strdup(entryname);
 
-	if(init_linux_battery(bat)) {
+	if (init_linux_battery(bat)) {
 		batteries = g_list_append(batteries, bat);
 		fprintf(stdout, "found battery \"%s\"\n", bat->name);
 	} else {
@@ -247,7 +247,7 @@ static void add_mains(const char *entryname) {
 	struct psy_mains *ac = g_malloc0(sizeof(*ac));
 	ac->name = g_strdup(entryname);
 
-	if(init_linux_mains(ac)) {
+	if (init_linux_mains(ac)) {
 		mains = g_list_append(mains, ac);
 		fprintf(stdout, "found mains \"%s\"\n", ac->name);
 	} else {
@@ -308,7 +308,7 @@ static gboolean update_linux_battery(struct psy_battery *bat) {
 	g_free(data);
 
 	/* we are done, if battery is not present */
-	if(!bat->present)
+	if (!bat->present)
 		return TRUE;
 
 	/* status */
@@ -403,9 +403,9 @@ int battery_os_update(struct batstate *state) {
 
 	/* calculate seconds */
 	if (total_power_now > 0) {
-		if(state->state == BATTERY_CHARGING)
+		if (state->state == BATTERY_CHARGING)
 			seconds = 3600 * (total_energy_full - total_energy_now) / total_power_now;
-		else if(state->state == BATTERY_DISCHARGING)
+		else if (state->state == BATTERY_DISCHARGING)
 			seconds = 3600 * total_energy_now / total_power_now;
 	}
 	batstate_set_time(state, seconds);

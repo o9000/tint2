@@ -438,7 +438,7 @@ int tint2_handles_click(Panel* panel, XButtonEvent* e)
 {
 	Task* task = click_task(panel, e->x, e->y);
 	if (task) {
-		if(   (e->button == 1 && mouse_left != 0)
+		if (   (e->button == 1 && mouse_left != 0)
 			  || (e->button == 2 && mouse_middle != 0)
 			  || (e->button == 3 && mouse_right != 0)
 			  || (e->button == 4 && mouse_scroll_up != 0)
@@ -521,27 +521,27 @@ void event_button_press (XEvent *e)
 void event_button_motion_notify (XEvent *e)
 {
 	Panel * panel = get_panel(e->xany.window);
-	if(!panel || !task_drag)
+	if (!panel || !task_drag)
 		return;
 
 	// Find the taskbar on the event's location
 	Taskbar * event_taskbar = click_taskbar(panel, e->xbutton.x, e->xbutton.y);
-	if(event_taskbar == NULL)
+	if (event_taskbar == NULL)
 		return;
 
 	// Find the task on the event's location
 	Task * event_task = click_task(panel, e->xbutton.x, e->xbutton.y);
 
 	// If the event takes place on the same taskbar as the task being dragged
-	if(event_taskbar == task_drag->area.parent)	{
+	if (event_taskbar == task_drag->area.parent)	{
 		if (taskbar_sort_method != TASKBAR_NOSORT) {
 			sort_tasks(event_taskbar);
 		} else {
 			// Swap the task_drag with the task on the event's location (if they differ)
-			if(event_task && event_task != task_drag) {
+			if (event_task && event_task != task_drag) {
 				GList * drag_iter = g_list_find(event_taskbar->area.list, task_drag);
 				GList * task_iter = g_list_find(event_taskbar->area.list, event_task);
-				if(drag_iter && task_iter) {
+				if (drag_iter && task_iter) {
 					gpointer temp = task_iter->data;
 					task_iter->data = drag_iter->data;
 					drag_iter->data = temp;
@@ -553,13 +553,13 @@ void event_button_motion_notify (XEvent *e)
 		}
 	}
 	else { // The event is on another taskbar than the task being dragged
-		if(task_drag->desktop == ALLDESKTOP || panel_mode != MULTI_DESKTOP)
+		if (task_drag->desktop == ALLDESKTOP || panel_mode != MULTI_DESKTOP)
 			return;
 
 		Taskbar * drag_taskbar = (Taskbar*)task_drag->area.parent;
 		drag_taskbar->area.list = g_list_remove(drag_taskbar->area.list, task_drag);
 
-		if(event_taskbar->area.posx > drag_taskbar->area.posx || event_taskbar->area.posy > drag_taskbar->area.posy) {
+		if (event_taskbar->area.posx > drag_taskbar->area.posx || event_taskbar->area.posy > drag_taskbar->area.posy) {
 			int i = (taskbarname_enabled) ? 1 : 0;
 			event_taskbar->area.list = g_list_insert(event_taskbar->area.list, task_drag, i);
 		}
