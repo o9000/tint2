@@ -94,6 +94,7 @@ void default_battery();
 // freed memory
 void cleanup_battery();
 
+void update_battery_tick(void* arg);
 int update_battery();
 
 void init_battery();

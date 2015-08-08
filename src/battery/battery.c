@@ -67,12 +67,11 @@ void update_battery_tick(void* arg)
 	
 	if (!battery_found) {
 		init_battery();
+		old_ac_connected = battery_state.ac_connected;
 	}
 	if (update_battery() != 0) {
-		// Reconfigure
+		// Try to reconfigure on failed update
 		init_battery();
-		// Try again
-		update_battery();
 	}
 
 	if (old_ac_connected != battery_state.ac_connected) {
@@ -185,6 +184,8 @@ void init_battery()
 
 	if (!battery_timeout)
 		battery_timeout = add_timeout(10, 30000, update_battery_tick, 0, &battery_timeout);
+
+	update_battery();
 }
 
 char* battery_get_tooltip(void* obj) {

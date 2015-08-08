@@ -49,6 +49,7 @@
 #include "tooltip.h"
 #include "timer.h"
 #include "xsettings-client.h"
+#include "uevent.h"
 
 // Drag and Drop state variables
 Window dnd_source_window;
@@ -340,6 +341,8 @@ void cleanup()
 		}
 	}
 #endif
+
+	uevent_cleanup();
 }
 
 
@@ -1201,6 +1204,8 @@ start:
 	dnd_sent_request = 0;
 	dnd_launcher_exec = 0;
 
+	int ufd = uevent_init();
+
 	//	sigset_t empty_mask;
 	//	sigemptyset(&empty_mask);
 
@@ -1243,6 +1248,10 @@ start:
 			FD_SET (sn_pipe[0], &fdset);
 			maxfd = maxfd < sn_pipe[0] ? sn_pipe[0] : maxfd;
 		}
+		if (ufd > 0) {
+			FD_SET (ufd, &fdset);
+			maxfd = maxfd < ufd ? ufd : maxfd;
+		}
 		update_next_timeout();
 		if (next_timeout.tv_sec >= 0 && next_timeout.tv_usec >= 0)
 			select_timeout = &next_timeout;
@@ -1251,6 +1260,8 @@ start:
 
 		// Wait for X Event or a Timer
 		if (XPending(server.dsp) > 0 || select(maxfd+1, &fdset, 0, 0, select_timeout) >= 0) {
+			uevent_handler();
+
 			if (sn_pipe_valid) {
 				char buffer[1];
 				while (read(sn_pipe[0], buffer, sizeof(buffer)) > 0) {
