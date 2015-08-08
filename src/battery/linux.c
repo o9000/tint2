@@ -23,6 +23,7 @@
 
 #include "common.h"
 #include "battery.h"
+#include "uevent.h"
 
 enum psy_type {
 	PSY_UNKNOWN,
@@ -57,6 +58,28 @@ struct psy_mains {
 	gchar*               path_online;
 	/* values */
 	gboolean             online;
+};
+
+static void uevent_battery_update() {
+	update_battery_tick(NULL);
+}
+static struct uevent_notify psy_change = {
+	UEVENT_CHANGE,
+	"power_supply",
+	NULL,
+	uevent_battery_update
+};
+
+static void uevent_battery_plug() {
+	printf("reinitialize batteries after HW change\n");
+	cleanup_battery();
+	init_battery();
+}
+static struct uevent_notify psy_plug = {
+	UEVENT_ADD | UEVENT_REMOVE,
+	"power_supply",
+	NULL,
+	uevent_battery_plug
 };
 
 #define RETURN_ON_ERROR(err) if(error) { g_error_free(err); return FALSE; }
@@ -173,6 +196,9 @@ static gboolean init_linux_mains(struct psy_mains *ac) {
 void battery_os_free() {
 	GList *l = batteries;
 
+	uevent_unregister_notifier(&psy_change);
+	uevent_unregister_notifier(&psy_plug);
+
 	while (l != NULL) {
 		GList *next = l->next;
 		struct psy_battery *bat = l->data;
@@ -256,6 +282,9 @@ gboolean battery_os_init() {
 	}
 
 	g_dir_close(directory);
+
+	uevent_register_notifier(&psy_change);
+	uevent_register_notifier(&psy_plug);
 
 	return batteries != NULL;
 }
