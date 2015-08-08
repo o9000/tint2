@@ -80,14 +80,12 @@ static struct uevent *uevent_new(char *buffer, int size) {
 
 	for (; s < end; s += strlen(s) + 1) {
 		if (first) {
-			const char *p;
-			for (p = s; *p != '@'; p++) {
-				if (!*p) {
-					/* error: kernel events contain @ */
-					/* triggered by udev events, though */
-					free(ev);
-					return NULL;
-				}
+			const char *p = strchr(s, '@');
+			if (!p) {
+				/* error: kernel events contain @ */
+				/* triggered by udev events, though */
+				free(ev);
+				return NULL;
 			}
 			ev->path = strdup(p+1);
 			first = FALSE;
