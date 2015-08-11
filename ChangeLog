@@ -1,8 +1,14 @@
-2015-08-06
+2015-08-11 master
 - Fixes:
   - Multiple batteries are now supported under Linux (thanks to Sebastian Reichel)
 - New config options:
   - Option to enable battery tooltips
+2015-08-11 0.12.2
+- Fixes:
+  - Systray: do not move empty icons to the side, as it breaks GTK2 StatusIcon blinking (issue #515)
+  - tint2conf: Fix read of panel_monitor (issue #520)
+  - Fix command line argument processing (issue #516)
+  - Fix battery option parsing
 2015-08-01 0.12.1
 - Fixes:
   - Config:
