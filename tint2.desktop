@@ -53,6 +53,6 @@ Comment=Lightweight panel
 Comment[fr]=Panel léger
 Comment[pl]=Lekki panel
 Exec=tint2
-Icon=taskbar
+Icon=tint2
 Terminal=false
 Categories=System;
