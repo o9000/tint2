@@ -137,6 +137,8 @@ void default_battery()
 	battery_timeout = NULL;
 	bat1_font_desc = NULL;
 	bat2_font_desc = NULL;
+	ac_connected_cmd = NULL;
+	ac_disconnected_cmd = NULL;
 	battery_low_cmd = NULL;
 	battery_lclick_command = NULL;
 	battery_mclick_command = NULL;
