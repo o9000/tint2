@@ -193,40 +193,31 @@ static gboolean init_linux_mains(struct psy_mains *ac) {
 	return TRUE;
 }
 
-void battery_os_free() {
-	GList *l = batteries;
+static void psy_battery_free(gpointer data) {
+	struct psy_battery *bat = data;
+	g_free(bat->name);
+	g_free(bat->path_status);
+	g_free(bat->path_power_now);
+	g_free(bat->path_energy_full);
+	g_free(bat->path_energy_now);
+	g_free(bat->path_present);
+	g_free(bat);
+}
 
+static void psy_mains_free(gpointer data) {
+	struct psy_mains *ac = data;
+	g_free(ac->name);
+	g_free(ac->path_online);
+	g_free(ac);
+}
+
+void battery_os_free() {
 	uevent_unregister_notifier(&psy_change);
 	uevent_unregister_notifier(&psy_plug);
 
-	while (l != NULL) {
-		GList *next = l->next;
-		struct psy_battery *bat = l->data;
-
-		g_free(bat->name);
-		g_free(bat->path_status);
-		g_free(bat->path_power_now);
-		g_free(bat->path_energy_full);
-		g_free(bat->path_energy_now);
-		g_free(bat->path_present);
-
-		batteries = g_list_delete_link(batteries, l);
-		l = next;
-	}
-
-	l = mains;
-	while (l != NULL) {
-		GList *next = l->next;
-		struct psy_mains *ac = l->data;
-
-		g_free(ac->name);
-		g_free(ac->path_online);
-
-		mains = g_list_delete_link(mains, l);
-		l = next;
-	}
-
+	g_list_free_full(batteries, psy_battery_free);
 	batteries = NULL;
+	g_list_free_full(mains, psy_mains_free);
 	mains = NULL;
 }
 
