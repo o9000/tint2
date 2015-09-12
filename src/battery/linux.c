@@ -348,7 +348,7 @@ static gboolean update_linux_battery(struct psy_battery *bat) {
 		/* some hardware does not support reading current power consumption */
 		g_error_free(error);
 		bat->power_now = estimate_power_usage(bat, old_energy_now, old_timestamp);
-	} else if(error) {
+	} else if (error) {
 		g_error_free(error);
 		return FALSE;
 	} else {
