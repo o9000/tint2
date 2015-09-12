@@ -168,6 +168,10 @@ void cleanup_battery()
 	battery_uwheel_command = NULL;
 	free(battery_dwheel_command);
 	battery_dwheel_command = NULL;
+	free(ac_connected_cmd);
+	ac_connected_cmd = NULL;
+	free(ac_disconnected_cmd);
+	ac_disconnected_cmd = NULL;
 	stop_timeout(battery_timeout);
 	battery_timeout = NULL;
 	battery_found = 0;
