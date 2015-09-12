@@ -581,7 +581,7 @@ void add_entry (char *key, char *value)
 		panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
 	}
 	else if (strcmp (key, "taskbar_name_font") == 0) {
-		taskbarname_font_desc = pango_font_description_from_string (value);
+		panel_config.taskbarname_font_desc = pango_font_description_from_string(value);
 	}
 	else if (strcmp (key, "taskbar_name_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);

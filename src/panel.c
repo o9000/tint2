@@ -140,6 +140,8 @@ void cleanup_panel()
 	backgrounds = NULL;
 	pango_font_description_free(panel_config.g_task.font_desc);
 	panel_config.g_task.font_desc = NULL;
+	pango_font_description_free(panel_config.taskbarname_font_desc);
+	panel_config.taskbarname_font_desc = NULL;
 }
 
 void init_panel()

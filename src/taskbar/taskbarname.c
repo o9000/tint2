@@ -54,8 +54,8 @@ void init_taskbarname_panel(void *p)
 	if (!taskbarname_enabled)
 		return;
 
-	if (!taskbarname_font_desc)
-		taskbarname_font_desc = pango_font_description_from_string(DEFAULT_FONT);
+	if (!panel_config.taskbarname_font_desc)
+		panel_config.taskbarname_font_desc = pango_font_description_from_string(DEFAULT_FONT);
 
 	GSList *l, *list = server_get_name_of_desktop();
 	for (j=0, l=list ; j < panel->nb_desktop ; j++) {
@@ -106,9 +106,6 @@ void cleanup_taskbarname()
 			tskbar->area.list = g_list_remove(tskbar->area.list, &tskbar->bar_name);
 		}
 	}
-
-	pango_font_description_free(taskbarname_font_desc);
-	taskbarname_font_desc = NULL;
 }
 
 
@@ -124,7 +121,7 @@ void draw_taskbarname (void *obj, cairo_t *c)
 	
 	// draw content
 	layout = pango_cairo_create_layout (c);
-	pango_layout_set_font_description (layout, taskbarname_font_desc);
+	pango_layout_set_font_description (layout, panel_config.taskbarname_font_desc);
 	pango_layout_set_width (layout, taskbar_name->area.width * PANGO_SCALE);
 	pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
 	pango_layout_set_text (layout, taskbar_name->name, strlen(taskbar_name->name));
@@ -147,7 +144,7 @@ int resize_taskbarname(void *obj)
 	int ret = 0;
 
 	taskbar_name->area.redraw = 1;
-	get_text_size2(taskbarname_font_desc, &name_height_ink, &name_height, &name_width, panel->area.height, panel->area.width, taskbar_name->name, strlen(taskbar_name->name));
+	get_text_size2(panel_config.taskbarname_font_desc, &name_height_ink, &name_height, &name_width, panel->area.height, panel->area.width, taskbar_name->name, strlen(taskbar_name->name));
 
 	if (panel_horizontal) {
 		int new_size = name_width + (2* (taskbar_name->area.paddingxlr + taskbar_name->area.bg->border.width));

@@ -9,7 +9,6 @@
 #include "area.h"
 
 extern int taskbarname_enabled;
-extern PangoFontDescription *taskbarname_font_desc;
 extern Color taskbarname_font;
 extern Color taskbarname_active_font;
 

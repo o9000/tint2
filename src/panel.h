@@ -104,6 +104,7 @@ typedef struct {
 	// while panel->area.list is used to loop over all panel's objects
 	Taskbar *taskbar;
 	int  nb_desktop;
+	PangoFontDescription *taskbarname_font_desc;
 
 	// --------------------------------------------------
 	// clock
