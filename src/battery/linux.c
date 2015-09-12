@@ -286,7 +286,7 @@ static gint estimate_power_usage(struct psy_battery *bat, gint old_energy_now, g
 	gint64 diff_time = bat->timestamp - old_timestamp;
 
 	/* µW = (µWh * 3600) / (µs * 1000000) */
-	gint power = diff_power * 3600 * 1000000 / diff_time;
+	gint power = diff_power * 3600 * 1000000 / MAX(1, diff_time);
 
 	return power;
 }
