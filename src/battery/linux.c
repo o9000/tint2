@@ -34,6 +34,7 @@ enum psy_type {
 struct psy_battery {
 	/* generic properties */
 	gchar*               name;
+	gint64               timestamp;
 	/* sysfs files */
 	gchar*               path_present;
 	gchar*               path_energy_now;
@@ -280,10 +281,23 @@ gboolean battery_os_init() {
 	return batteries != NULL;
 }
 
+static gint estimate_power_usage(struct psy_battery *bat, gint old_energy_now, gint64 old_timestamp) {
+	gint64 diff_power = ABS(bat->energy_now - old_energy_now);
+	gint64 diff_time = bat->timestamp - old_timestamp;
+
+	/* µW = (µWh * 3600) / (µs * 1000000) */
+	gint power = diff_power * 3600 * 1000000 / diff_time;
+
+	return power;
+}
+
 static gboolean update_linux_battery(struct psy_battery *bat) {
 	GError *error = NULL;
 	gchar *data;
 	gsize datalen;
+
+	gint64 old_timestamp = bat->timestamp;
+	int old_energy_now = bat->energy_now;
 
 	/* reset values */
 	bat->present = 0;
@@ -291,6 +305,7 @@ static gboolean update_linux_battery(struct psy_battery *bat) {
 	bat->energy_now = 0;
 	bat->energy_full = 0;
 	bat->power_now = 0;
+	bat->timestamp = g_get_monotonic_time();
 
 	/* present */
 	g_file_get_contents(bat->path_present, &data, &datalen, &error);
@@ -329,9 +344,17 @@ static gboolean update_linux_battery(struct psy_battery *bat) {
 
 	/* power now */
 	g_file_get_contents(bat->path_power_now, &data, &datalen, &error);
-	RETURN_ON_ERROR(error);
-	bat->power_now = atoi(data);
-	g_free(data);
+	if (g_error_matches(error, G_FILE_ERROR, G_FILE_ERROR_NODEV)) {
+		/* some hardware does not support reading current power consumption */
+		g_error_free(error);
+		bat->power_now = estimate_power_usage(bat, old_energy_now, old_timestamp);
+	} else if(error) {
+		g_error_free(error);
+		return FALSE;
+	} else {
+		bat->power_now = atoi(data);
+		g_free(data);
+	}
 
 	return TRUE;
 }
