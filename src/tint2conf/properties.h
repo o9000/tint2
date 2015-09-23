@@ -146,6 +146,7 @@ enum {
 	bgColBorderOpacity,
 	bgColBorderWidth,
 	bgColCornerRadius,
+	bgColText,
 	bgNumCols
 };
 

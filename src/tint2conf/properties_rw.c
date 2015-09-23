@@ -110,6 +110,7 @@ void config_write_backgrounds(FILE *fp)
 		int fillOpacity;
 		GdkColor *borderColor;
 		int borderOpacity;
+		gchar *text;
 
 		gtk_tree_model_get(GTK_TREE_MODEL(backgrounds), &iter,
 						   bgColFillColor, &fillColor,
@@ -118,8 +119,9 @@ void config_write_backgrounds(FILE *fp)
 						   bgColBorderOpacity, &borderOpacity,
 						   bgColBorderWidth, &b,
 						   bgColCornerRadius, &r,
+						   bgColText, &text,
 						   -1);
-		fprintf(fp, "# Background %d\n", index);
+		fprintf(fp, "# Background %d: %s\n", index, text ? text : "");
 		fprintf(fp, "rounded = %d\n", r);
 		fprintf(fp, "border_width = %d\n", b);
 		config_write_color(fp, "background_color", *fillColor, fillOpacity);
