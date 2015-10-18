@@ -124,6 +124,8 @@ void draw_taskbarname (void *obj, cairo_t *c)
 	pango_layout_set_font_description (layout, panel_config.taskbarname_font_desc);
 	pango_layout_set_width (layout, taskbar_name->area.width * PANGO_SCALE);
 	pango_layout_set_alignment (layout, PANGO_ALIGN_CENTER);
+	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
+	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
 	pango_layout_set_text (layout, taskbar_name->name, strlen(taskbar_name->name));
 
 	cairo_set_source_rgba (c, config_text->color[0], config_text->color[1], config_text->color[2], config_text->alpha);
@@ -144,7 +146,9 @@ int resize_taskbarname(void *obj)
 	int ret = 0;
 
 	taskbar_name->area.redraw = 1;
-	get_text_size2(panel_config.taskbarname_font_desc, &name_height_ink, &name_height, &name_width, panel->area.height, panel->area.width, taskbar_name->name, strlen(taskbar_name->name));
+	get_text_size2(panel_config.taskbarname_font_desc, &name_height_ink, &name_height, &name_width, panel->area.height, panel->area.width, taskbar_name->name, strlen(taskbar_name->name),
+				   PANGO_WRAP_WORD_CHAR,
+				   PANGO_ELLIPSIZE_NONE);
 
 	if (panel_horizontal) {
 		int new_size = name_width + (2* (taskbar_name->area.paddingxlr + taskbar_name->area.bg->border.width));

@@ -267,6 +267,8 @@ void draw_battery (void *obj, cairo_t *c)
 
 	pango_layout_set_font_description(layout, bat2_font_desc);
 	pango_layout_set_indent(layout, 0);
+	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
+	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
 	pango_layout_set_text(layout, buf_bat_time, strlen(buf_bat_time));
 	pango_layout_set_width(layout, battery->area.width * PANGO_SCALE);
 
@@ -295,9 +297,13 @@ int resize_battery(void *obj)
 		snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
 	}
 	get_text_size2(bat1_font_desc, &bat_percentage_height_ink, &bat_percentage_height, &bat_percentage_width,
-				   panel->area.height, panel->area.width, buf_bat_percentage, strlen(buf_bat_percentage));
+				   panel->area.height, panel->area.width, buf_bat_percentage, strlen(buf_bat_percentage),
+				   PANGO_WRAP_WORD_CHAR,
+				   PANGO_ELLIPSIZE_NONE);
 	get_text_size2(bat2_font_desc, &bat_time_height_ink, &bat_time_height, &bat_time_width,
-				   panel->area.height, panel->area.width, buf_bat_time, strlen(buf_bat_time));
+				   panel->area.height, panel->area.width, buf_bat_time, strlen(buf_bat_time),
+				   PANGO_WRAP_WORD_CHAR,
+				   PANGO_ELLIPSIZE_NONE);
 
 	if (panel_horizontal) {
 		int new_size = (bat_percentage_width > bat_time_width) ? bat_percentage_width : bat_time_width;
