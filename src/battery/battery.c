@@ -258,6 +258,8 @@ void draw_battery (void *obj, cairo_t *c)
 	pango_layout_set_font_description(layout, bat1_font_desc);
 	pango_layout_set_width(layout, battery->area.width * PANGO_SCALE);
 	pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
+	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
+	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
 	pango_layout_set_text(layout, buf_bat_percentage, strlen(buf_bat_percentage));
 
 	cairo_set_source_rgba(c, battery->font.color[0], battery->font.color[1], battery->font.color[2], battery->font.alpha);
