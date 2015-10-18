@@ -181,6 +181,12 @@ void cleanup_battery()
 	battery_os_free();
 }
 
+void reinit_battery()
+{
+	battery_os_free();
+	battery_found = battery_os_init();
+	update_battery();
+}
 void init_battery()
 {
 	if (!battery_enabled)
