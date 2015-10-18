@@ -276,13 +276,6 @@ GtkWidget *create_properties()
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_panel_items), label);
 	create_panel_items(page_panel_items);
 
-	label = gtk_label_new(_("Launcher"));
-	gtk_widget_show(label);
-	page_launcher = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-	gtk_container_set_border_width(GTK_CONTAINER(page_launcher), 10);
-	gtk_widget_show(page_launcher);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_launcher), label);
-	create_launcher(page_launcher);
 
 	label = gtk_label_new(_("Taskbar"));
 	gtk_widget_show(label);
@@ -299,6 +292,14 @@ GtkWidget *create_properties()
 	gtk_widget_show(page_task);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_task), label);
 	create_task(page_task);
+
+	label = gtk_label_new(_("Launcher"));
+	gtk_widget_show(label);
+	page_launcher = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
+	gtk_container_set_border_width(GTK_CONTAINER(page_launcher), 10);
+	gtk_widget_show(page_launcher);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_launcher), label);
+	create_launcher(page_launcher);
 
 	label = gtk_label_new(_("Clock"));
 	gtk_widget_show(label);
