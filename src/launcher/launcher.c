@@ -32,11 +32,6 @@
 #include <glib/gstdio.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <sys/types.h>
-#include <sys/wait.h>
-
-#ifdef HAVE_RSVG
-#include <librsvg/rsvg.h>
-#endif
 
 #include "window.h"
 #include "server.h"
@@ -203,43 +198,8 @@ int resize_launcher(void *obj)
 
 			// Free the old files
 			free_icon(launcherIcon->image);
-			launcherIcon->image = NULL;
-			// Load the new file and scale
-			launcherIcon->image = imlib_load_image_immediately(new_icon_path);
-#ifdef HAVE_RSVG
-			if (!launcherIcon->image && g_str_has_suffix(new_icon_path, ".svg")) {
-				char suffix[128];
-				sprintf(suffix, "tmpicon-%d.png", getpid());
-				// We fork here because librsvg allocates memory like crazy
-				pid_t pid = fork();
-				if (pid == 0) {
-					// Child
-					GError* err = NULL;
-					RsvgHandle* svg = rsvg_handle_new_from_file(new_icon_path, &err);
-
-					if (err != NULL) {
-						fprintf(stderr, "Could not load svg image!: %s", err->message);
-						g_error_free(err);
-						launcherIcon->image = NULL;
-					} else {
-						gchar *name = g_build_filename(g_get_user_config_dir(), "tint2", suffix, NULL);
-						GdkPixbuf *pixbuf = rsvg_handle_get_pixbuf(svg);
-						gdk_pixbuf_save(pixbuf, name, "png", NULL, NULL);
-					}
-					exit(0);
-				} else {
-					// Parent
-					waitpid(pid, 0, 0);
-					gchar *name = g_build_filename(g_get_user_config_dir(), "tint2", suffix, NULL);
-					launcherIcon->image = imlib_load_image_immediately_without_cache(name);
-					g_remove(name);
-					g_free(name);
-				}
-			} else
-#endif
-			{
-				launcherIcon->image = imlib_load_image_immediately(new_icon_path);
-			}
+			// Load the new file
+			launcherIcon->image = load_image(new_icon_path, 1);
 			// On loading error, fallback to default
 			if (!launcherIcon->image) {
 				free(new_icon_path);
@@ -252,7 +212,7 @@ int resize_launcher(void *obj)
 				// Loading default icon failed, draw a blank icon
 				free(new_icon_path);
 			} else {
-				// Loaded icon successfully
+				// Loaded icon successfully, rescale it
 				Imlib_Image original = launcherIcon->image;
 				launcherIcon->image = scale_icon(launcherIcon->image, launcherIcon->icon_size);
 				free_icon(original);
