@@ -1403,18 +1403,18 @@ msgstr  "Spécifie la commande à exécuter lors d'un clic droit sur l'horloge."
 #: ../properties.c:3451 ../properties.c:4013
 #
 msgid   "Middle click command"
-msgstr  "Commande du clic milieu"
+msgstr  "Commande du clic du milieu"
 
 #: ../properties.c:3463
 #
 msgid   "Specifies a command that will be executed when the clock receives a "
         "middle click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic milieu sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lors d'un clic du milieu sur l'horloge."
 
 #: ../properties.c:3466 ../properties.c:4028
 #
 msgid   "Wheel scroll up command"
-msgstr  "Commande du molette haut"
+msgstr  "Commande de la molette vers le haut"
 
 #: ../properties.c:3478
 #
@@ -1426,14 +1426,14 @@ msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
 #: ../properties.c:3481 ../properties.c:4043
 #
 msgid   "Wheel scroll down command"
-msgstr  "Commande du molette bas"
+msgstr  "Commande de la molette du bas"
 
 #: ../properties.c:3493
 #
 msgid   "Specifies a command that will be executed when the clock receives a "
         "mouse scroll down."
 msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
-        "sur l'horloge."
+        "sur l'horloge vers le bas."
 
 #: ../properties.c:3520
 msgid   "Selects the background used to display the clock. Backgrounds can be "
@@ -1684,19 +1684,19 @@ msgstr  "Spécifie la commande à exécuter lors d'un clic droit sur la batterie
 #
 msgid   "Specifies a command that will be executed when the battery receives "
         "a middle click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic milieu sur la batterie."
+msgstr  "Spécifie la commande à exécuter lors d'un clic du milieu sur la batterie."
 
 #: ../properties.c:4040
 #
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll up."
-msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette sur la batterie."
+msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette sur la batterie vers le haut."
 
 #: ../properties.c:4055
 #
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll down."
-msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette sur la batterie."
+msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette sur la batterie vers le bas."
 
 #: ../properties.c:4082
 msgid   "Selects the background used to display the battery. Backgrounds can "
