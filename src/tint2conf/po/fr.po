@@ -855,7 +855,7 @@ msgstr  "Arrière-plan actif"
 #: ../properties.c:2573
 #, fuzzy
 msgid   "Active taskbar"
-msgstr  "Tâche active"
+msgstr  "Barre des tâches active"
 
 #: ../properties.c:2577
 msgid   "Selects the background used to display the taskbar of the current "
@@ -871,7 +871,7 @@ msgstr  "Arrière-plan inactif"
 #: ../properties.c:2587
 #, fuzzy
 msgid   "Inactive taskbar"
-msgstr  "Tâche active"
+msgstr  "Barre des tâches inactive"
 
 #: ../properties.c:2591
 msgid   "Selects the background used to display taskbars of inactive "
@@ -939,7 +939,7 @@ msgstr  "Spécifie la police utilisée pour afficher le nom du bureau."
 #: ../properties.c:2707
 #, fuzzy
 msgid   "Active desktop name"
-msgstr  "Affiche le nom du bureau"
+msgstr  "Nom du bureau actif"
 
 #: ../properties.c:2711
 msgid   "Selects the background used to display the name of the current "
@@ -951,7 +951,7 @@ msgstr  "Sélectionne l'arrière-plan utilisé pour afficher le nom du bureau "
 #: ../properties.c:2722
 #, fuzzy
 msgid   "Inactive desktop name"
-msgstr  "Affiche le nom du bureau"
+msgstr  "Nom du bureau inactif"
 
 #: ../properties.c:2726
 msgid   "Selects the background used to display the name of inactive "
@@ -1258,7 +1258,7 @@ msgstr  "Style par défaut"
 #: ../properties.c:3086
 #, fuzzy
 msgid   "Default task"
-msgstr  "Style par défaut"
+msgstr  "Tâche par défaut"
 
 #: ../properties.c:3096 ../properties.c:3097
 msgid   "Normal task"
@@ -1403,35 +1403,37 @@ msgstr  "Spécifie la commande à exécuter lors d'un clic droit sur l'horloge."
 #: ../properties.c:3451 ../properties.c:4013
 #, fuzzy
 msgid   "Middle click command"
-msgstr  "Commande du clic gauche"
+msgstr  "Commande du clic milieu"
 
 #: ../properties.c:3463
 #, fuzzy
 msgid   "Specifies a command that will be executed when the clock receives a "
         "middle click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lors d'un clic milieu sur l'horloge."
 
 #: ../properties.c:3466 ../properties.c:4028
 #, fuzzy
 msgid   "Wheel scroll up command"
-msgstr  "Molette haut"
+msgstr  "Commande du molette haut"
 
 #: ../properties.c:3478
 #, fuzzy
 msgid   "Specifies a command that will be executed when the clock receives a "
         "mouse scroll up."
-msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
+        "sur l'horloge."
 
 #: ../properties.c:3481 ../properties.c:4043
 #, fuzzy
 msgid   "Wheel scroll down command"
-msgstr  "Molette bas"
+msgstr  "Commande du molette bas"
 
 #: ../properties.c:3493
 #, fuzzy
 msgid   "Specifies a command that will be executed when the clock receives a "
         "mouse scroll down."
-msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
+        "sur l'horloge."
 
 #: ../properties.c:3520
 msgid   "Selects the background used to display the clock. Backgrounds can be "
@@ -1635,66 +1637,66 @@ msgstr  "Commande à exécuter lorsque le niveau d'alerte est atteint."
 #: ../properties.c:3912
 #, fuzzy
 msgid   "<b>AC connection events</b>"
-msgstr  "<b>Événements souris</b>"
+msgstr  "<b>Événements branchement/débranchement de l'alimentation secteur</b>"
 
 #: ../properties.c:3925
 #, fuzzy
 msgid   "AC connected command"
-msgstr  "Commande d'alerte"
+msgstr  "Commande alimentation secteur branchée"
 
 #: ../properties.c:3937
 #, fuzzy
 msgid   "Specifies a command that will be executed when AC is connected to "
         "the system."
-msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lorsque l'alimentation est branchée."
 
 #: ../properties.c:3940
 #, fuzzy
 msgid   "AC disconnected command"
-msgstr  "Commande d'alerte"
+msgstr  "Commande alimentation secteur débranchée"
 
 #: ../properties.c:3952
 #, fuzzy
 msgid   "Specifies a command that will be executed when AC is disconnected to "
         "the system."
-msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lorsque l'alimentation est débranchée."
 
 #: ../properties.c:3980
 #, fuzzy
 msgid   "If enabled, shows a tooltip with detailed battery information when "
         "the mouse is moved over the battery widget."
-msgstr  "Si l'option est activée, une infobulle contenant le nom du programme "
-        "s'affiche lorsque la souris passe au dessus du lanceur."
+msgstr  "Si l'option est activée, une infobulle contenant informations sur la batterie "
+        "s'affiche lorsque la souris passe au dessus la batterie."
 
 #: ../properties.c:3995
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a left click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur la batterie."
 
 #: ../properties.c:4010
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a right click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic droit sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lors d'un clic droit sur la batterie."
 
 #: ../properties.c:4025
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a middle click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lors d'un clic milieu sur la batterie."
 
 #: ../properties.c:4040
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll up."
-msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette sur la batterie."
 
 #: ../properties.c:4055
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll down."
-msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette sur la batterie."
 
 #: ../properties.c:4082
 msgid   "Selects the background used to display the battery. Backgrounds can "
