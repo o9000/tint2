@@ -1,3 +1,9 @@
+2015-11-04 master
+- New config options:
+  - Mouse over effects (mouse_effects, background_color_hover, border_color_hover)
+  - Launcher (launcher_icon_background_id)
+- Fixes:
+  - Updated French translation
 2015-09-27 master
 - Fixes:
   - Multiple batteries are now supported under Linux (issue #139; thanks to
