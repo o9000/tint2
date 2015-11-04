@@ -356,7 +356,7 @@ void draw_task_icon (Task *tsk, int text_width)
 void draw_task (void *obj, cairo_t *c)
 {
 	Task *tsk = obj;
-	tsk->state_pix[tsk->current_state] = tsk->area.pix;
+	//tsk->state_pix[tsk->current_state] = tsk->area.pix;
 	PangoLayout *layout;
 	Color *config_text;
 	int width=0, height;
@@ -515,8 +515,8 @@ void set_task_state(Task *tsk, int state)
 				Task* tsk1 = g_ptr_array_index(task_group, i);
 				tsk1->current_state = state;
 				tsk1->area.bg = panel1[0].g_task.background[state];
-				tsk1->area.pix = tsk1->state_pix[state];
-				if (tsk1->state_pix[state] == 0)
+				//tsk1->area.pix = tsk1->state_pix[state];
+				if (!tsk1->area.pix)
 					tsk1->area.redraw = 1;
 				if (state == TASK_ACTIVE && g_slist_find(urgent_list, tsk1))
 					del_urgent(tsk1);
