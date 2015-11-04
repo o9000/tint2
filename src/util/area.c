@@ -419,24 +419,13 @@ void show(Area *a)
 
 void draw (Area *a)
 {
-	if (a->pix) {
-		unsigned int d1, width, height;
-		Window d2;
-		int d3;
-		XGetGeometry(server.dsp, server.root_win, &d2, &d3, &d3, &width, &height, &d1, &d1);
-		if (width != a->width || height != a->height) {
-			XFreePixmap (server.dsp, a->pix);
-			a->pix = XCreatePixmap(server.dsp, server.root_win, a->width, a->height, server.depth);
-		}
-	} else {
-		a->pix = XCreatePixmap(server.dsp, server.root_win, a->width, a->height, server.depth);
-	}
+	if (a->pix) XFreePixmap (server.dsp, a->pix);
+	a->pix = XCreatePixmap (server.dsp, server.root_win, a->width, a->height, server.depth);
 
 	// add layer of root pixmap (or clear pixmap if real_transparency==true)
 	if (server.real_transparency)
 		clear_pixmap(a->pix, 0 ,0, a->width, a->height);
-	else
-		XCopyArea (server.dsp, ((Panel *)a->panel)->temp_pmap, a->pix, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+	XCopyArea (server.dsp, ((Panel *)a->panel)->temp_pmap, a->pix, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
 
 	cairo_surface_t *cs;
 	cairo_t *c;
