@@ -44,6 +44,8 @@ typedef struct
 {
 	Color back;
 	Border border;
+	Color back_hover;
+	Color border_hover;
 } Background;
 
 
@@ -52,6 +54,12 @@ typedef struct
 // SIZE_BY_CONTENT objects : clock, battery, launcher, systray
 enum { SIZE_BY_LAYOUT, SIZE_BY_CONTENT };
 enum { ALIGN_LEFT = 0, ALIGN_CENTER = 1, ALIGN_RIGHT = 2 };
+
+typedef enum {
+	MOUSE_NORMAL = 0,
+	MOUSE_OVER = 1
+} MouseState;
+
 
 typedef struct {
 	// coordinate relative to panel window
@@ -83,6 +91,9 @@ typedef struct {
 	// panel
 	void *panel;
 
+	int mouse_effects;
+	MouseState mouse_state;
+
 	// each object can overwrite following function
 	void (*_draw_foreground)(void *obj, cairo_t *c);
 	// update area's content and update size (width/heith). 
@@ -94,6 +105,8 @@ typedef struct {
 	// returns allocated string, that must be free'd after usage
 	char* (*_get_tooltip_text)(void *obj);
 } Area;
+
+void init_background(Background *bg);
 
 // on startup, initialize fixed pos/size
 void init_rendering(void *obj, int pos);
@@ -118,7 +131,7 @@ void show(Area *a);
 void draw (Area *a);
 void draw_background (Area *a, cairo_t *c);
 
-void remove_area (Area *a);
+void remove_area (void *a);
 void add_area (Area *a);
 void free_area (Area *a);
 
@@ -127,5 +140,9 @@ void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
 
 // clear pixmap with transparent color
 void clear_pixmap(Pixmap p, int x, int y, int w, int h);
+
+void mouse_over(Area *area);
+void mouse_out();
+
 #endif
 

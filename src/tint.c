@@ -557,7 +557,7 @@ void event_button_motion_notify (XEvent *e)
 			return;
 
 		Taskbar * drag_taskbar = (Taskbar*)task_drag->area.parent;
-		drag_taskbar->area.list = g_list_remove(drag_taskbar->area.list, task_drag);
+		remove_area(task_drag);
 
 		if (event_taskbar->area.posx > drag_taskbar->area.posx || event_taskbar->area.posy > drag_taskbar->area.posy) {
 			int i = (taskbarname_enabled) ? 1 : 0;
@@ -1316,11 +1316,15 @@ start:
 						tooltip_trigger_show(area, panel, &e);
 					else
 						tooltip_trigger_hide();
+					if (panel_config.mouse_effects)
+						mouse_over(area);
 					break;
 				}
 
 				case LeaveNotify:
 					tooltip_trigger_hide();
+					if (panel_config.mouse_effects)
+						mouse_out();
 					break;
 
 				case Expose:

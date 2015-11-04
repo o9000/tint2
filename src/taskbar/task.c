@@ -61,6 +61,7 @@ Task *add_task (Window win)
 	else monitor = 0;
 
 	Task new_tsk;
+	new_tsk.area.mouse_effects = 1;
 	new_tsk.win = win;
 	new_tsk.desktop = window_get_desktop (win);
 	new_tsk.area.panel = &panel1[monitor];
@@ -91,6 +92,7 @@ Task *add_task (Window win)
 		new_tsk2 = calloc(1, sizeof(Task));
 		memcpy(&new_tsk2->area, &panel1[monitor].g_task.area, sizeof(Area));
 		new_tsk2->area.parent = tskbar;
+		new_tsk2->area.mouse_effects = 1;
 		new_tsk2->win = new_tsk.win;
 		new_tsk2->desktop = new_tsk.desktop;
 		new_tsk2->win_x = new_tsk.win_x;
@@ -164,16 +166,13 @@ void remove_task (Task *tsk)
 
 	int i;
 	Task *tsk2;
-	Taskbar *tskbar;
 	GPtrArray* task_group = g_hash_table_lookup(win_to_task_table, &win);
 	for (i=0; i<task_group->len; ++i) {
 		tsk2 = g_ptr_array_index(task_group, i);
-		tskbar = tsk2->area.parent;
-		tskbar->area.list = g_list_remove(tskbar->area.list, tsk2);
-		tskbar->area.resize = 1;
 		if (tsk2 == task_active) task_active = 0;
 		if (tsk2 == task_drag) task_drag = 0;
 		if (g_slist_find(urgent_list, tsk2)) del_urgent(tsk2);
+		remove_area(tsk2);
 		free(tsk2);
 	}
 	g_hash_table_remove(win_to_task_table, &win);

@@ -71,6 +71,8 @@
  *
  ************************************************************/
 
+Area *mouse_over_area = NULL;
+
 void init_rendering(void *obj, int pos)
 {
 	Area *a = (Area*)obj;
@@ -443,69 +445,44 @@ void draw (Area *a)
 
 void draw_background (Area *a, cairo_t *c)
 {
-	if (a->bg->back.alpha > 0.0) {
+	if (a->bg->back.alpha > 0.0 ||
+		(panel_config.mouse_effects && a->mouse_effects && a->mouse_state == MOUSE_OVER)) {
 		//printf("    draw_background (%d %d) RGBA (%lf, %lf, %lf, %lf)\n", a->posx, a->posy, pix->back.color[0], pix->back.color[1], pix->back.color[2], pix->back.alpha);
+		if (a->mouse_state == MOUSE_OVER) {
+			cairo_set_source_rgba(c, a->bg->back_hover.color[0], a->bg->back_hover.color[1], a->bg->back_hover.color[2], a->bg->back_hover.alpha);
+		} else
+			cairo_set_source_rgba(c, a->bg->back.color[0], a->bg->back.color[1], a->bg->back.color[2], a->bg->back.alpha);
 		draw_rect(c, a->bg->border.width, a->bg->border.width, a->width-(2.0 * a->bg->border.width), a->height-(2.0*a->bg->border.width), a->bg->border.rounded - a->bg->border.width/1.571);
-		cairo_set_source_rgba(c, a->bg->back.color[0], a->bg->back.color[1], a->bg->back.color[2], a->bg->back.alpha);
 		cairo_fill(c);
 	}
 
-	if (a->bg->border.width > 0 && a->bg->border.alpha > 0.0) {
+	if (a->bg->border.width > 0) {
 		cairo_set_line_width (c, a->bg->border.width);
 
 		// draw border inside (x, y, width, height)
+		if (a->mouse_state == MOUSE_OVER) {
+			cairo_set_source_rgba(c, a->bg->border_hover.color[0], a->bg->border_hover.color[1], a->bg->border_hover.color[2], a->bg->border_hover.alpha);
+		} else
+			cairo_set_source_rgba(c, a->bg->border.color[0], a->bg->border.color[1], a->bg->border.color[2], a->bg->border.alpha);
 		draw_rect(c, a->bg->border.width/2.0, a->bg->border.width/2.0, a->width - a->bg->border.width, a->height - a->bg->border.width, a->bg->border.rounded);
-		/*
-		// convert : radian = degre * M_PI/180
-		// definir le degrade dans un carre de (0,0) (100,100)
-		// ensuite ce degrade est extrapoler selon le ratio width/height
-		// dans repere (0, 0) (100, 100)
-		double X0, Y0, X1, Y1, degre;
-		// x = X * (a->width / 100), y = Y * (a->height / 100)
-		double x0, y0, x1, y1;
-		X0 = 0;
-		Y0 = 100;
-		X1 = 100;
-		Y1 = 0;
-		degre = 45;
-		// et ensuite faire la changement d'unite du repere
-		// car ce qui doit reste inchangee est les traits et pas la direction
 
-		// il faut d'abord appliquer une rotation de 90 (et -180 si l'angle est superieur a  180)
-		// ceci peut etre applique une fois pour toute au depart
-		// ensuite calculer l'angle dans le nouveau repare
-		// puis faire une rotation de 90
-		x0 = X0 * ((double)a->width / 100);
-		x1 = X1 * ((double)a->width / 100);
-		y0 = Y0 * ((double)a->height / 100);
-		y1 = Y1 * ((double)a->height / 100);
-
-		x0 = X0 * ((double)a->height / 100);
-		x1 = X1 * ((double)a->height / 100);
-		y0 = Y0 * ((double)a->width / 100);
-		y1 = Y1 * ((double)a->width / 100);
-
-		cairo_pattern_t *linpat;
-		linpat = cairo_pattern_create_linear (x0, y0, x1, y1);
-		cairo_pattern_add_color_stop_rgba (linpat, 0, a->border.color[0], a->border.color[1], a->border.color[2], a->border.alpha);
-		cairo_pattern_add_color_stop_rgba (linpat, 1, a->border.color[0], a->border.color[1], a->border.color[2], 0);
-		cairo_set_source (c, linpat);
-		*/
-		cairo_set_source_rgba (c, a->bg->border.color[0], a->bg->border.color[1], a->bg->border.color[2], a->bg->border.alpha);
-
-		cairo_stroke (c);
-		//cairo_pattern_destroy (linpat);
+		cairo_stroke(c);
 	}
 }
 
 
-void remove_area (Area *a)
+void remove_area (void *a)
 {
-	Area *parent = (Area*)a->parent;
+	Area *area = (Area*)a;
+	Area *parent = (Area*)area->parent;
 
-	parent->list = g_list_remove(parent->list, a);
+	parent->list = g_list_remove(parent->list, area);
+	parent->resize = 1;
 	set_redraw (parent);
 
+	if (mouse_over_area == a) {
+		mouse_over_area = NULL;
+	}
 }
 
 
@@ -536,6 +513,9 @@ void free_area (Area *a)
 		XFreePixmap (server.dsp, a->pix);
 		a->pix = 0;
 	}
+	if (mouse_over_area == a) {
+		mouse_over_area = NULL;
+	}
 }
 
 
@@ -565,4 +545,41 @@ void clear_pixmap(Pixmap p, int x, int y, int w, int h)
 	XRenderColor col = { .red=0, .green=0, .blue=0, .alpha=0 };
 	XRenderFillRectangle(server.dsp, PictOpSrc, pict, &col, x, y, w, h);
 	XRenderFreePicture(server.dsp, pict);
+}
+
+void mouse_over(Area *area)
+{
+	if (mouse_over_area == area)
+		return;
+	mouse_out();
+	if (!area->mouse_effects)
+		return;
+	mouse_over_area = area;
+
+	mouse_over_area->mouse_state = MOUSE_OVER;
+	set_redraw(mouse_over_area);
+	panel_refresh = 1;
+}
+
+void mouse_out()
+{
+	if (!mouse_over_area)
+		return;
+	mouse_over_area->mouse_state = MOUSE_NORMAL;
+	set_redraw(mouse_over_area);
+	panel_refresh = 1;
+	mouse_over_area = NULL;
+}
+
+void init_background(Background *bg)
+{
+	memset(bg, 0, sizeof(Background));
+	bg->back_hover.color[0] = 0.8;
+	bg->back_hover.color[1] = 0.8;
+	bg->back_hover.color[2] = 0.8;
+	bg->back_hover.alpha = 0.3;
+	bg->border_hover.color[0] = 0.8;
+	bg->border_hover.color[1] = 0.8;
+	bg->border_hover.color[2] = 0.8;
+	bg->border_hover.alpha = 0.5;
 }

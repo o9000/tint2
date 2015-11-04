@@ -14,6 +14,7 @@ extern GtkWidget *panel_width, *panel_height, *panel_margin_x, *panel_margin_y, 
 extern GtkWidget *panel_wm_menu, *panel_dock, *panel_autohide, *panel_autohide_show_time, *panel_autohide_hide_time, *panel_autohide_size;
 extern GtkWidget *panel_combo_strut_policy, *panel_combo_layer, *panel_combo_width_type, *panel_combo_height_type, *panel_combo_monitor;
 extern GtkWidget *panel_window_name, *disable_transparency;
+extern GtkWidget *panel_mouse_effects;
 
 enum {
 	itemsColName = 0,
@@ -147,6 +148,10 @@ enum {
 	bgColBorderWidth,
 	bgColCornerRadius,
 	bgColText,
+	bgColFillColorOver,
+	bgColFillOpacityOver,
+	bgColBorderColorOver,
+	bgColBorderOpacityOver,
 	bgNumCols
 };
 
@@ -154,6 +159,8 @@ extern GtkListStore *backgrounds;
 extern GtkWidget *current_background,
 		  *background_fill_color,
 		  *background_border_color,
+		  *background_fill_color_over,
+		  *background_border_color_over,
 		  *background_border_width,
 		  *background_corner_radius;
 

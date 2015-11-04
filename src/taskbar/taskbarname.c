@@ -62,6 +62,7 @@ void init_taskbarname_panel(void *p)
 		tskbar = &panel->taskbar[j];
 		memcpy(&tskbar->bar_name.area, &panel->g_taskbar.area_name, sizeof(Area));
 		tskbar->bar_name.area.parent = tskbar;
+		tskbar->bar_name.area.mouse_effects = 1;
 		if (j == server.desktop)
 			tskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_ACTIVE];
 		else
@@ -103,7 +104,7 @@ void cleanup_taskbarname()
 					XFreePixmap(server.dsp, tskbar->bar_name.state_pix[k]);
 				tskbar->bar_name.state_pix[k] = 0;
 			}
-			tskbar->area.list = g_list_remove(tskbar->area.list, &tskbar->bar_name);
+			remove_area(&tskbar->bar_name);
 		}
 	}
 }

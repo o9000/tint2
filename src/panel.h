@@ -91,6 +91,7 @@ typedef struct {
 	// location of the panel (monitor number)
 	int monitor;
 	int font_shadow;
+	int mouse_effects;
 
 	// --------------------------------------------------
 	// task and taskbar parameter per panel

@@ -206,7 +206,7 @@ void add_entry (char *key, char *value)
 	if (strcmp (key, "rounded") == 0) {
 		// 'rounded' is the first parameter => alloc a new background
 		Background bg;
-		memset(&bg, 0, sizeof(bg));
+		init_background(&bg);
 		bg.border.rounded = atoi(value);
 		g_array_append_val(backgrounds, bg);
 	}
@@ -226,6 +226,20 @@ void add_entry (char *key, char *value)
 		get_color (value1, bg->border.color);
 		if (value2) bg->border.alpha = (atoi (value2) / 100.0);
 		else bg->border.alpha = 0.5;
+	}
+	else if (strcmp (key, "background_color_hover") == 0) {
+		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
+		extract_values(value, &value1, &value2, &value3);
+		get_color (value1, bg->back_hover.color);
+		if (value2) bg->back_hover.alpha = (atoi (value2) / 100.0);
+		else bg->back_hover.alpha = 0.5;
+	}
+	else if (strcmp (key, "border_color_hover") == 0) {
+		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
+		extract_values(value, &value1, &value2, &value3);
+		get_color (value1, bg->border_hover.color);
+		if (value2) bg->border_hover.alpha = (atoi (value2) / 100.0);
+		else bg->border_hover.alpha = 0.5;
 	}
 
 	/* Panel */
@@ -821,6 +835,8 @@ void add_entry (char *key, char *value)
 		get_action (value, &mouse_scroll_up);
 	else if (strcmp (key, "mouse_scroll_down") == 0)
 		get_action (value, &mouse_scroll_down);
+	else if (strcmp (key, "mouse_effects") == 0)
+		panel_config.mouse_effects = atoi(value);
 
 	/* autohide options */
 	else if (strcmp(key, "autohide") == 0)

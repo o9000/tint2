@@ -100,7 +100,7 @@ void default_panel()
 
 	// append full transparency background
 	Background transparent_bg;
-	memset(&transparent_bg, 0, sizeof(Background));
+	init_background(&transparent_bg);
 	g_array_append_val(backgrounds, transparent_bg);
 }
 
@@ -217,7 +217,10 @@ void init_panel()
 		p->main_win = XCreateWindow(server.dsp, server.root_win, p->posx, p->posy, p->area.width, p->area.height, 0, server.depth, InputOutput, server.visual, mask, &att);
 
 		long event_mask = ExposureMask|ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
-		if (p->g_task.tooltip_enabled || p->clock.area._get_tooltip_text || (launcher_enabled && launcher_tooltip_enabled))
+		if (p->mouse_effects ||
+			p->g_task.tooltip_enabled ||
+			p->clock.area._get_tooltip_text ||
+			(launcher_enabled && launcher_tooltip_enabled))
 			event_mask |= PointerMotionMask|LeaveWindowMask;
 		if (panel_autohide)
 			event_mask |= LeaveWindowMask|EnterWindowMask;

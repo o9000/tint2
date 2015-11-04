@@ -185,6 +185,11 @@ void init_clock_panel(void *p)
 		clock->area.bg = &g_array_index(backgrounds, Background, 0);
 	clock->area.parent = p;
 	clock->area.panel = p;
+	clock->area.mouse_effects = clock_lclick_command ||
+								clock_mclick_command ||
+								clock_rclick_command ||
+								clock_uwheel_command ||
+								clock_dwheel_command;
 	clock->area._draw_foreground = draw_clock;
 	clock->area.size_mode = SIZE_BY_CONTENT;
 	clock->area._resize = resize_clock;

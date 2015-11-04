@@ -426,6 +426,7 @@ void launcher_load_icons(Launcher *launcher)
 			launcherIcon->area._resize = NULL;
 			launcherIcon->area.resize = 0;
 			launcherIcon->area.redraw = 1;
+			launcherIcon->area.mouse_effects = 1;
 			launcherIcon->area.bg = &g_array_index(backgrounds, Background, 0);
 			launcherIcon->area.on_screen = 1;
 			launcherIcon->area._on_change_layout = launcher_icon_on_change_layout;
