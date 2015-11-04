@@ -111,6 +111,8 @@ Task *add_task (Window win)
 			new_tsk2->area._get_tooltip_text = task_get_tooltip;
 		for (k=0; k<TASK_STATE_COUNT; ++k) {
 			new_tsk2->icon[k] = new_tsk.icon[k];
+			new_tsk2->icon_hover[k] = new_tsk.icon_hover[k];
+			new_tsk2->icon_press[k] = new_tsk.icon_press[k];
 			new_tsk2->state_pix[k] = 0;
 		}
 		new_tsk2->icon_width = new_tsk.icon_width;
@@ -162,8 +164,18 @@ void remove_task (Task *tsk)
 			imlib_context_set_image(tsk->icon[k]);
 			imlib_free_image();
 			tsk->icon[k] = 0;
-			if (tsk->state_pix[k]) XFreePixmap(server.dsp, tsk->state_pix[k]);
 		}
+		if (tsk->icon_hover[k]) {
+			imlib_context_set_image(tsk->icon_hover[k]);
+			imlib_free_image();
+			tsk->icon_hover[k] = 0;
+		}
+		if (tsk->icon_press[k]) {
+			imlib_context_set_image(tsk->icon_press[k]);
+			imlib_free_image();
+			tsk->icon_press[k] = 0;
+		}
+		if (tsk->state_pix[k]) XFreePixmap(server.dsp, tsk->state_pix[k]);
 	}
 
 	int i;
@@ -310,6 +322,10 @@ void get_icon (Task *tsk)
 			adjust_asb(data32, tsk->icon_width, tsk->icon_height, panel->g_task.alpha[k], (float)panel->g_task.saturation[k]/100, (float)panel->g_task.brightness[k]/100);
 			imlib_image_put_back_data(data32);
 		}
+		if (panel_config.mouse_effects) {
+			tsk->icon_hover[k] = adjust_icon(tsk->icon[k], 100, 0, 10);
+			tsk->icon_press[k] = adjust_icon(tsk->icon[k], 100, 0, -10);
+		}
 	}
 	imlib_context_set_image(orig_image);
 	imlib_free_image();
@@ -326,8 +342,11 @@ void get_icon (Task *tsk)
 			tsk2->icon_width = tsk->icon_width;
 			tsk2->icon_height = tsk->icon_height;
 			int k;
-			for (k=0; k<TASK_STATE_COUNT; ++k)
+			for (k=0; k<TASK_STATE_COUNT; ++k) {
 				tsk2->icon[k] = tsk->icon[k];
+				tsk2->icon_hover[k] = tsk->icon_hover[k];
+				tsk2->icon_press[k] = tsk->icon_press[k];
+			}
 			set_task_redraw(tsk2);
 		}
 	}
@@ -350,7 +369,21 @@ void draw_task_icon (Task *tsk, int text_width)
 	else pos_x = panel->g_task.area.paddingxlr + tsk->area.bg->border.width;
 
 	// Render
-	imlib_context_set_image (tsk->icon[tsk->current_state]);
+
+	Imlib_Image image;
+	// Render
+	if (panel_config.mouse_effects) {
+		if (tsk->area.mouse_state == MOUSE_OVER)
+			image = tsk->icon_hover[tsk->current_state];
+		else if (tsk->area.mouse_state == MOUSE_DOWN)
+			image = tsk->icon_press[tsk->current_state];
+		else
+			image = tsk->icon[tsk->current_state];
+	} else {
+		 image = tsk->icon[tsk->current_state];
+	}
+
+	imlib_context_set_image(image);
 	render_image(tsk->area.pix, pos_x, panel->g_task.icon_posy);
 }
 

@@ -75,5 +75,8 @@ void render_image(Drawable d, int x, int y);
 void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow);
 
 Imlib_Image load_image(const char *path, int cached);
+
+Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int brightness);
+
 #endif
 

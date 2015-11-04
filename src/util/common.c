@@ -508,3 +508,19 @@ Imlib_Image load_image(const char *path, int cached)
 	}
 	return image;
 }
+
+Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int brightness)
+{
+	if (!original)
+		return NULL;
+
+	imlib_context_set_image(original);
+	Imlib_Image copy = imlib_clone_image();
+
+	imlib_context_set_image(copy);
+	imlib_image_set_has_alpha(1);
+	DATA32* data = imlib_image_get_data();
+	adjust_asb(data, imlib_image_get_width(), imlib_image_get_height(), alpha, (float)saturation/100, (float)brightness/100);
+	imlib_image_put_back_data(data);
+	return copy;
+}

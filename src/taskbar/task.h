@@ -57,6 +57,8 @@ typedef struct {
 	int  desktop;
 	int current_state;
 	Imlib_Image icon[TASK_STATE_COUNT];
+	Imlib_Image icon_hover[TASK_STATE_COUNT];
+	Imlib_Image icon_press[TASK_STATE_COUNT];
 	Pixmap state_pix[TASK_STATE_COUNT];
 	unsigned int icon_width;
 	unsigned int icon_height;

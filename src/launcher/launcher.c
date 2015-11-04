@@ -153,6 +153,8 @@ void cleanup_launcher_theme(Launcher *launcher)
 		LauncherIcon *launcherIcon = (LauncherIcon*)l->data;
 		if (launcherIcon) {
 			free_icon(launcherIcon->image);
+			free_icon(launcherIcon->image_hover);
+			free_icon(launcherIcon->image_pressed);
 			free(launcherIcon->icon_name);
 			free(launcherIcon->icon_path);
 			free(launcherIcon->cmd);
@@ -197,12 +199,16 @@ int resize_launcher(void *obj)
 			if (!new_icon_path) {
 				// Draw a blank icon
 				free_icon(launcherIcon->image);
+				free_icon(launcherIcon->image_hover);
+				free_icon(launcherIcon->image_pressed);
 				launcherIcon->image = NULL;
 				continue;
 			}
 
 			// Free the old files
 			free_icon(launcherIcon->image);
+			free_icon(launcherIcon->image_hover);
+			free_icon(launcherIcon->image_pressed);
 			// Load the new file
 			launcherIcon->image = load_image(new_icon_path, 1);
 			// On loading error, fallback to default
@@ -225,6 +231,11 @@ int resize_launcher(void *obj)
 				launcherIcon->icon_path = new_icon_path;
 				fprintf(stderr, "launcher.c %d: Using icon %s\n", __LINE__, launcherIcon->icon_path);
 			}
+		}
+
+		if (panel_config.mouse_effects) {
+			launcherIcon->image_hover = adjust_icon(launcherIcon->image, 100, 0, 10);
+			launcherIcon->image_pressed = adjust_icon(launcherIcon->image, 100, 0, -10);
 		}
 	}
 	
@@ -322,8 +333,19 @@ void draw_launcher_icon(void *obj, cairo_t *c)
 {
 	LauncherIcon *launcherIcon = (LauncherIcon*)obj;
 
+	Imlib_Image image;
 	// Render
-	imlib_context_set_image(launcherIcon->image);
+	if (panel_config.mouse_effects) {
+		if (launcherIcon->area.mouse_state == MOUSE_OVER)
+			image = launcherIcon->image_hover ? launcherIcon->image_hover : launcherIcon->image;
+		else if (launcherIcon->area.mouse_state == MOUSE_DOWN)
+			image = launcherIcon->image_pressed ? launcherIcon->image_pressed : launcherIcon->image;
+		else
+			image = launcherIcon->image;
+	} else {
+		 image = launcherIcon->image;
+	}
+	imlib_context_set_image(image);
 	render_image(launcherIcon->area.pix, 0, 0);
 }
 

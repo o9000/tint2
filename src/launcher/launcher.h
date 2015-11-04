@@ -24,6 +24,8 @@ typedef struct LauncherIcon {
 	// always start with area
 	Area area;
 	Imlib_Image image;
+	Imlib_Image image_hover;
+	Imlib_Image image_pressed;
 	char *cmd;
 	char *icon_name;
 	char *icon_path;
