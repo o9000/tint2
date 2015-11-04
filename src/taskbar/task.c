@@ -61,6 +61,7 @@ Task *add_task (Window win)
 	else monitor = 0;
 
 	Task new_tsk;
+	memset(&new_tsk, 0, sizeof(new_tsk));
 	new_tsk.area.mouse_over_effect = 1;
 	new_tsk.area.mouse_press_effect = 1;
 	new_tsk.win = win;
@@ -271,7 +272,7 @@ void get_icon (Task *tsk)
 		DATA32 icon_data[w * h];
 		int length = w * h;
 		for (i = 0; i < length; ++i)
-			icon_data[i] =  tmp_data[i];
+			icon_data[i] = tmp_data[i];
 		img = imlib_create_image_using_copied_data (w, h, icon_data);
 #else
 		img = imlib_create_image_using_data (w, h, (DATA32*)tmp_data);
@@ -284,7 +285,7 @@ void get_icon (Task *tsk)
 			if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
 				// get width, height and depth for the pixmap
 				Window root;
-				int  icon_x, icon_y;
+				int icon_x, icon_y;
 				uint border_width, bpp;
 				uint w, h;
 
@@ -323,8 +324,8 @@ void get_icon (Task *tsk)
 			imlib_image_put_back_data(data32);
 		}
 		if (panel_config.mouse_effects) {
-			tsk->icon_hover[k] = adjust_icon(tsk->icon[k], 100, 0, 10);
-			tsk->icon_press[k] = adjust_icon(tsk->icon[k], 100, 0, -10);
+			tsk->icon_hover[k] = adjust_icon(tsk->icon[k], panel_config.mouse_over_alpha, panel_config.mouse_over_saturation, panel_config.mouse_over_brightness);
+			tsk->icon_press[k] = adjust_icon(tsk->icon[k], panel_config.mouse_pressed_alpha, panel_config.mouse_pressed_saturation, panel_config.mouse_pressed_brightness);
 		}
 	}
 	imlib_context_set_image(orig_image);

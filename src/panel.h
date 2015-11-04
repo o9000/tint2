@@ -92,6 +92,13 @@ typedef struct {
 	int monitor;
 	int font_shadow;
 	int mouse_effects;
+	// Mouse effects for icons
+	int mouse_over_alpha;
+	int mouse_over_saturation;
+	int mouse_over_brightness;
+	int mouse_pressed_alpha;
+	int mouse_pressed_saturation;
+	int mouse_pressed_brightness;
 
 	// --------------------------------------------------
 	// task and taskbar parameter per panel

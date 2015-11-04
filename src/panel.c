@@ -97,6 +97,12 @@ void default_panel()
 	backgrounds = g_array_new(0, 0, sizeof(Background));
 
 	memset(&panel_config, 0, sizeof(Panel));
+	panel_config.mouse_over_alpha = 100;
+	panel_config.mouse_over_saturation = 0;
+	panel_config.mouse_over_brightness = 10;
+	panel_config.mouse_pressed_alpha = 100;
+	panel_config.mouse_pressed_saturation = 0;
+	panel_config.mouse_pressed_brightness = -10;
 
 	// append full transparency background
 	Background transparent_bg;
@@ -227,7 +233,7 @@ void init_panel()
 		XChangeWindowAttributes(server.dsp, p->main_win, CWEventMask, &(XSetWindowAttributes){.event_mask=event_mask});
 
 		if (!server.gc) {
-			XGCValues  gcv;
+			XGCValues gcv;
 			server.gc = XCreateGC(server.dsp, p->main_win, 0, &gcv);
 		}
 		//printf("panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
@@ -444,7 +450,7 @@ void update_strut(Panel* p)
 	int d3;
 	XGetGeometry(server.dsp, server.root_win, &d2, &d3, &d3, &screen_width, &screen_height, &d1, &d1);
 	Monitor monitor = server.monitor[p->monitor];
-	long   struts [12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	long struts [12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	if (panel_horizontal) {
 		int height = p->area.height + p->marginy;
 		if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && p->is_hidden))
@@ -613,7 +619,7 @@ void set_panel_background(Panel *p)
 		get_root_pixmap();
 		// copy background (server.root_pmap) in panel.area.pix
 		Window dummy;
-		int  x, y;
+		int x, y;
 		XTranslateCoordinates(server.dsp, p->main_win, server.root_win, 0, 0, &x, &y, &dummy);
 		if (panel_autohide && p->is_hidden) {
 			x -= xoff;

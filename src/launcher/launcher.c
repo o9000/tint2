@@ -234,8 +234,8 @@ int resize_launcher(void *obj)
 		}
 
 		if (panel_config.mouse_effects) {
-			launcherIcon->image_hover = adjust_icon(launcherIcon->image, 100, 0, 10);
-			launcherIcon->image_pressed = adjust_icon(launcherIcon->image, 100, 0, -10);
+			launcherIcon->image_hover = adjust_icon(launcherIcon->image, panel_config.mouse_over_alpha, panel_config.mouse_over_saturation, panel_config.mouse_over_brightness);
+			launcherIcon->image_pressed = adjust_icon(launcherIcon->image, panel_config.mouse_pressed_alpha, panel_config.mouse_pressed_saturation, panel_config.mouse_pressed_brightness);
 		}
 	}
 	

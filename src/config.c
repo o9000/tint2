@@ -70,6 +70,11 @@ char *snapshot_path;
 // detect if it's an old config file (==1)
 static int new_config_file;
 
+static int read_bg_color_hover;
+static int read_border_color_hover;
+static int read_bg_color_press;
+static int read_border_color_press;
+
 
 void default_config()
 {
@@ -205,10 +210,25 @@ void add_entry (char *key, char *value)
 	/* Background and border */
 	if (strcmp (key, "rounded") == 0) {
 		// 'rounded' is the first parameter => alloc a new background
+		if (backgrounds->len > 0) {
+			Background *bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
+			if (!read_bg_color_hover)
+				memcpy(&bg->back_hover, &bg->back, sizeof(Color));
+			if (!read_border_color_hover)
+				memcpy(&bg->border_hover, &bg->border, sizeof(Color));
+			if (!read_bg_color_press)
+				memcpy(&bg->back_pressed, &bg->back, sizeof(Color));
+			if (!read_border_color_press)
+				memcpy(&bg->border_pressed, &bg->border, sizeof(Color));
+		}
 		Background bg;
 		init_background(&bg);
 		bg.border.rounded = atoi(value);
 		g_array_append_val(backgrounds, bg);
+		read_bg_color_hover = 0;
+		read_border_color_hover = 0;
+		read_bg_color_press = 0;
+		read_border_color_press = 0;
 	}
 	else if (strcmp (key, "border_width") == 0) {
 		g_array_index(backgrounds, Background, backgrounds->len-1).border.width = atoi(value);
@@ -233,6 +253,7 @@ void add_entry (char *key, char *value)
 		get_color (value1, bg->back_hover.color);
 		if (value2) bg->back_hover.alpha = (atoi (value2) / 100.0);
 		else bg->back_hover.alpha = 0.5;
+    read_bg_color_hover = 1;
 	}
 	else if (strcmp (key, "border_color_hover") == 0) {
 		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
@@ -240,6 +261,23 @@ void add_entry (char *key, char *value)
 		get_color (value1, bg->border_hover.color);
 		if (value2) bg->border_hover.alpha = (atoi (value2) / 100.0);
 		else bg->border_hover.alpha = 0.5;
+		read_border_color_hover = 1;
+	}
+	else if (strcmp (key, "background_color_pressed") == 0) {
+		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
+		extract_values(value, &value1, &value2, &value3);
+		get_color (value1, bg->back_pressed.color);
+		if (value2) bg->back_pressed.alpha = (atoi (value2) / 100.0);
+		else bg->back_pressed.alpha = 0.5;
+		read_bg_color_press = 1;
+	}
+	else if (strcmp (key, "border_color_pressed") == 0) {
+		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
+		extract_values(value, &value1, &value2, &value3);
+		get_color (value1, bg->border_pressed.color);
+		if (value2) bg->border_pressed.alpha = (atoi (value2) / 100.0);
+		else bg->border_pressed.alpha = 0.5;
+		read_border_color_press = 1;
 	}
 
 	/* Panel */
@@ -842,6 +880,19 @@ void add_entry (char *key, char *value)
 		get_action (value, &mouse_scroll_down);
 	else if (strcmp (key, "mouse_effects") == 0)
 		panel_config.mouse_effects = atoi(value);
+	else if (strcmp(key, "mouse_hover_icon_asb") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		panel_config.mouse_over_alpha = atoi(value1);
+		panel_config.mouse_over_saturation = atoi(value2);
+		panel_config.mouse_over_brightness = atoi(value3);
+	}
+	else if (strcmp(key, "mouse_pressed_icon_asb") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		panel_config.mouse_pressed_alpha = atoi(value1);
+		panel_config.mouse_pressed_saturation = atoi(value2);
+		panel_config.mouse_pressed_brightness = atoi(value3);
+	}
+
 
 	/* autohide options */
 	else if (strcmp(key, "autohide") == 0)
@@ -984,6 +1035,18 @@ int config_read_file (const char *path)
 		else 
 			panel_items_order = strdup("T");
 	}
+
+  if (backgrounds->len > 0) {
+    Background *bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
+    if (!read_bg_color_hover)
+      memcpy(&bg->back_hover, &bg->back, sizeof(Color));
+    if (!read_border_color_hover)
+      memcpy(&bg->border_hover, &bg->border, sizeof(Color));
+    if (!read_bg_color_press)
+      memcpy(&bg->back_pressed, &bg->back, sizeof(Color));
+    if (!read_border_color_press)
+      memcpy(&bg->border_pressed, &bg->border, sizeof(Color));
+  }
 
 	return 1;
 }

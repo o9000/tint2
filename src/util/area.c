@@ -596,21 +596,4 @@ void mouse_out()
 void init_background(Background *bg)
 {
 	memset(bg, 0, sizeof(Background));
-	bg->back_hover.color[0] = 0.8;
-	bg->back_hover.color[1] = 0.8;
-	bg->back_hover.color[2] = 0.8;
-	bg->back_hover.alpha = 0.3;
-	bg->border_hover.color[0] = 0.8;
-	bg->border_hover.color[1] = 0.8;
-	bg->border_hover.color[2] = 0.8;
-	bg->border_hover.alpha = 0.5;
-
-	bg->back_pressed.color[0] = 0.6;
-	bg->back_pressed.color[1] = 0.6;
-	bg->back_pressed.color[2] = 0.6;
-	bg->back_pressed.alpha = 0.3;
-	bg->border_pressed.color[0] = 0.8;
-	bg->border_pressed.color[1] = 0.8;
-	bg->border_pressed.color[2] = 0.8;
-	bg->border_pressed.alpha = 0.5;
 }
