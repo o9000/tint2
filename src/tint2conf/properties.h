@@ -15,6 +15,8 @@ extern GtkWidget *panel_wm_menu, *panel_dock, *panel_autohide, *panel_autohide_s
 extern GtkWidget *panel_combo_strut_policy, *panel_combo_layer, *panel_combo_width_type, *panel_combo_height_type, *panel_combo_monitor;
 extern GtkWidget *panel_window_name, *disable_transparency;
 extern GtkWidget *panel_mouse_effects;
+extern GtkWidget *mouse_hover_icon_opacity, *mouse_hover_icon_saturation, *mouse_hover_icon_brightness;
+extern GtkWidget *mouse_pressed_icon_opacity, *mouse_pressed_icon_saturation, *mouse_pressed_icon_brightness;
 
 enum {
 	itemsColName = 0,
@@ -152,6 +154,10 @@ enum {
 	bgColFillOpacityOver,
 	bgColBorderColorOver,
 	bgColBorderOpacityOver,
+	bgColFillColorPress,
+	bgColFillOpacityPress,
+	bgColBorderColorPress,
+	bgColBorderOpacityPress,
 	bgNumCols
 };
 
@@ -161,6 +167,8 @@ extern GtkWidget *current_background,
 		  *background_border_color,
 		  *background_fill_color_over,
 		  *background_border_color_over,
+		  *background_fill_color_press,
+		  *background_border_color_press,
 		  *background_border_width,
 		  *background_corner_radius;
 

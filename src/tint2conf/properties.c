@@ -35,6 +35,8 @@ GtkWidget *panel_wm_menu, *panel_dock, *panel_autohide, *panel_autohide_show_tim
 GtkWidget *panel_combo_strut_policy, *panel_combo_layer, *panel_combo_width_type, *panel_combo_height_type, *panel_combo_monitor;
 GtkWidget *panel_window_name, *disable_transparency;
 GtkWidget *panel_mouse_effects;
+GtkWidget *mouse_hover_icon_opacity, *mouse_hover_icon_saturation, *mouse_hover_icon_brightness;
+GtkWidget *mouse_pressed_icon_opacity, *mouse_pressed_icon_saturation, *mouse_pressed_icon_brightness;
 
 GtkListStore *panel_items, *all_items;
 GtkWidget *panel_items_view, *all_items_view;
@@ -129,6 +131,8 @@ GtkWidget *current_background,
 		  *background_border_color,
 		  *background_fill_color_over,
 		  *background_border_color_over,
+		  *background_fill_color_press,
+		  *background_border_color_press,
 		  *background_border_width,
 		  *background_corner_radius;
 
@@ -465,6 +469,10 @@ void create_background(GtkWidget *parent)
 									 GDK_TYPE_COLOR,
 									 GTK_TYPE_INT,
 									 GDK_TYPE_COLOR,
+									 GTK_TYPE_INT,
+									 GDK_TYPE_COLOR,
+									 GTK_TYPE_INT,
+									 GDK_TYPE_COLOR,
 									 GTK_TYPE_INT);
 
 	GtkWidget *table, *label, *button;
@@ -568,6 +576,34 @@ void create_background(GtkWidget *parent)
 	gtk_tooltips_set_tip(tooltips, background_border_color_over, _("The border color of the current background on mouse over"), NULL);
 
 	row++, col = 2;
+	label = gtk_label_new(_("Fill color (pressed)"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	background_fill_color_press = gtk_color_button_new();
+	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(background_fill_color_press), TRUE);
+	gtk_widget_show(background_fill_color_press);
+	gtk_table_attach(GTK_TABLE(table), background_fill_color_press, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, background_fill_color_press, _("The fill color of the current background on mouse button press"), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Border color (pressed)"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	background_border_color_press = gtk_color_button_new();
+	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(background_border_color_press), TRUE);
+	gtk_widget_show(background_border_color_press);
+	gtk_table_attach(GTK_TABLE(table), background_border_color_press, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, background_border_color_press, _("The border color of the current background on mouse button press"), NULL);
+
+	row++, col = 2;
 	label = gtk_label_new(_("Border width"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
@@ -642,12 +678,18 @@ void background_create_new()
 	int borderOpacity = 0;
 
 	GdkColor fillColorOver;
-	cairoColor2GdkColor(0.8, 0.8, 0.8, &fillColorOver);
-	int fillOpacityOver = 30;
+	cairoColor2GdkColor(0, 0, 0, &fillColorOver);
+	int fillOpacityOver = 0;
 	GdkColor borderColorOver;
-	cairoColor2GdkColor(0.8, 0.8, 0.8, &borderColorOver);
-	int borderOpacityOver = 50;
+	cairoColor2GdkColor(0, 0, 0, &borderColorOver);
+	int borderOpacityOver = 0;
 
+	GdkColor fillColorPress;
+	cairoColor2GdkColor(0, 0, 0, &fillColorPress);
+	int fillOpacityPress = 0;
+	GdkColor borderColorPress;
+	cairoColor2GdkColor(0, 0, 0, &borderColorPress);
+	int borderOpacityPress = 0;
 
 	int index = 0;
 	GtkTreeIter iter;
@@ -665,6 +707,10 @@ void background_create_new()
 					   bgColFillOpacityOver, fillOpacityOver,
 					   bgColBorderColorOver, &borderColorOver,
 					   bgColBorderOpacityOver, borderOpacityOver,
+					   bgColFillColorPress, &fillColorPress,
+					   bgColFillOpacityPress, fillOpacityPress,
+					   bgColBorderColorPress, &borderColorPress,
+					   bgColBorderOpacityPress, borderOpacityPress,
 					   bgColText, "",
 					   -1);
 
@@ -698,6 +744,10 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 	int fillOpacityOver;
 	GdkColor *borderColorOver;
 	int borderOpacityOver;
+	GdkColor *fillColorPress;
+	int fillOpacityPress;
+	GdkColor *borderColorPress;
+	int borderOpacityPress;
 
 	gtk_tree_model_get(GTK_TREE_MODEL(backgrounds), &iter,
 					   bgColFillColor, &fillColor,
@@ -708,6 +758,10 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 					   bgColFillOpacityOver, &fillOpacityOver,
 					   bgColBorderColorOver, &borderColorOver,
 					   bgColBorderOpacityOver, &borderOpacityOver,
+					   bgColFillColorPress, &fillColorPress,
+					   bgColFillOpacityPress, &fillOpacityPress,
+					   bgColBorderColorPress, &borderColorPress,
+					   bgColBorderOpacityPress, &borderOpacityPress,
 					   bgColBorderWidth, &b,
 					   bgColCornerRadius, &r,
 					   -1);
@@ -723,6 +777,10 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 					   bgColFillOpacityOver, fillOpacityOver,
 					   bgColBorderColorOver, borderColorOver,
 					   bgColBorderOpacityOver, borderOpacityOver,
+					   bgColFillColorPress, fillColorPress,
+					   bgColFillOpacityPress, fillOpacityPress,
+					   bgColBorderColorPress, borderColorPress,
+					   bgColBorderOpacityPress, borderOpacityPress,
 					   bgColBorderWidth, b,
 					   bgColCornerRadius, r,
 					   bgColText, ""
@@ -731,6 +789,8 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 	g_boxed_free(GDK_TYPE_COLOR, borderColor);
 	g_boxed_free(GDK_TYPE_COLOR, fillColorOver);
 	g_boxed_free(GDK_TYPE_COLOR, borderColorOver);
+	g_boxed_free(GDK_TYPE_COLOR, fillColorPress);
+	g_boxed_free(GDK_TYPE_COLOR, borderColorPress);
 	background_update_image(get_model_length(GTK_TREE_MODEL(backgrounds)) - 1);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(current_background), get_model_length(GTK_TREE_MODEL(backgrounds)) - 1);
 }
@@ -853,26 +913,35 @@ void background_update(GtkWidget *widget, gpointer data)
 
 	int r;
 	int b;
+	r = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_corner_radius));
+	b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_border_width));
+
 	GdkColor fillColor;
 	int fillOpacity;
 	GdkColor borderColor;
 	int borderOpacity;
+	gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color), &fillColor);
+	fillOpacity = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color)) * 100.0 / 0xffff);
+	gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color), &borderColor);
+	borderOpacity = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color)) * 100.0 / 0xffff);
 
 	GdkColor fillColorOver;
 	int fillOpacityOver;
 	GdkColor borderColorOver;
 	int borderOpacityOver;
-
-	r = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_corner_radius));
-	b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_border_width));
-	gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color), &fillColor);
-	fillOpacity = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color)) * 100.0 / 0xffff);
-	gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color), &borderColor);
-	borderOpacity = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color)) * 100.0 / 0xffff);
 	gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color_over), &fillColorOver);
 	fillOpacityOver = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color_over)) * 100.0 / 0xffff);
 	gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color_over), &borderColorOver);
 	borderOpacityOver = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color_over)) * 100.0 / 0xffff);
+
+	GdkColor fillColorPress;
+	int fillOpacityPress;
+	GdkColor borderColorPress;
+	int borderOpacityPress;
+	gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color_press), &fillColorPress);
+	fillOpacityPress = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color_press)) * 100.0 / 0xffff);
+	gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color_press), &borderColorPress);
+	borderOpacityPress = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color_press)) * 100.0 / 0xffff);
 
 	gtk_list_store_set(backgrounds, &iter,
 					   bgColPixbuf, NULL,
@@ -884,6 +953,10 @@ void background_update(GtkWidget *widget, gpointer data)
 					   bgColFillOpacityOver, fillOpacityOver,
 					   bgColBorderColorOver, &borderColorOver,
 					   bgColBorderOpacityOver, borderOpacityOver,
+					   bgColFillColorPress, &fillColorPress,
+					   bgColFillOpacityPress, fillOpacityPress,
+					   bgColBorderColorPress, &borderColorPress,
+					   bgColBorderOpacityPress, borderOpacityPress,
 					   bgColBorderWidth, b,
 					   bgColCornerRadius, r,
 					   -1);
@@ -913,6 +986,11 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 	int fillOpacityOver;
 	GdkColor *borderColorOver;
 	int borderOpacityOver;
+	GdkColor *fillColorPress;
+	int fillOpacityPress;
+	GdkColor *borderColorPress;
+	int borderOpacityPress;
+
 
 	gtk_tree_model_get(GTK_TREE_MODEL(backgrounds), &iter,
 					   bgColFillColor, &fillColor,
@@ -923,6 +1001,10 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 					   bgColFillOpacityOver, &fillOpacityOver,
 					   bgColBorderColorOver, &borderColorOver,
 					   bgColBorderOpacityOver, &borderOpacityOver,
+					   bgColFillColorPress, &fillColorPress,
+					   bgColFillOpacityPress, &fillOpacityPress,
+					   bgColBorderColorPress, &borderColorPress,
+					   bgColBorderOpacityPress, &borderOpacityPress,
 					   bgColBorderWidth, &b,
 					   bgColCornerRadius, &r,
 					   -1);
@@ -937,6 +1019,11 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 	gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color_over), borderColorOver);
 	gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color_over), (borderOpacityOver*0xffff)/100);
 
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color_press), fillColorPress);
+	gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color_press), (fillOpacityPress*0xffff)/100);
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color_press), borderColorPress);
+	gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color_press), (borderOpacityPress*0xffff)/100);
+
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_width), b);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_corner_radius), r);
 
@@ -944,6 +1031,8 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 	g_boxed_free(GDK_TYPE_COLOR, borderColor);
 	g_boxed_free(GDK_TYPE_COLOR, fillColorOver);
 	g_boxed_free(GDK_TYPE_COLOR, borderColorOver);
+	g_boxed_free(GDK_TYPE_COLOR, fillColorPress);
+	g_boxed_free(GDK_TYPE_COLOR, borderColorPress);
 }
 
 void create_panel(GtkWidget *parent)
@@ -1235,6 +1324,95 @@ void create_panel(GtkWidget *parent)
 	col++;
 	gtk_tooltips_set_tip(tooltips, panel_mouse_effects, _("Clickable interface items change appearance when the mouse is moved over them."), NULL);
 
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Icon opacity (hovered)"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	mouse_hover_icon_opacity = gtk_spin_button_new_with_range(0, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_hover_icon_opacity), 100);
+	gtk_widget_show(mouse_hover_icon_opacity);
+	gtk_table_attach(GTK_TABLE(table), mouse_hover_icon_opacity, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, mouse_hover_icon_opacity, _("Specifies the opacity adjustment of the icons under the mouse, in percent."), NULL);
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Icon saturation (hovered)"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	mouse_hover_icon_saturation = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_hover_icon_saturation), 0);
+	gtk_widget_show(mouse_hover_icon_saturation);
+	gtk_table_attach(GTK_TABLE(table), mouse_hover_icon_saturation, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, mouse_hover_icon_saturation, _("Specifies the saturation adjustment of the icons under the mouse, in percent."), NULL);
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Icon brightness (hovered)"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	mouse_hover_icon_brightness = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_hover_icon_brightness), 10);
+	gtk_widget_show(mouse_hover_icon_brightness);
+	gtk_table_attach(GTK_TABLE(table), mouse_hover_icon_brightness, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, mouse_hover_icon_brightness, _("Specifies the brightness adjustment of the icons under the mouse, in percent."), NULL);
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Icon opacity (pressed)"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	mouse_pressed_icon_opacity = gtk_spin_button_new_with_range(0, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_pressed_icon_opacity), 100);
+	gtk_widget_show(mouse_pressed_icon_opacity);
+	gtk_table_attach(GTK_TABLE(table), mouse_pressed_icon_opacity, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, mouse_pressed_icon_opacity, _("Specifies the opacity adjustment of the icons on mouse button press, in percent."), NULL);
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Icon saturation (pressed)"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	mouse_pressed_icon_saturation = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_pressed_icon_saturation), 0);
+	gtk_widget_show(mouse_pressed_icon_saturation);
+	gtk_table_attach(GTK_TABLE(table), mouse_pressed_icon_saturation, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, mouse_pressed_icon_saturation, _("Specifies the saturation adjustment of the icons on mouse button press, in percent."), NULL);
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Icon brightness (pressed)"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	mouse_pressed_icon_brightness = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_pressed_icon_brightness), -10);
+	gtk_widget_show(mouse_pressed_icon_brightness);
+	gtk_table_attach(GTK_TABLE(table), mouse_pressed_icon_brightness, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, mouse_pressed_icon_brightness, _("Specifies the brightness adjustment of the icons on mouse button press, in percent."), NULL);
 
 	change_paragraph(parent);
 
@@ -2386,6 +2564,7 @@ void create_launcher(GtkWidget *parent)
 	col++;
 
 	launcher_icon_opacity = gtk_spin_button_new_with_range(0, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_opacity), 100);
 	gtk_widget_show(launcher_icon_opacity);
 	gtk_table_attach(GTK_TABLE(table), launcher_icon_opacity, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -2400,6 +2579,7 @@ void create_launcher(GtkWidget *parent)
 	col++;
 
 	launcher_icon_saturation = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_saturation), 0);
 	gtk_widget_show(launcher_icon_saturation);
 	gtk_table_attach(GTK_TABLE(table), launcher_icon_saturation, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -2414,6 +2594,7 @@ void create_launcher(GtkWidget *parent)
 	col++;
 
 	launcher_icon_brightness = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_brightness), 0);
 	gtk_widget_show(launcher_icon_brightness);
 	gtk_table_attach(GTK_TABLE(table), launcher_icon_brightness, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -3378,6 +3559,7 @@ void create_task_status(GtkWidget *notebook,
 	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 1, 2, GTK_FILL, 0, 0, 0);
 
 	*task_status_icon_opacity = gtk_spin_button_new_with_range(0, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(*task_status_icon_opacity), 100);
 	gtk_widget_show(*task_status_icon_opacity);
 	gtk_table_attach(GTK_TABLE(table), *task_status_icon_opacity, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
 	gtk_tooltips_set_tip(tooltips, *task_status_icon_opacity, _("Specifies the opacity (in %) used to display the task icon."), NULL);
@@ -3388,6 +3570,7 @@ void create_task_status(GtkWidget *notebook,
 	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 2, 3, GTK_FILL, 0, 0, 0);
 
 	*task_status_icon_saturation = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(*task_status_icon_saturation), 0);
 	gtk_widget_show(*task_status_icon_saturation);
 	gtk_table_attach(GTK_TABLE(table), *task_status_icon_saturation, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
 	gtk_tooltips_set_tip(tooltips, *task_status_icon_saturation, _("Specifies the saturation adjustment (in %) used to display the task icon."), NULL);
@@ -3398,6 +3581,7 @@ void create_task_status(GtkWidget *notebook,
 	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 3, 4, GTK_FILL, 0, 0, 0);
 
 	*task_status_icon_brightness = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(*task_status_icon_brightness), 0);
 	gtk_widget_show(*task_status_icon_brightness);
 	gtk_table_attach(GTK_TABLE(table), *task_status_icon_brightness, 2, 3, 3, 4, GTK_FILL, 0, 0, 0);
 	gtk_tooltips_set_tip(tooltips, *task_status_icon_brightness, _("Specifies the brightness adjustment (in %) used to display the task icon."), NULL);
@@ -3918,6 +4102,7 @@ void create_systemtray(GtkWidget *parent)
 	col++;
 
 	systray_icon_opacity = gtk_spin_button_new_with_range(0, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_opacity), 100);
 	gtk_widget_show(systray_icon_opacity);
 	gtk_table_attach(GTK_TABLE(table), systray_icon_opacity, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -3932,6 +4117,7 @@ void create_systemtray(GtkWidget *parent)
 	col++;
 
 	systray_icon_saturation = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_saturation), 0);
 	gtk_widget_show(systray_icon_saturation);
 	gtk_table_attach(GTK_TABLE(table), systray_icon_saturation, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -3946,6 +4132,7 @@ void create_systemtray(GtkWidget *parent)
 	col++;
 
 	systray_icon_brightness = gtk_spin_button_new_with_range(-100, 100, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_brightness), 0);
 	gtk_widget_show(systray_icon_brightness);
 	gtk_table_attach(GTK_TABLE(table), systray_icon_brightness, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
