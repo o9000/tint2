@@ -539,8 +539,8 @@ void event_button_motion_notify (XEvent *e)
 		} else {
 			// Swap the task_drag with the task on the event's location (if they differ)
 			if (event_task && event_task != task_drag) {
-				GList * drag_iter = g_list_find(event_taskbar->area.list, task_drag);
-				GList * task_iter = g_list_find(event_taskbar->area.list, event_task);
+				GList * drag_iter = g_list_find(event_taskbar->area.children, task_drag);
+				GList * task_iter = g_list_find(event_taskbar->area.children, event_task);
 				if (drag_iter && task_iter) {
 					gpointer temp = task_iter->data;
 					task_iter->data = drag_iter->data;
@@ -561,10 +561,10 @@ void event_button_motion_notify (XEvent *e)
 
 		if (event_taskbar->area.posx > drag_taskbar->area.posx || event_taskbar->area.posy > drag_taskbar->area.posy) {
 			int i = (taskbarname_enabled) ? 1 : 0;
-			event_taskbar->area.list = g_list_insert(event_taskbar->area.list, task_drag, i);
+			event_taskbar->area.children = g_list_insert(event_taskbar->area.children, task_drag, i);
 		}
 		else
-			event_taskbar->area.list = g_list_append(event_taskbar->area.list, task_drag);
+			event_taskbar->area.children = g_list_append(event_taskbar->area.children, task_drag);
 
 		// Move task to other desktop (but avoid the 'Window desktop changed' code in 'event_property_notify')
 		task_drag->area.parent = event_taskbar;
@@ -758,7 +758,7 @@ void event_property_notify (XEvent *e)
 				Task *tsk;
 				if (server.nb_desktop > old_desktop) {
 					tskbar = &panel->taskbar[old_desktop];
-					GList *l = tskbar->area.list;
+					GList *l = tskbar->area.children;
 					if (taskbarname_enabled) l = l->next;
 					for (; l ; l = l->next) {
 						tsk = l->data;
@@ -772,7 +772,7 @@ void event_property_notify (XEvent *e)
 					}
 				}
 				tskbar = &panel->taskbar[server.desktop];
-				GList *l = tskbar->area.list;
+				GList *l = tskbar->area.children;
 				if (taskbarname_enabled) l = l->next;
 				for (; l ; l = l->next) {
 					tsk = l->data;

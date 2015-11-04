@@ -361,16 +361,16 @@ int resize_panel(void *obj)
 
 			Taskbar *taskbar = &panel->taskbar[i];
 			GList *l;
-			for (l = taskbar->area.list; l; l = l->next) {
+			for (l = taskbar->area.children; l; l = l->next) {
 				Area *child = l->data;
 				if (!child->on_screen)
 					continue;
 				total_items++;
 			}
 			if (taskbarname_enabled) {
-				if (taskbar->area.list) {
+				if (taskbar->area.children) {
 					total_items--;
-					Area *name = taskbar->area.list->data;
+					Area *name = taskbar->area.children->data;
 					if (panel_horizontal) {
 						total_name_size += name->width;
 					} else {
@@ -395,7 +395,7 @@ int resize_panel(void *obj)
 
 				int requested_size = (2 * taskbar->area.bg->border.width) + (2 * taskbar->area.paddingxlr);
 				int items = 0;
-				GList *l = taskbar->area.list;
+				GList *l = taskbar->area.children;
 				if (taskbarname_enabled)
 					l = l->next;
 				for (; l; l = l->next) {
@@ -489,32 +489,32 @@ void set_panel_items_order(Panel *p)
 {
 	int k, j;
 	
-	if (p->area.list) {
-		g_list_free(p->area.list);
-		p->area.list = 0;
+	if (p->area.children) {
+		g_list_free(p->area.children);
+		p->area.children = 0;
 	}
 
 	for (k=0 ; k < strlen(panel_items_order) ; k++) {
 		if (panel_items_order[k] == 'L') {
-			p->area.list = g_list_append(p->area.list, &p->launcher);
+			p->area.children = g_list_append(p->area.children, &p->launcher);
 			p->launcher.area.resize = 1;
 		}
 		if (panel_items_order[k] == 'T') {
 			for (j=0 ; j < p->nb_desktop ; j++)
-				p->area.list = g_list_append(p->area.list, &p->taskbar[j]);
+				p->area.children = g_list_append(p->area.children, &p->taskbar[j]);
 		}
 #ifdef ENABLE_BATTERY
 		if (panel_items_order[k] == 'B') 
-			p->area.list = g_list_append(p->area.list, &p->battery);
+			p->area.children = g_list_append(p->area.children, &p->battery);
 #endif
 		int i = p - panel1;
 		if (panel_items_order[k] == 'S' && systray_on_monitor(i, nb_panel)) {
-			p->area.list = g_list_append(p->area.list, &systray);
+			p->area.children = g_list_append(p->area.children, &systray);
 		}
 		if (panel_items_order[k] == 'C')
-			p->area.list = g_list_append(p->area.list, &p->clock);
+			p->area.children = g_list_append(p->area.children, &p->clock);
 		if (panel_items_order[k] == 'F')
-			p->area.list = g_list_append(p->area.list, &p->freespace);
+			p->area.children = g_list_append(p->area.children, &p->freespace);
 	}
 	init_rendering(&p->area, 0);
 }
@@ -641,7 +641,7 @@ void set_panel_background(Panel *p)
 	// redraw panel's object
 	GList *l0;
 	Area *a;
-	for (l0 = p->area.list; l0 ; l0 = l0->next) {
+	for (l0 = p->area.children; l0 ; l0 = l0->next) {
 		a = l0->data;
 		set_redraw(a);
 	}
@@ -659,7 +659,7 @@ void set_panel_background(Panel *p)
 		}
 		tskbar->area.pix = 0;
 		tskbar->bar_name.area.pix = 0;
-		l0 = tskbar->area.list;
+		l0 = tskbar->area.children;
 		if (taskbarname_enabled) l0 = l0->next;
 		for (; l0 ; l0 = l0->next) {
 			set_task_redraw((Task *)l0->data);
@@ -711,7 +711,7 @@ Task *click_task (Panel *panel, int x, int y)
 	if ( (tskbar = click_taskbar(panel, x, y)) ) {
 		if (panel_horizontal) {
 			Task *tsk;
-			l0 = tskbar->area.list;
+			l0 = tskbar->area.children;
 			if (taskbarname_enabled) l0 = l0->next;
 			for (; l0 ; l0 = l0->next) {
 				tsk = l0->data;
@@ -722,7 +722,7 @@ Task *click_task (Panel *panel, int x, int y)
 		}
 		else {
 			Task *tsk;
-			l0 = tskbar->area.list;
+			l0 = tskbar->area.children;
 			if (taskbarname_enabled) l0 = l0->next;
 			for (; l0 ; l0 = l0->next) {
 				tsk = l0->data;
@@ -823,9 +823,9 @@ Area* click_area(Panel *panel, int x, int y)
 	Area* new_result = result;
 	do {
 		result = new_result;
-		GList* it = result->list;
+		GList* it = result->children;
 		while (it) {
-			Area* a = it->data;
+			Area* a = (Area*)it->data;
 			if (a->on_screen && x >= a->posx && x <= (a->posx + a->width)
 					&& y >= a->posy && y <= (a->posy + a->height)) {
 				new_result = a;

@@ -70,7 +70,7 @@ typedef struct {
 	Background *bg;
 
 	// list of child : Area object
-	GList *list;
+	GList *children;
 
 	// object visible on screen. 
 	// An object (like systray) could be enabled but hidden (because no tray icon).
