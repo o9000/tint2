@@ -480,9 +480,11 @@ void remove_area (void *a)
 	Area *area = (Area*)a;
 	Area *parent = (Area*)area->parent;
 
-	parent->children = g_list_remove(parent->children, area);
-	parent->resize = 1;
-	set_redraw (parent);
+	if (parent) {
+		parent->children = g_list_remove(parent->children, area);
+		parent->resize = 1;
+		set_redraw(parent);
+	}
 
 	if (mouse_over_area == a) {
 		mouse_out();
