@@ -46,6 +46,8 @@ typedef struct
 	Border border;
 	Color back_hover;
 	Color border_hover;
+	Color back_pressed;
+	Color border_pressed;
 } Background;
 
 
@@ -57,7 +59,8 @@ enum { ALIGN_LEFT = 0, ALIGN_CENTER = 1, ALIGN_RIGHT = 2 };
 
 typedef enum {
 	MOUSE_NORMAL = 0,
-	MOUSE_OVER = 1
+	MOUSE_OVER = 1,
+	MOUSE_DOWN = 2
 } MouseState;
 
 
@@ -91,7 +94,8 @@ typedef struct {
 	// panel
 	void *panel;
 
-	int mouse_effects;
+	int mouse_over_effect;
+	int mouse_press_effect;
 	MouseState mouse_state;
 
 	// each object can overwrite following function
@@ -141,7 +145,7 @@ void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
 // clear pixmap with transparent color
 void clear_pixmap(Pixmap p, int x, int y, int w, int h);
 
-void mouse_over(Area *area);
+void mouse_over(Area *area, int pressed);
 void mouse_out();
 
 #endif

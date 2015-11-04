@@ -1296,14 +1296,22 @@ start:
 				}
 
 				switch (e.type) {
-				case ButtonPress:
+				case ButtonPress: {
 					tooltip_hide(0);
 					event_button_press (&e);
+					Area* area = click_area(panel, e.xbutton.x, e.xbutton.y);
+					if (panel_config.mouse_effects)
+						mouse_over(area, 1);
 					break;
+				}
 
-				case ButtonRelease:
+				case ButtonRelease: {
 					event_button_release(&e);
+					Area* area = click_area(panel, e.xbutton.x, e.xbutton.y);
+					if (panel_config.mouse_effects)
+						mouse_over(area, 0);
 					break;
+				}
 
 				case MotionNotify: {
 					unsigned int button_mask = Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask;
@@ -1317,7 +1325,7 @@ start:
 					else
 						tooltip_trigger_hide();
 					if (panel_config.mouse_effects)
-						mouse_over(area);
+						mouse_over(area, e.xmotion.state & button_mask);
 					break;
 				}
 

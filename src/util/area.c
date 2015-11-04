@@ -393,7 +393,7 @@ void set_redraw (Area *a)
 
 	GList *l;
 	for (l = a->children ; l ; l = l->next)
-		set_redraw(l->data);
+		set_redraw((Area*)l->data);
 }
 
 void hide(Area *a)
@@ -446,11 +446,13 @@ void draw (Area *a)
 void draw_background (Area *a, cairo_t *c)
 {
 	if (a->bg->back.alpha > 0.0 ||
-		(panel_config.mouse_effects && a->mouse_effects && a->mouse_state == MOUSE_OVER)) {
+		(panel_config.mouse_effects && (a->mouse_over_effect || a->mouse_press_effect))) {
 		//printf("    draw_background (%d %d) RGBA (%lf, %lf, %lf, %lf)\n", a->posx, a->posy, pix->back.color[0], pix->back.color[1], pix->back.color[2], pix->back.alpha);
-		if (a->mouse_state == MOUSE_OVER) {
+		if (a->mouse_state == MOUSE_OVER)
 			cairo_set_source_rgba(c, a->bg->back_hover.color[0], a->bg->back_hover.color[1], a->bg->back_hover.color[2], a->bg->back_hover.alpha);
-		} else
+		else if (a->mouse_state == MOUSE_DOWN)
+			cairo_set_source_rgba(c, a->bg->back_pressed.color[0], a->bg->back_pressed.color[1], a->bg->back_pressed.color[2], a->bg->back_pressed.alpha);
+		else
 			cairo_set_source_rgba(c, a->bg->back.color[0], a->bg->back.color[1], a->bg->back.color[2], a->bg->back.alpha);
 		draw_rect(c, a->bg->border.width, a->bg->border.width, a->width-(2.0 * a->bg->border.width), a->height-(2.0*a->bg->border.width), a->bg->border.rounded - a->bg->border.width/1.571);
 		cairo_fill(c);
@@ -460,9 +462,11 @@ void draw_background (Area *a, cairo_t *c)
 		cairo_set_line_width (c, a->bg->border.width);
 
 		// draw border inside (x, y, width, height)
-		if (a->mouse_state == MOUSE_OVER) {
+		if (a->mouse_state == MOUSE_OVER)
 			cairo_set_source_rgba(c, a->bg->border_hover.color[0], a->bg->border_hover.color[1], a->bg->border_hover.color[2], a->bg->border_hover.alpha);
-		} else
+		else if (a->mouse_state == MOUSE_DOWN)
+			cairo_set_source_rgba(c, a->bg->border_pressed.color[0], a->bg->border_pressed.color[1], a->bg->border_pressed.color[2], a->bg->border_pressed.alpha);
+		else
 			cairo_set_source_rgba(c, a->bg->border.color[0], a->bg->border.color[1], a->bg->border.color[2], a->bg->border.alpha);
 		draw_rect(c, a->bg->border.width/2.0, a->bg->border.width/2.0, a->width - a->bg->border.width, a->height - a->bg->border.width, a->bg->border.rounded);
 
@@ -481,7 +485,7 @@ void remove_area (void *a)
 	set_redraw (parent);
 
 	if (mouse_over_area == a) {
-		mouse_over_area = NULL;
+		mouse_out();
 	}
 }
 
@@ -547,16 +551,32 @@ void clear_pixmap(Pixmap p, int x, int y, int w, int h)
 	XRenderFreePicture(server.dsp, pict);
 }
 
-void mouse_over(Area *area)
+void mouse_over(Area *area, int pressed)
 {
-	if (mouse_over_area == area)
+	if (mouse_over_area == area && !area)
+		return;
+
+	MouseState new_state = MOUSE_NORMAL;
+	if (area) {
+		if (!pressed) {
+			new_state = area->mouse_over_effect ? MOUSE_OVER : MOUSE_NORMAL;
+		} else {
+			new_state = area->mouse_press_effect
+						? MOUSE_DOWN
+						: area->mouse_over_effect
+						  ? MOUSE_OVER
+						  : MOUSE_NORMAL;
+		}
+	}
+
+	if (mouse_over_area == area && mouse_over_area->mouse_state == new_state)
 		return;
 	mouse_out();
-	if (!area->mouse_effects)
+	if (new_state == MOUSE_NORMAL)
 		return;
 	mouse_over_area = area;
 
-	mouse_over_area->mouse_state = MOUSE_OVER;
+	mouse_over_area->mouse_state = new_state;
 	set_redraw(mouse_over_area);
 	panel_refresh = 1;
 }
@@ -582,4 +602,13 @@ void init_background(Background *bg)
 	bg->border_hover.color[1] = 0.8;
 	bg->border_hover.color[2] = 0.8;
 	bg->border_hover.alpha = 0.5;
+
+	bg->back_pressed.color[0] = 0.6;
+	bg->back_pressed.color[1] = 0.6;
+	bg->back_pressed.color[2] = 0.6;
+	bg->back_pressed.alpha = 0.3;
+	bg->border_pressed.color[0] = 0.8;
+	bg->border_pressed.color[1] = 0.8;
+	bg->border_pressed.color[2] = 0.8;
+	bg->border_pressed.alpha = 0.5;
 }

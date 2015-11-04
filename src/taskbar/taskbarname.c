@@ -62,7 +62,8 @@ void init_taskbarname_panel(void *p)
 		tskbar = &panel->taskbar[j];
 		memcpy(&tskbar->bar_name.area, &panel->g_taskbar.area_name, sizeof(Area));
 		tskbar->bar_name.area.parent = tskbar;
-		tskbar->bar_name.area.mouse_effects = 1;
+		tskbar->bar_name.area.mouse_over_effect = 1;
+		tskbar->bar_name.area.mouse_press_effect = 1;
 		if (j == server.desktop)
 			tskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_ACTIVE];
 		else

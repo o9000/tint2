@@ -227,12 +227,12 @@ void init_battery_panel(void *p)
 	battery->area._resize = resize_battery;
 	battery->area.on_screen = 1;
 	battery->area.resize = 1;
-	battery->area.mouse_effects = battery_lclick_command ||
-								  battery_mclick_command ||
-								  battery_rclick_command ||
-								  battery_uwheel_command ||
-								  battery_dwheel_command;
-
+	battery->area.mouse_over_effect = battery_lclick_command ||
+									  battery_mclick_command ||
+									  battery_rclick_command ||
+									  battery_uwheel_command ||
+									  battery_dwheel_command;
+	battery->area.mouse_press_effect = battery->area.mouse_over_effect;
 	if (battery_tooltip_enabled)
 		battery->area._get_tooltip_text = battery_get_tooltip;
 }

@@ -69,6 +69,7 @@ strut_policy = follow_size
 panel_window_name = tint2
 disable_transparency = 0
 font_shadow = 0
+mouse_effects = 1
 
 #-------------------------------------
 # Taskbar

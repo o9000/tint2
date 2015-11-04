@@ -61,7 +61,8 @@ Task *add_task (Window win)
 	else monitor = 0;
 
 	Task new_tsk;
-	new_tsk.area.mouse_effects = 1;
+	new_tsk.area.mouse_over_effect = 1;
+	new_tsk.area.mouse_press_effect = 1;
 	new_tsk.win = win;
 	new_tsk.desktop = window_get_desktop (win);
 	new_tsk.area.panel = &panel1[monitor];
@@ -92,7 +93,8 @@ Task *add_task (Window win)
 		new_tsk2 = calloc(1, sizeof(Task));
 		memcpy(&new_tsk2->area, &panel1[monitor].g_task.area, sizeof(Area));
 		new_tsk2->area.parent = tskbar;
-		new_tsk2->area.mouse_effects = 1;
+		new_tsk2->area.mouse_over_effect = 1;
+		new_tsk2->area.mouse_press_effect = 1;
 		new_tsk2->win = new_tsk.win;
 		new_tsk2->desktop = new_tsk.desktop;
 		new_tsk2->win_x = new_tsk.win_x;
@@ -356,7 +358,8 @@ void draw_task_icon (Task *tsk, int text_width)
 void draw_task (void *obj, cairo_t *c)
 {
 	Task *tsk = obj;
-	//tsk->state_pix[tsk->current_state] = tsk->area.pix;
+	if (!panel_config.mouse_effects)
+		tsk->state_pix[tsk->current_state] = tsk->area.pix;
 	PangoLayout *layout;
 	Color *config_text;
 	int width=0, height;
@@ -515,9 +518,13 @@ void set_task_state(Task *tsk, int state)
 				Task* tsk1 = g_ptr_array_index(task_group, i);
 				tsk1->current_state = state;
 				tsk1->area.bg = panel1[0].g_task.background[state];
-				//tsk1->area.pix = tsk1->state_pix[state];
-				if (!tsk1->area.pix)
+				if (!panel_config.mouse_effects) {
+					tsk1->area.pix = tsk1->state_pix[state];
+					if (!tsk1->area.pix)
+						tsk1->area.redraw = 1;
+				} else {
 					tsk1->area.redraw = 1;
+				}
 				if (state == TASK_ACTIVE && g_slist_find(urgent_list, tsk1))
 					del_urgent(tsk1);
 				int hide = 0;
