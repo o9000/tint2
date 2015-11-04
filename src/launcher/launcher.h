@@ -44,6 +44,7 @@ extern char *icon_theme_name_config;
 extern int launcher_icon_theme_override;
 extern XSettingsClient *xsettings_client;
 extern int startup_notifications;
+extern Background *launcher_icon_bg;
 
 // default global data
 void default_launcher();

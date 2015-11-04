@@ -761,6 +761,11 @@ void add_entry (char *key, char *value)
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		panel_config.launcher.area.bg = &g_array_index(backgrounds, Background, id);
 	}
+	else if (strcmp (key, "launcher_icon_background_id") == 0) {
+		int id = atoi (value);
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		launcher_icon_bg = &g_array_index(backgrounds, Background, id);
+	}
 	else if (strcmp(key, "launcher_icon_size") == 0) {
 		launcher_max_icon_size = atoi(value);
 	}

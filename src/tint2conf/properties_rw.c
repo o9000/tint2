@@ -479,6 +479,7 @@ void config_write_launcher(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_padding_y)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_spacing)));
 	fprintf(fp, "launcher_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(launcher_background)));
+	fprintf(fp, "launcher_icon_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(launcher_icon_background)));
 	fprintf(fp, "launcher_icon_size = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(launcher_icon_size)));
 	fprintf(fp,
 			"launcher_icon_asb = %d %d %d\n",
@@ -1357,6 +1358,10 @@ void add_entry(char *key, char *value)
 	else if (strcmp(key, "launcher_background_id") == 0) {
 		int id = background_index_safe(atoi(value));
 		gtk_combo_box_set_active(GTK_COMBO_BOX(launcher_background), id);
+	}
+	else if (strcmp(key, "launcher_icon_background_id") == 0) {
+		int id = background_index_safe(atoi(value));
+		gtk_combo_box_set_active(GTK_COMBO_BOX(launcher_icon_background), id);
 	}
 	else if (strcmp(key, "launcher_icon_size") == 0) {
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_size), atoi(value));

@@ -53,6 +53,7 @@ char *icon_theme_name_xsettings;
 int launcher_icon_theme_override;
 XSettingsClient *xsettings_client;
 int startup_notifications;
+Background *launcher_icon_bg;
 
 Imlib_Image scale_icon(Imlib_Image original, int icon_size);
 void free_icon(Imlib_Image icon);
@@ -70,6 +71,7 @@ void default_launcher()
 	launcher_icon_theme_override = 0;
 	xsettings_client = NULL;
 	startup_notifications = 0;
+	launcher_icon_bg = NULL;
 }
 
 
@@ -96,6 +98,9 @@ void init_launcher_panel(void *p)
 	launcher->area.redraw = 1;
 	if (!launcher->area.bg)
 		launcher->area.bg = &g_array_index(backgrounds, Background, 0);
+
+	if (!launcher_icon_bg)
+		launcher_icon_bg = &g_array_index(backgrounds, Background, 0);
 
 	// check consistency
 	if (launcher->list_apps == NULL)
@@ -427,7 +432,7 @@ void launcher_load_icons(Launcher *launcher)
 			launcherIcon->area.resize = 0;
 			launcherIcon->area.redraw = 1;
 			launcherIcon->area.mouse_effects = 1;
-			launcherIcon->area.bg = &g_array_index(backgrounds, Background, 0);
+			launcherIcon->area.bg = launcher_icon_bg;
 			launcherIcon->area.on_screen = 1;
 			launcherIcon->area._on_change_layout = launcher_icon_on_change_layout;
 			if (launcher_tooltip_enabled) {

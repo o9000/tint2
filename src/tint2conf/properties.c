@@ -117,7 +117,7 @@ GtkWidget *launcher_apps_dirs;
 GtkWidget *launcher_icon_size, *launcher_icon_theme, *launcher_padding_x, *launcher_padding_y, *launcher_spacing;
 GtkWidget *launcher_icon_opacity, *launcher_icon_saturation, *launcher_icon_brightness;
 GtkWidget *margin_x, *margin_y;
-GtkWidget *launcher_background;
+GtkWidget *launcher_background, *launcher_icon_background;
 GtkWidget *startup_notifications;
 IconThemeWrapper *icon_theme;
 GtkWidget *launcher_tooltip;
@@ -2308,6 +2308,20 @@ void create_launcher(GtkWidget *parent)
 	col++;
 	gtk_tooltips_set_tip(tooltips, launcher_background, _("Selects the background used to display the launcher. "
 														"Backgrounds can be edited in the Backgrounds tab."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Icon background"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	launcher_icon_background = create_background_combo(_("Launcher icon"));
+	gtk_widget_show(launcher_icon_background);
+	gtk_table_attach(GTK_TABLE(table), launcher_icon_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, launcher_icon_background, _("Selects the background used to display the launcher icon. "
+															   "Backgrounds can be edited in the Backgrounds tab."), NULL);
 
 	row++, col = 2;
 	label = gtk_label_new(_("Horizontal padding"));
