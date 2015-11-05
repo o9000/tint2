@@ -1410,7 +1410,7 @@ void create_panel(GtkWidget *parent)
 	col++;
 
 	mouse_pressed_icon_brightness = gtk_spin_button_new_with_range(-100, 100, 1);
-	gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_pressed_icon_brightness), -10);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_pressed_icon_brightness), 0);
 	gtk_widget_show(mouse_pressed_icon_brightness);
 	gtk_table_attach(GTK_TABLE(table), mouse_pressed_icon_brightness, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;

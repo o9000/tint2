@@ -102,7 +102,7 @@ void default_panel()
 	panel_config.mouse_over_brightness = 10;
 	panel_config.mouse_pressed_alpha = 100;
 	panel_config.mouse_pressed_saturation = 0;
-	panel_config.mouse_pressed_brightness = -10;
+	panel_config.mouse_pressed_brightness = 0;
 
 	// append full transparency background
 	Background transparent_bg;

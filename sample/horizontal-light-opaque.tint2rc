@@ -105,7 +105,7 @@ disable_transparency = 0
 mouse_effects = 1
 font_shadow = 0
 mouse_hover_icon_asb = 100 0 10
-mouse_pressed_icon_asb = 100 0 -10
+mouse_pressed_icon_asb = 100 0 0
 
 #-------------------------------------
 # Taskbar
