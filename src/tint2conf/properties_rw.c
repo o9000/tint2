@@ -785,6 +785,7 @@ void add_entry(char *key, char *value)
 		// 'rounded' is the first parameter => alloc a new background
 		finalize_bg();
 		background_create_new();
+		num_bg++;
 		read_bg_color_hover = 0;
 		read_border_color_hover = 0;
 		read_bg_color_press = 0;
