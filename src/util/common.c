@@ -463,8 +463,8 @@ void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color
 
 Imlib_Image load_image(const char *path, int cached)
 {
-#ifdef HAVE_RSVG
 	Imlib_Image image;
+#ifdef HAVE_RSVG
 	if (cached) {
 		image = imlib_load_image_immediately(path);
 	} else {
