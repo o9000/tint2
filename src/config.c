@@ -217,9 +217,9 @@ void add_entry (char *key, char *value)
 			if (!read_border_color_hover)
 				memcpy(&bg->border_hover, &bg->border, sizeof(Color));
 			if (!read_bg_color_press)
-				memcpy(&bg->back_pressed, &bg->back, sizeof(Color));
+				memcpy(&bg->back_pressed, &bg->back_hover, sizeof(Color));
 			if (!read_border_color_press)
-				memcpy(&bg->border_pressed, &bg->border, sizeof(Color));
+				memcpy(&bg->border_pressed, &bg->border_hover, sizeof(Color));
 		}
 		Background bg;
 		init_background(&bg);
@@ -1043,9 +1043,9 @@ int config_read_file (const char *path)
     if (!read_border_color_hover)
       memcpy(&bg->border_hover, &bg->border, sizeof(Color));
     if (!read_bg_color_press)
-      memcpy(&bg->back_pressed, &bg->back, sizeof(Color));
+	  memcpy(&bg->back_pressed, &bg->back_hover, sizeof(Color));
     if (!read_border_color_press)
-      memcpy(&bg->border_pressed, &bg->border, sizeof(Color));
+	  memcpy(&bg->border_pressed, &bg->border_hover, sizeof(Color));
   }
 
 	return 1;

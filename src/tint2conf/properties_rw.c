@@ -767,9 +767,9 @@ void finalize_bg()
 		}
 		if (!read_border_color_press) {
 			GdkColor fillColor;
-			gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color), &fillColor);
+			gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color_over), &fillColor);
 			gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color_press), &fillColor);
-			int fillOpacity = gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color));
+			int fillOpacity = gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color_over));
 			gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color_press), fillOpacity);
 			background_force_update();
 		}

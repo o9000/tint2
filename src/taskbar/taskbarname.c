@@ -119,7 +119,8 @@ void draw_taskbarname (void *obj, cairo_t *c)
 	Color *config_text = (taskbar->desktop == server.desktop) ? &taskbarname_active_font : &taskbarname_font;
 
 	int state = (taskbar->desktop == server.desktop) ? TASKBAR_ACTIVE : TASKBAR_NORMAL;
-	taskbar_name->state_pix[state] = taskbar_name->area.pix;
+	if (!panel_config.mouse_effects)
+		taskbar_name->state_pix[state] = taskbar_name->area.pix;
 	
 	// draw content
 	layout = pango_cairo_create_layout (c);
