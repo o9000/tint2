@@ -1,6 +1,6 @@
 Updating pot file:
 
-find .. -name '*.c' | xargs xgettext --keyword=_ --language=C --output=updated.pot -
+find .. -name '*.c' | sort -r | xargs xgettext --keyword=_ --language=C --output=updated.pot -
 
 Followed by manual editing of updated.pot to make sure the header is OK. Then:
 
