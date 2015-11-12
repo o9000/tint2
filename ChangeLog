@@ -5,6 +5,7 @@
   - Battery: The time left for charging/discharging the battery is now estimated
     when the system is not able to read current data from sensors (issue #522;
     thanks to Sebastian Reichel)
+  - Battery: Reacts to plug/unplug events (thanks to Sebastian Reichel)
   - tint2conf: Backgrounds now have a text label showing which panel component
     uses them, to make them easier to identify; the label is saved as a comment
     in the config file (issue #521)
