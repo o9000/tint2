@@ -1,23 +1,21 @@
-2015-11-04 master
-- New config options:
-  - Mouse over effects (mouse_effects, background_color_hover, border_color_hover)
-  - Launcher (launcher_icon_background_id)
-- Fixes:
-  - Updated French translation
-2015-09-27 master
-- Fixes:
-  - Multiple batteries are now supported under Linux (issue #139; thanks to
-    Sebastian Reichel)
-  - The time left for charging/discharging the battery is now estimated when the
-    system is not able to read current data from sensors (issue #522; thanks to
-    Sebastian Reichel)
-  - The correct icon is now used in tint2.desktop (issue #523)
-  - The font setting for the desktop name is no longer lost on tint2 restart
+2015-11-12 0.12.3
+- Enhancements:
+  - Battery: Multiple batteries are now supported under Linux (issue #139;
+    thanks to Sebastian Reichel)
+  - Battery: The time left for charging/discharging the battery is now estimated
+    when the system is not able to read current data from sensors (issue #522;
+    thanks to Sebastian Reichel)
   - tint2conf: Backgrounds now have a text label showing which panel component
     uses them, to make them easier to identify; the label is saved as a comment
     in the config file (issue #521)
 - New config options:
-  - Option to enable battery tooltips
+  - Mouse over effects (mouse_effects, background_color_hover, border_color_hover)
+  - Launcher icon background (launcher_icon_background_id)
+  - Enable/disable battery tooltips (battery_tooltip_enabled)
+- Fixes:
+  - Updated French translation
+  - The correct icon is now used in tint2.desktop (issue #523)
+  - The font setting for the desktop name is no longer lost on tint2 restart
 2015-08-11 0.12.2
 - Fixes:
   - Systray: do not move empty icons to the side, as it breaks GTK2 StatusIcon blinking (issue #515)
