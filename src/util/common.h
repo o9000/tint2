@@ -78,5 +78,11 @@ Imlib_Image load_image(const char *path, int cached);
 
 Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int brightness);
 
+// draw rounded rectangle
+void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
+
+// clear pixmap with transparent color
+void clear_pixmap(Pixmap p, int x, int y, int w, int h);
+
 #endif
 

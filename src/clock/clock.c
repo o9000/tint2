@@ -111,7 +111,7 @@ void update_clocks_sec(void* arg)
 	int i;
 	if (time1_format) {
 		for (i=0 ; i < nb_panel ; i++)
-			panel1[i].clock.area.resize = 1;
+      panel1[i].clock.area.resize_needed = 1;
 	}
 	panel_refresh = 1;
 }
@@ -126,7 +126,7 @@ void update_clocks_min(void* arg)
 		int i;
 		if (time1_format) {
 			for (i=0 ; i < nb_panel ; i++)
-				panel1[i].clock.area.resize = 1;
+        panel1[i].clock.area.resize_needed = 1;
 		}
 		panel_refresh = 1;
 	}
@@ -185,19 +185,19 @@ void init_clock_panel(void *p)
 		clock->area.bg = &g_array_index(backgrounds, Background, 0);
 	clock->area.parent = p;
 	clock->area.panel = p;
-	clock->area.mouse_press_effect = clock->area.mouse_over_effect = clock_lclick_command ||
+  clock->area.has_mouse_press_effect = clock->area.has_mouse_over_effect = clock_lclick_command ||
 																	 clock_mclick_command ||
 																	 clock_rclick_command ||
 																	 clock_uwheel_command ||
 																	 clock_dwheel_command;
 	clock->area._draw_foreground = draw_clock;
-	clock->area.size_mode = SIZE_BY_CONTENT;
-	clock->area._resize = resize_clock;
+  clock->area.size_mode = LAYOUT_FIXED;
+  clock->area._resize = resize_clock;
 	// check consistency
 	if (!time1_format)
 		return;
 
-	clock->area.resize = 1;
+  clock->area.resize_needed = 1;
 	clock->area.on_screen = 1;
 
 	if (time_tooltip_format) {
@@ -222,7 +222,7 @@ void draw_clock (void *obj, cairo_t *c)
 	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
 	pango_layout_set_text (layout, buf_time, strlen(buf_time));
 
-	cairo_set_source_rgba (c, clock->font.color[0], clock->font.color[1], clock->font.color[2], clock->font.alpha);
+  cairo_set_source_rgba (c, clock->font.rgb[0], clock->font.rgb[1], clock->font.rgb[2], clock->font.alpha);
 
 	pango_cairo_update_layout (c, layout);
 	draw_text(layout, c, 0, clock->time1_posy, &clock->font, ((Panel*)clock->area.panel)->font_shadow);
@@ -247,7 +247,7 @@ int resize_clock (void *obj)
 	Panel *panel = clock->area.panel;
 	int time_height_ink, time_height, time_width, date_height_ink, date_height, date_width, ret = 0;
 
-	clock->area.redraw = 1;
+  clock->area.redraw_needed = 1;
 	
 	date_height = date_width = 0;
 	strftime(buf_time, sizeof(buf_time), time1_format, clock_gettime_for_tz(time1_timezone));
@@ -265,7 +265,7 @@ int resize_clock (void *obj)
 		int new_size = (time_width > date_width) ? time_width : date_width;
 		new_size += (2*clock->area.paddingxlr) + (2*clock->area.bg->border.width);
 		if (new_size > clock->area.width || new_size < (clock->area.width-6)) {
-			// we try to limit the number of resize
+      // we try to limit the number of resizes
 			clock->area.width = new_size + 1;
 			clock->time1_posy = (clock->area.height - time_height) / 2;
 			if (time2_format) {
@@ -278,7 +278,7 @@ int resize_clock (void *obj)
 	else {
 		int new_size = time_height + date_height + (2 * (clock->area.paddingxlr + clock->area.bg->border.width));
 		if (new_size != clock->area.height) {
-			// we try to limit the number of resize
+      // we try to limit the number of resizes
 			clock->area.height =  new_size;
 			clock->time1_posy = (clock->area.height - time_height) / 2;
 			if (time2_format) {

@@ -354,7 +354,7 @@ void get_snapshot(const char *path)
 		panel->area.width = server.monitor[0].width;
 
 	panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
-	rendering(panel);
+	render_panel(panel);
 
 	Imlib_Image img = NULL;
 	imlib_context_set_drawable(panel->temp_pmap);
@@ -545,7 +545,7 @@ void event_button_motion_notify (XEvent *e)
 					gpointer temp = task_iter->data;
 					task_iter->data = drag_iter->data;
 					drag_iter->data = temp;
-					event_taskbar->area.resize = 1;
+					event_taskbar->area.resize_needed = 1;
 					panel_refresh = 1;
 					task_dragged = 1;
 				}
@@ -557,7 +557,7 @@ void event_button_motion_notify (XEvent *e)
 			return;
 
 		Taskbar * drag_taskbar = (Taskbar*)task_drag->area.parent;
-		remove_area(task_drag);
+		remove_area((Area*)task_drag);
 
 		if (event_taskbar->area.posx > drag_taskbar->area.posx || event_taskbar->area.posy > drag_taskbar->area.posy) {
 			int i = (taskbarname_enabled) ? 1 : 0;
@@ -576,11 +576,11 @@ void event_button_motion_notify (XEvent *e)
 			sort_tasks(event_taskbar);
 		}
 
-		event_taskbar->area.resize = 1;
-		drag_taskbar->area.resize = 1;
+		event_taskbar->area.resize_needed = 1;
+		drag_taskbar->area.resize_needed = 1;
 		task_dragged = 1;
 		panel_refresh = 1;
-		panel->area.resize = 1;
+		panel->area.resize_needed = 1;
 	}
 }
 
@@ -714,7 +714,7 @@ void event_property_notify (XEvent *e)
 					if (strcmp(name, tskbar->bar_name.name) != 0) {
 						g_free(tskbar->bar_name.name);
 						tskbar->bar_name.name = name;
-						tskbar->bar_name.area.resize = 1;
+						tskbar->bar_name.area.resize_needed = 1;
 					}
 					else
 						g_free(name);
@@ -738,7 +738,7 @@ void event_property_notify (XEvent *e)
 				init_taskbar_panel(&panel1[i]);
 				set_panel_items_order(&panel1[i]);
 				visible_taskbar(&panel1[i]);
-				panel1[i].area.resize = 1;
+				panel1[i].area.resize_needed = 1;
 			}
 			task_refresh_tasklist();
 			active_task();
@@ -764,10 +764,10 @@ void event_property_notify (XEvent *e)
 						tsk = l->data;
 						if (tsk->desktop == ALLDESKTOP) {
 							tsk->area.on_screen = 0;
-							tskbar->area.resize = 1;
+							tskbar->area.resize_needed = 1;
 							panel_refresh = 1;
 							if (panel_mode == MULTI_DESKTOP)
-								panel->area.resize = 1;
+								panel->area.resize_needed = 1;
 						}
 					}
 				}
@@ -778,9 +778,9 @@ void event_property_notify (XEvent *e)
 					tsk = l->data;
 					if (tsk->desktop == ALLDESKTOP) {
 						tsk->area.on_screen = 1;
-						tskbar->area.resize = 1;
+						tskbar->area.resize_needed = 1;
 						if (panel_mode == MULTI_DESKTOP)
-							panel->area.resize = 1;
+							panel->area.resize_needed = 1;
 					}
 				}
 			}
@@ -1225,7 +1225,7 @@ start:
 					if (panel->temp_pmap)
 						XFreePixmap(server.dsp, panel->temp_pmap);
 					panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
-					rendering(panel);
+					render_panel(panel);
 					if (panel == (Panel*)systray.area.panel) {
 						if (refresh_systray && panel && !panel->is_hidden) {
 							refresh_systray = 0;

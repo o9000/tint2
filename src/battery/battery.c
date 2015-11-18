@@ -121,7 +121,7 @@ void update_battery_tick(void* arg)
 			}
 		}
 		if (panel1[i].battery.area.on_screen == 1) {
-			panel1[i].battery.area.resize = 1;
+      panel1[i].battery.area.resize_needed = 1;
 			panel_refresh = 1;
 		}
 	}
@@ -223,16 +223,16 @@ void init_battery_panel(void *p)
 	battery->area.parent = p;
 	battery->area.panel = p;
 	battery->area._draw_foreground = draw_battery;
-	battery->area.size_mode = SIZE_BY_CONTENT;
-	battery->area._resize = resize_battery;
+  battery->area.size_mode = LAYOUT_FIXED;
+  battery->area._resize = resize_battery;
 	battery->area.on_screen = 1;
-	battery->area.resize = 1;
-	battery->area.mouse_over_effect = battery_lclick_command ||
+  battery->area.resize_needed = 1;
+  battery->area.has_mouse_over_effect = battery_lclick_command ||
 									  battery_mclick_command ||
 									  battery_rclick_command ||
 									  battery_uwheel_command ||
 									  battery_dwheel_command;
-	battery->area.mouse_press_effect = battery->area.mouse_over_effect;
+  battery->area.has_mouse_press_effect = battery->area.has_mouse_over_effect;
 	if (battery_tooltip_enabled)
 		battery->area._get_tooltip_text = battery_get_tooltip;
 }
@@ -273,7 +273,7 @@ void draw_battery (void *obj, cairo_t *c)
 	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
 	pango_layout_set_text(layout, buf_bat_percentage, strlen(buf_bat_percentage));
 
-	cairo_set_source_rgba(c, battery->font.color[0], battery->font.color[1], battery->font.color[2], battery->font.alpha);
+  cairo_set_source_rgba(c, battery->font.rgb[0], battery->font.rgb[1], battery->font.rgb[2], battery->font.alpha);
 
 	pango_cairo_update_layout(c, layout);
 	draw_text(layout, c, 0, battery->bat1_posy, &battery->font, ((Panel*)battery->area.panel)->font_shadow);
@@ -301,7 +301,7 @@ int resize_battery(void *obj)
 	int bat_time_height, bat_time_width, bat_time_height_ink;
 	int ret = 0;
 
-	battery->area.redraw = 1;
+  battery->area.redraw_needed = 1;
 	
 	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
 	if (battery_state.state == BATTERY_FULL) {

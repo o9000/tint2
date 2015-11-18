@@ -62,8 +62,8 @@ void init_taskbarname_panel(void *p)
 		tskbar = &panel->taskbar[j];
 		memcpy(&tskbar->bar_name.area, &panel->g_taskbar.area_name, sizeof(Area));
 		tskbar->bar_name.area.parent = tskbar;
-		tskbar->bar_name.area.mouse_over_effect = 1;
-		tskbar->bar_name.area.mouse_press_effect = 1;
+    tskbar->bar_name.area.has_mouse_over_effect = 1;
+    tskbar->bar_name.area.has_mouse_press_effect = 1;
 		if (j == server.desktop)
 			tskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_ACTIVE];
 		else
@@ -105,7 +105,7 @@ void cleanup_taskbarname()
 					XFreePixmap(server.dsp, tskbar->bar_name.state_pix[k]);
 				tskbar->bar_name.state_pix[k] = 0;
 			}
-			remove_area(&tskbar->bar_name);
+      remove_area((Area*)&tskbar->bar_name);
 		}
 	}
 }
@@ -131,7 +131,7 @@ void draw_taskbarname (void *obj, cairo_t *c)
 	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
 	pango_layout_set_text (layout, taskbar_name->name, strlen(taskbar_name->name));
 
-	cairo_set_source_rgba (c, config_text->color[0], config_text->color[1], config_text->color[2], config_text->alpha);
+  cairo_set_source_rgba (c, config_text->rgb[0], config_text->rgb[1], config_text->rgb[2], config_text->alpha);
 
 	pango_cairo_update_layout (c, layout);
 	draw_text(layout, c, 0, taskbar_name->posy, config_text, ((Panel*)taskbar_name->area.panel)->font_shadow);
@@ -148,7 +148,7 @@ int resize_taskbarname(void *obj)
 	int name_height, name_width, name_height_ink;
 	int ret = 0;
 
-	taskbar_name->area.redraw = 1;
+  taskbar_name->area.redraw_needed = 1;
 	get_text_size2(panel_config.taskbarname_font_desc, &name_height_ink, &name_height, &name_width, panel->area.height, panel->area.width, taskbar_name->name, strlen(taskbar_name->name),
 				   PANGO_WRAP_WORD_CHAR,
 				   PANGO_ELLIPSIZE_NONE);

@@ -74,7 +74,7 @@ void default_systray()
 	systray.sort = SYSTRAY_SORT_LEFT2RIGHT;
 	systray.area._draw_foreground = draw_systray;
 	systray.area._on_change_layout = on_change_systray;
-	systray.area.size_mode = SIZE_BY_CONTENT;
+	systray.area.size_mode = LAYOUT_FIXED;
 	systray.area._resize = resize_systray;
 	systray_profile = getenv("SYSTRAY_PROFILING") != NULL;
 }
@@ -117,9 +117,9 @@ void init_systray_panel(void *p)
 	if (!systray.area.bg)
 		systray.area.bg = &g_array_index(backgrounds, Background, 0);
 	show(&systray.area);
-	systray.area.resize = 1;
-	systray.area.redraw = 1;
-	panel->area.resize = 1;
+	systray.area.resize_needed = 1;
+	systray.area.redraw_needed = 1;
+	panel->area.resize_needed = 1;
 	panel_refresh = 1;
 	refresh_systray = 1;
 }
@@ -615,9 +615,9 @@ gboolean add_icon(Window win)
 	// Resize and redraw the systray
 	if (systray_profile)
 		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
-	systray.area.resize = 1;
-	systray.area.redraw = 1;
-	panel->area.resize = 1;
+	systray.area.resize_needed = 1;
+	systray.area.redraw_needed = 1;
+	panel->area.resize_needed = 1;
 	panel_refresh = 1;
 	refresh_systray = 1;
 	return TRUE;
@@ -817,9 +817,9 @@ void remove_icon(TrayWindow *traywin)
 	// Resize and redraw the systray
 	if (systray_profile)
 		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
-	systray.area.resize = 1;
-	systray.area.redraw = 1;
-	panel->area.resize = 1;
+	systray.area.resize_needed = 1;
+	systray.area.redraw_needed = 1;
+	panel->area.resize_needed = 1;
 	panel_refresh = 1;
 	refresh_systray = 1;
 }
@@ -906,7 +906,7 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 				fprintf(stderr, RED "Detected resize loop for tray icon %lu (%s), throttling resize events\n" RESET, traywin->win, traywin->name);
 			}
 			// Delayed resize
-			// FIXME Normally we should force the icon to resize back to the size we resized it to when we embedded it.
+			// FIXME Normally we should force the icon to resize fill_color to the size we resized it to when we embedded it.
 			// However this triggers a resize loop in new versions of GTK, which we must avoid.
 			if (!traywin->resize_timeout)
 				traywin->resize_timeout = add_timeout(slow_resize_period, 0, systray_resize_icon, traywin, &traywin->resize_timeout);
@@ -959,7 +959,7 @@ void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
 				fprintf(stderr, RED "Detected resize loop for tray icon %lu (%s), throttling resize events\n" RESET, traywin->win, traywin->name);
 			}
 			// Delayed resize
-			// FIXME Normally we should force the icon to resize back to the size we resized it to when we embedded it.
+			// FIXME Normally we should force the icon to resize fill_color to the size we resized it to when we embedded it.
 			// However this triggers a resize loop in new versions of GTK, which we must avoid.
 			if (!traywin->resize_timeout)
 				traywin->resize_timeout = add_timeout(slow_resize_period, 0, systray_resize_icon, traywin, &traywin->resize_timeout);
@@ -1139,9 +1139,9 @@ void systray_render_icon_composited(void* t)
 		// Resize and redraw the systray
 		if (systray_profile)
 			fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
-		systray.area.resize = 1;
-		systray.area.redraw = 1;
-		panel->area.resize = 1;
+		systray.area.resize_needed = 1;
+		systray.area.redraw_needed = 1;
+		panel->area.resize_needed = 1;
 		panel_refresh = 1;
 		refresh_systray = 1;
 	}

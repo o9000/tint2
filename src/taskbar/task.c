@@ -62,8 +62,8 @@ Task *add_task (Window win)
 
 	Task new_tsk;
 	memset(&new_tsk, 0, sizeof(new_tsk));
-	new_tsk.area.mouse_over_effect = 1;
-	new_tsk.area.mouse_press_effect = 1;
+	new_tsk.area.has_mouse_over_effect = 1;
+	new_tsk.area.has_mouse_press_effect = 1;
 	new_tsk.win = win;
 	new_tsk.desktop = window_get_desktop (win);
 	new_tsk.area.panel = &panel1[monitor];
@@ -94,8 +94,8 @@ Task *add_task (Window win)
 		new_tsk2 = calloc(1, sizeof(Task));
 		memcpy(&new_tsk2->area, &panel1[monitor].g_task.area, sizeof(Area));
 		new_tsk2->area.parent = tskbar;
-		new_tsk2->area.mouse_over_effect = 1;
-		new_tsk2->area.mouse_press_effect = 1;
+		new_tsk2->area.has_mouse_over_effect = 1;
+		new_tsk2->area.has_mouse_press_effect = 1;
 		new_tsk2->win = new_tsk.win;
 		new_tsk2->desktop = new_tsk.desktop;
 		new_tsk2->win_x = new_tsk.win_x;
@@ -119,7 +119,7 @@ Task *add_task (Window win)
 		new_tsk2->icon_width = new_tsk.icon_width;
 		new_tsk2->icon_height = new_tsk.icon_height;
 		tskbar->area.children = g_list_append(tskbar->area.children, new_tsk2);
-		tskbar->area.resize = 1;
+		tskbar->area.resize_needed = 1;
 		g_ptr_array_add(task_group, new_tsk2);
 		//printf("add_task panel %d, desktop %d, task %s\n", i, j, new_tsk2->title);
 	}
@@ -132,7 +132,7 @@ Task *add_task (Window win)
 
 	if (panel_mode == MULTI_DESKTOP) {
 		Panel *panel = new_tsk2->area.panel;
-		panel->area.resize = 1;
+		panel->area.resize_needed = 1;
 	}
 
 	if (window_is_urgent(win)) {
@@ -149,7 +149,7 @@ void remove_task (Task *tsk)
 
 	if (panel_mode == MULTI_DESKTOP) {
 		Panel *panel = tsk->area.panel;
-		panel->area.resize = 1;
+		panel->area.resize_needed = 1;
 	}
 
 	Window win = tsk->win;
@@ -187,7 +187,7 @@ void remove_task (Task *tsk)
 		if (tsk2 == task_active) task_active = 0;
 		if (tsk2 == task_drag) task_drag = 0;
 		if (g_slist_find(urgent_list, tsk2)) del_urgent(tsk2);
-		remove_area(tsk2);
+		remove_area((Area*)tsk2);
 		free(tsk2);
 	}
 	g_hash_table_remove(win_to_task_table, &win);
@@ -555,9 +555,9 @@ void set_task_state(Task *tsk, int state)
 				if (!panel_config.mouse_effects) {
 					tsk1->area.pix = tsk1->state_pix[state];
 					if (!tsk1->area.pix)
-						tsk1->area.redraw = 1;
+						tsk1->area.redraw_needed = 1;
 				} else {
-					tsk1->area.redraw = 1;
+					tsk1->area.redraw_needed = 1;
 				}
 				if (state == TASK_ACTIVE && g_slist_find(urgent_list, tsk1))
 					del_urgent(tsk1);
@@ -581,9 +581,9 @@ void set_task_state(Task *tsk, int state)
 					tsk1->area.on_screen = 1 - hide;
 					set_task_redraw(tsk1);
 					Panel *p = (Panel*)tsk->area.panel;
-					tsk->area.resize = 1;
-					p->taskbar->area.resize = 1;
-					p->area.resize = 1;
+					tsk->area.resize_needed = 1;
+					p->taskbar->area.resize_needed = 1;
+					p->area.resize_needed = 1;
 				}
 			}
 			panel_refresh = 1;
@@ -600,7 +600,7 @@ void set_task_redraw(Task* tsk)
 		tsk->state_pix[k] = 0;
 	}
 	tsk->area.pix = 0;
-	tsk->area.redraw = 1;
+	tsk->area.redraw_needed = 1;
 }
 
 

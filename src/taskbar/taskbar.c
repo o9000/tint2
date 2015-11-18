@@ -99,7 +99,7 @@ void cleanup_taskbar()
 			}
 			free_area(&tskbar->area);
 			// remove taskbar from the panel
-			remove_area(tskbar);
+			remove_area((Area*)tskbar);
 		}
 		if (panel->taskbar) {
 			free(panel->taskbar);
@@ -144,22 +144,22 @@ void init_taskbar_panel(void *p)
 
 	// taskbar name
 	panel->g_taskbar.area_name.panel = panel;
-	panel->g_taskbar.area_name.size_mode = SIZE_BY_CONTENT;
+	panel->g_taskbar.area_name.size_mode = LAYOUT_FIXED;
 	panel->g_taskbar.area_name._resize = resize_taskbarname;
 	panel->g_taskbar.area_name._draw_foreground = draw_taskbarname;
 	panel->g_taskbar.area_name._on_change_layout = 0;
-	panel->g_taskbar.area_name.resize = 1;
+	panel->g_taskbar.area_name.resize_needed = 1;
 	panel->g_taskbar.area_name.on_screen = 1;
 
 	// taskbar
 	panel->g_taskbar.area.parent = panel;
 	panel->g_taskbar.area.panel = panel;
-	panel->g_taskbar.area.size_mode = SIZE_BY_LAYOUT;
+	panel->g_taskbar.area.size_mode = LAYOUT_DYNAMIC;
 	panel->g_taskbar.area.alignment = taskbar_alignment;
 	panel->g_taskbar.area._resize = resize_taskbar;
 	panel->g_taskbar.area._draw_foreground = draw_taskbar;
 	panel->g_taskbar.area._on_change_layout = on_change_taskbar;
-	panel->g_taskbar.area.resize = 1;
+	panel->g_taskbar.area.resize_needed = 1;
 	panel->g_taskbar.area.on_screen = 1;
 	if (panel_horizontal) {
 		panel->g_taskbar.area.posy = panel->area.bg->border.width + panel->area.paddingy;
@@ -176,10 +176,10 @@ void init_taskbar_panel(void *p)
 
 	// task
 	panel->g_task.area.panel = panel;
-	panel->g_task.area.size_mode = SIZE_BY_LAYOUT;
+	panel->g_task.area.size_mode = LAYOUT_DYNAMIC;
 	panel->g_task.area._draw_foreground = draw_task;
 	panel->g_task.area._on_change_layout = on_change_task;
-	panel->g_task.area.resize = 1;
+	panel->g_task.area.resize_needed = 1;
 	panel->g_task.area.on_screen = 1;
 	if ((panel->g_task.config_asb_mask & (1<<TASK_NORMAL)) == 0) {
 		panel->g_task.alpha[TASK_NORMAL] = 100;
@@ -223,11 +223,11 @@ void init_taskbar_panel(void *p)
 	for (j=0; j<TASK_STATE_COUNT; ++j) {
 		if (panel->g_task.background[j] == 0)
 			panel->g_task.background[j] = &g_array_index(backgrounds, Background, 0);
-		if (panel->g_task.background[j]->border.rounded > panel->g_task.area.height/2) {
+		if (panel->g_task.background[j]->border.radius > panel->g_task.area.height/2) {
 			printf("task%sbackground_id has a too large rounded value. Please fix your tint2rc\n", j==0 ? "_" : j==1 ? "_active_" : j==2 ? "_iconified_" : "_urgent_");
 			g_array_append_val(backgrounds, *panel->g_task.background[j]);
 			panel->g_task.background[j] = &g_array_index(backgrounds, Background, backgrounds->len-1);
-			panel->g_task.background[j]->border.rounded = panel->g_task.area.height/2;
+			panel->g_task.background[j]->border.radius = panel->g_task.area.height/2;
 		}
 	}
 
@@ -334,7 +334,7 @@ int resize_taskbar(void *obj)
 
 	//printf("resize_taskbar %d %d\n", taskbar->area.posx, taskbar->area.posy);
 	if (panel_horizontal) {
-		resize_by_layout(obj, panel->g_task.maximum_width);
+		relayout_with_constraint(&taskbar->area, panel->g_task.maximum_width);
 		
 		text_width = panel->g_task.maximum_width;
 		GList *l = taskbar->area.children;
@@ -348,7 +348,7 @@ int resize_taskbar(void *obj)
 		taskbar->text_width = text_width - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingxlr;
 	}
 	else {
-		resize_by_layout(obj, panel->g_task.maximum_height);
+		relayout_with_constraint(&taskbar->area, panel->g_task.maximum_height);
 		
 		taskbar->text_width = taskbar->area.width - (2 * panel->g_taskbar.area.paddingy) - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingxlr;
 	}
@@ -367,7 +367,7 @@ void on_change_taskbar (void *obj)
 		tskbar->state_pix[k] = 0;
 	}
 	tskbar->area.pix = 0;
-	tskbar->area.redraw = 1;
+	tskbar->area.redraw_needed = 1;
 }
 
 
@@ -389,13 +389,13 @@ void set_taskbar_state(Taskbar *tskbar, int state)
 	}
 	if (tskbar->area.on_screen == 1) {
 		if (tskbar->state_pix[state] == 0)
-			tskbar->area.redraw = 1;
+			tskbar->area.redraw_needed = 1;
 		if (taskbarname_enabled) {
 			if (!panel_config.mouse_effects) {
 				if (tskbar->bar_name.state_pix[state] == 0)
-					tskbar->bar_name.area.redraw = 1;
+					tskbar->bar_name.area.redraw_needed = 1;
 			} else {
-				tskbar->bar_name.area.redraw = 1;
+				tskbar->bar_name.area.redraw_needed = 1;
 			}
 		}
 		if (panel_mode == MULTI_DESKTOP && panel1[0].g_taskbar.background[TASKBAR_NORMAL] != panel1[0].g_taskbar.background[TASKBAR_ACTIVE]) {
@@ -540,9 +540,9 @@ void sort_tasks(Taskbar *taskbar)
 		return;
 	}
 	taskbar->area.children = g_list_sort_with_data(taskbar->area.children, (GCompareDataFunc)compare_tasks, taskbar);
-	taskbar->area.resize = 1;
+	taskbar->area.resize_needed = 1;
 	panel_refresh = 1;
-	((Panel*)taskbar->area.panel)->area.resize = 1;
+	((Panel*)taskbar->area.panel)->area.resize_needed = 1;
 }
 
 

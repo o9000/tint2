@@ -1,19 +1,6 @@
 /**************************************************************************
 * Copyright (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr)
 *
-* base class for all graphical objects (panel, taskbar, task, systray, clock, ...).
-* Area is at the begining of each object (&object == &area).
-*
-* Area manage the background and border drawing, size and padding.
-* Each Area has one Pixmap (pix).
-*
-* Area manage the tree of all objects. Parent object drawn before child object.
-*   panel -> taskbars -> tasks
-*         -> systray -> icons
-*         -> clock
-*
-* draw_foreground(obj) and resize(obj) are virtual function.
-*
 **************************************************************************/
 
 #ifndef AREA_H
@@ -24,129 +11,250 @@
 #include <cairo.h>
 #include <cairo-xlib.h>
 
+// DATA ORGANISATION
+//
+// Areas in tint2 are similar to widgets in a GUI.
+// All graphical objects (panel, taskbar, task, systray, clock, ...) inherit the abstract class Area.
+// This class 'Area' stores data about the background, border, size, position, padding and the child areas.
+// Inheritance is simulated by having an Area member as the first member of each object (thus &object == &area).
+//
+// tint2 uses multiple panels, one per monitor. Each panel has an area containing the children objects in a tree of
+// areas. The level in the tree gives the z-order: child areas are always displayed on top of their parents.
+//
+//
+// LAYOUT
+//
+// Sibling areas never overlap.
+//
+// The position of an Area (posx, posy) is relative to the window (i.e. absolute) and
+// is computed based on a simple box model:
+// * parent position + parent padding + sum of the sizes of the previous siblings and spacing
+//
+// The size of an Area is:
+// * SIZE_BY_CONTENT objects:
+//   * fixed and set by the Area
+//   * childred are resized before the parent
+//   * if a child size has changed then the parent is resized
+// * SIZE_BY_LAYOUT objects:
+//   * expandable and computed as the total size of the parent - padding -
+//     the size of the fixed sized siblings - spacing and divided by the number of expandable siblings
+//   * the parent is resized before the children
+//
+//
+// RENDERING
+//
+// Redrawing an object (like the clock) could come from an 'external event' (date change)
+// or from a 'layout event' (position change).
+//
+//
+// WIDGET LIFECYCLE
+//
+// Each widget that occurs once per panel is defined as a struct (e.g. Clock) which is stored as a member of Panel.
+// Widgets that can occur more than once should be stored as an array, still as a member of Panel.
+//
+// There is a special Panel instance called 'panel_config' which stores the config options and the state variables
+// of the widgets (however some config options are stored as global variables by the widgets).
+//
+// Tint2 maintains an array of Panel instances, one for each monitor. These contain the actual Areas that are used to
+// render the panels on screen, interact with user input etc.
+// Each Panel is initialized as a raw copy (memcpy, see init_panel()) of panel_config.
+//
+// Normally, widgets should implement the following functions:
+//
+// * void default_widget();
+//
+//   Called before the config is read and panel_config/panels are created.
+//   Afterwards, the config parsing code creates the widget/widget array in panel_config and
+//   populates the configuration fields.
+//   If the widget uses global variables to store config options or other state variables, they should be initialized
+//   here (e.g. with zero, NULL etc).
+//
+// * void init_widget();
+//
+//   Called after the config is read and panel_config is populated, but before panels are created.
+//   Initializes the state of the widget in panel_config.
+//   If the widget uses global variables to store config options or other state variables which depend on the config
+//   options but not on the panel instance, they should be initialized here.
+//   panel_config.panel_items can be used to determine which backend items are enabled.
+//
+// * void init_widget_panel(void *panel);
+//
+//   Called after each on-screen panel is created, with a pointer to the panel.
+//   Completes the initialization of the widget.
+//   At this point the widget Area has not been added yet to the GUI tree, but it will be added right afterwards.
+//
+// * void cleanup_widget();
+//
+//   Called just before the panels are destroyed. Afterwards, tint2 exits or restarts and reads the config again.
+//   Must releases all resources.
+//   The widget itself should not be freed by this function, only its members or global variables that were set.
+//   The widget is freed by the Area tree cleanup function (remove_area).
+//
+// * void draw_widget(void *obj, cairo_t *c);
+//
+//   Called on draw, obj = pointer to the widget instance from the panel that is redrawn.
+//   The Area's _draw_foreground member must point to this function.
+//
+// * int resize_widget(void *obj);
+//
+//   Called on resize, obj = pointer to the front-end Execp item.
+//   Returns 1 if the new size is different than the previous size.
+//   The Area's _resize member must point to this function.
+//
+// * void widget_action(void *obj, int button);
+//
+//   Called on mouse click event.
+//
+// * void widget_on_change_layout(void *obj);
+//
+//   Implemented only to override the default layout algorithm for this widget.
+//   For example, if this widget is a cell in a table, its position and size should be computed here.
+//   The Area's _on_change_layout member must point to this function.
+//
+// * char* widget_get_tooltip_text(void *obj);
+//
+//   Returns a copy of the tooltip to be displayed for this widget.
+//   The caller takes ownership of the pointer.
+//   The Area's _get_tooltip_text member must point to this function.
 
-typedef struct
-{
-	double color[3];
-	double alpha;
-	int width;
-	int rounded;
-} Border;
-
-
-typedef struct
-{
-	double color[3];
+typedef struct Color {
+	// Values are in [0, 1], with 0 meaning no intensity.
+	double rgb[3];
+	// Values are in [0, 1], with 0 meaning fully transparent, 1 meaning fully opaque.
 	double alpha;
 } Color;
 
-typedef struct
-{
-	Color back;
+typedef struct Border {
+	// It's essential that the first member is color
+	Color color;
+	// Width in pixels
+	int width;
+	// Corner radius
+	int radius;
+} Border;
+
+typedef struct Background {
+	// Normal state
+	Color fill_color;
 	Border border;
-	Color back_hover;
-	Color border_hover;
-	Color back_pressed;
-	Color border_pressed;
+	// On mouse hover
+	Color fill_color_hover;
+	Color border_color_hover;
+	// On mouse press
+	Color fill_color_pressed;
+	Color border_color_pressed;
 } Background;
 
+typedef enum Layout {
+	LAYOUT_DYNAMIC,
+	LAYOUT_FIXED
+} Layout;
 
-// way to calculate the size
-// SIZE_BY_LAYOUT objects : taskbar and task
-// SIZE_BY_CONTENT objects : clock, battery, launcher, systray
-enum { SIZE_BY_LAYOUT, SIZE_BY_CONTENT };
-enum { ALIGN_LEFT = 0, ALIGN_CENTER = 1, ALIGN_RIGHT = 2 };
+typedef enum Alignment {
+	ALIGN_LEFT = 0,
+	ALIGN_CENTER = 1,
+	ALIGN_RIGHT = 2
+} Alignment;
 
-typedef enum {
+typedef enum MouseState {
 	MOUSE_NORMAL = 0,
 	MOUSE_OVER = 1,
 	MOUSE_DOWN = 2
 } MouseState;
 
-
-typedef struct {
-	// coordinate relative to panel window
+typedef struct Area {
+	// Position relative to the panel window
 	int posx, posy;
-	// width and height including border
+	// Size, including borders
 	int width, height;
-	Pixmap pix;
 	Background *bg;
-
-	// list of child : Area object
+	// List of children, each one a pointer to Area
 	GList *children;
-
-	// object visible on screen. 
-	// An object (like systray) could be enabled but hidden (because no tray icon).
-	int on_screen;
-	// way to calculate the size (SIZE_BY_CONTENT or SIZE_BY_LAYOUT)
-	int size_mode;
-
-	int alignment;
-	// need to calculate position and width
-	int resize;
-	// need redraw Pixmap
-	int redraw;
-	// paddingxlr = horizontal padding left/right
-	// paddingx = horizontal padding between childs
-	int paddingxlr, paddingx, paddingy;
-	// parent Area
+	// Pointer to the parent Area or NULL
 	void *parent;
-	// panel
+	// Pointer to the Panel that contains this Area
 	void *panel;
-
-	int mouse_over_effect;
-	int mouse_press_effect;
+	Layout size_mode;
+	Alignment alignment;
+	gboolean has_mouse_over_effect;
+	gboolean has_mouse_press_effect;
+	// TODO padding/spacing is a clusterfuck
+	// paddingxlr = padding
+	// paddingy = vertical padding, sometimes
+	// paddingx = spacing
+	int paddingxlr, paddingx, paddingy;
 	MouseState mouse_state;
+	// Set to non-zero if the Area is visible. An object may exist but stay hidden.
+	gboolean on_screen;
+	// Set to non-zero if the size of the Area has to be recalculated.
+	gboolean resize_needed;
+	// Set to non-zero if the Area has to be redrawn.
+	gboolean redraw_needed;
+	// Set to non-zero if the position/size has changed, thus _on_change_layout needs to be called
+	gboolean _changed;
+	// This is the pixmap on which the Area is rendered. Render to it directly if needed.
+	Pixmap pix;
 
-	// each object can overwrite following function
+	// Callbacks
+
+	// Called on draw, obj = pointer to the Area
 	void (*_draw_foreground)(void *obj, cairo_t *c);
-	// update area's content and update size (width/heith). 
-	// return '1' if size changed, '0' otherwise.
+
+	// Called on resize, obj = pointer to the Area
+	// Returns 1 if the new size is different than the previous size.
 	int (*_resize)(void *obj);
-	// after pos/size changed, the rendering engine will call _on_change_layout(Area*)
-	int on_changed;
+
+	// Implemented only to override the default layout algorithm for this widget.
+	// For example, if this widget is a cell in a table, its position and size should be computed here.
 	void (*_on_change_layout)(void *obj);
-	// returns allocated string, that must be free'd after usage
+
+	// Returns a copy of the tooltip to be displayed for this widget.
+	// The caller takes ownership of the pointer.
 	char* (*_get_tooltip_text)(void *obj);
 } Area;
 
+
+// Initializes the Background member to default values.
 void init_background(Background *bg);
 
-// on startup, initialize fixed pos/size
-void init_rendering(void *obj, int pos);
+// Layout
 
-void rendering(void *obj);
-void size_by_content (Area *a);
-void size_by_layout (Area *a, int level);
-// draw background and foreground
-void refresh (Area *a);
- 
-// generic resize for SIZE_BY_LAYOUT objects
-int resize_by_layout(void *obj, int maximum_size);
+// Called on startup to initialize the positions of all Areas in the Area tree.
+// Parameters:
+// * obj: pointer to Area
+// * pos: offset in pixels from left/top
+void initialize_positions(void *obj, int pos);
+// Relayouts the Area and its children. Normally called on the root of the tree (i.e. the Panel).
+void relayout(Area *a);
+// Distributes the Area's size to its children, repositioning them as needed.
+// If maximum_size > 0, it is an upper limit for the child size.
+int relayout_with_constraint(Area *a, int maximum_size);
 
-// set 'redraw' on an area and childs
-void set_redraw (Area *a);
+// Rendering
 
-// hide/unhide area
+// Sets the redraw_needed flag on the area and its descendants
+void schedule_redraw(Area *a);
+// Recreates the Area pixmap and draws the background and the foreground
+void draw(Area *a);
+// Draws the background of the Area
+void draw_background(Area *a, cairo_t *c);
+// Explores the entire Area subtree (only if the on_screen flag set)
+// and draws the areas with the redraw_needed flag set
+void draw_tree(Area *a);
+// Clears the on_screen flag, sets the size to zero and triggers a parent resize
 void hide(Area *a);
+// Sets the on_screen flag and triggers a parent and area resize
 void show(Area *a);
 
-// draw pixmap
-void draw (Area *a);
-void draw_background (Area *a, cairo_t *c);
+// Area tree
 
-void remove_area (void *a);
-void add_area (Area *a);
-void free_area (Area *a);
+void add_area(Area *a, Area *parent);
+void remove_area(Area *a);
+void free_area(Area *a);
 
-// draw rounded rectangle
-void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
-
-// clear pixmap with transparent color
-void clear_pixmap(Pixmap p, int x, int y, int w, int h);
+// Mouse move events
 
 void mouse_over(Area *area, int pressed);
 void mouse_out();
 
 #endif
-

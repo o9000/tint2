@@ -64,7 +64,7 @@ void xsettings_notify_cb (const char *name, XSettingsAction action, XSettingsSet
 				cleanup_launcher_theme(launcher);
 				launcher_load_themes(launcher);
 				launcher_load_icons(launcher);
-				launcher->area.resize = 1;
+				launcher->area.resize_needed = 1;
 			}
 		}
 	}

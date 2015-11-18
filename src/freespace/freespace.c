@@ -40,8 +40,8 @@ void init_freespace_panel(void *p)
 		freespace->area.bg = &g_array_index(backgrounds, Background, 0);
 	freespace->area.parent = p;
 	freespace->area.panel = p;
-	freespace->area.size_mode = SIZE_BY_CONTENT;
-	freespace->area.resize = 1;
+	freespace->area.size_mode = LAYOUT_FIXED;
+	freespace->area.resize_needed = 1;
 	freespace->area.on_screen = 1;
 	freespace->area._resize = resize_freespace;
 }
@@ -87,7 +87,7 @@ int resize_freespace(void *obj) {
 		freespace->area.height = size;
 	}
 
-	freespace->area.redraw = 1;
+	freespace->area.redraw_needed = 1;
 	panel_refresh = 1;
 	return 1;
 }

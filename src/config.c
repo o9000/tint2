@@ -213,17 +213,17 @@ void add_entry (char *key, char *value)
 		if (backgrounds->len > 0) {
 			Background *bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
 			if (!read_bg_color_hover)
-				memcpy(&bg->back_hover, &bg->back, sizeof(Color));
+        memcpy(&bg->fill_color_hover, &bg->fill_color, sizeof(Color));
 			if (!read_border_color_hover)
-				memcpy(&bg->border_hover, &bg->border, sizeof(Color));
+        memcpy(&bg->border_color_hover, &bg->border, sizeof(Color));
 			if (!read_bg_color_press)
-				memcpy(&bg->back_pressed, &bg->back_hover, sizeof(Color));
+        memcpy(&bg->fill_color_pressed, &bg->fill_color_hover, sizeof(Color));
 			if (!read_border_color_press)
-				memcpy(&bg->border_pressed, &bg->border_hover, sizeof(Color));
+        memcpy(&bg->border_color_pressed, &bg->border_color_hover, sizeof(Color));
 		}
 		Background bg;
 		init_background(&bg);
-		bg.border.rounded = atoi(value);
+    bg.border.radius = atoi(value);
 		g_array_append_val(backgrounds, bg);
 		read_bg_color_hover = 0;
 		read_border_color_hover = 0;
@@ -236,47 +236,47 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "background_color") == 0) {
 		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->back.color);
-		if (value2) bg->back.alpha = (atoi (value2) / 100.0);
-		else bg->back.alpha = 0.5;
+    get_color (value1, bg->fill_color.rgb);
+    if (value2) bg->fill_color.alpha = (atoi (value2) / 100.0);
+    else bg->fill_color.alpha = 0.5;
 	}
 	else if (strcmp (key, "border_color") == 0) {
 		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->border.color);
-		if (value2) bg->border.alpha = (atoi (value2) / 100.0);
-		else bg->border.alpha = 0.5;
+    get_color (value1, bg->border.color.rgb);
+    if (value2) bg->border.color.alpha = (atoi (value2) / 100.0);
+    else bg->border.color.alpha = 0.5;
 	}
 	else if (strcmp (key, "background_color_hover") == 0) {
 		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->back_hover.color);
-		if (value2) bg->back_hover.alpha = (atoi (value2) / 100.0);
-		else bg->back_hover.alpha = 0.5;
+    get_color (value1, bg->fill_color_hover.rgb);
+    if (value2) bg->fill_color_hover.alpha = (atoi (value2) / 100.0);
+    else bg->fill_color_hover.alpha = 0.5;
     read_bg_color_hover = 1;
 	}
 	else if (strcmp (key, "border_color_hover") == 0) {
 		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->border_hover.color);
-		if (value2) bg->border_hover.alpha = (atoi (value2) / 100.0);
-		else bg->border_hover.alpha = 0.5;
+    get_color (value1, bg->border_color_hover.rgb);
+    if (value2) bg->border_color_hover.alpha = (atoi (value2) / 100.0);
+    else bg->border_color_hover.alpha = 0.5;
 		read_border_color_hover = 1;
 	}
 	else if (strcmp (key, "background_color_pressed") == 0) {
 		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->back_pressed.color);
-		if (value2) bg->back_pressed.alpha = (atoi (value2) / 100.0);
-		else bg->back_pressed.alpha = 0.5;
+    get_color (value1, bg->fill_color_pressed.rgb);
+    if (value2) bg->fill_color_pressed.alpha = (atoi (value2) / 100.0);
+    else bg->fill_color_pressed.alpha = 0.5;
 		read_bg_color_press = 1;
 	}
 	else if (strcmp (key, "border_color_pressed") == 0) {
 		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->border_pressed.color);
-		if (value2) bg->border_pressed.alpha = (atoi (value2) / 100.0);
-		else bg->border_pressed.alpha = 0.5;
+    get_color (value1, bg->border_color_pressed.rgb);
+    if (value2) bg->border_color_pressed.alpha = (atoi (value2) / 100.0);
+    else bg->border_color_pressed.alpha = 0.5;
 		read_border_color_press = 1;
 	}
 
@@ -471,7 +471,7 @@ void add_entry (char *key, char *value)
 	else if (strcmp (key, "battery_font_color") == 0) {
 #ifdef ENABLE_BATTERY
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, panel_config.battery.font.color);
+    get_color (value1, panel_config.battery.font.rgb);
 		if (value2) panel_config.battery.font.alpha = (atoi (value2) / 100.0);
 		else panel_config.battery.font.alpha = 0.5;
 #endif
@@ -542,7 +542,7 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "clock_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, panel_config.clock.font.color);
+    get_color (value1, panel_config.clock.font.rgb);
 		if (value2) panel_config.clock.font.alpha = (atoi (value2) / 100.0);
 		else panel_config.clock.font.alpha = 0.5;
 	}
@@ -637,13 +637,13 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "taskbar_name_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, taskbarname_font.color);
+    get_color (value1, taskbarname_font.rgb);
 		if (value2) taskbarname_font.alpha = (atoi (value2) / 100.0);
 		else taskbarname_font.alpha = 0.5;
 	}
 	else if (strcmp (key, "taskbar_name_active_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, taskbarname_active_font.color);
+    get_color (value1, taskbarname_active_font.rgb);
 		if (value2) taskbarname_active_font.alpha = (atoi (value2) / 100.0);
 		else taskbarname_active_font.alpha = 0.5;
 	}
@@ -708,7 +708,7 @@ void add_entry (char *key, char *value)
 			extract_values(value, &value1, &value2, &value3);
 			float alpha = 1;
 			if (value2) alpha = (atoi (value2) / 100.0);
-			get_color (value1, panel_config.g_task.font[status].color);
+      get_color (value1, panel_config.g_task.font[status].rgb);
 			panel_config.g_task.font[status].alpha = alpha;
 			panel_config.g_task.config_font_mask |= (1<<status);
 		}
@@ -859,7 +859,7 @@ void add_entry (char *key, char *value)
 	}
 	else if (strcmp (key, "tooltip_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
-		get_color(value1, g_tooltip.font_color.color);
+    get_color(value1, g_tooltip.font_color.rgb);
 		if (value2) g_tooltip.font_color.alpha = (atoi (value2) / 100.0);
 		else g_tooltip.font_color.alpha = 0.1;
 	}
@@ -1039,13 +1039,13 @@ int config_read_file (const char *path)
   if (backgrounds->len > 0) {
     Background *bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
     if (!read_bg_color_hover)
-      memcpy(&bg->back_hover, &bg->back, sizeof(Color));
+      memcpy(&bg->fill_color_hover, &bg->fill_color, sizeof(Color));
     if (!read_border_color_hover)
-      memcpy(&bg->border_hover, &bg->border, sizeof(Color));
+      memcpy(&bg->border_color_hover, &bg->border, sizeof(Color));
     if (!read_bg_color_press)
-	  memcpy(&bg->back_pressed, &bg->back_hover, sizeof(Color));
+    memcpy(&bg->fill_color_pressed, &bg->fill_color_hover, sizeof(Color));
     if (!read_border_color_press)
-	  memcpy(&bg->border_pressed, &bg->border_hover, sizeof(Color));
+    memcpy(&bg->border_color_pressed, &bg->border_color_hover, sizeof(Color));
   }
 
 	return 1;

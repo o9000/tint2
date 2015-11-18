@@ -192,11 +192,11 @@ void init_panel()
 		p->area.parent = p;
 		p->area.panel = p;
 		p->area.on_screen = 1;
-		p->area.resize = 1;
-		p->area.size_mode = SIZE_BY_LAYOUT;
+		p->area.resize_needed = 1;
+		p->area.size_mode = LAYOUT_DYNAMIC;
 		p->area._resize = resize_panel;
 		init_panel_size_and_position(p);
-		// add childs according to panel_items
+		// add children according to panel_items
 		for (k=0 ; k < strlen(panel_items_order) ; k++) {
 			if (panel_items_order[k] == 'L') 
 				init_launcher_panel(p);
@@ -265,11 +265,11 @@ void init_panel_size_and_position(Panel *panel)
 			panel->area.height = (float)server.monitor[panel->monitor].height * panel->area.height / 100;
 		if (panel->area.width + panel->marginx > server.monitor[panel->monitor].width)
 			panel->area.width = server.monitor[panel->monitor].width - panel->marginx;
-		if (panel->area.bg->border.rounded > panel->area.height/2) {
+		if (panel->area.bg->border.radius > panel->area.height/2) {
 			printf("panel_background_id rounded is too big... please fix your tint2rc\n");
 			g_array_append_val(backgrounds, *panel->area.bg);
 			panel->area.bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
-			panel->area.bg->border.rounded = panel->area.height/2;
+			panel->area.bg->border.radius = panel->area.height/2;
 		}
 	}
 	else {
@@ -284,11 +284,11 @@ void init_panel_size_and_position(Panel *panel)
 			panel->area.width = old_panel_height;
 		if (panel->area.height + panel->marginy > server.monitor[panel->monitor].height)
 			panel->area.height = server.monitor[panel->monitor].height - panel->marginy;
-		if (panel->area.bg->border.rounded > panel->area.width/2) {
+		if (panel->area.bg->border.radius > panel->area.width/2) {
 			printf("panel_background_id rounded is too big... please fix your tint2rc\n");
 			g_array_append_val(backgrounds, *panel->area.bg);
 			panel->area.bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
-			panel->area.bg->border.rounded = panel->area.width/2;
+			panel->area.bg->border.radius = panel->area.width/2;
 		}
 	}
 
@@ -336,7 +336,7 @@ void init_panel_size_and_position(Panel *panel)
 int resize_panel(void *obj)
 {
 	Panel *panel = (Panel*)obj;
-	resize_by_layout(panel, 0);
+	relayout_with_constraint(&panel->area, 0);
 	
 	//printf("resize_panel\n");
 	if (panel_mode != MULTI_DESKTOP && taskbar_enabled) {
@@ -347,7 +347,7 @@ int resize_panel(void *obj)
 		for (i=0 ; i < panel->nb_desktop ; i++) {
 			panel->taskbar[i].area.width = width;
 			panel->taskbar[i].area.height = height;
-			panel->taskbar[i].area.resize = 1;
+			panel->taskbar[i].area.resize_needed = 1;
 		}
 	}
 	if (panel_mode == MULTI_DESKTOP && taskbar_enabled && taskbar_distribute_size) {
@@ -426,7 +426,7 @@ int resize_panel(void *obj)
 				} else {
 					taskbar->area.height = actual_name_size + items / (float)total_items * total_size;
 				}
-				taskbar->area.resize = 1;
+				taskbar->area.resize_needed = 1;
 			}
 		}
 	}
@@ -503,7 +503,7 @@ void set_panel_items_order(Panel *p)
 	for (k=0 ; k < strlen(panel_items_order) ; k++) {
 		if (panel_items_order[k] == 'L') {
 			p->area.children = g_list_append(p->area.children, &p->launcher);
-			p->launcher.area.resize = 1;
+			p->launcher.area.resize_needed = 1;
 		}
 		if (panel_items_order[k] == 'T') {
 			for (j=0 ; j < p->nb_desktop ; j++)
@@ -522,7 +522,7 @@ void set_panel_items_order(Panel *p)
 		if (panel_items_order[k] == 'F')
 			p->area.children = g_list_append(p->area.children, &p->freespace);
 	}
-	init_rendering(&p->area, 0);
+	initialize_positions(&p->area, 0);
 }
 
 
@@ -649,7 +649,7 @@ void set_panel_background(Panel *p)
 	Area *a;
 	for (l0 = p->area.children; l0 ; l0 = l0->next) {
 		a = l0->data;
-		set_redraw(a);
+		schedule_redraw(a);
 	}
 	
 	// reset task/taskbar 'state_pix'
@@ -923,4 +923,10 @@ void autohide_trigger_hide(Panel* p)
 		if (child) return;  // mouse over one of the system tray icons
 
 	change_timeout(&p->autohide_timeout, panel_autohide_hide_timeout, 0, autohide_hide, p);
+}
+
+void render_panel(Panel *panel)
+{
+	relayout(&panel->area);
+	draw_tree(&panel->area);
 }

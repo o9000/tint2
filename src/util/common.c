@@ -455,7 +455,7 @@ void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color
 			}
 		}
 	}
-	cairo_set_source_rgba (c, color->color[0], color->color[1], color->color[2], color->alpha);
+	cairo_set_source_rgba (c, color->rgb[0], color->rgb[1], color->rgb[2], color->alpha);
 	pango_cairo_update_layout (c, layout);
 	cairo_move_to (c, posx, posy);
 	pango_cairo_show_layout (c, layout);
@@ -523,4 +523,32 @@ Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int bri
 	adjust_asb(data, imlib_image_get_width(), imlib_image_get_height(), alpha, (float)saturation/100, (float)brightness/100);
 	imlib_image_put_back_data(data);
 	return copy;
+}
+
+void draw_rect(cairo_t *c, double x, double y, double w, double h, double r)
+{
+	if (r > 0.0) {
+		double c1 = 0.55228475 * r;
+
+		cairo_move_to(c, x+r, y);
+		cairo_rel_line_to(c, w-2*r, 0);
+		cairo_rel_curve_to(c, c1, 0.0, r, c1, r, r);
+		cairo_rel_line_to(c, 0, h-2*r);
+		cairo_rel_curve_to(c, 0.0, c1, c1-r, r, -r, r);
+		cairo_rel_line_to (c, -w +2*r, 0);
+		cairo_rel_curve_to (c, -c1, 0, -r, -c1, -r, -r);
+		cairo_rel_line_to (c, 0, -h + 2 * r);
+		cairo_rel_curve_to (c, 0, -c1, r - c1, -r, r, -r);
+	}
+	else
+		cairo_rectangle(c, x, y, w, h);
+}
+
+
+void clear_pixmap(Pixmap p, int x, int y, int w, int h)
+{
+	Picture pict = XRenderCreatePicture(server.dsp, p, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
+	XRenderColor col = { .red=0, .green=0, .blue=0, .alpha=0 };
+	XRenderFillRectangle(server.dsp, PictOpSrc, pict, &col, x, y, w, h);
+	XRenderFreePicture(server.dsp, pict);
 }

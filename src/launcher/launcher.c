@@ -92,10 +92,10 @@ void init_launcher_panel(void *p)
 	launcher->area.parent = p;
 	launcher->area.panel = p;
 	launcher->area._draw_foreground = NULL;
-	launcher->area.size_mode = SIZE_BY_CONTENT;
+	launcher->area.size_mode = LAYOUT_FIXED;
 	launcher->area._resize = resize_launcher;
-	launcher->area.resize = 1;
-	launcher->area.redraw = 1;
+	launcher->area.resize_needed = 1;
+	launcher->area.redraw_needed = 1;
 	if (!launcher->area.bg)
 		launcher->area.bg = &g_array_index(backgrounds, Background, 0);
 
@@ -446,15 +446,14 @@ void launcher_load_icons(Launcher *launcher)
 		read_desktop_file(app->data, &entry);
 		if (entry.exec) {
 			LauncherIcon *launcherIcon = calloc(1, sizeof(LauncherIcon));
-			launcherIcon->area.parent = launcher;
 			launcherIcon->area.panel = launcher->area.panel;
 			launcherIcon->area._draw_foreground = draw_launcher_icon;
-			launcherIcon->area.size_mode = SIZE_BY_CONTENT;
+			launcherIcon->area.size_mode = LAYOUT_FIXED;
 			launcherIcon->area._resize = NULL;
-			launcherIcon->area.resize = 0;
-			launcherIcon->area.redraw = 1;
-			launcherIcon->area.mouse_over_effect = 1;
-			launcherIcon->area.mouse_press_effect = 1;
+			launcherIcon->area.resize_needed = 0;
+			launcherIcon->area.redraw_needed = 1;
+			launcherIcon->area.has_mouse_over_effect = 1;
+			launcherIcon->area.has_mouse_press_effect = 1;
 			launcherIcon->area.bg = launcher_icon_bg;
 			launcherIcon->area.on_screen = 1;
 			launcherIcon->area._on_change_layout = launcher_icon_on_change_layout;
@@ -470,7 +469,7 @@ void launcher_load_icons(Launcher *launcher)
 			launcherIcon->icon_tooltip = entry.name ? strdup(entry.name) : strdup(entry.exec);
 			free_desktop_entry(&entry);
 			launcher->list_icons = g_slist_append(launcher->list_icons, launcherIcon);
-			add_area(&launcherIcon->area);
+			add_area(&launcherIcon->area, (Area*)launcher);
 		}
 		app = g_slist_next(app);
 	}
