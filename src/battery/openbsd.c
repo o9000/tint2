@@ -29,7 +29,8 @@
 
 int apm_fd = -1;
 
-gboolean battery_os_init() {
+gboolean battery_os_init()
+{
 	if (apm_fd > 0)
 		close(apm_fd);
 
@@ -43,13 +44,15 @@ gboolean battery_os_init() {
 	}
 }
 
-void battery_os_free() {
+void battery_os_free()
+{
 	if ((apm_fd != -1) && (close(apm_fd) == -1))
 		warn("cannot close /dev/apm");
 	apm_fd = -1;
 }
 
-int battery_os_update(struct batstate *state) {
+int battery_os_update(struct batstate *state)
+{
 	struct apm_power_info info;
 
 	if (apm_fd > 0 && ioctl(apm_fd, APM_IOC_GETPOWER, &(info)) == 0) {
@@ -81,7 +84,8 @@ int battery_os_update(struct batstate *state) {
 	return 0;
 }
 
-char* battery_os_tooltip() {
+char *battery_os_tooltip()
+{
 	GString *tooltip = g_string_new("");
 	gchar *result;
 

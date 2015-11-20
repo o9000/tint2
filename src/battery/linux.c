@@ -33,65 +33,63 @@ enum psy_type {
 
 struct psy_battery {
 	/* generic properties */
-	gchar*               name;
-	gint64               timestamp;
+	gchar *name;
+	gint64 timestamp;
 	/* sysfs files */
-	gchar*               path_present;
-	gchar*               path_energy_now;
-	gchar*               path_energy_full;
-	gchar*               path_power_now;
-	gchar*               path_status;
+	gchar *path_present;
+	gchar *path_energy_now;
+	gchar *path_energy_full;
+	gchar *path_power_now;
+	gchar *path_status;
 	/* sysfs hints */
-	gboolean             energy_in_uamp;
-	gboolean             power_in_uamp;
+	gboolean energy_in_uamp;
+	gboolean power_in_uamp;
 	/* values */
-	gboolean             present;
-	gint                 energy_now;
-	gint                 energy_full;
-	gint                 power_now;
-	enum chargestate     status;
+	gboolean present;
+	gint energy_now;
+	gint energy_full;
+	gint power_now;
+	enum chargestate status;
 };
 
 struct psy_mains {
 	/* generic properties */
-	gchar*               name;
+	gchar *name;
 	/* sysfs files */
-	gchar*               path_online;
+	gchar *path_online;
 	/* values */
-	gboolean             online;
+	gboolean online;
 };
 
-static void uevent_battery_update() {
+static void uevent_battery_update()
+{
 	update_battery_tick(NULL);
 }
-static struct uevent_notify psy_change = {
-	UEVENT_CHANGE,
-	"power_supply",
-	NULL,
-	uevent_battery_update
-};
+static struct uevent_notify psy_change = {UEVENT_CHANGE, "power_supply", NULL, uevent_battery_update};
 
-static void uevent_battery_plug() {
+static void uevent_battery_plug()
+{
 	printf("reinitialize batteries after HW change\n");
 	reinit_battery();
 }
-static struct uevent_notify psy_plug = {
-	UEVENT_ADD | UEVENT_REMOVE,
-	"power_supply",
-	NULL,
-	uevent_battery_plug
-};
+static struct uevent_notify psy_plug = {UEVENT_ADD | UEVENT_REMOVE, "power_supply", NULL, uevent_battery_plug};
 
-#define RETURN_ON_ERROR(err) if (error) { g_error_free(err); return FALSE; }
+#define RETURN_ON_ERROR(err) \
+	if (error) {             \
+		g_error_free(err);   \
+		return FALSE;        \
+	}
 
 static GList *batteries = NULL;
 static GList *mains = NULL;
 
-static guint8 energy_to_percent(gint energy_now, gint energy_full) {
+static guint8 energy_to_percent(gint energy_now, gint energy_full)
+{
 	return 0.5 + ((energy_now <= energy_full ? energy_now : energy_full) * 100.0) / energy_full;
 }
 
-static enum psy_type power_supply_get_type(const gchar *entryname) {
+static enum psy_type power_supply_get_type(const gchar *entryname)
+{
 	gchar *path_type = g_build_filename("/sys/class/power_supply", entryname, "type", NULL);
 	GError *error = NULL;
 	gchar *type;
@@ -119,7 +117,8 @@ static enum psy_type power_supply_get_type(const gchar *entryname) {
 	return PSY_UNKNOWN;
 }
 
-static gboolean init_linux_battery(struct psy_battery *bat) {
+static gboolean init_linux_battery(struct psy_battery *bat)
+{
 	const gchar *entryname = bat->name;
 
 	bat->energy_in_uamp = FALSE;
@@ -181,7 +180,8 @@ err0:
 	return FALSE;
 }
 
-static gboolean init_linux_mains(struct psy_mains *ac) {
+static gboolean init_linux_mains(struct psy_mains *ac)
+{
 	const gchar *entryname = ac->name;
 
 	ac->path_online = g_build_filename("/sys/class/power_supply", entryname, "online", NULL);
@@ -193,7 +193,8 @@ static gboolean init_linux_mains(struct psy_mains *ac) {
 	return TRUE;
 }
 
-static void psy_battery_free(gpointer data) {
+static void psy_battery_free(gpointer data)
+{
 	struct psy_battery *bat = data;
 	g_free(bat->name);
 	g_free(bat->path_status);
@@ -204,14 +205,16 @@ static void psy_battery_free(gpointer data) {
 	g_free(bat);
 }
 
-static void psy_mains_free(gpointer data) {
+static void psy_mains_free(gpointer data)
+{
 	struct psy_mains *ac = data;
 	g_free(ac->name);
 	g_free(ac->path_online);
 	g_free(ac);
 }
 
-void battery_os_free() {
+void battery_os_free()
+{
 	uevent_unregister_notifier(&psy_change);
 	uevent_unregister_notifier(&psy_plug);
 
@@ -221,7 +224,8 @@ void battery_os_free() {
 	mains = NULL;
 }
 
-static void add_battery(const char *entryname) {
+static void add_battery(const char *entryname)
+{
 	struct psy_battery *bat = g_malloc0(sizeof(*bat));
 	bat->name = g_strdup(entryname);
 
@@ -234,7 +238,8 @@ static void add_battery(const char *entryname) {
 	}
 }
 
-static void add_mains(const char *entryname) {
+static void add_mains(const char *entryname)
+{
 	struct psy_mains *ac = g_malloc0(sizeof(*ac));
 	ac->name = g_strdup(entryname);
 
@@ -247,7 +252,8 @@ static void add_mains(const char *entryname) {
 	}
 }
 
-gboolean battery_os_init() {
+gboolean battery_os_init()
+{
 	GDir *directory = 0;
 	GError *error = NULL;
 	const char *entryname;
@@ -260,15 +266,15 @@ gboolean battery_os_init() {
 	while ((entryname = g_dir_read_name(directory))) {
 		enum psy_type type = power_supply_get_type(entryname);
 
-		switch(type) {
-			case PSY_BATTERY:
-				add_battery(entryname);
-				break;
-			case PSY_MAINS:
-				add_mains(entryname);
-				break;
-			default:
-				break;
+		switch (type) {
+		case PSY_BATTERY:
+			add_battery(entryname);
+			break;
+		case PSY_MAINS:
+			add_mains(entryname);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -280,7 +286,8 @@ gboolean battery_os_init() {
 	return batteries != NULL;
 }
 
-static gint estimate_power_usage(struct psy_battery *bat, gint old_energy_now, gint64 old_timestamp) {
+static gint estimate_power_usage(struct psy_battery *bat, gint old_energy_now, gint64 old_timestamp)
+{
 	gint64 diff_power = ABS(bat->energy_now - old_energy_now);
 	gint64 diff_time = bat->timestamp - old_timestamp;
 
@@ -290,7 +297,8 @@ static gint estimate_power_usage(struct psy_battery *bat, gint old_energy_now, g
 	return power;
 }
 
-static gboolean update_linux_battery(struct psy_battery *bat) {
+static gboolean update_linux_battery(struct psy_battery *bat)
+{
 	GError *error = NULL;
 	gchar *data;
 	gsize datalen;
@@ -358,8 +366,8 @@ static gboolean update_linux_battery(struct psy_battery *bat) {
 	return TRUE;
 }
 
-
-static gboolean update_linux_mains(struct psy_mains *ac) {
+static gboolean update_linux_mains(struct psy_mains *ac)
+{
 	GError *error = NULL;
 	gchar *data;
 	gsize datalen;
@@ -374,7 +382,8 @@ static gboolean update_linux_mains(struct psy_mains *ac) {
 	return TRUE;
 }
 
-int battery_os_update(struct batstate *state) {
+int battery_os_update(struct batstate *state)
+{
 	GList *l;
 
 	gint64 total_energy_now = 0;
@@ -432,27 +441,33 @@ int battery_os_update(struct batstate *state) {
 	return 0;
 }
 
-static gchar* energy_human_readable(struct psy_battery *bat) {
+static gchar *energy_human_readable(struct psy_battery *bat)
+{
 	gint now = bat->energy_now;
 	gint full = bat->energy_full;
 	gchar unit = bat->energy_in_uamp ? 'A' : 'W';
 
 	if (full >= 1000000) {
 		return g_strdup_printf("%d.%d / %d.%d %ch",
-			now / 1000000, (now % 1000000) / 100000,
-			full / 1000000, (full % 1000000) / 100000,
-			unit);
+							   now / 1000000,
+							   (now % 1000000) / 100000,
+							   full / 1000000,
+							   (full % 1000000) / 100000,
+							   unit);
 	} else if (full >= 1000) {
 		return g_strdup_printf("%d.%d / %d.%d m%ch",
-		now / 1000, (now % 1000) / 100,
-		full / 1000, (full % 1000) / 100,
-		unit);
+							   now / 1000,
+							   (now % 1000) / 100,
+							   full / 1000,
+							   (full % 1000) / 100,
+							   unit);
 	} else {
 		return g_strdup_printf("%d / %d µ%ch", now, full, unit);
 	}
 }
 
-static gchar* power_human_readable(struct psy_battery *bat) {
+static gchar *power_human_readable(struct psy_battery *bat)
+{
 	gint power = bat->power_now;
 	gchar unit = bat->power_in_uamp ? 'A' : 'W';
 
@@ -467,7 +482,8 @@ static gchar* power_human_readable(struct psy_battery *bat) {
 	}
 }
 
-char* battery_os_tooltip() {
+char *battery_os_tooltip()
+{
 	GList *l;
 	GString *tooltip = g_string_new("");
 	gchar *result;
@@ -491,8 +507,7 @@ char* battery_os_tooltip() {
 
 		guint8 percentage = energy_to_percent(bat->energy_now, bat->energy_full);
 
-		g_string_append_printf(tooltip, "\t%s: %s (%u %%)\n\tPower: %s",
-			state, energy, percentage, power);
+		g_string_append_printf(tooltip, "\t%s: %s (%u %%)\n\tPower: %s", state, energy, percentage, power);
 
 		g_free(power);
 		g_free(energy);

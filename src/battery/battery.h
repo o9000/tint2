@@ -16,7 +16,6 @@
 #include "common.h"
 #include "area.h"
 
-
 // battery drawing parameter (per panel)
 typedef struct Battery {
 	// always start with area
@@ -27,12 +26,7 @@ typedef struct Battery {
 	int bat2_posy;
 } Battery;
 
-enum chargestate {
-	BATTERY_UNKNOWN,
-	BATTERY_CHARGING,
-	BATTERY_DISCHARGING,
-	BATTERY_FULL
-};
+enum chargestate { BATTERY_UNKNOWN, BATTERY_CHARGING, BATTERY_DISCHARGING, BATTERY_FULL };
 
 typedef struct battime {
 	int16_t hours;
@@ -50,8 +44,8 @@ typedef struct batstate {
 extern struct batstate battery_state;
 extern PangoFontDescription *bat1_font_desc;
 extern PangoFontDescription *bat2_font_desc;
-extern int battery_enabled;
-extern int battery_tooltip_enabled;
+extern gboolean battery_enabled;
+extern gboolean battery_tooltip_enabled;
 extern int percentage_hide;
 
 extern int8_t battery_low_status;
@@ -66,21 +60,23 @@ extern char *battery_rclick_command;
 extern char *battery_uwheel_command;
 extern char *battery_dwheel_command;
 
-static inline gchar* chargestate2str(enum chargestate state) {
-	switch(state) {
-		case BATTERY_CHARGING:
-			return "Charging";
-		case BATTERY_DISCHARGING:
-			return "Discharging";
-		case BATTERY_FULL:
-			return "Full";
-		case BATTERY_UNKNOWN:
-		default:
-			return "Unknown";
+static inline gchar *chargestate2str(enum chargestate state)
+{
+	switch (state) {
+	case BATTERY_CHARGING:
+		return "Charging";
+	case BATTERY_DISCHARGING:
+		return "Discharging";
+	case BATTERY_FULL:
+		return "Full";
+	case BATTERY_UNKNOWN:
+	default:
+		return "Unknown";
 	};
 }
 
-static inline void batstate_set_time(struct batstate *state, int seconds) {
+static inline void batstate_set_time(struct batstate *state, int seconds)
+{
 	state->time.hours = seconds / 3600;
 	seconds -= 3600 * state->time.hours;
 	state->time.minutes = seconds / 60;
@@ -94,7 +90,7 @@ void default_battery();
 // freed memory
 void cleanup_battery();
 
-void update_battery_tick(void* arg);
+void update_battery_tick(void *arg);
 int update_battery();
 
 void init_battery();
@@ -103,7 +99,7 @@ void init_battery_panel(void *panel);
 void reinit_battery();
 void draw_battery(void *obj, cairo_t *c);
 
-int  resize_battery(void *obj);
+gboolean resize_battery(void *obj);
 
 void battery_action(int button);
 
@@ -111,6 +107,6 @@ void battery_action(int button);
 gboolean battery_os_init();
 void battery_os_free();
 int battery_os_update(struct batstate *state);
-char* battery_os_tooltip();
+char *battery_os_tooltip();
 
 #endif

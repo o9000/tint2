@@ -15,6 +15,6 @@ typedef struct FreeSpace {
 void cleanup_freespace();
 void init_freespace_panel(void *panel);
 
-int resize_freespace(void *obj);
+gboolean resize_freespace(void *obj);
 
 #endif

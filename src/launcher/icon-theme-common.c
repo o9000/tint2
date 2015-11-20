@@ -38,7 +38,6 @@ typedef struct IconThemeDir {
 	int threshold;
 } IconThemeDir;
 
-
 int parse_theme_line(char *line, char **key, char **value)
 {
 	return parse_dektop_line(line, key, value);
@@ -67,7 +66,7 @@ const GSList *get_icon_locations()
 	return icon_locations;
 }
 
-IconTheme *make_theme(char *name)
+IconTheme *make_theme(const char *name)
 {
 	IconTheme *theme = calloc(1, sizeof(IconTheme));
 	theme->name = strdup(name);
@@ -76,8 +75,8 @@ IconTheme *make_theme(char *name)
 	return theme;
 }
 
-//TODO Use UTF8 when parsing the file
-IconTheme *load_theme_from_index(char *file_name, char *name)
+// TODO Use UTF8 when parsing the file
+IconTheme *load_theme_from_index(const char *file_name, const char *name)
 {
 	IconTheme *theme;
 	FILE *f;
@@ -168,9 +167,8 @@ IconTheme *load_theme_from_index(char *file_name, char *name)
 			current_dir = NULL;
 			line[line_len - 1] = '\0';
 			char *dir_name = line + 1;
-			GSList* dir_item = theme->list_directories;
-			while (dir_item != NULL)
-			{
+			GSList *dir_item = theme->list_directories;
+			while (dir_item != NULL) {
 				IconThemeDir *dir = dir_item->data;
 				if (strcmp(dir->name, dir_name) == 0) {
 					current_dir = dir;
@@ -186,7 +184,7 @@ IconTheme *load_theme_from_index(char *file_name, char *name)
 	return theme;
 }
 
-void load_theme_from_fs_dir(IconTheme *theme, char *dir_name)
+void load_theme_from_fs_dir(IconTheme *theme, const char *dir_name)
 {
 	gchar *file_name = g_build_filename(dir_name, "index.theme", NULL);
 	if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {
@@ -226,12 +224,11 @@ void load_theme_from_fs_dir(IconTheme *theme, char *dir_name)
 	}
 }
 
-IconTheme *load_theme_from_fs(char *name, IconTheme *theme)
+IconTheme *load_theme_from_fs(const char *name, IconTheme *theme)
 {
 	gchar *dir_name = NULL;
-	const GSList *location;
-	for (location = get_icon_locations(); location; location = g_slist_next(location)) {
-		gchar *path = (gchar*) location->data;
+	for (const GSList *location = get_icon_locations(); location; location = g_slist_next(location)) {
+		gchar *path = (gchar *)location->data;
 		dir_name = g_build_filename(path, name, NULL);
 		if (g_file_test(dir_name, G_FILE_TEST_IS_DIR)) {
 			if (!theme) {
@@ -246,7 +243,7 @@ IconTheme *load_theme_from_fs(char *name, IconTheme *theme)
 	return theme;
 }
 
-IconTheme *load_theme(char *name)
+IconTheme *load_theme(const char *name)
 {
 	// Look for name/index.theme in $HOME/.icons, /usr/share/icons, /usr/share/pixmaps (stop at the first found)
 	// Parse index.theme -> list of IconThemeDir with attributes
@@ -256,9 +253,8 @@ IconTheme *load_theme(char *name)
 		return NULL;
 
 	gchar *file_name = NULL;
-	const GSList *location;
-	for (location = get_icon_locations(); location; location = g_slist_next(location)) {
-		gchar *path = (gchar*) location->data;
+	for (const GSList *location = get_icon_locations(); location; location = g_slist_next(location)) {
+		gchar *path = (gchar *)location->data;
 		file_name = g_build_filename(path, name, "index.theme", NULL);
 		if (!g_file_test(file_name, G_FILE_TEST_EXISTS)) {
 			g_free(file_name);
@@ -283,14 +279,12 @@ void free_icon_theme(IconTheme *theme)
 		return;
 	free(theme->name);
 	theme->name = NULL;
-	GSList *l_inherits;
-	for (l_inherits = theme->list_inherits; l_inherits ; l_inherits = l_inherits->next) {
+	for (GSList *l_inherits = theme->list_inherits; l_inherits; l_inherits = l_inherits->next) {
 		free(l_inherits->data);
 	}
 	g_slist_free(theme->list_inherits);
 	theme->list_inherits = NULL;
-	GSList *l_dir;
-	for (l_dir = theme->list_directories; l_dir ; l_dir = l_dir->next) {
+	for (GSList *l_dir = theme->list_directories; l_dir; l_dir = l_dir->next) {
 		IconThemeDir *dir = (IconThemeDir *)l_dir->data;
 		free(dir->name);
 		free(l_dir->data);
@@ -303,15 +297,14 @@ void free_themes(IconThemeWrapper *themes)
 {
 	if (!themes)
 		return;
-	GSList *l;
-	for (l = themes->themes; l ; l = l->next) {
-		IconTheme *theme = (IconTheme*) l->data;
+	for (GSList *l = themes->themes; l; l = l->next) {
+		IconTheme *theme = (IconTheme *)l->data;
 		free_icon_theme(theme);
 		free(theme);
 	}
 	g_slist_free(themes->themes);
-	for (l = themes->themes_fallback; l ; l = l->next) {
-		IconTheme *theme = (IconTheme*) l->data;
+	for (GSList *l = themes->themes_fallback; l; l = l->next) {
+		IconTheme *theme = (IconTheme *)l->data;
 		free_icon_theme(theme);
 		free(theme);
 	}
@@ -328,21 +321,24 @@ void test_launcher_read_theme_file()
 		return;
 	}
 	printf("Loaded theme: %s\n", theme->name);
-	GSList* item = theme->list_inherits;
-	while (item != NULL)
-	{
-		printf("Inherits:%s\n", (char*)item->data);
+	GSList *item = theme->list_inherits;
+	while (item != NULL) {
+		printf("Inherits:%s\n", (char *)item->data);
 		item = g_slist_next(item);
 	}
 	item = theme->list_directories;
-	while (item != NULL)
-	{
+	while (item != NULL) {
 		IconThemeDir *dir = item->data;
 		printf("Dir:%s Size=%d MinSize=%d MaxSize=%d Threshold=%d Type=%s\n",
-			   dir->name, dir->size, dir->min_size, dir->max_size, dir->threshold,
-			   dir->type == ICON_DIR_TYPE_FIXED ? "Fixed" :
-			   dir->type == ICON_DIR_TYPE_SCALABLE ? "Scalable" :
-			   dir->type == ICON_DIR_TYPE_THRESHOLD ? "Threshold" : "?????");
+			   dir->name,
+			   dir->size,
+			   dir->min_size,
+			   dir->max_size,
+			   dir->threshold,
+			   dir->type == ICON_DIR_TYPE_FIXED ? "Fixed" : dir->type == ICON_DIR_TYPE_SCALABLE
+															? "Scalable"
+															: dir->type == ICON_DIR_TYPE_THRESHOLD ? "Threshold"
+																								   : "?????");
 		item = g_slist_next(item);
 	}
 	fprintf(stdout, "\033[0m");
@@ -350,7 +346,7 @@ void test_launcher_read_theme_file()
 
 gboolean str_list_contains(const GSList *list, const char *value)
 {
-	const GSList* item = list;
+	const GSList *item = list;
 	while (item != NULL) {
 		if (g_str_equal(item->data, value)) {
 			return TRUE;
@@ -369,18 +365,17 @@ void load_themes_helper(const char *name, GSList **themes, GSList **queued)
 
 	// Load wrapper->themes
 	while (queue) {
-		char *name = queue->data;
-		queue = g_slist_remove(queue, name);
+		char *queued_name = queue->data;
+		queue = g_slist_remove(queue, queued_name);
 
-		fprintf(stderr, " '%s',", name);
-		IconTheme *theme = load_theme(name);
+		fprintf(stderr, " '%s',", queued_name);
+		IconTheme *theme = load_theme(queued_name);
 		if (theme != NULL) {
 			*themes = g_slist_append(*themes, theme);
 
-			GSList* item = theme->list_inherits;
+			GSList *item = theme->list_inherits;
 			int pos = 0;
-			while (item != NULL)
-			{
+			while (item != NULL) {
 				char *parent = item->data;
 				if (!str_list_contains(*queued, parent)) {
 					queue = g_slist_insert(queue, strdup(parent), pos);
@@ -391,13 +386,13 @@ void load_themes_helper(const char *name, GSList **themes, GSList **queued)
 			}
 		}
 
-		free(name);
+		free(queued_name);
 	}
 	fprintf(stderr, "\n");
 
 	// Free the queue
 	GSList *l;
-	for (l = queue; l ; l = l->next)
+	for (l = queue; l; l = l->next)
 		free(l->data);
 	g_slist_free(queue);
 }
@@ -420,14 +415,13 @@ IconThemeWrapper *load_themes(const char *icon_theme_name)
 	// Load wrapper->themes_fallback
 	const GSList *location;
 	for (location = get_icon_locations(); location; location = g_slist_next(location)) {
-		gchar *path = (gchar*) location->data;
+		gchar *path = (gchar *)location->data;
 		GDir *d = g_dir_open(path, 0, NULL);
 		if (d) {
 			const gchar *name;
 			while ((name = g_dir_read_name(d))) {
 				gchar *file_name = g_build_filename(path, name, "index.theme", NULL);
-				if (g_file_test(file_name, G_FILE_TEST_EXISTS) &&
-					!g_file_test(file_name, G_FILE_TEST_IS_DIR)) {
+				if (g_file_test(file_name, G_FILE_TEST_EXISTS) && !g_file_test(file_name, G_FILE_TEST_IS_DIR)) {
 					load_themes_helper(name, &wrapper->themes_fallback, &queued);
 				}
 				g_free(file_name);
@@ -438,7 +432,7 @@ IconThemeWrapper *load_themes(const char *icon_theme_name)
 
 	// Free the queued list
 	GSList *l;
-	for (l = queued; l ; l = l->next)
+	for (l = queued; l; l = l->next)
 		free(l->data);
 	g_slist_free(queued);
 
@@ -482,8 +476,8 @@ int directory_size_distance(IconThemeDir *dir, int size)
 gint compare_theme_directories(gconstpointer a, gconstpointer b, gpointer size_query)
 {
 	int size = GPOINTER_TO_INT(size_query);
-	const IconThemeDir *da = (const IconThemeDir*)a;
-	const IconThemeDir *db = (const IconThemeDir*)b;
+	const IconThemeDir *da = (const IconThemeDir *)a;
+	const IconThemeDir *db = (const IconThemeDir *)b;
 	return abs(da->size - size) - abs(db->size - size);
 }
 
@@ -509,9 +503,8 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 	extensions = g_slist_append(extensions, ".svg");
 #endif
 	// if the icon name already contains one of the extensions (e.g. vlc.png instead of vlc) add a special entry
-	GSList *ext;
-	for (ext = extensions; ext; ext = g_slist_next(ext)) {
-		char *extension = (char*) ext->data;
+	for (GSList *ext = extensions; ext; ext = g_slist_next(ext)) {
+		char *extension = (char *)ext->data;
 		if (strlen(icon_name) > strlen(extension) &&
 			strcmp(extension, icon_name + strlen(icon_name) - strlen(extension)) == 0) {
 			extensions = g_slist_append(extensions, "");
@@ -540,33 +533,33 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 	char *file_name = calloc(file_name_size, 1);
 
 	for (theme = themes; theme; theme = g_slist_next(theme)) {
-		((IconTheme*)theme->data)->list_directories = g_slist_sort_with_data(((IconTheme*)theme->data)->list_directories,
-																			 compare_theme_directories,
-																			 GINT_TO_POINTER(size));
+		((IconTheme *)theme->data)->list_directories =
+		g_slist_sort_with_data(((IconTheme *)theme->data)->list_directories,
+							   compare_theme_directories,
+							   GINT_TO_POINTER(size));
 		GSList *dir;
-		for (dir = ((IconTheme*)theme->data)->list_directories; dir; dir = g_slist_next(dir)) {
+		for (dir = ((IconTheme *)theme->data)->list_directories; dir; dir = g_slist_next(dir)) {
 			// Closest match
-			gboolean possible = directory_size_distance((IconThemeDir*)dir->data, size) < minimal_size &&
+			gboolean possible = directory_size_distance((IconThemeDir *)dir->data, size) < minimal_size &&
 								(!best_file_theme ? TRUE : theme == best_file_theme);
 			// Next larger match
-			possible = possible ||
-					   (((IconThemeDir*)dir->data)->size >= size &&
-						(next_larger_size == -1 || ((IconThemeDir*)dir->data)->size < next_larger_size) &&
-						(!next_larger_theme ? 1 : theme == next_larger_theme));
+			possible = possible || (((IconThemeDir *)dir->data)->size >= size &&
+									(next_larger_size == -1 || ((IconThemeDir *)dir->data)->size < next_larger_size) &&
+									(!next_larger_theme ? 1 : theme == next_larger_theme));
 			if (!possible)
 				continue;
 			const GSList *base;
 			for (base = basenames; base; base = g_slist_next(base)) {
-				GSList *ext;
-				for (ext = extensions; ext; ext = g_slist_next(ext)) {
-					char *base_name = (char*) base->data;
-					char *theme_name = ((IconTheme*)theme->data)->name;
-					char *dir_name = ((IconThemeDir*)dir->data)->name;
-					char *extension = (char*) ext->data;
-					if (strlen(base_name) + strlen(theme_name) +
-						strlen(dir_name) + strlen(icon_name) + strlen(extension) + 100 > file_name_size) {
-						file_name_size = strlen(base_name) + strlen(theme_name) +
-										 strlen(dir_name) + strlen(icon_name) + strlen(extension) + 100;
+				for (GSList *ext = extensions; ext; ext = g_slist_next(ext)) {
+					char *base_name = (char *)base->data;
+					char *theme_name = ((IconTheme *)theme->data)->name;
+					char *dir_name = ((IconThemeDir *)dir->data)->name;
+					char *extension = (char *)ext->data;
+					if (strlen(base_name) + strlen(theme_name) + strlen(dir_name) + strlen(icon_name) +
+						strlen(extension) + 100 >
+						file_name_size) {
+						file_name_size = strlen(base_name) + strlen(theme_name) + strlen(dir_name) + strlen(icon_name) +
+										 strlen(extension) + 100;
 						file_name = realloc(file_name, file_name_size);
 					}
 					file_name[0] = 0;
@@ -578,27 +571,28 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 						if (DEBUG_ICON_SEARCH)
 							printf("found: %s\n", file_name);
 						// Closest match
-						if (directory_size_distance((IconThemeDir*)dir->data, size) < minimal_size && (!best_file_theme ? 1 : theme == best_file_theme)) {
+						if (directory_size_distance((IconThemeDir *)dir->data, size) < minimal_size &&
+							(!best_file_theme ? 1 : theme == best_file_theme)) {
 							if (best_file_name) {
 								free(best_file_name);
 								best_file_name = NULL;
 							}
 							best_file_name = strdup(file_name);
-							minimal_size = directory_size_distance((IconThemeDir*)dir->data, size);
+							minimal_size = directory_size_distance((IconThemeDir *)dir->data, size);
 							best_file_theme = theme;
 							if (DEBUG_ICON_SEARCH)
 								printf("best_file_name = %s; minimal_size = %d\n", best_file_name, minimal_size);
 						}
 						// Next larger match
-						if (((IconThemeDir*)dir->data)->size >= size &&
-							(next_larger_size == -1 || ((IconThemeDir*)dir->data)->size < next_larger_size) &&
+						if (((IconThemeDir *)dir->data)->size >= size &&
+							(next_larger_size == -1 || ((IconThemeDir *)dir->data)->size < next_larger_size) &&
 							(!next_larger_theme ? 1 : theme == next_larger_theme)) {
 							if (next_larger) {
 								free(next_larger);
 								next_larger = NULL;
 							}
 							next_larger = strdup(file_name);
-							next_larger_size = ((IconThemeDir*)dir->data)->size;
+							next_larger_size = ((IconThemeDir *)dir->data)->size;
 							next_larger_theme = theme;
 							if (DEBUG_ICON_SEARCH)
 								printf("next_larger = %s; next_larger_size = %d\n", next_larger, next_larger_size);
@@ -622,14 +616,11 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 
 	// Look in unthemed icons
 	{
-		const GSList *base;
-		for (base = basenames; base; base = g_slist_next(base)) {
-			GSList *ext;
-			for (ext = extensions; ext; ext = g_slist_next(ext)) {
-				char *base_name = (char*) base->data;
-				char *extension = (char*) ext->data;
-				char *file_name = calloc(strlen(base_name) + strlen(icon_name) +
-										 strlen(extension) + 100, 1);
+		for (const GSList *base = basenames; base; base = g_slist_next(base)) {
+			for (GSList *ext = extensions; ext; ext = g_slist_next(ext)) {
+				char *base_name = (char *)base->data;
+				char *extension = (char *)ext->data;
+				file_name = calloc(strlen(base_name) + strlen(icon_name) + strlen(extension) + 100, 1);
 				// filename = directory/iconname.extension
 				sprintf(file_name, "%s/%s%s", base_name, icon_name, extension);
 				if (DEBUG_ICON_SEARCH)

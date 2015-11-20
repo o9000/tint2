@@ -15,7 +15,7 @@
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL RED HAT
  * BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
- * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN 
+ * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  * Author:  Owen Taylor, Red Hat, Inc.
@@ -32,23 +32,22 @@ extern "C" {
 
 typedef struct _XSettingsClient XSettingsClient;
 
-typedef enum 
-{
-  XSETTINGS_ACTION_NEW,
-  XSETTINGS_ACTION_CHANGED,
-  XSETTINGS_ACTION_DELETED
-} XSettingsAction;
+typedef enum { XSETTINGS_ACTION_NEW, XSETTINGS_ACTION_CHANGED, XSETTINGS_ACTION_DELETED } XSettingsAction;
 
-typedef void (*XSettingsNotifyFunc) (const char *name, XSettingsAction action, XSettingsSetting *setting, void *cb_data);
-typedef void (*XSettingsWatchFunc) (Window window, Bool is_start, long mask, void *cb_data);
+typedef void (*XSettingsNotifyFunc)(const char *name, XSettingsAction action, XSettingsSetting *setting, void *cb_data);
+typedef void (*XSettingsWatchFunc)(Window window, Bool is_start, long mask, void *cb_data);
 
-XSettingsClient *xsettings_client_new (Display *display, int screen, XSettingsNotifyFunc notify, XSettingsWatchFunc watch, void *cb_data);
-void xsettings_client_destroy (XSettingsClient *client);
-Bool xsettings_client_process_event (XSettingsClient *client, XEvent *xev);
+XSettingsClient *xsettings_client_new(Display *display,
+									  int screen,
+									  XSettingsNotifyFunc notify,
+									  XSettingsWatchFunc watch,
+									  void *cb_data);
+void xsettings_client_destroy(XSettingsClient *client);
+Bool xsettings_client_process_event(XSettingsClient *client, XEvent *xev);
 
-void xsettings_notify_cb (const char *name, XSettingsAction action, XSettingsSetting *setting, void *data);
+void xsettings_notify_cb(const char *name, XSettingsAction action, XSettingsSetting *setting, void *data);
 
-XSettingsResult xsettings_client_get_setting (XSettingsClient *client, const char *name, XSettingsSetting **setting);
+XSettingsResult xsettings_client_get_setting(XSettingsClient *client, const char *name, XSettingsSetting **setting);
 
 #ifdef __cplusplus
 }

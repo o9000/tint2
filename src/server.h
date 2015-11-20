@@ -18,8 +18,7 @@
 #endif
 #include <glib.h>
 
-typedef struct Global_atom
-{
+typedef struct Global_atom {
 	Atom _XROOTPMAP_ID;
 	Atom _XROOTMAP_ID;
 	Atom _NET_CURRENT_DESKTOP;
@@ -91,20 +90,15 @@ typedef struct Global_atom
 	Atom TARGETS;
 } Global_atom;
 
-
-
-typedef struct Monitor
-{
+typedef struct Monitor {
 	int x;
 	int y;
 	int width;
 	int height;
-	gchar** names;
+	gchar **names;
 } Monitor;
 
-
-typedef struct
-{
+typedef struct {
 	Display *dsp;
 	Window root_win;
 	Window composite_manager;
@@ -114,9 +108,9 @@ typedef struct
 	int desktop;
 	int screen;
 	int depth;
-	int nb_desktop;
+	int num_desktops;
 	// number of monitor (without monitor included into another one)
-	int nb_monitor;
+	int num_monitors;
 	Monitor *monitor;
 	int got_root_win;
 	Visual *visual;
@@ -133,19 +127,17 @@ typedef struct
 #endif // HAVE_SN
 } Server_global;
 
-
 extern Server_global server;
-
 
 // freed memory
 void cleanup_server();
 
-void send_event32 (Window win, Atom at, long data1, long data2, long data3);
-int  get_property32 (Window win, Atom at, Atom type);
-void *server_get_property (Window win, Atom at, Atom type, int *num_results);
-Atom server_get_atom (char *atom_name);
-void server_catch_error (Display *d, XErrorEvent *ev);
-void server_init_atoms ();
+void send_event32(Window win, Atom at, long data1, long data2, long data3);
+int get_property32(Window win, Atom at, Atom type);
+void *server_get_property(Window win, Atom at, Atom type, int *num_results);
+Atom server_get_atom(char *atom_name);
+void server_catch_error(Display *d, XErrorEvent *ev);
+void server_init_atoms();
 void server_init_visual();
 
 // detect root background

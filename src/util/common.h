@@ -6,7 +6,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define WM_CLASS_TINT   "panel"
+#define WM_CLASS_TINT "panel"
 
 #include <Imlib2.h>
 #include <pango/pangocairo.h>
@@ -18,71 +18,83 @@
 #define BLUE   "\033[1;34m"
 #define RESET  "\033[0m"
 
-/*
-void fxfree(void** ptr){
-  if (*ptr){
-    free(*ptr);
-    *ptr=NULL;
-    }
-  }
-FXint fxmalloc(void** ptr,unsigned long size){
-  *ptr=NULL;
-  if (size!=0){
-    if ((*ptr=malloc(size))==NULL) return FALSE;
-    }
-  return TRUE;
-  }
-*/
-
 // mouse actions
-enum { NONE=0, CLOSE, TOGGLE, ICONIFY, SHADE, TOGGLE_ICONIFY, MAXIMIZE_RESTORE, MAXIMIZE, RESTORE, DESKTOP_LEFT, DESKTOP_RIGHT, NEXT_TASK, PREV_TASK };
+typedef enum MouseAction {
+	NONE = 0,
+	CLOSE,
+	TOGGLE,
+	ICONIFY,
+	SHADE,
+	TOGGLE_ICONIFY,
+	MAXIMIZE_RESTORE,
+	MAXIMIZE,
+	RESTORE,
+	DESKTOP_LEFT,
+	DESKTOP_RIGHT,
+	NEXT_TASK,
+	PREV_TASK
+} MouseAction;
 
 #define ALLDESKTOP  0xFFFFFFFF
 
+// Copies a file to another path
+void copy_file(const char *path_src, const char *path_dest);
 
-// copy file source to file dest
-void copy_file(const char *pathSrc, const char *pathDest);
+// Parses lines with the format 'key = value' into key and value.
+// Strips key and value.
+// Values may contain spaces and the equal sign.
+// Returns 1 if both key and value could be read, zero otherwise.
+int parse_line(const char *line, char **key, char **value);
 
-// extract key = value
-int parse_line (const char *line, char **key, char **value);
+void extract_values(const char *value, char **value1, char **value2, char **value3);
 
-// execute a command by calling fork
-void tint_exec(const char* command);
+// Executes a command in a shell.
+void tint_exec(const char *command);
 
 // Returns a copy of s in which "~" is expanded to the path to the user's home directory.
-// The returned string must be freed by the caller.
+// The caller takes ownership of the string.
 char *expand_tilde(char *s);
 
 // The opposite of expand_tilde: replaces the path to the user's home directory with "~".
-// The returned string must be freed by the caller.
+// The caller takes ownership of the string.
 char *contract_tilde(char *s);
 
-// conversion
-int hex_char_to_int (char c);
-int hex_to_rgb (char *hex, int *r, int *g, int *b);
-void get_color (char *hex, double *rgb);
-
-void extract_values (const char *value, char **value1, char **value2, char **value3);
-
-// adjust Alpha/Saturation/Brightness on an ARGB icon
-// alpha from 0 to 100, satur from 0 to 1, bright from 0 to 1.
-void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright);
-void createHeuristicMask(DATA32* data, int w, int h);
-int imageEmpty(DATA32* data, int w, int h);
-
-void render_image(Drawable d, int x, int y);
-
-void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow);
+// Color
+int hex_char_to_int(char c);
+int hex_to_rgb(char *hex, int *r, int *g, int *b);
+void get_color(char *hex, double *rgb);
 
 Imlib_Image load_image(const char *path, int cached);
 
+// Adjusts the alpha/saturation/brightness on an ARGB image.
+// Parameters: alpha from 0 to 100, satur from 0 to 1, bright from 0 to 1.
+void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright);
 Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int brightness);
 
-// draw rounded rectangle
+void create_heuristic_mask(DATA32 *data, int w, int h);
+
+int image_empty(DATA32 *data, int w, int h);
+
+// Renders the current Imlib image to a drawable. Wrapper around imlib_render_image_on_drawable.
+void render_image(Drawable d, int x, int y);
+
+void get_text_size2(PangoFontDescription *font,
+					int *height_ink,
+					int *height,
+					int *width,
+					int panel_height,
+					int panel_with,
+					char *text,
+					int len,
+					PangoWrapMode wrap,
+					PangoEllipsizeMode ellipsis);
+
+void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow);
+
+// Draws a rounded rectangle
 void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
 
-// clear pixmap with transparent color
+// Clears the pixmap (with transparent color)
 void clear_pixmap(Pixmap p, int x, int y, int w, int h);
 
 #endif
-

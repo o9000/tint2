@@ -52,7 +52,9 @@ void expand_exec(DesktopEntry *entry, const char *path)
 	// %c -> Name
 	// %k -> path
 	if (entry->exec) {
-		char *exec2 = calloc(strlen(entry->exec) + (entry->name ? strlen(entry->name) : 1) + (entry->icon ? strlen(entry->icon) : 1) + 100, 1);
+		char *exec2 = calloc(strlen(entry->exec) + (entry->name ? strlen(entry->name) : 1) +
+							 (entry->icon ? strlen(entry->icon) : 1) + 100,
+							 1);
 		char *p, *q;
 		// p will never point to an escaped char
 		for (p = entry->exec, q = exec2; *p; p++, q++) {
@@ -63,12 +65,14 @@ void expand_exec(DesktopEntry *entry, const char *path)
 				if (*p == '%') // For % we delete the backslash, i.e. write % over it
 					q--;
 				*q = *p;
-				if (!*p) break;
+				if (!*p)
+					break;
 				continue;
 			}
 			if (*p == '%') {
 				p++;
-				if (!*p) break;
+				if (!*p)
+					break;
 				if (*p == 'i' && entry->icon != NULL) {
 					sprintf(q, "--icon '%s'", entry->icon);
 					q += strlen("--icon ''");
@@ -113,16 +117,19 @@ int read_desktop_file(const char *path, DesktopEntry *entry)
 		return 0;
 	}
 
-	gchar **languages = (gchar **)g_get_language_names();
+  const gchar **languages = (const gchar **)g_get_language_names();
 	// lang_index is the index of the language for the best Name key in the language vector
 	// lang_index_default is a constant that encodes the Name key without a language
 	int lang_index, lang_index_default;
 #define LANG_DBG 0
-	if (LANG_DBG) printf("Languages:");
+	if (LANG_DBG)
+		printf("Languages:");
 	for (i = 0; languages[i]; i++) {
-		if (LANG_DBG) printf(" %s", languages[i]);
+		if (LANG_DBG)
+			printf(" %s", languages[i]);
 	}
-	if (LANG_DBG) printf("\n");
+	if (LANG_DBG)
+		printf("\n");
 	lang_index_default = i;
 	// we currently do not know about any Name key at all, so use an invalid index
 	lang_index = lang_index_default + 1;
@@ -160,7 +167,7 @@ int read_desktop_file(const char *path, DesktopEntry *entry)
 			}
 		}
 	}
-	fclose (fp);
+	fclose(fp);
 	// From this point:
 	// entry->name, entry->icon, entry->exec will never be empty strings (can be NULL though)
 

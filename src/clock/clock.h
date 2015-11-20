@@ -13,7 +13,6 @@
 #include "common.h"
 #include "area.h"
 
-
 typedef struct Clock {
 	// always start with area
 	Area area;
@@ -22,7 +21,6 @@ typedef struct Clock {
 	int time1_posy;
 	int time2_posy;
 } Clock;
-
 
 extern char *time1_format;
 extern char *time1_timezone;
@@ -39,7 +37,6 @@ extern char *clock_uwheel_command;
 extern char *clock_dwheel_command;
 extern int clock_enabled;
 
-
 // default global data
 void default_clock();
 
@@ -50,9 +47,9 @@ void cleanup_clock();
 void init_clock();
 void init_clock_panel(void *panel);
 
-void draw_clock (void *obj, cairo_t *c);
+void draw_clock(void *obj, cairo_t *c);
 
-int  resize_clock (void *obj);
+gboolean resize_clock(void *obj);
 
 void clock_action(int button);
 

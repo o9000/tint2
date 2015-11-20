@@ -17,7 +17,7 @@ typedef struct IconThemeWrapper {
 
 typedef struct IconTheme {
 	char *name;
-	GSList *list_inherits; // each item is a char* (theme name)
+	GSList *list_inherits;    // each item is a char* (theme name)
 	GSList *list_directories; // each item is an IconThemeDir*
 } IconTheme;
 

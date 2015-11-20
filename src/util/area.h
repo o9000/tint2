@@ -147,20 +147,22 @@ typedef struct Background {
 
 typedef enum Layout {
 	LAYOUT_DYNAMIC,
-	LAYOUT_FIXED
+	LAYOUT_FIXED,
 } Layout;
 
 typedef enum Alignment {
 	ALIGN_LEFT = 0,
 	ALIGN_CENTER = 1,
-	ALIGN_RIGHT = 2
+	ALIGN_RIGHT = 2,
 } Alignment;
 
 typedef enum MouseState {
 	MOUSE_NORMAL = 0,
 	MOUSE_OVER = 1,
-	MOUSE_DOWN = 2
+	MOUSE_DOWN = 2,
 } MouseState;
+
+struct Panel;
 
 typedef struct Area {
 	// Position relative to the panel window
@@ -202,7 +204,7 @@ typedef struct Area {
 
 	// Called on resize, obj = pointer to the Area
 	// Returns 1 if the new size is different than the previous size.
-	int (*_resize)(void *obj);
+	gboolean (*_resize)(void *obj);
 
 	// Implemented only to override the default layout algorithm for this widget.
 	// For example, if this widget is a cell in a table, its position and size should be computed here.
@@ -210,9 +212,8 @@ typedef struct Area {
 
 	// Returns a copy of the tooltip to be displayed for this widget.
 	// The caller takes ownership of the pointer.
-	char* (*_get_tooltip_text)(void *obj);
+	char *(*_get_tooltip_text)(void *obj);
 } Area;
-
 
 // Initializes the Background member to default values.
 void init_background(Background *bg);
@@ -222,10 +223,12 @@ void init_background(Background *bg);
 // Called on startup to initialize the positions of all Areas in the Area tree.
 // Parameters:
 // * obj: pointer to Area
-// * pos: offset in pixels from left/top
-void initialize_positions(void *obj, int pos);
+// * offset: offset in pixels from left/top, relative to the window
+void initialize_positions(void *obj, int offset);
+
 // Relayouts the Area and its children. Normally called on the root of the tree (i.e. the Panel).
 void relayout(Area *a);
+
 // Distributes the Area's size to its children, repositioning them as needed.
 // If maximum_size > 0, it is an upper limit for the child size.
 int relayout_with_constraint(Area *a, int maximum_size);
@@ -234,15 +237,20 @@ int relayout_with_constraint(Area *a, int maximum_size);
 
 // Sets the redraw_needed flag on the area and its descendants
 void schedule_redraw(Area *a);
+
 // Recreates the Area pixmap and draws the background and the foreground
 void draw(Area *a);
+
 // Draws the background of the Area
 void draw_background(Area *a, cairo_t *c);
+
 // Explores the entire Area subtree (only if the on_screen flag set)
 // and draws the areas with the redraw_needed flag set
 void draw_tree(Area *a);
+
 // Clears the on_screen flag, sets the size to zero and triggers a parent resize
 void hide(Area *a);
+
 // Sets the on_screen flag and triggers a parent and area resize
 void show(Area *a);
 

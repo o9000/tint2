@@ -160,3 +160,4 @@ src/battery/linux.c
 src/battery/openbsd.c
 src/util/uevent.c
 src/util/uevent.h
+.clang-format

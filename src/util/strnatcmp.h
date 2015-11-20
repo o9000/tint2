@@ -20,7 +20,6 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-
 /* CUSTOMIZATION SECTION
  *
  * You can change this typedef, but must then also change the inline

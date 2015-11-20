@@ -11,38 +11,30 @@
 
 #include <glib.h>
 #include <pango/pangocairo.h>
+#include <X11/Xlib.h>
 
+GSList *get_desktop_names();
+int get_current_desktop();
+void change_desktop(int desktop);
 
-void set_active (Window win);
-void set_desktop (int desktop);
-void set_close (Window win);
-int server_get_current_desktop ();
-GSList *server_get_name_of_desktop ();
-void window_get_coordinates (Window win, int *x, int *y, int *w, int *h);
-int window_is_iconified (Window win);
-int window_is_urgent (Window win);
-int window_is_hidden (Window win);
-int window_is_active (Window win);
-int window_is_skip_taskbar (Window win);
-int get_icon_count (gulong *data, int num);
-gulong *get_best_icon (gulong *data, int icon_count, int num, int *iw, int *ih, int best_icon_size);
-void window_maximize_restore (Window win);
-void window_toggle_shade (Window win);
-int window_get_desktop (Window win);
-void windows_set_desktop (Window win, int desktop);
-int window_get_monitor (Window win);
-Window window_get_active ();
+Window get_active_window();
 
-void get_text_size2(PangoFontDescription *font,
-					int *height_ink,
-					int *height,
-					int *width,
-					int panel_height,
-					int panel_with,
-					char *text,
-					int len,
-					PangoWrapMode wrap,
-					PangoEllipsizeMode ellipsis);
+gboolean window_is_iconified(Window win);
+gboolean window_is_urgent(Window win);
+gboolean window_is_hidden(Window win);
+gboolean window_is_active(Window win);
+gboolean window_is_skip_taskbar(Window win);
+int get_window_desktop(Window win);
+int get_window_monitor(Window win);
 
+void activate_window(Window win);
+void close_window(Window win);
+void get_window_coordinates(Window win, int *x, int *y, int *w, int *h);
+void toggle_window_maximized(Window win);
+void toggle_window_shade(Window win);
+void change_window_desktop(Window win, int desktop);
+
+int get_icon_count(gulong *data, int num);
+gulong *get_best_icon(gulong *data, int icon_count, int num, int *iw, int *ih, int best_icon_size);
 
 #endif

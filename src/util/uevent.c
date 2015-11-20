@@ -36,8 +36,9 @@ static int ueventfd = -1;
 static struct sockaddr_nl nls;
 static GList *notifiers = NULL;
 
-static const char* has_prefix(const char *str, const char *end, const char *prefix, size_t prefixlen) {
-	if ((end-str) < prefixlen)
+static const char *has_prefix(const char *str, const char *end, const char *prefix, size_t prefixlen)
+{
+	if ((end - str) < prefixlen)
 		return NULL;
 
 	if (!memcmp(str, prefix, prefixlen))
@@ -46,38 +47,40 @@ static const char* has_prefix(const char *str, const char *end, const char *pref
 	return NULL;
 }
 
-#define HAS_CONST_PREFIX(str,end,prefix)  has_prefix((str),end,prefix,sizeof(prefix)-1)
+#define HAS_CONST_PREFIX(str, end, prefix) has_prefix((str), end, prefix, sizeof(prefix) - 1)
 
-static void uevent_param_free(gpointer data) {
+static void uevent_param_free(gpointer data)
+{
 	struct uevent_parameter *param = data;
 	free(param->key);
 	free(param->val);
 	free(param);
 }
 
-static void uevent_free(struct uevent *ev) {
+static void uevent_free(struct uevent *ev)
+{
 	free(ev->path);
 	free(ev->subsystem);
 	g_list_free_full(ev->params, uevent_param_free);
 	free(ev);
 }
 
-static struct uevent *uevent_new(char *buffer, int size) {
-	struct uevent *ev;
-	const char* s = buffer;
-	const char* end = s + size;
+static struct uevent *uevent_new(char *buffer, int size)
+{
 	gboolean first = TRUE;
 
 	if (size == 0)
 		return NULL;
 
-	ev = calloc(1, sizeof(*ev));
+	struct uevent *ev = calloc(1, sizeof(*ev));
 	if (!ev)
 		return NULL;
 
 	/* ensure nul termination required by strlen() */
-	buffer[size-1] = '\0';
+	buffer[size - 1] = '\0';
 
+	const char *s = buffer;
+	const char *end = s + size;
 	for (; s < end; s += strlen(s) + 1) {
 		if (first) {
 			const char *p = strchr(s, '@');
@@ -87,10 +90,10 @@ static struct uevent *uevent_new(char *buffer, int size) {
 				free(ev);
 				return NULL;
 			}
-			ev->path = strdup(p+1);
+			ev->path = strdup(p + 1);
 			first = FALSE;
 		} else {
-			const char* val;
+			const char *val;
 			if ((val = HAS_CONST_PREFIX(s, end, "ACTION=")) != NULL) {
 				if (!strcmp(val, "add"))
 					ev->action = UEVENT_ADD;
@@ -109,8 +112,8 @@ static struct uevent *uevent_new(char *buffer, int size) {
 				if (val) {
 					struct uevent_parameter *param = malloc(sizeof(*param));
 					if (param) {
-						param->key = strndup(s, val-s);
-						param->val = strdup(val+1);
+						param->key = strndup(s, val - s);
+						param->val = strdup(val + 1);
 						ev->params = g_list_append(ev->params, param);
 					}
 				}
@@ -121,11 +124,13 @@ static struct uevent *uevent_new(char *buffer, int size) {
 	return ev;
 }
 
-void uevent_register_notifier(struct uevent_notify *nb) {
+void uevent_register_notifier(struct uevent_notify *nb)
+{
 	notifiers = g_list_append(notifiers, nb);
 }
 
-void uevent_unregister_notifier(struct uevent_notify *nb) {
+void uevent_unregister_notifier(struct uevent_notify *nb)
+{
 	GList *l = notifiers;
 
 	while (l != NULL) {
@@ -139,21 +144,19 @@ void uevent_unregister_notifier(struct uevent_notify *nb) {
 	}
 }
 
-void uevent_handler() {
-	struct uevent *ev;
-	char buf[512];
-	GList *l;
-
+void uevent_handler()
+{
 	if (ueventfd < 0)
 		return;
 
+	char buf[512];
 	int len = recv(ueventfd, buf, sizeof(buf), MSG_DONTWAIT);
 	if (len < 0)
 		return;
 
-	ev = uevent_new(buf, len);
+	struct uevent *ev = uevent_new(buf, len);
 	if (ev) {
-		for (l = notifiers; l != NULL; l = l->next) {
+		for (GList *l = notifiers; l; l = l->next) {
 			struct uevent_notify *nb = l->data;
 
 			if (!(ev->action & nb->action))
@@ -169,9 +172,10 @@ void uevent_handler() {
 	}
 }
 
-int uevent_init() {
+int uevent_init()
+{
 	/* Open hotplug event netlink socket */
-	memset(&nls,0,sizeof(struct sockaddr_nl));
+	memset(&nls, 0, sizeof(struct sockaddr_nl));
 	nls.nl_family = AF_NETLINK;
 	nls.nl_pid = getpid();
 	nls.nl_groups = -1;
@@ -194,7 +198,8 @@ int uevent_init() {
 	return ueventfd;
 }
 
-void uevent_cleanup() {
+void uevent_cleanup()
+{
 	if (ueventfd >= 0)
 		close(ueventfd);
 }

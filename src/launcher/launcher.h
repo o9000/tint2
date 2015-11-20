@@ -15,8 +15,8 @@
 typedef struct Launcher {
 	// always start with area
 	Area area;
-	GSList *list_apps;			// List of char*, each is a path to a app.desktop file
-	GSList *list_icons; 		// List of LauncherIcon*
+	GSList *list_apps;  // List of char*, each is a path to a app.desktop file
+	GSList *list_icons; // List of LauncherIcon*
 	IconThemeWrapper *list_themes;
 } Launcher;
 
@@ -41,7 +41,7 @@ extern int launcher_tooltip_enabled;
 extern int launcher_alpha;
 extern int launcher_saturation;
 extern int launcher_brightness;
-extern char *icon_theme_name_xsettings; 	// theme name
+extern char *icon_theme_name_xsettings; // theme name
 extern char *icon_theme_name_config;
 extern int launcher_icon_theme_override;
 extern XSettingsClient *xsettings_client;
@@ -57,14 +57,14 @@ void init_launcher_panel(void *panel);
 void cleanup_launcher();
 void cleanup_launcher_theme(Launcher *launcher);
 
-int  resize_launcher(void *obj);
-void draw_launcher (void *obj, cairo_t *c);
+gboolean resize_launcher(void *obj);
+void draw_launcher(void *obj, cairo_t *c);
 
 // Populates the list_icons list
 void launcher_load_icons(Launcher *launcher);
 // Populates the list_themes list
 void launcher_load_themes(Launcher *launcher);
-void launcher_action(LauncherIcon *icon, XEvent* e);
+void launcher_action(LauncherIcon *icon, XEvent *e);
 
 void test_launcher_read_desktop_file();
 void test_launcher_read_theme_file();

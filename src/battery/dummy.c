@@ -23,18 +23,22 @@
 
 #warning tint2 has no battery support for this operating system!
 
-gboolean battery_os_init() {
+gboolean battery_os_init()
+{
 	return FALSE;
 }
 
-void battery_os_free() {
+void battery_os_free()
+{
 	return;
 }
 
-int battery_os_update(struct batstate *state) {
+int battery_os_update(struct batstate *state)
+{
 	return -1;
 }
 
-char* battery_os_tooltip() {
+char *battery_os_tooltip()
+{
 	return strdup("Operating System not supported");
 }

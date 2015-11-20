@@ -24,26 +24,29 @@
 #include "common.h"
 #include "battery.h"
 
-gboolean battery_os_init() {
+gboolean battery_os_init()
+{
 	int sysctl_out = 0;
 	size_t len = sizeof(sysctl_out);
 
 	return (sysctlbyname("hw.acpi.battery.state", &sysctl_out, &len, NULL, 0) == 0) ||
-			(sysctlbyname("hw.acpi.battery.time", &sysctl_out, &len, NULL, 0) == 0) ||
-			(sysctlbyname("hw.acpi.battery.life", &sysctl_out, &len, NULL, 0) == 0);
+		   (sysctlbyname("hw.acpi.battery.time", &sysctl_out, &len, NULL, 0) == 0) ||
+		   (sysctlbyname("hw.acpi.battery.life", &sysctl_out, &len, NULL, 0) == 0);
 }
 
-void battery_os_free() {
+void battery_os_free()
+{
 	return;
 }
 
-int battery_os_update(struct batstate *state) {
+int battery_os_update(struct batstate *state)
+{
 	int sysctl_out = 0;
 	size_t len = sizeof(sysctl_out);
 	gboolean err = 0;
 
 	if (sysctlbyname("hw.acpi.battery.state", &sysctl_out, &len, NULL, 0) == 0) {
-		switch(sysctl_out) {
+		switch (sysctl_out) {
 		case 1:
 			state->state = BATTERY_DISCHARGING;
 			break;
@@ -71,11 +74,12 @@ int battery_os_update(struct batstate *state) {
 
 	if (sysctlbyname("hw.acpi.acline", &sysctl_out, &len, NULL, 0) == 0)
 		state->ac_connected = sysctl_out;
-	
+
 	return err;
 }
 
-char* battery_os_tooltip() {
+char *battery_os_tooltip()
+{
 	GString *tooltip = g_string_new("");
 	gchar *result;
 

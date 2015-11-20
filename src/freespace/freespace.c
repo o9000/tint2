@@ -17,7 +17,6 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
-
 #include <string.h>
 #include <stdio.h>
 #include <cairo.h>
@@ -33,20 +32,21 @@
 
 void init_freespace_panel(void *p)
 {
-	Panel *panel = (Panel*)p;
+	Panel *panel = (Panel *)p;
 	FreeSpace *freespace = &panel->freespace;
 
-	if (freespace->area.bg == 0)
+	if (!freespace->area.bg)
 		freespace->area.bg = &g_array_index(backgrounds, Background, 0);
 	freespace->area.parent = p;
 	freespace->area.panel = p;
 	freespace->area.size_mode = LAYOUT_FIXED;
 	freespace->area.resize_needed = 1;
-	freespace->area.on_screen = 1;
+	freespace->area.on_screen = TRUE;
 	freespace->area._resize = resize_freespace;
 }
 
-int freespace_get_max_size(Panel *p) {
+int freespace_get_max_size(Panel *p)
+{
 	// Get space used by every element except the freespace
 	GList *walk;
 	int size = 0;
@@ -70,9 +70,10 @@ int freespace_get_max_size(Panel *p) {
 	return size;
 }
 
-int resize_freespace(void *obj) {
-	FreeSpace *freespace = (FreeSpace*)obj;
-	Panel *panel = (Panel*)freespace->area.panel;
+gboolean resize_freespace(void *obj)
+{
+	FreeSpace *freespace = (FreeSpace *)obj;
+	Panel *panel = (Panel *)freespace->area.panel;
 	if (!freespace->area.on_screen)
 		return 0;
 
@@ -87,7 +88,7 @@ int resize_freespace(void *obj) {
 		freespace->area.height = size;
 	}
 
-	freespace->area.redraw_needed = 1;
-	panel_refresh = 1;
+	freespace->area.redraw_needed = TRUE;
+	panel_refresh = TRUE;
 	return 1;
 }
