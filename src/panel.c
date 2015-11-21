@@ -258,7 +258,7 @@ void init_panel()
 	}
 
 	task_refresh_tasklist();
-	active_task();
+	reset_active_task();
 }
 
 void init_panel_size_and_position(Panel *panel)
@@ -576,7 +576,7 @@ void set_panel_properties(Panel *p)
 					(unsigned char *)&val,
 					1);
 
-	val = ALLDESKTOP;
+	val = ALL_DESKTOPS;
 	XChangeProperty(server.dsp,
 					p->main_win,
 					server.atom._NET_WM_DESKTOP,

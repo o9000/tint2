@@ -26,6 +26,7 @@ typedef struct Global_atom {
 	Atom _NET_DESKTOP_NAMES;
 	Atom _NET_DESKTOP_GEOMETRY;
 	Atom _NET_DESKTOP_VIEWPORT;
+	Atom _NET_WORKAREA;
 	Atom _NET_ACTIVE_WINDOW;
 	Atom _NET_WM_WINDOW_TYPE;
 	Atom _NET_WM_STATE_SKIP_PAGER;
@@ -98,7 +99,14 @@ typedef struct Monitor {
 	gchar **names;
 } Monitor;
 
-typedef struct {
+typedef struct Viewport {
+	int x;
+	int y;
+	int width;
+	int height;
+} Viewport;
+
+typedef struct Server {
 	Display *dsp;
 	Window root_win;
 	Window composite_manager;
@@ -111,6 +119,9 @@ typedef struct {
 	int num_desktops;
 	// number of monitor (without monitor included into another one)
 	int num_monitors;
+	// Non-null only if WM uses viewports (compiz) and number of viewports > 1.
+	// In that case there are num_desktops viewports.
+	Viewport *viewports;
 	Monitor *monitor;
 	int got_root_win;
 	Visual *visual;
@@ -125,9 +136,9 @@ typedef struct {
 	SnDisplay *sn_dsp;
 	GTree *pids;
 #endif // HAVE_SN
-} Server_global;
+} Server;
 
-extern Server_global server;
+extern Server server;
 
 // freed memory
 void cleanup_server();
@@ -147,6 +158,10 @@ void get_root_pixmap();
 void get_monitors();
 void print_monitors();
 void get_desktops();
-int server_get_number_of_desktops();
+void server_get_number_of_desktops();
+GSList *get_desktop_names();
+int get_current_desktop();
+void change_desktop(int desktop);
+
 
 #endif

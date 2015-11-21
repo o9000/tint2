@@ -33,13 +33,13 @@
 #include "panel.h"
 #include "strnatcmp.h"
 
-/* win_to_task_table holds for every Window an array of tasks. Usually the array contains only one
+/* win_to_task holds for every Window an array of tasks. Usually the array contains only one
    element. However for omnipresent windows (windows which are visible in every taskbar) the array
    contains to every Task* on each panel a pointer (i.e. GPtrArray.len == server.num_desktops)
 */
-GHashTable *win_to_task_table;
+GHashTable *win_to_task;
 
-Task *task_active;
+Task *active_task;
 Task *task_drag;
 gboolean taskbar_enabled;
 gboolean taskbar_distribute_size;
@@ -50,12 +50,14 @@ Alignment taskbar_alignment;
 
 guint win_hash(gconstpointer key)
 {
-	return (guint) * ((const Window *)key);
+	return *((const Window *)key);
 }
+
 gboolean win_compare(gconstpointer a, gconstpointer b)
 {
 	return (*((const Window *)a) == *((const Window *)b));
 }
+
 void free_ptr_array(gpointer data)
 {
 	g_ptr_array_free(data, 1);
@@ -63,7 +65,7 @@ void free_ptr_array(gpointer data)
 
 void default_taskbar()
 {
-	win_to_task_table = NULL;
+	win_to_task = NULL;
 	urgent_timeout = NULL;
 	urgent_list = NULL;
 	taskbar_enabled = 0;
@@ -77,29 +79,25 @@ void default_taskbar()
 
 void cleanup_taskbar()
 {
-	Panel *panel;
-	Taskbar *taskbar;
-	int i, j, k;
-
 	cleanup_taskbarname();
-	if (win_to_task_table) {
-		while (g_hash_table_size(win_to_task_table)) {
+	if (win_to_task) {
+		while (g_hash_table_size(win_to_task)) {
 			GHashTableIter iter;
 			gpointer key, value;
 
-			g_hash_table_iter_init(&iter, win_to_task_table);
+			g_hash_table_iter_init(&iter, win_to_task);
 			if (g_hash_table_iter_next(&iter, &key, &value)) {
 				taskbar_remove_task(key, 0, 0);
 			}
 		}
-		g_hash_table_destroy(win_to_task_table);
-		win_to_task_table = NULL;
+		g_hash_table_destroy(win_to_task);
+		win_to_task = NULL;
 	}
-	for (i = 0; i < num_panels; i++) {
-		panel = &panels[i];
-		for (j = 0; j < panel->num_desktops; j++) {
-			taskbar = &panel->taskbar[j];
-			for (k = 0; k < TASKBAR_STATE_COUNT; ++k) {
+	for (int i = 0; i < num_panels; i++) {
+		Panel *panel = &panels[i];
+		for (int j = 0; j < panel->num_desktops; j++) {
+			Taskbar *taskbar = &panel->taskbar[j];
+			for (int k = 0; k < TASKBAR_STATE_COUNT; ++k) {
 				if (taskbar->state_pix[k])
 					XFreePixmap(server.dsp, taskbar->state_pix[k]);
 				taskbar->state_pix[k] = 0;
@@ -122,17 +120,16 @@ void cleanup_taskbar()
 
 void init_taskbar()
 {
-	if (!win_to_task_table)
-		win_to_task_table = g_hash_table_new_full(win_hash, win_compare, free, free_ptr_array);
+	if (!win_to_task)
+		win_to_task = g_hash_table_new_full(win_hash, win_compare, free, free_ptr_array);
 
-	task_active = 0;
+	active_task = 0;
 	task_drag = 0;
 }
 
 void init_taskbar_panel(void *p)
 {
 	Panel *panel = (Panel *)p;
-	int j;
 
 	if (!panel->g_taskbar.background[TASKBAR_NORMAL]) {
 		panel->g_taskbar.background[TASKBAR_NORMAL] = &g_array_index(backgrounds, Background, 0);
@@ -235,7 +232,7 @@ void init_taskbar_panel(void *p)
 		panel->g_task.area.height = panel->g_task.maximum_height;
 	}
 
-	for (j = 0; j < TASK_STATE_COUNT; ++j) {
+	for (int j = 0; j < TASK_STATE_COUNT; ++j) {
 		if (!panel->g_task.background[j])
 			panel->g_task.background[j] = &g_array_index(backgrounds, Background, 0);
 		if (panel->g_task.background[j]->border.radius > panel->g_task.area.height / 2) {
@@ -275,7 +272,7 @@ void init_taskbar_panel(void *p)
 	Taskbar *taskbar;
 	panel->num_desktops = server.num_desktops;
 	panel->taskbar = calloc(server.num_desktops, sizeof(Taskbar));
-	for (j = 0; j < panel->num_desktops; j++) {
+	for (int j = 0; j < panel->num_desktops; j++) {
 		taskbar = &panel->taskbar[j];
 		memcpy(&taskbar->area, &panel->g_taskbar.area, sizeof(Area));
 		taskbar->desktop = j;
@@ -297,32 +294,30 @@ Task *task_get_task(Window win)
 	GPtrArray *task_group = task_get_tasks(win);
 	if (task_group)
 		return g_ptr_array_index(task_group, 0);
-	else
-		return 0;
+	return NULL;
 }
 
 GPtrArray *task_get_tasks(Window win)
 {
-	if (win_to_task_table && taskbar_enabled)
-		return g_hash_table_lookup(win_to_task_table, &win);
-	else
-		return 0;
+	if (win_to_task && taskbar_enabled)
+		return g_hash_table_lookup(win_to_task, &win);
+	return NULL;
 }
 
 void task_refresh_tasklist()
 {
-	Window *win;
-	int num_results, i;
-
 	if (!taskbar_enabled)
 		return;
-	win = server_get_property(server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
+
+	int num_results;
+	Window *win = server_get_property(server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
 	if (!win)
 		return;
 
-	GList *win_list = g_hash_table_get_keys(win_to_task_table);
+	GList *win_list = g_hash_table_get_keys(win_to_task);
 	GList *it;
 	for (it = win_list; it; it = it->next) {
+		int i;
 		for (i = 0; i < num_results; i++)
 			if (*((Window *)it->data) == win[i])
 				break;
@@ -332,7 +327,7 @@ void task_refresh_tasklist()
 	g_list_free(win_list);
 
 	// Add any new
-	for (i = 0; i < num_results; i++)
+	for (int i = 0; i < num_results; i++)
 		if (!task_get_task(win[i]))
 			add_task(win[i]);
 
@@ -351,13 +346,12 @@ gboolean resize_taskbar(void *obj)
 {
 	Taskbar *taskbar = (Taskbar *)obj;
 	Panel *panel = (Panel *)taskbar->area.panel;
-	int text_width;
 
 	// printf("resize_taskbar %d %d\n", taskbar->area.posx, taskbar->area.posy);
 	if (panel_horizontal) {
 		relayout_with_constraint(&taskbar->area, panel->g_task.maximum_width);
 
-		text_width = panel->g_task.maximum_width;
+		int text_width = panel->g_task.maximum_width;
 		GList *l = taskbar->area.children;
 		if (taskbarname_enabled)
 			l = l->next;
@@ -368,23 +362,22 @@ gboolean resize_taskbar(void *obj)
 			}
 		}
 		taskbar->text_width =
-		text_width - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingxlr;
+			text_width - panel->g_task.text_posx - panel->g_task.area.bg->border.width - panel->g_task.area.paddingxlr;
 	} else {
 		relayout_with_constraint(&taskbar->area, panel->g_task.maximum_height);
 
 		taskbar->text_width = taskbar->area.width - (2 * panel->g_taskbar.area.paddingy) - panel->g_task.text_posx -
 							  panel->g_task.area.bg->border.width - panel->g_task.area.paddingxlr;
 	}
-	return 0;
+	return FALSE;
 }
 
 void on_change_taskbar(void *obj)
 {
 	Taskbar *taskbar = (Taskbar *)obj;
-	int k;
 
 	// reset Pixmap when position/size changed
-	for (k = 0; k < TASKBAR_STATE_COUNT; ++k) {
+	for (int k = 0; k < TASKBAR_STATE_COUNT; ++k) {
 		if (taskbar->state_pix[k])
 			XFreePixmap(server.dsp, taskbar->state_pix[k]);
 		taskbar->state_pix[k] = 0;
@@ -426,7 +419,7 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 			if (taskbarname_enabled)
 				l = l->next;
 			for (; l; l = l->next)
-				set_task_redraw(l->data);
+				set_task_redraw((Task *)l->data);
 		}
 	}
 	panel_refresh = TRUE;
@@ -435,10 +428,9 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 void visible_taskbar(void *p)
 {
 	Panel *panel = (Panel *)p;
-	int j;
 
 	Taskbar *taskbar;
-	for (j = 0; j < panel->num_desktops; j++) {
+	for (int j = 0; j < panel->num_desktops; j++) {
 		taskbar = &panel->taskbar[j];
 		if (taskbar_mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) {
 			// SINGLE_DESKTOP and not current desktop
@@ -493,11 +485,10 @@ gint compare_task_centers(Task *a, Task *b, Taskbar *taskbar)
 		return 1;
 
 	// Compare centers
-	int a_horiz_c, a_vert_c, b_horiz_c, b_vert_c;
-	a_horiz_c = a->win_x + a->win_w / 2;
-	b_horiz_c = b->win_x + b->win_w / 2;
-	a_vert_c = a->win_y + a->win_h / 2;
-	b_vert_c = b->win_y + b->win_h / 2;
+	int a_horiz_c = a->win_x + a->win_w / 2;
+	int b_horiz_c = b->win_x + b->win_w / 2;
+	int a_vert_c = a->win_y + a->win_h / 2;
+	int b_vert_c = b->win_y + b->win_h / 2;
 	if (panel_horizontal) {
 		if (a_horiz_c != b_horiz_c) {
 			return a_horiz_c - b_horiz_c;
@@ -534,19 +525,18 @@ gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
 	return 0;
 }
 
-int taskbar_needs_sort(Taskbar *taskbar)
+gboolean taskbar_needs_sort(Taskbar *taskbar)
 {
 	if (taskbar_sort_method == TASKBAR_NOSORT)
-		return 0;
+		return FALSE;
 
-	GList *i, *j;
-	for (i = taskbar->area.children, j = i ? i->next : NULL; i && j; i = i->next, j = j->next) {
+	for (GList *i = taskbar->area.children, *j = i ? i->next : NULL; i && j; i = i->next, j = j->next) {
 		if (compare_tasks(i->data, j->data, taskbar) > 0) {
-			return 1;
+			return TRUE;
 		}
 	}
 
-	return 0;
+	return FALSE;
 }
 
 void sort_tasks(Taskbar *taskbar)
@@ -557,9 +547,9 @@ void sort_tasks(Taskbar *taskbar)
 		return;
 
 	taskbar->area.children = g_list_sort_with_data(taskbar->area.children, (GCompareDataFunc)compare_tasks, taskbar);
-	taskbar->area.resize_needed = 1;
+	taskbar->area.resize_needed = TRUE;
 	panel_refresh = TRUE;
-	((Panel *)taskbar->area.panel)->area.resize_needed = 1;
+	((Panel *)taskbar->area.panel)->area.resize_needed = TRUE;
 }
 
 void sort_taskbar_for_win(Window win)
@@ -569,12 +559,11 @@ void sort_taskbar_for_win(Window win)
 
 	GPtrArray *task_group = task_get_tasks(win);
 	if (task_group) {
-		int i;
 		Task *task0 = g_ptr_array_index(task_group, 0);
 		if (task0) {
 			get_window_coordinates(win, &task0->win_x, &task0->win_y, &task0->win_w, &task0->win_h);
 		}
-		for (i = 0; i < task_group->len; ++i) {
+		for (int i = 0; i < task_group->len; ++i) {
 			Task *task = g_ptr_array_index(task_group, i);
 			task->win_x = task0->win_x;
 			task->win_y = task0->win_y;

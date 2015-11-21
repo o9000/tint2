@@ -23,8 +23,8 @@ typedef enum TaskbarSortMethod {
 	TASKBAR_SORT_TITLE,
 } TaskbarSortMethod;
 
-extern GHashTable *win_to_task_table;
-extern Task *task_active;
+extern GHashTable *win_to_task;
+extern Task *active_task;
 extern Task *task_drag;
 extern gboolean taskbar_enabled;
 extern gboolean taskbar_distribute_size;

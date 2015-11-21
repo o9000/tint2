@@ -35,7 +35,7 @@ typedef enum MouseAction {
 	PREV_TASK
 } MouseAction;
 
-#define ALLDESKTOP  0xFFFFFFFF
+#define ALL_DESKTOPS  0xFFFFFFFF
 
 // Copies a file to another path
 void copy_file(const char *path_src, const char *path_dest);

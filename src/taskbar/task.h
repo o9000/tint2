@@ -24,8 +24,6 @@ typedef enum TaskState {
 extern timeout *urgent_timeout;
 extern GSList *urgent_list;
 
-// --------------------------------------------------
-// global task parameter
 typedef struct GlobalTask {
 	Area area;
 
@@ -52,7 +50,10 @@ typedef struct GlobalTask {
 	gboolean tooltip_enabled;
 } GlobalTask;
 
-typedef struct {
+// Stores information about a task.
+// Warning: any dynamically allocated members are shared between the Task instances created for the same window
+// (for example, if the task appears on all desktops, there will be a different instance on each desktop's taskbar).
+typedef struct Task {
 	// always start with area
 	Area area;
 
@@ -83,11 +84,15 @@ void on_change_task(void *obj);
 
 void get_icon(Task *task);
 gboolean get_title(Task *task);
-void active_task();
+void reset_active_task();
 void set_task_state(Task *task, TaskState state);
 void set_task_redraw(Task *task);
 
-Task *find_active_task(Task *current_task, Task *active_task);
+// Given a pointer to the task that is currently under the mouse (current_task),
+// returns a pointer to the Task for the active window on the same taskbar.
+// If not found, returns the current task.
+Task *find_active_task(Task *current_task);
+
 Task *next_task(Task *task);
 Task *prev_task(Task *task);
 

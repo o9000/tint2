@@ -13,10 +13,6 @@
 #include <pango/pangocairo.h>
 #include <X11/Xlib.h>
 
-GSList *get_desktop_names();
-int get_current_desktop();
-void change_desktop(int desktop);
-
 Window get_active_window();
 
 gboolean window_is_iconified(Window win);

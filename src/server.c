@@ -29,7 +29,7 @@
 #include "config.h"
 #include "window.h"
 
-Server_global server;
+Server server;
 
 void server_catch_error(Display *d, XErrorEvent *ev)
 {
@@ -44,6 +44,7 @@ void server_init_atoms()
 	server.atom._NET_DESKTOP_NAMES = XInternAtom(server.dsp, "_NET_DESKTOP_NAMES", False);
 	server.atom._NET_DESKTOP_GEOMETRY = XInternAtom(server.dsp, "_NET_DESKTOP_GEOMETRY", False);
 	server.atom._NET_DESKTOP_VIEWPORT = XInternAtom(server.dsp, "_NET_DESKTOP_VIEWPORT", False);
+	server.atom._NET_WORKAREA = XInternAtom(server.dsp, "_NET_WORKAREA", False);
 	server.atom._NET_ACTIVE_WINDOW = XInternAtom(server.dsp, "_NET_ACTIVE_WINDOW", False);
 	server.atom._NET_WM_WINDOW_TYPE = XInternAtom(server.dsp, "_NET_WM_WINDOW_TYPE", False);
 	server.atom._NET_WM_STATE_SKIP_PAGER = XInternAtom(server.dsp, "_NET_WM_STATE_SKIP_PAGER", False);
@@ -388,9 +389,127 @@ void print_monitors()
 	}
 }
 
-int server_get_number_of_desktops()
+void server_get_number_of_desktops()
 {
-	return get_property32(server.root_win, server.atom._NET_NUMBER_OF_DESKTOPS, XA_CARDINAL);
+	if (server.viewports) {
+		free(server.viewports);
+		server.viewports = NULL;
+	}
+
+	server.num_desktops = get_property32(server.root_win, server.atom._NET_NUMBER_OF_DESKTOPS, XA_CARDINAL);
+	if (server.num_desktops > 1)
+		return;
+
+	int num_results;
+	long *work_area_size = server_get_property(server.root_win, server.atom._NET_WORKAREA, XA_CARDINAL, &num_results);
+	if (!work_area_size)
+		return;
+	int work_area_width = work_area_size[0] + work_area_size[2];
+	int work_area_height = work_area_size[1] + work_area_size[3];
+	XFree(work_area_size);
+
+	long *x_screen_size = server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, &num_results);
+	if (!x_screen_size)
+		return;
+	int x_screen_width = x_screen_size[0];
+	int x_screen_height = x_screen_size[1];
+	XFree(x_screen_size);
+
+	int num_viewports = MAX(x_screen_width / work_area_width, 1) * MAX(x_screen_height / work_area_height, 1);
+	if (num_viewports <= 1)
+		return;
+
+	server.viewports = calloc(num_viewports, sizeof(Viewport));
+	int k = 0;
+	for (int i = 0; i < MAX(x_screen_height / work_area_height, 1); i++) {
+		for (int j = 0; j < MAX(x_screen_width / work_area_width, 1); j++) {
+			server.viewports[k].x = j * work_area_width;
+			server.viewports[k].y = i * work_area_height;
+			server.viewports[k].width = work_area_width;
+			server.viewports[k].height = work_area_height;
+			k++;
+		}
+	}
+
+	server.num_desktops = num_viewports;
+}
+
+GSList *get_desktop_names()
+{
+	if (server.viewports) {
+		GSList *list = NULL;
+		for (int j = 0; j < server.num_desktops; j++) {
+			list = g_slist_append(list, g_strdup_printf("%d", j + 1));
+		}
+		return list;
+	}
+
+	int count;
+	GSList *list = NULL;
+	gchar *data_ptr = server_get_property(server.root_win, server.atom._NET_DESKTOP_NAMES, server.atom.UTF8_STRING, &count);
+	if (data_ptr) {
+		list = g_slist_append(list, g_strdup(data_ptr));
+		for (int j = 0; j < count - 1; j++) {
+			if (*(data_ptr + j) == '\0') {
+				gchar *ptr = (gchar *)data_ptr + j + 1;
+				list = g_slist_append(list, g_strdup(ptr));
+			}
+		}
+		XFree(data_ptr);
+	}
+	return list;
+}
+
+int get_current_desktop()
+{
+	if (!server.viewports)
+		return get_property32(server.root_win, server.atom._NET_CURRENT_DESKTOP, XA_CARDINAL);
+
+	int num_results;
+	long *work_area_size = server_get_property(server.root_win, server.atom._NET_WORKAREA, XA_CARDINAL, &num_results);
+	if (!work_area_size)
+		return 0;
+	int work_area_width = work_area_size[0] + work_area_size[2];
+	int work_area_height = work_area_size[1] + work_area_size[3];
+	XFree(work_area_size);
+
+	if (work_area_width <= 0 || work_area_height <= 0)
+		return 0;
+
+	long *viewport = server_get_property(server.root_win, server.atom._NET_DESKTOP_VIEWPORT, XA_CARDINAL, &num_results);
+	if (!viewport)
+		return 0;
+	int viewport_x = viewport[0];
+	int viewport_y = viewport[1];
+	XFree(viewport);
+
+	long *x_screen_size = server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, &num_results);
+	if (!x_screen_size)
+		return 0;
+	int x_screen_width = x_screen_size[0];
+	XFree(x_screen_size);
+
+	int ncols = x_screen_width / work_area_width;
+
+//	fprintf(stderr, "\n");
+//	fprintf(stderr, "Work area size: %d x %d\n", work_area_width, work_area_height);
+//	fprintf(stderr, "Viewport pos: %d x %d\n", viewport_x, viewport_y);
+//	fprintf(stderr, "Viewport i: %d\n", (viewport_y / work_area_height) * ncols + viewport_x / work_area_width);
+
+	return (viewport_y / work_area_height) * ncols + viewport_x / work_area_width;
+}
+
+void change_desktop(int desktop)
+{
+	if (!server.viewports) {
+		send_event32(server.root_win, server.atom._NET_CURRENT_DESKTOP, desktop, 0, 0);
+	} else {
+		send_event32(server.root_win,
+					 server.atom._NET_DESKTOP_VIEWPORT,
+					 server.viewports[desktop].x,
+					 server.viewports[desktop].y,
+					 0);
+	}
 }
 
 void get_desktops()
@@ -398,7 +517,7 @@ void get_desktops()
 	// detect number of desktops
 	// wait 15s to leave some time for window manager startup
 	for (int i = 0; i < 15; i++) {
-		server.num_desktops = server_get_number_of_desktops();
+		server_get_number_of_desktops();
 		if (server.num_desktops > 0)
 			break;
 		sleep(1);

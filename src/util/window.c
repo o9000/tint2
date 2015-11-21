@@ -40,11 +40,6 @@ void activate_window(Window win)
 	send_event32(win, server.atom._NET_ACTIVE_WINDOW, 2, CurrentTime, 0);
 }
 
-void change_desktop(int desktop)
-{
-	send_event32(server.root_win, server.atom._NET_CURRENT_DESKTOP, desktop, 0, 0);
-}
-
 void change_window_desktop(Window win, int desktop)
 {
 	send_event32(win, server.atom._NET_WM_DESKTOP, desktop, 2, 0);
@@ -113,7 +108,53 @@ gboolean window_is_hidden(Window win)
 
 int get_window_desktop(Window win)
 {
-	return get_property32(win, server.atom._NET_WM_DESKTOP, XA_CARDINAL);
+	if (!server.viewports)
+		return get_property32(win, server.atom._NET_WM_DESKTOP, XA_CARDINAL);
+
+	int x, y, w, h;
+	get_window_coordinates(win, &x, &y, &w, &h);
+
+	int desktop = MIN(get_current_desktop(), server.num_desktops - 1);
+	// Window coordinates are relative to the current viewport, make them absolute
+	x += server.viewports[desktop].x;
+	y += server.viewports[desktop].y;
+
+	if (x < 0 || y < 0) {
+		int num_results;
+		long *x_screen_size = server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, &num_results);
+		if (!x_screen_size)
+			return 0;
+		int x_screen_width = x_screen_size[0];
+		int x_screen_height = x_screen_size[1];
+		XFree(x_screen_size);
+
+		// Wrap
+		if (x < 0)
+			x += x_screen_width;
+		if (y < 0)
+			y += x_screen_height;
+	}
+
+	int best_match = -1;
+	int match_right = 0;
+	int match_bottom = 0;
+	// There is an ambiguity when a window is right on the edge between viewports.
+	// In that case, prefer the viewports which is on the right and bottom of the window's top-left corner.
+	for (int i = 0; i < server.num_desktops; i++) {
+		if (x >= server.viewports[i].x && x <= (server.viewports[i].x + server.viewports[i].width) &&
+			y >= server.viewports[i].y && y <= (server.viewports[i].y + server.viewports[i].height)) {
+			int current_right = x < (server.viewports[i].x + server.viewports[i].width);
+			int current_bottom = y < (server.viewports[i].y + server.viewports[i].height);
+			if (best_match < 0 || (!match_right && current_right) || (!match_bottom && current_bottom)) {
+				best_match = i;
+			}
+		}
+	}
+
+	if (best_match < 0)
+		best_match = 0;
+	// printf("window %lx : viewport %d, (%d, %d)\n", win, best_match+1, x, y);
+	return best_match;
 }
 
 int get_window_monitor(Window win)
@@ -128,14 +169,14 @@ int get_window_monitor(Window win)
 	// There is an ambiguity when a window is right on the edge between screens.
 	// In that case, prefer the monitor which is on the right and bottom of the window's top-left corner.
 	for (i = 0; i < server.num_monitors; i++) {
-		if (x >= server.monitor[i].x && x <= (server.monitor[i].x + server.monitor[i].width))
-			if (y >= server.monitor[i].y && y <= (server.monitor[i].y + server.monitor[i].height)) {
-				int current_right = x < (server.monitor[i].x + server.monitor[i].width);
-				int current_bottom = y < (server.monitor[i].y + server.monitor[i].height);
-				if (best_match < 0 || (!match_right && current_right) || (!match_bottom && current_bottom)) {
-					best_match = i;
-				}
+		if (x >= server.monitor[i].x && x <= (server.monitor[i].x + server.monitor[i].width) &&
+			y >= server.monitor[i].y && y <= (server.monitor[i].y + server.monitor[i].height)) {
+			int current_right = x < (server.monitor[i].x + server.monitor[i].width);
+			int current_bottom = y < (server.monitor[i].y + server.monitor[i].height);
+			if (best_match < 0 || (!match_right && current_right) || (!match_bottom && current_bottom)) {
+				best_match = i;
 			}
+		}
 	}
 
 	if (best_match < 0)
@@ -199,29 +240,6 @@ gboolean window_is_skip_taskbar(Window win)
 	}
 	XFree(at);
 	return FALSE;
-}
-
-GSList *get_desktop_names()
-{
-	int count;
-	GSList *list = NULL;
-	gchar *data_ptr = server_get_property(server.root_win, server.atom._NET_DESKTOP_NAMES, server.atom.UTF8_STRING, &count);
-	if (data_ptr) {
-		list = g_slist_append(list, g_strdup(data_ptr));
-		for (int j = 0; j < count - 1; j++) {
-			if (*(data_ptr + j) == '\0') {
-				gchar *ptr = (gchar *)data_ptr + j + 1;
-				list = g_slist_append(list, g_strdup(ptr));
-			}
-		}
-		XFree(data_ptr);
-	}
-	return list;
-}
-
-int get_current_desktop()
-{
-	return get_property32(server.root_win, server.atom._NET_CURRENT_DESKTOP, XA_CARDINAL);
 }
 
 Window get_active_window()

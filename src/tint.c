@@ -113,7 +113,7 @@ void init(int argc, char *argv[])
 	default_config();
 	default_timeout();
 	default_systray();
-	memset(&server, 0, sizeof(Server_global));
+	memset(&server, 0, sizeof(server));
 #ifdef ENABLE_BATTERY
 	default_battery();
 #endif
@@ -390,7 +390,7 @@ void window_action(Task *task, int action)
 		XIconifyWindow(server.dsp, task->win, server.screen);
 		break;
 	case TOGGLE_ICONIFY:
-		if (task_active && task->win == task_active->win)
+		if (active_task && task->win == active_task->win)
 			XIconifyWindow(server.dsp, task->win, server.screen);
 		else
 			activate_window(task->win);
@@ -425,12 +425,12 @@ void window_action(Task *task, int action)
 		break;
 	case NEXT_TASK: {
 		Task *task1;
-		task1 = next_task(find_active_task(task, task_active));
+		task1 = next_task(find_active_task(task));
 		activate_window(task1->win);
 	} break;
 	case PREV_TASK: {
 		Task *task1;
-		task1 = prev_task(find_active_task(task, task_active));
+		task1 = prev_task(find_active_task(task));
 		activate_window(task1->win);
 	}
 	}
@@ -544,7 +544,7 @@ void event_button_motion_notify(XEvent *e)
 			}
 		}
 	} else { // The event is on another taskbar than the task being dragged
-		if (task_drag->desktop == ALLDESKTOP || taskbar_mode != MULTI_DESKTOP)
+		if (task_drag->desktop == ALL_DESKTOPS || taskbar_mode != MULTI_DESKTOP)
 			return;
 
 		Taskbar *drag_taskbar = (Taskbar *)task_drag->area.parent;
@@ -658,16 +658,72 @@ void event_button_release(XEvent *e)
 
 	// switch desktop
 	if (taskbar_mode == MULTI_DESKTOP) {
-		if (taskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT && action != DESKTOP_RIGHT)
+		gboolean diff_desktop = FALSE;
+		if (taskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT && action != DESKTOP_RIGHT) {
+			diff_desktop = TRUE;
 			change_desktop(taskbar->desktop);
+		}
+		Task *task = click_task(panel, e->xbutton.x, e->xbutton.y);
+		if (task) {
+			if (diff_desktop) {
+				if (action == TOGGLE_ICONIFY) {
+					if (!window_is_active(task->win))
+						activate_window(task->win);
+				} else {
+					window_action(task, action);
+				}
+			} else {
+				window_action(task, action);
+			}
+		}
+	} else {
+		window_action(click_task(panel, e->xbutton.x, e->xbutton.y), action);
 	}
-
-	// action on task
-	window_action(click_task(panel, e->xbutton.x, e->xbutton.y), action);
 
 	// to keep window below
 	if (panel_layer == BOTTOM_LAYER)
 		XLowerWindow(server.dsp, panel->main_win);
+}
+
+void update_desktop_names()
+{
+	if (!taskbarname_enabled)
+		return;
+	GSList *list = get_desktop_names();
+	for (int i = 0; i < num_panels; i++) {
+		int j;
+		GSList *l;
+		for (j = 0, l = list; j < panels[i].num_desktops; j++) {
+			gchar *name;
+			if (l) {
+				name = g_strdup(l->data);
+				l = l->next;
+			} else {
+				name = g_strdup_printf("%d", j + 1);
+			}
+			Taskbar *taskbar = &panels[i].taskbar[j];
+			if (strcmp(name, taskbar->bar_name.name) != 0) {
+				g_free(taskbar->bar_name.name);
+				taskbar->bar_name.name = name;
+				taskbar->bar_name.area.resize_needed = 1;
+			} else {
+				g_free(name);
+			}
+		}
+	}
+	for (GSList *l = list; l; l = l->next)
+		g_free(l->data);
+	g_slist_free(list);
+	panel_refresh = TRUE;
+}
+
+void update_task_desktop(Task *task)
+{
+	Window win = task->win;
+	remove_task(task);
+	task = add_task(win);
+	reset_active_task();
+	panel_refresh = TRUE;
 }
 
 void event_property_notify(XEvent *e)
@@ -686,93 +742,93 @@ void event_property_notify(XEvent *e)
 
 		// Change name of desktops
 		else if (at == server.atom._NET_DESKTOP_NAMES) {
-			if (!taskbarname_enabled)
-				return;
-			GSList *l, *list = get_desktop_names();
-			int j;
-			gchar *name;
-			Taskbar *taskbar;
-			for (i = 0; i < num_panels; i++) {
-				for (j = 0, l = list; j < panels[i].num_desktops; j++) {
-					if (l) {
-						name = g_strdup(l->data);
-						l = l->next;
-					} else
-						name = g_strdup_printf("%d", j + 1);
-					taskbar = &panels[i].taskbar[j];
-					if (strcmp(name, taskbar->bar_name.name) != 0) {
-						g_free(taskbar->bar_name.name);
-						taskbar->bar_name.name = name;
-						taskbar->bar_name.area.resize_needed = 1;
-					} else
-						g_free(name);
-				}
-			}
-			for (l = list; l; l = l->next)
-				g_free(l->data);
-			g_slist_free(list);
-			panel_refresh = TRUE;
+			update_desktop_names();
 		}
-		// Change number of desktops
-		else if (at == server.atom._NET_NUMBER_OF_DESKTOPS) {
+		// Change desktops
+		else if (at == server.atom._NET_NUMBER_OF_DESKTOPS ||
+				 at == server.atom._NET_DESKTOP_GEOMETRY ||
+				 at == server.atom._NET_DESKTOP_VIEWPORT ||
+				 at == server.atom._NET_WORKAREA ||
+				 at == server.atom._NET_CURRENT_DESKTOP) {
 			if (!taskbar_enabled)
 				return;
-			server.num_desktops = server_get_number_of_desktops();
-			if (server.num_desktops <= server.desktop) {
-				server.desktop = server.num_desktops - 1;
-			}
-			cleanup_taskbar();
-			init_taskbar();
-			for (i = 0; i < num_panels; i++) {
-				init_taskbar_panel(&panels[i]);
-				set_panel_items_order(&panels[i]);
-				visible_taskbar(&panels[i]);
-				panels[i].area.resize_needed = 1;
-			}
-			task_refresh_tasklist();
-			active_task();
-			panel_refresh = TRUE;
-		}
-		// Change desktop
-		else if (at == server.atom._NET_CURRENT_DESKTOP) {
-			if (!taskbar_enabled)
-				return;
+			int old_num_desktops = server.num_desktops;
 			int old_desktop = server.desktop;
+			server_get_number_of_desktops();
 			server.desktop = get_current_desktop();
-			for (i = 0; i < num_panels; i++) {
-				Panel *panel = &panels[i];
-				set_taskbar_state(&panel->taskbar[old_desktop], TASKBAR_NORMAL);
-				set_taskbar_state(&panel->taskbar[server.desktop], TASKBAR_ACTIVE);
-				// check ALLDESKTOP task => resize taskbar
-				Taskbar *taskbar;
-				Task *task;
-				if (server.num_desktops > old_desktop) {
-					taskbar = &panel->taskbar[old_desktop];
+			if (old_num_desktops != server.num_desktops) {
+				if (server.num_desktops <= server.desktop) {
+					server.desktop = server.num_desktops - 1;
+				}
+				cleanup_taskbar();
+				init_taskbar();
+				for (i = 0; i < num_panels; i++) {
+					init_taskbar_panel(&panels[i]);
+					set_panel_items_order(&panels[i]);
+					visible_taskbar(&panels[i]);
+					panels[i].area.resize_needed = 1;
+				}
+				task_refresh_tasklist();
+				reset_active_task();
+				panel_refresh = TRUE;
+			} else if (old_desktop != server.desktop) {
+				for (i = 0; i < num_panels; i++) {
+					Panel *panel = &panels[i];
+					set_taskbar_state(&panel->taskbar[old_desktop], TASKBAR_NORMAL);
+					set_taskbar_state(&panel->taskbar[server.desktop], TASKBAR_ACTIVE);
+					// check ALL_DESKTOPS task => resize taskbar
+					Taskbar *taskbar;
+					if (server.num_desktops > old_desktop) {
+						taskbar = &panel->taskbar[old_desktop];
+						GList *l = taskbar->area.children;
+						if (taskbarname_enabled)
+							l = l->next;
+						for (; l; l = l->next) {
+							Task *task = l->data;
+							if (task->desktop == ALL_DESKTOPS) {
+								task->area.on_screen = FALSE;
+								taskbar->area.resize_needed = 1;
+								panel_refresh = TRUE;
+								if (taskbar_mode == MULTI_DESKTOP)
+									panel->area.resize_needed = 1;
+							}
+						}
+					}
+					taskbar = &panel->taskbar[server.desktop];
 					GList *l = taskbar->area.children;
 					if (taskbarname_enabled)
 						l = l->next;
 					for (; l; l = l->next) {
-						task = l->data;
-						if (task->desktop == ALLDESKTOP) {
-							task->area.on_screen = FALSE;
+						Task *task = l->data;
+						if (task->desktop == ALL_DESKTOPS) {
+							task->area.on_screen = TRUE;
 							taskbar->area.resize_needed = 1;
-							panel_refresh = TRUE;
 							if (taskbar_mode == MULTI_DESKTOP)
 								panel->area.resize_needed = 1;
 						}
 					}
-				}
-				taskbar = &panel->taskbar[server.desktop];
-				GList *l = taskbar->area.children;
-				if (taskbarname_enabled)
-					l = l->next;
-				for (; l; l = l->next) {
-					task = l->data;
-					if (task->desktop == ALLDESKTOP) {
-						task->area.on_screen = TRUE;
-						taskbar->area.resize_needed = 1;
-						if (taskbar_mode == MULTI_DESKTOP)
-							panel->area.resize_needed = 1;
+
+					if (server.viewports) {
+						GList *need_update = NULL;
+
+						GHashTableIter iter;
+						gpointer key, value;
+
+						g_hash_table_iter_init(&iter, win_to_task);
+						while (g_hash_table_iter_next(&iter, &key, &value)) {
+							Window task_win = *(Window *)key;
+							Task *task = task_get_task(task_win);
+							if (task) {
+								int desktop = get_window_desktop(task_win);
+								if (desktop != task->desktop) {
+									need_update = g_list_append(need_update, task);
+								}
+							}
+						}
+						for (l = need_update; l; l = l->next) {
+							Task *task = l->data;
+							update_task_desktop(task);
+						}
 					}
 				}
 			}
@@ -784,7 +840,7 @@ void event_property_notify(XEvent *e)
 		}
 		// Change active
 		else if (at == server.atom._NET_ACTIVE_WINDOW) {
-			active_task();
+			reset_active_task();
 			panel_refresh = TRUE;
 		} else if (at == server.atom._XROOTPMAP_ID || at == server.atom._XROOTMAP_ID) {
 			// change Wallpaper
@@ -838,7 +894,7 @@ void event_property_notify(XEvent *e)
 			}
 		} else if (at == server.atom.WM_STATE) {
 			// Iconic state
-			TaskState state = (task_active && task->win == task_active->win ? TASK_ACTIVE : TASK_NORMAL);
+			TaskState state = (active_task && task->win == active_task->win ? TASK_ACTIVE : TASK_NORMAL);
 			if (window_is_iconified(win))
 				state = TASK_ICONIFIED;
 			set_task_state(task, state);
@@ -855,10 +911,7 @@ void event_property_notify(XEvent *e)
 			// printf("  Window desktop changed %d, %d\n", task->desktop, desktop);
 			// bug in windowmaker : send unecessary 'desktop changed' when focus changed
 			if (desktop != task->desktop) {
-				remove_task(task);
-				task = add_task(win);
-				active_task();
-				panel_refresh = TRUE;
+				update_task_desktop(task);
 			}
 		} else if (at == server.atom.WM_HINTS) {
 			XWMHints *wmhints = XGetWMHints(server.dsp, win);
@@ -917,9 +970,19 @@ void event_configure_notify(XEvent *e)
 				task = add_task(win);
 				if (win == get_active_window()) {
 					set_task_state(task, TASK_ACTIVE);
-					task_active = task;
+					active_task = task;
 				}
 				panel_refresh = TRUE;
+			}
+		}
+	}
+
+	if (server.viewports) {
+		Task *task = task_get_task(win);
+		if (task) {
+			int desktop = get_window_desktop(win);
+			if (task->desktop != desktop) {
+				update_task_desktop(task);
 			}
 		}
 	}
