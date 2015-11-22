@@ -719,6 +719,7 @@ void update_desktop_names()
 
 void update_task_desktop(Task *task)
 {
+	// fprintf(stderr, "%s %d:\n", __FUNCTION__, __LINE__);
 	Window win = task->win;
 	remove_task(task);
 	task = add_task(win);
@@ -728,6 +729,8 @@ void update_task_desktop(Task *task)
 
 void event_property_notify(XEvent *e)
 {
+	gboolean debug = FALSE;
+
 	int i;
 	Window win = e->xproperty.window;
 	Atom at = e->xproperty.atom;
@@ -742,6 +745,8 @@ void event_property_notify(XEvent *e)
 
 		// Change name of desktops
 		else if (at == server.atom._NET_DESKTOP_NAMES) {
+			if (debug)
+				fprintf(stderr, "%s %d: win = root, atom = _NET_DESKTOP_NAMES\n", __FUNCTION__, __LINE__);
 			update_desktop_names();
 		}
 		// Change desktops
@@ -750,6 +755,8 @@ void event_property_notify(XEvent *e)
 				 at == server.atom._NET_DESKTOP_VIEWPORT ||
 				 at == server.atom._NET_WORKAREA ||
 				 at == server.atom._NET_CURRENT_DESKTOP) {
+			if (debug)
+				fprintf(stderr, "%s %d: win = root, atom = ?? desktops changed\n", __FUNCTION__, __LINE__);
 			if (!taskbar_enabled)
 				return;
 			int old_num_desktops = server.num_desktops;
@@ -835,14 +842,20 @@ void event_property_notify(XEvent *e)
 		}
 		// Window list
 		else if (at == server.atom._NET_CLIENT_LIST) {
+			if (debug)
+				fprintf(stderr, "%s %d: win = root, atom = _NET_CLIENT_LIST\n", __FUNCTION__, __LINE__);
 			task_refresh_tasklist();
 			panel_refresh = TRUE;
 		}
 		// Change active
 		else if (at == server.atom._NET_ACTIVE_WINDOW) {
+			if (debug)
+				fprintf(stderr, "%s %d: win = root, atom = _NET_ACTIVE_WINDOW\n", __FUNCTION__, __LINE__);
 			reset_active_task();
 			panel_refresh = TRUE;
 		} else if (at == server.atom._XROOTPMAP_ID || at == server.atom._XROOTMAP_ID) {
+			if (debug)
+				fprintf(stderr, "%s %d: win = root, atom = _XROOTPMAP_ID\n", __FUNCTION__, __LINE__);
 			// change Wallpaper
 			for (i = 0; i < num_panels; i++) {
 				set_panel_background(&panels[i]);
@@ -851,11 +864,15 @@ void event_property_notify(XEvent *e)
 		}
 	} else {
 		Task *task = task_get_task(win);
-		// printf("change win = %u, task = %p\n", win, task);
+		if (debug) {
+			char *atom_name = XGetAtomName(server.dsp, at);
+			fprintf(stderr, "%s %d: win = %ld, task = %s, atom = %s\n", __FUNCTION__, __LINE__, win, task ? (task->title ? task->title : "??") : "null", atom_name);
+			XFree(atom_name);
+		}
 		if (!task) {
-			if (at != server.atom._NET_WM_STATE)
-				return;
-			else {
+			if (debug)
+				fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);
+			if (at == server.atom._NET_WM_STATE) {
 				// xfce4 sends _NET_WM_STATE after minimized to tray, so we need to check if window is mapped
 				// if it is mapped and not set as skip_taskbar, we must add it to our task list
 				XWindowAttributes wa;
@@ -863,11 +880,9 @@ void event_property_notify(XEvent *e)
 				if (wa.map_state == IsViewable && !window_is_skip_taskbar(win)) {
 					if ((task = add_task(win)))
 						panel_refresh = TRUE;
-					else
-						return;
-				} else
-					return;
+				}
 			}
+			return;
 		}
 		// printf("atom root_win = %s, %s\n", XGetAtomName(server.dsp, at), task->title);
 
@@ -885,6 +900,16 @@ void event_property_notify(XEvent *e)
 		}
 		// Demand attention
 		else if (at == server.atom._NET_WM_STATE) {
+			if (debug) {
+				int count;
+				Atom *atom_state = server_get_property(win, server.atom._NET_WM_STATE, XA_ATOM, &count);
+				for (int j = 0; j < count; j++) {
+					char *atom_state_name = XGetAtomName(server.dsp, atom_state[j]);
+					fprintf(stderr, "%s %d: _NET_WM_STATE = %s\n", __FUNCTION__, __LINE__, atom_state_name);
+					XFree(atom_state_name);
+				}
+				XFree(atom_state);
+			}
 			if (window_is_urgent(win)) {
 				add_urgent(task);
 			}
@@ -939,6 +964,11 @@ void event_expose(XEvent *e)
 void event_configure_notify(XEvent *e)
 {
 	Window win = e->xconfigure.window;
+
+	if (0) {
+		Task *task = task_get_task(win);
+		fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task ? (task->title ? task->title : "??") : "null");
+	}
 
 	// change in root window (xrandr)
 	if (win == server.root_win) {

@@ -308,6 +308,7 @@ void task_refresh_tasklist()
 {
 	if (!taskbar_enabled)
 		return;
+	// fprintf(stderr, "%s %d:\n", __FUNCTION__, __LINE__);
 
 	int num_results;
 	Window *win = server_get_property(server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);

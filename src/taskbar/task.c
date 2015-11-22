@@ -48,8 +48,10 @@ Task *add_task(Window win)
 {
 	if (!win)
 		return NULL;
-	if (window_is_hidden(win))
+	if (window_is_hidden(win)) {
+		// fprintf(stderr, "%s %d: win = %ld not adding task: window hidden\n", __FUNCTION__, __LINE__, win);
 		return NULL;
+	}
 
 	XSelectInput(server.dsp, win, PropertyChangeMask | StructureNotifyMask);
 	XFlush(server.dsp);
@@ -83,7 +85,8 @@ Task *add_task(Window win)
 	get_title(&task_template);
 	get_icon(&task_template);
 
-	// printf("new task %s win %u: desktop %d, monitor %d\n", new_task.title, win, new_task.desktop, monitor);
+	// fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task_template.title ? task_template.title : "??");
+	// fprintf(stderr, "new task %s win %u: desktop %d, monitor %d\n", new_task.title, win, new_task.desktop, monitor);
 
 	GPtrArray *task_group = g_ptr_array_new();
 	for (int j = 0; j < panels[monitor].num_desktops; j++) {
@@ -103,7 +106,7 @@ Task *add_task(Window win)
 		task_instance->win_h = task_template.win_h;
 		task_instance->current_state = -1; // to update the current state later in set_task_state...
 		if (task_instance->desktop == ALL_DESKTOPS && server.desktop != j) {
-			// hide ALL_DESKTOPS task on non-current desktop
+			// fprintf(stderr, "%s %d: win = %ld hiding task: another desktop\n", __FUNCTION__, __LINE__, win);
 			task_instance->area.on_screen = FALSE;
 		}
 		task_instance->title = task_template.title;
@@ -120,7 +123,6 @@ Task *add_task(Window win)
 
 		add_area(&task_instance->area, &taskbar->area);
 		g_ptr_array_add(task_group, task_instance);
-		// printf("add_task panel %d, desktop %d, task %s\n", i, j, task_instance->title);
 	}
 	Window *key = calloc(1, sizeof(Window));
 	*key = task_template.win;
@@ -146,6 +148,8 @@ void remove_task(Task *task)
 {
 	if (!task)
 		return;
+
+	// fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, task->win, task->title ? task->title : "??");
 
 	if (taskbar_mode == MULTI_DESKTOP) {
 		Panel *panel = task->area.panel;

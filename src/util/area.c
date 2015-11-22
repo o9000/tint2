@@ -328,6 +328,7 @@ void schedule_redraw(Area *a)
 
 	for (GList *l = a->children; l; l = l->next)
 		schedule_redraw((Area *)l->data);
+	panel_refresh = TRUE;
 }
 
 void hide(Area *a)
@@ -447,7 +448,8 @@ void remove_area(Area *a)
 
 	if (parent) {
 		parent->children = g_list_remove(parent->children, area);
-		parent->resize_needed = 1;
+		parent->resize_needed = TRUE;
+		panel_refresh = TRUE;
 		schedule_redraw(parent);
 	}
 
@@ -463,7 +465,9 @@ void add_area(Area *a, Area *parent)
 	a->parent = parent;
 	if (parent) {
 		parent->children = g_list_append(parent->children, a);
+		parent->resize_needed = TRUE;
 		schedule_redraw(parent);
+		panel_refresh = TRUE;
 	}
 }
 
