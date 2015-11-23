@@ -34,6 +34,7 @@ enum psy_type {
 struct psy_battery {
 	/* generic properties */
 	gchar *name;
+	/* monotonic time, in microseconds */
 	gint64 timestamp;
 	/* sysfs files */
 	gchar *path_present;
@@ -49,7 +50,7 @@ struct psy_battery {
 	gint energy_now;
 	gint energy_full;
 	gint power_now;
-	enum chargestate status;
+	ChargeState status;
 };
 
 struct psy_mains {
@@ -382,7 +383,7 @@ static gboolean update_linux_mains(struct psy_mains *ac)
 	return TRUE;
 }
 
-int battery_os_update(struct batstate *state)
+int battery_os_update(BatteryState *state)
 {
 	GList *l;
 
@@ -430,7 +431,7 @@ int battery_os_update(struct batstate *state)
 		else if (state->state == BATTERY_DISCHARGING)
 			seconds = 3600 * total_energy_now / total_power_now;
 	}
-	batstate_set_time(state, seconds);
+	battery_state_set_time(state, seconds);
 
 	/* calculate percentage */
 	state->percentage = energy_to_percent(total_energy_now, total_energy_full);

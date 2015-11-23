@@ -26,22 +26,27 @@ typedef struct Battery {
 	int bat2_posy;
 } Battery;
 
-enum chargestate { BATTERY_UNKNOWN, BATTERY_CHARGING, BATTERY_DISCHARGING, BATTERY_FULL };
+typedef enum ChargeState {
+	BATTERY_UNKNOWN = 0,
+	BATTERY_CHARGING,
+	BATTERY_DISCHARGING,
+	BATTERY_FULL,
+} ChargeState;
 
-typedef struct battime {
+typedef struct BatteryTime {
 	int16_t hours;
 	int8_t minutes;
 	int8_t seconds;
-} battime;
+} BatteryTime;
 
-typedef struct batstate {
+typedef struct BatteryState {
 	int percentage;
-	struct battime time;
-	enum chargestate state;
+	BatteryTime time;
+	ChargeState state;
 	gboolean ac_connected;
-} batstate;
+} BatteryState;
 
-extern struct batstate battery_state;
+extern struct BatteryState battery_state;
 extern PangoFontDescription *bat1_font_desc;
 extern PangoFontDescription *bat2_font_desc;
 extern gboolean battery_enabled;
@@ -60,7 +65,7 @@ extern char *battery_rclick_command;
 extern char *battery_uwheel_command;
 extern char *battery_dwheel_command;
 
-static inline gchar *chargestate2str(enum chargestate state)
+static inline gchar *chargestate2str(ChargeState state)
 {
 	switch (state) {
 	case BATTERY_CHARGING:
@@ -75,7 +80,7 @@ static inline gchar *chargestate2str(enum chargestate state)
 	};
 }
 
-static inline void batstate_set_time(struct batstate *state, int seconds)
+static inline void battery_state_set_time(BatteryState *state, int seconds)
 {
 	state->time.hours = seconds / 3600;
 	seconds -= 3600 * state->time.hours;
@@ -106,7 +111,7 @@ void battery_action(int button);
 /* operating system specific functions */
 gboolean battery_os_init();
 void battery_os_free();
-int battery_os_update(struct batstate *state);
+int battery_os_update(BatteryState *state);
 char *battery_os_tooltip();
 
 #endif

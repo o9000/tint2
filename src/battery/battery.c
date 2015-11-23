@@ -33,7 +33,7 @@
 
 PangoFontDescription *bat1_font_desc;
 PangoFontDescription *bat2_font_desc;
-struct batstate battery_state;
+struct BatteryState battery_state;
 gboolean battery_enabled;
 gboolean battery_tooltip_enabled;
 int percentage_hide;
@@ -43,7 +43,7 @@ static char buf_bat_percentage[10];
 static char buf_bat_time[20];
 
 int8_t battery_low_status;
-unsigned char battery_low_cmd_sent;
+gboolean battery_low_cmd_sent;
 char *ac_connected_cmd;
 char *ac_disconnected_cmd;
 char *battery_low_cmd;
@@ -52,14 +52,14 @@ char *battery_mclick_command;
 char *battery_rclick_command;
 char *battery_uwheel_command;
 char *battery_dwheel_command;
-int battery_found;
+gboolean battery_found;
 
 void update_battery_tick(void *arg)
 {
 	if (!battery_enabled)
 		return;
 
-	int old_found = battery_found;
+	gboolean old_found = battery_found;
 	int old_percentage = battery_state.percentage;
 	gboolean old_ac_connected = battery_state.ac_connected;
 	int16_t old_hours = battery_state.time.hours;
@@ -106,7 +106,7 @@ void update_battery_tick(void *arg)
 					panel_refresh = TRUE;
 				}
 			} else {
-				if (panels[i].battery.area.on_screen == 0) {
+				if (!panels[i].battery.area.on_screen) {
 					show(&panels[i].battery.area);
 					panel_refresh = TRUE;
 				}
@@ -125,11 +125,11 @@ void update_battery_tick(void *arg)
 
 void default_battery()
 {
-	battery_enabled = 0;
-	battery_tooltip_enabled = 1;
-	battery_found = 0;
+	battery_enabled = FALSE;
+	battery_tooltip_enabled = TRUE;
+	battery_found = FALSE;
 	percentage_hide = 101;
-	battery_low_cmd_sent = 0;
+	battery_low_cmd_sent = FALSE;
 	battery_timeout = NULL;
 	bat1_font_desc = NULL;
 	bat2_font_desc = NULL;
@@ -172,7 +172,7 @@ void cleanup_battery()
 	ac_disconnected_cmd = NULL;
 	stop_timeout(battery_timeout);
 	battery_timeout = NULL;
-	battery_found = 0;
+	battery_found = FALSE;
 
 	battery_os_free();
 }
@@ -239,7 +239,7 @@ int update_battery()
 	battery_state.state = BATTERY_UNKNOWN;
 	battery_state.percentage = 0;
 	battery_state.ac_connected = FALSE;
-	batstate_set_time(&battery_state, 0);
+	battery_state_set_time(&battery_state, 0);
 
 	err = battery_os_update(&battery_state);
 

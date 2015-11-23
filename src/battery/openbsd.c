@@ -51,7 +51,7 @@ void battery_os_free()
 	apm_fd = -1;
 }
 
-int battery_os_update(struct batstate *state)
+int battery_os_update(BatteryState *state)
 {
 	struct apm_power_info info;
 
@@ -73,7 +73,7 @@ int battery_os_update(struct batstate *state)
 
 		state->percentage = info.battery_life;
 		if (info.minutes_left != -1)
-			batstate_set_time(state, info.minutes_left * 60);
+			battery_state_set_time(state, info.minutes_left * 60);
 
 		state->ac_connected = info.ac_state == APM_AC_ON;
 	} else {

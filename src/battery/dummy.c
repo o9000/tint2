@@ -33,7 +33,7 @@ void battery_os_free()
 	return;
 }
 
-int battery_os_update(struct batstate *state)
+int battery_os_update(BatteryState *state)
 {
 	return -1;
 }

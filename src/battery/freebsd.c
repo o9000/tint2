@@ -39,7 +39,7 @@ void battery_os_free()
 	return;
 }
 
-int battery_os_update(struct batstate *state)
+int battery_os_update(BatteryState *state)
 {
 	int sysctl_out = 0;
 	size_t len = sizeof(sysctl_out);
@@ -63,7 +63,7 @@ int battery_os_update(struct batstate *state)
 	}
 
 	if (sysctlbyname("hw.acpi.battery.time", &sysctl_out, &len, NULL, 0) == 0)
-		batstate_set_time(state, sysctl_out * 60);
+		battery_state_set_time(state, sysctl_out * 60);
 	else
 		err = -1;
 
