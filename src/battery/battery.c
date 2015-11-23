@@ -81,21 +81,6 @@ void update_battery_tick(void *arg)
 			tint_exec(ac_disconnected_cmd);
 	}
 
-	if (old_found == battery_found && old_percentage == battery_state.percentage &&
-		old_hours == battery_state.time.hours && old_minutes == battery_state.time.minutes) {
-		return;
-	}
-
-	if (battery_state.percentage < battery_low_status && battery_state.state == BATTERY_DISCHARGING &&
-		!battery_low_cmd_sent) {
-		tint_exec(battery_low_cmd);
-		battery_low_cmd_sent = 1;
-	}
-	if (battery_state.percentage > battery_low_status && battery_state.state == BATTERY_CHARGING &&
-		battery_low_cmd_sent) {
-		battery_low_cmd_sent = 0;
-	}
-
 	int i;
 	for (i = 0; i < num_panels; i++) {
 		if (!battery_found) {
@@ -120,6 +105,21 @@ void update_battery_tick(void *arg)
 			panels[i].battery.area.resize_needed = 1;
 			panel_refresh = TRUE;
 		}
+	}
+
+	if (old_found == battery_found && old_percentage == battery_state.percentage &&
+		old_hours == battery_state.time.hours && old_minutes == battery_state.time.minutes) {
+		return;
+	}
+
+	if (battery_state.percentage < battery_low_status && battery_state.state == BATTERY_DISCHARGING &&
+		!battery_low_cmd_sent) {
+		tint_exec(battery_low_cmd);
+		battery_low_cmd_sent = 1;
+	}
+	if (battery_state.percentage > battery_low_status && battery_state.state == BATTERY_CHARGING &&
+		battery_low_cmd_sent) {
+		battery_low_cmd_sent = 0;
 	}
 }
 
