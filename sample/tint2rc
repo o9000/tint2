@@ -6,25 +6,37 @@
 rounded = 7
 border_width = 1
 background_color = #000000 60
-border_color = #FFFFFF 16
+border_color = #999999 6
 
 # Background 2: normal/iconified tasks
 rounded = 5
 border_width = 0
 background_color = #777777 20
 border_color = #777777 30
+background_color_hover = #aaaaaa 22
+border_color_hover = #eaeaea 44
+background_color_pressed = #555555 4
+border_color_pressed = #eaeaea 44
 
 # Background 3: active tasks
 rounded = 5
 border_width = 1
 background_color = #777777 20
 border_color = #ffffff 40
+background_color_hover = #aaaaaa 22
+border_color_hover = #eaeaea 44
+background_color_pressed = #555555 4
+border_color_pressed = #eaeaea 44
 
 # Background 4: urgent tasks
 rounded = 5
 border_width = 1
 background_color = #aa4400 100
 border_color = #aa7733 100
+background_color_hover = #cc7700 100
+border_color_hover = #aa7733 100
+background_color_pressed = #555555 4
+border_color_pressed = #aa7733 100
 
 # Background 5: tooltips
 rounded = 2
@@ -36,7 +48,7 @@ border_color = #999999 100
 panel_items = LTSC
 panel_monitor = all
 panel_position = bottom center horizontal
-panel_size = 85% 30
+panel_size = 100% 30
 panel_margin = 0 0
 panel_padding = 7 0 7
 panel_dock = 0
@@ -44,6 +56,7 @@ wm_menu = 1
 panel_layer = top
 panel_background_id = 1
 font_shadow = 0
+mouse_effects = 1
 
 # Panel Autohide
 autohide = 0
