@@ -52,6 +52,7 @@
 #include "window.h"
 #include "tooltip.h"
 #include "timer.h"
+#include "execplugin.h"
 
 #ifdef ENABLE_BATTERY
 #include "battery.h"
@@ -197,6 +198,15 @@ void load_launcher_app_dir(const char *path)
 		g_free(file);
 	}
 	g_list_free(files);
+}
+
+Execp *get_or_create_last_execp()
+{
+	if (!panel_config.execp_list) {
+		fprintf(stderr, "Warning: execp items should start with 'execp = new'\n");
+		panel_config.execp_list = g_list_append(panel_config.execp_list, create_execp());
+	}
+	return (Execp *)g_list_last(panel_config.execp_list)->data;
 }
 
 void add_entry(char *key, char *value)
@@ -496,6 +506,109 @@ void add_entry(char *key, char *value)
 #ifdef ENABLE_BATTERY
 		battery_tooltip_enabled = atoi(value);
 #endif
+	}
+
+	/* Execp */
+	else if (strcmp(key, "execp") == 0) {
+		panel_config.execp_list = g_list_append(panel_config.execp_list, create_execp());
+	} else if (strcmp(key, "execp_command") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		free_and_null(execp->backend->command);
+		if (strlen(value) > 0)
+			execp->backend->command = strdup(value);
+	} else if (strcmp(key, "execp_interval") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		execp->backend->interval = 0;
+		int v = atoi(value);
+		if (v < 1) {
+			fprintf(stderr, "execp_interval must be an integer >= 1\n");
+		} else {
+			execp->backend->interval = v;
+		}
+	} else if (strcmp(key, "execp_has_icon") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		execp->backend->has_icon = atoi(value);
+	} else if (strcmp(key, "execp_continuous") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		execp->backend->continuous = atoi(value);
+	} else if (strcmp(key, "execp_cache_icon") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		execp->backend->cache_icon = atoi(value);
+	} else if (strcmp(key, "execp_tooltip") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		free_and_null(execp->backend->tooltip);
+		execp->backend->tooltip = strdup(value);
+	} else if (strcmp(key, "execp_font") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		pango_font_description_free(execp->backend->font_desc);
+		execp->backend->font_desc = pango_font_description_from_string(value);
+	} else if (strcmp(key, "execp_font_color") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		extract_values(value, &value1, &value2, &value3);
+		get_color(value1, execp->backend->font_color.rgb);
+		if (value2)
+			execp->backend->font_color.alpha = atoi(value2) / 100.0;
+		else
+			execp->backend->font_color.alpha = 0.5;
+	} else if (strcmp(key, "execp_padding") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		extract_values(value, &value1, &value2, &value3);
+		execp->backend->paddingxlr = execp->backend->paddingx = atoi(value1);
+		if (value2)
+			execp->backend->paddingy = atoi(value2);
+		else
+			execp->backend->paddingy = 0;
+		if (value3)
+			execp->backend->paddingx = atoi(value3);
+	} else if (strcmp(key, "execp_background_id") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		int id = atoi(value);
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		execp->backend->bg = &g_array_index(backgrounds, Background, id);
+	} else if (strcmp(key, "execp_centered") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		execp->backend->centered = atoi(value);
+	} else if (strcmp(key, "execp_icon_w") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		int v = atoi(value);
+		if (v < 0) {
+			fprintf(stderr, "execp_icon_w must be an integer >= 0\n");
+		} else {
+			execp->backend->icon_w = v;
+		}
+	} else if (strcmp(key, "execp_icon_h") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		int v = atoi(value);
+		if (v < 0) {
+			fprintf(stderr, "execp_icon_h must be an integer >= 0\n");
+		} else {
+			execp->backend->icon_h = v;
+		}
+	} else if (strcmp(key, "execp_lclick_command") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		free_and_null(execp->backend->lclick_command);
+		if (strlen(value) > 0)
+			execp->backend->lclick_command = strdup(value);
+	} else if (strcmp(key, "execp_mclick_command") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		free_and_null(execp->backend->mclick_command);
+		if (strlen(value) > 0)
+			execp->backend->mclick_command = strdup(value);
+	} else if (strcmp(key, "execp_rclick_command") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		free_and_null(execp->backend->rclick_command);
+		if (strlen(value) > 0)
+			execp->backend->rclick_command = strdup(value);
+	} else if (strcmp(key, "execp_uwheel_command") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		free_and_null(execp->backend->uwheel_command);
+		if (strlen(value) > 0)
+			execp->backend->uwheel_command = strdup(value);
+	} else if (strcmp(key, "execp_dwheel_command") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		free_and_null(execp->backend->dwheel_command);
+		if (strlen(value) > 0)
+			execp->backend->dwheel_command = strdup(value);
 	}
 
 	/* Clock */

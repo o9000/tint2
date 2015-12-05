@@ -161,3 +161,5 @@ src/battery/openbsd.c
 src/util/uevent.c
 src/util/uevent.h
 .clang-format
+src/execplugin/execplugin.c
+src/execplugin/execplugin.h

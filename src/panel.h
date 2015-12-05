@@ -21,6 +21,7 @@
 #include "systraybar.h"
 #include "launcher.h"
 #include "freespace.h"
+#include "execplugin.h"
 
 #ifdef ENABLE_BATTERY
 #include "battery.h"
@@ -123,6 +124,7 @@ typedef struct Panel {
 
 	Launcher launcher;
 	FreeSpace freespace;
+	GList *execp_list;
 
 	// Autohide
 	gboolean is_hidden;
@@ -170,6 +172,7 @@ gboolean click_battery(Panel *panel, int x, int y);
 #endif
 
 Area *click_area(Panel *panel, int x, int y);
+Execp *click_execp(Panel *panel, int x, int y);
 
 void autohide_show(void *p);
 void autohide_hide(void *p);

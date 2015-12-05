@@ -163,6 +163,7 @@ void init_panel()
 	init_battery();
 #endif
 	init_taskbar();
+	init_execp();
 
 	// number of panels (one monitor or 'all' monitors)
 	if (panel_config.monitor >= 0)
@@ -212,6 +213,8 @@ void init_panel()
 				init_clock_panel(p);
 			if (panel_items_order[k] == 'F' && !strstr(panel_items_order, "T"))
 				init_freespace_panel(p);
+			if (panel_items_order[k] == 'E')
+				init_execp_panel(p);
 		}
 		set_panel_items_order(p);
 
@@ -512,6 +515,7 @@ void set_panel_items_order(Panel *p)
 		p->area.children = 0;
 	}
 
+	int i_execp = 0;
 	for (int k = 0; k < strlen(panel_items_order); k++) {
 		if (panel_items_order[k] == 'L') {
 			p->area.children = g_list_append(p->area.children, &p->launcher);
@@ -533,6 +537,12 @@ void set_panel_items_order(Panel *p)
 			p->area.children = g_list_append(p->area.children, &p->clock);
 		if (panel_items_order[k] == 'F')
 			p->area.children = g_list_append(p->area.children, &p->freespace);
+		if (panel_items_order[k] == 'E') {
+			GList *item = g_list_nth(p->execp_list, i_execp);
+			i_execp++;
+			if (item)
+				p->area.children = g_list_append(p->area.children, (Area*)item->data);
+		}
 	}
 	initialize_positions(&p->area, 0);
 }
@@ -865,6 +875,22 @@ int click_battery(Panel *panel, int x, int y)
 	return FALSE;
 }
 #endif
+
+Execp *click_execp(Panel *panel, int x, int y)
+{
+	GList *l;
+	for (l = panel->execp_list; l; l = l->next) {
+		Execp *execp = (Execp *)l->data;
+		if (panel_horizontal) {
+			if (execp->area.on_screen && x >= execp->area.posx && x <= (execp->area.posx + execp->area.width))
+				return execp;
+		} else {
+			if (execp->area.on_screen && y >= execp->area.posy && y <= (execp->area.posy + execp->area.height))
+				return execp;
+		}
+	}
+	return NULL;
+}
 
 Area *click_area(Panel *panel, int x, int y)
 {

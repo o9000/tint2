@@ -121,6 +121,7 @@ void init(int argc, char *argv[])
 	default_launcher();
 	default_taskbar();
 	default_tooltip();
+	default_execp();
 	default_panel();
 
 	// read options
@@ -314,6 +315,7 @@ void init_X11_post_config()
 
 void cleanup()
 {
+	cleanup_execp();
 	cleanup_systray();
 	cleanup_tooltip();
 	cleanup_clock();
@@ -477,6 +479,8 @@ int tint2_handles_click(Panel *panel, XButtonEvent *e)
 			return 0;
 	}
 #endif
+	if (click_execp(panel, e->x, e->y))
+		return 1;
 	return 0;
 }
 
@@ -630,6 +634,15 @@ void event_button_release(XEvent *e)
 		return;
 	}
 #endif
+
+	Execp *execp = click_execp(panel, e->xbutton.x, e->xbutton.y);
+	if (execp) {
+		execp_action(execp, e->xbutton.button);
+		if (panel_layer == BOTTOM_LAYER)
+			XLowerWindow(server.dsp, panel->main_win);
+		task_drag = 0;
+		return;
+	}
 
 	if (e->xbutton.button == 1 && click_launcher(panel, e->xbutton.x, e->xbutton.y)) {
 		LauncherIcon *icon = click_launcher_icon(panel, e->xbutton.x, e->xbutton.y);
@@ -1346,6 +1359,14 @@ start:
 			FD_SET(sn_pipe[0], &fdset);
 			maxfd = maxfd < sn_pipe[0] ? sn_pipe[0] : maxfd;
 		}
+		for (GList *l = panel_config.execp_list; l; l = l->next) {
+			Execp *execp = (Execp *)l->data;
+			int fd = execp->backend->child_pipe;
+			if (fd > 0) {
+				FD_SET(fd, &fdset);
+				maxfd = maxfd < fd ? fd : maxfd;
+			}
+		}
 		if (ufd > 0) {
 			FD_SET(ufd, &fdset);
 			maxfd = maxfd < ufd ? ufd : maxfd;
@@ -1361,6 +1382,17 @@ start:
 				char buffer[1];
 				while (read(sn_pipe[0], buffer, sizeof(buffer)) > 0) {
 					sigchld_handler_async();
+				}
+			}
+			for (GList *l = panel_config.execp_list; l; l = l->next) {
+				Execp *execp = (Execp *)l->data;
+				if (read_execp(execp)) {
+					GList *l_instance;
+					for (l_instance = execp->backend->instances; l_instance; l_instance = l_instance->next) {
+						Execp *instance = l_instance->data;
+						instance->area.resize_needed = TRUE;
+						panel_refresh = TRUE;
+					}
 				}
 			}
 			if (XPending(server.dsp) > 0) {

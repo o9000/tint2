@@ -97,4 +97,6 @@ void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
 // Clears the pixmap (with transparent color)
 void clear_pixmap(Pixmap p, int x, int y, int w, int h);
 
+#define free_and_null(p) { free(p); p = NULL; }
+
 #endif

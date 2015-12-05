@@ -20,3 +20,4 @@
 po
 src/tint2conf/po
 src/freespace
+src/execplugin

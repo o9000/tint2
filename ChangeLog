@@ -1,6 +1,7 @@
-2015-11-21 master
+2015-12-05 master
 - Enhancements:
   - Support for NETWM viewports (as in Compiz) (issue #94)
+  - New plugin: executor
 2015-11-12 0.12.3
 - Enhancements:
   - Battery: Multiple batteries are now supported under Linux (issue #139;
