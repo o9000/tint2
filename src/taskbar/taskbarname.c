@@ -152,7 +152,8 @@ gboolean resize_taskbarname(void *obj)
 				   taskbar_name->name,
 				   strlen(taskbar_name->name),
 				   PANGO_WRAP_WORD_CHAR,
-				   PANGO_ELLIPSIZE_NONE);
+				   PANGO_ELLIPSIZE_NONE,
+				   FALSE);
 
 	if (panel_horizontal) {
 		int new_size = name_width + (2 * (taskbar_name->area.paddingxlr + taskbar_name->area.bg->border.width));

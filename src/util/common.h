@@ -87,7 +87,8 @@ void get_text_size2(PangoFontDescription *font,
 					char *text,
 					int len,
 					PangoWrapMode wrap,
-					PangoEllipsizeMode ellipsis);
+					PangoEllipsizeMode ellipsis,
+					gboolean markup);
 
 void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow);
 

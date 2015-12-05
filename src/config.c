@@ -531,6 +531,9 @@ void add_entry(char *key, char *value)
 	} else if (strcmp(key, "execp_continuous") == 0) {
 		Execp *execp = get_or_create_last_execp();
 		execp->backend->continuous = atoi(value);
+	} else if (strcmp(key, "execp_markup") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		execp->backend->has_markup = atoi(value);
 	} else if (strcmp(key, "execp_cache_icon") == 0) {
 		Execp *execp = get_or_create_last_execp();
 		execp->backend->cache_icon = atoi(value);

@@ -246,7 +246,10 @@ void draw_execp(void *obj, cairo_t *c)
 	pango_layout_set_alignment(layout, execp->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
 	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
 	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
-	pango_layout_set_text(layout, execp->backend->text, strlen(execp->backend->text));
+	if (!execp->backend->has_markup)
+		pango_layout_set_text(layout, execp->backend->text, strlen(execp->backend->text));
+	else
+		pango_layout_set_markup(layout, execp->backend->text, strlen(execp->backend->text));
 
 	pango_cairo_update_layout(c, layout);
 	draw_text(layout,
@@ -295,7 +298,8 @@ gboolean resize_execp(void *obj)
 					   execp->backend->text,
 					   strlen(execp->backend->text),
 					   PANGO_WRAP_WORD_CHAR,
-					   PANGO_ELLIPSIZE_NONE);
+					   PANGO_ELLIPSIZE_NONE,
+					   execp->backend->has_markup);
 	} else {
 		get_text_size2(execp->backend->font_desc,
 					   &txt_height_ink,
@@ -309,7 +313,8 @@ gboolean resize_execp(void *obj)
 					   execp->backend->text,
 					   strlen(execp->backend->text),
 					   PANGO_WRAP_WORD_CHAR,
-					   PANGO_ELLIPSIZE_NONE);
+					   PANGO_ELLIPSIZE_NONE,
+					   execp->backend->has_markup);
 	}
 
 	gboolean result = FALSE;

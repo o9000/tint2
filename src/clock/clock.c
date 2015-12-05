@@ -254,7 +254,8 @@ gboolean resize_clock(void *obj)
 				   buf_time,
 				   strlen(buf_time),
 				   PANGO_WRAP_WORD_CHAR,
-				   PANGO_ELLIPSIZE_NONE);
+				   PANGO_ELLIPSIZE_NONE,
+				   FALSE);
 	if (time2_format) {
 		strftime(buf_date, sizeof(buf_date), time2_format, clock_gettime_for_tz(time2_timezone));
 		get_text_size2(time2_font_desc,
@@ -266,7 +267,8 @@ gboolean resize_clock(void *obj)
 					   buf_date,
 					   strlen(buf_date),
 					   PANGO_WRAP_WORD_CHAR,
-					   PANGO_ELLIPSIZE_NONE);
+					   PANGO_ELLIPSIZE_NONE,
+					   FALSE);
 	}
 
 	if (panel_horizontal) {

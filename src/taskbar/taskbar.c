@@ -255,7 +255,8 @@ void init_taskbar_panel(void *p)
 				   "TAjpg",
 				   5,
 				   PANGO_WRAP_WORD_CHAR,
-				   PANGO_ELLIPSIZE_END);
+				   PANGO_ELLIPSIZE_END,
+				   FALSE);
 
 	if (!panel->g_task.maximum_width && panel_horizontal)
 		panel->g_task.maximum_width = server.monitor[panel->monitor].width;

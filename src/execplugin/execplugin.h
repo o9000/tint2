@@ -32,6 +32,7 @@ typedef struct ExecpBackend {
 	PangoFontDescription *font_desc;
 	Color font_color;
 	int continuous;
+	gboolean has_markup;
 	char *lclick_command;
 	char *mclick_command;
 	char *rclick_command;

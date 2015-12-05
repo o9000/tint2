@@ -310,7 +310,8 @@ gboolean resize_battery(void *obj)
 				   buf_bat_percentage,
 				   strlen(buf_bat_percentage),
 				   PANGO_WRAP_WORD_CHAR,
-				   PANGO_ELLIPSIZE_NONE);
+				   PANGO_ELLIPSIZE_NONE,
+				   FALSE);
 	get_text_size2(bat2_font_desc,
 				   &bat_time_height_ink,
 				   &bat_time_height,
@@ -320,7 +321,8 @@ gboolean resize_battery(void *obj)
 				   buf_bat_time,
 				   strlen(buf_bat_time),
 				   PANGO_WRAP_WORD_CHAR,
-				   PANGO_ELLIPSIZE_NONE);
+				   PANGO_ELLIPSIZE_NONE,
+				   FALSE);
 
 	if (panel_horizontal) {
 		int new_size = (bat_percentage_width > bat_time_width) ? bat_percentage_width : bat_time_width;

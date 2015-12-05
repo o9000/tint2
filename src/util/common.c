@@ -573,7 +573,8 @@ void get_text_size2(PangoFontDescription *font,
 					char *text,
 					int len,
 					PangoWrapMode wrap,
-					PangoEllipsizeMode ellipsis)
+					PangoEllipsizeMode ellipsis,
+					gboolean markup)
 {
 	PangoRectangle rect_ink, rect;
 
@@ -588,7 +589,10 @@ void get_text_size2(PangoFontDescription *font,
 	pango_layout_set_wrap(layout, wrap);
 	pango_layout_set_ellipsize(layout, ellipsis);
 	pango_layout_set_font_description(layout, font);
-	pango_layout_set_text(layout, text, len);
+	if (!markup)
+		pango_layout_set_text(layout, text, len);
+	else
+		pango_layout_set_markup(layout, text, len);
 
 	pango_layout_get_pixel_extents(layout, &rect_ink, &rect);
 	*height_ink = rect_ink.height;
