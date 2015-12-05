@@ -2785,6 +2785,8 @@ void create_taskbar(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("None"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("By title"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("By center"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("Most recently used first"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("Most recently used last"));
 	gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
 	gtk_tooltips_set_tip(tooltips, taskbar_sort_order, _("Specifies how tasks should be sorted on the taskbar. \n"
 						 "'None' means that new tasks are added to the end, and the user can also reorder task buttons by mouse dragging. \n"
