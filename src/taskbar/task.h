@@ -74,6 +74,7 @@ typedef struct Task {
 	int win_y;
 	int win_w;
 	int win_h;
+	struct timespec last_activation_time;
 } Task;
 
 Task *add_task(Window win);

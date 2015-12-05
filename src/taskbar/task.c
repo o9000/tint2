@@ -552,6 +552,20 @@ void set_task_state(Task *task, TaskState state)
 	if (!task || state < 0 || state >= TASK_STATE_COUNT)
 		return;
 
+	if (state == TASK_ACTIVE && task->current_state != state) {
+		clock_gettime(CLOCK_MONOTONIC, &task->last_activation_time);
+		if (taskbar_sort_method == TASKBAR_SORT_LRU || taskbar_sort_method == TASKBAR_SORT_MRU) {
+			GPtrArray *task_group = task_get_tasks(task->win);
+			if (task_group) {
+				for (int i = 0; i < task_group->len; ++i) {
+					Task *task1 = g_ptr_array_index(task_group, i);
+					Taskbar *taskbar = (Taskbar *)task1->area.parent;
+					sort_tasks(taskbar);
+				}
+			}
+		}
+	}
+
 	if (task->current_state != state || hide_task_diff_monitor) {
 		GPtrArray *task_group = task_get_tasks(task->win);
 		if (task_group) {

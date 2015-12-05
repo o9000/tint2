@@ -522,6 +522,10 @@ gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
 		return compare_task_centers(a, b, taskbar);
 	} else if (taskbar_sort_method == TASKBAR_SORT_TITLE) {
 		return compare_task_titles(a, b, taskbar);
+	} else if (taskbar_sort_method == TASKBAR_SORT_LRU) {
+		return compare_timespecs(&a->last_activation_time, &b->last_activation_time);
+	} else if (taskbar_sort_method == TASKBAR_SORT_MRU) {
+		return -compare_timespecs(&a->last_activation_time, &b->last_activation_time);
 	}
 	return 0;
 }
