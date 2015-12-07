@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <time.h>
+#include <fcntl.h>
 
 #include "window.h"
 #include "server.h"
