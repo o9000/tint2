@@ -109,12 +109,17 @@ void init_execp()
 	}
 
 	if (to_remove) {
-		// Cut panel_config.execp_list
-		if (to_remove->prev)
-			to_remove->prev->next = NULL;
-		to_remove->prev = NULL;
-		// Remove all elements of to_remove and to_remove itself
-		g_list_free_full(to_remove, destroy_execp);
+		if (to_remove == panel_config.execp_list) {
+			g_list_free_full(to_remove, destroy_execp);
+			panel_config.execp_list = NULL;
+		} else {
+			// Cut panel_config.execp_list
+			if (to_remove->prev)
+				to_remove->prev->next = NULL;
+			to_remove->prev = NULL;
+			// Remove all elements of to_remove and to_remove itself
+			g_list_free_full(to_remove, destroy_execp);
+		}
 	}
 
 	for (GList *l = panel_config.execp_list; l; l = l->next) {
