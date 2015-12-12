@@ -31,7 +31,9 @@
 #include "timer.h"
 #include "common.h"
 
+gboolean bat1_has_font;
 PangoFontDescription *bat1_font_desc;
+gboolean bat2_has_font;
 PangoFontDescription *bat2_font_desc;
 struct BatteryState battery_state;
 gboolean battery_enabled;
@@ -53,6 +55,8 @@ char *battery_rclick_command;
 char *battery_uwheel_command;
 char *battery_dwheel_command;
 gboolean battery_found;
+
+void battery_init_fonts();
 
 void update_battery_tick(void *arg)
 {
@@ -91,8 +95,7 @@ void update_battery_tick(void *arg)
 		battery_low_cmd_sent = FALSE;
 	}
 
-	int i;
-	for (i = 0; i < num_panels; i++) {
+	for (int i = 0; i < num_panels; i++) {
 		// Show/hide if needed
 		if (!battery_found) {
 			if (panels[i].battery.area.on_screen) {
@@ -131,7 +134,9 @@ void default_battery()
 	percentage_hide = 101;
 	battery_low_cmd_sent = FALSE;
 	battery_timeout = NULL;
+	bat1_has_font = FALSE;
 	bat1_font_desc = NULL;
+	bat2_has_font = FALSE;
 	bat2_font_desc = NULL;
 	ac_connected_cmd = NULL;
 	ac_disconnected_cmd = NULL;
@@ -209,10 +214,7 @@ void init_battery_panel(void *p)
 	if (!battery_enabled)
 		return;
 
-	if (!bat1_font_desc)
-		bat1_font_desc = pango_font_description_from_string(DEFAULT_FONT);
-	if (!bat2_font_desc)
-		bat2_font_desc = pango_font_description_from_string(DEFAULT_FONT);
+	battery_init_fonts();
 
 	if (!battery->area.bg)
 		battery->area.bg = &g_array_index(backgrounds, Background, 0);
@@ -229,6 +231,42 @@ void init_battery_panel(void *p)
 	battery->area.has_mouse_press_effect = battery->area.has_mouse_over_effect;
 	if (battery_tooltip_enabled)
 		battery->area._get_tooltip_text = battery_get_tooltip;
+}
+
+void battery_init_fonts()
+{
+	if (!bat1_font_desc) {
+		bat1_font_desc = pango_font_description_from_string(get_default_font());
+		pango_font_description_set_size(bat1_font_desc,
+		                                pango_font_description_get_size(bat1_font_desc) - PANGO_SCALE);
+	}
+	if (!bat2_font_desc) {
+		bat2_font_desc = pango_font_description_from_string(get_default_font());
+		pango_font_description_set_size(bat2_font_desc,
+		                                pango_font_description_get_size(bat2_font_desc) - PANGO_SCALE);
+	}
+}
+
+void battery_default_font_changed()
+{
+	if (!battery_enabled)
+		return;
+	if (bat1_has_font && bat2_has_font)
+		return;
+	if (!bat1_has_font) {
+		pango_font_description_free(bat1_font_desc);
+		bat1_font_desc = NULL;
+	}
+	if (!bat2_has_font) {
+		pango_font_description_free(bat2_font_desc);
+		bat2_font_desc = NULL;
+	}
+	battery_init_fonts();
+	for (int i = 0; i < num_panels; i++) {
+		panels[i].battery.area.resize_needed = TRUE;
+		panels[i].battery.area.redraw_needed = TRUE;
+	}
+	panel_refresh = TRUE;
 }
 
 int update_battery()

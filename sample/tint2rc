@@ -105,7 +105,6 @@ task_urgent_icon_asb = 100 0 0
 task_iconified_icon_asb = 100 0 0
 
 # Fonts
-task_font = sans 9
 task_font_color = #FFFFFF 90
 task_active_font_color = #FFFFFF 90
 task_urgent_font_color = #FFFFFF 90
@@ -127,9 +126,7 @@ systray_icon_asb = 100 0 0
 
 # Clock
 time1_format = %H:%M
-time1_font = sans bold 8
 time2_format = %A %d %B
-time2_font = sans 8
 clock_font_color = #FFFFFF 100
 clock_padding = 1 0
 clock_background_id = 0
@@ -140,15 +137,12 @@ tooltip_padding = 2 2
 tooltip_show_timeout = 0.5
 tooltip_hide_timeout = 0.1
 tooltip_background_id = 5
-tooltip_font = sans 9
 tooltip_font_color = #222222 100
 
 # Battery
 battery_low_status = 10
 battery_low_cmd = notify-send "battery low"
 battery_hide = 101
-bat1_font = sans 8
-bat2_font = sans 7
 battery_font_color = #FFFFFF 100
 battery_padding = 1 0
 battery_background_id = 0

@@ -47,7 +47,9 @@ typedef struct BatteryState {
 } BatteryState;
 
 extern struct BatteryState battery_state;
+extern gboolean bat1_has_font;
 extern PangoFontDescription *bat1_font_desc;
+extern gboolean bat2_has_font;
 extern PangoFontDescription *bat2_font_desc;
 extern gboolean battery_enabled;
 extern gboolean battery_tooltip_enabled;
@@ -103,6 +105,7 @@ void init_battery_panel(void *panel);
 
 void reinit_battery();
 void draw_battery(void *obj, cairo_t *c);
+void battery_default_font_changed();
 
 gboolean resize_battery(void *obj);
 

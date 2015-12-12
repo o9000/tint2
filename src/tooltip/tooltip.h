@@ -32,6 +32,7 @@ typedef struct {
 	Bool mapped;
 	int paddingx;
 	int paddingy;
+	gboolean has_font;
 	PangoFontDescription *font_desc;
 	Color font_color;
 	Background *bg;
@@ -53,5 +54,6 @@ void tooltip_update();
 void tooltip_trigger_hide();
 void tooltip_hide(void * /*arg*/);
 void tooltip_copy_text(Area *area);
+void tooltip_default_font_changed();
 
 #endif // TOOLTIP_H

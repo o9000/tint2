@@ -46,24 +46,25 @@ struct _XSettingsClient {
 
 void xsettings_notify_cb(const char *name, XSettingsAction action, XSettingsSetting *setting, void *data)
 {
-	// printf("xsettings_notify_cb\n");
 	if ((action == XSETTINGS_ACTION_NEW || action == XSETTINGS_ACTION_CHANGED) && name != NULL && setting != NULL) {
-		if (!strcmp(name, "Net/IconThemeName") && setting->type == XSETTINGS_TYPE_STRING) {
+		if (strcmp(name, "Net/IconThemeName") == 0 && setting->type == XSETTINGS_TYPE_STRING) {
+			fprintf(stderr, "xsettings: %s = %s\n", name, setting->data.v_string);
 			if (icon_theme_name_xsettings) {
 				if (strcmp(icon_theme_name_xsettings, setting->data.v_string) == 0)
 					return;
 				free(icon_theme_name_xsettings);
 			}
 			icon_theme_name_xsettings = strdup(setting->data.v_string);
-
-			int i;
-			for (i = 0; i < num_panels; i++) {
-				Launcher *launcher = &panels[i].launcher;
-				cleanup_launcher_theme(launcher);
-				launcher_load_themes(launcher);
-				launcher_load_icons(launcher);
-				launcher->area.resize_needed = 1;
+			default_icon_theme_changed();
+		} else if (strcmp(name, "Gtk/FontName") == 0 && setting->type == XSETTINGS_TYPE_STRING) {
+			fprintf(stderr, "xsettings: %s = %s\n", name, setting->data.v_string);
+			if (default_font) {
+				if (strcmp(default_font, setting->data.v_string) == 0)
+					return;
+				free(default_font);
 			}
+			default_font = strdup(setting->data.v_string);
+			default_font_changed();
 		}
 	}
 }
@@ -341,7 +342,6 @@ static void read_settings(XSettingsClient *client)
 	unsigned long n_items;
 	unsigned long bytes_after;
 	unsigned char *data;
-	int result;
 
 	int (*old_handler)(Display *, XErrorEvent *);
 
@@ -349,7 +349,7 @@ static void read_settings(XSettingsClient *client)
 	client->settings = NULL;
 
 	old_handler = XSetErrorHandler(ignore_errors);
-	result = XGetWindowProperty(client->display,
+	int result = XGetWindowProperty(client->display,
 								client->manager_window,
 								server.atom._XSETTINGS_SETTINGS,
 								0,
@@ -401,9 +401,7 @@ XSettingsClient *xsettings_client_new(Display *display,
 									  XSettingsWatchFunc watch,
 									  void *cb_data)
 {
-	XSettingsClient *client;
-
-	client = calloc(1, sizeof *client);
+	XSettingsClient *client = calloc(1, sizeof *client);
 	if (!client)
 		return NULL;
 
@@ -422,15 +420,18 @@ XSettingsClient *xsettings_client_new(Display *display,
 	check_manager_window(client);
 
 	if (client->manager_window == None) {
-		printf("NO XSETTINGS manager, tint2 use config 'launcher_icon_theme'.\n");
+		printf("No XSETTINGS manager, tint2 uses config option 'launcher_icon_theme'.\n");
 		free(client);
 		return NULL;
-	} else
+	} else {
 		return client;
+	}
 }
 
 void xsettings_client_destroy(XSettingsClient *client)
 {
+	if (!client)
+		return;
 	if (client->watch)
 		client->watch(RootWindow(client->display, client->screen), False, 0, client->cb_data);
 	if (client->manager_window && client->watch)

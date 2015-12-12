@@ -51,7 +51,6 @@ int launcher_brightness;
 char *icon_theme_name_config;
 char *icon_theme_name_xsettings;
 int launcher_icon_theme_override;
-XSettingsClient *xsettings_client;
 int startup_notifications;
 Background *launcher_icon_bg;
 
@@ -69,17 +68,12 @@ void default_launcher()
 	icon_theme_name_config = NULL;
 	icon_theme_name_xsettings = NULL;
 	launcher_icon_theme_override = 0;
-	xsettings_client = NULL;
 	startup_notifications = 0;
 	launcher_icon_bg = NULL;
 }
 
 void init_launcher()
 {
-	if (launcher_enabled) {
-		// if XSETTINGS manager running, tint2 read the icon_theme_name.
-		xsettings_client = xsettings_client_new(server.dsp, server.screen, xsettings_notify_cb, NULL, NULL);
-	}
 }
 
 void init_launcher_panel(void *p)
@@ -115,10 +109,6 @@ void cleanup_launcher()
 {
 	int i;
 	GSList *l;
-
-	if (xsettings_client)
-		xsettings_client_destroy(xsettings_client);
-	xsettings_client = NULL;
 
 	for (i = 0; i < num_panels; i++) {
 		Panel *panel = &panels[i];
@@ -487,4 +477,20 @@ void launcher_load_themes(Launcher *launcher)
 										  : icon_theme_name_xsettings ? icon_theme_name_xsettings : "hicolor")
 				: (icon_theme_name_xsettings ? icon_theme_name_xsettings
 											 : icon_theme_name_config ? icon_theme_name_config : "hicolor"));
+}
+
+void launcher_default_icon_theme_changed()
+{
+	if (!launcher_enabled)
+		return;
+	if (launcher_icon_theme_override && icon_theme_name_config)
+		return;
+	for (int i = 0; i < num_panels; i++) {
+		Launcher *launcher = &panels[i].launcher;
+		cleanup_launcher_theme(launcher);
+		launcher_load_themes(launcher);
+		launcher_load_icons(launcher);
+		launcher->area.resize_needed = 1;
+	}
+	panel_refresh = TRUE;
 }

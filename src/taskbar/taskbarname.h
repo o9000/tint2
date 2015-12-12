@@ -21,4 +21,6 @@ void draw_taskbarname(void *obj, cairo_t *c);
 
 gboolean resize_taskbarname(void *obj);
 
+void taskbarname_default_font_changed();
+
 #endif

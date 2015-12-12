@@ -72,6 +72,7 @@ int num_panels;
 GArray *backgrounds;
 
 Imlib_Image default_icon;
+char *default_font = NULL;
 
 void default_panel()
 {
@@ -1012,4 +1013,26 @@ void render_panel(Panel *panel)
 {
 	relayout(&panel->area);
 	draw_tree(&panel->area);
+}
+
+const char *get_default_font()
+{
+	if (default_font)
+		return default_font;
+	return DEFAULT_FONT;
+}
+
+void default_icon_theme_changed()
+{
+	launcher_default_icon_theme_changed();
+}
+
+void default_font_changed()
+{
+	battery_default_font_changed();
+	clock_default_font_changed();
+	execp_default_font_changed();
+	taskbar_default_font_changed();
+	taskbarname_default_font_changed();
+	tooltip_default_font_changed();
 }

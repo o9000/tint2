@@ -48,6 +48,8 @@ gboolean hide_task_diff_monitor;
 TaskbarSortMethod taskbar_sort_method;
 Alignment taskbar_alignment;
 
+void taskbar_init_fonts();
+
 guint win_hash(gconstpointer key)
 {
 	return *((const Window *)key);
@@ -139,10 +141,9 @@ void init_taskbar_panel(void *p)
 		panel->g_taskbar.background_name[TASKBAR_NORMAL] = &g_array_index(backgrounds, Background, 0);
 		panel->g_taskbar.background_name[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, 0);
 	}
-	if (!panel->g_task.font_desc)
-		panel->g_task.font_desc = pango_font_description_from_string(DEFAULT_FONT);
 	if (!panel->g_task.area.bg)
 		panel->g_task.area.bg = &g_array_index(backgrounds, Background, 0);
+	taskbar_init_fonts();
 
 	// taskbar name
 	panel->g_taskbar.area_name.panel = panel;
@@ -285,6 +286,46 @@ void init_taskbar_panel(void *p)
 	init_taskbarname_panel(panel);
 }
 
+void taskbar_init_fonts()
+{
+	for (int i = 0; i < num_panels; i++) {
+		if (!panels[i].g_task.font_desc) {
+			panels[i].g_task.font_desc = pango_font_description_from_string(get_default_font());
+			pango_font_description_set_size(panels[i].g_task.font_desc,
+			                                pango_font_description_get_size(panels[i].g_task.font_desc) - PANGO_SCALE);
+		}
+	}
+}
+
+void taskbar_default_font_changed()
+{
+	if (!taskbar_enabled)
+		return;
+
+	gboolean needs_update = FALSE;
+	for (int i = 0; i < num_panels; i++) {
+		if (!panels[i].g_task.has_font) {
+			pango_font_description_free(panels[i].g_task.font_desc);
+			panels[i].g_task.font_desc = NULL;
+			needs_update = TRUE;
+		}
+	}
+	if (!needs_update)
+		return;
+	taskbar_init_fonts();
+	for (int i = 0; i < num_panels; i++) {
+		for (int j = 0; j < panels[i].num_desktops; j++) {
+			Taskbar *taskbar = &panels[i].taskbar[j];
+			for (GList *c = taskbar->area.children; c; c = c->next) {
+				Task *t = c->data;
+				t->area.resize_needed = TRUE;
+				t->area.redraw_needed = TRUE;
+			}
+		}
+	}
+	panel_refresh = TRUE;
+}
+
 void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data)
 {
 	remove_task(task_get_task(*(Window *)key));
@@ -317,8 +358,7 @@ void task_refresh_tasklist()
 		return;
 
 	GList *win_list = g_hash_table_get_keys(win_to_task);
-	GList *it;
-	for (it = win_list; it; it = it->next) {
+	for (GList *it = win_list; it; it = it->next) {
 		int i;
 		for (i = 0; i < num_results; i++)
 			if (*((Window *)it->data) == win[i])

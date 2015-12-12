@@ -83,8 +83,9 @@ extern char *panel_items_order;
 extern int max_tick_urgent;
 extern GArray *backgrounds;
 extern Imlib_Image default_icon;
-// TODO maybe this should be a config option
 #define DEFAULT_FONT "sans 10"
+extern char *default_font;
+extern XSettingsClient *xsettings_client;
 
 typedef struct Panel {
 	Area area;
@@ -114,6 +115,7 @@ typedef struct Panel {
 	// Array of Taskbar, with num_desktops items
 	Taskbar *taskbar;
 	int num_desktops;
+	gboolean taskbarname_has_font;
 	PangoFontDescription *taskbarname_font_desc;
 
 	Clock clock;
@@ -178,5 +180,10 @@ void autohide_show(void *p);
 void autohide_hide(void *p);
 void autohide_trigger_show(Panel *p);
 void autohide_trigger_hide(Panel *p);
+
+const char *get_default_font();
+
+void default_icon_theme_changed();
+void default_font_changed();
 
 #endif

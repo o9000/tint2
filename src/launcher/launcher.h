@@ -44,7 +44,6 @@ extern int launcher_brightness;
 extern char *icon_theme_name_xsettings; // theme name
 extern char *icon_theme_name_config;
 extern int launcher_icon_theme_override;
-extern XSettingsClient *xsettings_client;
 extern int startup_notifications;
 extern Background *launcher_icon_bg;
 
@@ -59,6 +58,7 @@ void cleanup_launcher_theme(Launcher *launcher);
 
 gboolean resize_launcher(void *obj);
 void draw_launcher(void *obj, cairo_t *c);
+void launcher_default_icon_theme_changed();
 
 // Populates the list_icons list
 void launcher_load_icons(Launcher *launcher);

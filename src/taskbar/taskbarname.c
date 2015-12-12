@@ -33,14 +33,14 @@
 #include "taskbarname.h"
 
 int taskbarname_enabled;
-PangoFontDescription *taskbarname_font_desc;
 Color taskbarname_font;
 Color taskbarname_active_font;
+
+void taskbarname_init_fonts();
 
 void default_taskbarname()
 {
 	taskbarname_enabled = 0;
-	taskbarname_font_desc = NULL;
 }
 
 void init_taskbarname_panel(void *p)
@@ -52,8 +52,7 @@ void init_taskbarname_panel(void *p)
 	if (!taskbarname_enabled)
 		return;
 
-	if (!panel_config.taskbarname_font_desc)
-		panel_config.taskbarname_font_desc = pango_font_description_from_string(DEFAULT_FONT);
+	taskbarname_init_fonts();
 
 	GSList *l, *list = get_desktop_names();
 	for (j = 0, l = list; j < panel->num_desktops; j++) {
@@ -81,6 +80,34 @@ void init_taskbarname_panel(void *p)
 	for (l = list; l; l = l->next)
 		g_free(l->data);
 	g_slist_free(list);
+}
+
+void taskbarname_init_fonts()
+{
+	if (!panel_config.taskbarname_font_desc)
+		panel_config.taskbarname_font_desc = pango_font_description_from_string(get_default_font());
+}
+
+void taskbarname_default_font_changed()
+{
+	if (!taskbar_enabled)
+		return;
+	if (!taskbarname_enabled)
+		return;
+	if (panel_config.taskbarname_has_font)
+		return;
+
+	pango_font_description_free(panel_config.taskbarname_font_desc);
+	panel_config.taskbarname_font_desc = NULL;
+	taskbarname_init_fonts();
+	for (int i = 0; i < num_panels; i++) {
+		for (int j = 0; j < panels[i].num_desktops; j++) {
+			Taskbar *taskbar = &panels[i].taskbar[j];
+			taskbar->bar_name.area.resize_needed = TRUE;
+			taskbar->bar_name.area.redraw_needed = TRUE;
+		}
+	}
+	panel_refresh = TRUE;
 }
 
 void cleanup_taskbarname()

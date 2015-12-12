@@ -35,6 +35,8 @@ void start_show_timeout();
 void start_hide_timeout();
 void stop_tooltip_timeout();
 
+void tooltip_init_fonts();
+
 Tooltip g_tooltip;
 
 void default_tooltip()
@@ -63,10 +65,9 @@ void cleanup_tooltip()
 
 void init_tooltip()
 {
-	if (!g_tooltip.font_desc)
-		g_tooltip.font_desc = pango_font_description_from_string(DEFAULT_FONT);
 	if (!g_tooltip.bg)
 		g_tooltip.bg = &g_array_index(backgrounds, Background, 0);
+	tooltip_init_fonts();
 
 	XSetWindowAttributes attr;
 	attr.override_redirect = True;
@@ -77,9 +78,38 @@ void init_tooltip()
 	unsigned long mask = CWEventMask | CWColormap | CWBorderPixel | CWBackPixel | CWOverrideRedirect;
 	if (g_tooltip.window)
 		XDestroyWindow(server.dsp, g_tooltip.window);
-	g_tooltip.window =
-	XCreateWindow(server.dsp, server.root_win, 0, 0, 100, 20, 0, server.depth, InputOutput, server.visual, mask, &attr);
+	g_tooltip.window = XCreateWindow(server.dsp,
+	                                 server.root_win,
+	                                 0,
+	                                 0,
+	                                 100,
+	                                 20,
+	                                 0,
+	                                 server.depth,
+	                                 InputOutput,
+	                                 server.visual,
+	                                 mask,
+	                                 &attr);
 }
+
+void tooltip_init_fonts()
+{
+	if (!g_tooltip.font_desc)
+		g_tooltip.font_desc = pango_font_description_from_string(get_default_font());
+}
+
+void tooltip_default_font_changed()
+{
+	if (g_tooltip.has_font)
+		return;
+	if (!g_tooltip.has_font) {
+		pango_font_description_free(g_tooltip.font_desc);
+		g_tooltip.font_desc = NULL;
+	}
+	tooltip_init_fonts();
+	tooltip_update();
+}
+
 
 void tooltip_trigger_show(Area *area, Panel *p, XEvent *e)
 {

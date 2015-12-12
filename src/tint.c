@@ -59,6 +59,7 @@ Atom dnd_selection;
 Atom dnd_atom;
 int dnd_sent_request;
 char *dnd_launcher_exec;
+XSettingsClient *xsettings_client = NULL;
 
 timeout *detect_compositor_timer = NULL;
 int detect_compositor_timer_counter = 0;
@@ -124,7 +125,7 @@ void init(int argc, char *argv[])
 	default_execp();
 	default_panel();
 
-	// read options
+	// Read command line arguments
 	for (int i = 1; i < argc; ++i) {
 		int error = 0;
 		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
@@ -157,7 +158,7 @@ void init(int argc, char *argv[])
 			exit(1);
 		}
 	}
-	// Set signal handler
+	// Set signal handlers
 	signal_pending = 0;
 	struct sigaction sa = {.sa_handler = signal_handler};
 	struct sigaction sa_chld = {.sa_handler = SIG_DFL, .sa_flags = SA_NOCLDWAIT};
@@ -166,16 +167,6 @@ void init(int argc, char *argv[])
 	sigaction(SIGTERM, &sa, 0);
 	sigaction(SIGHUP, &sa, 0);
 	sigaction(SIGCHLD, &sa_chld, 0);
-
-	// BSD does not support pselect(), therefore we have to use select and hope that we do not
-	// end up in a race condition there (see 'man select()' on a linux machine for more information)
-	// block all signals, such that no race conditions occur before pselect in our main loop
-	//	sigset_t block_mask;
-	//	sigaddset(&block_mask, SIGINT);
-	//	sigaddset(&block_mask, SIGTERM);
-	//	sigaddset(&block_mask, SIGHUP);
-	//	sigaddset(&block_mask, SIGUSR1);
-	//	sigprocmask(SIG_BLOCK, &block_mask, 0);
 }
 
 static int sn_pipe_valid = 0;
@@ -267,6 +258,8 @@ void init_X11_pre_config()
 	get_desktops();
 
 	server.disable_transparency = 0;
+
+	xsettings_client = xsettings_client_new(server.dsp, server.screen, xsettings_notify_cb, NULL, NULL);
 }
 
 void init_X11_post_config()
@@ -301,12 +294,9 @@ void init_X11_post_config()
 	imlib_context_set_colormap(server.colormap);
 
 	// load default icon
-	gchar *path;
-	const gchar *const *data_dirs;
-	data_dirs = g_get_system_data_dirs();
-	int i;
-	for (i = 0; data_dirs[i] != NULL; i++) {
-		path = g_build_filename(data_dirs[i], "tint2", "default_icon.png", NULL);
+	const gchar *const *data_dirs = g_get_system_data_dirs();
+	for (int i = 0; data_dirs[i] != NULL; i++) {
+		gchar *path = g_build_filename(data_dirs[i], "tint2", "default_icon.png", NULL);
 		if (g_file_test(path, G_FILE_TEST_EXISTS))
 			default_icon = imlib_load_image(path);
 		g_free(path);
@@ -332,6 +322,9 @@ void cleanup()
 		default_icon = NULL;
 	}
 	imlib_context_disconnect_display();
+
+	xsettings_client_destroy(xsettings_client);
+	xsettings_client = NULL;
 
 	cleanup_server();
 	cleanup_timeout();

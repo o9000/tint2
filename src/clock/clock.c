@@ -43,13 +43,17 @@ char *clock_rclick_command;
 char *clock_uwheel_command;
 char *clock_dwheel_command;
 struct timeval time_clock;
+gboolean time1_has_font;
 PangoFontDescription *time1_font_desc;
+gboolean time2_has_font;
 PangoFontDescription *time2_font_desc;
 static char buf_time[256];
 static char buf_date[256];
 static char buf_tooltip[512];
 int clock_enabled;
 static timeout *clock_timeout;
+
+void clock_init_fonts();
 
 void default_clock()
 {
@@ -66,7 +70,9 @@ void default_clock()
 	clock_rclick_command = NULL;
 	clock_uwheel_command = NULL;
 	clock_dwheel_command = NULL;
+	time1_has_font = FALSE;
 	time1_font_desc = NULL;
+	time2_has_font = FALSE;
 	time2_font_desc = NULL;
 }
 
@@ -175,12 +181,9 @@ void init_clock_panel(void *p)
 	Panel *panel = (Panel *)p;
 	Clock *clock = &panel->clock;
 
-	if (!time1_font_desc)
-		time1_font_desc = pango_font_description_from_string(DEFAULT_FONT);
-	if (!time2_font_desc)
-		time2_font_desc = pango_font_description_from_string(DEFAULT_FONT);
 	if (!clock->area.bg)
 		clock->area.bg = &g_array_index(backgrounds, Background, 0);
+	clock_init_fonts();
 	clock->area.parent = p;
 	clock->area.panel = p;
 	clock->area.has_mouse_press_effect = clock->area.has_mouse_over_effect =
@@ -200,6 +203,43 @@ void init_clock_panel(void *p)
 		clock->area._get_tooltip_text = clock_get_tooltip;
 		strftime(buf_tooltip, sizeof(buf_tooltip), time_tooltip_format, clock_gettime_for_tz(time_tooltip_timezone));
 	}
+}
+
+void clock_init_fonts()
+{
+	if (!time1_font_desc) {
+		time1_font_desc = pango_font_description_from_string(get_default_font());
+		pango_font_description_set_weight(time1_font_desc, PANGO_WEIGHT_BOLD);
+		pango_font_description_set_size(time1_font_desc,
+		                                pango_font_description_get_size(time1_font_desc) - PANGO_SCALE);
+	}
+	if (!time2_font_desc) {
+		time2_font_desc = pango_font_description_from_string(get_default_font());
+		pango_font_description_set_size(time2_font_desc,
+		                                pango_font_description_get_size(time2_font_desc) - PANGO_SCALE);
+	}
+}
+
+void clock_default_font_changed()
+{
+	if (!clock_enabled)
+		return;
+	if (time1_has_font && time2_has_font)
+		return;
+	if (!time1_has_font) {
+		pango_font_description_free(time1_font_desc);
+		time1_font_desc = NULL;
+	}
+	if (!time2_has_font) {
+		pango_font_description_free(time2_font_desc);
+		time2_font_desc = NULL;
+	}
+	clock_init_fonts();
+	for (int i = 0; i < num_panels; i++) {
+		panels[i].clock.area.resize_needed = TRUE;
+		panels[i].clock.area.redraw_needed = TRUE;
+	}
+	panel_refresh = TRUE;
 }
 
 void draw_clock(void *obj, cairo_t *c)
@@ -323,3 +363,4 @@ void clock_action(int button)
 	}
 	tint_exec(command);
 }
+

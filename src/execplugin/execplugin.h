@@ -29,6 +29,7 @@ typedef struct ExecpBackend {
 	int icon_h;
 	char *tooltip;
 	gboolean centered;
+	gboolean has_font;
 	PangoFontDescription *font_desc;
 	Color font_color;
 	int continuous;
@@ -135,5 +136,7 @@ void execp_action(void *obj, int button);
 // No command might be running.
 // Returns 1 if the output has been updated and a redraw is needed.
 gboolean read_execp(void *obj);
+
+void execp_default_font_changed();
 
 #endif // EXECPLUGIN_H

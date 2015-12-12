@@ -84,4 +84,6 @@ void visible_taskbar(void *p);
 void sort_taskbar_for_win(Window win);
 void sort_tasks(Taskbar *taskbar);
 
+void taskbar_default_font_changed();
+
 #endif

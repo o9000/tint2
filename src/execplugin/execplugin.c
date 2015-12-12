@@ -20,6 +20,7 @@
 
 void execp_timer_callback(void *arg);
 char *execp_get_tooltip(void *obj);
+void execp_init_fonts();
 
 void default_execp()
 {
@@ -122,12 +123,11 @@ void init_execp()
 		}
 	}
 
+	execp_init_fonts();
 	for (GList *l = panel_config.execp_list; l; l = l->next) {
 		Execp *execp = l->data;
 
 		// Set missing config options
-		if (!execp->backend->font_desc)
-			execp->backend->font_desc = pango_font_description_from_string(DEFAULT_FONT);
 		if (!execp->backend->bg)
 			execp->backend->bg = &g_array_index(backgrounds, Background, 0);
 		execp->backend->buf_capacity = 1024;
@@ -172,6 +172,44 @@ void init_execp_panel(void *p)
 		if (!execp->backend->timer)
 			execp->backend->timer = add_timeout(10, 0, execp_timer_callback, execp, &execp->backend->timer);
 	}
+}
+
+void execp_init_fonts()
+{
+	for (GList *l = panel_config.execp_list; l; l = l->next) {
+		Execp *execp = l->data;
+		if (!execp->backend->font_desc)
+			execp->backend->font_desc = pango_font_description_from_string(get_default_font());
+	}
+}
+
+void execp_default_font_changed()
+{
+	gboolean needs_update = FALSE;
+	for (GList *l = panel_config.execp_list; l; l = l->next) {
+		Execp *execp = l->data;
+
+		if (!execp->backend->has_font) {
+			pango_font_description_free(execp->backend->font_desc);
+			execp->backend->font_desc = NULL;
+			needs_update = TRUE;
+		}
+	}
+	if (!needs_update)
+		return;
+
+	execp_init_fonts();
+	for (int i = 0; i < num_panels; i++) {
+		for (GList *l = panels[i].execp_list; l; l = l->next) {
+			Execp *execp = l->data;
+
+			if (!execp->backend->has_font) {
+				execp->area.resize_needed = TRUE;
+				execp->area.redraw_needed = TRUE;
+			}
+		}
+	}
+	panel_refresh = TRUE;
 }
 
 void cleanup_execp()

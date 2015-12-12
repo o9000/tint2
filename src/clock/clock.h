@@ -28,7 +28,9 @@ extern char *time2_format;
 extern char *time2_timezone;
 extern char *time_tooltip_format;
 extern char *time_tooltip_timezone;
+extern gboolean time1_has_font;
 extern PangoFontDescription *time1_font_desc;
+extern gboolean time2_has_font;
 extern PangoFontDescription *time2_font_desc;
 extern char *clock_lclick_command;
 extern char *clock_mclick_command;
@@ -46,6 +48,7 @@ void cleanup_clock();
 // initialize clock : y position, precision, ...
 void init_clock();
 void init_clock_panel(void *panel);
+void clock_default_font_changed();
 
 void draw_clock(void *obj, cairo_t *c);
 

@@ -467,10 +467,12 @@ void add_entry(char *key, char *value)
 	} else if (strcmp(key, "bat1_font") == 0) {
 #ifdef ENABLE_BATTERY
 		bat1_font_desc = pango_font_description_from_string(value);
+		bat1_has_font = TRUE;
 #endif
 	} else if (strcmp(key, "bat2_font") == 0) {
 #ifdef ENABLE_BATTERY
 		bat2_font_desc = pango_font_description_from_string(value);
+		bat2_has_font = TRUE;
 #endif
 	} else if (strcmp(key, "battery_font_color") == 0) {
 #ifdef ENABLE_BATTERY
@@ -545,6 +547,7 @@ void add_entry(char *key, char *value)
 		Execp *execp = get_or_create_last_execp();
 		pango_font_description_free(execp->backend->font_desc);
 		execp->backend->font_desc = pango_font_description_from_string(value);
+		execp->backend->has_font = TRUE;
 	} else if (strcmp(key, "execp_font_color") == 0) {
 		Execp *execp = get_or_create_last_execp();
 		extract_values(value, &value1, &value2, &value3);
@@ -635,6 +638,7 @@ void add_entry(char *key, char *value)
 			time2_format = strdup(value);
 	} else if (strcmp(key, "time1_font") == 0) {
 		time1_font_desc = pango_font_description_from_string(value);
+		time1_has_font = TRUE;
 	} else if (strcmp(key, "time1_timezone") == 0) {
 		if (strlen(value) > 0)
 			time1_timezone = strdup(value);
@@ -643,6 +647,7 @@ void add_entry(char *key, char *value)
 			time2_timezone = strdup(value);
 	} else if (strcmp(key, "time2_font") == 0) {
 		time2_font_desc = pango_font_description_from_string(value);
+		time2_has_font = TRUE;
 	} else if (strcmp(key, "clock_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		get_color(value1, panel_config.clock.font.rgb);
@@ -729,6 +734,7 @@ void add_entry(char *key, char *value)
 		panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
 	} else if (strcmp(key, "taskbar_name_font") == 0) {
 		panel_config.taskbarname_font_desc = pango_font_description_from_string(value);
+		panel_config.taskbarname_has_font = TRUE;
 	} else if (strcmp(key, "taskbar_name_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		get_color(value1, taskbarname_font.rgb);
@@ -795,6 +801,7 @@ void add_entry(char *key, char *value)
 			panel_config.g_task.area.paddingx = atoi(value3);
 	} else if (strcmp(key, "task_font") == 0) {
 		panel_config.g_task.font_desc = pango_font_description_from_string(value);
+		panel_config.g_task.has_font = TRUE;
 	} else if (g_regex_match_simple("task.*_font_color", key, 0, 0)) {
 		gchar **split = g_regex_split_simple("_", key, 0, 0);
 		int status = g_strv_length(split) == 3 ? TASK_NORMAL : get_task_status(split[1]);
