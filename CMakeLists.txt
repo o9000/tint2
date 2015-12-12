@@ -20,8 +20,14 @@ pkg_check_modules( CAIRO REQUIRED cairo )
 pkg_check_modules( GLIB2 REQUIRED glib-2.0 )
 pkg_check_modules( GOBJECT2 REQUIRED gobject-2.0 )
 pkg_check_modules( IMLIB2 REQUIRED imlib2>=1.4.2 )
+
+if( ENABLE_RSVG )
 pkg_check_modules( RSVG librsvg-2.0>=2.14.0 )
+endif( ENABLE_RSVG )
+
+if( ENABLE_SN )
 pkg_check_modules( SN libstartup-notification-1.0>=0.12 )
+endif(ENABLE_SN)
 
 find_library( RT_LIBRARY rt )
 
