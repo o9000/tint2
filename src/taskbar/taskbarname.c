@@ -84,8 +84,10 @@ void init_taskbarname_panel(void *p)
 
 void taskbarname_init_fonts()
 {
-	if (!panel_config.taskbarname_font_desc)
+	if (!panel_config.taskbarname_font_desc) {
 		panel_config.taskbarname_font_desc = pango_font_description_from_string(get_default_font());
+		pango_font_description_set_weight(panel_config.taskbarname_font_desc, PANGO_WEIGHT_BOLD);
+	}
 }
 
 void taskbarname_default_font_changed()
