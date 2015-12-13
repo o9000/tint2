@@ -137,7 +137,7 @@ void cleanup_server()
 	if (server.gc)
 		XFreeGC(server.dsp, server.gc);
 	server.gc = NULL;
-	server.disable_transparency = 0;
+	server.disable_transparency = FALSE;
 }
 
 void send_event32(Window win, Atom at, long data1, long data2, long data3)
@@ -565,14 +565,14 @@ void server_init_visual()
 		attrs.event_mask = StructureNotifyMask;
 		XChangeWindowAttributes(server.dsp, server.composite_manager, CWEventMask, &attrs);
 
-		server.real_transparency = 1;
+		server.real_transparency = TRUE;
 		server.depth = 32;
 		printf("real transparency on... depth: %d\n", server.depth);
 		server.colormap = XCreateColormap(server.dsp, server.root_win, visual, AllocNone);
 		server.visual = visual;
 	} else {
 		// no composite manager or snapshot mode => fake transparency
-		server.real_transparency = 0;
+		server.real_transparency = FALSE;
 		server.depth = DefaultDepth(server.dsp, server.screen);
 		printf("real transparency off.... depth: %d\n", server.depth);
 		server.colormap = DefaultColormap(server.dsp, server.screen);

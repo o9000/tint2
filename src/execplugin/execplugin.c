@@ -273,39 +273,6 @@ gboolean reload_icon(Execp *execp)
 	return FALSE;
 }
 
-void draw_execp(void *obj, cairo_t *c)
-{
-	Execp *execp = obj;
-	PangoLayout *layout = pango_cairo_create_layout(c);
-
-	if (execp->backend->has_icon && execp->backend->icon) {
-		imlib_context_set_image(execp->backend->icon);
-		// Render icon
-		render_image(execp->area.pix, execp->frontend->iconx, execp->frontend->icony);
-	}
-
-	// draw layout
-	pango_layout_set_font_description(layout, execp->backend->font_desc);
-	pango_layout_set_width(layout, execp->frontend->textw * PANGO_SCALE);
-	pango_layout_set_alignment(layout, execp->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
-	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
-	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
-	if (!execp->backend->has_markup)
-		pango_layout_set_text(layout, execp->backend->text, strlen(execp->backend->text));
-	else
-		pango_layout_set_markup(layout, execp->backend->text, strlen(execp->backend->text));
-
-	pango_cairo_update_layout(c, layout);
-	draw_text(layout,
-			  c,
-			  execp->frontend->textx,
-			  execp->frontend->texty,
-			  &execp->backend->font_color,
-			  panel_config.font_shadow);
-
-	g_object_unref(layout);
-}
-
 gboolean resize_execp(void *obj)
 {
 	Execp *execp = obj;
@@ -426,6 +393,39 @@ gboolean resize_execp(void *obj)
 	}
 
 	return result;
+}
+
+void draw_execp(void *obj, cairo_t *c)
+{
+	Execp *execp = obj;
+	PangoLayout *layout = pango_cairo_create_layout(c);
+
+	if (execp->backend->has_icon && execp->backend->icon) {
+		imlib_context_set_image(execp->backend->icon);
+		// Render icon
+		render_image(execp->area.pix, execp->frontend->iconx, execp->frontend->icony);
+	}
+
+	// draw layout
+	pango_layout_set_font_description(layout, execp->backend->font_desc);
+	pango_layout_set_width(layout, execp->frontend->textw * PANGO_SCALE);
+	pango_layout_set_alignment(layout, execp->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
+	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
+	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
+	if (!execp->backend->has_markup)
+		pango_layout_set_text(layout, execp->backend->text, strlen(execp->backend->text));
+	else
+		pango_layout_set_markup(layout, execp->backend->text, strlen(execp->backend->text));
+
+	pango_cairo_update_layout(c, layout);
+	draw_text(layout,
+			  c,
+			  execp->frontend->textx,
+			  execp->frontend->texty,
+			  &execp->backend->font_color,
+			  panel_config.font_shadow);
+
+	g_object_unref(layout);
 }
 
 void execp_action(void *obj, int button)

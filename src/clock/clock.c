@@ -54,6 +54,7 @@ int clock_enabled;
 static timeout *clock_timeout;
 
 void clock_init_fonts();
+char *clock_get_tooltip(void *obj);
 
 void default_clock()
 {
@@ -111,9 +112,8 @@ void cleanup_clock()
 void update_clocks_sec(void *arg)
 {
 	gettimeofday(&time_clock, 0);
-	int i;
 	if (time1_format) {
-		for (i = 0; i < num_panels; i++)
+		for (int i = 0; i < num_panels; i++)
 			panels[i].clock.area.resize_needed = 1;
 	}
 	panel_refresh = TRUE;
@@ -126,9 +126,8 @@ void update_clocks_min(void *arg)
 	time_t old_sec = time_clock.tv_sec;
 	gettimeofday(&time_clock, 0);
 	if (time_clock.tv_sec % 60 == 0 || time_clock.tv_sec - old_sec > 60) {
-		int i;
 		if (time1_format) {
-			for (i = 0; i < num_panels; i++)
+			for (int i = 0; i < num_panels; i++)
 				panels[i].clock.area.resize_needed = 1;
 		}
 		panel_refresh = TRUE;
@@ -146,23 +145,18 @@ struct tm *clock_gettime_for_tz(const char *timezone)
 		else
 			unsetenv("TZ");
 		return result;
-	} else
+	} else {
 		return localtime(&time_clock.tv_sec);
+	}
 }
 
-char *clock_get_tooltip(void *obj)
-{
-	strftime(buf_tooltip, sizeof(buf_tooltip), time_tooltip_format, clock_gettime_for_tz(time_tooltip_timezone));
-	return strdup(buf_tooltip);
-}
-
-int time_format_needs_sec_ticks(char *time_format)
+gboolean time_format_needs_sec_ticks(char *time_format)
 {
 	if (!time_format)
-		return 0;
+		return FALSE;
 	if (strchr(time_format, 'S') || strchr(time_format, 'T') || strchr(time_format, 'r'))
-		return 1;
-	return 0;
+		return TRUE;
+	return FALSE;
 }
 
 void init_clock()
@@ -242,44 +236,12 @@ void clock_default_font_changed()
 	panel_refresh = TRUE;
 }
 
-void draw_clock(void *obj, cairo_t *c)
-{
-	Clock *clock = obj;
-	PangoLayout *layout;
-
-	layout = pango_cairo_create_layout(c);
-
-	// draw layout
-	pango_layout_set_font_description(layout, time1_font_desc);
-	pango_layout_set_width(layout, clock->area.width * PANGO_SCALE);
-	pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
-	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
-	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
-	pango_layout_set_text(layout, buf_time, strlen(buf_time));
-
-	cairo_set_source_rgba(c, clock->font.rgb[0], clock->font.rgb[1], clock->font.rgb[2], clock->font.alpha);
-
-	pango_cairo_update_layout(c, layout);
-	draw_text(layout, c, 0, clock->time1_posy, &clock->font, ((Panel *)clock->area.panel)->font_shadow);
-
-	if (time2_format) {
-		pango_layout_set_font_description(layout, time2_font_desc);
-		pango_layout_set_indent(layout, 0);
-		pango_layout_set_text(layout, buf_date, strlen(buf_date));
-		pango_layout_set_width(layout, clock->area.width * PANGO_SCALE);
-
-		pango_cairo_update_layout(c, layout);
-		draw_text(layout, c, 0, clock->time2_posy, &clock->font, ((Panel *)clock->area.panel)->font_shadow);
-	}
-
-	g_object_unref(layout);
-}
-
 gboolean resize_clock(void *obj)
 {
 	Clock *clock = obj;
 	Panel *panel = clock->area.panel;
-	int time_height_ink, time_height, time_width, date_height_ink, date_height, date_width, ret = 0;
+	int time_height_ink, time_height, time_width, date_height_ink, date_height, date_width;
+	gboolean result = FALSE;
 
 	clock->area.redraw_needed = TRUE;
 
@@ -322,7 +284,7 @@ gboolean resize_clock(void *obj)
 				clock->time1_posy -= (date_height) / 2;
 				clock->time2_posy = clock->time1_posy + time_height;
 			}
-			ret = 1;
+			result = TRUE;
 		}
 	} else {
 		int new_size = time_height + date_height + (2 * (clock->area.paddingxlr + clock->area.bg->border.width));
@@ -334,16 +296,52 @@ gboolean resize_clock(void *obj)
 				clock->time1_posy -= (date_height) / 2;
 				clock->time2_posy = clock->time1_posy + time_height;
 			}
-			ret = 1;
+			result = TRUE;
 		}
 	}
 
-	return ret;
+	return result;
+}
+
+void draw_clock(void *obj, cairo_t *c)
+{
+	Clock *clock = obj;
+	PangoLayout *layout = pango_cairo_create_layout(c);
+
+	pango_layout_set_font_description(layout, time1_font_desc);
+	pango_layout_set_width(layout, clock->area.width * PANGO_SCALE);
+	pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
+	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
+	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
+	pango_layout_set_text(layout, buf_time, strlen(buf_time));
+
+	cairo_set_source_rgba(c, clock->font.rgb[0], clock->font.rgb[1], clock->font.rgb[2], clock->font.alpha);
+
+	pango_cairo_update_layout(c, layout);
+	draw_text(layout, c, 0, clock->time1_posy, &clock->font, ((Panel *)clock->area.panel)->font_shadow);
+
+	if (time2_format) {
+		pango_layout_set_font_description(layout, time2_font_desc);
+		pango_layout_set_indent(layout, 0);
+		pango_layout_set_text(layout, buf_date, strlen(buf_date));
+		pango_layout_set_width(layout, clock->area.width * PANGO_SCALE);
+
+		pango_cairo_update_layout(c, layout);
+		draw_text(layout, c, 0, clock->time2_posy, &clock->font, ((Panel *)clock->area.panel)->font_shadow);
+	}
+
+	g_object_unref(layout);
+}
+
+char *clock_get_tooltip(void *obj)
+{
+	strftime(buf_tooltip, sizeof(buf_tooltip), time_tooltip_format, clock_gettime_for_tz(time_tooltip_timezone));
+	return strdup(buf_tooltip);
 }
 
 void clock_action(int button)
 {
-	char *command = 0;
+	char *command = NULL;
 	switch (button) {
 	case 1:
 		command = clock_lclick_command;
@@ -363,4 +361,3 @@ void clock_action(int button)
 	}
 	tint_exec(command);
 }
-

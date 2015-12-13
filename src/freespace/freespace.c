@@ -48,9 +48,8 @@ void init_freespace_panel(void *p)
 int freespace_get_max_size(Panel *p)
 {
 	// Get space used by every element except the freespace
-	GList *walk;
 	int size = 0;
-	for (walk = p->area.children; walk; walk = g_list_next(walk)) {
+	for (GList *walk = p->area.children; walk; walk = g_list_next(walk)) {
 		Area *a = (Area *)walk->data;
 
 		if (a->_resize == resize_freespace || !a->on_screen)
@@ -75,12 +74,12 @@ gboolean resize_freespace(void *obj)
 	FreeSpace *freespace = (FreeSpace *)obj;
 	Panel *panel = (Panel *)freespace->area.panel;
 	if (!freespace->area.on_screen)
-		return 0;
+		return FALSE;
 
 	int old_size = panel_horizontal ? freespace->area.width : freespace->area.height;
 	int size = freespace_get_max_size(panel);
 	if (old_size == size)
-		return 0;
+		return FALSE;
 
 	if (panel_horizontal) {
 		freespace->area.width = size;
@@ -90,5 +89,5 @@ gboolean resize_freespace(void *obj)
 
 	freespace->area.redraw_needed = TRUE;
 	panel_refresh = TRUE;
-	return 1;
+	return TRUE;
 }

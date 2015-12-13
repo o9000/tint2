@@ -107,16 +107,13 @@ void init_launcher_panel(void *p)
 
 void cleanup_launcher()
 {
-	int i;
-	GSList *l;
-
-	for (i = 0; i < num_panels; i++) {
+	for (int i = 0; i < num_panels; i++) {
 		Panel *panel = &panels[i];
 		Launcher *launcher = &panel->launcher;
 		cleanup_launcher_theme(launcher);
 	}
 
-	for (l = panel_config.launcher.list_apps; l; l = l->next) {
+	for (GSList *l = panel_config.launcher.list_apps; l; l = l->next) {
 		free(l->data);
 	}
 	g_slist_free(panel_config.launcher.list_apps);
@@ -128,14 +125,13 @@ void cleanup_launcher()
 	free(icon_theme_name_xsettings);
 	icon_theme_name_xsettings = NULL;
 
-	launcher_enabled = 0;
+	launcher_enabled = FALSE;
 }
 
 void cleanup_launcher_theme(Launcher *launcher)
 {
 	free_area(&launcher->area);
-	GSList *l;
-	for (l = launcher->list_icons; l; l = l->next) {
+	for (GSList *l = launcher->list_icons; l; l = l->next) {
 		LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
 		if (launcherIcon) {
 			free_icon(launcherIcon->image);
@@ -158,10 +154,9 @@ void cleanup_launcher_theme(Launcher *launcher)
 gboolean resize_launcher(void *obj)
 {
 	Launcher *launcher = obj;
-	GSList *l;
-	int count, icon_size;
 	int icons_per_column = 1, icons_per_row = 1, margin = 0;
 
+	int icon_size;
 	if (panel_horizontal) {
 		icon_size = launcher->area.height;
 	} else {
@@ -172,7 +167,7 @@ gboolean resize_launcher(void *obj)
 		icon_size = launcher_max_icon_size;
 
 	// Resize icons if necessary
-	for (l = launcher->list_icons; l; l = l->next) {
+	for (GSList *l = launcher->list_icons; l; l = l->next) {
 		LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
 		if (launcherIcon->icon_size != icon_size || !launcherIcon->image) {
 			launcherIcon->icon_size = icon_size;
@@ -231,7 +226,7 @@ gboolean resize_launcher(void *obj)
 		}
 	}
 
-	count = g_slist_length(launcher->list_icons);
+	int count = g_slist_length(launcher->list_icons);
 
 	if (panel_horizontal) {
 		if (!count) {
@@ -259,7 +254,7 @@ gboolean resize_launcher(void *obj)
 		}
 	}
 
-	int i, posx, posy;
+	int posx, posy;
 	int start = launcher->area.bg->border.width + launcher->area.paddingy + margin / 2;
 	if (panel_horizontal) {
 		posy = start;
@@ -269,6 +264,8 @@ gboolean resize_launcher(void *obj)
 		posy = launcher->area.bg->border.width + launcher->area.paddingxlr;
 	}
 
+	int i;
+	GSList *l;
 	for (i = 1, l = launcher->list_icons; l; i++, l = l->next) {
 		LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
 
@@ -296,7 +293,7 @@ gboolean resize_launcher(void *obj)
 		}
 	}
 
-	return 1;
+	return TRUE;
 }
 
 // Here we override the default layout of the icons; normally Area layouts its children
@@ -472,11 +469,11 @@ void launcher_load_icons(Launcher *launcher)
 void launcher_load_themes(Launcher *launcher)
 {
 	launcher->list_themes =
-	load_themes(launcher_icon_theme_override
-				? (icon_theme_name_config ? icon_theme_name_config
-										  : icon_theme_name_xsettings ? icon_theme_name_xsettings : "hicolor")
-				: (icon_theme_name_xsettings ? icon_theme_name_xsettings
-											 : icon_theme_name_config ? icon_theme_name_config : "hicolor"));
+	    load_themes(launcher_icon_theme_override
+	                    ? (icon_theme_name_config ? icon_theme_name_config
+	                                              : icon_theme_name_xsettings ? icon_theme_name_xsettings : "hicolor")
+	                    : (icon_theme_name_xsettings ? icon_theme_name_xsettings
+	                                                 : icon_theme_name_config ? icon_theme_name_config : "hicolor"));
 }
 
 void launcher_default_icon_theme_changed()

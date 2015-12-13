@@ -57,6 +57,146 @@ char *battery_dwheel_command;
 gboolean battery_found;
 
 void battery_init_fonts();
+char *battery_get_tooltip(void *obj);
+
+void default_battery()
+{
+	battery_enabled = FALSE;
+	battery_tooltip_enabled = TRUE;
+	battery_found = FALSE;
+	percentage_hide = 101;
+	battery_low_cmd_sent = FALSE;
+	battery_timeout = NULL;
+	bat1_has_font = FALSE;
+	bat1_font_desc = NULL;
+	bat2_has_font = FALSE;
+	bat2_font_desc = NULL;
+	ac_connected_cmd = NULL;
+	ac_disconnected_cmd = NULL;
+	battery_low_cmd = NULL;
+	battery_lclick_command = NULL;
+	battery_mclick_command = NULL;
+	battery_rclick_command = NULL;
+	battery_uwheel_command = NULL;
+	battery_dwheel_command = NULL;
+	battery_state.percentage = 0;
+	battery_state.time.hours = 0;
+	battery_state.time.minutes = 0;
+	battery_state.time.seconds = 0;
+	battery_state.state = BATTERY_UNKNOWN;
+}
+
+void cleanup_battery()
+{
+	pango_font_description_free(bat1_font_desc);
+	bat1_font_desc = NULL;
+	pango_font_description_free(bat2_font_desc);
+	bat2_font_desc = NULL;
+	free(battery_low_cmd);
+	battery_low_cmd = NULL;
+	free(battery_lclick_command);
+	battery_lclick_command = NULL;
+	free(battery_mclick_command);
+	battery_mclick_command = NULL;
+	free(battery_rclick_command);
+	battery_rclick_command = NULL;
+	free(battery_uwheel_command);
+	battery_uwheel_command = NULL;
+	free(battery_dwheel_command);
+	battery_dwheel_command = NULL;
+	free(ac_connected_cmd);
+	ac_connected_cmd = NULL;
+	free(ac_disconnected_cmd);
+	ac_disconnected_cmd = NULL;
+	stop_timeout(battery_timeout);
+	battery_timeout = NULL;
+	battery_found = FALSE;
+
+	battery_os_free();
+}
+
+void init_battery()
+{
+	if (!battery_enabled)
+		return;
+
+	battery_found = battery_os_init();
+
+	if (!battery_timeout)
+		battery_timeout = add_timeout(10, 30000, update_battery_tick, 0, &battery_timeout);
+
+	update_battery();
+}
+
+void reinit_battery()
+{
+	battery_os_free();
+	battery_found = battery_os_init();
+	update_battery();
+}
+
+void init_battery_panel(void *p)
+{
+	Panel *panel = (Panel *)p;
+	Battery *battery = &panel->battery;
+
+	if (!battery_enabled)
+		return;
+
+	battery_init_fonts();
+
+	if (!battery->area.bg)
+		battery->area.bg = &g_array_index(backgrounds, Background, 0);
+
+	battery->area.parent = p;
+	battery->area.panel = p;
+	battery->area._draw_foreground = draw_battery;
+	battery->area.size_mode = LAYOUT_FIXED;
+	battery->area._resize = resize_battery;
+	battery->area.on_screen = TRUE;
+	battery->area.resize_needed = 1;
+	battery->area.has_mouse_over_effect = battery_lclick_command || battery_mclick_command || battery_rclick_command ||
+										  battery_uwheel_command || battery_dwheel_command;
+	battery->area.has_mouse_press_effect = battery->area.has_mouse_over_effect;
+	if (battery_tooltip_enabled)
+		battery->area._get_tooltip_text = battery_get_tooltip;
+}
+
+void battery_init_fonts()
+{
+	if (!bat1_font_desc) {
+		bat1_font_desc = pango_font_description_from_string(get_default_font());
+		pango_font_description_set_size(bat1_font_desc,
+		                                pango_font_description_get_size(bat1_font_desc) - PANGO_SCALE);
+	}
+	if (!bat2_font_desc) {
+		bat2_font_desc = pango_font_description_from_string(get_default_font());
+		pango_font_description_set_size(bat2_font_desc,
+		                                pango_font_description_get_size(bat2_font_desc) - PANGO_SCALE);
+	}
+}
+
+void battery_default_font_changed()
+{
+	if (!battery_enabled)
+		return;
+	if (bat1_has_font && bat2_has_font)
+		return;
+	if (!bat1_has_font) {
+		pango_font_description_free(bat1_font_desc);
+		bat1_font_desc = NULL;
+	}
+	if (!bat2_has_font) {
+		pango_font_description_free(bat2_font_desc);
+		bat2_font_desc = NULL;
+	}
+	battery_init_fonts();
+	for (int i = 0; i < num_panels; i++) {
+		panels[i].battery.area.resize_needed = TRUE;
+		panels[i].battery.area.redraw_needed = TRUE;
+	}
+	panel_refresh = TRUE;
+}
 
 void update_battery_tick(void *arg)
 {
@@ -126,201 +266,22 @@ void update_battery_tick(void *arg)
 	}
 }
 
-void default_battery()
-{
-	battery_enabled = FALSE;
-	battery_tooltip_enabled = TRUE;
-	battery_found = FALSE;
-	percentage_hide = 101;
-	battery_low_cmd_sent = FALSE;
-	battery_timeout = NULL;
-	bat1_has_font = FALSE;
-	bat1_font_desc = NULL;
-	bat2_has_font = FALSE;
-	bat2_font_desc = NULL;
-	ac_connected_cmd = NULL;
-	ac_disconnected_cmd = NULL;
-	battery_low_cmd = NULL;
-	battery_lclick_command = NULL;
-	battery_mclick_command = NULL;
-	battery_rclick_command = NULL;
-	battery_uwheel_command = NULL;
-	battery_dwheel_command = NULL;
-	battery_state.percentage = 0;
-	battery_state.time.hours = 0;
-	battery_state.time.minutes = 0;
-	battery_state.time.seconds = 0;
-	battery_state.state = BATTERY_UNKNOWN;
-}
-
-void cleanup_battery()
-{
-	pango_font_description_free(bat1_font_desc);
-	bat1_font_desc = NULL;
-	pango_font_description_free(bat2_font_desc);
-	bat2_font_desc = NULL;
-	free(battery_low_cmd);
-	battery_low_cmd = NULL;
-	free(battery_lclick_command);
-	battery_lclick_command = NULL;
-	free(battery_mclick_command);
-	battery_mclick_command = NULL;
-	free(battery_rclick_command);
-	battery_rclick_command = NULL;
-	free(battery_uwheel_command);
-	battery_uwheel_command = NULL;
-	free(battery_dwheel_command);
-	battery_dwheel_command = NULL;
-	free(ac_connected_cmd);
-	ac_connected_cmd = NULL;
-	free(ac_disconnected_cmd);
-	ac_disconnected_cmd = NULL;
-	stop_timeout(battery_timeout);
-	battery_timeout = NULL;
-	battery_found = FALSE;
-
-	battery_os_free();
-}
-
-void reinit_battery()
-{
-	battery_os_free();
-	battery_found = battery_os_init();
-	update_battery();
-}
-void init_battery()
-{
-	if (!battery_enabled)
-		return;
-
-	battery_found = battery_os_init();
-
-	if (!battery_timeout)
-		battery_timeout = add_timeout(10, 30000, update_battery_tick, 0, &battery_timeout);
-
-	update_battery();
-}
-
-char *battery_get_tooltip(void *obj)
-{
-	return battery_os_tooltip();
-}
-
-void init_battery_panel(void *p)
-{
-	Panel *panel = (Panel *)p;
-	Battery *battery = &panel->battery;
-
-	if (!battery_enabled)
-		return;
-
-	battery_init_fonts();
-
-	if (!battery->area.bg)
-		battery->area.bg = &g_array_index(backgrounds, Background, 0);
-
-	battery->area.parent = p;
-	battery->area.panel = p;
-	battery->area._draw_foreground = draw_battery;
-	battery->area.size_mode = LAYOUT_FIXED;
-	battery->area._resize = resize_battery;
-	battery->area.on_screen = TRUE;
-	battery->area.resize_needed = 1;
-	battery->area.has_mouse_over_effect = battery_lclick_command || battery_mclick_command || battery_rclick_command ||
-										  battery_uwheel_command || battery_dwheel_command;
-	battery->area.has_mouse_press_effect = battery->area.has_mouse_over_effect;
-	if (battery_tooltip_enabled)
-		battery->area._get_tooltip_text = battery_get_tooltip;
-}
-
-void battery_init_fonts()
-{
-	if (!bat1_font_desc) {
-		bat1_font_desc = pango_font_description_from_string(get_default_font());
-		pango_font_description_set_size(bat1_font_desc,
-		                                pango_font_description_get_size(bat1_font_desc) - PANGO_SCALE);
-	}
-	if (!bat2_font_desc) {
-		bat2_font_desc = pango_font_description_from_string(get_default_font());
-		pango_font_description_set_size(bat2_font_desc,
-		                                pango_font_description_get_size(bat2_font_desc) - PANGO_SCALE);
-	}
-}
-
-void battery_default_font_changed()
-{
-	if (!battery_enabled)
-		return;
-	if (bat1_has_font && bat2_has_font)
-		return;
-	if (!bat1_has_font) {
-		pango_font_description_free(bat1_font_desc);
-		bat1_font_desc = NULL;
-	}
-	if (!bat2_has_font) {
-		pango_font_description_free(bat2_font_desc);
-		bat2_font_desc = NULL;
-	}
-	battery_init_fonts();
-	for (int i = 0; i < num_panels; i++) {
-		panels[i].battery.area.resize_needed = TRUE;
-		panels[i].battery.area.redraw_needed = TRUE;
-	}
-	panel_refresh = TRUE;
-}
-
 int update_battery()
 {
-	int err;
-
-	/* reset */
+	// Reset
 	battery_state.state = BATTERY_UNKNOWN;
 	battery_state.percentage = 0;
 	battery_state.ac_connected = FALSE;
 	battery_state_set_time(&battery_state, 0);
 
-	err = battery_os_update(&battery_state);
+	int err = battery_os_update(&battery_state);
 
-	// clamp percentage to 100 in case battery is misreporting that its current charge is more than its max
+	// Clamp percentage to 100 in case battery is misreporting that its current charge is more than its max
 	if (battery_state.percentage > 100) {
 		battery_state.percentage = 100;
 	}
 
 	return err;
-}
-
-void draw_battery(void *obj, cairo_t *c)
-{
-	Battery *battery = obj;
-	PangoLayout *layout;
-
-	layout = pango_cairo_create_layout(c);
-
-	// draw layout
-	pango_layout_set_font_description(layout, bat1_font_desc);
-	pango_layout_set_width(layout, battery->area.width * PANGO_SCALE);
-	pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
-	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
-	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
-	pango_layout_set_text(layout, buf_bat_percentage, strlen(buf_bat_percentage));
-
-	cairo_set_source_rgba(c, battery->font.rgb[0], battery->font.rgb[1], battery->font.rgb[2], battery->font.alpha);
-
-	pango_cairo_update_layout(c, layout);
-	draw_text(layout, c, 0, battery->bat1_posy, &battery->font, ((Panel *)battery->area.panel)->font_shadow);
-
-	pango_layout_set_font_description(layout, bat2_font_desc);
-	pango_layout_set_indent(layout, 0);
-	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
-	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
-	pango_layout_set_text(layout, buf_bat_time, strlen(buf_bat_time));
-	pango_layout_set_width(layout, battery->area.width * PANGO_SCALE);
-
-	pango_cairo_update_layout(c, layout);
-	draw_text(layout, c, 0, battery->bat2_posy, &battery->font, ((Panel *)battery->area.panel)->font_shadow);
-	pango_cairo_show_layout(c, layout);
-
-	g_object_unref(layout);
 }
 
 gboolean resize_battery(void *obj)
@@ -374,7 +335,7 @@ gboolean resize_battery(void *obj)
 		}
 	} else {
 		int new_size =
-		bat_percentage_height + bat_time_height + (2 * (battery->area.paddingxlr + battery->area.bg->border.width));
+		    bat_percentage_height + bat_time_height + (2 * (battery->area.paddingxlr + battery->area.bg->border.width));
 		if (new_size > battery->area.height || new_size < battery->area.height - 2) {
 			battery->area.height = new_size;
 			battery->bat1_posy = (battery->area.height - bat_percentage_height - bat_time_height - 2) / 2;
@@ -385,9 +346,49 @@ gboolean resize_battery(void *obj)
 	return ret;
 }
 
+void draw_battery(void *obj, cairo_t *c)
+{
+	Battery *battery = obj;
+
+	PangoLayout *layout = pango_cairo_create_layout(c);
+	pango_layout_set_font_description(layout, bat1_font_desc);
+	pango_layout_set_width(layout, battery->area.width * PANGO_SCALE);
+	pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
+	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
+	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
+	pango_layout_set_text(layout, buf_bat_percentage, strlen(buf_bat_percentage));
+
+	cairo_set_source_rgba(c,
+	                      battery->font_color.rgb[0],
+	                      battery->font_color.rgb[1],
+	                      battery->font_color.rgb[2],
+	                      battery->font_color.alpha);
+
+	pango_cairo_update_layout(c, layout);
+	draw_text(layout, c, 0, battery->bat1_posy, &battery->font_color, ((Panel *)battery->area.panel)->font_shadow);
+
+	pango_layout_set_font_description(layout, bat2_font_desc);
+	pango_layout_set_indent(layout, 0);
+	pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
+	pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
+	pango_layout_set_text(layout, buf_bat_time, strlen(buf_bat_time));
+	pango_layout_set_width(layout, battery->area.width * PANGO_SCALE);
+
+	pango_cairo_update_layout(c, layout);
+	draw_text(layout, c, 0, battery->bat2_posy, &battery->font_color, ((Panel *)battery->area.panel)->font_shadow);
+	pango_cairo_show_layout(c, layout);
+
+	g_object_unref(layout);
+}
+
+char *battery_get_tooltip(void *obj)
+{
+	return battery_os_tooltip();
+}
+
 void battery_action(int button)
 {
-	char *command = 0;
+	char *command = NULL;
 	switch (button) {
 	case 1:
 		command = battery_lclick_command;

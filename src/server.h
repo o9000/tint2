@@ -110,8 +110,8 @@ typedef struct Server {
 	Display *dsp;
 	Window root_win;
 	Window composite_manager;
-	int real_transparency;
-	int disable_transparency;
+	gboolean real_transparency;
+	gboolean disable_transparency;
 	// current desktop
 	int desktop;
 	int screen;
@@ -123,7 +123,7 @@ typedef struct Server {
 	// In that case there are num_desktops viewports.
 	Viewport *viewports;
 	Monitor *monitor;
-	int got_root_win;
+	gboolean got_root_win;
 	Visual *visual;
 	Visual *visual32;
 	// root background

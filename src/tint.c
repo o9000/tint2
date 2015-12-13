@@ -369,12 +369,13 @@ void get_snapshot(const char *path)
 	imlib_free_image();
 }
 
-void window_action(Task *task, int action)
+void window_action(Task *task, MouseAction action)
 {
 	if (!task)
 		return;
-	int desk;
 	switch (action) {
+	case NONE:
+		break;
 	case CLOSE:
 		close_window(task->win);
 		break;
@@ -402,30 +403,30 @@ void window_action(Task *task, int action)
 	case RESTORE:
 		toggle_window_maximized(task->win);
 		break;
-	case DESKTOP_LEFT:
+	case DESKTOP_LEFT: {
 		if (task->desktop == 0)
 			break;
-		desk = task->desktop - 1;
-		change_window_desktop(task->win, desk);
-		if (desk == server.desktop)
+		int desktop = task->desktop - 1;
+		change_window_desktop(task->win, desktop);
+		if (desktop == server.desktop)
 			activate_window(task->win);
 		break;
-	case DESKTOP_RIGHT:
+	}
+	case DESKTOP_RIGHT: {
 		if (task->desktop == server.num_desktops)
 			break;
-		desk = task->desktop + 1;
-		change_window_desktop(task->win, desk);
-		if (desk == server.desktop)
+		int desktop = task->desktop + 1;
+		change_window_desktop(task->win, desktop);
+		if (desktop == server.desktop)
 			activate_window(task->win);
 		break;
+	}
 	case NEXT_TASK: {
-		Task *task1;
-		task1 = next_task(find_active_task(task));
+		Task *task1 = next_task(find_active_task(task));
 		activate_window(task1->win);
 	} break;
 	case PREV_TASK: {
-		Task *task1;
-		task1 = prev_task(find_active_task(task));
+		Task *task1 = prev_task(find_active_task(task));
 		activate_window(task1->win);
 	}
 	}
@@ -737,7 +738,6 @@ void event_property_notify(XEvent *e)
 {
 	gboolean debug = FALSE;
 
-	int i;
 	Window win = e->xproperty.window;
 	Atom at = e->xproperty.atom;
 
@@ -746,7 +746,7 @@ void event_property_notify(XEvent *e)
 	if (win == server.root_win) {
 		if (!server.got_root_win) {
 			XSelectInput(server.dsp, server.root_win, PropertyChangeMask | StructureNotifyMask);
-			server.got_root_win = 1;
+			server.got_root_win = TRUE;
 		}
 
 		// Change name of desktops
@@ -775,7 +775,7 @@ void event_property_notify(XEvent *e)
 				}
 				cleanup_taskbar();
 				init_taskbar();
-				for (i = 0; i < num_panels; i++) {
+				for (int i = 0; i < num_panels; i++) {
 					init_taskbar_panel(&panels[i]);
 					set_panel_items_order(&panels[i]);
 					visible_taskbar(&panels[i]);
@@ -785,7 +785,7 @@ void event_property_notify(XEvent *e)
 				reset_active_task();
 				panel_refresh = TRUE;
 			} else if (old_desktop != server.desktop) {
-				for (i = 0; i < num_panels; i++) {
+				for (int i = 0; i < num_panels; i++) {
 					Panel *panel = &panels[i];
 					set_taskbar_state(&panel->taskbar[old_desktop], TASKBAR_NORMAL);
 					set_taskbar_state(&panel->taskbar[server.desktop], TASKBAR_ACTIVE);
@@ -863,7 +863,7 @@ void event_property_notify(XEvent *e)
 			if (debug)
 				fprintf(stderr, "%s %d: win = root, atom = _XROOTPMAP_ID\n", __FUNCTION__, __LINE__);
 			// change Wallpaper
-			for (i = 0; i < num_panels; i++) {
+			for (int i = 0; i < num_panels; i++) {
 				set_panel_background(&panels[i]);
 			}
 			panel_refresh = TRUE;

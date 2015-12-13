@@ -70,10 +70,10 @@ void default_taskbar()
 	win_to_task = NULL;
 	urgent_timeout = NULL;
 	urgent_list = NULL;
-	taskbar_enabled = 0;
-	taskbar_distribute_size = 0;
-	hide_inactive_tasks = 0;
-	hide_task_diff_monitor = 0;
+	taskbar_enabled = FALSE;
+	taskbar_distribute_size = FALSE;
+	hide_inactive_tasks = FALSE;
+	hide_task_diff_monitor = FALSE;
 	taskbar_sort_method = TASKBAR_NOSORT;
 	taskbar_alignment = ALIGN_LEFT;
 	default_taskbarname();

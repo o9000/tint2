@@ -16,12 +16,9 @@
 #include "common.h"
 #include "area.h"
 
-// battery drawing parameter (per panel)
 typedef struct Battery {
-	// always start with area
 	Area area;
-
-	Color font;
+	Color font_color;
 	int bat1_posy;
 	int bat2_posy;
 } Battery;

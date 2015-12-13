@@ -35,7 +35,7 @@ typedef struct LauncherIcon {
 	int x, y;
 } LauncherIcon;
 
-extern int launcher_enabled;
+extern gboolean launcher_enabled;
 extern int launcher_max_icon_size;
 extern int launcher_tooltip_enabled;
 extern int launcher_alpha;

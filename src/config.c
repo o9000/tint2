@@ -318,7 +318,6 @@ void add_entry(char *key, char *value)
 	} else if (strcmp(key, "panel_items") == 0) {
 		new_config_file = 1;
 		panel_items_order = strdup(value);
-		int j;
 		systray_enabled = 0;
 		launcher_enabled = 0;
 #ifdef ENABLE_BATTERY
@@ -326,7 +325,7 @@ void add_entry(char *key, char *value)
 #endif
 		clock_enabled = 0;
 		taskbar_enabled = 0;
-		for (j = 0; j < strlen(panel_items_order); j++) {
+		for (int j = 0; j < strlen(panel_items_order); j++) {
 			if (panel_items_order[j] == 'L')
 				launcher_enabled = 1;
 			if (panel_items_order[j] == 'T')
@@ -477,11 +476,11 @@ void add_entry(char *key, char *value)
 	} else if (strcmp(key, "battery_font_color") == 0) {
 #ifdef ENABLE_BATTERY
 		extract_values(value, &value1, &value2, &value3);
-		get_color(value1, panel_config.battery.font.rgb);
+		get_color(value1, panel_config.battery.font_color.rgb);
 		if (value2)
-			panel_config.battery.font.alpha = (atoi(value2) / 100.0);
+			panel_config.battery.font_color.alpha = (atoi(value2) / 100.0);
 		else
-			panel_config.battery.font.alpha = 0.5;
+			panel_config.battery.font_color.alpha = 0.5;
 #endif
 	} else if (strcmp(key, "battery_padding") == 0) {
 #ifdef ENABLE_BATTERY
