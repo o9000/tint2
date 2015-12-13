@@ -211,7 +211,7 @@ void clock_init_fonts()
 		time1_font_desc = pango_font_description_from_string(get_default_font());
 		pango_font_description_set_weight(time1_font_desc, PANGO_WEIGHT_BOLD);
 		pango_font_description_set_size(time1_font_desc,
-		                                pango_font_description_get_size(time1_font_desc) - PANGO_SCALE);
+		                                pango_font_description_get_size(time1_font_desc));
 	}
 	if (!time2_font_desc) {
 		time2_font_desc = pango_font_description_from_string(get_default_font());
