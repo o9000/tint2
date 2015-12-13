@@ -1029,7 +1029,9 @@ void default_icon_theme_changed()
 
 void default_font_changed()
 {
+#ifdef ENABLE_BATTERY
 	battery_default_font_changed();
+#endif
 	clock_default_font_changed();
 	execp_default_font_changed();
 	taskbar_default_font_changed();
