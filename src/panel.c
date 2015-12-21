@@ -617,8 +617,8 @@ void set_panel_properties(Panel *p)
 	if (panel_dock) {
 		// Necessary for placing the panel into the dock on Openbox and Fluxbox.
 		// See https://gitlab.com/o9000/tint2/issues/465
+		wmhints.flags = IconWindowHint | WindowGroupHint | StateHint;
 		wmhints.icon_window = wmhints.window_group = p->main_win;
-		wmhints.flags = StateHint | IconWindowHint;
 		wmhints.initial_state = WithdrawnState;
 	}
 	// We do not need keyboard input focus.
