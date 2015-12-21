@@ -576,8 +576,7 @@ void set_panel_properties(Panel *p)
 	}
 
 	// Dock
-	long val = (!panel_dock && panel_layer == NORMAL_LAYER) ? server.atom._NET_WM_WINDOW_TYPE_SPLASH
-															: server.atom._NET_WM_WINDOW_TYPE_DOCK;
+	long val = server.atom._NET_WM_WINDOW_TYPE_DOCK;
 	XChangeProperty(server.dsp,
 					p->main_win,
 					server.atom._NET_WM_WINDOW_TYPE,
