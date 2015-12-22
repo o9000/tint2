@@ -17,6 +17,7 @@ extern GtkWidget *panel_window_name, *disable_transparency;
 extern GtkWidget *panel_mouse_effects;
 extern GtkWidget *mouse_hover_icon_opacity, *mouse_hover_icon_saturation, *mouse_hover_icon_brightness;
 extern GtkWidget *mouse_pressed_icon_opacity, *mouse_pressed_icon_saturation, *mouse_pressed_icon_brightness;
+extern GtkWidget *panel_primary_monitor_first;
 
 enum {
 	itemsColName = 0,

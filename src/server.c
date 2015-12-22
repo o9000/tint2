@@ -31,6 +31,8 @@
 
 Server server;
 
+gboolean primary_monitor_first = FALSE;
+
 void server_catch_error(Display *d, XErrorEvent *ev)
 {
 }
@@ -261,6 +263,13 @@ int compare_monitor_pos(const void *monitor1, const void *monitor2)
 	const Monitor *m1 = (const Monitor *)monitor1;
 	const Monitor *m2 = (const Monitor *)monitor2;
 
+	if (primary_monitor_first) {
+		if (m1->primary && !m2->primary)
+			return 1;
+		if (m2->primary && !m1->primary)
+			return -1;
+	}
+
 	if (m1->x < m2->x) {
 		return -1;
 	} else if (m1->x > m2->x) {
@@ -294,6 +303,7 @@ void get_monitors()
 		int num_monitors;
 		XineramaScreenInfo *info = XineramaQueryScreens(server.dsp, &num_monitors);
 		XRRScreenResources *res = XRRGetScreenResourcesCurrent(server.dsp, server.root_win);
+		RROutput primary_output = XRRGetOutputPrimary(server.dsp, server.root_win);
 
 		if (res && res->ncrtc >= num_monitors) {
 			// use xrandr to identify monitors (does not work with proprietery nvidia drivers)
@@ -323,6 +333,7 @@ void get_monitors()
 					printf("xRandr: Linking output %s with crtc %d\n", output_info->name, i);
 					server.monitors[i].names[j] = g_strdup(output_info->name);
 					XRRFreeOutputInfo(output_info);
+					server.monitors[i].primary = crtc_info->outputs[j] == primary_output;
 				}
 				server.monitors[i].names[crtc_info->noutput] = NULL;
 				XRRFreeCrtcInfo(crtc_info);

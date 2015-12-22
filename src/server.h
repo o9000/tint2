@@ -18,6 +18,8 @@
 #endif
 #include <glib.h>
 
+extern gboolean primary_monitor_first;
+
 typedef struct Global_atom {
 	Atom _XROOTPMAP_ID;
 	Atom _XROOTMAP_ID;
@@ -96,6 +98,7 @@ typedef struct Monitor {
 	int y;
 	int width;
 	int height;
+	gboolean primary;
 	gchar **names;
 } Monitor;
 
