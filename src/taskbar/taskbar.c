@@ -260,7 +260,7 @@ void init_taskbar_panel(void *p)
 				   FALSE);
 
 	if (!panel->g_task.maximum_width && panel_horizontal)
-		panel->g_task.maximum_width = server.monitor[panel->monitor].width;
+		panel->g_task.maximum_width = server.monitors[panel->monitor].width;
 
 	panel->g_task.text_posx = panel->g_task.background[0]->border.width + panel->g_task.area.paddingxlr;
 	panel->g_task.text_height = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);

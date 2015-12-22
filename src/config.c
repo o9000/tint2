@@ -141,12 +141,12 @@ int config_get_monitor(char *monitor)
 			// monitor specified by name, not by index
 			int i, j;
 			for (i = 0; i < server.num_monitors; ++i) {
-				if (server.monitor[i].names == 0)
+				if (server.monitors[i].names == 0)
 					// xrandr can't identify monitors
 					continue;
 				j = 0;
-				while (server.monitor[i].names[j] != 0) {
-					if (strcmp(monitor, server.monitor[i].names[j++]) == 0)
+				while (server.monitors[i].names[j] != 0) {
+					if (strcmp(monitor, server.monitors[i].names[j++]) == 0)
 						return i;
 				}
 			}

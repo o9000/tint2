@@ -169,10 +169,10 @@ int get_window_monitor(Window win)
 	// There is an ambiguity when a window is right on the edge between screens.
 	// In that case, prefer the monitor which is on the right and bottom of the window's top-left corner.
 	for (i = 0; i < server.num_monitors; i++) {
-		if (x >= server.monitor[i].x && x <= (server.monitor[i].x + server.monitor[i].width) &&
-			y >= server.monitor[i].y && y <= (server.monitor[i].y + server.monitor[i].height)) {
-			int current_right = x < (server.monitor[i].x + server.monitor[i].width);
-			int current_bottom = y < (server.monitor[i].y + server.monitor[i].height);
+		if (x >= server.monitors[i].x && x <= (server.monitors[i].x + server.monitors[i].width) &&
+			y >= server.monitors[i].y && y <= (server.monitors[i].y + server.monitors[i].height)) {
+			int current_right = x < (server.monitors[i].x + server.monitors[i].width);
+			int current_bottom = y < (server.monitors[i].y + server.monitors[i].height);
 			if (best_match < 0 || (!match_right && current_right) || (!match_bottom && current_bottom)) {
 				best_match = i;
 			}

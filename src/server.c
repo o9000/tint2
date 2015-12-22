@@ -126,13 +126,13 @@ void cleanup_server()
 	if (server.colormap32)
 		XFreeColormap(server.dsp, server.colormap32);
 	server.colormap32 = 0;
-	if (server.monitor) {
+	if (server.monitors) {
 		for (int i = 0; i < server.num_monitors; ++i) {
-			g_strfreev(server.monitor[i].names);
-			server.monitor[i].names = NULL;
+			g_strfreev(server.monitors[i].names);
+			server.monitors[i].names = NULL;
 		}
-		free(server.monitor);
-		server.monitor = NULL;
+		free(server.monitors);
+		server.monitors = NULL;
 	}
 	if (server.gc)
 		XFreeGC(server.dsp, server.gc);
@@ -310,43 +310,43 @@ void get_monitors()
 			}
 
 			printf("xRandr: Found crtc's: %d\n", res->ncrtc);
-			server.monitor = calloc(res->ncrtc, sizeof(Monitor));
+			server.monitors = calloc(res->ncrtc, sizeof(Monitor));
 			for (int i = 0; i < res->ncrtc; ++i) {
 				XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(server.dsp, res, res->crtcs[i]);
-				server.monitor[i].x = crtc_info->x;
-				server.monitor[i].y = crtc_info->y;
-				server.monitor[i].width = crtc_info->width;
-				server.monitor[i].height = crtc_info->height;
-				server.monitor[i].names = calloc((crtc_info->noutput + 1), sizeof(gchar *));
+				server.monitors[i].x = crtc_info->x;
+				server.monitors[i].y = crtc_info->y;
+				server.monitors[i].width = crtc_info->width;
+				server.monitors[i].height = crtc_info->height;
+				server.monitors[i].names = calloc((crtc_info->noutput + 1), sizeof(gchar *));
 				for (int j = 0; j < crtc_info->noutput; ++j) {
 					XRROutputInfo *output_info = XRRGetOutputInfo(server.dsp, res, crtc_info->outputs[j]);
 					printf("xRandr: Linking output %s with crtc %d\n", output_info->name, i);
-					server.monitor[i].names[j] = g_strdup(output_info->name);
+					server.monitors[i].names[j] = g_strdup(output_info->name);
 					XRRFreeOutputInfo(output_info);
 				}
-				server.monitor[i].names[crtc_info->noutput] = NULL;
+				server.monitors[i].names[crtc_info->noutput] = NULL;
 				XRRFreeCrtcInfo(crtc_info);
 			}
 			num_monitors = res->ncrtc;
 		} else if (info && num_monitors > 0) {
-			server.monitor = calloc(num_monitors, sizeof(Monitor));
+			server.monitors = calloc(num_monitors, sizeof(Monitor));
 			for (int i = 0; i < num_monitors; i++) {
-				server.monitor[i].x = info[i].x_org;
-				server.monitor[i].y = info[i].y_org;
-				server.monitor[i].width = info[i].width;
-				server.monitor[i].height = info[i].height;
-				server.monitor[i].names = 0;
+				server.monitors[i].x = info[i].x_org;
+				server.monitors[i].y = info[i].y_org;
+				server.monitors[i].width = info[i].width;
+				server.monitors[i].height = info[i].height;
+				server.monitors[i].names = 0;
 			}
 		}
 
-		// ordered monitor
-		qsort(server.monitor, num_monitors, sizeof(Monitor), monitor_includes_monitor);
+		// Sort monitors by inclusion
+		qsort(server.monitors, num_monitors, sizeof(Monitor), monitor_includes_monitor);
 
-		// remove monitor included into another one
+		// Remove monitors included in other ones
 		int i = 0;
 		while (i < num_monitors) {
 			for (int j = 0; j < i; j++) {
-				if (monitor_includes_monitor(&server.monitor[i], &server.monitor[j]) > 0) {
+				if (monitor_includes_monitor(&server.monitors[i], &server.monitors[j]) > 0) {
 					goto next;
 				}
 			}
@@ -354,11 +354,11 @@ void get_monitors()
 		}
 	next:
 		for (int j = i; j < num_monitors; ++j)
-			if (server.monitor[j].names)
-				g_strfreev(server.monitor[j].names);
+			if (server.monitors[j].names)
+				g_strfreev(server.monitors[j].names);
 		server.num_monitors = i;
-		server.monitor = realloc(server.monitor, server.num_monitors * sizeof(Monitor));
-		qsort(server.monitor, server.num_monitors, sizeof(Monitor), compare_monitor_pos);
+		server.monitors = realloc(server.monitors, server.num_monitors * sizeof(Monitor));
+		qsort(server.monitors, server.num_monitors, sizeof(Monitor), compare_monitor_pos);
 
 		if (res)
 			XRRFreeScreenResources(res);
@@ -367,11 +367,11 @@ void get_monitors()
 
 	if (!server.num_monitors) {
 		server.num_monitors = 1;
-		server.monitor = calloc(1, sizeof(Monitor));
-		server.monitor[0].x = server.monitor[0].y = 0;
-		server.monitor[0].width = DisplayWidth(server.dsp, server.screen);
-		server.monitor[0].height = DisplayHeight(server.dsp, server.screen);
-		server.monitor[0].names = 0;
+		server.monitors = calloc(1, sizeof(Monitor));
+		server.monitors[0].x = server.monitors[0].y = 0;
+		server.monitors[0].width = DisplayWidth(server.dsp, server.screen);
+		server.monitors[0].height = DisplayHeight(server.dsp, server.screen);
+		server.monitors[0].names = 0;
 	}
 }
 
@@ -382,10 +382,10 @@ void print_monitors()
 		fprintf(stderr,
 				"Monitor %d: x = %d, y = %d, w = %d, h = %d\n",
 				i + 1,
-				server.monitor[i].x,
-				server.monitor[i].y,
-				server.monitor[i].width,
-				server.monitor[i].height);
+				server.monitors[i].x,
+				server.monitors[i].y,
+				server.monitors[i].width,
+				server.monitors[i].height);
 	}
 }
 

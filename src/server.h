@@ -122,7 +122,7 @@ typedef struct Server {
 	// Non-null only if WM uses viewports (compiz) and number of viewports > 1.
 	// In that case there are num_desktops viewports.
 	Viewport *viewports;
-	Monitor *monitor;
+	Monitor *monitors;
 	gboolean got_root_win;
 	Visual *visual;
 	Visual *visual32;

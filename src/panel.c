@@ -270,11 +270,11 @@ void init_panel_size_and_position(Panel *panel)
 	// detect panel size
 	if (panel_horizontal) {
 		if (panel->fractional_width)
-			panel->area.width = (float)server.monitor[panel->monitor].width * panel->area.width / 100;
+			panel->area.width = (float)server.monitors[panel->monitor].width * panel->area.width / 100;
 		if (panel->fractional_height)
-			panel->area.height = (float)server.monitor[panel->monitor].height * panel->area.height / 100;
-		if (panel->area.width + panel->marginx > server.monitor[panel->monitor].width)
-			panel->area.width = server.monitor[panel->monitor].width - panel->marginx;
+			panel->area.height = (float)server.monitors[panel->monitor].height * panel->area.height / 100;
+		if (panel->area.width + panel->marginx > server.monitors[panel->monitor].width)
+			panel->area.width = server.monitors[panel->monitor].width - panel->marginx;
 		if (panel->area.bg->border.radius > panel->area.height / 2) {
 			printf("panel_background_id rounded is too big... please fix your tint2rc\n");
 			g_array_append_val(backgrounds, *panel->area.bg);
@@ -284,17 +284,17 @@ void init_panel_size_and_position(Panel *panel)
 	} else {
 		int old_panel_height = panel->area.height;
 		if (panel->fractional_width)
-			panel->area.height = (float)server.monitor[panel->monitor].height * panel->area.width / 100;
+			panel->area.height = (float)server.monitors[panel->monitor].height * panel->area.width / 100;
 		else
 			panel->area.height = panel->area.width;
 
 		if (panel->fractional_height)
-			panel->area.width = (float)server.monitor[panel->monitor].width * old_panel_height / 100;
+			panel->area.width = (float)server.monitors[panel->monitor].width * old_panel_height / 100;
 		else
 			panel->area.width = old_panel_height;
 
-		if (panel->area.height + panel->marginy > server.monitor[panel->monitor].height)
-			panel->area.height = server.monitor[panel->monitor].height - panel->marginy;
+		if (panel->area.height + panel->marginy > server.monitors[panel->monitor].height)
+			panel->area.height = server.monitors[panel->monitor].height - panel->marginy;
 
 		if (panel->area.bg->border.radius > panel->area.width / 2) {
 			printf("panel_background_id rounded is too big... please fix your tint2rc\n");
@@ -306,28 +306,28 @@ void init_panel_size_and_position(Panel *panel)
 
 	// panel position determined here
 	if (panel_position & LEFT) {
-		panel->posx = server.monitor[panel->monitor].x + panel->marginx;
+		panel->posx = server.monitors[panel->monitor].x + panel->marginx;
 	} else {
 		if (panel_position & RIGHT) {
-			panel->posx = server.monitor[panel->monitor].x + server.monitor[panel->monitor].width - panel->area.width -
+			panel->posx = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width - panel->area.width -
 						  panel->marginx;
 		} else {
 			if (panel_horizontal)
 				panel->posx =
-				server.monitor[panel->monitor].x + ((server.monitor[panel->monitor].width - panel->area.width) / 2);
+				server.monitors[panel->monitor].x + ((server.monitors[panel->monitor].width - panel->area.width) / 2);
 			else
-				panel->posx = server.monitor[panel->monitor].x + panel->marginx;
+				panel->posx = server.monitors[panel->monitor].x + panel->marginx;
 		}
 	}
 	if (panel_position & TOP) {
-		panel->posy = server.monitor[panel->monitor].y + panel->marginy;
+		panel->posy = server.monitors[panel->monitor].y + panel->marginy;
 	} else {
 		if (panel_position & BOTTOM) {
-			panel->posy = server.monitor[panel->monitor].y + server.monitor[panel->monitor].height -
+			panel->posy = server.monitors[panel->monitor].y + server.monitors[panel->monitor].height -
 						  panel->area.height - panel->marginy;
 		} else {
 			panel->posy =
-			server.monitor[panel->monitor].y + ((server.monitor[panel->monitor].height - panel->area.height) / 2);
+			server.monitors[panel->monitor].y + ((server.monitors[panel->monitor].height - panel->area.height) / 2);
 		}
 	}
 
@@ -457,7 +457,7 @@ void update_strut(Panel *p)
 	Window d2;
 	int d3;
 	XGetGeometry(server.dsp, server.root_win, &d2, &d3, &d3, &screen_width, &screen_height, &d1, &d1);
-	Monitor monitor = server.monitor[p->monitor];
+	Monitor monitor = server.monitors[p->monitor];
 	long struts[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	if (panel_horizontal) {
 		int height = p->area.height + p->marginy;

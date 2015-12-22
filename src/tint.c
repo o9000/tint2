@@ -349,8 +349,8 @@ void get_snapshot(const char *path)
 {
 	Panel *panel = &panels[0];
 
-	if (panel->area.width > server.monitor[0].width)
-		panel->area.width = server.monitor[0].width;
+	if (panel->area.width > server.monitors[0].width)
+		panel->area.width = server.monitors[0].width;
 
 	panel->temp_pmap = XCreatePixmap(server.dsp, server.root_win, panel->area.width, panel->area.height, server.depth);
 	render_panel(panel);

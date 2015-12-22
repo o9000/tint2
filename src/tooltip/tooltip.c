@@ -180,34 +180,34 @@ void tooltip_adjust_geometry()
 
 	int min_x, min_y, max_width, max_height;
 	Panel *panel = g_tooltip.panel;
-	int screen_width = server.monitor[panel->monitor].x + server.monitor[panel->monitor].width;
-	int screen_height = server.monitor[panel->monitor].y + server.monitor[panel->monitor].height;
-	if (x + width <= screen_width && y + height <= screen_height && x >= server.monitor[panel->monitor].x &&
-		y >= server.monitor[panel->monitor].y)
+	int screen_width = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width;
+	int screen_height = server.monitors[panel->monitor].y + server.monitors[panel->monitor].height;
+	if (x + width <= screen_width && y + height <= screen_height && x >= server.monitors[panel->monitor].x &&
+		y >= server.monitors[panel->monitor].y)
 		return; // no adjustment needed
 
 	if (panel_horizontal) {
 		min_x = 0;
-		max_width = server.monitor[panel->monitor].width;
-		max_height = server.monitor[panel->monitor].height - panel->area.height;
+		max_width = server.monitors[panel->monitor].width;
+		max_height = server.monitors[panel->monitor].height - panel->area.height;
 		if (panel_position & BOTTOM)
 			min_y = 0;
 		else
 			min_y = panel->area.height;
 	} else {
-		max_width = server.monitor[panel->monitor].width - panel->area.width;
+		max_width = server.monitors[panel->monitor].width - panel->area.width;
 		min_y = 0;
-		max_height = server.monitor[panel->monitor].height;
+		max_height = server.monitors[panel->monitor].height;
 		if (panel_position & LEFT)
 			min_x = panel->area.width;
 		else
 			min_x = 0;
 	}
 
-	if (x + width > server.monitor[panel->monitor].x + server.monitor[panel->monitor].width)
-		x = server.monitor[panel->monitor].x + server.monitor[panel->monitor].width - width;
-	if (y + height > server.monitor[panel->monitor].y + server.monitor[panel->monitor].height)
-		y = server.monitor[panel->monitor].y + server.monitor[panel->monitor].height - height;
+	if (x + width > server.monitors[panel->monitor].x + server.monitors[panel->monitor].width)
+		x = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width - width;
+	if (y + height > server.monitors[panel->monitor].y + server.monitors[panel->monitor].height)
+		y = server.monitors[panel->monitor].y + server.monitors[panel->monitor].height - height;
 
 	if (x < min_x)
 		x = min_x;
