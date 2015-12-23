@@ -1,10 +1,12 @@
-2015-12-21 master
+2015-12-23 master
 - Enhancements:
   - Support for NETWM viewports (as in Compiz) (issue #94)
   - The default desktop font (Gtk/FontName from XSettings) is used when a font is not specified in the config file
-  - New plugin: executor
-  - New taskbar sort order: least-recently-used (lru), most-recently-used (mru)
   - When no fonts are specified in the config, tint2 picks up the default font of the desktop environment via XSettings
+- New config options:
+  - Executor: new plugin that displays the output of a command in the panel (issue #161)
+  - New taskbar sort order options: least-recently-used (lru), most-recently-used (mru) (issue #532)
+  - Place the primary monitor before all the other monitors (primary_monitor_first, issue #538)
 - Fixes:
   - Battery changes visibility correctly (issue #531)
   - Reverted the window flags back to the value in 0.11 to make sure the window manager detects that tint2 is a panel
