@@ -114,6 +114,14 @@ extern GtkWidget *tooltip_task_show, *tooltip_show_after, *tooltip_hide_after;
 extern GtkWidget *clock_format_tooltip, *clock_tmz_tooltip;
 extern GtkWidget *tooltip_background;
 
+// Executor
+extern GtkWidget *execp_command, *execp_interval, *execp_has_icon, *execp_cache_icon, *execp_show_tooltip;
+extern GtkWidget *execp_continuous, *execp_markup, *execp_tooltip;
+extern GtkWidget *execp_left_command, *execp_right_command;
+extern GtkWidget *execp_mclick_command, *execp_rclick_command, *execp_uwheel_command, *execp_dwheel_command;
+extern GtkWidget *execp_font, *execp_font_color, *execp_padding_x, *execp_padding_y, *execp_centered, *execp_background;
+extern GtkWidget *execp_icon_w, *execp_icon_h;
+
 // launcher
 
 enum {

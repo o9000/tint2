@@ -111,6 +111,14 @@ GtkWidget *tooltip_task_show, *tooltip_show_after, *tooltip_hide_after;
 GtkWidget *clock_format_tooltip, *clock_tmz_tooltip;
 GtkWidget *tooltip_background;
 
+// Executor
+GtkWidget *execp_command, *execp_has_icon, *execp_cache_icon, *execp_interval, *execp_show_tooltip;
+GtkWidget *execp_continuous, *execp_markup, *execp_tooltip;
+GtkWidget *execp_left_command, *execp_right_command;
+GtkWidget *execp_mclick_command, *execp_rclick_command, *execp_uwheel_command, *execp_dwheel_command;
+GtkWidget *execp_font, *execp_font_color, *execp_padding_x, *execp_padding_y, *execp_centered, *execp_background;
+GtkWidget *execp_icon_w, *execp_icon_h;
+
 // launcher
 
 GtkListStore *launcher_apps, *all_apps;
@@ -169,6 +177,7 @@ void create_task_status(GtkWidget *notebook,
 						GtkWidget **task_status_icon_brightness,
 						GtkWidget **task_status_background,
 						GtkWidget **task_status_background_set);
+void create_execp(GtkWidget *parent);
 void create_clock(GtkWidget *parent);
 void create_systemtray(GtkWidget *parent);
 void create_battery(GtkWidget *parent);
@@ -217,7 +226,7 @@ GtkWidget *create_properties()
 {
 	GtkWidget *view, *dialog_vbox3, *button, *notebook;
 	GtkTooltips *tooltips;
-	GtkWidget *page_panel, *page_panel_items, *page_launcher, *page_taskbar, *page_battery, *page_clock,
+	GtkWidget *page_panel, *page_panel_items, *page_launcher, *page_taskbar, *page_battery, *page_clock, *page_execp,
 			  *page_tooltip, *page_systemtray, *page_task, *page_background;
 	GtkWidget *label;
 
@@ -284,7 +293,6 @@ GtkWidget *create_properties()
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_panel_items), label);
 	create_panel_items(page_panel_items);
 
-
 	label = gtk_label_new(_("Taskbar"));
 	gtk_widget_show(label);
 	page_taskbar = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
@@ -332,6 +340,14 @@ GtkWidget *create_properties()
 	gtk_widget_show(page_battery);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_battery), label);
 	create_battery(page_battery);
+
+	label = gtk_label_new(_("Executors"));
+	gtk_widget_show(label);
+	page_execp = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
+	gtk_container_set_border_width(GTK_CONTAINER(page_execp), 10);
+	gtk_widget_show(page_execp);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_execp), label);
+	create_execp(page_execp);
 
 	label = gtk_label_new(_("Tooltip"));
 	gtk_widget_show(label);
@@ -1847,6 +1863,9 @@ void set_panel_items(const char *items)
 		} else if (v == 'F') {
 			value = "F";
 			name = _("Free space");
+		} else if (v == 'E') {
+			value = "E";
+			name = _("Executor");
 		} else {
 			continue;
 		}
@@ -3958,6 +3977,360 @@ void create_clock(GtkWidget *parent)
 	col++;
 	gtk_tooltips_set_tip(tooltips, clock_tmz_tooltip, _("Specifies the timezone used to display the clock tooltip. If empty, the current timezone is used. "
 													  "Otherwise, it must be set to a valid value of the TZ environment variable."), NULL);
+
+	change_paragraph(parent);
+}
+
+void create_execp(GtkWidget *parent)
+{
+	GtkWidget *table;
+	GtkWidget *label;
+	int row, col;
+	GtkTooltips *tooltips = gtk_tooltips_new();
+
+	table = gtk_table_new(1, 2, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
+
+	label = gtk_label_new(_("<b>Format</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
+
+	table = gtk_table_new(3, 10, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
+
+	label = gtk_label_new(_("Command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_command = gtk_entry_new();
+	gtk_widget_show(execp_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(execp_command), 50);
+	gtk_table_attach(GTK_TABLE(table), execp_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_command,
+						 _("Specifies the command to execute."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Interval"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_interval = gtk_spin_button_new_with_range(0, 1000000, 1);
+	gtk_widget_show(execp_interval);
+	gtk_table_attach(GTK_TABLE(table), execp_interval, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_interval, _("Specifies the interval at which the command is executed, in seconds. "
+													 "If zero, the command is executed only once."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Show icon"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_has_icon = gtk_check_button_new();
+	gtk_widget_show(execp_has_icon);
+	gtk_table_attach(GTK_TABLE(table), execp_has_icon, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_has_icon, _("If enabled, the first line printed by the command is interpreted "
+													 "as a path to an image file."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Cache icon"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_cache_icon = gtk_check_button_new();
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_cache_icon), 1);
+	gtk_widget_show(execp_cache_icon);
+	gtk_table_attach(GTK_TABLE(table), execp_cache_icon, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_cache_icon, _("If enabled, the image is not reloaded from disk every time the command is executed if the path remains unchanged. Enabling this is recommended."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Continuous output"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_continuous = gtk_spin_button_new_with_range(0, 1000000, 1);
+	gtk_widget_show(execp_continuous);
+	gtk_table_attach(GTK_TABLE(table), execp_continuous, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_continuous, _("If non-zero, the last execp_continuous lines from the output of "
+													   "the command are displayed, every execp_continuous lines; this is "
+													   "useful for showing the output of commands that run indefinitely, "
+													   "such as 'ping 127.0.0.1'. If zero, the output of the command is "
+													   "displayed after it finishes executing."), NULL);
+	row++, col = 2;
+	label = gtk_label_new(_("Display markup"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_markup = gtk_check_button_new();
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_markup), 1);
+	gtk_widget_show(execp_markup);
+	gtk_table_attach(GTK_TABLE(table), execp_markup, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_markup, _("If enabled, the output of the command is treated as Pango markup, "
+												   "which allows rich text formatting. Note that using this with commands "
+												   "that print data downloaded from the Internet is a potential security risk."), NULL);
+
+	change_paragraph(parent);
+
+	label = gtk_label_new(_("<b>Mouse events</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
+
+	table = gtk_table_new(5, 10, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
+
+	label = gtk_label_new(_("Left click command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_left_command = gtk_entry_new();
+	gtk_widget_show(execp_left_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(execp_left_command), 50);
+	gtk_table_attach(GTK_TABLE(table), execp_left_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_left_command,
+						 _("Specifies a command that will be executed when the executor receives a left click."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Right click command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_right_command = gtk_entry_new();
+	gtk_widget_show(execp_right_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(execp_right_command), 50);
+	gtk_table_attach(GTK_TABLE(table), execp_right_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_right_command,
+						 _("Specifies a command that will be executed when the executor receives a right click."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Middle click command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_mclick_command = gtk_entry_new();
+	gtk_widget_show(execp_mclick_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(execp_mclick_command), 50);
+	gtk_table_attach(GTK_TABLE(table), execp_mclick_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_mclick_command,
+						 _("Specifies a command that will be executed when the executor receives a middle click."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Wheel scroll up command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_uwheel_command = gtk_entry_new();
+	gtk_widget_show(execp_uwheel_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(execp_uwheel_command), 50);
+	gtk_table_attach(GTK_TABLE(table), execp_uwheel_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_uwheel_command,
+						 _("Specifies a command that will be executed when the executor receives a mouse scroll up."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Wheel scroll down command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_dwheel_command = gtk_entry_new();
+	gtk_widget_show(execp_dwheel_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(execp_dwheel_command), 50);
+	gtk_table_attach(GTK_TABLE(table), execp_dwheel_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_dwheel_command,
+						 _("Specifies a command that will be executed when the executor receives a mouse scroll down."), NULL);
+
+	change_paragraph(parent);
+
+	label = gtk_label_new(_("<b>Appearance</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
+
+	table = gtk_table_new(3, 22, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
+
+	label = gtk_label_new(_("Background"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_background = create_background_combo(_("execp"));
+	gtk_widget_show(execp_background);
+	gtk_table_attach(GTK_TABLE(table), execp_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_background, _("Selects the background used to display the executor. "
+													 "Backgrounds can be edited in the Backgrounds tab."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Horizontal padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(execp_padding_x);
+	gtk_table_attach(GTK_TABLE(table), execp_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_padding_x, _("Specifies the horizontal padding of the executor. "
+						 "This is the space between the border and the content inside."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Vertical padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(execp_padding_y);
+	gtk_table_attach(GTK_TABLE(table), execp_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_padding_y, _("Specifies the vertical padding of the executor. "
+						 "This is the space between the border and the content inside."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Font"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_font = gtk_font_button_new();
+	gtk_widget_show(execp_font);
+	gtk_table_attach(GTK_TABLE(table), execp_font, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_font_button_set_show_style(GTK_FONT_BUTTON(execp_font), TRUE);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Font color"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_font_color = gtk_color_button_new();
+	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(execp_font_color), TRUE);
+	gtk_widget_show(execp_font_color);
+	gtk_table_attach(GTK_TABLE(table), execp_font_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Centered"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_centered = gtk_check_button_new();
+	gtk_widget_show(execp_centered);
+	gtk_table_attach(GTK_TABLE(table), execp_centered, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Icon width"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_icon_w = gtk_spin_button_new_with_range(0, 1000000, 1);
+	gtk_widget_show(execp_icon_w);
+	gtk_table_attach(GTK_TABLE(table), execp_icon_w, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_icon_w, _("If non-zero, the image is resized to this width."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Icon height"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_icon_h = gtk_spin_button_new_with_range(0, 1000000, 1);
+	gtk_widget_show(execp_icon_h);
+	gtk_table_attach(GTK_TABLE(table), execp_icon_h, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_icon_h, _("If non-zero, the image is resized to this height."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Tooltip"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_show_tooltip = gtk_check_button_new();
+	gtk_widget_show(execp_show_tooltip);
+	gtk_table_attach(GTK_TABLE(table), execp_show_tooltip, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_show_tooltip), 1);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Tooltip text"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	execp_tooltip = gtk_entry_new();
+	gtk_widget_show(execp_tooltip);
+	gtk_entry_set_width_chars(GTK_ENTRY(execp_tooltip), 50);
+	gtk_table_attach(GTK_TABLE(table), execp_tooltip, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, execp_tooltip,
+						 _("The tooltip text to display. Leave this empty to display an automatically generated tooltip with information about when the command was last executed."), NULL);
 
 	change_paragraph(parent);
 }

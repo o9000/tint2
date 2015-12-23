@@ -641,6 +641,48 @@ void config_write_battery(FILE *fp)
 	fprintf(fp, "\n");
 }
 
+void config_write_execp(FILE *fp)
+{
+	fprintf(fp, "#-------------------------------------\n");
+	fprintf(fp, "# Executor\n");
+
+	fprintf(fp, "execp_command = %s\n", gtk_entry_get_text(GTK_ENTRY(execp_command)));
+	fprintf(fp, "execp_interval = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(execp_interval)));
+	fprintf(fp, "execp_has_icon = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(execp_has_icon)) ? 1 : 0);
+	fprintf(fp, "execp_cache_icon = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(execp_cache_icon)) ? 1 : 0);
+	fprintf(fp, "execp_continuous = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(execp_continuous)));
+	fprintf(fp, "execp_markup = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(execp_markup)) ? 1 : 0);
+	if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(execp_show_tooltip))) {
+		fprintf(fp, "execp_tooltip = \n");
+	} else {
+		fprintf(fp, "execp_tooltip = %s\n", gtk_entry_get_text(GTK_ENTRY(execp_tooltip)));
+	}
+
+	fprintf(fp, "execp_lclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(execp_left_command)));
+	fprintf(fp, "execp_rclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(execp_right_command)));
+	fprintf(fp, "execp_mclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(execp_mclick_command)));
+	fprintf(fp, "execp_uwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(execp_uwheel_command)));
+	fprintf(fp, "execp_dwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(execp_dwheel_command)));
+
+	fprintf(fp, "execp_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(execp_font)));
+	GdkColor color;
+	gtk_color_button_get_color(GTK_COLOR_BUTTON(execp_font_color), &color);
+	config_write_color(fp,
+					   "execp_font_color",
+					   color,
+					   gtk_color_button_get_alpha(GTK_COLOR_BUTTON(execp_font_color)) * 100 / 0xffff);
+	fprintf(fp,
+			"execp_padding = %d %d\n",
+			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(execp_padding_x)),
+			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(execp_padding_y)));
+	fprintf(fp, "execp_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(execp_background)));
+	fprintf(fp, "execp_centered = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(execp_centered)) ? 1 : 0);
+	fprintf(fp, "execp_icon_w = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(execp_icon_w)));
+	fprintf(fp, "execp_icon_h = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(execp_icon_h)));
+
+	fprintf(fp, "\n");
+}
+
 void config_write_tooltip(FILE *fp)
 {
 	fprintf(fp, "#-------------------------------------\n");
@@ -709,6 +751,7 @@ void config_save_file(const char *path) {
 	config_write_launcher(fp);
 	config_write_clock(fp);
 	config_write_battery(fp);
+	config_write_execp(fp);
 	config_write_tooltip(fp);
 
 	checksum = checksum_txt(fp);
@@ -1569,6 +1612,76 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "mouse_scroll_down") == 0) {
 		set_action(value, task_mouse_scroll_down);
+	}
+
+	/* Executor */
+	else if (strcmp(key, "execp_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(execp_command), value);
+	}
+	else if (strcmp(key, "execp_interval") == 0) {
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_interval), atoi(value));
+	}
+	else if (strcmp(key, "execp_has_icon") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_has_icon), atoi(value));
+	}
+	else if (strcmp(key, "execp_cache_icon") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_cache_icon), atoi(value));
+	}
+	else if (strcmp(key, "execp_continuous") == 0) {
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_continuous), atoi(value));
+	}
+	else if (strcmp(key, "execp_markup") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_markup), atoi(value));
+	}
+	else if (strcmp(key, "execp_tooltip") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_show_tooltip), 1);
+		gtk_entry_set_text(GTK_ENTRY(execp_tooltip), value);
+	}
+	else if (strcmp(key, "execp_lclick_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(execp_left_command), value);
+	}
+	else if (strcmp(key, "execp_rclick_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(execp_right_command), value);
+	}
+	else if (strcmp(key, "execp_mclick_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(execp_mclick_command), value);
+	}
+	else if (strcmp(key, "execp_uwheel_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(execp_uwheel_command), value);
+	}
+	else if (strcmp(key, "execp_dwheel_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(execp_dwheel_command), value);
+	}
+	else if (strcmp(key, "execp_font") == 0) {
+		gtk_font_button_set_font_name(GTK_FONT_BUTTON(execp_font), value);
+	}
+	else if (strcmp(key, "execp_font_color") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		GdkColor col;
+		hex2gdk(value1, &col);
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(execp_font_color), &col);
+		if (value2) {
+			int alpha = atoi(value2);
+			gtk_color_button_set_alpha(GTK_COLOR_BUTTON(execp_font_color), (alpha*65535)/100);
+		}
+	}
+	else if (strcmp(key, "execp_padding") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_padding_x), atoi(value1));
+		if (value2) gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_padding_y), atoi(value2));
+	}
+	else if (strcmp(key, "execp_background_id") == 0) {
+		int id = background_index_safe(atoi(value));
+		gtk_combo_box_set_active(GTK_COMBO_BOX(execp_background), id);
+	}
+	else if (strcmp(key, "execp_icon_w") == 0) {
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_icon_w), atoi(value));
+	}
+	else if (strcmp(key, "execp_icon_h") == 0) {
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_icon_h), atoi(value));
+	}
+	else if (strcmp(key, "execp_centered") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_centered), atoi(value));
 	}
 
 	if (value1) free(value1);
