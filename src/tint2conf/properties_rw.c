@@ -645,7 +645,7 @@ void config_write_execp(FILE *fp)
 {
 	for (int i = 0; i < executors->len; i++) {
 		fprintf(fp, "#-------------------------------------\n");
-		fprintf(fp, "# Executor\n");
+		fprintf(fp, "# Executor %d\n", i + 1);
 
 		Executor *executor = &g_array_index(executors, Executor, i);
 
