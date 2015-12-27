@@ -189,6 +189,16 @@ static gint compare_strings(gconstpointer a, gconstpointer b)
    return strnatcasecmp((const char*)a, (const char*)b);
 }
 
+const gchar *get_default_font()
+{
+	GtkSettings *settings = gtk_settings_get_default();
+	gchar *default_font;
+	g_object_get(settings, "gtk-font-name", &default_font, NULL);
+	if (default_font)
+		return default_font;
+	return "sans 10";
+}
+
 void applyClicked(GtkWidget *widget, gpointer data)
 {
 	gchar *file = get_current_theme_file_name();
@@ -3117,7 +3127,7 @@ void create_taskbar(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
-	taskbar_name_font = gtk_font_button_new();
+	taskbar_name_font = gtk_font_button_new_with_font(get_default_font());
 	gtk_widget_show(taskbar_name_font);
 	gtk_table_attach(GTK_TABLE(table), taskbar_name_font, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -3495,7 +3505,7 @@ void create_task(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
-	task_font = gtk_font_button_new();
+	task_font = gtk_font_button_new_with_font(get_default_font());
 	gtk_widget_show(task_font);
 	gtk_table_attach(GTK_TABLE(table), task_font, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -3986,7 +3996,11 @@ void create_clock(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
-	clock_font_line1 = gtk_font_button_new();
+	PangoFontDescription *time1_font_desc = pango_font_description_from_string(get_default_font());
+	pango_font_description_set_weight(time1_font_desc, PANGO_WEIGHT_BOLD);
+	pango_font_description_set_size(time1_font_desc, pango_font_description_get_size(time1_font_desc));
+	clock_font_line1 = gtk_font_button_new_with_font(pango_font_description_to_string(time1_font_desc));
+	pango_font_description_free(time1_font_desc);
 	gtk_widget_show(clock_font_line1);
 	gtk_table_attach(GTK_TABLE(table), clock_font_line1, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -4000,7 +4014,10 @@ void create_clock(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
-	clock_font_line2 = gtk_font_button_new();
+	PangoFontDescription *time2_font_desc = pango_font_description_from_string(get_default_font());
+	pango_font_description_set_size(time2_font_desc, pango_font_description_get_size(time2_font_desc) - PANGO_SCALE);
+	clock_font_line2 = gtk_font_button_new_with_font(pango_font_description_to_string(time2_font_desc));;
+	pango_font_description_free(time2_font_desc);
 	gtk_widget_show(clock_font_line2);
 	gtk_table_attach(GTK_TABLE(table), clock_font_line2, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -4348,7 +4365,7 @@ void create_execp(GtkWidget *notebook, int i)
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
-	executor->execp_font = gtk_font_button_new();
+	executor->execp_font = gtk_font_button_new_with_font(get_default_font());
 	gtk_widget_show(executor->execp_font);
 	gtk_table_attach(GTK_TABLE(table), executor->execp_font, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -4984,8 +5001,11 @@ void create_battery(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
-	battery_font_line1 = gtk_font_button_new();
+	PangoFontDescription *bat1_font_desc = pango_font_description_from_string(get_default_font());
+	pango_font_description_set_size(bat1_font_desc, pango_font_description_get_size(bat1_font_desc) - PANGO_SCALE);
+	battery_font_line1 = gtk_font_button_new_with_font(pango_font_description_to_string(bat1_font_desc));
 	gtk_widget_show(battery_font_line1);
+	pango_font_description_free(bat1_font_desc);
 	gtk_table_attach(GTK_TABLE(table), battery_font_line1, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 	gtk_font_button_set_show_style(GTK_FONT_BUTTON(battery_font_line1), TRUE);
@@ -4998,7 +5018,10 @@ void create_battery(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
-	battery_font_line2 = gtk_font_button_new();
+	PangoFontDescription *bat2_font_desc = pango_font_description_from_string(get_default_font());
+	pango_font_description_set_size(bat2_font_desc, pango_font_description_get_size(bat2_font_desc) - PANGO_SCALE);
+	battery_font_line2 = gtk_font_button_new_with_font(pango_font_description_to_string(bat2_font_desc));
+	pango_font_description_free(bat2_font_desc);
 	gtk_widget_show(battery_font_line2);
 	gtk_table_attach(GTK_TABLE(table), battery_font_line2, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -5142,7 +5165,7 @@ void create_tooltip(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
-	tooltip_font = gtk_font_button_new();
+	tooltip_font = gtk_font_button_new_with_font(get_default_font());
 	gtk_widget_show(tooltip_font);
 	gtk_table_attach(GTK_TABLE(table), tooltip_font, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
