@@ -100,4 +100,12 @@ void clear_pixmap(Pixmap p, int x, int y, int w, int h);
 
 #define free_and_null(p) { free(p); p = NULL; }
 
+#if !GLIB_CHECK_VERSION (2, 33, 4)
+GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data);
+#endif
+
+#if !GLIB_CHECK_VERSION (2, 38, 0)
+#define g_assert_null(expr) g_assert((expr) == NULL)
+#endif
+
 #endif

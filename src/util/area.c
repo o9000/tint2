@@ -29,6 +29,7 @@
 #include "area.h"
 #include "server.h"
 #include "panel.h"
+#include "common.h"
 
 Area *mouse_over_area = NULL;
 
