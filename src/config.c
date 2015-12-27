@@ -69,18 +69,20 @@ char *snapshot_path;
 // --------------------------------------------------
 // backward compatibility
 // detect if it's an old config file (==1)
-static int new_config_file;
+static gboolean new_config_file;
 
-static int read_bg_color_hover;
-static int read_border_color_hover;
-static int read_bg_color_press;
-static int read_border_color_press;
+static gboolean read_bg_color_hover;
+static gboolean read_border_color_hover;
+static gboolean read_bg_color_press;
+static gboolean read_border_color_press;
+static gboolean read_panel_position;
 
 void default_config()
 {
 	config_path = NULL;
 	snapshot_path = NULL;
-	new_config_file = 0;
+	new_config_file = FALSE;
+	read_panel_position = FALSE;
 }
 
 void cleanup_config()
@@ -318,7 +320,7 @@ void add_entry(char *key, char *value)
 			panel_config.area.height = atoi(value2);
 		}
 	} else if (strcmp(key, "panel_items") == 0) {
-		new_config_file = 1;
+		new_config_file = TRUE;
 		panel_items_order = strdup(value);
 		systray_enabled = 0;
 		launcher_enabled = 0;
@@ -360,6 +362,7 @@ void add_entry(char *key, char *value)
 		if (value3)
 			panel_config.area.paddingx = atoi(value3);
 	} else if (strcmp(key, "panel_position") == 0) {
+		read_panel_position = TRUE;
 		extract_values(value, &value1, &value2, &value3);
 		if (strcmp(value1, "top") == 0)
 			panel_position = TOP;
@@ -620,19 +623,20 @@ void add_entry(char *key, char *value)
 
 	/* Clock */
 	else if (strcmp(key, "time1_format") == 0) {
-		if (new_config_file == 0) {
-			clock_enabled = 1;
+		if (!new_config_file) {
+			clock_enabled = TRUE;
 			if (panel_items_order) {
 				gchar *tmp = g_strconcat(panel_items_order, "C", NULL);
 				free(panel_items_order);
 				panel_items_order = strdup(tmp);
 				g_free(tmp);
-			} else
+			} else {
 				panel_items_order = strdup("C");
+			}
 		}
 		if (strlen(value) > 0) {
 			time1_format = strdup(value);
-			clock_enabled = 1;
+			clock_enabled = TRUE;
 		}
 	} else if (strcmp(key, "time2_format") == 0) {
 		if (strlen(value) > 0)
@@ -846,8 +850,8 @@ void add_entry(char *key, char *value)
 
 	/* Systray */
 	else if (strcmp(key, "systray_padding") == 0) {
-		if (new_config_file == 0 && systray_enabled == 0) {
-			systray_enabled = 1;
+		if (!new_config_file && systray_enabled == 0) {
+			systray_enabled = TRUE;
 			if (panel_items_order) {
 				gchar *tmp = g_strconcat(panel_items_order, "S", NULL);
 				free(panel_items_order);
@@ -1006,7 +1010,7 @@ void add_entry(char *key, char *value)
 
 	// old config option
 	else if (strcmp(key, "systray") == 0) {
-		if (new_config_file == 0) {
+		if (!new_config_file) {
 			systray_enabled = atoi(value);
 			if (systray_enabled) {
 				if (panel_items_order) {
@@ -1021,7 +1025,7 @@ void add_entry(char *key, char *value)
 	}
 #ifdef ENABLE_BATTERY
 	else if (strcmp(key, "battery") == 0) {
-		if (new_config_file == 0) {
+		if (!new_config_file) {
 			battery_enabled = atoi(value);
 			if (battery_enabled) {
 				if (panel_items_order) {
@@ -1064,16 +1068,22 @@ gboolean config_read_file(const char *path)
 	}
 	fclose(fp);
 
+	if (!read_panel_position) {
+		panel_horizontal = TRUE;
+		panel_position = BOTTOM;
+	}
+
 	// append Taskbar item
-	if (new_config_file == 0) {
-		taskbar_enabled = 1;
+	if (!new_config_file) {
+		taskbar_enabled = TRUE;
 		if (panel_items_order) {
 			gchar *tmp = g_strconcat("T", panel_items_order, NULL);
 			free(panel_items_order);
 			panel_items_order = strdup(tmp);
 			g_free(tmp);
-		} else
+		} else {
 			panel_items_order = strdup("T");
+		}
 	}
 
 	if (backgrounds->len > 0) {

@@ -37,7 +37,7 @@ extern char *clock_mclick_command;
 extern char *clock_rclick_command;
 extern char *clock_uwheel_command;
 extern char *clock_dwheel_command;
-extern int clock_enabled;
+extern gboolean clock_enabled;
 
 // default global data
 void default_clock();

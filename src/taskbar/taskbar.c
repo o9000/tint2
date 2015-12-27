@@ -122,6 +122,10 @@ void cleanup_taskbar()
 
 void init_taskbar()
 {
+	if (!panel_config.g_task.text && !panel_config.g_task.icon) {
+		panel_config.g_task.text = panel_config.g_task.icon = 1;
+	}
+
 	if (!win_to_task)
 		win_to_task = g_hash_table_new_full(win_hash, win_compare, free, free_ptr_array);
 
@@ -204,7 +208,7 @@ void init_taskbar_panel(void *p)
 		panel->g_task.brightness[TASK_URGENT] = panel->g_task.brightness[TASK_ACTIVE];
 	}
 	if ((panel->g_task.config_font_mask & (1 << TASK_NORMAL)) == 0)
-		panel->g_task.font[TASK_NORMAL] = (Color){{0, 0, 0}, 0};
+		panel->g_task.font[TASK_NORMAL] = (Color){{1, 1, 1}, 1};
 	if ((panel->g_task.config_font_mask & (1 << TASK_ACTIVE)) == 0)
 		panel->g_task.font[TASK_ACTIVE] = panel->g_task.font[TASK_NORMAL];
 	if ((panel->g_task.config_font_mask & (1 << TASK_ICONIFIED)) == 0)

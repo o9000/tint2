@@ -156,6 +156,8 @@ void init_panel()
 		panel_config.monitor = 0;
 	}
 
+	fprintf(stderr, "panel items: %s\n", panel_items_order);
+
 	init_tooltip();
 	init_systray();
 	init_launcher();
@@ -269,6 +271,14 @@ void init_panel_size_and_position(Panel *panel)
 {
 	// detect panel size
 	if (panel_horizontal) {
+		if (panel->area.width == 0) {
+			panel->fractional_width = TRUE;
+			panel->area.width = 100;
+		}
+		if (panel->area.height == 0) {
+			panel->fractional_height = FALSE;
+			panel->area.height = 32;
+		}
 		if (panel->fractional_width)
 			panel->area.width = (float)server.monitors[panel->monitor].width * panel->area.width / 100;
 		if (panel->fractional_height)
@@ -282,6 +292,14 @@ void init_panel_size_and_position(Panel *panel)
 			panel->area.bg->border.radius = panel->area.height / 2;
 		}
 	} else {
+		if (panel->area.height == 0) {
+			panel->fractional_height = TRUE;
+			panel->area.height = 100;
+		}
+		if (panel->area.width == 0) {
+			panel->fractional_width = FALSE;
+			panel->area.width = 140;
+		}
 		int old_panel_height = panel->area.height;
 		if (panel->fractional_width)
 			panel->area.height = (float)server.monitors[panel->monitor].height * panel->area.width / 100;
