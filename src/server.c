@@ -265,9 +265,9 @@ int compare_monitor_pos(const void *monitor1, const void *monitor2)
 
 	if (primary_monitor_first) {
 		if (m1->primary && !m2->primary)
-			return 1;
-		if (m2->primary && !m1->primary)
 			return -1;
+		if (!m1->primary && m2->primary)
+			return 1;
 	}
 
 	if (m1->x < m2->x) {
