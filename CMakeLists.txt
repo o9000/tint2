@@ -93,6 +93,8 @@ if( ENABLE_BATTERY )
 
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set( SOURCES ${SOURCES} src/battery/linux.c)
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "DragonFly")
+    set( SOURCES ${SOURCES} src/battery/freebsd.c)
   elseif(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
     set( SOURCES ${SOURCES} src/battery/freebsd.c)
   elseif(CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")
