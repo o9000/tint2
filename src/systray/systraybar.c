@@ -1186,31 +1186,10 @@ void systray_destroy_event(TrayWindow *traywin)
 
 void systray_render_icon_from_image(TrayWindow *traywin)
 {
-	Panel *panel = systray.area.panel;
 	if (!traywin->image)
 		return;
 	imlib_context_set_image(traywin->image);
-	XCopyArea(server.dsp,
-	          render_background,
-	          systray.area.pix,
-	          server.gc,
-	          traywin->x - systray.area.posx,
-	          traywin->y - systray.area.posy,
-	          traywin->width,
-	          traywin->height,
-	          traywin->x - systray.area.posx,
-	          traywin->y - systray.area.posy);
 	render_image(systray.area.pix, traywin->x - systray.area.posx, traywin->y - systray.area.posy);
-	XCopyArea(server.dsp,
-	          systray.area.pix,
-	          panel->temp_pmap,
-	          server.gc,
-	          traywin->x - systray.area.posx,
-	          traywin->y - systray.area.posy,
-	          traywin->width,
-	          traywin->height,
-	          traywin->x,
-	          traywin->y);
 }
 
 void systray_render_icon_composited(void *t)
