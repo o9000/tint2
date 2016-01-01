@@ -323,7 +323,7 @@ void taskbar_default_font_changed()
 			for (GList *c = taskbar->area.children; c; c = c->next) {
 				Task *t = c->data;
 				t->area.resize_needed = TRUE;
-				t->area.redraw_needed = TRUE;
+				schedule_redraw(&t->area);
 			}
 		}
 	}
@@ -429,7 +429,7 @@ void on_change_taskbar(void *obj)
 		taskbar->state_pix[k] = 0;
 	}
 	taskbar->area.pix = 0;
-	taskbar->area.redraw_needed = TRUE;
+	schedule_redraw(&taskbar->area);
 }
 
 void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
@@ -450,13 +450,13 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 	}
 	if (taskbar->area.on_screen) {
 		if (!taskbar->state_pix[state])
-			taskbar->area.redraw_needed = TRUE;
+			schedule_redraw(&taskbar->area);
 		if (taskbarname_enabled) {
 			if (!panel_config.mouse_effects) {
 				if (!taskbar->bar_name.state_pix[state])
-					taskbar->bar_name.area.redraw_needed = TRUE;
+					schedule_redraw(&taskbar->bar_name.area);
 			} else {
-				taskbar->bar_name.area.redraw_needed = TRUE;
+				schedule_redraw(&taskbar->bar_name.area);
 			}
 		}
 		if (taskbar_mode == MULTI_DESKTOP &&

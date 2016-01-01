@@ -67,8 +67,8 @@ Task *add_task(Window win)
 
 	Task task_template;
 	memset(&task_template, 0, sizeof(task_template));
-	task_template.area.has_mouse_over_effect = TRUE;
-	task_template.area.has_mouse_press_effect = TRUE;
+	task_template.area.has_mouse_over_effect = panel_config.mouse_effects;
+	task_template.area.has_mouse_press_effect = panel_config.mouse_effects;
 	task_template.win = win;
 	task_template.desktop = get_window_desktop(win);
 	task_template.area.panel = &panels[monitor];
@@ -96,8 +96,8 @@ Task *add_task(Window win)
 		Taskbar *taskbar = &panels[monitor].taskbar[j];
 		Task *task_instance = calloc(1, sizeof(Task));
 		memcpy(&task_instance->area, &panels[monitor].g_task.area, sizeof(Area));
-		task_instance->area.has_mouse_over_effect = TRUE;
-		task_instance->area.has_mouse_press_effect = TRUE;
+		task_instance->area.has_mouse_over_effect = panel_config.mouse_effects;
+		task_instance->area.has_mouse_press_effect = panel_config.mouse_effects;
 		task_instance->win = task_template.win;
 		task_instance->desktop = task_template.desktop;
 		task_instance->win_x = task_template.win_x;
@@ -576,9 +576,10 @@ void set_task_state(Task *task, TaskState state)
 				if (!panel_config.mouse_effects) {
 					task1->area.pix = task1->state_pix[state];
 					if (!task1->area.pix)
-						task1->area.redraw_needed = TRUE;
+						schedule_redraw(&task1->area);
+					panel_refresh = TRUE;
 				} else {
-					task1->area.redraw_needed = TRUE;
+					schedule_redraw(&task1->area);
 				}
 				if (state == TASK_ACTIVE && g_slist_find(urgent_list, task1))
 					del_urgent(task1);
@@ -620,7 +621,7 @@ void set_task_redraw(Task *task)
 		task->state_pix[k] = 0;
 	}
 	task->area.pix = 0;
-	task->area.redraw_needed = TRUE;
+	schedule_redraw(&task->area);
 }
 
 void blink_urgent(void *arg)

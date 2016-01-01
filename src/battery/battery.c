@@ -155,8 +155,9 @@ void init_battery_panel(void *p)
 	battery->area._resize = resize_battery;
 	battery->area.on_screen = TRUE;
 	battery->area.resize_needed = 1;
-	battery->area.has_mouse_over_effect = battery_lclick_command || battery_mclick_command || battery_rclick_command ||
-										  battery_uwheel_command || battery_dwheel_command;
+	battery->area.has_mouse_over_effect = panel_config.mouse_effects &&
+										  (battery_lclick_command || battery_mclick_command || battery_rclick_command ||
+										   battery_uwheel_command || battery_dwheel_command);
 	battery->area.has_mouse_press_effect = battery->area.has_mouse_over_effect;
 	if (battery_tooltip_enabled)
 		battery->area._get_tooltip_text = battery_get_tooltip;
@@ -193,7 +194,7 @@ void battery_default_font_changed()
 	battery_init_fonts();
 	for (int i = 0; i < num_panels; i++) {
 		panels[i].battery.area.resize_needed = TRUE;
-		panels[i].battery.area.redraw_needed = TRUE;
+		schedule_redraw(&panels[i].battery.area);
 	}
 	panel_refresh = TRUE;
 }
@@ -292,7 +293,7 @@ gboolean resize_battery(void *obj)
 	int bat_time_height, bat_time_width, bat_time_height_ink;
 	int ret = 0;
 
-	battery->area.redraw_needed = TRUE;
+	schedule_redraw(&battery->area);
 
 	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
 	if (battery_state.state == BATTERY_FULL) {

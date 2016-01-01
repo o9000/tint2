@@ -160,6 +160,7 @@ typedef enum MouseState {
 	MOUSE_NORMAL = 0,
 	MOUSE_OVER = 1,
 	MOUSE_DOWN = 2,
+	MOUSE_STATE_COUNT
 } MouseState;
 
 struct Panel;
@@ -191,11 +192,13 @@ typedef struct Area {
 	// Set to non-zero if the size of the Area has to be recalculated.
 	gboolean resize_needed;
 	// Set to non-zero if the Area has to be redrawn.
-	gboolean redraw_needed;
+	// Do not set this directly; use schedule_redraw() instead.
+	gboolean _redraw_needed;
 	// Set to non-zero if the position/size has changed, thus _on_change_layout needs to be called
 	gboolean _changed;
 	// This is the pixmap on which the Area is rendered. Render to it directly if needed.
 	Pixmap pix;
+	Pixmap pix_by_state[MOUSE_STATE_COUNT];
 
 	// Callbacks
 

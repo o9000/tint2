@@ -181,8 +181,8 @@ void init_clock_panel(void *p)
 	clock->area.parent = p;
 	clock->area.panel = p;
 	clock->area.has_mouse_press_effect = clock->area.has_mouse_over_effect =
-	clock_lclick_command || clock_mclick_command || clock_rclick_command || clock_uwheel_command ||
-	clock_dwheel_command;
+			panel_config.mouse_effects && (clock_lclick_command || clock_mclick_command || clock_rclick_command || clock_uwheel_command ||
+										   clock_dwheel_command);
 	clock->area._draw_foreground = draw_clock;
 	clock->area.size_mode = LAYOUT_FIXED;
 	clock->area._resize = resize_clock;
@@ -231,7 +231,7 @@ void clock_default_font_changed()
 	clock_init_fonts();
 	for (int i = 0; i < num_panels; i++) {
 		panels[i].clock.area.resize_needed = TRUE;
-		panels[i].clock.area.redraw_needed = TRUE;
+		schedule_redraw(&panels[i].clock.area);
 	}
 	panel_refresh = TRUE;
 }
@@ -243,7 +243,7 @@ gboolean resize_clock(void *obj)
 	int time_height_ink, time_height, time_width, date_height_ink, date_height, date_width;
 	gboolean result = FALSE;
 
-	clock->area.redraw_needed = TRUE;
+	schedule_redraw(&clock->area);
 
 	date_height = date_width = 0;
 	strftime(buf_time, sizeof(buf_time), time1_format, clock_gettime_for_tz(time1_timezone));

@@ -59,8 +59,8 @@ void init_taskbarname_panel(void *p)
 		taskbar = &panel->taskbar[j];
 		memcpy(&taskbar->bar_name.area, &panel->g_taskbar.area_name, sizeof(Area));
 		taskbar->bar_name.area.parent = taskbar;
-		taskbar->bar_name.area.has_mouse_over_effect = 1;
-		taskbar->bar_name.area.has_mouse_press_effect = 1;
+		taskbar->bar_name.area.has_mouse_over_effect = panel_config.mouse_effects;
+		taskbar->bar_name.area.has_mouse_press_effect = panel_config.mouse_effects;
 		if (j == server.desktop)
 			taskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_ACTIVE];
 		else
@@ -106,7 +106,7 @@ void taskbarname_default_font_changed()
 		for (int j = 0; j < panels[i].num_desktops; j++) {
 			Taskbar *taskbar = &panels[i].taskbar[j];
 			taskbar->bar_name.area.resize_needed = TRUE;
-			taskbar->bar_name.area.redraw_needed = TRUE;
+			schedule_redraw(&taskbar->bar_name.area);
 		}
 	}
 	panel_refresh = TRUE;
@@ -142,7 +142,7 @@ gboolean resize_taskbarname(void *obj)
 	int name_height, name_width, name_height_ink;
 	int ret = 0;
 
-	taskbar_name->area.redraw_needed = TRUE;
+	schedule_redraw(&taskbar_name->area);
 	get_text_size2(panel_config.taskbarname_font_desc,
 				   &name_height_ink,
 				   &name_height,

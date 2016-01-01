@@ -116,8 +116,8 @@ void init_systray_panel(void *p)
 		systray.area.bg = &g_array_index(backgrounds, Background, 0);
 	show(&systray.area);
 	systray.area.resize_needed = 1;
-	systray.area.redraw_needed = TRUE;
 	panel->area.resize_needed = 1;
+	schedule_redraw(&systray.area);
 	panel_refresh = TRUE;
 	refresh_systray = 1;
 }
@@ -721,7 +721,7 @@ gboolean add_icon(Window win)
 	if (systray_profile)
 		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
 	systray.area.resize_needed = TRUE;
-	systray.area.redraw_needed = TRUE;
+	schedule_redraw(&systray.area);
 	panel->area.resize_needed = TRUE;
 	panel_refresh = TRUE;
 	refresh_systray = TRUE;
@@ -984,7 +984,7 @@ void remove_icon(TrayWindow *traywin)
 	if (systray_profile)
 		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
 	systray.area.resize_needed = TRUE;
-	systray.area.redraw_needed = TRUE;
+	schedule_redraw(&systray.area);
 	panel->area.resize_needed = TRUE;
 	panel_refresh = TRUE;
 	refresh_systray = TRUE;
@@ -1399,7 +1399,7 @@ void systray_render_icon_composited(void *t)
 			        __FUNCTION__,
 			        __LINE__);
 		systray.area.resize_needed = 1;
-		systray.area.redraw_needed = TRUE;
+		schedule_redraw(&systray.area);
 		panel->area.resize_needed = 1;
 		panel_refresh = TRUE;
 		refresh_systray = 1;

@@ -87,7 +87,7 @@ void init_launcher_panel(void *p)
 	launcher->area.size_mode = LAYOUT_FIXED;
 	launcher->area._resize = resize_launcher;
 	launcher->area.resize_needed = 1;
-	launcher->area.redraw_needed = TRUE;
+	schedule_redraw(&launcher->area);
 	if (!launcher->area.bg)
 		launcher->area.bg = &g_array_index(backgrounds, Background, 0);
 
@@ -441,9 +441,9 @@ void launcher_load_icons(Launcher *launcher)
 			launcherIcon->area.size_mode = LAYOUT_FIXED;
 			launcherIcon->area._resize = NULL;
 			launcherIcon->area.resize_needed = 0;
-			launcherIcon->area.redraw_needed = TRUE;
-			launcherIcon->area.has_mouse_over_effect = 1;
-			launcherIcon->area.has_mouse_press_effect = 1;
+			schedule_redraw(&launcherIcon->area);
+			launcherIcon->area.has_mouse_over_effect = panel_config.mouse_effects;
+			launcherIcon->area.has_mouse_press_effect = launcherIcon->area.has_mouse_over_effect;
 			launcherIcon->area.bg = launcher_icon_bg;
 			launcherIcon->area.on_screen = TRUE;
 			launcherIcon->area._on_change_layout = launcher_icon_on_change_layout;

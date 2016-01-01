@@ -205,7 +205,7 @@ void relayout_dynamic(Area *a, int level)
 
 	if (a->_changed) {
 		// pos/size changed
-		a->redraw_needed = TRUE;
+		a->_redraw_needed = TRUE;
 		if (a->_on_change_layout)
 			a->_on_change_layout(a);
 	}
@@ -222,8 +222,8 @@ void draw_tree(Area *a)
 	if (!a->on_screen)
 		return;
 
-	if (a->redraw_needed) {
-		a->redraw_needed = 0;
+	if (a->_redraw_needed) {
+		a->_redraw_needed = 0;
 		draw(a);
 	}
 
@@ -325,7 +325,20 @@ int relayout_with_constraint(Area *a, int maximum_size)
 
 void schedule_redraw(Area *a)
 {
-	a->redraw_needed = TRUE;
+	a->_redraw_needed = TRUE;
+
+	if (a->has_mouse_over_effect) {
+		for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
+			XFreePixmap(server.dsp, a->pix_by_state[i]);
+			if (a->pix == a->pix_by_state[i])
+				a->pix = None;
+			a->pix_by_state[i] = None;
+		}
+		if (a->pix) {
+			XFreePixmap(server.dsp, a->pix);
+			a->pix = None;
+		}
+	}
 
 	for (GList *l = a->children; l; l = l->next)
 		schedule_redraw((Area *)l->data);
@@ -357,9 +370,13 @@ void show(Area *a)
 
 void draw(Area *a)
 {
-	if (a->pix)
+	if (a->pix) {
 		XFreePixmap(server.dsp, a->pix);
+		if (a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0] != a->pix)
+			XFreePixmap(server.dsp, a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0]);
+	}
 	a->pix = XCreatePixmap(server.dsp, server.root_win, a->width, a->height, server.depth);
+	a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0] = a->pix;
 
 	// Add layer of root pixmap (or clear pixmap if real_transparency==true)
 	if (server.real_transparency)
@@ -482,11 +499,18 @@ void free_area(Area *a)
 
 	if (a->children) {
 		g_list_free(a->children);
-		a->children = 0;
+		a->children = NULL;
+	}
+	for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
+		XFreePixmap(server.dsp, a->pix_by_state[i]);
+		if (a->pix == a->pix_by_state[i]) {
+			a->pix = None;
+		}
+		a->pix_by_state[i] = None;
 	}
 	if (a->pix) {
 		XFreePixmap(server.dsp, a->pix);
-		a->pix = 0;
+		a->pix = None;
 	}
 	if (mouse_over_area == a) {
 		mouse_over_area = NULL;
@@ -519,7 +543,9 @@ void mouse_over(Area *area, int pressed)
 	mouse_over_area = area;
 
 	mouse_over_area->mouse_state = new_state;
-	schedule_redraw(mouse_over_area);
+	mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->has_mouse_over_effect ? mouse_over_area->mouse_state : 0];
+	if (!mouse_over_area->pix)
+		mouse_over_area->_redraw_needed = TRUE;
 	panel_refresh = TRUE;
 }
 
@@ -528,7 +554,9 @@ void mouse_out()
 	if (!mouse_over_area)
 		return;
 	mouse_over_area->mouse_state = MOUSE_NORMAL;
-	schedule_redraw(mouse_over_area);
+	mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->has_mouse_over_effect ? mouse_over_area->mouse_state : 0];
+	if (!mouse_over_area->pix)
+		mouse_over_area->_redraw_needed = TRUE;
 	panel_refresh = TRUE;
 	mouse_over_area = NULL;
 }
