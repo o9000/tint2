@@ -122,13 +122,13 @@ void cleanup_panel()
 
 		free_area(&p->area);
 		if (p->temp_pmap)
-			XFreePixmap(server.dsp, p->temp_pmap);
+			XFreePixmap(server.display, p->temp_pmap);
 		p->temp_pmap = 0;
 		if (p->hidden_pixmap)
-			XFreePixmap(server.dsp, p->hidden_pixmap);
+			XFreePixmap(server.display, p->hidden_pixmap);
 		p->hidden_pixmap = 0;
 		if (p->main_win)
-			XDestroyWindow(server.dsp, p->main_win);
+			XDestroyWindow(server.display, p->main_win);
 		p->main_win = 0;
 		stop_timeout(p->autohide_timeout);
 	}
@@ -224,7 +224,7 @@ void init_panel()
 		// catch some events
 		XSetWindowAttributes att = {.colormap = server.colormap, .background_pixel = 0, .border_pixel = 0};
 		unsigned long mask = CWEventMask | CWColormap | CWBackPixel | CWBorderPixel;
-		p->main_win = XCreateWindow(server.dsp,
+		p->main_win = XCreateWindow(server.display,
 									server.root_win,
 									p->posx,
 									p->posy,
@@ -243,18 +243,18 @@ void init_panel()
 			event_mask |= PointerMotionMask | LeaveWindowMask;
 		if (panel_autohide)
 			event_mask |= LeaveWindowMask | EnterWindowMask;
-		XChangeWindowAttributes(server.dsp, p->main_win, CWEventMask, &(XSetWindowAttributes){.event_mask = event_mask});
+		XChangeWindowAttributes(server.display, p->main_win, CWEventMask, &(XSetWindowAttributes){.event_mask = event_mask});
 
 		if (!server.gc) {
 			XGCValues gcv;
-			server.gc = XCreateGC(server.dsp, p->main_win, 0, &gcv);
+			server.gc = XCreateGC(server.display, p->main_win, 0, &gcv);
 		}
 		// printf("panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
 		set_panel_properties(p);
 		set_panel_background(p);
 		if (!snapshot_path) {
 			// if we are not in 'snapshot' mode then map new panel
-			XMapWindow(server.dsp, p->main_win);
+			XMapWindow(server.display, p->main_win);
 		}
 
 		if (panel_autohide)
@@ -465,8 +465,8 @@ gboolean resize_panel(void *obj)
 void update_strut(Panel *p)
 {
 	if (panel_strut_policy == STRUT_NONE) {
-		XDeleteProperty(server.dsp, p->main_win, server.atom._NET_WM_STRUT);
-		XDeleteProperty(server.dsp, p->main_win, server.atom._NET_WM_STRUT_PARTIAL);
+		XDeleteProperty(server.display, p->main_win, server.atom._NET_WM_STRUT);
+		XDeleteProperty(server.display, p->main_win, server.atom._NET_WM_STRUT_PARTIAL);
 		return;
 	}
 
@@ -474,7 +474,7 @@ void update_strut(Panel *p)
 	unsigned int d1, screen_width, screen_height;
 	Window d2;
 	int d3;
-	XGetGeometry(server.dsp, server.root_win, &d2, &d3, &d3, &screen_width, &screen_height, &d1, &d1);
+	XGetGeometry(server.display, server.root_win, &d2, &d3, &d3, &screen_width, &screen_height, &d1, &d1);
 	Monitor monitor = server.monitors[p->monitor];
 	long struts[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	if (panel_horizontal) {
@@ -509,7 +509,7 @@ void update_strut(Panel *p)
 		}
 	}
 	// Old specification : fluxbox need _NET_WM_STRUT.
-	XChangeProperty(server.dsp,
+	XChangeProperty(server.display,
 					p->main_win,
 					server.atom._NET_WM_STRUT,
 					XA_CARDINAL,
@@ -517,7 +517,7 @@ void update_strut(Panel *p)
 					PropModeReplace,
 					(unsigned char *)&struts,
 					4);
-	XChangeProperty(server.dsp,
+	XChangeProperty(server.display,
 					p->main_win,
 					server.atom._NET_WM_STRUT_PARTIAL,
 					XA_CARDINAL,
@@ -568,13 +568,13 @@ void set_panel_items_order(Panel *p)
 
 void set_panel_properties(Panel *p)
 {
-	XStoreName(server.dsp, p->main_win, panel_window_name);
-	XSetIconName(server.dsp, p->main_win, panel_window_name);
+	XStoreName(server.display, p->main_win, panel_window_name);
+	XSetIconName(server.display, p->main_win, panel_window_name);
 
 	gsize len;
 	gchar *name = g_locale_to_utf8(panel_window_name, -1, NULL, &len, NULL);
 	if (name != NULL) {
-		XChangeProperty(server.dsp,
+		XChangeProperty(server.display,
 						p->main_win,
 						server.atom._NET_WM_NAME,
 						server.atom.UTF8_STRING,
@@ -582,7 +582,7 @@ void set_panel_properties(Panel *p)
 						PropModeReplace,
 						(unsigned char *)name,
 						(int)len);
-		XChangeProperty(server.dsp,
+		XChangeProperty(server.display,
 						p->main_win,
 						server.atom._NET_WM_ICON_NAME,
 						server.atom.UTF8_STRING,
@@ -595,7 +595,7 @@ void set_panel_properties(Panel *p)
 
 	// Dock
 	long val = server.atom._NET_WM_WINDOW_TYPE_DOCK;
-	XChangeProperty(server.dsp,
+	XChangeProperty(server.display,
 					p->main_win,
 					server.atom._NET_WM_WINDOW_TYPE,
 					XA_ATOM,
@@ -605,7 +605,7 @@ void set_panel_properties(Panel *p)
 					1);
 
 	val = ALL_DESKTOPS;
-	XChangeProperty(server.dsp,
+	XChangeProperty(server.display,
 					p->main_win,
 					server.atom._NET_WM_DESKTOP,
 					XA_CARDINAL,
@@ -620,7 +620,7 @@ void set_panel_properties(Panel *p)
 	state[2] = server.atom._NET_WM_STATE_STICKY;
 	state[3] = panel_layer == BOTTOM_LAYER ? server.atom._NET_WM_STATE_BELOW : server.atom._NET_WM_STATE_ABOVE;
 	int num_atoms = panel_layer == NORMAL_LAYER ? 3 : 4;
-	XChangeProperty(server.dsp,
+	XChangeProperty(server.display,
 					p->main_win,
 					server.atom._NET_WM_STATE,
 					XA_ATOM,
@@ -641,11 +641,11 @@ void set_panel_properties(Panel *p)
 	// We do not need keyboard input focus.
 	wmhints.flags |= InputHint;
 	wmhints.input = False;
-	XSetWMHints(server.dsp, p->main_win, &wmhints);
+	XSetWMHints(server.display, p->main_win, &wmhints);
 
 	// Undecorated
 	long prop[5] = {2, 0, 0, 0, 0};
-	XChangeProperty(server.dsp,
+	XChangeProperty(server.display,
 					p->main_win,
 					server.atom._MOTIF_WM_HINTS,
 					server.atom._MOTIF_WM_HINTS,
@@ -656,7 +656,7 @@ void set_panel_properties(Panel *p)
 
 	// XdndAware - Register for Xdnd events
 	Atom version = 4;
-	XChangeProperty(server.dsp,
+	XChangeProperty(server.display,
 					p->main_win,
 					server.atom.XdndAware,
 					XA_ATOM,
@@ -677,21 +677,21 @@ void set_panel_properties(Panel *p)
 	size_hints.max_width = p->area.width;
 	size_hints.min_height = minheight;
 	size_hints.max_height = p->area.height;
-	XSetWMNormalHints(server.dsp, p->main_win, &size_hints);
+	XSetWMNormalHints(server.display, p->main_win, &size_hints);
 
 	// Set WM_CLASS
 	XClassHint *classhint = XAllocClassHint();
 	classhint->res_name = (char *)"tint2";
 	classhint->res_class = (char *)"Tint2";
-	XSetClassHint(server.dsp, p->main_win, classhint);
+	XSetClassHint(server.display, p->main_win, classhint);
 	XFree(classhint);
 }
 
 void set_panel_background(Panel *p)
 {
 	if (p->area.pix)
-		XFreePixmap(server.dsp, p->area.pix);
-	p->area.pix = XCreatePixmap(server.dsp, server.root_win, p->area.width, p->area.height, server.depth);
+		XFreePixmap(server.display, p->area.pix);
+	p->area.pix = XCreatePixmap(server.display, server.root_win, p->area.width, p->area.height, server.depth);
 
 	int xoff = 0, yoff = 0;
 	if (panel_horizontal && panel_position & BOTTOM)
@@ -706,17 +706,17 @@ void set_panel_background(Panel *p)
 		// copy background (server.root_pmap) in panel.area.pix
 		Window dummy;
 		int x, y;
-		XTranslateCoordinates(server.dsp, p->main_win, server.root_win, 0, 0, &x, &y, &dummy);
+		XTranslateCoordinates(server.display, p->main_win, server.root_win, 0, 0, &x, &y, &dummy);
 		if (panel_autohide && p->is_hidden) {
 			x -= xoff;
 			y -= yoff;
 		}
-		XSetTSOrigin(server.dsp, server.gc, -x, -y);
-		XFillRectangle(server.dsp, p->area.pix, server.gc, 0, 0, p->area.width, p->area.height);
+		XSetTSOrigin(server.display, server.gc, -x, -y);
+		XFillRectangle(server.display, p->area.pix, server.gc, 0, 0, p->area.width, p->area.height);
 	}
 
 	// draw background panel
-	cairo_surface_t *cs = cairo_xlib_surface_create(server.dsp, p->area.pix, server.visual, p->area.width, p->area.height);
+	cairo_surface_t *cs = cairo_xlib_surface_create(server.display, p->area.pix, server.visual, p->area.width, p->area.height);
 	cairo_t *c = cairo_create(cs);
 	draw_background(&p->area, c);
 	cairo_destroy(c);
@@ -724,9 +724,9 @@ void set_panel_background(Panel *p)
 
 	if (panel_autohide) {
 		if (p->hidden_pixmap)
-			XFreePixmap(server.dsp, p->hidden_pixmap);
-		p->hidden_pixmap = XCreatePixmap(server.dsp, server.root_win, p->hidden_width, p->hidden_height, server.depth);
-		XCopyArea(server.dsp,
+			XFreePixmap(server.display, p->hidden_pixmap);
+		p->hidden_pixmap = XCreatePixmap(server.display, server.root_win, p->hidden_width, p->hidden_height, server.depth);
+		XCopyArea(server.display,
 				  p->area.pix,
 				  p->hidden_pixmap,
 				  server.gc,
@@ -750,10 +750,10 @@ void set_panel_background(Panel *p)
 		taskbar = &p->taskbar[i];
 		for (int k = 0; k < TASKBAR_STATE_COUNT; ++k) {
 			if (taskbar->state_pix[k])
-				XFreePixmap(server.dsp, taskbar->state_pix[k]);
+				XFreePixmap(server.display, taskbar->state_pix[k]);
 			taskbar->state_pix[k] = 0;
 			if (taskbar->bar_name.state_pix[k])
-				XFreePixmap(server.dsp, taskbar->bar_name.state_pix[k]);
+				XFreePixmap(server.display, taskbar->bar_name.state_pix[k]);
 			taskbar->bar_name.state_pix[k] = 0;
 		}
 		taskbar->area.pix = 0;
@@ -941,12 +941,12 @@ void autohide_show(void *p)
 	stop_autohide_timeout(panel);
 	panel->is_hidden = 0;
 
-	XMapSubwindows(server.dsp, panel->main_win); // systray windows
+	XMapSubwindows(server.display, panel->main_win); // systray windows
 	if (panel_horizontal) {
 		if (panel_position & TOP)
-			XResizeWindow(server.dsp, panel->main_win, panel->area.width, panel->area.height);
+			XResizeWindow(server.display, panel->main_win, panel->area.width, panel->area.height);
 		else
-			XMoveResizeWindow(server.dsp,
+			XMoveResizeWindow(server.display,
 							  panel->main_win,
 							  panel->posx,
 							  panel->posy,
@@ -954,9 +954,9 @@ void autohide_show(void *p)
 							  panel->area.height);
 	} else {
 		if (panel_position & LEFT)
-			XResizeWindow(server.dsp, panel->main_win, panel->area.width, panel->area.height);
+			XResizeWindow(server.display, panel->main_win, panel->area.width, panel->area.height);
 		else
-			XMoveResizeWindow(server.dsp,
+			XMoveResizeWindow(server.display,
 							  panel->main_win,
 							  panel->posx,
 							  panel->posy,
@@ -977,14 +977,14 @@ void autohide_hide(void *p)
 	if (panel_strut_policy == STRUT_FOLLOW_SIZE)
 		update_strut(panel);
 
-	XUnmapSubwindows(server.dsp, panel->main_win); // systray windows
+	XUnmapSubwindows(server.display, panel->main_win); // systray windows
 	int diff = (panel_horizontal ? panel->area.height : panel->area.width) - panel_autohide_height;
 	// printf("autohide_hide : diff %d, w %d, h %d\n", diff, panel->hidden_width, panel->hidden_height);
 	if (panel_horizontal) {
 		if (panel_position & TOP)
-			XResizeWindow(server.dsp, panel->main_win, panel->hidden_width, panel->hidden_height);
+			XResizeWindow(server.display, panel->main_win, panel->hidden_width, panel->hidden_height);
 		else
-			XMoveResizeWindow(server.dsp,
+			XMoveResizeWindow(server.display,
 							  panel->main_win,
 							  panel->posx,
 							  panel->posy + diff,
@@ -992,9 +992,9 @@ void autohide_hide(void *p)
 							  panel->hidden_height);
 	} else {
 		if (panel_position & LEFT)
-			XResizeWindow(server.dsp, panel->main_win, panel->hidden_width, panel->hidden_height);
+			XResizeWindow(server.display, panel->main_win, panel->hidden_width, panel->hidden_height);
 		else
-			XMoveResizeWindow(server.dsp,
+			XMoveResizeWindow(server.display,
 							  panel->main_win,
 							  panel->posx + diff,
 							  panel->posy,
@@ -1019,7 +1019,7 @@ void autohide_trigger_hide(Panel *p)
 	Window root, child;
 	int xr, yr, xw, yw;
 	unsigned int mask;
-	if (XQueryPointer(server.dsp, p->main_win, &root, &child, &xr, &yr, &xw, &yw, &mask))
+	if (XQueryPointer(server.display, p->main_win, &root, &child, &xr, &yr, &xw, &yw, &mask))
 		if (child)
 			return; // mouse over one of the system tray icons
 

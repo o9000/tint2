@@ -419,26 +419,26 @@ void render_image(Drawable d, int x, int y)
 
 	int w = imlib_image_get_width(), h = imlib_image_get_height();
 
-	Pixmap pixmap = XCreatePixmap(server.dsp, server.root_win, w, h, 32);
+	Pixmap pixmap = XCreatePixmap(server.display, server.root_win, w, h, 32);
 	imlib_context_set_drawable(pixmap);
 	imlib_context_set_blend(0);
 	imlib_render_image_on_drawable(0, 0);
 
-	Pixmap mask = XCreatePixmap(server.dsp, server.root_win, w, h, 32);
+	Pixmap mask = XCreatePixmap(server.display, server.root_win, w, h, 32);
 	imlib_context_set_drawable(mask);
 	imlib_context_set_blend(0);
 	imlib_render_image_on_drawable(0, 0);
 
-	Picture pict = XRenderCreatePicture(server.dsp, pixmap, XRenderFindStandardFormat(server.dsp, PictStandardARGB32), 0, 0);
-	Picture pict_drawable = XRenderCreatePicture(server.dsp, d, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
-	Picture pict_mask =	XRenderCreatePicture(server.dsp, mask, XRenderFindStandardFormat(server.dsp, PictStandardARGB32), 0, 0);
-	XRenderComposite(server.dsp, PictOpOver, pict, pict_mask, pict_drawable, 0, 0, 0, 0, x, y, w, h);
+	Picture pict = XRenderCreatePicture(server.display, pixmap, XRenderFindStandardFormat(server.display, PictStandardARGB32), 0, 0);
+	Picture pict_drawable = XRenderCreatePicture(server.display, d, XRenderFindVisualFormat(server.display, server.visual), 0, 0);
+	Picture pict_mask =	XRenderCreatePicture(server.display, mask, XRenderFindStandardFormat(server.display, PictStandardARGB32), 0, 0);
+	XRenderComposite(server.display, PictOpOver, pict, pict_mask, pict_drawable, 0, 0, 0, 0, x, y, w, h);
 
-	XRenderFreePicture(server.dsp, pict_mask);
-	XRenderFreePicture(server.dsp, pict_drawable);
-	XRenderFreePicture(server.dsp, pict);
-	XFreePixmap(server.dsp, mask);
-	XFreePixmap(server.dsp, pixmap);
+	XRenderFreePicture(server.display, pict_mask);
+	XRenderFreePicture(server.display, pict_drawable);
+	XRenderFreePicture(server.display, pict);
+	XFreePixmap(server.display, mask);
+	XFreePixmap(server.display, pixmap);
 }
 
 void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow)
@@ -557,11 +557,11 @@ void draw_rect(cairo_t *c, double x, double y, double w, double h, double r)
 
 void clear_pixmap(Pixmap p, int x, int y, int w, int h)
 {
-	Picture pict = XRenderCreatePicture(server.dsp, p, XRenderFindVisualFormat(server.dsp, server.visual), 0, 0);
+	Picture pict = XRenderCreatePicture(server.display, p, XRenderFindVisualFormat(server.display, server.visual), 0, 0);
 	XRenderColor col;
 	col.red = col.green = col.blue = col.alpha = 0;
-	XRenderFillRectangle(server.dsp, PictOpSrc, pict, &col, x, y, w, h);
-	XRenderFreePicture(server.dsp, pict);
+	XRenderFillRectangle(server.display, PictOpSrc, pict, &col, x, y, w, h);
+	XRenderFreePicture(server.display, pict);
 }
 
 void get_text_size2(PangoFontDescription *font,
@@ -578,9 +578,9 @@ void get_text_size2(PangoFontDescription *font,
 {
 	PangoRectangle rect_ink, rect;
 
-	Pixmap pmap = XCreatePixmap(server.dsp, server.root_win, panel_height, panel_width, server.depth);
+	Pixmap pmap = XCreatePixmap(server.display, server.root_win, panel_height, panel_width, server.depth);
 
-	cairo_surface_t *cs = cairo_xlib_surface_create(server.dsp, pmap, server.visual, panel_height, panel_width);
+	cairo_surface_t *cs = cairo_xlib_surface_create(server.display, pmap, server.visual, panel_height, panel_width);
 	cairo_t *c = cairo_create(cs);
 
 	PangoLayout *layout = pango_cairo_create_layout(c);
@@ -603,7 +603,7 @@ void get_text_size2(PangoFontDescription *font,
 	g_object_unref(layout);
 	cairo_destroy(c);
 	cairo_surface_destroy(cs);
-	XFreePixmap(server.dsp, pmap);
+	XFreePixmap(server.display, pmap);
 }
 
 #if !GLIB_CHECK_VERSION (2, 33, 4)

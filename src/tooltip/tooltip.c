@@ -57,7 +57,7 @@ void cleanup_tooltip()
 	tooltip_hide(NULL);
 	tooltip_copy_text(NULL);
 	if (g_tooltip.window)
-		XDestroyWindow(server.dsp, g_tooltip.window);
+		XDestroyWindow(server.display, g_tooltip.window);
 	g_tooltip.window = 0;
 	pango_font_description_free(g_tooltip.font_desc);
 	g_tooltip.font_desc = NULL;
@@ -77,8 +77,8 @@ void init_tooltip()
 	attr.border_pixel = 0;
 	unsigned long mask = CWEventMask | CWColormap | CWBorderPixel | CWBackPixel | CWOverrideRedirect;
 	if (g_tooltip.window)
-		XDestroyWindow(server.dsp, g_tooltip.window);
-	g_tooltip.window = XCreateWindow(server.dsp,
+		XDestroyWindow(server.display, g_tooltip.window);
+	g_tooltip.window = XCreateWindow(server.display,
 	                                 server.root_win,
 	                                 0,
 	                                 0,
@@ -131,15 +131,15 @@ void tooltip_show(void *arg)
 {
 	int mx, my;
 	Window w;
-	XTranslateCoordinates(server.dsp, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
+	XTranslateCoordinates(server.display, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
 	Area *area;
 	area = click_area(g_tooltip.panel, mx, my);
 	if (!g_tooltip.mapped && area->_get_tooltip_text) {
 		tooltip_copy_text(area);
 		g_tooltip.mapped = True;
-		XMapWindow(server.dsp, g_tooltip.window);
+		XMapWindow(server.display, g_tooltip.window);
 		tooltip_update();
-		XFlush(server.dsp);
+		XFlush(server.display);
 	}
 }
 
@@ -148,7 +148,7 @@ void tooltip_update_geometry()
 	cairo_surface_t *cs;
 	cairo_t *c;
 	PangoLayout *layout;
-	cs = cairo_xlib_surface_create(server.dsp, g_tooltip.window, server.visual, width, height);
+	cs = cairo_xlib_surface_create(server.display, g_tooltip.window, server.visual, width, height);
 	c = cairo_create(cs);
 	layout = pango_cairo_create_layout(c);
 	pango_layout_set_font_description(layout, g_tooltip.font_desc);
@@ -233,13 +233,13 @@ void tooltip_update()
 		just_shown = 0;
 	}
 	tooltip_adjust_geometry();
-	XMoveResizeWindow(server.dsp, g_tooltip.window, x, y, width, height);
+	XMoveResizeWindow(server.display, g_tooltip.window, x, y, width, height);
 
 	// Stuff for drawing the tooltip
 	cairo_surface_t *cs;
 	cairo_t *c;
 	PangoLayout *layout;
-	cs = cairo_xlib_surface_create(server.dsp, g_tooltip.window, server.visual, width, height);
+	cs = cairo_xlib_surface_create(server.display, g_tooltip.window, server.visual, width, height);
 	c = cairo_create(cs);
 	Color bc = g_tooltip.bg->fill_color;
 	Border b = g_tooltip.bg->border;
@@ -297,8 +297,8 @@ void tooltip_hide(void *arg)
 {
 	if (g_tooltip.mapped) {
 		g_tooltip.mapped = False;
-		XUnmapWindow(server.dsp, g_tooltip.window);
-		XFlush(server.dsp);
+		XUnmapWindow(server.display, g_tooltip.window);
+		XFlush(server.display);
 	}
 }
 

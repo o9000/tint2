@@ -74,7 +74,7 @@ gboolean window_is_hidden(Window win)
 		}
 		// do not add transient_for windows if the transient window is already in the taskbar
 		window = win;
-		while (XGetTransientForHint(server.dsp, window, &window)) {
+		while (XGetTransientForHint(server.display, window, &window)) {
 			if (task_get_tasks(window)) {
 				XFree(at);
 				return TRUE;
@@ -162,7 +162,7 @@ int get_window_monitor(Window win)
 	int i, x, y;
 	Window src;
 
-	XTranslateCoordinates(server.dsp, win, server.root_win, 0, 0, &x, &y, &src);
+	XTranslateCoordinates(server.display, win, server.root_win, 0, 0, &x, &y, &src);
 	int best_match = -1;
 	int match_right = 0;
 	int match_bottom = 0;
@@ -190,8 +190,8 @@ void get_window_coordinates(Window win, int *x, int *y, int *w, int *h)
 	int dummy_int;
 	unsigned ww, wh, bw, bh;
 	Window src;
-	XTranslateCoordinates(server.dsp, win, server.root_win, 0, 0, x, y, &src);
-	XGetGeometry(server.dsp, win, &src, &dummy_int, &dummy_int, &ww, &wh, &bw, &bh);
+	XTranslateCoordinates(server.display, win, server.root_win, 0, 0, x, y, &src);
+	XGetGeometry(server.display, win, &src, &dummy_int, &dummy_int, &ww, &wh, &bw, &bh);
 	*w = ww + bw;
 	*h = wh + bh;
 }

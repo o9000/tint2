@@ -382,9 +382,9 @@ static void check_manager_window(XSettingsClient *client)
 
 	XGrabServer(client->display);
 
-	client->manager_window = XGetSelectionOwner(server.dsp, server.atom._XSETTINGS_SCREEN);
+	client->manager_window = XGetSelectionOwner(server.display, server.atom._XSETTINGS_SCREEN);
 	if (client->manager_window)
-		XSelectInput(server.dsp, client->manager_window, PropertyChangeMask | StructureNotifyMask);
+		XSelectInput(server.display, client->manager_window, PropertyChangeMask | StructureNotifyMask);
 
 	XUngrabServer(client->display);
 	XFlush(client->display);
@@ -458,7 +458,7 @@ Bool xsettings_client_process_event(XSettingsClient *client, XEvent *xev)
 	* times when the manager changes from A->B. But manager changes
 	* are going to be pretty rare.
 	*/
-	if (xev->xany.window == RootWindow(server.dsp, server.screen)) {
+	if (xev->xany.window == RootWindow(server.display, server.screen)) {
 		if (xev->xany.type == ClientMessage && xev->xclient.message_type == server.atom.MANAGER) {
 			check_manager_window(client);
 			return True;

@@ -53,8 +53,8 @@ Task *add_task(Window win)
 		return NULL;
 	}
 
-	XSelectInput(server.dsp, win, PropertyChangeMask | StructureNotifyMask);
-	XFlush(server.dsp);
+	XSelectInput(server.display, win, PropertyChangeMask | StructureNotifyMask);
+	XFlush(server.display);
 
 	int monitor = 0;
 	if (num_panels > 1) {
@@ -180,7 +180,7 @@ void remove_task(Task *task)
 			task->icon_press[k] = 0;
 		}
 		if (task->state_pix[k])
-			XFreePixmap(server.dsp, task->state_pix[k]);
+			XFreePixmap(server.display, task->state_pix[k]);
 	}
 
 	GPtrArray *task_group = g_hash_table_lookup(win_to_task, &win);
@@ -281,7 +281,7 @@ void get_icon(Task *task)
 #endif
 	} else {
 		// get Pixmap icon
-		hints = XGetWMHints(server.dsp, task->win);
+		hints = XGetWMHints(server.display, task->win);
 		if (hints) {
 			if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
 				// get width, height and depth for the pixmap
@@ -291,7 +291,7 @@ void get_icon(Task *task)
 				uint w, h;
 
 				// printf("  get pixmap\n");
-				XGetGeometry(server.dsp, hints->icon_pixmap, &root, &icon_x, &icon_y, &w, &h, &border_width, &bpp);
+				XGetGeometry(server.display, hints->icon_pixmap, &root, &icon_x, &icon_y, &w, &h, &border_width, &bpp);
 				imlib_context_set_drawable(hints->icon_pixmap);
 				img = imlib_create_image_from_drawable(hints->icon_mask, 0, 0, w, h, 0);
 			}
@@ -446,7 +446,7 @@ void on_change_task(void *obj)
 	Panel *panel = (Panel *)task->area.panel;
 
 	long value[] = {panel->posx + task->area.posx, panel->posy + task->area.posy, task->area.width, task->area.height};
-	XChangeProperty(server.dsp,
+	XChangeProperty(server.display,
 					task->win,
 					server.atom._NET_WM_ICON_GEOMETRY,
 					XA_CARDINAL,
@@ -540,7 +540,7 @@ void reset_active_task()
 	if (w1) {
 		if (!task_get_tasks(w1)) {
 			Window w2;
-			while (XGetTransientForHint(server.dsp, w1, &w2))
+			while (XGetTransientForHint(server.display, w1, &w2))
 				w1 = w2;
 		}
 		set_task_state((active_task = task_get_task(w1)), TASK_ACTIVE);
@@ -617,7 +617,7 @@ void set_task_redraw(Task *task)
 {
 	for (int k = 0; k < TASK_STATE_COUNT; ++k) {
 		if (task->state_pix[k])
-			XFreePixmap(server.dsp, task->state_pix[k]);
+			XFreePixmap(server.display, task->state_pix[k]);
 		task->state_pix[k] = 0;
 	}
 	task->area.pix = 0;

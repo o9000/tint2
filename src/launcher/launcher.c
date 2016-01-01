@@ -378,7 +378,7 @@ void launcher_action(LauncherIcon *icon, XEvent *evt)
 	SnLauncherContext *ctx = 0;
 	Time time;
 	if (startup_notifications) {
-		ctx = sn_launcher_context_new(server.sn_dsp, server.screen);
+		ctx = sn_launcher_context_new(server.sn_display, server.screen);
 		sn_launcher_context_set_name(ctx, icon->icon_tooltip);
 		sn_launcher_context_set_description(ctx, "Application launched from tint2");
 		sn_launcher_context_set_binary_name(ctx, icon->cmd);

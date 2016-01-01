@@ -228,7 +228,7 @@ void draw_tree(Area *a)
 	}
 
 	if (a->pix)
-		XCopyArea(server.dsp, a->pix, ((Panel *)a->panel)->temp_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
+		XCopyArea(server.display, a->pix, ((Panel *)a->panel)->temp_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
 
 	for (GList *l = a->children; l; l = l->next)
 		draw_tree((Area *)l->data);
@@ -329,13 +329,13 @@ void schedule_redraw(Area *a)
 
 	if (a->has_mouse_over_effect) {
 		for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
-			XFreePixmap(server.dsp, a->pix_by_state[i]);
+			XFreePixmap(server.display, a->pix_by_state[i]);
 			if (a->pix == a->pix_by_state[i])
 				a->pix = None;
 			a->pix_by_state[i] = None;
 		}
 		if (a->pix) {
-			XFreePixmap(server.dsp, a->pix);
+			XFreePixmap(server.display, a->pix);
 			a->pix = None;
 		}
 	}
@@ -371,19 +371,19 @@ void show(Area *a)
 void draw(Area *a)
 {
 	if (a->pix) {
-		XFreePixmap(server.dsp, a->pix);
+		XFreePixmap(server.display, a->pix);
 		if (a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0] != a->pix)
-			XFreePixmap(server.dsp, a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0]);
+			XFreePixmap(server.display, a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0]);
 	}
-	a->pix = XCreatePixmap(server.dsp, server.root_win, a->width, a->height, server.depth);
+	a->pix = XCreatePixmap(server.display, server.root_win, a->width, a->height, server.depth);
 	a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0] = a->pix;
 
 	// Add layer of root pixmap (or clear pixmap if real_transparency==true)
 	if (server.real_transparency)
 		clear_pixmap(a->pix, 0, 0, a->width, a->height);
-	XCopyArea(server.dsp, ((Panel *)a->panel)->temp_pmap, a->pix, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+	XCopyArea(server.display, ((Panel *)a->panel)->temp_pmap, a->pix, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
 
-	cairo_surface_t *cs = cairo_xlib_surface_create(server.dsp, a->pix, server.visual, a->width, a->height);
+	cairo_surface_t *cs = cairo_xlib_surface_create(server.display, a->pix, server.visual, a->width, a->height);
 	cairo_t *c = cairo_create(cs);
 
 	draw_background(a, c);
@@ -502,14 +502,14 @@ void free_area(Area *a)
 		a->children = NULL;
 	}
 	for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
-		XFreePixmap(server.dsp, a->pix_by_state[i]);
+		XFreePixmap(server.display, a->pix_by_state[i]);
 		if (a->pix == a->pix_by_state[i]) {
 			a->pix = None;
 		}
 		a->pix_by_state[i] = None;
 	}
 	if (a->pix) {
-		XFreePixmap(server.dsp, a->pix);
+		XFreePixmap(server.display, a->pix);
 		a->pix = None;
 	}
 	if (mouse_over_area == a) {

@@ -127,7 +127,7 @@ void cleanup_taskbarname()
 			free_area(&taskbar->bar_name.area);
 			for (k = 0; k < TASKBAR_STATE_COUNT; ++k) {
 				if (taskbar->bar_name.state_pix[k])
-					XFreePixmap(server.dsp, taskbar->bar_name.state_pix[k]);
+					XFreePixmap(server.display, taskbar->bar_name.state_pix[k]);
 				taskbar->bar_name.state_pix[k] = 0;
 			}
 			remove_area((Area *)&taskbar->bar_name);

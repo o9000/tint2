@@ -110,7 +110,7 @@ typedef struct Viewport {
 } Viewport;
 
 typedef struct Server {
-	Display *dsp;
+	Display *display;
 	Window root_win;
 	Window composite_manager;
 	gboolean real_transparency;
@@ -136,7 +136,7 @@ typedef struct Server {
 	Colormap colormap32;
 	Global_atom atom;
 #ifdef HAVE_SN
-	SnDisplay *sn_dsp;
+	SnDisplay *sn_display;
 	GTree *pids;
 #endif // HAVE_SN
 } Server;

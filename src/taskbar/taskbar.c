@@ -101,7 +101,7 @@ void cleanup_taskbar()
 			Taskbar *taskbar = &panel->taskbar[j];
 			for (int k = 0; k < TASKBAR_STATE_COUNT; ++k) {
 				if (taskbar->state_pix[k])
-					XFreePixmap(server.dsp, taskbar->state_pix[k]);
+					XFreePixmap(server.display, taskbar->state_pix[k]);
 				taskbar->state_pix[k] = 0;
 			}
 			free_area(&taskbar->area);
@@ -425,7 +425,7 @@ void on_change_taskbar(void *obj)
 	// reset Pixmap when position/size changed
 	for (int k = 0; k < TASKBAR_STATE_COUNT; ++k) {
 		if (taskbar->state_pix[k])
-			XFreePixmap(server.dsp, taskbar->state_pix[k]);
+			XFreePixmap(server.display, taskbar->state_pix[k]);
 		taskbar->state_pix[k] = 0;
 	}
 	taskbar->area.pix = 0;
