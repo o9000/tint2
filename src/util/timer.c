@@ -96,6 +96,8 @@ void cleanup_timeout()
 
 timeout *add_timeout(int value_msec, int interval_msec, void (*_callback)(void *), void *arg, timeout **self)
 {
+	if (self && *self)
+		return *self;
 	timeout *t = calloc(1, sizeof(timeout));
 	t->self = self;
 	add_timeout_intern(value_msec, interval_msec, _callback, arg, t);
