@@ -1431,6 +1431,7 @@ on_systray_error:
 
 void systray_render_icon(void *t)
 {
+	abort();
 	TrayWindow *traywin = t;
 	if (systray_profile)
 		fprintf(stderr,

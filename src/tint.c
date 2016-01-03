@@ -31,6 +31,9 @@
 #include <X11/extensions/Xdamage.h>
 #include <Imlib2.h>
 #include <signal.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #ifdef HAVE_SN
 #include <libsn/sn.h>
@@ -165,11 +168,31 @@ const char *signal_name(int sig)
 	return s;
 }
 
+void log_string(int fd, const char *s)
+{
+	write_string(2, s);
+	write_string(fd, s);
+}
+
+const char *get_home_dir()
+{
+	const char *s = getenv("HOME");
+	if (s)
+		return s;
+	struct passwd *pw = getpwuid(getuid());
+	if (!pw)
+		return NULL;
+	return pw->pw_dir;
+}
+
 void crash_handler(int sig)
 {
-	write_string(2, "Crashing with signal ");
-	write_string(2, signal_name(sig));
-	write_string(2, "\nBacktrace:\n");
+	char path[4096];
+	sprintf(path, "%s/.tint2-crash.log", get_home_dir());
+	int log_fd = open(path, O_WRONLY|O_CREAT|O_TRUNC, 0600);
+	log_string(log_fd, "Crashing with signal ");
+	log_string(log_fd, signal_name(sig));
+	log_string(log_fd, "\nBacktrace:\n");
 
 #ifdef ENABLE_LIBUNWIND
 	unw_cursor_t cursor;
@@ -182,8 +205,8 @@ void crash_handler(int sig)
 		char fname[128];
 		fname[0] = '\0';
 		(void) unw_get_proc_name(&cursor, fname, sizeof(fname), &offset);
-		write_string(2, fname);
-		write_string(2, "\n");
+		log_string(log_fd, fname);
+		log_string(log_fd, "\n");
 	}
 #else
 #ifdef ENABLE_EXECINFO
@@ -193,13 +216,13 @@ void crash_handler(int sig)
 	char **strings = backtrace_symbols(array, size);
 
 	for (size_t i = 0; i < size; i++) {
-		write_string(2, strings[i]);
-		write_string(2, "\n");
+		log_string(log_fd, strings[i]);
+		log_string(log_fd, "\n");
 	}
 
 	free(strings);
 #else
-	write_string(2, "Backtrace not supported on this system. Install libunwind or libexecinfo.\n");
+	log_string(log_fd, "Backtrace not supported on this system. Install libunwind or libexecinfo.\n");
 #endif
 #endif
 	_exit(sig);
