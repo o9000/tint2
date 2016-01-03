@@ -56,6 +56,10 @@ if( NOT IMLIB_BUILD_WITH_X )
   message( FATAL_ERROR "Imlib is not built with X support" )
 endif( NOT IMLIB_BUILD_WITH_X )
 
+if( NOT BACKTRACE_LIBC_FOUND AND NOT UNWIND_FOUND AND NOT EXECINFO_FOUND )
+  message( WARNING "Backtrace support not available. You can enable it with libexecinfo/libunwind or libc." )
+endif()
+
 add_definitions( -D_GNU_SOURCE )
 
 include_directories( ${PROJECT_BINARY_DIR}
