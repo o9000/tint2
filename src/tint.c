@@ -146,7 +146,7 @@ const char *signal_name(int sig)
 	case SIGPIPE: return "SIGPIPE: Broken pipe (POSIX).";
 	case SIGALRM: return "SIGALRM: Alarm clock (POSIX).";
 	case SIGTERM: return "SIGTERM: Termination (ANSI).";
-	case SIGSTKFLT: return "SIGSTKFLT: Stack fault.";
+	//case SIGSTKFLT: return "SIGSTKFLT: Stack fault.";
 	case SIGCHLD: return "SIGCHLD: Child status has changed (POSIX).";
 	case SIGCONT: return "SIGCONT: Continue (POSIX).";
 	case SIGSTOP: return "SIGSTOP: Stop, unblockable (POSIX).";
@@ -160,7 +160,7 @@ const char *signal_name(int sig)
 	case SIGPROF: return "SIGPROF: Profiling alarm clock (4.2 BSD).";
 	case SIGWINCH: return "SIGWINCH: Window size change (4.3 BSD, Sun).";
 	case SIGIO: return "SIGIO: Pollable event occurred (System V) / I/O now possible (4.2 BSD).";
-	case SIGPWR: return "SIGPWR: Power failure restart (System V).";
+	//case SIGPWR: return "SIGPWR: Power failure restart (System V).";
 	case SIGSYS: return "SIGSYS: Bad system call.";
 	}
 	static char s[64];
