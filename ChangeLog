@@ -16,6 +16,8 @@
   - Reverted the window flags back to the value in 0.11 to make sure the window manager detects that tint2 is a panel
     (fixes issue #537, breaks issue #455)
   - Fixed a rare crash caused by the system tray code
+- New dependencies:
+  - libexecinfo on the *BSDs
 2015-11-12 0.12.3
 - Enhancements:
   - Battery: Multiple batteries are now supported under Linux (issue #139;
