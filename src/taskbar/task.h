@@ -18,6 +18,7 @@ typedef enum TaskState {
 	TASK_ACTIVE,
 	TASK_ICONIFIED,
 	TASK_URGENT,
+	TASK_UNDEFINED,
 	TASK_STATE_COUNT,
 } TaskState;
 

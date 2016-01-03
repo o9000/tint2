@@ -104,7 +104,7 @@ Task *add_task(Window win)
 		task_instance->win_y = task_template.win_y;
 		task_instance->win_w = task_template.win_w;
 		task_instance->win_h = task_template.win_h;
-		task_instance->current_state = -1; // to update the current state later in set_task_state...
+		task_instance->current_state = TASK_UNDEFINED; // to update the current state later in set_task_state...
 		if (task_instance->desktop == ALL_DESKTOPS && server.desktop != j) {
 			// fprintf(stderr, "%s %d: win = %ld hiding task: another desktop\n", __FUNCTION__, __LINE__, win);
 			task_instance->area.on_screen = FALSE;
@@ -549,7 +549,7 @@ void reset_active_task()
 
 void set_task_state(Task *task, TaskState state)
 {
-	if (!task || state < 0 || state >= TASK_STATE_COUNT)
+	if (!task || state == TASK_UNDEFINED || state >= TASK_STATE_COUNT)
 		return;
 
 	if (state == TASK_ACTIVE && task->current_state != state) {
