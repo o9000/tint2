@@ -34,6 +34,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <time.h>
+#include <sys/time.h>
 
 #ifdef HAVE_SN
 #include <libsn/sn.h>
@@ -75,6 +77,7 @@ XSettingsClient *xsettings_client = NULL;
 
 timeout *detect_compositor_timer = NULL;
 int detect_compositor_timer_counter = 0;
+double start_time = 0;
 
 void detect_compositor(void *arg)
 {
@@ -185,14 +188,9 @@ const char *get_home_dir()
 	return pw->pw_dir;
 }
 
-void crash_handler(int sig)
+void dump_backtrace(int log_fd)
 {
-	char path[4096];
-	sprintf(path, "%s/.tint2-crash.log", get_home_dir());
-	int log_fd = open(path, O_WRONLY|O_CREAT|O_TRUNC, 0600);
-	log_string(log_fd, "Crashing with signal ");
-	log_string(log_fd, signal_name(sig));
-	log_string(log_fd, "\nBacktrace:\n");
+	log_string(log_fd, YELLOW "\nBacktrace:\n");
 
 #ifdef ENABLE_LIBUNWIND
 	unw_cursor_t cursor;
@@ -225,7 +223,61 @@ void crash_handler(int sig)
 	log_string(log_fd, "Backtrace not supported on this system. Install libunwind or libexecinfo.\n");
 #endif
 #endif
-	_exit(sig);
+	log_string(log_fd, RESET);
+}
+
+// sleep() returns early when signals arrive. This function does not.
+void safe_sleep(int seconds)
+{
+	double t0 = get_time();
+	while (1) {
+		double t = get_time();
+		if (t > t0 + seconds)
+			return;
+		sleep(1);
+	}
+}
+
+void reexecute_tint2()
+{
+	write_string(2, GREEN "Attempting to restart tint2...\n" RESET);
+	// If tint2 cannot stay stable for 30 seconds, don't restart
+	if (get_time() - start_time < 30) {
+		write_string(2, GREEN "Not restarting tint2 since the uptime is too small.\n" RESET);
+		exit(-1);
+	}
+	safe_sleep(1);
+	close_all_fds();
+	char *path = get_own_path();
+	execlp(path, path, "-c", config_path, NULL);
+	exit(-1);
+}
+
+void crash_handler(int sig)
+{
+	// We are going to crash, so restart the panel
+	char path[4096];
+	sprintf(path, "%s/.tint2-crash.log", get_home_dir());
+	int log_fd = open(path, O_WRONLY|O_CREAT|O_TRUNC, 0600);
+	log_string(log_fd, RED "tint2 crashed with signal " RESET);
+	log_string(log_fd, signal_name(sig));
+	dump_backtrace(log_fd);
+	log_string(log_fd, RED "Please create a bug report with this log output.\n" RESET);
+	close(log_fd);
+	reexecute_tint2();
+}
+
+void x11_io_error(Display *display)
+{
+	// We are going to crash, so restart the panel
+	char path[4096];
+	sprintf(path, "%s/.tint2-crash.log", get_home_dir());
+	int log_fd = open(path, O_WRONLY|O_CREAT|O_TRUNC, 0600);
+	log_string(log_fd, RED "tint2 crashed due to an X11 I/O error" RESET);
+	dump_backtrace(log_fd);
+	log_string(log_fd, RED "Please create a bug report with this log output.\n" RESET);
+	close(log_fd);
+	reexecute_tint2();
 }
 
 void init(int argc, char *argv[])
@@ -373,6 +425,7 @@ void init_X11_pre_config()
 		exit(1);
 	}
 	XSetErrorHandler((XErrorHandler)server_catch_error);
+	XSetIOErrorHandler((XIOErrorHandler)x11_io_error);
 	server_init_atoms();
 	server.screen = DefaultScreen(server.display);
 	server.root_win = RootWindow(server.display, server.screen);
@@ -1387,6 +1440,8 @@ void dnd_drop(XClientMessageEvent *e)
 int main(int argc, char *argv[])
 {
 start:
+	start_time = get_time();
+
 	init(argc, argv);
 
 	init_X11_pre_config();

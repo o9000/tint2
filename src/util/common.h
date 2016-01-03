@@ -14,7 +14,7 @@
 
 #define GREEN  "\033[1;32m"
 #define YELLOW "\033[1;33m"
-#define RED    "\033[31m"
+#define RED    "\033[1;31m"
 #define BLUE   "\033[1;34m"
 #define RESET  "\033[0m"
 
@@ -107,5 +107,9 @@ GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data);
 #if !GLIB_CHECK_VERSION (2, 38, 0)
 #define g_assert_null(expr) g_assert((expr) == NULL)
 #endif
+
+void close_all_fds();
+
+char* get_own_path();
 
 #endif

@@ -28,6 +28,7 @@
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xrender.h>
+#include <unistd.h>
 
 #include "systraybar.h"
 #include "server.h"

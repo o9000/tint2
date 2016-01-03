@@ -69,4 +69,6 @@ struct timespec add_msec_to_timespec(struct timespec ts, int msec);
 // At the first call returns zero.
 double profiling_get_time();
 
+double get_time();
+
 #endif // TIMER_H

@@ -435,11 +435,16 @@ void stop_multi_timeout(timeout *t)
 
 double profiling_get_time_old_time = 0;
 
-double profiling_get_time()
+double get_time()
 {
 	struct timespec cur_time;
 	clock_gettime(CLOCK_MONOTONIC, &cur_time);
-	double t = cur_time.tv_sec + cur_time.tv_nsec * 1.0e-9;
+	return cur_time.tv_sec + cur_time.tv_nsec * 1.0e-9;
+}
+
+double profiling_get_time()
+{
+	double t = get_time();
 	if (profiling_get_time_old_time == 0)
 		profiling_get_time_old_time = t;
 	double delta = t - profiling_get_time_old_time;
