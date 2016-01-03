@@ -51,6 +51,15 @@
 #include "xsettings-client.h"
 #include "uevent.h"
 
+#ifdef ENABLE_LIBUNWIND
+#define UNW_LOCAL_ONLY
+#include <libunwind.h>
+#else
+#ifdef ENABLE_EXECINFO
+#include <execinfo.h>
+#endif
+#endif
+
 // Drag and Drop state variables
 Window dnd_source_window;
 Window dnd_target_window;
@@ -102,6 +111,98 @@ void signal_handler(int sig)
 {
 	// signal handler is light as it should be
 	signal_pending = sig;
+}
+
+void write_string(int fd, const char *s)
+{
+	int len = strlen(s);
+	while (len > 0) {
+		int count = write(fd, s, len);
+		if (count >= 0) {
+			s += count;
+			len -= count;
+		}
+	}
+}
+
+const char *signal_name(int sig)
+{
+	switch (sig) {
+	case SIGHUP: return "SIGHUP: Hangup (POSIX).";
+	case SIGINT: return "SIGINT: Interrupt (ANSI).";
+	case SIGQUIT: return "SIGQUIT: Quit (POSIX).";
+	case SIGILL: return "SIGILL: Illegal instruction (ANSI).";
+	case SIGTRAP: return "SIGTRAP: Trace trap (POSIX).";
+	case SIGABRT: return "SIGABRT/SIGIOT: Abort (ANSI) / IOT trap (4.2 BSD).";
+	case SIGBUS: return "SIGBUS: BUS error (4.2 BSD).";
+	case SIGFPE: return "SIGFPE: Floating-point exception (ANSI).";
+	case SIGKILL: return "SIGKILL: Kill, unblockable (POSIX).";
+	case SIGUSR1: return "SIGUSR1: User-defined signal 1 (POSIX).";
+	case SIGSEGV: return "SIGSEGV: Segmentation violation (ANSI).";
+	case SIGUSR2: return "SIGUSR2: User-defined signal 2 (POSIX).";
+	case SIGPIPE: return "SIGPIPE: Broken pipe (POSIX).";
+	case SIGALRM: return "SIGALRM: Alarm clock (POSIX).";
+	case SIGTERM: return "SIGTERM: Termination (ANSI).";
+	case SIGSTKFLT: return "SIGSTKFLT: Stack fault.";
+	case SIGCHLD: return "SIGCHLD: Child status has changed (POSIX).";
+	case SIGCONT: return "SIGCONT: Continue (POSIX).";
+	case SIGSTOP: return "SIGSTOP: Stop, unblockable (POSIX).";
+	case SIGTSTP: return "SIGTSTP: Keyboard stop (POSIX).";
+	case SIGTTIN: return "SIGTTIN: Background read from tty (POSIX).";
+	case SIGTTOU: return "SIGTTOU: Background write to tty (POSIX).";
+	case SIGURG: return "SIGURG: Urgent condition on socket (4.2 BSD).";
+	case SIGXCPU: return "SIGXCPU: CPU limit exceeded (4.2 BSD).";
+	case SIGXFSZ: return "SIGXFSZ: File size limit exceeded (4.2 BSD).";
+	case SIGVTALRM: return "SIGVTALRM: Virtual alarm clock (4.2 BSD).";
+	case SIGPROF: return "SIGPROF: Profiling alarm clock (4.2 BSD).";
+	case SIGWINCH: return "SIGWINCH: Window size change (4.3 BSD, Sun).";
+	case SIGIO: return "SIGIO: Pollable event occurred (System V) / I/O now possible (4.2 BSD).";
+	case SIGPWR: return "SIGPWR: Power failure restart (System V).";
+	case SIGSYS: return "SIGSYS: Bad system call.";
+	}
+	static char s[64];
+	sprintf(s, "SIG=%d: Unknown", sig);
+	return s;
+}
+
+void crash_handler(int sig)
+{
+	write_string(2, "Crashing with signal ");
+	write_string(2, signal_name(sig));
+	write_string(2, "\nBacktrace:\n");
+
+#ifdef ENABLE_LIBUNWIND
+	unw_cursor_t cursor;
+	unw_context_t context;
+	unw_getcontext(&context);
+	unw_init_local(&cursor, &context);
+
+	while (unw_step(&cursor) > 0) {
+		unw_word_t offset;
+		char fname[128];
+		fname[0] = '\0';
+		(void) unw_get_proc_name(&cursor, fname, sizeof(fname), &offset);
+		write_string(2, fname);
+		write_string(2, "\n");
+	}
+#else
+#ifdef ENABLE_EXECINFO
+#define MAX_TRACE_SIZE 128
+	void *array[MAX_TRACE_SIZE];
+	size_t size = backtrace(array, MAX_TRACE_SIZE);
+	char **strings = backtrace_symbols(array, size);
+
+	for (size_t i = 0; i < size; i++) {
+		write_string(2, strings[i]);
+		write_string(2, "\n");
+	}
+
+	free(strings);
+#else
+	write_string(2, "Backtrace not supported on this system. Install libunwind or libexecinfo.\n");
+#endif
+#endif
+	_exit(sig);
 }
 
 void init(int argc, char *argv[])
@@ -162,11 +263,18 @@ void init(int argc, char *argv[])
 	signal_pending = 0;
 	struct sigaction sa = {.sa_handler = signal_handler};
 	struct sigaction sa_chld = {.sa_handler = SIG_DFL, .sa_flags = SA_NOCLDWAIT};
+	struct sigaction sa_crash = {.sa_handler = crash_handler};
 	sigaction(SIGUSR1, &sa, 0);
 	sigaction(SIGINT, &sa, 0);
 	sigaction(SIGTERM, &sa, 0);
 	sigaction(SIGHUP, &sa, 0);
 	sigaction(SIGCHLD, &sa_chld, 0);
+	sigaction(SIGSEGV, &sa_crash, 0);
+	sigaction(SIGFPE, &sa_crash, 0);
+	sigaction(SIGPIPE, &sa_crash, 0);
+	sigaction(SIGBUS, &sa_crash, 0);
+	sigaction(SIGABRT, &sa_crash, 0);
+	sigaction(SIGSYS, &sa_crash, 0);
 }
 
 static int sn_pipe_valid = 0;

@@ -13,6 +13,7 @@ endif( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
 
 include( FindPkgConfig )
 include( CheckLibraryExists )
+include( CheckCSourceCompiles )
 pkg_check_modules( X11 REQUIRED x11 xcomposite xdamage xinerama xrender xrandr>=1.3 )
 pkg_check_modules( PANGOCAIRO REQUIRED pangocairo )
 pkg_check_modules( PANGO REQUIRED pango )
@@ -20,6 +21,19 @@ pkg_check_modules( CAIRO REQUIRED cairo )
 pkg_check_modules( GLIB2 REQUIRED glib-2.0 )
 pkg_check_modules( GOBJECT2 REQUIRED gobject-2.0 )
 pkg_check_modules( IMLIB2 REQUIRED imlib2>=1.4.2 )
+
+check_c_source_compiles(
+	"#include <stdlib.h>\n#include <execinfo.h>\nint main () { backtrace(NULL, 0); }"
+	BACKTRACE_LIBC)
+
+if(BACKTRACE_LIBC)
+	set(BACKTRACE_LIBC_FOUND TRUE)
+	set(BACKTRACE_L_FLAGS "-rdynamic")
+else()
+	pkg_check_modules( UNWIND libunwind )
+	pkg_check_modules( EXECINFO execinfo )
+	set(BACKTRACE_L_FLAGS "")
+endif()
 
 if( ENABLE_RSVG )
 pkg_check_modules( RSVG librsvg-2.0>=2.14.0 )
@@ -129,6 +143,18 @@ if( ENABLE_UEVENT )
   set( SOURCES ${SOURCES} src/util/uevent.c)
 endif( ENABLE_UEVENT )
 
+if(BACKTRACE_LIBC_FOUND)
+  add_definitions( -DENABLE_EXECINFO )
+endif()
+
+if( UNWIND_FOUND )
+  add_definitions( -DENABLE_LIBUNWIND )
+endif( UNWIND_FOUND )
+
+if( EXECINFO_FOUND )
+  add_definitions( -DENABLE_EXECINFO )
+endif( EXECINFO_FOUND )
+
 if( ENABLE_TINT2CONF )
   add_definitions( -DHAVE_VERSION_H )
   add_subdirectory( src/tint2conf )
@@ -166,7 +192,9 @@ target_link_libraries( tint2 ${X11_LIBRARIES}
                              ${CAIRO_LIBRARIES}
                              ${GLIB2_LIBRARIES}
                              ${GOBJECT2_LIBRARIES}
-                             ${IMLIB2_LIBRARIES} )
+							 ${IMLIB2_LIBRARIES}
+							 ${UNWIND_LIBRARIES}
+							 ${EXECINFO_LIBRARIES} )
 if( ENABLE_RSVG )
   target_link_libraries( tint2 ${RSVG_LIBRARIES} )
 endif( ENABLE_RSVG )
@@ -181,7 +209,7 @@ target_link_libraries( tint2 m )
 
 add_dependencies( tint2 version )
 set_target_properties( tint2 PROPERTIES COMPILE_FLAGS "-Wall -Wpointer-arith -fno-strict-aliasing -pthread -std=c99 ${ASAN_C_FLAGS}" )
-set_target_properties( tint2 PROPERTIES LINK_FLAGS "-pthread -fno-strict-aliasing ${ASAN_L_FLAGS}" )
+set_target_properties( tint2 PROPERTIES LINK_FLAGS "-pthread -fno-strict-aliasing ${ASAN_L_FLAGS} ${BACKTRACE_L_FLAGS}" )
 
 install( TARGETS tint2 DESTINATION bin )
 install( FILES tint2.svg DESTINATION ${DATADIR}/icons/hicolor/scalable/apps )
