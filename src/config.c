@@ -1147,6 +1147,7 @@ gboolean config_read_default_path()
 	}
 
 	// generate empty config file
+	fprintf(stderr, "tint2 warning: could not find a config file!\n");
 	gchar *dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
 	if (!g_file_test(dir, G_FILE_TEST_IS_DIR))
 		g_mkdir(dir, 0700);
