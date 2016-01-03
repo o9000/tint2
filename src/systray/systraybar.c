@@ -939,6 +939,8 @@ gboolean embed_icon(TrayWindow *traywin)
 
 void remove_icon(TrayWindow *traywin)
 {
+	// This code causes an X11 I/O error
+	// close(((_XPrivDisplay)server.display)->fd);
 	if (systray_profile)
 		fprintf(stderr,
 		        "[%f] %s:%d win = %lu (%s)\n",
