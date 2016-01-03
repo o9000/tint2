@@ -1057,7 +1057,7 @@ gboolean config_read_file(const char *path)
 	char *key, *value;
 
 	if ((fp = fopen(path, "r")) == NULL)
-		return 0;
+		return FALSE;
 
 	while (fgets(line, sizeof(line), fp) != NULL) {
 		if (parse_line(line, &key, &value)) {
@@ -1098,7 +1098,7 @@ gboolean config_read_file(const char *path)
 			memcpy(&bg->border_color_pressed, &bg->border_color_hover, sizeof(Color));
 	}
 
-	return 1;
+	return TRUE;
 }
 
 gboolean config_read_default_path()
@@ -1133,7 +1133,7 @@ gboolean config_read_default_path()
 		// copy file in user directory (path1)
 		gchar *dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
 		if (!g_file_test(dir, G_FILE_TEST_IS_DIR))
-			g_mkdir(dir, 0777);
+			g_mkdir(dir, 0700);
 		g_free(dir);
 
 		path1 = g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
@@ -1145,7 +1145,20 @@ gboolean config_read_default_path()
 		g_free(path1);
 		return result;
 	}
-	return 0;
+
+	// generate empty config file
+	gchar *dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
+	if (!g_file_test(dir, G_FILE_TEST_IS_DIR))
+		g_mkdir(dir, 0700);
+	g_free(dir);
+
+	path1 = g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
+	copy_file("/dev/null", path1);
+
+	gboolean result = config_read_file(path1);
+	config_path = strdup(path1);
+	g_free(path1);
+	return result;
 }
 
 gboolean config_read()

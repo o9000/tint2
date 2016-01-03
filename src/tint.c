@@ -369,9 +369,10 @@ void init_X11_pre_config()
 {
 	server.display = XOpenDisplay(NULL);
 	if (!server.display) {
-		fprintf(stderr, "tint2 exit : could not open display.\n");
-		exit(0);
+		fprintf(stderr, "tint2: could not open display.\n");
+		exit(1);
 	}
+	XSetErrorHandler((XErrorHandler)server_catch_error);
 	server_init_atoms();
 	server.screen = DefaultScreen(server.display);
 	server.root_win = RootWindow(server.display, server.screen);
@@ -396,7 +397,6 @@ void init_X11_pre_config()
 void init_X11_post_config()
 {
 	server_init_visual();
-	XSetErrorHandler((XErrorHandler)server_catch_error);
 
 #ifdef HAVE_SN
 	// Initialize startup-notification
@@ -1392,7 +1392,8 @@ start:
 	init_X11_pre_config();
 
 	if (!config_read()) {
-		fprintf(stderr, "usage: tint2 [-c] <config_file>\n");
+		fprintf(stderr, "Could not read config file.\n"
+						"Usage: tint2 [[-c] <config_file>]\n");
 		cleanup();
 		exit(1);
 	}
