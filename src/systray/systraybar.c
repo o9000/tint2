@@ -547,14 +547,19 @@ gboolean add_icon(Window win)
 		}
 	}
 
-	// Check if the application leaves behind empty icons
-	int num_empty_same_pid = 0;
 	for (GSList *l = systray.list_icons; l; l = l->next) {
 		TrayWindow *other = (TrayWindow *)l->data;
 		if (other->win == win) {
 			free(name);
 			return FALSE;
 		}
+	}
+
+	// Check if the application leaves behind empty icons
+	int num_empty_same_pid = 0;
+#if 0
+	for (GSList *l = systray.list_icons; l; l = l->next) {
+		TrayWindow *other = (TrayWindow *)l->data;
 		if (!systray_composited) {
 			// Empty icon detection: we compare the contents of the icon with the contents of the panel pixmap.
 			// If any pixel is different, the icon is not empty.
@@ -628,6 +633,7 @@ gboolean add_icon(Window win)
 			}
 		}
 	}
+#endif
 
 	// Create the parent window that will embed the icon
 	XWindowAttributes attr;
