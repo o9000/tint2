@@ -78,6 +78,7 @@ XSettingsClient *xsettings_client = NULL;
 timeout *detect_compositor_timer = NULL;
 int detect_compositor_timer_counter = 0;
 double start_time = 0;
+int crash_count = 0;
 
 void detect_compositor(void *arg)
 {
@@ -127,6 +128,8 @@ void write_string(int fd, const char *s)
 		if (count >= 0) {
 			s += count;
 			len -= count;
+		} else {
+			break;
 		}
 	}
 }
@@ -242,42 +245,42 @@ void reexecute_tint2()
 {
 	write_string(2, GREEN "Attempting to restart tint2...\n" RESET);
 	// If tint2 cannot stay stable for 30 seconds, don't restart
-	if (get_time() - start_time < 30) {
-		write_string(2, GREEN "Not restarting tint2 since the uptime is too small.\n" RESET);
-		exit(-1);
+	if (get_time() - start_time < 30 && crash_count > 0) {
+		write_string(2, GREEN "Not restarting tint2 since the uptime from the last crash is too small.\n" RESET);
+		_exit(-1);
 	}
 	safe_sleep(1);
 	close_all_fds();
 	char *path = get_own_path();
-	execlp(path, path, "-c", config_path, NULL);
-	exit(-1);
+	if (fork() == 0) {
+		execlp(path, path, "--crashed", "-c", config_path, NULL);
+	}
+	_exit(-1);
+}
+
+void handle_crash(const char *reason)
+{
+	// We are going to crash, so restart the panel
+	char path[4096];
+	sprintf(path, "%s/.tint2-crash.log", get_home_dir());
+	int log_fd = open(path, O_WRONLY|O_CREAT|O_TRUNC, 0600);
+	log_string(log_fd, RED "tint2 crashed, reason: ");
+	log_string(log_fd, reason);
+	log_string(log_fd, RESET "\n");
+	dump_backtrace(log_fd);
+	log_string(log_fd, RED "Please create a bug report with this log output.\n" RESET);
+	close(log_fd);
+	reexecute_tint2();
 }
 
 void crash_handler(int sig)
 {
-	// We are going to crash, so restart the panel
-	char path[4096];
-	sprintf(path, "%s/.tint2-crash.log", get_home_dir());
-	int log_fd = open(path, O_WRONLY|O_CREAT|O_TRUNC, 0600);
-	log_string(log_fd, RED "tint2 crashed with signal " RESET);
-	log_string(log_fd, signal_name(sig));
-	dump_backtrace(log_fd);
-	log_string(log_fd, RED "Please create a bug report with this log output.\n" RESET);
-	close(log_fd);
-	reexecute_tint2();
+	handle_crash(signal_name(sig));
 }
 
 void x11_io_error(Display *display)
 {
-	// We are going to crash, so restart the panel
-	char path[4096];
-	sprintf(path, "%s/.tint2-crash.log", get_home_dir());
-	int log_fd = open(path, O_WRONLY|O_CREAT|O_TRUNC, 0600);
-	log_string(log_fd, RED "tint2 crashed due to an X11 I/O error" RESET);
-	dump_backtrace(log_fd);
-	log_string(log_fd, RED "Please create a bug report with this log output.\n" RESET);
-	close(log_fd);
-	reexecute_tint2();
+	handle_crash("X11 I/O error");
 }
 
 void init(int argc, char *argv[])
@@ -310,6 +313,8 @@ void init(int argc, char *argv[])
 		} else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
 			printf("tint2 version %s\n", VERSION_STRING);
 			exit(0);
+		} else if (strcmp(argv[i], "--crashed") == 0) {
+			crash_count++;
 		} else if (strcmp(argv[i], "-c") == 0) {
 			if (i + 1 < argc) {
 				i++;
