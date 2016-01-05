@@ -1,12 +1,15 @@
-2016-01-03 master
+2016-01-05 master
 - Enhancements:
   - Support for NETWM viewports (as in Compiz) (issue #94)
   - The default desktop font (Gtk/FontName from XSettings) is used when a font is not specified in the config file
   - When no fonts are specified in the config, tint2 picks up the default font of the desktop environment via XSettings
-  - Tint2 dumps a stack trace to stderr and ~/.tint2-crash.log in case of a crash
+  - Tint2 dumps a stack trace to stderr and ~/.tint2-crash.log in case of a crash;
+    if the cmake flag ENABLE_BACKTRACE is set, stack traces are dumped on X11 I/O errors;
+    if the cmake flag ENABLE_BACKTRACE_ON_SIGNAL is set, stack traces are dumped also on signals such as SIGSEGV
   - Tint2 attempts to restart itself after a crash, but only if it has been running for more than 30 seconds
   - Pixmaps are cached instead of always redrawn between different button states when mouse effects are enabled,
     to improve performance
+  - Tint2 now sleeps for 1 second at startup to avoid races with the compositor
 - New config options:
   - Executor: new plugin that displays the output of a command in the panel (issue #161)
   - New taskbar sort order options: least-recently-used (lru), most-recently-used (mru) (issue #532)
