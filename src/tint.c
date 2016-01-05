@@ -221,7 +221,9 @@ void dump_backtrace(int log_fd)
 
 	free(strings);
 #else
-	log_string(log_fd, "Backtrace not supported on this system. Install libunwind or libexecinfo.\n");
+#ifdef DISABLE_BACKTRACE
+	log_string(log_fd, "Backtrace support disabled at compile time.\n");
+#endif
 #endif
 #endif
 	log_string(log_fd, RESET);
@@ -251,13 +253,17 @@ void handle_crash(const char *reason)
 	dump_backtrace(log_fd);
 	log_string(log_fd, RED "Please create a bug report with this log output.\n" RESET);
 	close(log_fd);
-	exit(-1);
 }
 
+#ifdef BACKTRACE_ON_SIGNAL
 void crash_handler(int sig)
 {
 	handle_crash(signal_name(sig));
+	struct sigaction sa = {.sa_handler = SIG_DFL};
+	sigaction(sig, &sa, 0);
+	raise(sig);
 }
+#endif
 
 void x11_io_error(Display *display)
 {
@@ -322,18 +328,20 @@ void init(int argc, char *argv[])
 	signal_pending = 0;
 	struct sigaction sa = {.sa_handler = signal_handler};
 	struct sigaction sa_chld = {.sa_handler = SIG_DFL, .sa_flags = SA_NOCLDWAIT};
-	struct sigaction sa_crash = {.sa_handler = crash_handler};
 	sigaction(SIGUSR1, &sa, 0);
 	sigaction(SIGINT, &sa, 0);
 	sigaction(SIGTERM, &sa, 0);
 	sigaction(SIGHUP, &sa, 0);
 	sigaction(SIGCHLD, &sa_chld, 0);
+#ifdef BACKTRACE_ON_SIGNAL
+	struct sigaction sa_crash = {.sa_handler = crash_handler};
 	sigaction(SIGSEGV, &sa_crash, 0);
 	sigaction(SIGFPE, &sa_crash, 0);
 	sigaction(SIGPIPE, &sa_crash, 0);
 	sigaction(SIGBUS, &sa_crash, 0);
 	sigaction(SIGABRT, &sa_crash, 0);
 	sigaction(SIGSYS, &sa_crash, 0);
+#endif
 }
 
 static int sn_pipe_valid = 0;
