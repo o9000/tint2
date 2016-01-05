@@ -23,9 +23,6 @@ make install
 
 Please report any problems to https://gitlab.com/o9000/tint2/issues. Your feedback is much appreciated.
 
-Known issues:
-* [System tray resize loop with GTK applications](https://gitlab.com/o9000/tint2/issues/509), see also the [GTK bug report](https://bugzilla.gnome.org/show_bug.cgi?id=710375). Fix landed in 0.12.1, if there are still problems please let me know.
-
 P.S. GitLab is now the official location of the tint2 project, migrated from Google Code, which is shutting down. In case you are wondering why not GitHub, BitBucket etc., we chose GitLab because it is open source, it is mature and works well, looks cool and has a very nice team.
 
 ### What is tint2?
@@ -56,7 +53,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
   * [Configure](https://gitlab.com/o9000/tint2/wikis/Configure)
   * [Add applet not supported by tint2](https://gitlab.com/o9000/tint2/wikis/ThirdPartyApplets)
   * [Other frequently asked questions](https://gitlab.com/o9000/tint2/wikis/FAQ)
-  * [Debug](https://gitlab.com/o9000/tint2/wikis/Debug)
+  * [Obtain a stack trace when tint2 crashes](https://gitlab.com/o9000/tint2/wikis/Debug)
 
 ### How can I help out?
 
