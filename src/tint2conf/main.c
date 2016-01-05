@@ -524,6 +524,7 @@ static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeV
 
 // ====== Theme load/reload ======
 
+#if 0
 static void copy_default_themes()
 {
 	gchar *path_home = g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
@@ -569,10 +570,14 @@ static void copy_default_themes()
 		g_free(path_tint2);
 	}
 }
+#endif
 
 static void load_all_themes()
 {
+	// We don't do this anymore since it has proven unpopular...
+#if 0
 	copy_default_themes();
+#endif
 
 	gtk_list_store_clear(GTK_LIST_STORE(g_store));
 
