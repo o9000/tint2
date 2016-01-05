@@ -77,8 +77,6 @@ XSettingsClient *xsettings_client = NULL;
 
 timeout *detect_compositor_timer = NULL;
 int detect_compositor_timer_counter = 0;
-double start_time = 0;
-int crash_count = 0;
 
 void detect_compositor(void *arg)
 {
@@ -241,23 +239,6 @@ void safe_sleep(int seconds)
 	}
 }
 
-void reexecute_tint2()
-{
-	write_string(2, GREEN "Attempting to restart tint2...\n" RESET);
-	// If tint2 cannot stay stable for 30 seconds, don't restart
-	if (get_time() - start_time < 30 && crash_count > 0) {
-		write_string(2, GREEN "Not restarting tint2 since the uptime from the last crash is too small.\n" RESET);
-		_exit(-1);
-	}
-	safe_sleep(1);
-	close_all_fds();
-	char *path = get_own_path();
-	if (fork() == 0) {
-		execlp(path, path, "--crashed", "-c", config_path, NULL);
-	}
-	_exit(-1);
-}
-
 void handle_crash(const char *reason)
 {
 	// We are going to crash, so restart the panel
@@ -270,7 +251,7 @@ void handle_crash(const char *reason)
 	dump_backtrace(log_fd);
 	log_string(log_fd, RED "Please create a bug report with this log output.\n" RESET);
 	close(log_fd);
-	reexecute_tint2();
+	exit(-1);
 }
 
 void crash_handler(int sig)
@@ -313,8 +294,6 @@ void init(int argc, char *argv[])
 		} else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
 			printf("tint2 version %s\n", VERSION_STRING);
 			exit(0);
-		} else if (strcmp(argv[i], "--crashed") == 0) {
-			crash_count++;
 		} else if (strcmp(argv[i], "-c") == 0) {
 			if (i + 1 < argc) {
 				i++;
@@ -1445,8 +1424,6 @@ void dnd_drop(XClientMessageEvent *e)
 int main(int argc, char *argv[])
 {
 start:
-	start_time = get_time();
-
 	init(argc, argv);
 
 	init_X11_pre_config();
