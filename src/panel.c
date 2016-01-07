@@ -103,6 +103,7 @@ void default_panel()
 	panel_config.mouse_pressed_alpha = 100;
 	panel_config.mouse_pressed_saturation = 0;
 	panel_config.mouse_pressed_brightness = 0;
+	panel_config.mouse_effects = 1;
 
 	// First background is always fully transparent
 	Background transparent_bg;
