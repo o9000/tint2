@@ -1434,7 +1434,6 @@ void dnd_drop(XClientMessageEvent *e)
 
 int main(int argc, char *argv[])
 {
-	sleep(1);
 start:
 	init(argc, argv);
 
