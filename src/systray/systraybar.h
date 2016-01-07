@@ -102,7 +102,10 @@ gboolean request_embed_icon(TrayWindow *traywin);
 void systray_resize_request_event(TrayWindow *traywin, XEvent *e);
 gboolean request_embed_icon(TrayWindow *traywin);
 void systray_reconfigure_event(TrayWindow *traywin, XEvent *e);
+void systray_property_notify(TrayWindow *traywin, XEvent *e);
 void systray_destroy_event(TrayWindow *traywin);
 void kde_update_icons();
+
+TrayWindow *systray_find_icon(Window win);
 
 #endif

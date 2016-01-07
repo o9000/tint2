@@ -1048,6 +1048,12 @@ void event_property_notify(XEvent *e)
 			panel_refresh = TRUE;
 		}
 	} else {
+		TrayWindow *traywin = systray_find_icon(win);
+		if (traywin) {
+			systray_property_notify(traywin, e);
+			return;
+		}
+
 		Task *task = task_get_task(win);
 		if (debug) {
 			char *atom_name = XGetAtomName(server.display, at);
@@ -1161,15 +1167,10 @@ void event_configure_notify(XEvent *e)
 		return;
 	}
 
-	// 'win' is a trayer icon
-	TrayWindow *traywin;
-	GSList *l;
-	for (l = systray.list_icons; l; l = l->next) {
-		traywin = (TrayWindow *)l->data;
-		if (traywin->win == win) {
-			systray_reconfigure_event(traywin, e);
-			return;
-		}
+	TrayWindow *traywin = systray_find_icon(win);
+	if (traywin) {
+		systray_reconfigure_event(traywin, e);
+		return;
 	}
 
 	// 'win' move in another monitor
@@ -1646,27 +1647,19 @@ start:
 					event_configure_notify(&e);
 					break;
 
-				case ConfigureRequest:
-					// 'win' is a trayer icon
-					for (GSList *it = systray.list_icons; it; it = g_slist_next(it)) {
-						TrayWindow *traywin = (TrayWindow *)it->data;
-						if (traywin->win == e.xany.window) {
-							systray_reconfigure_event(traywin, &e);
-							break;
-						}
-					}
+				case ConfigureRequest: {
+					TrayWindow *traywin = systray_find_icon(e.xany.window);
+					if (traywin)
+						systray_reconfigure_event(traywin, &e);
 					break;
+				}
 
-				case ResizeRequest:
-					// 'win' is a trayer icon
-					for (GSList *it = systray.list_icons; it; it = g_slist_next(it)) {
-						TrayWindow *traywin = (TrayWindow *)it->data;
-						if (traywin->win == e.xany.window) {
-							systray_resize_request_event(traywin, &e);
-							break;
-						}
-					}
+				case ResizeRequest: {
+					TrayWindow *traywin = systray_find_icon(e.xany.window);
+					if (traywin)
+						systray_resize_request_event(traywin, &e);
 					break;
+				}
 
 				case ReparentNotify: {
 					if (!systray_enabled)
@@ -1674,8 +1667,8 @@ start:
 					Panel *systray_panel = (Panel *)systray.area.panel;
 					if (e.xany.window == systray_panel->main_win) // don't care
 						break;
-					for (GSList *it = systray.list_icons; it; it = g_slist_next(it)) {
-						TrayWindow *traywin = (TrayWindow *)it->data;
+					TrayWindow *traywin = systray_find_icon(e.xreparent.window);
+					if (traywin) {
 						if (traywin->win == e.xreparent.window) {
 							if (traywin->parent == e.xreparent.parent) {
 								embed_icon(traywin);
@@ -1855,13 +1848,9 @@ start:
 				default:
 					if (e.type == XDamageNotify + damage_event) {
 						XDamageNotifyEvent *de = (XDamageNotifyEvent *)&e;
-						for (GSList *l = systray.list_icons; l; l = l->next) {
-							TrayWindow *traywin = (TrayWindow *)l->data;
-							if (traywin->parent == de->drawable) {
-								systray_render_icon(traywin);
-								break;
-							}
-						}
+						TrayWindow *traywin = systray_find_icon(de->drawable);
+						if (traywin)
+							systray_render_icon(traywin);
 					}
 				}
 			}

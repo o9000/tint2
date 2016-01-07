@@ -506,6 +506,24 @@ static gint compare_traywindows(gconstpointer a, gconstpointer b)
 	return 0;
 }
 
+void print_icons()
+{
+	fprintf(stderr, "systray.list_icons: \n");
+	for (GSList *l = systray.list_icons; l; l = l->next) {
+		TrayWindow *t = l->data;
+		fprintf(stderr, "%s\n", t->name);
+	}
+	fprintf(stderr, "systray.list_icons order: \n");
+	for (GSList *l = systray.list_icons; l; l = l->next) {
+		if (l->next) {
+			TrayWindow *t = l->data;
+			TrayWindow *u = l->next->data;
+			int cmp = compare_traywindows(t, u);
+			fprintf(stderr, "%s %s %s\n", t->name, cmp < 0 ? "<" : cmp == 0 ? "=" : ">" , u->name);
+		}
+	}
+}
+
 gboolean add_icon(Window win)
 {
 	XTextProperty xname;
@@ -714,6 +732,7 @@ gboolean add_icon(Window win)
 	else
 		systray.list_icons = g_slist_append(systray.list_icons, traywin);
 	systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
+	// print_icons();
 
 	if (!traywin->hide && !panel->is_hidden) {
 		if (systray_profile)
@@ -1117,6 +1136,28 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 	refresh_systray = 1;
 }
 
+void systray_property_notify(TrayWindow *traywin, XEvent *e)
+{
+	Atom at = e->xproperty.atom;
+	if (at == server.atom.WM_NAME) {
+		free(traywin->name);
+
+		XTextProperty xname;
+		if (XGetWMName(server.display, traywin->win, &xname)) {
+			traywin->name = strdup((char *)xname.value);
+			XFree(xname.value);
+		} else {
+			traywin->name = strdup("");
+		}
+
+		if (systray.sort == SYSTRAY_SORT_ASCENDING ||
+			systray.sort == SYSTRAY_SORT_DESCENDING) {
+			systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
+			// print_icons();
+		}
+	}
+}
+
 void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
 {
 	if (systray_profile)
@@ -1366,7 +1407,7 @@ void systray_render_icon_composited(void *t)
 		create_heuristic_mask(data, traywin->width, traywin->height);
 	}
 
-	int empty = image_empty(data, traywin->width, traywin->height);
+	gboolean empty = FALSE; //image_empty(data, traywin->width, traywin->height);
 	if (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
 		adjust_asb(data,
 		           traywin->width,
@@ -1389,6 +1430,7 @@ void systray_render_icon_composited(void *t)
 	if (traywin->empty != empty) {
 		traywin->empty = empty;
 		systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
+		// print_icons();
 		// Resize and redraw the systray
 		if (systray_profile)
 			fprintf(stderr,
@@ -1541,4 +1583,14 @@ gboolean systray_on_monitor(int i_monitor, int num_panelss)
 {
 	return (i_monitor == systray_monitor) ||
 	       (i_monitor == 0 && (systray_monitor >= num_panelss || systray_monitor < 0));
+}
+
+TrayWindow *systray_find_icon(Window win)
+{
+	for (GSList *l = systray.list_icons; l; l = l->next) {
+		TrayWindow *traywin = (TrayWindow *)l->data;
+		if (traywin->win == win || traywin->parent == win)
+			return traywin;
+	}
+	return NULL;
 }
