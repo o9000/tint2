@@ -37,15 +37,12 @@ extern Alignment taskbar_alignment;
 
 typedef struct {
 	Area area;
-	Pixmap state_pix[TASKBAR_STATE_COUNT];
-
 	gchar *name;
 	int posy;
 } Taskbarname;
 
 typedef struct {
 	Area area;
-	Pixmap state_pix[TASKBAR_STATE_COUNT];
 	int desktop;
 	Taskbarname bar_name;
 	int text_width;
@@ -68,7 +65,6 @@ void cleanup_taskbar();
 void init_taskbar();
 void init_taskbar_panel(void *p);
 
-void draw_taskbar(void *obj, cairo_t *c);
 void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data);
 Task *task_get_task(Window win);
 GPtrArray *task_get_tasks(Window win);

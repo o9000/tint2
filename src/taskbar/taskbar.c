@@ -99,11 +99,6 @@ void cleanup_taskbar()
 		Panel *panel = &panels[i];
 		for (int j = 0; j < panel->num_desktops; j++) {
 			Taskbar *taskbar = &panel->taskbar[j];
-			for (int k = 0; k < TASKBAR_STATE_COUNT; ++k) {
-				if (taskbar->state_pix[k])
-					XFreePixmap(server.display, taskbar->state_pix[k]);
-				taskbar->state_pix[k] = 0;
-			}
 			free_area(&taskbar->area);
 			// remove taskbar from the panel
 			remove_area((Area *)taskbar);
@@ -164,7 +159,6 @@ void init_taskbar_panel(void *p)
 	panel->g_taskbar.area.size_mode = LAYOUT_DYNAMIC;
 	panel->g_taskbar.area.alignment = taskbar_alignment;
 	panel->g_taskbar.area._resize = resize_taskbar;
-	panel->g_taskbar.area._draw_foreground = draw_taskbar;
 	panel->g_taskbar.area._on_change_layout = on_change_taskbar;
 	panel->g_taskbar.area.resize_needed = 1;
 	panel->g_taskbar.area.on_screen = TRUE;
@@ -380,14 +374,6 @@ void task_refresh_tasklist()
 	XFree(win);
 }
 
-void draw_taskbar(void *obj, cairo_t *c)
-{
-	Taskbar *taskbar = (Taskbar *)obj;
-	int state = (taskbar->desktop == server.desktop) ? TASKBAR_ACTIVE : TASKBAR_NORMAL;
-
-	taskbar->state_pix[state] = taskbar->area.pix;
-}
-
 gboolean resize_taskbar(void *obj)
 {
 	Taskbar *taskbar = (Taskbar *)obj;
@@ -421,26 +407,14 @@ gboolean resize_taskbar(void *obj)
 void on_change_taskbar(void *obj)
 {
 	Taskbar *taskbar = (Taskbar *)obj;
-
-	// reset Pixmap when position/size changed
-	for (int k = 0; k < TASKBAR_STATE_COUNT; ++k) {
-		if (taskbar->state_pix[k])
-			XFreePixmap(server.display, taskbar->state_pix[k]);
-		taskbar->state_pix[k] = 0;
-	}
-	taskbar->area.pix = 0;
 	schedule_redraw(&taskbar->area);
 }
 
 void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 {
 	taskbar->area.bg = panels[0].g_taskbar.background[state];
-	taskbar->area.pix = taskbar->state_pix[state];
 	if (taskbarname_enabled) {
 		taskbar->bar_name.area.bg = panels[0].g_taskbar.background_name[state];
-		if (!panel_config.mouse_effects) {
-			taskbar->bar_name.area.pix = taskbar->bar_name.state_pix[state];
-		}
 	}
 	if (taskbar_mode != MULTI_DESKTOP) {
 		if (state == TASKBAR_NORMAL)
@@ -449,15 +423,9 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 			taskbar->area.on_screen = TRUE;
 	}
 	if (taskbar->area.on_screen) {
-		if (!taskbar->state_pix[state])
-			schedule_redraw(&taskbar->area);
+		schedule_redraw(&taskbar->area);
 		if (taskbarname_enabled) {
-			if (!panel_config.mouse_effects) {
-				if (!taskbar->bar_name.state_pix[state])
-					schedule_redraw(&taskbar->bar_name.area);
-			} else {
-				schedule_redraw(&taskbar->bar_name.area);
-			}
+			schedule_redraw(&taskbar->bar_name.area);
 		}
 		if (taskbar_mode == MULTI_DESKTOP &&
 			panels[0].g_taskbar.background[TASKBAR_NORMAL] != panels[0].g_taskbar.background[TASKBAR_ACTIVE]) {

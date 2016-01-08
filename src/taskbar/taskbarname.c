@@ -114,7 +114,7 @@ void taskbarname_default_font_changed()
 
 void cleanup_taskbarname()
 {
-	int i, j, k;
+	int i, j;
 	Panel *panel;
 	Taskbar *taskbar;
 
@@ -125,11 +125,6 @@ void cleanup_taskbarname()
 			g_free(taskbar->bar_name.name);
 			taskbar->bar_name.name = NULL;
 			free_area(&taskbar->bar_name.area);
-			for (k = 0; k < TASKBAR_STATE_COUNT; ++k) {
-				if (taskbar->bar_name.state_pix[k])
-					XFreePixmap(server.display, taskbar->bar_name.state_pix[k]);
-				taskbar->bar_name.state_pix[k] = 0;
-			}
 			remove_area((Area *)&taskbar->bar_name);
 		}
 	}
@@ -179,10 +174,6 @@ void draw_taskbarname(void *obj, cairo_t *c)
 	Taskbar *taskbar = taskbar_name->area.parent;
 	PangoLayout *layout;
 	Color *config_text = (taskbar->desktop == server.desktop) ? &taskbarname_active_font : &taskbarname_font;
-
-	int state = (taskbar->desktop == server.desktop) ? TASKBAR_ACTIVE : TASKBAR_NORMAL;
-	if (!panel_config.mouse_effects)
-		taskbar_name->state_pix[state] = taskbar_name->area.pix;
 
 	// draw content
 	layout = pango_cairo_create_layout(c);

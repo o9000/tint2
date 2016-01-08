@@ -80,7 +80,6 @@ Task *add_task(Window win)
 	task_template.title = NULL;
 	for (int k = 0; k < TASK_STATE_COUNT; ++k) {
 		task_template.icon[k] = NULL;
-		task_template.state_pix[k] = 0;
 	}
 	get_title(&task_template);
 	get_icon(&task_template);
@@ -116,7 +115,6 @@ Task *add_task(Window win)
 			task_instance->icon[k] = task_template.icon[k];
 			task_instance->icon_hover[k] = task_template.icon_hover[k];
 			task_instance->icon_press[k] = task_template.icon_press[k];
-			task_instance->state_pix[k] = 0;
 		}
 		task_instance->icon_width = task_template.icon_width;
 		task_instance->icon_height = task_template.icon_height;
@@ -179,8 +177,6 @@ void remove_task(Task *task)
 			imlib_free_image();
 			task->icon_press[k] = 0;
 		}
-		if (task->state_pix[k])
-			XFreePixmap(server.display, task->state_pix[k]);
 	}
 
 	GPtrArray *task_group = g_hash_table_lookup(win_to_task, &win);
@@ -406,9 +402,6 @@ void draw_task(void *obj, cairo_t *c)
 	Task *task = (Task *)obj;
 	Panel *panel = (Panel *)task->area.panel;
 
-	if (!panel_config.mouse_effects)
-		task->state_pix[task->current_state] = task->area.pix;
-
 	int text_width = 0;
 	if (panel->g_task.text) {
 		PangoLayout *layout = pango_cairo_create_layout(c);
@@ -573,14 +566,7 @@ void set_task_state(Task *task, TaskState state)
 				Task *task1 = g_ptr_array_index(task_group, i);
 				task1->current_state = state;
 				task1->area.bg = panels[0].g_task.background[state];
-				if (!panel_config.mouse_effects) {
-					task1->area.pix = task1->state_pix[state];
-					if (!task1->area.pix)
-						schedule_redraw(&task1->area);
-					panel_refresh = TRUE;
-				} else {
-					schedule_redraw(&task1->area);
-				}
+				schedule_redraw(&task1->area);
 				if (state == TASK_ACTIVE && g_slist_find(urgent_list, task1))
 					del_urgent(task1);
 				gboolean hide = FALSE;
@@ -615,12 +601,6 @@ void set_task_state(Task *task, TaskState state)
 
 void set_task_redraw(Task *task)
 {
-	for (int k = 0; k < TASK_STATE_COUNT; ++k) {
-		if (task->state_pix[k])
-			XFreePixmap(server.display, task->state_pix[k]);
-		task->state_pix[k] = 0;
-	}
-	task->area.pix = 0;
 	schedule_redraw(&task->area);
 }
 

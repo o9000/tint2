@@ -749,16 +749,8 @@ void set_panel_background(Panel *p)
 	Taskbar *taskbar;
 	for (int i = 0; i < p->num_desktops; i++) {
 		taskbar = &p->taskbar[i];
-		for (int k = 0; k < TASKBAR_STATE_COUNT; ++k) {
-			if (taskbar->state_pix[k])
-				XFreePixmap(server.display, taskbar->state_pix[k]);
-			taskbar->state_pix[k] = 0;
-			if (taskbar->bar_name.state_pix[k])
-				XFreePixmap(server.display, taskbar->bar_name.state_pix[k]);
-			taskbar->bar_name.state_pix[k] = 0;
-		}
-		taskbar->area.pix = 0;
-		taskbar->bar_name.area.pix = 0;
+		schedule_redraw(&taskbar->area);
+		schedule_redraw(&taskbar->bar_name.area);
 		GList *l = taskbar->area.children;
 		if (taskbarname_enabled)
 			l = l->next;
