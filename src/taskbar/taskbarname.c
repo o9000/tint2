@@ -32,7 +32,7 @@
 #include "server.h"
 #include "taskbarname.h"
 
-int taskbarname_enabled;
+gboolean taskbarname_enabled;
 Color taskbarname_font;
 Color taskbarname_active_font;
 
@@ -40,23 +40,22 @@ void taskbarname_init_fonts();
 
 void default_taskbarname()
 {
-	taskbarname_enabled = 0;
+	taskbarname_enabled = FALSE;
 }
 
 void init_taskbarname_panel(void *p)
 {
-	Panel *panel = (Panel *)p;
-	Taskbar *taskbar;
-	int j;
-
 	if (!taskbarname_enabled)
 		return;
 
+	Panel *panel = (Panel *)p;
+
 	taskbarname_init_fonts();
 
-	GSList *l, *list = get_desktop_names();
-	for (j = 0, l = list; j < panel->num_desktops; j++) {
-		taskbar = &panel->taskbar[j];
+	GSList *list = get_desktop_names();
+	GSList *l = list;
+	for (int j = 0; j < panel->num_desktops; j++) {
+		Taskbar *taskbar = &panel->taskbar[j];
 		memcpy(&taskbar->bar_name.area, &panel->g_taskbar.area_name, sizeof(Area));
 		taskbar->bar_name.area.parent = taskbar;
 		taskbar->bar_name.area.has_mouse_over_effect = panel_config.mouse_effects;
@@ -70,8 +69,9 @@ void init_taskbarname_panel(void *p)
 		if (l) {
 			taskbar->bar_name.name = g_strdup(l->data);
 			l = l->next;
-		} else
+		} else {
 			taskbar->bar_name.name = g_strdup_printf("%d", j + 1);
+		}
 
 		// append the name at the beginning of taskbar
 		taskbar->area.children = g_list_append(taskbar->area.children, &taskbar->bar_name);
@@ -114,14 +114,10 @@ void taskbarname_default_font_changed()
 
 void cleanup_taskbarname()
 {
-	int i, j;
-	Panel *panel;
-	Taskbar *taskbar;
-
-	for (i = 0; i < num_panels; i++) {
-		panel = &panels[i];
-		for (j = 0; j < panel->num_desktops; j++) {
-			taskbar = &panel->taskbar[j];
+	for (int i = 0; i < num_panels; i++) {
+		Panel *panel = &panels[i];
+		for (int j = 0; j < panel->num_desktops; j++) {
+			Taskbar *taskbar = &panel->taskbar[j];
 			g_free(taskbar->bar_name.name);
 			taskbar->bar_name.name = NULL;
 			free_area(&taskbar->bar_name.area);
@@ -135,7 +131,7 @@ gboolean resize_taskbarname(void *obj)
 	TaskbarName *taskbar_name = obj;
 	Panel *panel = taskbar_name->area.panel;
 	int name_height, name_width, name_height_ink;
-	int ret = 0;
+	gboolean result = FALSE;
 
 	schedule_redraw(&taskbar_name->area);
 	get_text_size2(panel_config.taskbarname_font_desc,
@@ -155,28 +151,27 @@ gboolean resize_taskbarname(void *obj)
 		if (new_size != taskbar_name->area.width) {
 			taskbar_name->area.width = new_size;
 			taskbar_name->posy = (taskbar_name->area.height - name_height) / 2;
-			ret = 1;
+			result = TRUE;
 		}
 	} else {
 		int new_size = name_height + (2 * (taskbar_name->area.paddingxlr + taskbar_name->area.bg->border.width));
 		if (new_size != taskbar_name->area.height) {
 			taskbar_name->area.height = new_size;
 			taskbar_name->posy = (taskbar_name->area.height - name_height) / 2;
-			ret = 1;
+			result = TRUE;
 		}
 	}
-	return ret;
+	return result;
 }
 
 void draw_taskbarname(void *obj, cairo_t *c)
 {
 	TaskbarName *taskbar_name = obj;
 	Taskbar *taskbar = taskbar_name->area.parent;
-	PangoLayout *layout;
 	Color *config_text = (taskbar->desktop == server.desktop) ? &taskbarname_active_font : &taskbarname_font;
 
 	// draw content
-	layout = pango_cairo_create_layout(c);
+	PangoLayout *layout = pango_cairo_create_layout(c);
 	pango_layout_set_font_description(layout, panel_config.taskbarname_font_desc);
 	pango_layout_set_width(layout, taskbar_name->area.width * PANGO_SCALE);
 	pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
@@ -190,5 +185,4 @@ void draw_taskbarname(void *obj, cairo_t *c)
 	draw_text(layout, c, 0, taskbar_name->posy, config_text, ((Panel *)taskbar_name->area.panel)->font_shadow);
 
 	g_object_unref(layout);
-	// printf("draw_taskbarname %s ******************************\n", taskbar_name->name);
 }

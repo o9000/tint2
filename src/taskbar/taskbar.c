@@ -46,8 +46,8 @@ Alignment taskbar_alignment;
 
 void taskbar_init_fonts();
 
-// Removes the task with &win = key.
-void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data);
+// Removes the task with &win = key. The other args are ignored.
+void taskbar_remove_task(Window *win);
 
 guint win_hash(gconstpointer key)
 {
@@ -88,7 +88,7 @@ void cleanup_taskbar()
 
 			g_hash_table_iter_init(&iter, win_to_task);
 			if (g_hash_table_iter_next(&iter, &key, &value)) {
-				taskbar_remove_task(key, 0, 0);
+				taskbar_remove_task(key);
 			}
 		}
 		g_hash_table_destroy(win_to_task);
@@ -322,9 +322,9 @@ void taskbar_default_font_changed()
 	panel_refresh = TRUE;
 }
 
-void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data)
+void taskbar_remove_task(Window *win)
 {
-	remove_task(get_task(*(Window *)key));
+	remove_task(get_task(*win));
 }
 
 Task *get_task(Window win)
@@ -360,7 +360,7 @@ void taskbar_refresh_tasklist()
 			if (*((Window *)it->data) == win[i])
 				break;
 		if (i == num_results)
-			taskbar_remove_task(it->data, 0, 0);
+			taskbar_remove_task(it->data);
 	}
 	g_list_free(win_list);
 
@@ -461,13 +461,13 @@ gint compare_tasks_trivial(Task *a, Task *b, Taskbar *taskbar)
 	return NONTRIVIAL;
 }
 
-gint contained_within(Task *a, Task *b)
+gboolean contained_within(Task *a, Task *b)
 {
 	if ((a->win_x <= b->win_x) && (a->win_y <= b->win_y) && (a->win_x + a->win_w >= b->win_x + b->win_w) &&
 		(a->win_y + a->win_h >= b->win_y + b->win_h)) {
-		return 1;
+		return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
 
 gint compare_task_centers(Task *a, Task *b, Taskbar *taskbar)
