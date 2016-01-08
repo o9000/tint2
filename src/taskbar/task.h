@@ -22,16 +22,11 @@ typedef enum TaskState {
 	TASK_STATE_COUNT,
 } TaskState;
 
-extern timeout *urgent_timeout;
-extern GSList *urgent_list;
-
 typedef struct GlobalTask {
 	Area area;
-
-	gboolean text;
-	gboolean icon;
+	gboolean has_text;
+	gboolean has_icon;
 	gboolean centered;
-
 	int icon_posy;
 	int icon_size1;
 	int maximum_width;
@@ -44,7 +39,6 @@ typedef struct GlobalTask {
 	int config_background_mask;
 	// starting position for text ~ task_padding + task_border + icon_size
 	double text_posx, text_height;
-
 	gboolean has_font;
 	PangoFontDescription *font_desc;
 	Color font[TASK_STATE_COUNT];
@@ -54,12 +48,9 @@ typedef struct GlobalTask {
 
 // Stores information about a task.
 // Warning: any dynamically allocated members are shared between the Task instances created for the same window
-// (for example, if the task appears on all desktops, there will be a different instance on each desktop's taskbar).
+// (if the task appears on all desktops, there will be a different instance on each desktop's taskbar).
 typedef struct Task {
-	// always start with area
 	Area area;
-
-	// TODO: group task with list of windows here
 	Window win;
 	int desktop;
 	TaskState current_state;
@@ -78,17 +69,19 @@ typedef struct Task {
 	struct timespec last_activation_time;
 } Task;
 
+extern timeout *urgent_timeout;
+extern GSList *urgent_list;
+
 Task *add_task(Window win);
 void remove_task(Task *task);
 
 void draw_task(void *obj, cairo_t *c);
 void on_change_task(void *obj);
 
-void get_icon(Task *task);
-gboolean get_title(Task *task);
+void task_update_icon(Task *task);
+gboolean task_update_title(Task *task);
 void reset_active_task();
 void set_task_state(Task *task, TaskState state);
-void set_task_redraw(Task *task);
 
 // Given a pointer to the task that is currently under the mouse (current_task),
 // returns a pointer to the Task for the active window on the same taskbar.

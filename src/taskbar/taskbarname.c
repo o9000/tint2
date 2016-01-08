@@ -132,7 +132,7 @@ void cleanup_taskbarname()
 
 gboolean resize_taskbarname(void *obj)
 {
-	Taskbarname *taskbar_name = obj;
+	TaskbarName *taskbar_name = obj;
 	Panel *panel = taskbar_name->area.panel;
 	int name_height, name_width, name_height_ink;
 	int ret = 0;
@@ -170,7 +170,7 @@ gboolean resize_taskbarname(void *obj)
 
 void draw_taskbarname(void *obj, cairo_t *c)
 {
-	Taskbarname *taskbar_name = obj;
+	TaskbarName *taskbar_name = obj;
 	Taskbar *taskbar = taskbar_name->area.parent;
 	PangoLayout *layout;
 	Color *config_text = (taskbar->desktop == server.desktop) ? &taskbarname_active_font : &taskbarname_font;

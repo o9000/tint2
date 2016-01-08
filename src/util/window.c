@@ -75,7 +75,7 @@ gboolean window_is_hidden(Window win)
 		// do not add transient_for windows if the transient window is already in the taskbar
 		window = win;
 		while (XGetTransientForHint(server.display, window, &window)) {
-			if (task_get_tasks(window)) {
+			if (get_task_group(window)) {
 				XFree(at);
 				return TRUE;
 			}

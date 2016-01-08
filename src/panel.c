@@ -261,10 +261,10 @@ void init_panel()
 		if (panel_autohide)
 			autohide_trigger_hide(p);
 
-		visible_taskbar(p);
+		update_taskbar_visibility(p);
 	}
 
-	task_refresh_tasklist();
+	taskbar_refresh_tasklist();
 	reset_active_task();
 }
 
@@ -755,7 +755,7 @@ void set_panel_background(Panel *p)
 		if (taskbarname_enabled)
 			l = l->next;
 		for (; l; l = l->next) {
-			set_task_redraw((Task *)l->data);
+			schedule_redraw((Area *)l->data);
 		}
 	}
 }

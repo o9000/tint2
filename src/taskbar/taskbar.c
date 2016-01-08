@@ -33,10 +33,6 @@
 #include "panel.h"
 #include "strnatcmp.h"
 
-/* win_to_task holds for every Window an array of tasks. Usually the array contains only one
-   element. However for omnipresent windows (windows which are visible in every taskbar) the array
-   contains to every Task* on each panel a pointer (i.e. GPtrArray.len == server.num_desktops)
-*/
 GHashTable *win_to_task;
 
 Task *active_task;
@@ -49,6 +45,9 @@ TaskbarSortMethod taskbar_sort_method;
 Alignment taskbar_alignment;
 
 void taskbar_init_fonts();
+
+// Removes the task with &win = key.
+void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data);
 
 guint win_hash(gconstpointer key)
 {
@@ -117,8 +116,8 @@ void cleanup_taskbar()
 
 void init_taskbar()
 {
-	if (!panel_config.g_task.text && !panel_config.g_task.icon) {
-		panel_config.g_task.text = panel_config.g_task.icon = 1;
+	if (!panel_config.g_task.has_text && !panel_config.g_task.has_icon) {
+		panel_config.g_task.has_text = panel_config.g_task.has_icon = 1;
 	}
 
 	if (!win_to_task)
@@ -159,7 +158,6 @@ void init_taskbar_panel(void *p)
 	panel->g_taskbar.area.size_mode = LAYOUT_DYNAMIC;
 	panel->g_taskbar.area.alignment = taskbar_alignment;
 	panel->g_taskbar.area._resize = resize_taskbar;
-	panel->g_taskbar.area._on_change_layout = on_change_taskbar;
 	panel->g_taskbar.area.resize_needed = 1;
 	panel->g_taskbar.area.on_screen = TRUE;
 	if (panel_horizontal) {
@@ -262,7 +260,7 @@ void init_taskbar_panel(void *p)
 
 	panel->g_task.text_posx = panel->g_task.background[0]->border.width + panel->g_task.area.paddingxlr;
 	panel->g_task.text_height = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
-	if (panel->g_task.icon) {
+	if (panel->g_task.has_icon) {
 		panel->g_task.icon_size1 = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
 		panel->g_task.text_posx += panel->g_task.icon_size1 + panel->g_task.area.paddingx;
 		panel->g_task.icon_posy = (panel->g_task.area.height - panel->g_task.icon_size1) / 2;
@@ -326,25 +324,25 @@ void taskbar_default_font_changed()
 
 void taskbar_remove_task(gpointer key, gpointer value, gpointer user_data)
 {
-	remove_task(task_get_task(*(Window *)key));
+	remove_task(get_task(*(Window *)key));
 }
 
-Task *task_get_task(Window win)
+Task *get_task(Window win)
 {
-	GPtrArray *task_group = task_get_tasks(win);
+	GPtrArray *task_group = get_task_group(win);
 	if (task_group)
 		return g_ptr_array_index(task_group, 0);
 	return NULL;
 }
 
-GPtrArray *task_get_tasks(Window win)
+GPtrArray *get_task_group(Window win)
 {
 	if (win_to_task && taskbar_enabled)
 		return g_hash_table_lookup(win_to_task, &win);
 	return NULL;
 }
 
-void task_refresh_tasklist()
+void taskbar_refresh_tasklist()
 {
 	if (!taskbar_enabled)
 		return;
@@ -368,7 +366,7 @@ void task_refresh_tasklist()
 
 	// Add any new
 	for (int i = 0; i < num_results; i++)
-		if (!task_get_task(win[i]))
+		if (!get_task(win[i]))
 			add_task(win[i]);
 
 	XFree(win);
@@ -404,12 +402,6 @@ gboolean resize_taskbar(void *obj)
 	return FALSE;
 }
 
-void on_change_taskbar(void *obj)
-{
-	Taskbar *taskbar = (Taskbar *)obj;
-	schedule_redraw(&taskbar->area);
-}
-
 void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 {
 	taskbar->area.bg = panels[0].g_taskbar.background[state];
@@ -433,19 +425,18 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 			if (taskbarname_enabled)
 				l = l->next;
 			for (; l; l = l->next)
-				set_task_redraw((Task *)l->data);
+				schedule_redraw((Area *)l->data);
 		}
 	}
 	panel_refresh = TRUE;
 }
 
-void visible_taskbar(void *p)
+void update_taskbar_visibility(void *p)
 {
 	Panel *panel = (Panel *)p;
 
-	Taskbar *taskbar;
 	for (int j = 0; j < panel->num_desktops; j++) {
-		taskbar = &panel->taskbar[j];
+		Taskbar *taskbar = &panel->taskbar[j];
 		if (taskbar_mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) {
 			// SINGLE_DESKTOP and not current desktop
 			taskbar->area.on_screen = FALSE;
@@ -575,7 +566,7 @@ void sort_taskbar_for_win(Window win)
 	if (taskbar_sort_method == TASKBAR_NOSORT)
 		return;
 
-	GPtrArray *task_group = task_get_tasks(win);
+	GPtrArray *task_group = get_task_group(win);
 	if (task_group) {
 		Task *task0 = g_ptr_array_index(task_group, 0);
 		if (task0) {

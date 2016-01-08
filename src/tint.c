@@ -957,10 +957,10 @@ void event_property_notify(XEvent *e)
 				for (int i = 0; i < num_panels; i++) {
 					init_taskbar_panel(&panels[i]);
 					set_panel_items_order(&panels[i]);
-					visible_taskbar(&panels[i]);
+					update_taskbar_visibility(&panels[i]);
 					panels[i].area.resize_needed = 1;
 				}
-				task_refresh_tasklist();
+				taskbar_refresh_tasklist();
 				reset_active_task();
 				panel_refresh = TRUE;
 			} else if (old_desktop != server.desktop) {
@@ -1009,7 +1009,7 @@ void event_property_notify(XEvent *e)
 						g_hash_table_iter_init(&iter, win_to_task);
 						while (g_hash_table_iter_next(&iter, &key, &value)) {
 							Window task_win = *(Window *)key;
-							Task *task = task_get_task(task_win);
+							Task *task = get_task(task_win);
 							if (task) {
 								int desktop = get_window_desktop(task_win);
 								if (desktop != task->desktop) {
@@ -1029,7 +1029,7 @@ void event_property_notify(XEvent *e)
 		else if (at == server.atom._NET_CLIENT_LIST) {
 			if (debug)
 				fprintf(stderr, "%s %d: win = root, atom = _NET_CLIENT_LIST\n", __FUNCTION__, __LINE__);
-			task_refresh_tasklist();
+			taskbar_refresh_tasklist();
 			panel_refresh = TRUE;
 		}
 		// Change active
@@ -1054,7 +1054,7 @@ void event_property_notify(XEvent *e)
 			return;
 		}
 
-		Task *task = task_get_task(win);
+		Task *task = get_task(win);
 		if (debug) {
 			char *atom_name = XGetAtomName(server.display, at);
 			fprintf(stderr, "%s %d: win = %ld, task = %s, atom = %s\n", __FUNCTION__, __LINE__, win, task ? (task->title ? task->title : "??") : "null", atom_name);
@@ -1079,7 +1079,7 @@ void event_property_notify(XEvent *e)
 
 		// Window title changed
 		if (at == server.atom._NET_WM_VISIBLE_NAME || at == server.atom._NET_WM_NAME || at == server.atom.WM_NAME) {
-			if (get_title(task)) {
+			if (task_update_title(task)) {
 				if (g_tooltip.mapped && (g_tooltip.area == (Area *)task)) {
 					tooltip_copy_text((Area *)task);
 					tooltip_update();
@@ -1118,7 +1118,7 @@ void event_property_notify(XEvent *e)
 		}
 		// Window icon changed
 		else if (at == server.atom._NET_WM_ICON) {
-			get_icon(task);
+			task_update_icon(task);
 			panel_refresh = TRUE;
 		}
 		// Window desktop changed
@@ -1157,7 +1157,7 @@ void event_configure_notify(XEvent *e)
 	Window win = e->xconfigure.window;
 
 	if (0) {
-		Task *task = task_get_task(win);
+		Task *task = get_task(win);
 		fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task ? (task->title ? task->title : "??") : "null");
 	}
 
@@ -1175,7 +1175,7 @@ void event_configure_notify(XEvent *e)
 
 	// 'win' move in another monitor
 	if (num_panels > 1 || hide_task_diff_monitor) {
-		Task *task = task_get_task(win);
+		Task *task = get_task(win);
 		if (task) {
 			Panel *p = task->area.panel;
 			int monitor = get_window_monitor(win);
@@ -1194,7 +1194,7 @@ void event_configure_notify(XEvent *e)
 	}
 
 	if (server.viewports) {
-		Task *task = task_get_task(win);
+		Task *task = get_task(win);
 		if (task) {
 			int desktop = get_window_desktop(win);
 			if (task->desktop != desktop) {

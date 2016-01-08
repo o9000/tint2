@@ -782,9 +782,9 @@ void add_entry(char *key, char *value)
 
 	/* Task */
 	else if (strcmp(key, "task_text") == 0)
-		panel_config.g_task.text = atoi(value);
+		panel_config.g_task.has_text = atoi(value);
 	else if (strcmp(key, "task_icon") == 0)
-		panel_config.g_task.icon = atoi(value);
+		panel_config.g_task.has_icon = atoi(value);
 	else if (strcmp(key, "task_centered") == 0)
 		panel_config.g_task.centered = atoi(value);
 	else if (strcmp(key, "task_width") == 0) {
