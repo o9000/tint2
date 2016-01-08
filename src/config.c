@@ -973,8 +973,7 @@ void add_entry(char *key, char *value)
 	else if (strcmp(key, "mouse_scroll_down") == 0)
 		get_action(value, &mouse_scroll_down);
 	else if (strcmp(key, "mouse_effects") == 0)
-		// panel_config.mouse_effects = atoi(value);
-		panel_config.mouse_effects = 1;
+		panel_config.mouse_effects = atoi(value);
 	else if (strcmp(key, "mouse_hover_icon_asb") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		panel_config.mouse_over_alpha = atoi(value1);
