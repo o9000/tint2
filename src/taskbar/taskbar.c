@@ -329,13 +329,13 @@ void taskbar_remove_task(Window *win)
 
 Task *get_task(Window win)
 {
-	GPtrArray *task_group = get_task_group(win);
-	if (task_group)
-		return g_ptr_array_index(task_group, 0);
+	GPtrArray *task_buttons = get_task_buttons(win);
+	if (task_buttons)
+		return g_ptr_array_index(task_buttons, 0);
 	return NULL;
 }
 
-GPtrArray *get_task_group(Window win)
+GPtrArray *get_task_buttons(Window win)
 {
 	if (win_to_task && taskbar_enabled)
 		return g_hash_table_lookup(win_to_task, &win);
@@ -566,14 +566,14 @@ void sort_taskbar_for_win(Window win)
 	if (taskbar_sort_method == TASKBAR_NOSORT)
 		return;
 
-	GPtrArray *task_group = get_task_group(win);
-	if (task_group) {
-		Task *task0 = g_ptr_array_index(task_group, 0);
+	GPtrArray *task_buttons = get_task_buttons(win);
+	if (task_buttons) {
+		Task *task0 = g_ptr_array_index(task_buttons, 0);
 		if (task0) {
 			get_window_coordinates(win, &task0->win_x, &task0->win_y, &task0->win_w, &task0->win_h);
 		}
-		for (int i = 0; i < task_group->len; ++i) {
-			Task *task = g_ptr_array_index(task_group, i);
+		for (int i = 0; i < task_buttons->len; ++i) {
+			Task *task = g_ptr_array_index(task_buttons, i);
 			task->win_x = task0->win_x;
 			task->win_y = task0->win_y;
 			task->win_w = task0->win_w;

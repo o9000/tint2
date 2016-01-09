@@ -74,9 +74,9 @@ void taskbar_refresh_tasklist();
 // Returns the task button for this window. If there are multiple buttons, returns the first one.
 Task *get_task(Window win);
 
-// Returns the task group, i.e. the set of task buttons for this window, usually having only one element.
-// However for windows shown on all desktops, there is one button for each taskbar (usually only one visible).
-GPtrArray *get_task_group(Window win);
+// Returns the task buttons for this window, usually having only one element.
+// However for windows shown on all desktops, there are multiple buttons, one for each taskbar.
+GPtrArray *get_task_buttons(Window win);
 
 void set_taskbar_state(Taskbar *taskbar, TaskbarState state);
 

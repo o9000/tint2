@@ -85,7 +85,7 @@ Task *add_task(Window win)
 	// fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task_template.title ? task_template.title : "??");
 	// fprintf(stderr, "new task %s win %u: desktop %d, monitor %d\n", new_task.title, win, new_task.desktop, monitor);
 
-	GPtrArray *task_group = g_ptr_array_new();
+	GPtrArray *task_buttons = g_ptr_array_new();
 	for (int j = 0; j < panels[monitor].num_desktops; j++) {
 		if (task_template.desktop != ALL_DESKTOPS && task_template.desktop != j)
 			continue;
@@ -118,13 +118,13 @@ Task *add_task(Window win)
 		task_instance->icon_height = task_template.icon_height;
 
 		add_area(&task_instance->area, &taskbar->area);
-		g_ptr_array_add(task_group, task_instance);
+		g_ptr_array_add(task_buttons, task_instance);
 	}
 	Window *key = calloc(1, sizeof(Window));
 	*key = task_template.win;
-	g_hash_table_insert(win_to_task, key, task_group);
+	g_hash_table_insert(win_to_task, key, task_buttons);
 
-	set_task_state((Task*)g_ptr_array_index(task_group, 0), task_template.current_state);
+	set_task_state((Task*)g_ptr_array_index(task_buttons, 0), task_template.current_state);
 
 	sort_taskbar_for_win(win);
 
@@ -134,10 +134,10 @@ Task *add_task(Window win)
 	}
 
 	if (window_is_urgent(win)) {
-		add_urgent((Task*)g_ptr_array_index(task_group, 0));
+		add_urgent((Task*)g_ptr_array_index(task_buttons, 0));
 	}
 
-	return (Task*)g_ptr_array_index(task_group, 0);
+	return (Task*)g_ptr_array_index(task_buttons, 0);
 }
 
 void remove_task(Task *task)
@@ -177,9 +177,9 @@ void remove_task(Task *task)
 		}
 	}
 
-	GPtrArray *task_group = g_hash_table_lookup(win_to_task, &win);
-	for (int i = 0; i < task_group->len; ++i) {
-		Task *task2 = g_ptr_array_index(task_group, i);
+	GPtrArray *task_buttons = g_hash_table_lookup(win_to_task, &win);
+	for (int i = 0; i < task_buttons->len; ++i) {
+		Task *task2 = g_ptr_array_index(task_buttons, i);
 		if (task2 == active_task)
 			active_task = 0;
 		if (task2 == task_drag)
@@ -227,10 +227,10 @@ gboolean task_update_title(Task *task)
 	}
 
 	task->title = title;
-	GPtrArray *task_group = get_task_group(task->win);
-	if (task_group) {
-		for (int i = 0; i < task_group->len; ++i) {
-			Task *task2 = g_ptr_array_index(task_group, i);
+	GPtrArray *task_buttons = get_task_buttons(task->win);
+	if (task_buttons) {
+		for (int i = 0; i < task_buttons->len; ++i) {
+			Task *task2 = g_ptr_array_index(task_buttons, i);
 			task2->title = task->title;
 			schedule_redraw(&task2->area);
 		}
@@ -337,10 +337,10 @@ void task_update_icon(Task *task)
 	imlib_context_set_image(orig_image);
 	imlib_free_image();
 
-	GPtrArray *task_group = get_task_group(task->win);
-	if (task_group) {
-		for (i = 0; i < task_group->len; ++i) {
-			Task *task2 = g_ptr_array_index(task_group, i);
+	GPtrArray *task_buttons = get_task_buttons(task->win);
+	if (task_buttons) {
+		for (i = 0; i < task_buttons->len; ++i) {
+			Task *task2 = g_ptr_array_index(task_buttons, i);
 			task2->icon_width = task->icon_width;
 			task2->icon_height = task->icon_height;
 			for (int k = 0; k < TASK_STATE_COUNT; ++k) {
@@ -520,7 +520,7 @@ void reset_active_task()
 	// printf("Change active task %ld\n", w1);
 
 	if (w1) {
-		if (!get_task_group(w1)) {
+		if (!get_task_buttons(w1)) {
 			Window w2;
 			while (XGetTransientForHint(server.display, w1, &w2))
 				w1 = w2;
@@ -537,10 +537,10 @@ void set_task_state(Task *task, TaskState state)
 	if (state == TASK_ACTIVE && task->current_state != state) {
 		clock_gettime(CLOCK_MONOTONIC, &task->last_activation_time);
 		if (taskbar_sort_method == TASKBAR_SORT_LRU || taskbar_sort_method == TASKBAR_SORT_MRU) {
-			GPtrArray *task_group = get_task_group(task->win);
-			if (task_group) {
-				for (int i = 0; i < task_group->len; ++i) {
-					Task *task1 = g_ptr_array_index(task_group, i);
+			GPtrArray *task_buttons = get_task_buttons(task->win);
+			if (task_buttons) {
+				for (int i = 0; i < task_buttons->len; ++i) {
+					Task *task1 = g_ptr_array_index(task_buttons, i);
 					Taskbar *taskbar = (Taskbar *)task1->area.parent;
 					sort_tasks(taskbar);
 				}
@@ -549,10 +549,10 @@ void set_task_state(Task *task, TaskState state)
 	}
 
 	if (task->current_state != state || hide_task_diff_monitor) {
-		GPtrArray *task_group = get_task_group(task->win);
-		if (task_group) {
-			for (int i = 0; i < task_group->len; ++i) {
-				Task *task1 = g_ptr_array_index(task_group, i);
+		GPtrArray *task_buttons = get_task_buttons(task->win);
+		if (task_buttons) {
+			for (int i = 0; i < task_buttons->len; ++i) {
+				Task *task1 = g_ptr_array_index(task_buttons, i);
 				task1->current_state = state;
 				task1->area.bg = panels[0].g_task.background[state];
 				schedule_redraw(&task1->area);
@@ -613,7 +613,7 @@ void add_urgent(Task *task)
 	if (active_task && active_task->win == task->win)
 		return;
 
-	task = get_task(task->win); // always add the first task for a task group (omnipresent windows)
+	task = get_task(task->win); // always add the first task for the task buttons (omnipresent windows)
 	task->urgent_tick = 0;
 	if (g_slist_find(urgent_list, task))
 		return;
