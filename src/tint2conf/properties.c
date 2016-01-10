@@ -55,7 +55,7 @@ GtkWidget *taskbar_name_padding_x, *taskbar_name_padding_y, *taskbar_name_inacti
 GtkWidget *taskbar_name_font, *taskbar_name_font_set;
 GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
-GtkWidget *taskbar_distribute_size, *taskbar_sort_order, *taskbar_alignment;
+GtkWidget *taskbar_distribute_size, *taskbar_sort_order, *taskbar_alignment, *taskbar_always_show_all_desktop_tasks;
 
 // task
 GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
@@ -2909,6 +2909,23 @@ void create_taskbar(GtkWidget *parent)
 	col++;
 	gtk_tooltips_set_tip(tooltips, taskbar_hide_diff_monitor, _("If enabled, tasks that are not on the same monitor as the panel will not be displayed. "
 						 "This behavior is enabled automatically if the panel monitor is set to 'All'."), NULL);
+
+
+	col = 2;
+	row++;
+	label = gtk_label_new(_("Always show all desktop tasks"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	taskbar_always_show_all_desktop_tasks = gtk_check_button_new();
+	gtk_widget_show(taskbar_always_show_all_desktop_tasks);
+	gtk_table_attach(GTK_TABLE(table), taskbar_always_show_all_desktop_tasks, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, taskbar_always_show_all_desktop_tasks, _("Has effect only if 'Show a taskbar for each desktop' is enabled. "
+																			"If enabled, tasks that appear on all desktops are shown on all taskbars. "
+																			"Otherwise, they are shown only on the taskbar of the current desktop."), NULL);
 
 	row++;
 	col = 2;

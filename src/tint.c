@@ -978,7 +978,7 @@ void event_property_notify(XEvent *e)
 						for (; l; l = l->next) {
 							Task *task = l->data;
 							if (task->desktop == ALL_DESKTOPS) {
-								task->area.on_screen = FALSE;
+								task->area.on_screen = always_show_all_desktop_tasks;
 								taskbar->area.resize_needed = 1;
 								panel_refresh = TRUE;
 								if (taskbar_mode == MULTI_DESKTOP)

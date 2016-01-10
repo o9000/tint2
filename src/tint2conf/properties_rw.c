@@ -284,6 +284,7 @@ void config_write_taskbar(FILE *fp)
 	fprintf(fp, "taskbar_name = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_show_name)) ? 1 : 0);
 	fprintf(fp, "taskbar_hide_inactive_tasks = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_hide_inactive_tasks)) ? 1 : 0);
 	fprintf(fp, "taskbar_hide_different_monitor = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_hide_diff_monitor)) ? 1 : 0);
+	fprintf(fp, "taskbar_always_show_all_desktop_tasks = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_always_show_all_desktop_tasks)) ? 1 : 0);
 	fprintf(fp,
 			"taskbar_name_padding = %d %d\n",
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(taskbar_name_padding_x)),
@@ -1304,6 +1305,9 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "taskbar_hide_different_monitor") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_hide_diff_monitor), atoi(value));
+	}
+	else if (strcmp(key, "taskbar_always_show_all_desktop_tasks") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_always_show_all_desktop_tasks), atoi(value));
 	}
 	else if (strcmp(key, "taskbar_name_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);

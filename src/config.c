@@ -758,6 +758,8 @@ void add_entry(char *key, char *value)
 		hide_inactive_tasks = atoi(value);
 	} else if (strcmp(key, "taskbar_hide_different_monitor") == 0) {
 		hide_task_diff_monitor = atoi(value);
+	} else if (strcmp(key, "taskbar_always_show_all_desktop_tasks") == 0) {
+		always_show_all_desktop_tasks = atoi(value);
 	} else if (strcmp(key, "taskbar_sort_order") == 0) {
 		if (strcmp(value, "center") == 0) {
 			taskbar_sort_method = TASKBAR_SORT_CENTER;

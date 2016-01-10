@@ -41,6 +41,7 @@ gboolean taskbar_enabled;
 gboolean taskbar_distribute_size;
 gboolean hide_inactive_tasks;
 gboolean hide_task_diff_monitor;
+gboolean always_show_all_desktop_tasks;
 TaskbarSortMethod taskbar_sort_method;
 Alignment taskbar_alignment;
 
@@ -73,6 +74,7 @@ void default_taskbar()
 	taskbar_distribute_size = FALSE;
 	hide_inactive_tasks = FALSE;
 	hide_task_diff_monitor = FALSE;
+	always_show_all_desktop_tasks = FALSE;
 	taskbar_sort_method = TASKBAR_NOSORT;
 	taskbar_alignment = ALIGN_LEFT;
 	default_taskbarname();

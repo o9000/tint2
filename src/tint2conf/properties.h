@@ -56,7 +56,7 @@ extern GtkWidget *taskbar_name_padding_x, *taskbar_name_padding_y, *taskbar_name
 extern GtkWidget *taskbar_name_font, *taskbar_name_font_set;
 extern GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 extern GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
-extern GtkWidget *taskbar_distribute_size, *taskbar_sort_order, *taskbar_alignment;
+extern GtkWidget *taskbar_distribute_size, *taskbar_sort_order, *taskbar_alignment, *taskbar_always_show_all_desktop_tasks;
 
 // task
 extern GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;

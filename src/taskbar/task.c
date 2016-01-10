@@ -104,7 +104,7 @@ Task *add_task(Window win)
 		task_instance->current_state = TASK_UNDEFINED; // to update the current state later in set_task_state...
 		if (task_instance->desktop == ALL_DESKTOPS && server.desktop != j) {
 			// fprintf(stderr, "%s %d: win = %ld hiding task: another desktop\n", __FUNCTION__, __LINE__, win);
-			task_instance->area.on_screen = FALSE;
+			task_instance->area.on_screen = always_show_all_desktop_tasks;
 		}
 		task_instance->title = task_template.title;
 		if (panels[monitor].g_task.tooltip_enabled)
@@ -562,7 +562,7 @@ void set_task_state(Task *task, TaskState state)
 				Taskbar *taskbar = (Taskbar *)task1->area.parent;
 				if (task->desktop == ALL_DESKTOPS && server.desktop != taskbar->desktop) {
 					// Hide ALL_DESKTOPS task on non-current desktop
-					hide = TRUE;
+					hide = !always_show_all_desktop_tasks;
 				}
 				if (hide_inactive_tasks) {
 					// Show only the active task
