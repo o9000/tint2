@@ -153,22 +153,44 @@ int get_window_desktop(Window win)
 
 	if (best_match < 0)
 		best_match = 0;
-	// printf("window %lx : viewport %d, (%d, %d)\n", win, best_match+1, x, y);
+	//fprintf(stderr, "window %lx %s : viewport %d, (%d, %d)\n", win, get_task(win) ? get_task(win)->title : "??", best_match+1, x, y);
 	return best_match;
 }
 
 int get_window_monitor(Window win)
 {
-	int i, x, y;
-	Window src;
+	int x, y, w, h;
+	get_window_coordinates(win, &x, &y, &w, &h);
 
-	XTranslateCoordinates(server.display, win, server.root_win, 0, 0, &x, &y, &src);
+	if (server.viewports) {
+		int desktop = MIN(get_current_desktop(), server.num_desktops - 1);
+		// Window coordinates are relative to the current viewport, make them absolute
+		x += server.viewports[desktop].x;
+		y += server.viewports[desktop].y;
+
+		if (x < 0 || y < 0) {
+			int num_results;
+			long *x_screen_size = server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, &num_results);
+			if (!x_screen_size)
+				return 0;
+			int x_screen_width = x_screen_size[0];
+			int x_screen_height = x_screen_size[1];
+			XFree(x_screen_size);
+
+			// Wrap
+			if (x < 0)
+				x += x_screen_width;
+			if (y < 0)
+				y += x_screen_height;
+		}
+	}
+
 	int best_match = -1;
 	int match_right = 0;
 	int match_bottom = 0;
 	// There is an ambiguity when a window is right on the edge between screens.
 	// In that case, prefer the monitor which is on the right and bottom of the window's top-left corner.
-	for (i = 0; i < server.num_monitors; i++) {
+	for (int i = 0; i < server.num_monitors; i++) {
 		if (x >= server.monitors[i].x && x <= (server.monitors[i].x + server.monitors[i].width) &&
 			y >= server.monitors[i].y && y <= (server.monitors[i].y + server.monitors[i].height)) {
 			int current_right = x < (server.monitors[i].x + server.monitors[i].width);
@@ -181,7 +203,7 @@ int get_window_monitor(Window win)
 
 	if (best_match < 0)
 		best_match = 0;
-	// printf("window %lx : ecran %d, (%d, %d)\n", win, best_match+1, x, y);
+	// fprintf(stderr, "desktop %d, window %lx %s : monitor %d, (%d, %d)\n", 1 + get_current_desktop(), win, get_task(win) ? get_task(win)->title : "??", best_match+1, x, y);
 	return best_match;
 }
 
