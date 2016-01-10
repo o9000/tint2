@@ -3127,7 +3127,10 @@ void create_taskbar(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
-	taskbar_name_font = gtk_font_button_new_with_font(get_default_font());
+	PangoFontDescription *taskbar_name_font_desc = pango_font_description_from_string(get_default_font());
+	pango_font_description_set_weight(taskbar_name_font_desc, PANGO_WEIGHT_BOLD);
+	taskbar_name_font = gtk_font_button_new_with_font(pango_font_description_to_string(taskbar_name_font_desc));
+	pango_font_description_free(taskbar_name_font_desc);
 	gtk_widget_show(taskbar_name_font);
 	gtk_table_attach(GTK_TABLE(table), taskbar_name_font, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
