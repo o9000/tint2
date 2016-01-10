@@ -28,7 +28,7 @@
 #include "timer.h"
 
 static int x, y, width, height;
-static int just_shown;
+static gboolean just_shown;
 
 // the next functions are helper functions for tooltip handling
 void start_show_timeout();
@@ -48,7 +48,7 @@ void default_tooltip()
 	g_tooltip.font_color.rgb[1] = 1;
 	g_tooltip.font_color.rgb[2] = 1;
 	g_tooltip.font_color.alpha = 1;
-	just_shown = 0;
+	just_shown = FALSE;
 }
 
 void cleanup_tooltip()
@@ -116,7 +116,7 @@ void tooltip_trigger_show(Area *area, Panel *p, XEvent *e)
 	// Position the tooltip in the center of the area
 	x = area->posx + MIN(area->width / 3, 22) + e->xmotion.x_root - e->xmotion.x;
 	y = area->posy + area->height / 2 + e->xmotion.y_root - e->xmotion.y;
-	just_shown = 1;
+	just_shown = TRUE;
 	g_tooltip.panel = p;
 	if (g_tooltip.mapped && g_tooltip.area != area) {
 		tooltip_copy_text(area);
@@ -132,8 +132,7 @@ void tooltip_show(void *arg)
 	int mx, my;
 	Window w;
 	XTranslateCoordinates(server.display, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
-	Area *area;
-	area = click_area(g_tooltip.panel, mx, my);
+	Area *area = click_area(g_tooltip.panel, mx, my);
 	if (!g_tooltip.mapped && area->_get_tooltip_text) {
 		tooltip_copy_text(area);
 		g_tooltip.mapped = True;
@@ -145,20 +144,26 @@ void tooltip_show(void *arg)
 
 void tooltip_update_geometry()
 {
-	cairo_surface_t *cs;
-	cairo_t *c;
-	PangoLayout *layout;
-	cs = cairo_xlib_surface_create(server.display, g_tooltip.window, server.visual, width, height);
-	c = cairo_create(cs);
-	layout = pango_cairo_create_layout(c);
+	Panel *panel = g_tooltip.panel;
+	int screen_width = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width;
+
+	cairo_surface_t *cs = cairo_xlib_surface_create(server.display, g_tooltip.window, server.visual, width, height);
+	cairo_t *c = cairo_create(cs);
+	PangoLayout *layout = pango_cairo_create_layout(c);
+
 	pango_layout_set_font_description(layout, g_tooltip.font_desc);
-	pango_layout_set_text(layout, g_tooltip.tooltip_text, -1);
 	PangoRectangle r1, r2;
+	pango_layout_set_text(layout, "1234567890", -1);
+	pango_layout_get_pixel_extents(layout, &r1, &r2);
+	int max_width = MIN(r2.width * 7, screen_width * 2 / 3);
+	pango_layout_set_width(layout, max_width * PANGO_SCALE);
+
+	pango_layout_set_text(layout, g_tooltip.tooltip_text, -1);
+	pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
 	pango_layout_get_pixel_extents(layout, &r1, &r2);
 	width = 2 * g_tooltip.bg->border.width + 2 * g_tooltip.paddingx + r2.width;
 	height = 2 * g_tooltip.bg->border.width + 2 * g_tooltip.paddingy + r2.height;
 
-	Panel *panel = g_tooltip.panel;
 	if (panel_horizontal && panel_position & BOTTOM)
 		y = panel->posy - height;
 	else if (panel_horizontal && panel_position & TOP)
@@ -178,7 +183,6 @@ void tooltip_adjust_geometry()
 	// adjust coordinates and size to not go offscreen
 	// it seems quite impossible that the height needs to be adjusted, but we do it anyway.
 
-	int min_x, min_y, max_width, max_height;
 	Panel *panel = g_tooltip.panel;
 	int screen_width = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width;
 	int screen_height = server.monitors[panel->monitor].y + server.monitors[panel->monitor].height;
@@ -186,6 +190,7 @@ void tooltip_adjust_geometry()
 		y >= server.monitors[panel->monitor].y)
 		return; // no adjustment needed
 
+	int min_x, min_y, max_width, max_height;
 	if (panel_horizontal) {
 		min_x = 0;
 		max_width = server.monitors[panel->monitor].width;
@@ -230,17 +235,14 @@ void tooltip_update()
 	if (just_shown) {
 		if (!panel_horizontal)
 			y -= height / 2; // center vertically
-		just_shown = 0;
+		just_shown = FALSE;
 	}
 	tooltip_adjust_geometry();
 	XMoveResizeWindow(server.display, g_tooltip.window, x, y, width, height);
 
 	// Stuff for drawing the tooltip
-	cairo_surface_t *cs;
-	cairo_t *c;
-	PangoLayout *layout;
-	cs = cairo_xlib_surface_create(server.display, g_tooltip.window, server.visual, width, height);
-	c = cairo_create(cs);
+	cairo_surface_t *cs = cairo_xlib_surface_create(server.display, g_tooltip.window, server.visual, width, height);
+	cairo_t *c = cairo_create(cs);
 	Color bc = g_tooltip.bg->fill_color;
 	Border b = g_tooltip.bg->border;
 	if (server.real_transparency) {
@@ -262,8 +264,9 @@ void tooltip_update()
 
 	Color fc = g_tooltip.font_color;
 	cairo_set_source_rgba(c, fc.rgb[0], fc.rgb[1], fc.rgb[2], fc.alpha);
-	layout = pango_cairo_create_layout(c);
+	PangoLayout *layout = pango_cairo_create_layout(c);
 	pango_layout_set_font_description(layout, g_tooltip.font_desc);
+	pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
 	pango_layout_set_text(layout, g_tooltip.tooltip_text, -1);
 	PangoRectangle r1, r2;
 	pango_layout_get_pixel_extents(layout, &r1, &r2);
