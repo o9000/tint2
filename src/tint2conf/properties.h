@@ -52,7 +52,8 @@ extern GtkWidget *panel_background;
 // taskbar
 extern GtkWidget *taskbar_show_desktop, *taskbar_show_name, *taskbar_padding_x, *taskbar_padding_y, *taskbar_spacing;
 extern GtkWidget *taskbar_hide_inactive_tasks, *taskbar_hide_diff_monitor;
-extern GtkWidget *taskbar_name_padding_x, *taskbar_name_padding_y, *taskbar_name_inactive_color, *taskbar_name_active_color, *taskbar_name_font;
+extern GtkWidget *taskbar_name_padding_x, *taskbar_name_padding_y, *taskbar_name_inactive_color, *taskbar_name_active_color;
+extern GtkWidget *taskbar_name_font, *taskbar_name_font_set;
 extern GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 extern GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
 extern GtkWidget *taskbar_distribute_size, *taskbar_sort_order, *taskbar_alignment;
@@ -60,7 +61,8 @@ extern GtkWidget *taskbar_distribute_size, *taskbar_sort_order, *taskbar_alignme
 // task
 extern GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
 extern GtkWidget *task_show_icon, *task_show_text, *task_align_center, *font_shadow;
-extern GtkWidget *task_maximum_width, *task_maximum_height, *task_padding_x, *task_padding_y, *task_spacing, *task_font;
+extern GtkWidget *task_maximum_width, *task_maximum_height, *task_padding_x, *task_padding_y, *task_spacing;
+extern GtkWidget *task_font, *task_font_set;
 extern GtkWidget *task_default_color, *task_default_color_set,
 		  *task_default_icon_opacity, *task_default_icon_osb_set,
 		  *task_default_icon_saturation,
@@ -92,12 +94,14 @@ extern GtkWidget *task_iconified_color, *task_iconified_color_set,
 extern GtkWidget *clock_format_line1, *clock_format_line2, *clock_tmz_line1, *clock_tmz_line2;
 extern GtkWidget *clock_left_command, *clock_right_command;
 extern GtkWidget *clock_mclick_command, *clock_rclick_command, *clock_uwheel_command, *clock_dwheel_command;
-extern GtkWidget *clock_padding_x, *clock_padding_y, *clock_font_line1, *clock_font_line2, *clock_font_color;
+extern GtkWidget *clock_padding_x, *clock_padding_y;
+extern GtkWidget *clock_font_line1, *clock_font_line1_set, *clock_font_line2, *clock_font_line2_set, *clock_font_color;
 extern GtkWidget *clock_background;
 
 // battery
 extern GtkWidget *battery_hide_if_higher, *battery_alert_if_lower, *battery_alert_cmd;
-extern GtkWidget *battery_padding_x, *battery_padding_y, *battery_font_line1, *battery_font_line2, *battery_font_color;
+extern GtkWidget *battery_padding_x, *battery_padding_y;
+extern GtkWidget *battery_font_line1, *battery_font_line1_set, *battery_font_line2, *battery_font_line2_set, *battery_font_color;
 extern GtkWidget *battery_background;
 extern GtkWidget *battery_tooltip;
 extern GtkWidget *battery_left_command, *battery_mclick_command, *battery_right_command, *battery_uwheel_command, *battery_dwheel_command;
@@ -109,7 +113,7 @@ extern GtkWidget *systray_icon_size, *systray_icon_opacity, *systray_icon_satura
 extern GtkWidget *systray_background, *systray_monitor;
 
 // tooltip
-extern GtkWidget *tooltip_padding_x, *tooltip_padding_y, *tooltip_font, *tooltip_font_color;
+extern GtkWidget *tooltip_padding_x, *tooltip_padding_y, *tooltip_font, *tooltip_font_set, *tooltip_font_color;
 extern GtkWidget *tooltip_task_show, *tooltip_show_after, *tooltip_hide_after;
 extern GtkWidget *clock_format_tooltip, *clock_tmz_tooltip;
 extern GtkWidget *tooltip_background;
@@ -124,8 +128,8 @@ typedef struct Executor {
 	GtkWidget *execp_continuous, *execp_markup, *execp_tooltip;
 	GtkWidget *execp_left_command, *execp_right_command;
 	GtkWidget *execp_mclick_command, *execp_rclick_command, *execp_uwheel_command, *execp_dwheel_command;
-	GtkWidget *execp_font, *execp_font_color, *execp_padding_x, *execp_padding_y, *execp_centered, *execp_background;
-	GtkWidget *execp_icon_w, *execp_icon_h;
+	GtkWidget *execp_font, *execp_font_set, *execp_font_color, *execp_padding_x, *execp_padding_y, *execp_centered;
+	GtkWidget *execp_background, *execp_icon_w, *execp_icon_h;
 } Executor;
 
 extern GArray *executors;

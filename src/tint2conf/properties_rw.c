@@ -290,7 +290,8 @@ void config_write_taskbar(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(taskbar_name_padding_y)));
 	fprintf(fp, "taskbar_name_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_name_inactive_background)));
 	fprintf(fp, "taskbar_name_active_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_name_active_background)));
-	fprintf(fp, "taskbar_name_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(taskbar_name_font)));
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_name_font_set)))
+		fprintf(fp, "taskbar_name_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(taskbar_name_font)));
 
 	GdkColor color;
 	gtk_color_button_get_color(GTK_COLOR_BUTTON(taskbar_name_inactive_color), &color);
@@ -389,7 +390,8 @@ void config_write_task(FILE *fp)
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(task_padding_x)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(task_padding_y)),
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(task_spacing)));
-	fprintf(fp, "task_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(task_font)));
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(task_font_set)))
+		fprintf(fp, "task_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(task_font)));
 	fprintf(fp, "task_tooltip = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tooltip_task_show)) ? 1 : 0);
 
 	// same for: "" _normal _active _urgent _iconified
@@ -579,10 +581,12 @@ void config_write_clock(FILE *fp)
 
 	fprintf(fp, "time1_format = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_format_line1)));
 	fprintf(fp, "time2_format = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_format_line2)));
-	fprintf(fp, "time1_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(clock_font_line1)));
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(clock_font_line1_set)))
+		fprintf(fp, "time1_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(clock_font_line1)));
 	fprintf(fp, "time1_timezone = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_tmz_line1)));
 	fprintf(fp, "time2_timezone = %s\n", gtk_entry_get_text(GTK_ENTRY(clock_tmz_line2)));
-	fprintf(fp, "time2_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(clock_font_line2)));
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(clock_font_line2_set)))
+		fprintf(fp, "time2_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(clock_font_line2)));
 
 	GdkColor color;
 	gtk_color_button_get_color(GTK_COLOR_BUTTON(clock_font_color), &color);
@@ -615,8 +619,10 @@ void config_write_battery(FILE *fp)
 	fprintf(fp, "battery_tooltip = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(battery_tooltip)) ? 1 : 0);
 	fprintf(fp, "battery_low_status = %g\n", gtk_spin_button_get_value(GTK_SPIN_BUTTON(battery_alert_if_lower)));
 	fprintf(fp, "battery_low_cmd = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_alert_cmd)));
-	fprintf(fp, "bat1_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(battery_font_line1)));
-	fprintf(fp, "bat2_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(battery_font_line2)));
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(battery_font_line1_set)))
+		fprintf(fp, "bat1_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(battery_font_line1)));
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(battery_font_line2_set)))
+		fprintf(fp, "bat2_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(battery_font_line2)));
 	GdkColor color;
 	gtk_color_button_get_color(GTK_COLOR_BUTTON(battery_font_color), &color);
 	config_write_color(fp,
@@ -670,7 +676,8 @@ void config_write_execp(FILE *fp)
 		fprintf(fp, "execp_uwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->execp_uwheel_command)));
 		fprintf(fp, "execp_dwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->execp_dwheel_command)));
 
-		fprintf(fp, "execp_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(executor->execp_font)));
+		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->execp_font_set)))
+			fprintf(fp, "execp_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(executor->execp_font)));
 		GdkColor color;
 		gtk_color_button_get_color(GTK_COLOR_BUTTON(executor->execp_font_color), &color);
 		config_write_color(fp,
@@ -710,7 +717,8 @@ void config_write_tooltip(FILE *fp)
 					   color,
 					   gtk_color_button_get_alpha(GTK_COLOR_BUTTON(tooltip_font_color)) * 100 / 0xffff);
 
-	fprintf(fp, "tooltip_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(tooltip_font)));
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tooltip_font_set)))
+		fprintf(fp, "tooltip_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(tooltip_font)));
 
 	fprintf(fp, "\n");
 }
@@ -1120,9 +1128,11 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "bat1_font") == 0) {
 		gtk_font_button_set_font_name(GTK_FONT_BUTTON(battery_font_line1), value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(battery_font_line1_set), TRUE);
 	}
 	else if (strcmp(key, "bat2_font") == 0) {
 		gtk_font_button_set_font_name(GTK_FONT_BUTTON(battery_font_line2), value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(battery_font_line2_set), TRUE);
 	}
 	else if (strcmp(key, "battery_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
@@ -1182,6 +1192,7 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "time1_font") == 0) {
 		gtk_font_button_set_font_name(GTK_FONT_BUTTON(clock_font_line1), value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(clock_font_line1_set), TRUE);
 	}
 	else if (strcmp(key, "time1_timezone") == 0) {
 		gtk_entry_set_text(GTK_ENTRY(clock_tmz_line1), value);
@@ -1191,6 +1202,7 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "time2_font") == 0) {
 		gtk_font_button_set_font_name(GTK_FONT_BUTTON(clock_font_line2), value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(clock_font_line2_set), TRUE);
 	}
 	else if (strcmp(key, "clock_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
@@ -1310,6 +1322,7 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "taskbar_name_font") == 0) {
 		gtk_font_button_set_font_name(GTK_FONT_BUTTON(taskbar_name_font), value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_name_font_set), TRUE);
 	}
 	else if (strcmp(key, "taskbar_name_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
@@ -1366,6 +1379,7 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "task_font") == 0) {
 		gtk_font_button_set_font_name(GTK_FONT_BUTTON(task_font), value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_font_set), TRUE);
 	}
 	else if (g_regex_match_simple("task.*_font_color", key, 0, 0)) {
 		gchar** split = g_regex_split_simple("_", key, 0, 0);
@@ -1602,6 +1616,7 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "tooltip_font") == 0) {
 		gtk_font_button_set_font_name(GTK_FONT_BUTTON(tooltip_font), value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tooltip_font_set), TRUE);
 	}
 
 	/* Mouse actions */
@@ -1664,6 +1679,7 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "execp_font") == 0) {
 		gtk_font_button_set_font_name(GTK_FONT_BUTTON(execp_get_last()->execp_font), value);
+		gtk_font_button_set_font_name(GTK_FONT_BUTTON(execp_get_last()->execp_font_set), value);
 	}
 	else if (strcmp(key, "execp_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);

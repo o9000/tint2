@@ -51,7 +51,8 @@ GtkWidget *notebook;
 // taskbar
 GtkWidget *taskbar_show_desktop, *taskbar_show_name, *taskbar_padding_x, *taskbar_padding_y, *taskbar_spacing;
 GtkWidget *taskbar_hide_inactive_tasks, *taskbar_hide_diff_monitor;
-GtkWidget *taskbar_name_padding_x, *taskbar_name_padding_y, *taskbar_name_inactive_color, *taskbar_name_active_color, *taskbar_name_font;
+GtkWidget *taskbar_name_padding_x, *taskbar_name_padding_y, *taskbar_name_inactive_color, *taskbar_name_active_color;
+GtkWidget *taskbar_name_font, *taskbar_name_font_set;
 GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
 GtkWidget *taskbar_distribute_size, *taskbar_sort_order, *taskbar_alignment;
@@ -59,7 +60,8 @@ GtkWidget *taskbar_distribute_size, *taskbar_sort_order, *taskbar_alignment;
 // task
 GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
 GtkWidget *task_show_icon, *task_show_text, *task_align_center, *font_shadow;
-GtkWidget *task_maximum_width, *task_maximum_height, *task_padding_x, *task_padding_y, *task_spacing, *task_font;
+GtkWidget *task_maximum_width, *task_maximum_height, *task_padding_x, *task_padding_y, *task_spacing;
+GtkWidget *task_font, *task_font_set;
 GtkWidget *task_default_color, *task_default_color_set,
 		  *task_default_icon_opacity, *task_default_icon_osb_set,
 		  *task_default_icon_saturation,
@@ -91,12 +93,14 @@ GtkWidget *task_iconified_color, *task_iconified_color_set,
 GtkWidget *clock_format_line1, *clock_format_line2, *clock_tmz_line1, *clock_tmz_line2;
 GtkWidget *clock_left_command, *clock_right_command;
 GtkWidget *clock_mclick_command, *clock_rclick_command, *clock_uwheel_command, *clock_dwheel_command;
-GtkWidget *clock_padding_x, *clock_padding_y, *clock_font_line1, *clock_font_line2, *clock_font_color;
+GtkWidget *clock_padding_x, *clock_padding_y;
+GtkWidget *clock_font_line1, *clock_font_line1_set, *clock_font_line2, *clock_font_line2_set, *clock_font_color;
 GtkWidget *clock_background;
 
 // battery
 GtkWidget *battery_hide_if_higher, *battery_alert_if_lower, *battery_alert_cmd;
-GtkWidget *battery_padding_x, *battery_padding_y, *battery_font_line1, *battery_font_line2, *battery_font_color;
+GtkWidget *battery_padding_x, *battery_padding_y;
+GtkWidget *battery_font_line1, *battery_font_line1_set, *battery_font_line2, *battery_font_line2_set, *battery_font_color;
 GtkWidget *battery_background;
 GtkWidget *battery_tooltip;
 GtkWidget *battery_left_command, *battery_mclick_command, *battery_right_command, *battery_uwheel_command, *battery_dwheel_command;
@@ -108,7 +112,7 @@ GtkWidget *systray_icon_size, *systray_icon_opacity, *systray_icon_saturation, *
 GtkWidget *systray_background, *systray_monitor;
 
 // tooltip
-GtkWidget *tooltip_padding_x, *tooltip_padding_y, *tooltip_font, *tooltip_font_color;
+GtkWidget *tooltip_padding_x, *tooltip_padding_y, *tooltip_font, *tooltip_font_set, *tooltip_font_color;
 GtkWidget *tooltip_task_show, *tooltip_show_after, *tooltip_hide_after;
 GtkWidget *clock_format_tooltip, *clock_tmz_tooltip;
 GtkWidget *tooltip_background;
@@ -227,6 +231,11 @@ void okClicked(GtkWidget *widget, gpointer data)
 {
 	applyClicked(widget, data);
 	cancelClicked(widget, data);
+}
+
+void font_set_callback(GtkWidget *widget, gpointer data)
+{
+	gtk_widget_set_sensitive(data, GTK_TOGGLE_BUTTON(widget)->active);
 }
 
 GtkWidget *create_properties()
@@ -3119,8 +3128,14 @@ void create_taskbar(GtkWidget *parent)
 	col++;
 	gtk_tooltips_set_tip(tooltips, taskbar_name_inactive_color, _("Specifies the font color used to display the name of inactive desktops."), NULL);
 
-	col = 2;
+	col = 1;
 	row++;
+	taskbar_name_font_set = gtk_check_button_new();
+	gtk_widget_show(taskbar_name_font_set);
+	gtk_table_attach(GTK_TABLE(table), taskbar_name_font_set, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	gtk_tooltips_set_tip(tooltips, taskbar_name_font_set, _("If not checked, the desktop theme font is used. If checked, the custom font specified here is used."), NULL);
+	col++;
+
 	label = gtk_label_new(_("Font"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
@@ -3136,6 +3151,8 @@ void create_taskbar(GtkWidget *parent)
 	col++;
 	gtk_font_button_set_show_style(GTK_FONT_BUTTON(taskbar_name_font), TRUE);
 	gtk_tooltips_set_tip(tooltips, taskbar_name_font, _("Specifies the font used to display the desktop name."), NULL);
+	gtk_signal_connect(GTK_OBJECT(taskbar_name_font_set), "toggled", GTK_SIGNAL_FUNC(font_set_callback), taskbar_name_font);
+	font_set_callback(taskbar_name_font_set, taskbar_name_font);
 
 	col = 2;
 	row++;
@@ -3501,7 +3518,13 @@ void create_task(GtkWidget *parent)
 	col++;
 	gtk_tooltips_set_tip(tooltips, task_spacing, _("Specifies the spacing between the icon and the text."), NULL);
 
-	row++, col = 2;
+	row++, col = 1;
+	task_font_set = gtk_check_button_new();
+	gtk_widget_show(task_font_set);
+	gtk_table_attach(GTK_TABLE(table), task_font_set, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	gtk_tooltips_set_tip(tooltips, task_font_set, _("If not checked, the desktop theme font is used. If checked, the custom font specified here is used."), NULL);
+	col++;
+
 	label = gtk_label_new(_("Font"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
@@ -3514,6 +3537,8 @@ void create_task(GtkWidget *parent)
 	col++;
 	gtk_font_button_set_show_style(GTK_FONT_BUTTON(task_font), TRUE);
 	gtk_tooltips_set_tip(tooltips, task_font, _("Specifies the font used to display the task button text."), NULL);
+	gtk_signal_connect(GTK_OBJECT(task_font_set), "toggled", GTK_SIGNAL_FUNC(font_set_callback), task_font);
+	font_set_callback(task_font_set, task_font);
 
 	change_paragraph(parent);
 
@@ -3992,7 +4017,13 @@ void create_clock(GtkWidget *parent)
 	gtk_tooltips_set_tip(tooltips, clock_padding_y, _("Specifies the vertical padding of the clock. "
 						 "This is the space between the border and the content inside."), NULL);
 
-	row++, col = 2;
+	row++, col = 1;
+	clock_font_line1_set = gtk_check_button_new();
+	gtk_widget_show(clock_font_line1_set);
+	gtk_table_attach(GTK_TABLE(table), clock_font_line1_set, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	gtk_tooltips_set_tip(tooltips, clock_font_line1_set, _("If not checked, the desktop theme font is used. If checked, the custom font specified here is used."), NULL);
+	col++;
+
 	label = gtk_label_new(_("Font first line"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
@@ -4009,8 +4040,16 @@ void create_clock(GtkWidget *parent)
 	col++;
 	gtk_font_button_set_show_style(GTK_FONT_BUTTON(clock_font_line1), TRUE);
 	gtk_tooltips_set_tip(tooltips, clock_font_line1, _("Specifies the font used to display the first line of the clock."), NULL);
+	gtk_signal_connect(GTK_OBJECT(clock_font_line1_set), "toggled", GTK_SIGNAL_FUNC(font_set_callback), clock_font_line1);
+	font_set_callback(clock_font_line1_set, clock_font_line1);
 
-	row++, col = 2;
+	row++, col = 1;
+	clock_font_line2_set = gtk_check_button_new();
+	gtk_widget_show(clock_font_line2_set);
+	gtk_table_attach(GTK_TABLE(table), clock_font_line2_set, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	gtk_tooltips_set_tip(tooltips, clock_font_line2_set, _("If not checked, the desktop theme font is used. If checked, the custom font specified here is used."), NULL);
+	col++;
+
 	label = gtk_label_new(_("Font second line"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
@@ -4026,6 +4065,8 @@ void create_clock(GtkWidget *parent)
 	col++;
 	gtk_font_button_set_show_style(GTK_FONT_BUTTON(clock_font_line2), TRUE);
 	gtk_tooltips_set_tip(tooltips, clock_font_line2, _("Specifies the font used to display the second line of the clock."), NULL);
+	gtk_signal_connect(GTK_OBJECT(clock_font_line2_set), "toggled", GTK_SIGNAL_FUNC(font_set_callback), clock_font_line2);
+	font_set_callback(clock_font_line2_set, clock_font_line2);
 
 	row++, col = 2;
 	label = gtk_label_new(_("Font color"));
@@ -4361,7 +4402,13 @@ void create_execp(GtkWidget *notebook, int i)
 	gtk_tooltips_set_tip(tooltips, executor->execp_padding_y, _("Specifies the vertical padding of the executor. "
 						 "This is the space between the border and the content inside."), NULL);
 
-	row++, col = 2;
+	row++, col = 1;
+	executor->execp_font_set = gtk_check_button_new();
+	gtk_widget_show(executor->execp_font_set);
+	gtk_table_attach(GTK_TABLE(table), executor->execp_font_set, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	gtk_tooltips_set_tip(tooltips, executor->execp_font_set, _("If not checked, the desktop theme font is used. If checked, the custom font specified here is used."), NULL);
+	col++;
+
 	label = gtk_label_new(_("Font"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
@@ -4373,6 +4420,8 @@ void create_execp(GtkWidget *notebook, int i)
 	gtk_table_attach(GTK_TABLE(table), executor->execp_font, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 	gtk_font_button_set_show_style(GTK_FONT_BUTTON(executor->execp_font), TRUE);
+	gtk_signal_connect(GTK_OBJECT(executor->execp_font_set), "toggled", GTK_SIGNAL_FUNC(font_set_callback), executor->execp_font);
+	font_set_callback(executor->execp_font_set, executor->execp_font);
 
 	row++, col = 2;
 	label = gtk_label_new(_("Font color"));
@@ -4997,7 +5046,13 @@ void create_battery(GtkWidget *parent)
 	gtk_tooltips_set_tip(tooltips, battery_padding_y, _("Specifies the vertical padding of the battery. "
 						 "This is the space between the border and the content inside."), NULL);
 
-	row++, col = 2;
+	row++, col = 1;
+	battery_font_line1_set = gtk_check_button_new();
+	gtk_widget_show(battery_font_line1_set);
+	gtk_table_attach(GTK_TABLE(table), battery_font_line1_set, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	gtk_tooltips_set_tip(tooltips, battery_font_line1_set, _("If not checked, the desktop theme font is used. If checked, the custom font specified here is used."), NULL);
+	col++;
+
 	label = gtk_label_new(_("Font first line"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
@@ -5013,8 +5068,16 @@ void create_battery(GtkWidget *parent)
 	col++;
 	gtk_font_button_set_show_style(GTK_FONT_BUTTON(battery_font_line1), TRUE);
 	gtk_tooltips_set_tip(tooltips, battery_font_line1, _("Specifies the font used to display the first line of the battery text."), NULL);
+	gtk_signal_connect(GTK_OBJECT(battery_font_line1_set), "toggled", GTK_SIGNAL_FUNC(font_set_callback), battery_font_line1);
+	font_set_callback(battery_font_line1_set, battery_font_line1);
 
-	row++, col = 2;
+	row++, col = 1;
+	battery_font_line2_set = gtk_check_button_new();
+	gtk_widget_show(battery_font_line2_set);
+	gtk_table_attach(GTK_TABLE(table), battery_font_line2_set, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	gtk_tooltips_set_tip(tooltips, battery_font_line2_set, _("If not checked, the desktop theme font is used. If checked, the custom font specified here is used."), NULL);
+	col++;
+
 	label = gtk_label_new(_("Font second line"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
@@ -5030,6 +5093,8 @@ void create_battery(GtkWidget *parent)
 	col++;
 	gtk_font_button_set_show_style(GTK_FONT_BUTTON(battery_font_line2), TRUE);
 	gtk_tooltips_set_tip(tooltips, battery_font_line2, _("Specifies the font used to display the second line of the battery text."), NULL);
+	gtk_signal_connect(GTK_OBJECT(battery_font_line2_set), "toggled", GTK_SIGNAL_FUNC(font_set_callback), battery_font_line2);
+	font_set_callback(battery_font_line2_set, battery_font_line2);
 
 	row++, col = 2;
 	label = gtk_label_new(_("Font color"));
@@ -5161,7 +5226,13 @@ void create_tooltip(GtkWidget *parent)
 	gtk_tooltips_set_tip(tooltips, tooltip_padding_y, _("Specifies the vertical padding of the tooltip. "
 						 "This is the space between the border and the content inside."), NULL);
 
-	row++, col = 2;
+	row++, col = 1;
+	tooltip_font_set = gtk_check_button_new();
+	gtk_widget_show(tooltip_font_set);
+	gtk_table_attach(GTK_TABLE(table), tooltip_font_set, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	gtk_tooltips_set_tip(tooltips, tooltip_font_set, _("If not checked, the desktop theme font is used. If checked, the custom font specified here is used."), NULL);
+	col++;
+
 	label = gtk_label_new(_("Font"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
@@ -5174,6 +5245,8 @@ void create_tooltip(GtkWidget *parent)
 	col++;
 	gtk_font_button_set_show_style(GTK_FONT_BUTTON(tooltip_font), TRUE);
 	gtk_tooltips_set_tip(tooltips, tooltip_font, _("Specifies the font used to display the text of the tooltip."), NULL);
+	gtk_signal_connect(GTK_OBJECT(tooltip_font_set), "toggled", GTK_SIGNAL_FUNC(font_set_callback), tooltip_font);
+	font_set_callback(tooltip_font_set, tooltip_font);
 
 	row++, col = 2;
 	label = gtk_label_new(_("Font color"));
