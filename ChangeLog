@@ -1,4 +1,4 @@
-2016-01-05 master
+2016-01-10 master
 - Enhancements:
   - Support for NETWM viewports (as used by Compiz or Unity) (issue #94)
   - The default desktop font (Gtk/FontName from XSettings) is used when a font is not specified in the config file
@@ -9,17 +9,24 @@
     Both ENABLE_BACKTRACE and ENABLE_BACKTRACE_ON_SIGNAL are disabled by default.
   - Pixmaps are cached instead of always redrawn between different button states when mouse effects are enabled,
     to improve performance
+  - Tooltips are no longer very wide
+  - Default config looks nicer
 - New config options:
   - Executor: new plugin that displays the output of a command in the panel (issue #161)
   - New taskbar sort order options: least-recently-used (lru), most-recently-used (mru) (issue #532)
   - Place the primary monitor before all the other monitors (primary_monitor_first, issue #538)
+  - taskbar_always_show_all_desktop_tasks (issue #279)
+- Config options with changed behavior:
+  - Mouse effects are enabled by default
 - Fixes:
   - Battery changes visibility correctly (issue #531)
+  - Fixed rendering corruption (issue #543)
   - Reverted the window flags back to the value in 0.11 to make sure the window manager detects that tint2 is a panel
     (affected kwin, bspwm; fixes issue #537, breaks issue #455)
   - Fixed a rare crash caused by the system tray code
   - The system tray now reorders icons correctly when the icon name changes and the sorting order is configured as
     ascending or descending (affected GTK icons, which sometimes set their name late after creating the icon)
+  - Tint2conf no longer copies sample themes to ~/.config
 - New optional dependencies:
   - libexecinfo on the *BSDs (only if the cmake flag ENABLE_BACKTRACE is set)
 2015-11-12 0.12.3
