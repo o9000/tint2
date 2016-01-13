@@ -255,7 +255,7 @@ GtkWidget *create_properties()
 	view = gtk_dialog_new();
 	gtk_window_set_title(GTK_WINDOW(view), _("Properties"));
 	gtk_window_set_modal(GTK_WINDOW(view), TRUE);
-	gtk_window_set_default_size(GTK_WINDOW(view), 800, 600);
+	gtk_window_set_default_size(GTK_WINDOW(view), 920, 600);
 	gtk_window_set_skip_pager_hint(GTK_WINDOW(view), TRUE);
 	gtk_window_set_type_hint(GTK_WINDOW(view), GDK_WINDOW_TYPE_HINT_DIALOG);
 
