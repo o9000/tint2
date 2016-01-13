@@ -1683,7 +1683,7 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "execp_font") == 0) {
 		gtk_font_button_set_font_name(GTK_FONT_BUTTON(execp_get_last()->execp_font), value);
-		gtk_font_button_set_font_name(GTK_FONT_BUTTON(execp_get_last()->execp_font_set), value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_font_set), TRUE);
 	}
 	else if (strcmp(key, "execp_font_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);
