@@ -327,10 +327,10 @@ void init(int argc, char *argv[])
 	// Set signal handlers
 	signal_pending = 0;
 
-	struct sigaction sa_chld = {.sa_handler = SIG_DFL, .sa_flags = SA_NOCLDWAIT};
+	struct sigaction sa_chld = {.sa_handler = SIG_DFL, .sa_flags = SA_NOCLDWAIT | SA_RESTART};
 	sigaction(SIGCHLD, &sa_chld, 0);
 
-	struct sigaction sa = {.sa_handler = signal_handler};
+	struct sigaction sa = {.sa_handler = signal_handler, .sa_flags = SA_RESTART};
 	sigaction(SIGUSR1, &sa, 0);
 	sigaction(SIGINT, &sa, 0);
 	sigaction(SIGTERM, &sa, 0);
@@ -458,9 +458,7 @@ void init_X11_post_config()
 			fcntl(sn_pipe[0], F_SETFL, O_NONBLOCK | fcntl(sn_pipe[0], F_GETFL));
 			fcntl(sn_pipe[1], F_SETFL, O_NONBLOCK | fcntl(sn_pipe[1], F_GETFL));
 			sn_pipe_valid = 1;
-			struct sigaction act;
-			memset(&act, 0, sizeof(struct sigaction));
-			act.sa_handler = sigchld_handler;
+			struct sigaction act = {.sa_handler = sigchld_handler, .sa_flags = SA_NOCLDWAIT | SA_RESTART};
 			if (sigaction(SIGCHLD, &act, 0)) {
 				perror("sigaction");
 			}
