@@ -240,12 +240,13 @@ msgstr  "Moniteur sur lequel se trouve le panel"
 
 #: ../properties.c:1162
 msgid   "Primary monitor first"
-msgstr  ""
+msgstr  "Moniteur principal est le premier"
 
 #: ../properties.c:1172
 msgid   "If enabled, the primary monitor will have index 1 in the monitor "
         "list even if it is not top-left."
-msgstr  ""
+msgstr  "Si cette option est activée, le moniteur principal est le premier "
+		"dans la liste des moniteurs, même s'il est pas au top-gauche."
 
 #: ../properties.c:1176
 msgid   "Length"
@@ -633,7 +634,7 @@ msgstr  "Espace libre"
 #: ../properties.c:1697 ../properties.c:1886 ../properties.c:4159
 #: ../properties.c:4387 ../properties.c:4557 ../properties.c:4578
 msgid   "Executor"
-msgstr  ""
+msgstr  "Exécuteur"
 
 #: ../properties.c:1712
 msgid   "Specifies the elements that will appear in the panel and their "
@@ -915,14 +916,18 @@ msgstr  "Si l'option est activée, les tâches qui ne sont pas sur le même "
 
 #: ../properties.c:2916
 msgid   "Always show all desktop tasks"
-msgstr  ""
+msgstr  "Affiche toujours les tâches visible sur tous les bureaux"
 
 #: ../properties.c:2926
 msgid   "Has effect only if 'Show a taskbar for each desktop' is enabled. If "
         "enabled, tasks that appear on all desktops are shown on all "
         "taskbars. Otherwise, they are shown only on the taskbar of the "
         "current desktop."
-msgstr  ""
+msgstr  "N'a d'effet que si «Affiche une barre des tâches pour chaque bureau» "
+		"est activée. Si cette option est activée, les tâches qui apparaissent "
+		"sur tous les bureaux sont affichés sur toutes les barres de tâches. "
+		"Sinon, ils sont affichés uniquement sur la barre des tâches du bureau "
+		"actuel."
 
 #: ../properties.c:2932
 msgid   "Task sorting"
@@ -943,11 +948,11 @@ msgstr  "Par position"
 
 #: ../properties.c:2945
 msgid   "Most recently used first"
-msgstr  ""
+msgstr  "Plus récemment utilisé est le premier"
 
 #: ../properties.c:2946
 msgid   "Most recently used last"
-msgstr  ""
+msgstr  "Plus récemment utilisé est le dernier"
 
 #: ../properties.c:2948
 msgid   "Specifies how tasks should be sorted on the taskbar. \n"
@@ -1088,7 +1093,8 @@ msgstr  "Spécifie la couleur de la police utilisée pour afficher le nom des "
 #: ../properties.c:5095 ../properties.c:5250
 msgid   "If not checked, the desktop theme font is used. If checked, the "
         "custom font specified here is used."
-msgstr  ""
+msgstr  "Si pas coché, la police du thème de bureau est utilisé. Si elle est "
+		"cochée, la police personnalisée indiqué ici est utilisé."
 
 #: ../properties.c:3156 ../properties.c:3545 ../properties.c:4429
 #: ../properties.c:5253
@@ -1668,43 +1674,44 @@ msgstr  "Spécifie le fuseau horaire utilisé pour afficher l'infobulle de "
         "d'environnement TZ)."
 
 #: ../properties.c:4189
-#, fuzzy
 msgid   "Command"
-msgstr  "Commande d'alerte"
+msgstr  "Commande"
 
 #: ../properties.c:4201
-#, fuzzy
 msgid   "Specifies the command to execute."
-msgstr  "Spécifie la police utilisée pour afficher le nom du bureau."
+msgstr  "Indique la commande à exécuter."
 
 #: ../properties.c:4204
 msgid   "Interval"
-msgstr  ""
+msgstr  "Intervalle"
 
 #: ../properties.c:4214
 msgid   "Specifies the interval at which the command is executed, in seconds. "
         "If zero, the command is executed only once."
-msgstr  ""
+msgstr  "Indique la fréquence à laquelle la commande est exécutée, en secondes. "
+		"Si zéro, la commande est exécutée une seule fois."
 
 #: ../properties.c:4228
 msgid   "If enabled, the first line printed by the command is interpreted as "
         "a path to an image file."
-msgstr  ""
+msgstr  "Si cette option est activée, la première ligne imprimée par la commande "
+		"est interprété comme un chemin vers un fichier d'icône."
 
 #: ../properties.c:4232
-#, fuzzy
 msgid   "Cache icon"
-msgstr  "L'icône du lanceur"
+msgstr  "Cache l'icône"
 
 #: ../properties.c:4243
 msgid   "If enabled, the image is not reloaded from disk every time the "
         "command is executed if the path remains unchanged. Enabling this is "
         "recommended."
-msgstr  ""
+msgstr  "Si cette option est activée, l'image n'est pas rechargé à partir du disque "
+		"chaque fois que la commande est exécutée si le chemin reste inchangé. "
+		"L'activation de cette option est recommandée."
 
 #: ../properties.c:4246
 msgid   "Continuous output"
-msgstr  ""
+msgstr  "Sortie continue"
 
 #: ../properties.c:4256
 msgid   "If non-zero, the last execp_continuous lines from the output of the "
@@ -1712,109 +1719,100 @@ msgid   "If non-zero, the last execp_continuous lines from the output of the "
         "for showing the output of commands that run indefinitely, such as "
         "'ping 127.0.0.1'. If zero, the output of the command is displayed "
         "after it finishes executing."
-msgstr  ""
+msgstr  "Si non nulle, les n dernières lignes de la sortie de la commande sont "
+		"affichés, tous les n lignes; ceci est utile pour montrer la sortie des "
+		"commandes qui exécutent indéfiniment, comme «ping 127.0.0.1». Si zéro, "
+		"la sortie de la commande est affichée après la fin de l'exécution."
 
 #: ../properties.c:4262
 msgid   "Display markup"
-msgstr  ""
+msgstr  "Affiche balisage"
 
 #: ../properties.c:4273
 msgid   "If enabled, the output of the command is treated as Pango markup, "
         "which allows rich text formatting. Note that using this with "
         "commands that print data downloaded from the Internet is a potential "
         "security risk."
-msgstr  ""
+msgstr  "Si cette option est activée, la sortie de la commande est traitée comme "
+		"du balisage Pango, qui permet formatage de texte enrichi. Notez que "
+		"l'utilisation de cette option avec les commandes qui impriment des données "
+		"téléchargées à partir de l'Internet est un risque potentiel de sécurité."
 
 #: ../properties.c:4304
-#, fuzzy
 msgid   "Specifies a command that will be executed when the executor receives "
         "a left click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lors d'un clic gauche."
 
 #: ../properties.c:4319
-#, fuzzy
 msgid   "Specifies a command that will be executed when the executor receives "
         "a right click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic droit sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lors d'un clic droit."
 
-#
 #: ../properties.c:4334
-#, fuzzy
 msgid   "Specifies a command that will be executed when the executor receives "
         "a middle click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic du milieu sur "
-        "l'horloge."
+msgstr  "Spécifie la commande à exécuter lors d'un clic du milieu."
 
-#
 #: ../properties.c:4349
-#, fuzzy
 msgid   "Specifies a command that will be executed when the executor receives "
         "a mouse scroll up."
-msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
-        "sur l'horloge."
+msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette."
 
-#
 #: ../properties.c:4364
-#, fuzzy
 msgid   "Specifies a command that will be executed when the executor receives "
         "a mouse scroll down."
 msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
-        "sur l'horloge vers le bas."
+		"vers le bas."
 
 #: ../properties.c:4391
-#, fuzzy
 msgid   "Selects the background used to display the executor. Backgrounds can "
         "be edited in the Backgrounds tab."
-msgstr  "Sélectionne l'arrière-plan utilisé pour afficher l'horloge. Les "
+msgstr  "Sélectionne l'arrière-plan utilisé pour afficher l'exécuteur. Les "
         "arrières-plans sont modifiables dans l'onglet Arrières-plans."
 
 #: ../properties.c:4405
-#, fuzzy
 msgid   "Specifies the horizontal padding of the executor. This is the space "
         "between the border and the content inside."
-msgstr  "Spécifie l'espacement horizontal de l'horloge. C'est l'espace entre "
+msgstr  "Spécifie l'espacement horizontal de l'exécuteur. C'est l'espace entre "
         "la bordure et le contenu."
 
 #: ../properties.c:4419
-#, fuzzy
 msgid   "Specifies the vertical padding of the executor. This is the space "
         "between the border and the content inside."
-msgstr  "Spécifie l'espacement vertical de l'horloge. C'est l'espace entre la "
+msgstr  "Spécifie l'espacement vertical de l'exécuteur. C'est l'espace entre la "
         "bordure et le contenu."
 
 #: ../properties.c:4457
-#, fuzzy
 msgid   "Centered"
-msgstr  "Centrées"
+msgstr  "Centré"
 
 #: ../properties.c:4469
-#, fuzzy
 msgid   "Icon width"
-msgstr  "Thème de l'icône"
+msgstr  "Largeur d'icône"
 
 #: ../properties.c:4479
 msgid   "If non-zero, the image is resized to this width."
-msgstr  ""
+msgstr  "Si non nul, l'image est redimensionnée à cette largeur."
 
 #: ../properties.c:4482
-#, fuzzy
 msgid   "Icon height"
-msgstr  "Luminosité de l'icône"
+msgstr  "Hauteur de l'icône"
 
 #: ../properties.c:4492
 msgid   "If non-zero, the image is resized to this height."
-msgstr  ""
+msgstr  "Si non nul, l'image est redimensionnée à cette hauteur."
 
 #: ../properties.c:4508
-#, fuzzy
 msgid   "Tooltip text"
-msgstr  "Infobulle"
+msgstr  "Texte infobulle"
 
 #: ../properties.c:4520
 msgid   "The tooltip text to display. Leave this empty to display an "
         "automatically generated tooltip with information about when the "
         "command was last executed."
-msgstr  ""
+msgstr  "Le texte de l'infobulle pour afficher. Laissez ce champ vide pour afficher "
+		"une info-bulle générée automatiquement avec des informations sur lorsque la "
+		"commande a été exécutée la dernière fois."
 
 #: ../properties.c:4611
 msgid   "Icon ordering"
