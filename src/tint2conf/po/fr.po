@@ -240,7 +240,7 @@ msgstr  "Moniteur sur lequel se trouve le panel"
 
 #: ../properties.c:1162
 msgid   "Primary monitor first"
-msgstr  "Moniteur principal est le premier"
+msgstr  "Moniteur principal en premier"
 
 #: ../properties.c:1172
 msgid   "If enabled, the primary monitor will have index 1 in the monitor "
@@ -948,11 +948,11 @@ msgstr  "Par position"
 
 #: ../properties.c:2945
 msgid   "Most recently used first"
-msgstr  "Plus récemment utilisé est le premier"
+msgstr  "Plus récemment utilisé en premier"
 
 #: ../properties.c:2946
 msgid   "Most recently used last"
-msgstr  "Plus récemment utilisé est le dernier"
+msgstr  "Plus récemment utilisé en dernier"
 
 #: ../properties.c:2948
 msgid   "Specifies how tasks should be sorted on the taskbar. \n"
@@ -1093,8 +1093,8 @@ msgstr  "Spécifie la couleur de la police utilisée pour afficher le nom des "
 #: ../properties.c:5095 ../properties.c:5250
 msgid   "If not checked, the desktop theme font is used. If checked, the "
         "custom font specified here is used."
-msgstr  "Si pas coché, la police du thème de bureau est utilisé. Si elle est "
-		"cochée, la police personnalisée indiqué ici est utilisé."
+msgstr  "Si pas coché, la police du thème de bureau est utilisée. Si elle est "
+		"cochée, la police personnalisée indiqué ici est utilisée."
 
 #: ../properties.c:3156 ../properties.c:3545 ../properties.c:4429
 #: ../properties.c:5253
