@@ -1161,6 +1161,7 @@ void event_configure_notify(XEvent *e)
 
 	// change in root window (xrandr)
 	if (win == server.root_win) {
+		fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to configuration change in the root window\n" RESET, __FILE__, __LINE__);
 		signal_pending = SIGUSR1;
 		return;
 	}
@@ -1685,7 +1686,7 @@ start:
 				case DestroyNotify:
 					if (e.xany.window == server.composite_manager) {
 						// Stop real_transparency
-						fprintf(stderr, "Detected compositor shutdown, restarting tint2...\n");
+						fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to compositor shutdown\n" RESET, __FILE__, __LINE__);
 						signal_pending = SIGUSR1;
 						break;
 					}
@@ -1702,12 +1703,15 @@ start:
 				case ClientMessage: {
 					XClientMessageEvent *ev = &e.xclient;
 					if (ev->data.l[1] == server.atom._NET_WM_CM_S0) {
-						if (ev->data.l[2] == None)
+						if (ev->data.l[2] == None) {
 							// Stop real_transparency
+							fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to change in transparency\n" RESET, __FILE__, __LINE__);
 							signal_pending = SIGUSR1;
-						else
+						} else {
 							// Start real_transparency
+							fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to change in transparency\n" RESET, __FILE__, __LINE__);
 							signal_pending = SIGUSR1;
+						}
 					}
 					if (systray_enabled && e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE &&
 						e.xclient.format == 32 && e.xclient.window == net_sel_win) {
@@ -1859,6 +1863,7 @@ start:
 		if (signal_pending) {
 			cleanup();
 			if (signal_pending == SIGUSR1) {
+				fprintf(stderr, YELLOW "%s %d: restarting tint2...\n" RESET, __FILE__, __LINE__);
 				// restart tint2
 				// SIGUSR1 used when : user's signal, composite manager stop/start or xrandr
 				goto start;
