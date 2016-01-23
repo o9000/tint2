@@ -1093,8 +1093,8 @@ msgstr  "Spécifie la couleur de la police utilisée pour afficher le nom des "
 #: ../properties.c:5095 ../properties.c:5250
 msgid   "If not checked, the desktop theme font is used. If checked, the "
         "custom font specified here is used."
-msgstr  "Si pas coché, la police du thème de bureau est utilisée. Si elle est "
-		"cochée, la police personnalisée indiqué ici est utilisée."
+msgstr  "Si non coché, la police du thème de bureau est utilisée. Si oui, "
+        "la police indiquée ici est utilisé."
 
 #: ../properties.c:3156 ../properties.c:3545 ../properties.c:4429
 #: ../properties.c:5253
@@ -1756,7 +1756,7 @@ msgstr  "Spécifie la commande à exécuter lors d'un clic du milieu."
 #: ../properties.c:4349
 msgid   "Specifies a command that will be executed when the executor receives "
         "a mouse scroll up."
-msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette."
+msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette vers le haut."
 
 #: ../properties.c:4364
 msgid   "Specifies a command that will be executed when the executor receives "
@@ -1810,9 +1810,9 @@ msgstr  "Texte infobulle"
 msgid   "The tooltip text to display. Leave this empty to display an "
         "automatically generated tooltip with information about when the "
         "command was last executed."
-msgstr  "Le texte de l'infobulle pour afficher. Laissez ce champ vide pour afficher "
-		"une info-bulle générée automatiquement avec des informations sur lorsque la "
-		"commande a été exécutée la dernière fois."
+msgstr  "Le texte de l'infobulle a afficher. Laissez ce champ vide pour afficher "
+        "une info-bulle générée automatiquement indiquant quand la "
+        "commande a été exécutée la dernière fois."
 
 #: ../properties.c:4611
 msgid   "Icon ordering"
