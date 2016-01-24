@@ -67,9 +67,6 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
   * Downloads: https://gitlab.com/o9000/tint2-archive/tree/master or https://code.google.com/p/tint2/downloads/list
   * Old project location (inactive): https://code.google.com/p/tint2
 
-# Releases
-  * Latest stable release: tint2 0.12.4 (January 2016)
-
 # Screenshots
 
 ## Default config of the latest release:
