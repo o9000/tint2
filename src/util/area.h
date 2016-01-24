@@ -202,6 +202,9 @@ typedef struct Area {
 
 	// Callbacks
 
+	// Called on draw before any drawing takes place, obj = pointer to the Area
+	void (*_clear)(void *obj);
+
 	// Called on draw, obj = pointer to the Area
 	void (*_draw_foreground)(void *obj, cairo_t *c);
 

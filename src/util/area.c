@@ -379,9 +379,14 @@ void draw(Area *a)
 	a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0] = a->pix;
 
 	// Add layer of root pixmap (or clear pixmap if real_transparency==true)
-	if (server.real_transparency)
+	if (!a->_clear) {
 		clear_pixmap(a->pix, 0, 0, a->width, a->height);
-	XCopyArea(server.display, ((Panel *)a->panel)->temp_pmap, a->pix, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+		if (!server.real_transparency) {
+			XCopyArea(server.display, ((Panel *)a->panel)->temp_pmap, a->pix, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+		}
+	} else {
+		a->_clear(a);
+	}
 
 	cairo_surface_t *cs = cairo_xlib_surface_create(server.display, a->pix, server.visual, a->width, a->height);
 	cairo_t *c = cairo_create(cs);

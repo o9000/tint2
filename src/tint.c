@@ -1484,6 +1484,24 @@ start:
 				Panel *panel = &panels[i];
 
 				if (panel->is_hidden) {
+					if (!panel->hidden_pixmap) {
+						panel->hidden_pixmap = XCreatePixmap(server.display, server.root_win, panel->hidden_width, panel->hidden_height, server.depth);
+						int xoff = 0, yoff = 0;
+						if (panel_horizontal && panel_position & BOTTOM)
+							yoff = panel->area.height - panel->hidden_height;
+						else if (!panel_horizontal && panel_position & RIGHT)
+							xoff = panel->area.width - panel->hidden_width;
+						XCopyArea(server.display,
+								  panel->area.pix,
+								  panel->hidden_pixmap,
+								  server.gc,
+								  xoff,
+								  yoff,
+								  panel->hidden_width,
+								  panel->hidden_height,
+								  0,
+								  0);
+					}
 					XCopyArea(server.display,
 							  panel->hidden_pixmap,
 							  panel->main_win,

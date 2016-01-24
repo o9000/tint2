@@ -34,6 +34,8 @@
 #include "panel.h"
 #include "tooltip.h"
 
+void panel_clear_background(void *obj);
+
 int signal_pending;
 
 MouseAction mouse_left;
@@ -198,6 +200,7 @@ void init_panel()
 		p->area.resize_needed = 1;
 		p->area.size_mode = LAYOUT_DYNAMIC;
 		p->area._resize = resize_panel;
+		p->area._clear = panel_clear_background;
 		init_panel_size_and_position(p);
 		// add children according to panel_items
 		for (int k = 0; k < strlen(panel_items_order); k++) {
@@ -688,21 +691,17 @@ void set_panel_properties(Panel *p)
 	XFree(classhint);
 }
 
-void set_panel_background(Panel *p)
+void panel_clear_background(void *obj)
 {
-	if (p->area.pix)
-		XFreePixmap(server.display, p->area.pix);
-	p->area.pix = XCreatePixmap(server.display, server.root_win, p->area.width, p->area.height, server.depth);
-
+	Panel *p = obj;
 	int xoff = 0, yoff = 0;
 	if (panel_horizontal && panel_position & BOTTOM)
 		yoff = p->area.height - p->hidden_height;
 	else if (!panel_horizontal && panel_position & RIGHT)
 		xoff = p->area.width - p->hidden_width;
 
-	if (server.real_transparency) {
-		clear_pixmap(p->area.pix, 0, 0, p->area.width, p->area.height);
-	} else {
+	clear_pixmap(p->area.pix, 0, 0, p->area.width, p->area.height);
+	if (!server.real_transparency) {
 		get_root_pixmap();
 		// copy background (server.root_pmap) in panel.area.pix
 		Window dummy;
@@ -715,48 +714,16 @@ void set_panel_background(Panel *p)
 		XSetTSOrigin(server.display, server.gc, -x, -y);
 		XFillRectangle(server.display, p->area.pix, server.gc, 0, 0, p->area.width, p->area.height);
 	}
+}
 
-	// draw background panel
-	cairo_surface_t *cs = cairo_xlib_surface_create(server.display, p->area.pix, server.visual, p->area.width, p->area.height);
-	cairo_t *c = cairo_create(cs);
-	draw_background(&p->area, c);
-	cairo_destroy(c);
-	cairo_surface_destroy(cs);
+void set_panel_background(Panel *p)
+{
+	panel_clear_background(p);
+	schedule_redraw(&p->area);
 
-	if (panel_autohide) {
-		if (p->hidden_pixmap)
-			XFreePixmap(server.display, p->hidden_pixmap);
-		p->hidden_pixmap = XCreatePixmap(server.display, server.root_win, p->hidden_width, p->hidden_height, server.depth);
-		XCopyArea(server.display,
-				  p->area.pix,
-				  p->hidden_pixmap,
-				  server.gc,
-				  xoff,
-				  yoff,
-				  p->hidden_width,
-				  p->hidden_height,
-				  0,
-				  0);
-	}
-
-	// redraw panel's object
-	for (GList *l = p->area.children; l; l = l->next) {
-		Area *a = (Area *)l->data;
-		schedule_redraw(a);
-	}
-
-	// reset task/taskbar 'state_pix'
-	Taskbar *taskbar;
-	for (int i = 0; i < p->num_desktops; i++) {
-		taskbar = &p->taskbar[i];
-		schedule_redraw(&taskbar->area);
-		schedule_redraw(&taskbar->bar_name.area);
-		GList *l = taskbar->area.children;
-		if (taskbarname_enabled)
-			l = l->next;
-		for (; l; l = l->next) {
-			schedule_redraw((Area *)l->data);
-		}
+	if (p->hidden_pixmap) {
+		XFreePixmap(server.display, p->hidden_pixmap);
+		p->hidden_pixmap = 0;
 	}
 }
 
