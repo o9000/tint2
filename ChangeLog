@@ -1,3 +1,7 @@
+2016-01-24 0.12.5
+- Fixes:
+  - Fix rendering corruption triggered occasionally when the compositor is disabled (regression in 0.12.4)
+
 2016-01-23 0.12.4
 - Enhancements:
   - Support for NETWM viewports (as used by Compiz or Unity) (issue #94)
