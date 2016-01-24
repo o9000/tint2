@@ -808,7 +808,7 @@ void event_button_release(XEvent *e)
 
 	Execp *execp = click_execp(panel, e->xbutton.x, e->xbutton.y);
 	if (execp) {
-		execp_action(execp, e->xbutton.button);
+		execp_action(execp, e->xbutton.button, e->xbutton.x - execp->area.posx, e->xbutton.y - execp->area.posy);
 		if (panel_layer == BOTTOM_LAYER)
 			XLowerWindow(server.display, panel->main_win);
 		task_drag = 0;

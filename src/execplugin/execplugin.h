@@ -130,7 +130,7 @@ void draw_execp(void *obj, cairo_t *c);
 gboolean resize_execp(void *obj);
 
 // Called on mouse click event.
-void execp_action(void *obj, int button);
+void execp_action(void *obj, int button, int x, int y);
 
 // Called to check if new output from the command can be read.
 // No command might be running.

@@ -428,7 +428,7 @@ void draw_execp(void *obj, cairo_t *c)
 	g_object_unref(layout);
 }
 
-void execp_action(void *obj, int button)
+void execp_action(void *obj, int button, int x, int y)
 {
 	Execp *execp = obj;
 	char *command = NULL;
@@ -450,7 +450,17 @@ void execp_action(void *obj, int button)
 		break;
 	}
 	if (command) {
-		tint_exec(command);
+		char *full_cmd = g_strdup_printf("export EXECP_X=%d;"
+		                                 "export EXECP_Y=%d;"
+		                                 "export EXECP_W=%d;"
+		                                 "export EXECP_H=%d; %s",
+		                                 x,
+		                                 y,
+		                                 execp->area.width,
+		                                 execp->area.height,
+		                                 command);
+		tint_exec(full_cmd);
+		g_free(full_cmd);
 	} else {
 		if (execp->backend->child_pipe > 0) {
 			// Command currently running, nothing to do
