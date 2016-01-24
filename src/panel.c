@@ -694,12 +694,6 @@ void set_panel_properties(Panel *p)
 void panel_clear_background(void *obj)
 {
 	Panel *p = obj;
-	int xoff = 0, yoff = 0;
-	if (panel_horizontal && panel_position & BOTTOM)
-		yoff = p->area.height - p->hidden_height;
-	else if (!panel_horizontal && panel_position & RIGHT)
-		xoff = p->area.width - p->hidden_width;
-
 	clear_pixmap(p->area.pix, 0, 0, p->area.width, p->area.height);
 	if (!server.real_transparency) {
 		get_root_pixmap();
@@ -707,10 +701,17 @@ void panel_clear_background(void *obj)
 		Window dummy;
 		int x, y;
 		XTranslateCoordinates(server.display, p->main_win, server.root_win, 0, 0, &x, &y, &dummy);
+
 		if (panel_autohide && p->is_hidden) {
+			int xoff = 0, yoff = 0;
+			if (panel_horizontal && panel_position & BOTTOM)
+				yoff = p->area.height - p->hidden_height;
+			else if (!panel_horizontal && panel_position & RIGHT)
+				xoff = p->area.width - p->hidden_width;
 			x -= xoff;
 			y -= yoff;
 		}
+
 		XSetTSOrigin(server.display, server.gc, -x, -y);
 		XFillRectangle(server.display, p->area.pix, server.gc, 0, 0, p->area.width, p->area.height);
 	}
