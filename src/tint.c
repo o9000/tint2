@@ -191,7 +191,7 @@ const char *get_home_dir()
 
 void dump_backtrace(int log_fd)
 {
-	log_string(log_fd, YELLOW "\nBacktrace:\n");
+	log_string(log_fd, "\n" YELLOW "Backtrace:" RESET "\n");
 
 #ifdef ENABLE_LIBUNWIND
 	unw_cursor_t cursor;
@@ -226,7 +226,6 @@ void dump_backtrace(int log_fd)
 #endif
 #endif
 #endif
-	log_string(log_fd, RESET);
 }
 
 // sleep() returns early when signals arrive. This function does not.
@@ -251,7 +250,7 @@ void handle_crash(const char *reason)
 	log_string(log_fd, reason);
 	log_string(log_fd, RESET "\n");
 	dump_backtrace(log_fd);
-	log_string(log_fd, RED "Please create a bug report with this log output.\n" RESET);
+	log_string(log_fd, RED "Please create a bug report with this log output." RESET "\n");
 	close(log_fd);
 }
 
@@ -1161,7 +1160,7 @@ void event_configure_notify(XEvent *e)
 
 	// change in root window (xrandr)
 	if (win == server.root_win) {
-		fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to configuration change in the root window\n" RESET, __FILE__, __LINE__);
+		fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to configuration change in the root window" RESET "\n", __FILE__, __LINE__);
 		signal_pending = SIGUSR1;
 		return;
 	}
@@ -1477,7 +1476,7 @@ start:
 	while (1) {
 		if (panel_refresh) {
 			if (systray_profile)
-				fprintf(stderr, BLUE "[%f] %s:%d redrawing panel\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
+				fprintf(stderr, BLUE "[%f] %s:%d redrawing panel" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
 			panel_refresh = FALSE;
 
 			for (int i = 0; i < num_panels; i++) {
@@ -1704,7 +1703,7 @@ start:
 				case DestroyNotify:
 					if (e.xany.window == server.composite_manager) {
 						// Stop real_transparency
-						fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to compositor shutdown\n" RESET, __FILE__, __LINE__);
+						fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to compositor shutdown" RESET "\n", __FILE__, __LINE__);
 						signal_pending = SIGUSR1;
 						break;
 					}
@@ -1723,11 +1722,11 @@ start:
 					if (ev->data.l[1] == server.atom._NET_WM_CM_S0) {
 						if (ev->data.l[2] == None) {
 							// Stop real_transparency
-							fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to change in transparency\n" RESET, __FILE__, __LINE__);
+							fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n", __FILE__, __LINE__);
 							signal_pending = SIGUSR1;
 						} else {
 							// Start real_transparency
-							fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to change in transparency\n" RESET, __FILE__, __LINE__);
+							fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n", __FILE__, __LINE__);
 							signal_pending = SIGUSR1;
 						}
 					}
@@ -1881,7 +1880,7 @@ start:
 		if (signal_pending) {
 			cleanup();
 			if (signal_pending == SIGUSR1) {
-				fprintf(stderr, YELLOW "%s %d: restarting tint2...\n" RESET, __FILE__, __LINE__);
+				fprintf(stderr, YELLOW "%s %d: restarting tint2..." RESET "\n", __FILE__, __LINE__);
 				// restart tint2
 				// SIGUSR1 used when : user's signal, composite manager stop/start or xrandr
 				goto start;

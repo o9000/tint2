@@ -156,7 +156,7 @@ gboolean resize_systray(void *obj)
 		count++;
 	}
 	if (systray_profile)
-		fprintf(stderr, BLUE "%s:%d number of icons = %d\n" RESET, __FUNCTION__, __LINE__, count);
+		fprintf(stderr, BLUE "%s:%d number of icons = %d" RESET "\n", __FUNCTION__, __LINE__, count);
 
 	if (panel_horizontal) {
 		int height = sysbar->area.height - 2 * sysbar->area.bg->border.width - 2 * sysbar->area.paddingy;
@@ -190,7 +190,7 @@ gboolean resize_systray(void *obj)
 void draw_systray(void *obj, cairo_t *c)
 {
 	if (systray_profile)
-		fprintf(stderr, BLUE "[%f] %s:%d\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
+		fprintf(stderr, BLUE "[%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	if (systray_composited) {
 		if (render_background)
 			XFreePixmap(server.display, render_background);
@@ -276,7 +276,7 @@ void on_change_systray(void *obj)
 		unsigned int width, height, depth;
 		Window root;
 		if (!XGetGeometry(server.display, traywin->parent, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
-			fprintf(stderr, RED "Couldn't get geometry of window!\n" RESET);
+			fprintf(stderr, RED "Couldn't get geometry of window!" RESET "\n");
 		}
 		if (width != traywin->width || height != traywin->height || xpos != traywin->x || ypos != traywin->y) {
 			if (systray_profile)
@@ -345,7 +345,7 @@ void start_net()
 			pid += prop[0];
 			fprintf(stderr, " pid=%d", pid);
 		}
-		fprintf(stderr, "\n" RESET);
+		fprintf(stderr, RESET "\n");
 		return;
 	}
 
@@ -402,11 +402,11 @@ void start_net()
 	XSetSelectionOwner(server.display, server.atom._NET_SYSTEM_TRAY_SCREEN, net_sel_win, CurrentTime);
 	if (XGetSelectionOwner(server.display, server.atom._NET_SYSTEM_TRAY_SCREEN) != net_sel_win) {
 		stop_net();
-		fprintf(stderr, RED "tint2 : can't get systray manager\n" RESET);
+		fprintf(stderr, RED "tint2 : can't get systray manager" RESET "\n");
 		return;
 	}
 
-	fprintf(stderr, GREEN "tint2 : systray started\n" RESET);
+	fprintf(stderr, GREEN "tint2 : systray started" RESET "\n");
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	XClientMessageEvent ev;
@@ -445,7 +445,7 @@ void net_message(XClientMessageEvent *e)
 		if (opcode == server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA)
 			fprintf(stderr, "message from dockapp: %s\n", e->data.b);
 		else
-			fprintf(stderr, RED "SYSTEM_TRAY : unknown message type\n" RESET);
+			fprintf(stderr, RED "SYSTEM_TRAY : unknown message type" RESET "\n");
 		break;
 	}
 }
@@ -473,10 +473,10 @@ gboolean error;
 int window_error_handler(Display *d, XErrorEvent *e)
 {
 	if (systray_profile)
-		fprintf(stderr, RED "[%f] %s:%d\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
+		fprintf(stderr, RED "[%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	error = TRUE;
 	if (e->error_code != BadWindow) {
-		fprintf(stderr, RED "systray: error code %d\n" RESET, e->error_code);
+		fprintf(stderr, RED "systray: error code %d" RESET "\n", e->error_code);
 	}
 	return 0;
 }
@@ -643,7 +643,7 @@ gboolean add_icon(Window win)
 				num_empty_same_pid++;
 				fprintf(stderr,
 				        RED
-				        "Removing tray icon %lu (%s) from misbehaving application with pid=%d (too many icons)\n" RESET,
+				        "Removing tray icon %lu (%s) from misbehaving application with pid=%d (too many icons)" RESET "\n",
 				        ((TrayWindow *)l->data)->win,
 				        ((TrayWindow *)l->data)->name,
 				        pid);
@@ -666,7 +666,7 @@ gboolean add_icon(Window win)
 	XSetWindowAttributes set_attr;
 	Visual *visual = server.visual;
 	fprintf(stderr,
-	        GREEN "add_icon: %lu (%s), pid %d, %d, visual %p, colormap %lu, depth %d, width %d, height %d\n" RESET,
+	        GREEN "add_icon: %lu (%s), pid %d, %d, visual %p, colormap %lu, depth %d, width %d, height %d" RESET "\n",
 	        win,
 	        name,
 	        pid,
@@ -745,7 +745,7 @@ gboolean add_icon(Window win)
 
 	// Resize and redraw the systray
 	if (systray_profile)
-		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
+		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	systray.area.resize_needed = TRUE;
 	schedule_redraw(&systray.area);
 	panel->area.resize_needed = TRUE;
@@ -808,7 +808,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 	XSetErrorHandler(old);
 	if (error != FALSE) {
 		fprintf(stderr,
-		        RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d\n" RESET,
+		        RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d" RESET "\n",
 		        __LINE__,
 		        traywin->win,
 		        traywin->name,
@@ -887,7 +887,7 @@ gboolean embed_icon(TrayWindow *traywin)
 						// We could defer this for later (if we set PropertyChangeMask in XSelectInput we get notified)
 						// but
 						// for some reason it breaks transparency for Qt icons. So we don't.
-						// fprintf(stderr, RED "tint2: window refused embedding\n" RESET);
+						// fprintf(stderr, RED "tint2: window refused embedding" RESET "\n");
 						// remove_icon(traywin);
 						// XFree(data);
 						// return FALSE;
@@ -896,7 +896,7 @@ gboolean embed_icon(TrayWindow *traywin)
 				XFree(data);
 			}
 		} else {
-			fprintf(stderr, RED "tint2 : xembed error\n" RESET);
+			fprintf(stderr, RED "tint2 : xembed error" RESET "\n");
 			remove_icon(traywin);
 			return FALSE;
 		}
@@ -932,7 +932,7 @@ gboolean embed_icon(TrayWindow *traywin)
 	XSetErrorHandler(old);
 	if (error != FALSE) {
 		fprintf(stderr,
-		        RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d\n" RESET,
+		        RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d" RESET "\n",
 		        __LINE__,
 		        traywin->win,
 		        traywin->name,
@@ -972,7 +972,7 @@ void remove_icon(TrayWindow *traywin)
 
 	// remove from our list
 	systray.list_icons = g_slist_remove(systray.list_icons, traywin);
-	fprintf(stderr, YELLOW "remove_icon: %lu (%s)\n" RESET, traywin->win, traywin->name);
+	fprintf(stderr, YELLOW "remove_icon: %lu (%s)" RESET "\n", traywin->win, traywin->name);
 
 	XSelectInput(server.display, traywin->win, NoEventMask);
 	if (traywin->damage)
@@ -1010,7 +1010,7 @@ void remove_icon(TrayWindow *traywin)
 
 	// Resize and redraw the systray
 	if (systray_profile)
-		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
+		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	systray.area.resize_needed = TRUE;
 	schedule_redraw(&systray.area);
 	panel->area.resize_needed = TRUE;
@@ -1111,7 +1111,7 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 			if (traywin->bad_size_counter == max_bad_resize_events) {
 				traywin->bad_size_counter++;
 				fprintf(stderr,
-				        RED "Detected resize loop for tray icon %lu (%s), throttling resize events\n" RESET,
+				        RED "Detected resize loop for tray icon %lu (%s), throttling resize events" RESET "\n",
 				        traywin->win,
 				        traywin->name);
 			}
@@ -1131,7 +1131,7 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 
 	// Resize and redraw the systray
 	if (systray_profile)
-		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
+		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	panel_refresh = TRUE;
 	refresh_systray = 1;
 }
@@ -1196,7 +1196,7 @@ void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
 			if (traywin->bad_size_counter == max_bad_resize_events) {
 				traywin->bad_size_counter++;
 				fprintf(stderr,
-				        RED "Detected resize loop for tray icon %lu (%s), throttling resize events\n" RESET,
+				        RED "Detected resize loop for tray icon %lu (%s), throttling resize events" RESET "\n",
 				        traywin->win,
 				        traywin->name);
 			}
@@ -1216,7 +1216,7 @@ void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
 
 	// Resize and redraw the systray
 	if (systray_profile)
-		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
+		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	panel_refresh = TRUE;
 	refresh_systray = 1;
 }
@@ -1278,7 +1278,7 @@ void systray_render_icon_composited(void *t)
 			    add_timeout(min_refresh_period, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
 			if (systray_profile)
 				fprintf(stderr,
-				        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering\n" RESET,
+				        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
 				        profiling_get_time(),
 				        __FUNCTION__,
 				        __LINE__,
@@ -1298,7 +1298,7 @@ void systray_render_icon_composited(void *t)
 		    add_timeout(min_refresh_period, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
 		if (systray_profile)
 			fprintf(stderr,
-			        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering\n" RESET,
+			        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
 			        profiling_get_time(),
 			        __FUNCTION__,
 			        __LINE__,
@@ -1330,7 +1330,7 @@ void systray_render_icon_composited(void *t)
 	} else if (traywin->depth == 32) {
 		f = XRenderFindStandardFormat(server.display, PictStandardARGB32);
 	} else {
-		fprintf(stderr, RED "Strange tray icon found with depth: %d\n" RESET, traywin->depth);
+		fprintf(stderr, RED "Strange tray icon found with depth: %d" RESET "\n", traywin->depth);
 		XFreePixmap(server.display, tmp_pmap);
 		return;
 	}
@@ -1434,7 +1434,7 @@ void systray_render_icon_composited(void *t)
 		// Resize and redraw the systray
 		if (systray_profile)
 			fprintf(stderr,
-			        BLUE "[%f] %s:%d trigger resize & redraw\n" RESET,
+			        BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n",
 			        profiling_get_time(),
 			        __FUNCTION__,
 			        __LINE__);
@@ -1459,7 +1459,7 @@ void systray_render_icon_composited(void *t)
 
 on_error:
 	fprintf(stderr,
-	        RED "systray %d: rendering error for icon %lu (%s) pid %d\n" RESET,
+	        RED "systray %d: rendering error for icon %lu (%s) pid %d" RESET "\n",
 	        __LINE__,
 	        traywin->win,
 	        traywin->name,
@@ -1469,7 +1469,7 @@ on_error:
 on_systray_error:
 	fprintf(stderr,
 	        RED "systray %d: rendering error for icon %lu (%s) pid %d. "
-	            "Disabling compositing and restarting systray...\n" RESET,
+	            "Disabling compositing and restarting systray..." RESET "\n",
 	        __LINE__,
 	        traywin->win,
 	        traywin->name,
@@ -1494,7 +1494,7 @@ void systray_render_icon(void *t)
 	if (!traywin->reparented || !traywin->embedded) {
 		if (systray_profile)
 			fprintf(stderr,
-			        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering\n" RESET,
+			        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
 			        profiling_get_time(),
 			        __FUNCTION__,
 			        __LINE__,
@@ -1532,7 +1532,7 @@ void systray_render_icon(void *t)
 				systray_render_icon_from_image(traywin);
 				if (systray_profile)
 					fprintf(stderr,
-					        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering\n" RESET,
+					        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
 					        profiling_get_time(),
 					        __FUNCTION__,
 					        __LINE__,
@@ -1568,7 +1568,7 @@ void systray_render_icon(void *t)
 void refresh_systray_icons()
 {
 	if (systray_profile)
-		fprintf(stderr, BLUE "[%f] %s:%d\n" RESET, profiling_get_time(), __FUNCTION__, __LINE__);
+		fprintf(stderr, BLUE "[%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
 	TrayWindow *traywin;
 	GSList *l;
 	for (l = systray.list_icons; l; l = l->next) {

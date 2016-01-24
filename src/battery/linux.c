@@ -235,7 +235,7 @@ static void add_battery(const char *entryname)
 		fprintf(stdout, "found battery \"%s\"\n", bat->name);
 	} else {
 		g_free(bat);
-		fprintf(stderr, RED "failed to initialize battery \"%s\"\n" RESET, entryname);
+		fprintf(stderr, RED "failed to initialize battery \"%s\"" RESET "\n", entryname);
 	}
 }
 
@@ -249,7 +249,7 @@ static void add_mains(const char *entryname)
 		fprintf(stdout, "found mains \"%s\"\n", ac->name);
 	} else {
 		g_free(ac);
-		fprintf(stderr, RED "failed to initialize mains \"%s\"\n" RESET, entryname);
+		fprintf(stderr, RED "failed to initialize mains \"%s\"" RESET "\n", entryname);
 	}
 }
 
