@@ -1,4 +1,4 @@
-2016-01-25 0.12.5
+2016-01-25 0.12.6
 - Fixes:
   - Fix crash on 32-bit systems (issue #546)
   - Fix compilation on Slackware (issue #547)
