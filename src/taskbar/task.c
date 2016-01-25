@@ -262,15 +262,10 @@ void task_update_icon(Task *task)
 		gulong *tmp_data;
 
 		tmp_data = get_best_icon(data, get_icon_count(data, i), i, &w, &h, panel->g_task.icon_size1);
-#ifdef __x86_64__
 		DATA32 icon_data[w * h];
-		int length = w * h;
-		for (int j = 0; j < length; ++j)
+		for (int j = 0; j < w * h; ++j)
 			icon_data[j] = tmp_data[j];
 		img = imlib_create_image_using_copied_data(w, h, icon_data);
-#else
-		img = imlib_create_image_using_data(w, h, (DATA32 *)tmp_data);
-#endif
 		XFree(data);
 	} else {
 		// get Pixmap icon
