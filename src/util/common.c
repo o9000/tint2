@@ -39,6 +39,7 @@
 #include <sys/resource.h>
 #include <errno.h>
 #include <sys/sysctl.h>
+#include <dirent.h>
 
 #ifdef HAVE_RSVG
 #include <librsvg/rsvg.h>
