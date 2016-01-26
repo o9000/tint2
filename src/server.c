@@ -427,8 +427,10 @@ void server_get_number_of_desktops()
 	XFree(x_screen_size);
 
 	int num_viewports = MAX(x_screen_width / work_area_width, 1) * MAX(x_screen_height / work_area_height, 1);
-	if (num_viewports <= 1)
+	if (num_viewports <= 1) {
+		server.num_desktops = 1;
 		return;
+	}
 
 	server.viewports = calloc(num_viewports, sizeof(Viewport));
 	int k = 0;
@@ -473,8 +475,9 @@ GSList *get_desktop_names()
 
 int get_current_desktop()
 {
-	if (!server.viewports)
-		return get_property32(server.root_win, server.atom._NET_CURRENT_DESKTOP, XA_CARDINAL);
+	if (!server.viewports) {
+		return MAX(0, MIN(server.num_desktops - 1, get_property32(server.root_win, server.atom._NET_CURRENT_DESKTOP, XA_CARDINAL)));
+	}
 
 	int num_results;
 	long *work_area_size = server_get_property(server.root_win, server.atom._NET_WORKAREA, XA_CARDINAL, &num_results);
@@ -507,7 +510,8 @@ int get_current_desktop()
 //	fprintf(stderr, "Viewport pos: %d x %d\n", viewport_x, viewport_y);
 //	fprintf(stderr, "Viewport i: %d\n", (viewport_y / work_area_height) * ncols + viewport_x / work_area_width);
 
-	return (viewport_y / work_area_height) * ncols + viewport_x / work_area_width;
+	int result = (viewport_y / work_area_height) * ncols + viewport_x / work_area_width;
+	return MAX(0, MIN(server.num_desktops - 1, result));
 }
 
 void change_desktop(int desktop)
