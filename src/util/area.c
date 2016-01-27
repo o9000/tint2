@@ -378,12 +378,11 @@ void draw(Area *a)
 	a->pix = XCreatePixmap(server.display, server.root_win, a->width, a->height, server.depth);
 	a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0] = a->pix;
 
-	// Add layer of root pixmap (or clear pixmap if real_transparency==true)
 	if (!a->_clear) {
-		clear_pixmap(a->pix, 0, 0, a->width, a->height);
-		if (!server.real_transparency) {
-			XCopyArea(server.display, ((Panel *)a->panel)->temp_pmap, a->pix, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
-		}
+		// Add layer of root pixmap (or clear pixmap if real_transparency==true)
+		if (server.real_transparency)
+			clear_pixmap(a->pix, 0, 0, a->width, a->height);
+		XCopyArea(server.display, ((Panel *)a->panel)->temp_pmap, a->pix, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
 	} else {
 		a->_clear(a);
 	}
