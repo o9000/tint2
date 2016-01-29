@@ -1,7 +1,7 @@
-2016-01-26 master
+2016-01-29 0.12.7
 - Fixes:
-  - Fix crash caused by race when reading _NET_CURRENT_DESKTOP and _NET_NUMBER_OF_DESKTOPS (2 minutes ago) (2016-01-26 20:30:31 +0100)
-  - Fix regression (all desktop tasks not working) (4 minutes ago) (2016-01-26 20:28:23 +0100)
+  - Fix crash caused by race when reading inconsistent values for _NET_CURRENT_DESKTOP and _NET_NUMBER_OF_DESKTOPS
+  - Fix regression (all desktop tasks not working)
   - Fix small memory leak in launcher
 
 2016-01-25 0.12.6
