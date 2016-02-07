@@ -35,35 +35,41 @@ typedef struct {
 	SystraySortMethod sort;
 	int alpha, saturation, brightness;
 	int icon_size, icons_per_column, icons_per_row, margin;
-} Systraybar;
+} Systray;
 
 typedef struct {
-	Window parent;
+	// The actual tray icon window (created by the application)
 	Window win;
+	// The parent window created by tint2 to embed the icon
+	Window parent;
 	int x, y;
 	int width, height;
-	// TODO: manage icon's show/hide
-	gboolean hide;
 	int depth;
-	Damage damage;
-	timeout *render_timeout;
-	gboolean empty;
-	int pid;
-	int chrono;
-	struct timespec time_last_render;
-	int num_fast_renders;
 	gboolean reparented;
 	gboolean embedded;
-	int bad_size_counter;
-	timeout *resize_timeout;
-	struct timespec time_last_resize;
+	// Process PID or zero.
+	int pid;
+	// A number that is incremented for each new icon, used to sort them by the order in which they were created.
+	int chrono;
+	// Name of the tray icon window.
 	char *name;
+	// Members used for rendering
+	struct timespec time_last_render;
+	int num_fast_renders;
+	timeout *render_timeout;
+	// Members used for resizing
+	int bad_size_counter;
+	struct timespec time_last_resize;
+	timeout *resize_timeout;
+	// Icon contents if we are compositing the icon, otherwise null
 	Imlib_Image image;
+	// XDamage
+	Damage damage;
 } TrayWindow;
 
 // net_sel_win != None when protocol started
 extern Window net_sel_win;
-extern Systraybar systray;
+extern Systray systray;
 extern gboolean refresh_systray;
 extern gboolean systray_enabled;
 extern int systray_max_icon_size;
@@ -83,7 +89,7 @@ void init_systray_panel(void *p);
 void draw_systray(void *obj, cairo_t *c);
 gboolean resize_systray(void *obj);
 void on_change_systray(void *obj);
-gboolean systray_on_monitor(int i_monitor, int num_panelss);
+gboolean systray_on_monitor(int i_monitor, int num_panels);
 
 // systray protocol
 // many tray icon doesn't manage stop/restart of the systray manager

@@ -45,9 +45,9 @@ GSList *icons;
 Window net_sel_win = None;
 
 // freedesktop specification doesn't allow multi systray
-Systraybar systray;
-int refresh_systray;
-int systray_enabled;
+Systray systray;
+gboolean refresh_systray;
+gboolean systray_enabled;
 int systray_max_icon_size;
 int systray_monitor;
 int chrono;
@@ -67,7 +67,7 @@ const int max_bad_resize_events = 10;
 void default_systray()
 {
 	systray_enabled = 0;
-	memset(&systray, 0, sizeof(Systraybar));
+	memset(&systray, 0, sizeof(systray));
 	render_background = 0;
 	chrono = 0;
 	systray.alpha = 100;
@@ -116,26 +116,22 @@ void init_systray_panel(void *p)
 	if (!systray.area.bg)
 		systray.area.bg = &g_array_index(backgrounds, Background, 0);
 	show(&systray.area);
-	systray.area.resize_needed = 1;
-	panel->area.resize_needed = 1;
 	schedule_redraw(&systray.area);
-	panel_refresh = TRUE;
-	refresh_systray = 1;
+	refresh_systray = TRUE;
 }
 
 gboolean resize_systray(void *obj)
 {
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
-	Systraybar *sysbar = obj;
 
 	if (panel_horizontal)
-		sysbar->icon_size = sysbar->area.height;
+		systray.icon_size = systray.area.height;
 	else
-		sysbar->icon_size = sysbar->area.width;
-	sysbar->icon_size = sysbar->icon_size - (2 * sysbar->area.bg->border.width) - (2 * sysbar->area.paddingy);
-	if (systray_max_icon_size > 0 && sysbar->icon_size > systray_max_icon_size)
-		sysbar->icon_size = systray_max_icon_size;
+		systray.icon_size = systray.area.width;
+	systray.icon_size -= (2 * systray.area.bg->border.width) + (2 * systray.area.paddingy);
+	if (systray_max_icon_size > 0)
+		systray.icon_size = MIN(systray.icon_size, systray_max_icon_size);
 
 	if (systray.icon_size > 0) {
 		long icon_size = systray.icon_size;
@@ -151,33 +147,31 @@ gboolean resize_systray(void *obj)
 
 	int count = 0;
 	for (GSList *l = systray.list_icons; l; l = l->next) {
-		if (((TrayWindow *)l->data)->hide)
-			continue;
 		count++;
 	}
 	if (systray_profile)
 		fprintf(stderr, BLUE "%s:%d number of icons = %d" RESET "\n", __FUNCTION__, __LINE__, count);
 
 	if (panel_horizontal) {
-		int height = sysbar->area.height - 2 * sysbar->area.bg->border.width - 2 * sysbar->area.paddingy;
+		int height = systray.area.height - 2 * systray.area.bg->border.width - 2 * systray.area.paddingy;
 		// here icons_per_column always higher than 0
-		sysbar->icons_per_column = (height + sysbar->area.paddingx) / (sysbar->icon_size + sysbar->area.paddingx);
-		sysbar->margin =
-		    height - (sysbar->icons_per_column - 1) * (sysbar->icon_size + sysbar->area.paddingx) - sysbar->icon_size;
-		sysbar->icons_per_row = count / sysbar->icons_per_column + (count % sysbar->icons_per_column != 0);
+		systray.icons_per_column = (height + systray.area.paddingx) / (systray.icon_size + systray.area.paddingx);
+		systray.margin =
+			height - (systray.icons_per_column - 1) * (systray.icon_size + systray.area.paddingx) - systray.icon_size;
+		systray.icons_per_row = count / systray.icons_per_column + (count % systray.icons_per_column != 0);
 		systray.area.width = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) +
-		                     (sysbar->icon_size * sysbar->icons_per_row) +
-		                     ((sysbar->icons_per_row - 1) * systray.area.paddingx);
+							 (systray.icon_size * systray.icons_per_row) +
+							 ((systray.icons_per_row - 1) * systray.area.paddingx);
 	} else {
-		int width = sysbar->area.width - 2 * sysbar->area.bg->border.width - 2 * sysbar->area.paddingy;
+		int width = systray.area.width - 2 * systray.area.bg->border.width - 2 * systray.area.paddingy;
 		// here icons_per_row always higher than 0
-		sysbar->icons_per_row = (width + sysbar->area.paddingx) / (sysbar->icon_size + sysbar->area.paddingx);
-		sysbar->margin =
-		    width - (sysbar->icons_per_row - 1) * (sysbar->icon_size + sysbar->area.paddingx) - sysbar->icon_size;
-		sysbar->icons_per_column = count / sysbar->icons_per_row + (count % sysbar->icons_per_row != 0);
+		systray.icons_per_row = (width + systray.area.paddingx) / (systray.icon_size + systray.area.paddingx);
+		systray.margin =
+			width - (systray.icons_per_row - 1) * (systray.icon_size + systray.area.paddingx) - systray.icon_size;
+		systray.icons_per_column = count / systray.icons_per_row + (count % systray.icons_per_row != 0);
 		systray.area.height = (2 * systray.area.bg->border.width) + (2 * systray.area.paddingxlr) +
-		                      (sysbar->icon_size * sysbar->icons_per_column) +
-		                      ((sysbar->icons_per_column - 1) * systray.area.paddingx);
+							  (systray.icon_size * systray.icons_per_column) +
+							  ((systray.icons_per_column - 1) * systray.area.paddingx);
 	}
 
 	if (net_sel_win == None) {
@@ -215,15 +209,15 @@ void on_change_systray(void *obj)
 {
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
-	// here, systray.area.posx/posy are defined by rendering engine. so we can calculate position of tray icon.
-	Systraybar *sysbar = obj;
-	if (sysbar->icons_per_column == 0 || sysbar->icons_per_row == 0)
+	if (systray.icons_per_column == 0 || systray.icons_per_row == 0)
 		return;
 
-	Panel *panel = sysbar->area.panel;
+	// systray.area.posx/posy are computed by rendering engine.
+	// Based on this we calculate the positions of the tray icons.
+	Panel *panel = systray.area.panel;
 	int posx, posy;
 	int start = panel->area.bg->border.width + panel->area.paddingy + systray.area.bg->border.width +
-	            systray.area.paddingy + sysbar->margin / 2;
+				systray.area.paddingy + systray.margin / 2;
 	if (panel_horizontal) {
 		posy = start;
 		posx = systray.area.posx + systray.area.bg->border.width + systray.area.paddingxlr;
@@ -237,8 +231,6 @@ void on_change_systray(void *obj)
 	int i;
 	for (i = 1, l = systray.list_icons; l; i++, l = l->next) {
 		traywin = (TrayWindow *)l->data;
-		if (traywin->hide)
-			continue;
 
 		traywin->y = posy;
 		traywin->x = posx;
@@ -252,21 +244,21 @@ void on_change_systray(void *obj)
 			        traywin->parent,
 			        posx,
 			        posy);
-		traywin->width = sysbar->icon_size;
-		traywin->height = sysbar->icon_size;
+		traywin->width = systray.icon_size;
+		traywin->height = systray.icon_size;
 		if (panel_horizontal) {
-			if (i % sysbar->icons_per_column) {
-				posy += sysbar->icon_size + sysbar->area.paddingx;
+			if (i % systray.icons_per_column) {
+				posy += systray.icon_size + systray.area.paddingx;
 			} else {
 				posy = start;
-				posx += (sysbar->icon_size + systray.area.paddingx);
+				posx += (systray.icon_size + systray.area.paddingx);
 			}
 		} else {
-			if (i % sysbar->icons_per_row) {
-				posx += sysbar->icon_size + systray.area.paddingx;
+			if (i % systray.icons_per_row) {
+				posx += systray.icon_size + systray.area.paddingx;
 			} else {
 				posx = start;
-				posy += (sysbar->icon_size + systray.area.paddingx);
+				posy += (systray.icon_size + systray.area.paddingx);
 			}
 		}
 
@@ -519,13 +511,21 @@ void print_icons()
 			TrayWindow *t = l->data;
 			TrayWindow *u = l->next->data;
 			int cmp = compare_traywindows(t, u);
-			fprintf(stderr, "%s %s %s\n", t->name, cmp < 0 ? "<" : cmp == 0 ? "=" : ">" , u->name);
+			fprintf(stderr, "%s %s %s\n", t->name, cmp < 0 ? "<" : cmp == 0 ? "=" : ">", u->name);
 		}
 	}
 }
 
 gboolean add_icon(Window win)
 {
+	// Avoid duplicates
+	for (GSList *l = systray.list_icons; l; l = l->next) {
+		TrayWindow *other = (TrayWindow *)l->data;
+		if (other->win == win) {
+			return FALSE;
+		}
+	}
+
 	XTextProperty xname;
 	char *name;
 	if (XGetWMName(server.display, win, &xname)) {
@@ -538,7 +538,6 @@ gboolean add_icon(Window win)
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, win, name);
 	Panel *panel = systray.area.panel;
-	int hide = 0;
 
 	// Get the process ID of the application that created the window
 	int pid = 0;
@@ -566,94 +565,6 @@ gboolean add_icon(Window win)
 		}
 	}
 
-	for (GSList *l = systray.list_icons; l; l = l->next) {
-		TrayWindow *other = (TrayWindow *)l->data;
-		if (other->win == win) {
-			free(name);
-			return FALSE;
-		}
-	}
-
-	// Check if the application leaves behind empty icons
-	int num_empty_same_pid = 0;
-#if 0
-	for (GSList *l = systray.list_icons; l; l = l->next) {
-		TrayWindow *other = (TrayWindow *)l->data;
-		if (!systray_composited) {
-			// Empty icon detection: we compare the contents of the icon with the contents of the panel pixmap.
-			// If any pixel is different, the icon is not empty.
-			imlib_context_set_visual(server.visual);
-			imlib_context_set_colormap(server.colormap);
-			imlib_context_set_drawable(other->win);
-			Imlib_Image image = imlib_create_image_from_drawable(0, 0, 0, other->width, other->height, 1);
-			if (image) {
-				imlib_context_set_drawable(panel->temp_pmap);
-				Imlib_Image bg =
-				    imlib_create_image_from_drawable(0, other->x, other->y, other->width, other->height, 1);
-				imlib_context_set_image(bg);
-				DATA32 *data_bg = imlib_image_get_data_for_reading_only();
-				imlib_context_set_image(image);
-				imlib_image_set_has_alpha(other->depth > 24);
-				DATA32 *data = imlib_image_get_data_for_reading_only();
-				int x, y;
-				gboolean empty = TRUE;
-				for (x = 0; x < other->width && empty; x++) {
-					for (y = 0; y < other->height && empty; y++) {
-						DATA32 pixel = data[y * other->width + x];
-						DATA32 a = (pixel >> 24) & 0xff;
-						if (a == 0)
-							continue;
-
-						DATA32 rgb = pixel & 0xffFFff;
-						DATA32 pixel_bg = data_bg[y * other->width + x];
-						DATA32 rgb_bg = pixel_bg & 0xffFFff;
-						if (rgb != rgb_bg) {
-							if (systray_profile)
-								fprintf(stderr, "Pixel: %x different from bg %x at pos %d %d\n", pixel, pixel_bg, x, y);
-							empty = FALSE;
-						}
-					}
-				}
-				other->empty = empty;
-				imlib_free_image_and_decache();
-				imlib_context_set_image(bg);
-				imlib_free_image_and_decache();
-				if (systray_profile)
-					fprintf(stderr,
-					        "[%f] %s:%d win = %lu (%s) empty = %d\n",
-					        profiling_get_time(),
-					        __FUNCTION__,
-					        __LINE__,
-					        other->win,
-					        other->name,
-					        other->empty);
-			}
-		}
-		if (pid && other->pid == pid) {
-			if (other->empty)
-				num_empty_same_pid++;
-		}
-	}
-
-	// Remove empty icons if the application leaves behind more than 1
-	const int max_num_empty_same_pid = 0;
-	if (num_empty_same_pid > max_num_empty_same_pid) {
-		for (GSList *l = systray.list_icons; l; l = l->next) {
-			if (pid && ((TrayWindow *)l->data)->pid == pid && ((TrayWindow *)l->data)->empty) {
-				num_empty_same_pid++;
-				fprintf(stderr,
-				        RED
-				        "Removing tray icon %lu (%s) from misbehaving application with pid=%d (too many icons)" RESET "\n",
-				        ((TrayWindow *)l->data)->win,
-				        ((TrayWindow *)l->data)->name,
-				        pid);
-				remove_icon((TrayWindow *)l->data);
-				break;
-			}
-		}
-	}
-#endif
-
 	// Create the parent window that will embed the icon
 	XWindowAttributes attr;
 	if (systray_profile)
@@ -666,11 +577,10 @@ gboolean add_icon(Window win)
 	XSetWindowAttributes set_attr;
 	Visual *visual = server.visual;
 	fprintf(stderr,
-	        GREEN "add_icon: %lu (%s), pid %d, %d, visual %p, colormap %lu, depth %d, width %d, height %d" RESET "\n",
+			GREEN "add_icon: %lu (%s), pid %d, visual %p, colormap %lu, depth %d, width %d, height %d" RESET "\n",
 	        win,
 	        name,
 	        pid,
-	        num_empty_same_pid,
 	        attr.visual,
 	        attr.colormap,
 	        attr.depth,
@@ -715,7 +625,6 @@ gboolean add_icon(Window win)
 	TrayWindow *traywin = g_new0(TrayWindow, 1);
 	traywin->parent = parent;
 	traywin->win = win;
-	traywin->hide = hide;
 	traywin->depth = attr.depth;
 	// Reparenting is done at the first paint event when the window is positioned correctly over its empty background,
 	// to prevent graphical corruptions in icons with fake transparency
@@ -724,7 +633,7 @@ gboolean add_icon(Window win)
 	traywin->chrono = chrono;
 	chrono++;
 
-	if (systray.area.on_screen == 0)
+	if (!systray.area.on_screen)
 		show(&systray.area);
 
 	if (systray.sort == SYSTRAY_SORT_RIGHT2LEFT)
@@ -734,7 +643,7 @@ gboolean add_icon(Window win)
 	systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
 	// print_icons();
 
-	if (!traywin->hide && !panel->is_hidden) {
+	if (!panel->is_hidden) {
 		if (systray_profile)
 			fprintf(stderr, "XMapRaised(server.display, traywin->parent)\n");
 		XMapRaised(server.display, traywin->parent);
@@ -745,11 +654,14 @@ gboolean add_icon(Window win)
 
 	// Resize and redraw the systray
 	if (systray_profile)
-		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
+		fprintf(stderr,
+				BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n",
+				profiling_get_time(),
+				__FUNCTION__,
+				__LINE__);
 	systray.area.resize_needed = TRUE;
-	schedule_redraw(&systray.area);
 	panel->area.resize_needed = TRUE;
-	panel_refresh = TRUE;
+	schedule_redraw(&systray.area);
 	refresh_systray = TRUE;
 	return TRUE;
 }
@@ -779,7 +691,8 @@ gboolean reparent_icon(TrayWindow *traywin)
 
 	if (systray_profile)
 		fprintf(stderr,
-				"XMoveResizeWindow(server.display, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = %d)\n",
+				"XMoveResizeWindow(server.display, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height = "
+				"%d)\n",
 		        traywin->win,
 		        traywin->width,
 		        traywin->height);
@@ -881,12 +794,10 @@ gboolean embed_icon(TrayWindow *traywin)
 					if (hide) {
 						// In theory we have to check the embedding with this and remove icons that refuse embedding.
 						// In practice we have no idea when the other application processes the event and accepts the
-						// embed
-						// so we cannot check now without a race.
+						// embed so we cannot check now without a race.
 						// Race can be triggered with PyGtk(2) apps.
 						// We could defer this for later (if we set PropertyChangeMask in XSelectInput we get notified)
-						// but
-						// for some reason it breaks transparency for Qt icons. So we don't.
+						// but for some reason it breaks transparency for Qt icons. So we don't.
 						// fprintf(stderr, RED "tint2: window refused embedding" RESET "\n");
 						// remove_icon(traywin);
 						// XFree(data);
@@ -915,12 +826,10 @@ gboolean embed_icon(TrayWindow *traywin)
 	XRaiseWindow(server.display, traywin->win);
 
 	// Make the icon visible
-	if (!traywin->hide) {
-		if (systray_profile)
-			fprintf(stderr, "XMapWindow(server.display, traywin->win)\n");
-		XMapWindow(server.display, traywin->win);
-	}
-	if (!traywin->hide && !panel->is_hidden) {
+	if (systray_profile)
+		fprintf(stderr, "XMapWindow(server.display, traywin->win)\n");
+	XMapWindow(server.display, traywin->win);
+	if (!panel->is_hidden) {
 		if (systray_profile)
 			fprintf(stderr, "XMapRaised(server.display, traywin->parent)\n");
 		XMapRaised(server.display, traywin->parent);
@@ -958,8 +867,6 @@ gboolean embed_icon(TrayWindow *traywin)
 
 void remove_icon(TrayWindow *traywin)
 {
-	// This code causes an X11 I/O error
-	// close(((_XPrivDisplay)server.display)->fd);
 	if (systray_profile)
 		fprintf(stderr,
 		        "[%f] %s:%d win = %lu (%s)\n",
@@ -982,8 +889,7 @@ void remove_icon(TrayWindow *traywin)
 	XSync(server.display, False);
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
-	if (!traywin->hide)
-		XUnmapWindow(server.display, traywin->win);
+	XUnmapWindow(server.display, traywin->win);
 	XReparentWindow(server.display, traywin->win, server.root_win, 0, 0);
 	XDestroyWindow(server.display, traywin->parent);
 	XSync(server.display, False);
@@ -1001,8 +907,6 @@ void remove_icon(TrayWindow *traywin)
 	int count = 0;
 	GSList *l;
 	for (l = systray.list_icons; l; l = l->next) {
-		if (((TrayWindow *)l->data)->hide)
-			continue;
 		count++;
 	}
 	if (count == 0)
@@ -1010,18 +914,19 @@ void remove_icon(TrayWindow *traywin)
 
 	// Resize and redraw the systray
 	if (systray_profile)
-		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
+		fprintf(stderr,
+				BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n",
+				profiling_get_time(),
+				__FUNCTION__,
+				__LINE__);
 	systray.area.resize_needed = TRUE;
-	schedule_redraw(&systray.area);
 	panel->area.resize_needed = TRUE;
-	panel_refresh = TRUE;
+	schedule_redraw(&systray.area);
 	refresh_systray = TRUE;
 }
 
 void systray_resize_icon(void *t)
 {
-	// we end up in this function only in real transparency mode or if systray_task_asb != 100 0 0
-	// we made also sure, that we always have a 32 bit visual, i.e. we can safely create 32 bit pixmaps here
 	TrayWindow *traywin = t;
 
 	unsigned int border_width;
@@ -1031,42 +936,43 @@ void systray_resize_icon(void *t)
 	if (!XGetGeometry(server.display, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
 		return;
 	} else {
-		if (1 || xpos != 0 || ypos != 0 || width != traywin->width || height != traywin->height) {
-			if (systray_profile)
-				fprintf(stderr,
-						"XMoveResizeWindow(server.display, traywin->win = %ld, 0, 0, traywin->width = %d, traywin->height "
-				        "= %d)\n",
-				        traywin->win,
-				        traywin->width,
-				        traywin->height);
-			if (0) {
-				XMoveResizeWindow(server.display, traywin->win, 0, 0, traywin->width, traywin->height);
-			}
-			if (0) {
-				XWindowChanges changes;
-				changes.x = changes.y = 0;
-				changes.width = traywin->width;
-				changes.height = traywin->height;
-				XConfigureWindow(server.display, traywin->win, CWX | CWY | CWWidth | CWHeight, &changes);
-			}
-			if (1) {
-				XConfigureEvent ev;
-				ev.type = ConfigureNotify;
-				ev.serial = 0;
-				ev.send_event = True;
-				ev.event = traywin->win;
-				ev.window = traywin->win;
-				ev.x = 0;
-				ev.y = 0;
-				ev.width = traywin->width;
-				ev.height = traywin->height;
-				ev.border_width = 0;
-				ev.above = None;
-				ev.override_redirect = False;
-				XSendEvent(server.display, traywin->win, False, StructureNotifyMask, (XEvent *)&ev);
-			}
-			XSync(server.display, False);
+		if (systray_profile)
+			fprintf(stderr,
+					"systray_resize_icon win = %ld, w = %d, h = %d\n",
+					traywin->win,
+					traywin->width,
+					traywin->height);
+		// This is the obvious thing to do but GTK tray icons do not respect the new size
+		if (0) {
+			XMoveResizeWindow(server.display, traywin->win, 0, 0, traywin->width, traywin->height);
 		}
+		// This is similar but GTK tray icons still do not respect the new size
+		if (0) {
+			XWindowChanges changes;
+			changes.x = changes.y = 0;
+			changes.width = traywin->width;
+			changes.height = traywin->height;
+			XConfigureWindow(server.display, traywin->win, CWX | CWY | CWWidth | CWHeight, &changes);
+		}
+		// This is what WMs send to windows to resize them, the new size must not be ignored.
+		// A bit brutal but works with GTK and everything else.
+		if (1) {
+			XConfigureEvent ev;
+			ev.type = ConfigureNotify;
+			ev.serial = 0;
+			ev.send_event = True;
+			ev.event = traywin->win;
+			ev.window = traywin->win;
+			ev.x = 0;
+			ev.y = 0;
+			ev.width = traywin->width;
+			ev.height = traywin->height;
+			ev.border_width = 0;
+			ev.above = None;
+			ev.override_redirect = False;
+			XSendEvent(server.display, traywin->win, False, StructureNotifyMask, (XEvent *)&ev);
+		}
+		XSync(server.display, False);
 	}
 }
 
@@ -1131,9 +1037,13 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 
 	// Resize and redraw the systray
 	if (systray_profile)
-		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
+		fprintf(stderr,
+				BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n",
+				profiling_get_time(),
+				__FUNCTION__,
+				__LINE__);
 	panel_refresh = TRUE;
-	refresh_systray = 1;
+	refresh_systray = TRUE;
 }
 
 void systray_property_notify(TrayWindow *traywin, XEvent *e)
@@ -1150,8 +1060,7 @@ void systray_property_notify(TrayWindow *traywin, XEvent *e)
 			traywin->name = strdup("");
 		}
 
-		if (systray.sort == SYSTRAY_SORT_ASCENDING ||
-			systray.sort == SYSTRAY_SORT_DESCENDING) {
+		if (systray.sort == SYSTRAY_SORT_ASCENDING || systray.sort == SYSTRAY_SORT_DESCENDING) {
 			systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
 			// print_icons();
 		}
@@ -1201,9 +1110,8 @@ void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
 				        traywin->name);
 			}
 			// Delayed resize
-			// FIXME Normally we should force the icon to resize fill_color to the size we resized it to when we
-			// embedded it.
-			// However this triggers a resize loop in new versions of GTK, which we must avoid.
+			// FIXME Normally we should force the icon to resize to the size we resized it to when we embedded it.
+			// However this triggers a resize loop in some versions of GTK, which we must avoid.
 			if (!traywin->resize_timeout)
 				traywin->resize_timeout =
 				    add_timeout(slow_resize_period, 0, systray_resize_icon, traywin, &traywin->resize_timeout);
@@ -1216,9 +1124,13 @@ void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
 
 	// Resize and redraw the systray
 	if (systray_profile)
-		fprintf(stderr, BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
+		fprintf(stderr,
+				BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n",
+				profiling_get_time(),
+				__FUNCTION__,
+				__LINE__);
 	panel_refresh = TRUE;
-	refresh_systray = 1;
+	refresh_systray = TRUE;
 }
 
 void systray_destroy_event(TrayWindow *traywin)
@@ -1315,7 +1227,6 @@ void systray_render_icon_composited(void *t)
 	// good systray icons support 32 bit depth, but some icons are still 24 bit.
 	// We create a heuristic mask for these icons, i.e. we get the rgb value in the top left corner, and
 	// mask out all pixel with the same rgb value
-	Panel *panel = systray.area.panel;
 
 	// Very ugly hack, but somehow imlib2 is not able to get the image from the traywindow itself,
 	// so we first render the tray window onto a pixmap, and then we tell imlib2 to use this pixmap as
@@ -1407,7 +1318,6 @@ void systray_render_icon_composited(void *t)
 		create_heuristic_mask(data, traywin->width, traywin->height);
 	}
 
-	gboolean empty = FALSE; //image_empty(data, traywin->width, traywin->height);
 	if (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
 		adjust_asb(data,
 		           traywin->width,
@@ -1427,23 +1337,6 @@ void systray_render_icon_composited(void *t)
 	if (error)
 		goto on_error;
 
-	if (traywin->empty != empty) {
-		traywin->empty = empty;
-		systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
-		// print_icons();
-		// Resize and redraw the systray
-		if (systray_profile)
-			fprintf(stderr,
-			        BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n",
-			        profiling_get_time(),
-			        __FUNCTION__,
-			        __LINE__);
-		systray.area.resize_needed = 1;
-		schedule_redraw(&systray.area);
-		panel->area.resize_needed = 1;
-		panel_refresh = TRUE;
-		refresh_systray = 1;
-	}
 	panel_refresh = TRUE;
 
 	if (systray_profile)
@@ -1573,16 +1466,14 @@ void refresh_systray_icons()
 	GSList *l;
 	for (l = systray.list_icons; l; l = l->next) {
 		traywin = (TrayWindow *)l->data;
-		if (traywin->hide)
-			continue;
 		systray_render_icon(traywin);
 	}
 }
 
-gboolean systray_on_monitor(int i_monitor, int num_panelss)
+gboolean systray_on_monitor(int i_monitor, int num_panels)
 {
 	return (i_monitor == systray_monitor) ||
-	       (i_monitor == 0 && (systray_monitor >= num_panelss || systray_monitor < 0));
+		   (i_monitor == 0 && (systray_monitor >= num_panels || systray_monitor < 0));
 }
 
 TrayWindow *systray_find_icon(Window win)
