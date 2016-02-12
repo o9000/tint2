@@ -486,31 +486,31 @@ Imlib_Image load_image(const char *path, int cached)
 		image = imlib_load_image_immediately_without_cache(path);
 	}
 	if (!image && g_str_has_suffix(path, ".svg")) {
-		char suffix[128];
-		sprintf(suffix, "tmpimage-%d.png", getpid());
-		// We fork here because librsvg allocates memory like crazy
-		pid_t pid = fork();
-		if (pid == 0) {
-			// Child
-			GError *err = NULL;
-			RsvgHandle *svg = rsvg_handle_new_from_file(path, &err);
+		char tmp_filename[128];
+		sprintf(tmp_filename, "/tmp/tint2-%d-XXXXXX.png", (int)getpid());
+		int fd = mkstemps(tmp_filename, 4);
+		if (fd) {
+			// We fork here because librsvg allocates memory like crazy
+			pid_t pid = fork();
+			if (pid == 0) {
+				// Child
+				GError *err = NULL;
+				RsvgHandle *svg = rsvg_handle_new_from_file(path, &err);
 
-			if (err != NULL) {
-				fprintf(stderr, "Could not load svg image!: %s", err->message);
-				g_error_free(err);
+				if (err != NULL) {
+					fprintf(stderr, "Could not load svg image!: %s", err->message);
+					g_error_free(err);
+				} else {
+					GdkPixbuf *pixbuf = rsvg_handle_get_pixbuf(svg);
+					gdk_pixbuf_save(pixbuf, tmp_filename, "png", NULL, NULL);
+				}
+				exit(0);
 			} else {
-				gchar *name = g_build_filename(g_get_user_config_dir(), "tint2", suffix, NULL);
-				GdkPixbuf *pixbuf = rsvg_handle_get_pixbuf(svg);
-				gdk_pixbuf_save(pixbuf, name, "png", NULL, NULL);
+				// Parent
+				waitpid(pid, 0, 0);
+				image = imlib_load_image_immediately_without_cache(tmp_filename);
+				unlink(tmp_filename);
 			}
-			exit(0);
-		} else {
-			// Parent
-			waitpid(pid, 0, 0);
-			gchar *name = g_build_filename(g_get_user_config_dir(), "tint2", suffix, NULL);
-			image = imlib_load_image_immediately_without_cache(name);
-			g_remove(name);
-			g_free(name);
 		}
 	} else
 #endif
