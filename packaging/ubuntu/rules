@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+override_dh_auto_install:
+	dh_auto_install --destdir=$(CURDIR)/debian/tmp
+
+override_dh_installdocs:
+	dh_installdocs --link-doc=tint2
+	cp -r debian/wiki debian/tint2/usr/share/doc/tint2/html

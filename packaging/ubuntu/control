@@ -1,0 +1,36 @@
+Source: tint2
+Section: x11
+Priority: optional
+Maintainer: o9000 <mrovi9000@gmail.com>
+Build-Depends: cmake,
+               debhelper (>= 9),
+               libcairo2-dev,
+               libglib2.0-dev,
+               libgtk2.0-dev,
+               libimlib2-dev,
+               libpango1.0-dev,
+               librsvg2-dev,
+               libstartup-notification0-dev,
+               libxcomposite-dev,
+               libxdamage-dev,
+               libxinerama-dev,
+               libxrandr-dev
+Standards-Version: 3.9.7
+Vcs-Git: git://anonscm.debian.org/collab-maint/tint2.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/tint2.git
+Homepage: https://gitlab.com/o9000/tint2/
+
+Package: tint2
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Description: lightweight taskbar
+ Tint is a simple panel/taskbar intentionally made for openbox3, but should
+ also work with other window managers. The taskbar includes transparency and
+ color settings for the font, icons, border, and background. It also supports
+ multihead setups, customized mouse actions, and a built-in clock. Tint was
+ originally based on ttm code. Since then, support has also been added
+ for a battery monitor and system tray.
+ .
+ The goal is to keep a clean and unintrusive look with lightweight code and
+ compliance with freedesktop specification.

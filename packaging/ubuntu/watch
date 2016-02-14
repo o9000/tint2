@@ -1,0 +1,4 @@
+version=3
+
+opts=filenamemangle=s/.*\.tar\.gz\?ref=v?(\d\S*)/tint2-$1\.tar\.gz/g,uversionmangle=s/\-rc(\d)/\~rc$1/ \
+https://gitlab.com/o9000/tint2/tags .*archive\.tar\.gz\?ref=v?(\d\S*) 

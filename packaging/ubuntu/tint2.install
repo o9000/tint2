@@ -1,0 +1,12 @@
+/usr/bin/tint2
+/usr/bin/tint2conf
+/etc/xdg/tint2/tint2rc
+/usr/share/applications/tint2.desktop
+/usr/share/applications/tint2conf.desktop
+/usr/share/man/man1/tint2.1
+/usr/share/doc/tint2/AUTHORS
+/usr/share/doc/tint2/README.md
+/usr/share/icons/hicolor/scalable/apps/tint2.svg
+/usr/share/icons/hicolor/scalable/apps/tint2conf.svg
+/usr/share/locale/*
+/usr/share/tint2/default_icon.png
