@@ -1,3 +1,8 @@
+2016-02-18 master
+- Fixes:
+  - Fix get_version.sh so that it returns the correct version when .git is missing
+  - Create temporary files in /tmp
+
 2016-01-29 0.12.7
 - Fixes:
   - Fix crash caused by race when reading inconsistent values for _NET_CURRENT_DESKTOP and _NET_NUMBER_OF_DESKTOPS
