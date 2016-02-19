@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-set -x
 
 rm -rf tint2* 2>/dev/null || true
 
@@ -20,9 +19,10 @@ then
     exit 1
 fi
 rm -f version.h
-VERSION=$(git describe --exact-match 2>/dev/null | sed 's/^v//')
+VERSION=$(git describe --exact-match 2>/dev/null)
 if [ $? -eq 0 ]
 then
+    VERSION=$(echo "$VERSION" | sed 's/^v//')
     REPO="tint2"
 else
     VERSION="$(git show -s --pretty=format:%cI.%ct.%h | tr -d ':' | tr -d '-' | tr '.' '-' | sed 's/T[0-9\+]*//g').$MINOR"
