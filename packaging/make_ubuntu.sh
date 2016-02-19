@@ -10,14 +10,21 @@ else
 fi
 
 # Get version (and check that the repository is clean)
-VERSION=$(../get_version.sh --strict | sed 's/-git/./')
+VERSION=$(../get_version.sh --strict)
 if [ ! $? -eq 0 ]
 then
     echo >&2 "Error: get_version.sh failed!"
     exit 1
 fi
 rm -f version.h
-VERSION="$(git show -s --pretty=format:%cI.%ct.%h | tr -d ':' | tr -d '-' | tr '.' '-' | sed 's/T[0-9\+]*//g').$MINOR"
+VERSION=$(git describe --exact-match 2>/dev/null | sed 's/^v//')
+if [ $? -eq 0 ]
+then
+    REPO="tint2"
+else
+    VERSION="$(git show -s --pretty=format:%cI.%ct.%h | tr -d ':' | tr -d '-' | tr '.' '-' | sed 's/T[0-9\+]*//g').$MINOR"
+    REPO="tint2-git"
+fi
 
 # Export repository contents to source directory
 DIR=tint2-$VERSION
@@ -57,7 +64,7 @@ do
     popd
 
     # Upload package
-    dput ppa:o9000/tint2 tint2_$VERSION-$DISTRO-1_source.changes
+    dput ppa:o9000/$REPO tint2_$VERSION-$DISTRO-1_source.changes
 done
 
 # Cleanup
