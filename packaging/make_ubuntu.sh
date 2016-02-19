@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -x
 
 rm -rf tint2* 2>/dev/null || true
 
