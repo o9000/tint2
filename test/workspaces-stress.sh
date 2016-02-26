@@ -30,8 +30,12 @@ do
       (gnome-calculator 1>/dev/null 2>/dev/null &)
     fi
     # change the current desktop to a random value
-    desktop=$(shuf -n 1 -e $(seq 0 $max_desktop))
-    xprop -root -f _NET_CURRENT_DESKTOP 32c -set _NET_CURRENT_DESKTOP $desktop
+    for change in 1 2 3
+    do
+      desktop=$(shuf -n 1 -e $(seq 0 $max_desktop))
+      xprop -root -f _NET_CURRENT_DESKTOP 32c -set _NET_CURRENT_DESKTOP $desktop
+      sleep 0.1
+    done
     # move windows around
     for win in $(wmctrl -l | awk '!/Terminal/ {if ($4 != "Desktop") print $1}')
     do
