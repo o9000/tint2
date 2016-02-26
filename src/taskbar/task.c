@@ -383,6 +383,13 @@ void draw_task_icon(Task *task, int text_width)
 
 	imlib_context_set_image(image);
 	render_image(task->area.pix, pos_x, panel->g_task.icon_posy);
+	if (0) {
+		fprintf(stderr, "Task icon size: %d %d pos %d\n", imlib_image_get_width(), imlib_image_get_height(), pos_x);
+		fprintf(stderr, "Task max size : %d %d\n", panel->g_task.maximum_width, panel->g_task.maximum_height);
+		fprintf(stderr, "Task area size: %d %d\n", task->area.width, task->area.height);
+		fprintf(stderr, "Task area bord: %d\n", task->area.bg->border.width);
+		fprintf(stderr, "\n");
+	}
 }
 
 void draw_task(void *obj, cairo_t *c)
