@@ -36,9 +36,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/time.h>
-#include <sys/resource.h>
 #include <errno.h>
-#include <sys/sysctl.h>
 #include <dirent.h>
 
 #ifdef HAVE_RSVG
@@ -381,41 +379,6 @@ void create_heuristic_mask(DATA32 *data, int w, int h)
 	}
 }
 
-int pixel_empty(DATA32 argb)
-{
-
-	DATA32 a = (argb >> 24) & 0xff;
-	if (a == 0)
-		return 1;
-
-	DATA32 rgb = argb & 0xffFFff;
-	return rgb == 0;
-}
-
-int image_empty(DATA32 *data, int w, int h)
-{
-	if (w > 0 && h > 0) {
-		int x = w / 2;
-		int y = h / 2;
-		if (!pixel_empty(data[y * w + x])) {
-			// fprintf(stderr, "Non-empty pixel: [%u, %u] = %x\n", x, y, data[y * w + x]);
-			return 0;
-		}
-	}
-
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			if (!pixel_empty(data[y * w + x])) {
-				// fprintf(stderr, "Non-empty pixel: [%u, %u] = %x\n", x, y, data[y * w + x]);
-				return 0;
-			}
-		}
-	}
-
-	// fprintf(stderr, "All pixels are empty\n");
-	return 1;
-}
-
 void render_image(Drawable d, int x, int y)
 {
 	if (!server.real_transparency) {
@@ -628,112 +591,3 @@ GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data)
 	return list;
 }
 #endif
-
-// Based loosely on close_allv from
-// https://git.gnome.org/browse/glib/tree/gio/libasyncns/asyncns.c?h=2.21.0#n205
-// license: LGPL version 2.1
-// but with all the junk removed
-// and
-// https://opensource.apple.com/source/sudo/sudo-46/src/closefrom.c
-// license: BSD
-void close_all_fds()
-{
-	const int from_fd = 3;
-
-#ifdef __linux__
-	DIR *d = opendir("/proc/self/fd");
-	if (d) {
-		for (struct dirent *de = readdir(d); de; de = readdir(d)) {
-			if (de->d_name[0] == '.')
-				continue;
-			int fd = atoi(de->d_name);
-			if (fd < from_fd)
-				continue;
-			if (fd == dirfd(d))
-				continue;
-			close(fd);
-		}
-		closedir(d);
-		return;
-	}
-#endif
-
-#if defined(__FreeBSD__) || defined(__DragonFly__) || defined(__OpenBSD__)
-	closefrom(from_fd);
-	return;
-#endif
-
-#if defined(__NetBSD__)
-	fcntl(from_fd, F_CLOSEM, 0);
-#endif
-
-	// Worst case scenario: iterate over all possible fds
-	int max_fd = sysconf(_SC_OPEN_MAX);
-	for (int fd = from_fd; fd < max_fd; fd++) {
-		close(fd);
-	}
-
-	return;
-}
-
-char* get_own_path()
-{
-	const int buf_size = 4096;
-	char *buf = calloc(buf_size, 1);
-
-#ifdef __linux__
-	if (readlink("/proc/self/exe", buf, buf_size) > 0)
-		return buf;
-#endif
-
-#if defined(__FreeBSD__)
-	int mib[4] = {
-		CTL_KERN,
-		KERN_PROC,
-		KERN_PROC_PATHNAME,
-		getpid()
-	};
-
-	size_t max_len = buf_size;
-	if (sysctl(mib, 4, buf, &max_len, NULL, 0) == 0)
-		return buf;
-#endif
-
-#if defined(__DragonFly__)
-	if (readlink("/proc/curproc/file", buf, buf_size) > 0)
-		return buf;
-#endif
-
-#if defined(__NetBSD__)
-	if (readlink("/proc/curproc/exe", buf, buf_size) > 0)
-		return buf;
-#endif
-
-#if defined(__OpenBSD__)
-	int mib[4] = {
-		CTL_KERN,
-		KERN_PROC_ARGS,
-		getpid(),
-		KERN_PROC_ARGV
-	};
-
-	char *path = NULL;
-	size_t len;
-	if (sysctl(mib, 4, NULL, &len, NULL, 0) == 0 && len > 0) {
-		char **argv = malloc(len);
-		if (argv) {
-			if (sysctl(mib, 4, argv, &len, NULL, 0) == 0) {
-				path = realpath(argv[0], NULL);
-			}
-		}
-		free(argv);
-	}
-	if (path) {
-		free(buf);
-		return path;
-	}
-#endif
-
-	sprintf(buf, "tint2");
-	return buf;
-}

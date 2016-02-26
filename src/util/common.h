@@ -73,8 +73,6 @@ Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int bri
 
 void create_heuristic_mask(DATA32 *data, int w, int h);
 
-int image_empty(DATA32 *data, int w, int h);
-
 // Renders the current Imlib image to a drawable. Wrapper around imlib_render_image_on_drawable.
 void render_image(Drawable d, int x, int y);
 
@@ -107,9 +105,5 @@ GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data);
 #if !GLIB_CHECK_VERSION (2, 38, 0)
 #define g_assert_null(expr) g_assert((expr) == NULL)
 #endif
-
-void close_all_fds();
-
-char* get_own_path();
 
 #endif
