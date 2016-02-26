@@ -20,11 +20,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-/* CUSTOMIZATION SECTION
- *
- * You can change this typedef, but must then also change the inline
- * functions in strnatcmp.c */
-typedef char nat_char;
+// Compare, recognizing numeric strings. Case sensitive.
+int strnatcmp(char const *a, char const *b);
 
-int strnatcmp(nat_char const *a, nat_char const *b);
-int strnatcasecmp(nat_char const *a, nat_char const *b);
+// Compare, recognizing numeric strings. Case insensitive.
+int strnatcasecmp(char const *a, char const *b);
