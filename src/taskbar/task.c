@@ -67,6 +67,7 @@ Task *add_task(Window win)
 	memset(&task_template, 0, sizeof(task_template));
 	task_template.area.has_mouse_over_effect = panel_config.mouse_effects;
 	task_template.area.has_mouse_press_effect = panel_config.mouse_effects;
+	task_template.area._is_under_mouse = full_width_area_is_under_mouse;
 	task_template.win = win;
 	task_template.desktop = get_window_desktop(win);
 	task_template.area.panel = &panels[monitor];
@@ -95,6 +96,7 @@ Task *add_task(Window win)
 		memcpy(&task_instance->area, &panels[monitor].g_task.area, sizeof(Area));
 		task_instance->area.has_mouse_over_effect = panel_config.mouse_effects;
 		task_instance->area.has_mouse_press_effect = panel_config.mouse_effects;
+		task_instance->area._is_under_mouse = full_width_area_is_under_mouse;
 		task_instance->win = task_template.win;
 		task_instance->desktop = task_template.desktop;
 		task_instance->win_x = task_template.win_x;

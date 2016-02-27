@@ -740,18 +740,10 @@ Panel *get_panel(Window win)
 
 Taskbar *click_taskbar(Panel *panel, int x, int y)
 {
-	if (panel_horizontal) {
-		for (int i = 0; i < panel->num_desktops; i++) {
-			Taskbar *taskbar = &panel->taskbar[i];
-			if (taskbar->area.on_screen && x >= taskbar->area.posx && x <= (taskbar->area.posx + taskbar->area.width))
-				return taskbar;
-		}
-	} else {
-		for (int i = 0; i < panel->num_desktops; i++) {
-			Taskbar *taskbar = &panel->taskbar[i];
-			if (taskbar->area.on_screen && y >= taskbar->area.posy && y <= (taskbar->area.posy + taskbar->area.height))
-				return taskbar;
-		}
+	for (int i = 0; i < panel->num_desktops; i++) {
+		Taskbar *taskbar = &panel->taskbar[i];
+		if (area_is_under_mouse(taskbar, x, y))
+			return taskbar;
 	}
 	return NULL;
 }
@@ -760,25 +752,13 @@ Task *click_task(Panel *panel, int x, int y)
 {
 	Taskbar *taskbar = click_taskbar(panel, x, y);
 	if (taskbar) {
-		if (panel_horizontal) {
-			GList *l = taskbar->area.children;
-			if (taskbarname_enabled)
-				l = l->next;
-			for (; l; l = l->next) {
-				Task *task = (Task *)l->data;
-				if (task->area.on_screen && x >= task->area.posx && x <= (task->area.posx + task->area.width)) {
-					return task;
-				}
-			}
-		} else {
-			GList *l = taskbar->area.children;
-			if (taskbarname_enabled)
-				l = l->next;
-			for (; l; l = l->next) {
-				Task *task = (Task *)l->data;
-				if (task->area.on_screen && y >= task->area.posy && y <= (task->area.posy + task->area.height)) {
-					return task;
-				}
+		GList *l = taskbar->area.children;
+		if (taskbarname_enabled)
+			l = l->next;
+		for (; l; l = l->next) {
+			Task *task = (Task *)l->data;
+			if (area_is_under_mouse(task, x, y)) {
+				return task;
 			}
 		}
 	}
@@ -789,106 +769,51 @@ Launcher *click_launcher(Panel *panel, int x, int y)
 {
 	Launcher *launcher = &panel->launcher;
 
-	if (panel_horizontal) {
-		if (launcher->area.on_screen && x >= launcher->area.posx && x <= (launcher->area.posx + launcher->area.width))
-			return launcher;
-	} else {
-		if (launcher->area.on_screen && y >= launcher->area.posy && y <= (launcher->area.posy + launcher->area.height))
-			return launcher;
-	}
+	if (area_is_under_mouse(launcher, x, y))
+		return launcher;
+
 	return NULL;
 }
 
 LauncherIcon *click_launcher_icon(Panel *panel, int x, int y)
 {
 	Launcher *launcher = click_launcher(panel, x, y);
-
 	if (launcher) {
 		for (GSList *l = launcher->list_icons; l; l = l->next) {
 			LauncherIcon *icon = (LauncherIcon *)l->data;
-			if (x >= (launcher->area.posx + icon->x) && x <= (launcher->area.posx + icon->x + icon->icon_size) &&
-				y >= (launcher->area.posy + icon->y) && y <= (launcher->area.posy + icon->y + icon->icon_size)) {
+			if (area_is_under_mouse(icon, x, y))
 				return icon;
-			}
 		}
 	}
 	return NULL;
 }
 
-gboolean click_padding(Panel *panel, int x, int y)
-{
-	if (panel_horizontal) {
-		if (x < panel->area.paddingxlr || x > panel->area.width - panel->area.paddingxlr)
-			return TRUE;
-	} else {
-		if (y < panel->area.paddingxlr || y > panel->area.height - panel->area.paddingxlr)
-			return TRUE;
-	}
-	return FALSE;
-}
-
-int click_clock(Panel *panel, int x, int y)
+Clock *click_clock(Panel *panel, int x, int y)
 {
 	Clock *clock = &panel->clock;
-	if (panel_horizontal) {
-		if (clock->area.on_screen && x >= clock->area.posx && x <= (clock->area.posx + clock->area.width))
-			return TRUE;
-	} else {
-		if (clock->area.on_screen && y >= clock->area.posy && y <= (clock->area.posy + clock->area.height))
-			return TRUE;
-	}
-	return FALSE;
+	if (area_is_under_mouse(clock, x, y))
+		return clock;
+	return NULL;
 }
 
 #ifdef ENABLE_BATTERY
-int click_battery(Panel *panel, int x, int y)
+Battery *click_battery(Panel *panel, int x, int y)
 {
 	Battery *bat = &panel->battery;
-	if (panel_horizontal) {
-		if (bat->area.on_screen && x >= bat->area.posx && x <= (bat->area.posx + bat->area.width))
-			return TRUE;
-	} else {
-		if (bat->area.on_screen && y >= bat->area.posy && y <= (bat->area.posy + bat->area.height))
-			return TRUE;
-	}
-	return FALSE;
+	if (area_is_under_mouse(bat, x, y))
+		return bat;
+	return NULL;
 }
 #endif
 
 Execp *click_execp(Panel *panel, int x, int y)
 {
-	GList *l;
-	for (l = panel->execp_list; l; l = l->next) {
+	for (GList *l = panel->execp_list; l; l = l->next) {
 		Execp *execp = (Execp *)l->data;
-		if (panel_horizontal) {
-			if (execp->area.on_screen && x >= execp->area.posx && x <= (execp->area.posx + execp->area.width))
-				return execp;
-		} else {
-			if (execp->area.on_screen && y >= execp->area.posy && y <= (execp->area.posy + execp->area.height))
-				return execp;
-		}
+		if (area_is_under_mouse(execp, x, y))
+			return execp;
 	}
 	return NULL;
-}
-
-Area *click_area(Panel *panel, int x, int y)
-{
-	Area *result = &panel->area;
-	Area *new_result = result;
-	do {
-		result = new_result;
-		GList *it = result->children;
-		while (it) {
-			Area *a = (Area *)it->data;
-			if (a->on_screen && x >= a->posx && x <= (a->posx + a->width) && y >= a->posy &&
-				y <= (a->posy + a->height)) {
-				new_result = a;
-				break;
-			}
-			it = it->next;
-		}
-	} while (new_result != result);
-	return result;
 }
 
 void stop_autohide_timeout(Panel *p)

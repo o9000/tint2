@@ -564,3 +564,49 @@ void mouse_out()
 	panel_refresh = TRUE;
 	mouse_over_area = NULL;
 }
+
+gboolean area_is_under_mouse(void *obj, int x, int y)
+{
+	Area *a = obj;
+	if (!a->on_screen)
+		return FALSE;
+
+	if (a->_is_under_mouse)
+		return a->_is_under_mouse(a, x, y);
+
+	return x >= a->posx && x <= (a->posx + a->width) && y >= a->posy && y <= (a->posy + a->height);
+}
+
+gboolean full_width_area_is_under_mouse(void *obj, int x, int y)
+{
+	Area *a = obj;
+	if (!a->on_screen)
+		return FALSE;
+
+	if (a->_is_under_mouse && a->_is_under_mouse != full_width_area_is_under_mouse)
+		return a->_is_under_mouse(a, x, y);
+
+	if (panel_horizontal)
+		return x >= a->posx && x <= a->posx + a->width;
+	else
+		return y >= a->posy && y <= a->posy + a->height;
+}
+
+Area *find_area_under_mouse(void *root, int x, int y)
+{
+	Area *result = root;
+	Area *new_result = result;
+	do {
+		result = new_result;
+		GList *it = result->children;
+		while (it) {
+			Area *a = (Area *)it->data;
+			if (area_is_under_mouse(a, x, y)) {
+				new_result = a;
+				break;
+			}
+			it = it->next;
+		}
+	} while (new_result != result);
+	return result;
+}

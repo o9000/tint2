@@ -153,6 +153,7 @@ void init_battery_panel(void *p)
 	battery->area._draw_foreground = draw_battery;
 	battery->area.size_mode = LAYOUT_FIXED;
 	battery->area._resize = resize_battery;
+	battery->area._is_under_mouse = full_width_area_is_under_mouse;
 	battery->area.on_screen = TRUE;
 	battery->area.resize_needed = 1;
 	battery->area.has_mouse_over_effect = panel_config.mouse_effects &&

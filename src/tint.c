@@ -1616,7 +1616,7 @@ start:
 				case ButtonPress: {
 					tooltip_hide(0);
 					event_button_press(&e);
-					Area *area = click_area(panel, e.xbutton.x, e.xbutton.y);
+					Area *area = find_area_under_mouse(panel, e.xbutton.x, e.xbutton.y);
 					if (panel_config.mouse_effects)
 						mouse_over(area, 1);
 					break;
@@ -1624,7 +1624,7 @@ start:
 
 				case ButtonRelease: {
 					event_button_release(&e);
-					Area *area = click_area(panel, e.xbutton.x, e.xbutton.y);
+					Area *area = find_area_under_mouse(panel, e.xbutton.x, e.xbutton.y);
 					if (panel_config.mouse_effects)
 						mouse_over(area, 0);
 					break;
@@ -1635,7 +1635,7 @@ start:
 					if (e.xmotion.state & button_mask)
 						event_button_motion_notify(&e);
 
-					Area *area = click_area(panel, e.xmotion.x, e.xmotion.y);
+					Area *area = find_area_under_mouse(panel, e.xmotion.x, e.xmotion.y);
 					if (area->_get_tooltip_text)
 						tooltip_trigger_show(area, panel, &e);
 					else

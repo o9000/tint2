@@ -180,6 +180,7 @@ void init_clock_panel(void *p)
 	clock_init_fonts();
 	clock->area.parent = p;
 	clock->area.panel = p;
+	clock->area._is_under_mouse = full_width_area_is_under_mouse;
 	clock->area.has_mouse_press_effect = clock->area.has_mouse_over_effect =
 			panel_config.mouse_effects && (clock_lclick_command || clock_mclick_command || clock_rclick_command || clock_uwheel_command ||
 										   clock_dwheel_command);

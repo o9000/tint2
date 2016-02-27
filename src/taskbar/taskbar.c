@@ -149,6 +149,7 @@ void init_taskbar_panel(void *p)
 	panel->g_taskbar.area_name.panel = panel;
 	panel->g_taskbar.area_name.size_mode = LAYOUT_FIXED;
 	panel->g_taskbar.area_name._resize = resize_taskbarname;
+	panel->g_taskbar.area_name._is_under_mouse = full_width_area_is_under_mouse;
 	panel->g_taskbar.area_name._draw_foreground = draw_taskbarname;
 	panel->g_taskbar.area_name._on_change_layout = 0;
 	panel->g_taskbar.area_name.resize_needed = 1;
@@ -160,6 +161,7 @@ void init_taskbar_panel(void *p)
 	panel->g_taskbar.area.size_mode = LAYOUT_DYNAMIC;
 	panel->g_taskbar.area.alignment = taskbar_alignment;
 	panel->g_taskbar.area._resize = resize_taskbar;
+	panel->g_taskbar.area._is_under_mouse = full_width_area_is_under_mouse;
 	panel->g_taskbar.area.resize_needed = 1;
 	panel->g_taskbar.area.on_screen = TRUE;
 	if (panel_horizontal) {

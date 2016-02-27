@@ -166,11 +166,10 @@ Taskbar *click_taskbar(Panel *panel, int x, int y);
 Task *click_task(Panel *panel, int x, int y);
 Launcher *click_launcher(Panel *panel, int x, int y);
 LauncherIcon *click_launcher_icon(Panel *panel, int x, int y);
-gboolean click_padding(Panel *panel, int x, int y);
-gboolean click_clock(Panel *panel, int x, int y);
+Clock *click_clock(Panel *panel, int x, int y);
 
 #ifdef ENABLE_BATTERY
-gboolean click_battery(Panel *panel, int x, int y);
+Battery *click_battery(Panel *panel, int x, int y);
 #endif
 
 Area *click_area(Panel *panel, int x, int y);

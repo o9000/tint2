@@ -132,7 +132,7 @@ void tooltip_show(void *arg)
 	int mx, my;
 	Window w;
 	XTranslateCoordinates(server.display, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
-	Area *area = click_area(g_tooltip.panel, mx, my);
+	Area *area = find_area_under_mouse(g_tooltip.panel, mx, my);
 	if (!g_tooltip.mapped && area->_get_tooltip_text) {
 		tooltip_copy_text(area);
 		g_tooltip.mapped = True;

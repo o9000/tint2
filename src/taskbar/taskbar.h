@@ -89,4 +89,6 @@ void sort_taskbar_for_win(Window win);
 
 void sort_tasks(Taskbar *taskbar);
 
+gboolean taskbar_is_under_mouse(void *obj, int x, int y);
+
 #endif

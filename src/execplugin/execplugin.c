@@ -162,6 +162,7 @@ void init_execp_panel(void *p)
 		execp->area.size_mode = LAYOUT_FIXED;
 		execp->area._resize = resize_execp;
 		execp->area._get_tooltip_text = execp_get_tooltip;
+		execp->area._is_under_mouse = full_width_area_is_under_mouse;
 		execp->area.has_mouse_press_effect = panel_config.mouse_effects && (execp->area.has_mouse_over_effect =
 				execp->backend->lclick_command || execp->backend->mclick_command || execp->backend->rclick_command ||
 				execp->backend->uwheel_command || execp->backend->dwheel_command);
