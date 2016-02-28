@@ -17,6 +17,9 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
+#include <limits.h>
+#include <stdlib.h>
+
 #include "main.h"
 #include "properties.h"
 #include "properties_rw.h"
@@ -2407,7 +2410,6 @@ void load_theme_file(const char *file_name, const char *theme_name, GList **them
 				IconTheme *theme = calloc(1, sizeof(IconTheme));
 				theme->name = strdup(theme_name);
 				theme->description = strdup(value);
-				fprintf(stderr, "THEME %s %s %s\n", theme_name, value, file_name);
 				*themes = g_list_append(*themes, theme);
 				break;
 			}
@@ -2434,7 +2436,21 @@ void load_icon_themes(const gchar *path, const gchar *parent, GList **themes)
 			g_str_equal(name, "index.theme")) {
 			load_theme_file(file, parent, themes);
 		} else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
-			load_icon_themes(file, name, themes);
+			gboolean duplicate = FALSE;
+			if (g_file_test(file, G_FILE_TEST_IS_SYMLINK)) {
+#ifdef PATH_MAX
+				char real_path[PATH_MAX];
+#else
+				char real_path[65536];
+#endif
+				if (realpath(file, real_path)) {
+					fprintf(stderr, "SYMLINK %s -> %s in %s\n", file, real_path, path);
+					if (strstr(real_path, path) == real_path)
+						duplicate = TRUE;
+				}
+			}
+			if (!duplicate)
+				load_icon_themes(file, name, themes);
 		}
 		g_free(file);
 	}
