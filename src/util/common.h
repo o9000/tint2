@@ -96,6 +96,13 @@ void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
 // Clears the pixmap (with transparent color)
 void clear_pixmap(Pixmap p, int x, int y, int w, int h);
 
+// Appends to the list locations all the directories contained in the environment variable var (split by ":").
+// Optional suffixes are added to each directory. The suffix arguments MUST end with NULL.
+// Returns the new value of the list.
+GSList *load_locations_from_env(GSList *locations, const char *var, ...);
+
+GSList *slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr);
+
 #define free_and_null(p) { free(p); p = NULL; }
 
 #if !GLIB_CHECK_VERSION (2, 33, 4)

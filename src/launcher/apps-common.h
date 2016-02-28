@@ -7,6 +7,8 @@
 #ifndef APPS_COMMON_H
 #define APPS_COMMON_H
 
+#include <glib.h>
+
 typedef struct DesktopEntry {
 	char *name;
 	char *exec;
@@ -26,5 +28,9 @@ int read_desktop_file(const char *path, DesktopEntry *entry);
 
 // Empties DesktopEntry: releases the memory of the *members* of entry.
 void free_desktop_entry(DesktopEntry *entry);
+
+// Returns a list of the directories used to store desktop files.
+// Do not free the result, it is cached.
+const GSList *get_apps_locations();
 
 #endif

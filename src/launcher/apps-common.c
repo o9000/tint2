@@ -19,6 +19,7 @@
 /* http://standards.freedesktop.org/desktop-entry-spec/ */
 
 #include "apps-common.h"
+#include "common.h"
 
 #include <glib.h>
 #include <stdio.h>
@@ -193,4 +194,26 @@ void test_read_desktop_file()
 	read_desktop_file("/usr/share/applications/firefox.desktop", &entry);
 	printf("Name:%s Icon:%s Exec:%s\n", entry.name, entry.icon, entry.exec);
 	fprintf(stdout, "\033[0m");
+}
+
+GSList *apps_locations = NULL;
+// Do not free the result.
+const GSList *get_apps_locations()
+{
+	if (apps_locations)
+		return apps_locations;
+
+	apps_locations = load_locations_from_env(apps_locations, "XDG_DATA_HOME", "applications", NULL);
+
+	apps_locations = g_slist_append(apps_locations, g_build_filename(g_get_home_dir(), ".local/share/applications", NULL));
+
+	apps_locations = load_locations_from_env(apps_locations, "XDG_DATA_DIRS", "applications", NULL);
+
+	apps_locations = g_slist_append(apps_locations, g_strdup("/usr/local/share/applications"));
+	apps_locations = g_slist_append(apps_locations, g_strdup("/usr/share/applications"));
+	apps_locations = g_slist_append(apps_locations, g_strdup("/opt/share/applications"));
+
+	apps_locations = slist_remove_duplicates(apps_locations, g_str_equal, g_free);
+
+	return apps_locations;
 }

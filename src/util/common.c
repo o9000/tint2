@@ -22,6 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/Xrender.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -591,3 +592,45 @@ GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data)
 	return list;
 }
 #endif
+
+GSList *load_locations_from_env(GSList *locations, const char *var, ...)
+{
+	char *value = getenv(var);
+	if (value) {
+		value = strdup(value);
+		char *p = value;
+		for (char *token = strsep(&value, ":"); token; token = strsep(&value, ":")) {
+			va_list ap;
+			va_start(ap, var);
+			for (const char *suffix = va_arg(ap, const char *); suffix; suffix = va_arg(ap, const char *)) {
+				locations = g_slist_append(locations, g_build_filename(token, suffix, NULL));
+			}
+			va_end(ap);
+		}
+		free(p);
+	}
+	return locations;
+}
+
+GSList *slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr)
+{
+	GSList *new_list = NULL;
+
+	for (GSList *l1 = list; l1; l1 = g_slist_next(l1)) {
+		gboolean duplicate = FALSE;
+		for (GSList *l2 = new_list; l2; l2 = g_slist_next(l2)) {
+			if (eq(l1->data, l2->data)) {
+				duplicate = TRUE;
+				break;
+			}
+		}
+		if (!duplicate) {
+			new_list = g_slist_append(new_list, l1->data);
+			l1->data = NULL;
+		}
+	}
+
+	g_slist_free_full(list, fr);
+
+	return new_list;
+}

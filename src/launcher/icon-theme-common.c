@@ -20,11 +20,13 @@
 
 #include "icon-theme-common.h"
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "apps-common.h"
+#include "common.h"
 
 #define ICON_DIR_TYPE_SCALABLE 0
 #define ICON_DIR_TYPE_FIXED 1
@@ -50,19 +52,22 @@ const GSList *get_icon_locations()
 	if (icon_locations)
 		return icon_locations;
 
-	gchar *path;
-	path = g_build_filename(g_get_home_dir(), ".icons", NULL);
-	icon_locations = g_slist_append(icon_locations, g_strdup(path));
-	g_free(path);
-	path = g_build_filename(g_get_home_dir(), ".local/share/icons", NULL);
-	icon_locations = g_slist_append(icon_locations, g_strdup(path));
-	g_free(path);
+	icon_locations = load_locations_from_env(icon_locations, "XDG_DATA_HOME", ".icons", NULL);
+
+	icon_locations = g_slist_append(icon_locations, g_build_filename(g_get_home_dir(), ".icons", NULL));
+	icon_locations = g_slist_append(icon_locations, g_build_filename(g_get_home_dir(), ".local/share/icons", NULL));
+
+	icon_locations = load_locations_from_env(icon_locations, "XDG_DATA_DIRS", ".icons", ".pixmaps", NULL);
+
 	icon_locations = g_slist_append(icon_locations, g_strdup("/usr/local/share/icons"));
 	icon_locations = g_slist_append(icon_locations, g_strdup("/usr/local/share/pixmaps"));
 	icon_locations = g_slist_append(icon_locations, g_strdup("/usr/share/icons"));
 	icon_locations = g_slist_append(icon_locations, g_strdup("/usr/share/pixmaps"));
 	icon_locations = g_slist_append(icon_locations, g_strdup("/opt/share/icons"));
 	icon_locations = g_slist_append(icon_locations, g_strdup("/opt/share/pixmaps"));
+
+	icon_locations = slist_remove_duplicates(icon_locations, g_str_equal, g_free);
+
 	return icon_locations;
 }
 

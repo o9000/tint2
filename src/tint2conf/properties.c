@@ -2893,10 +2893,10 @@ void create_launcher(GtkWidget *parent)
 
 	fprintf(stderr, "Loading .desktop files\n");
 	GList *entries = NULL;
-	load_desktop_entries("/usr/share/applications", &entries);
-	load_desktop_entries("/usr/local/share/applications", &entries);
-	gchar *path = g_build_filename(g_get_home_dir(), ".local/share/applications", NULL);
-	load_desktop_entries(path, &entries);
+	for (location = get_apps_locations(); location; location = g_slist_next(location)) {
+		const gchar *path = (gchar*) location->data;
+		load_desktop_entries(path, &entries);
+	}
 	entries = g_list_sort(entries, compare_entries);
 	populate_from_entries(entries, FALSE);
 
@@ -2904,8 +2904,6 @@ void create_launcher(GtkWidget *parent)
 		free_desktop_entry((DesktopEntry*)l->data);
 	}
 	g_list_free(entries);
-
-	g_free(path);
 
 	icon_theme_changed();
 	load_icons(launcher_apps);
