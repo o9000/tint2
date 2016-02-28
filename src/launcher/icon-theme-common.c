@@ -316,6 +316,7 @@ void free_themes(IconThemeWrapper *themes)
 		free(theme);
 	}
 	g_slist_free(themes->themes_fallback);
+	g_slist_free_full(themes->_queued, free);
 	free(themes);
 }
 
@@ -415,9 +416,18 @@ IconThemeWrapper *load_themes(const char *icon_theme_name)
 		fprintf(stderr, "Loading %s. Icon theme :", icon_theme_name);
 	}
 
-	GSList *queued = NULL;
-	load_themes_helper(icon_theme_name, &wrapper->themes, &queued);
-	load_themes_helper("hicolor", &wrapper->themes, &queued);
+	load_themes_helper(icon_theme_name, &wrapper->themes, &wrapper->_queued);
+	load_themes_helper("hicolor", &wrapper->themes, &wrapper->_queued);
+
+	return wrapper;
+}
+
+void load_fallbacks(IconThemeWrapper *wrapper)
+{
+	if (wrapper->_fallback_loaded)
+		return;
+
+	fprintf(stderr, RED "Loading additional icon themes (this means your icon theme is incomplete)..." RESET "\n");
 
 	// Load wrapper->themes_fallback
 	const GSList *location;
@@ -429,7 +439,7 @@ IconThemeWrapper *load_themes(const char *icon_theme_name)
 			while ((name = g_dir_read_name(d))) {
 				gchar *file_name = g_build_filename(path, name, "index.theme", NULL);
 				if (g_file_test(file_name, G_FILE_TEST_EXISTS) && !g_file_test(file_name, G_FILE_TEST_IS_DIR)) {
-					load_themes_helper(name, &wrapper->themes_fallback, &queued);
+					load_themes_helper(name, &wrapper->themes_fallback, &wrapper->_queued);
 				}
 				g_free(file_name);
 			}
@@ -437,13 +447,7 @@ IconThemeWrapper *load_themes(const char *icon_theme_name)
 		}
 	}
 
-	// Free the queued list
-	GSList *l;
-	for (l = queued; l; l = l->next)
-		free(l->data);
-	g_slist_free(queued);
-
-	return wrapper;
+	wrapper->_fallback_loaded = TRUE;
 }
 
 int directory_matches_size(IconThemeDir *dir, int size)
@@ -647,21 +651,30 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 	return NULL;
 }
 
-char *get_icon_path(IconThemeWrapper *theme, const char *icon_name, int size)
+char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size)
 {
-	if (!theme)
+	if (!wrapper)
 		return NULL;
+
+	if (!icon_name || strlen(icon_name) == 0)
+		return NULL;
+
 	icon_name = icon_name ? icon_name : DEFAULT_ICON;
-	char *path = get_icon_path_helper(theme->themes, icon_name, size);
-	if (!path) {
-		path = get_icon_path_helper(theme->themes_fallback, icon_name, size);
-	}
-	if (!path) {
-		fprintf(stderr, "Could not find icon %s\n", icon_name);
-		path = get_icon_path_helper(theme->themes, DEFAULT_ICON, size);
-	}
-	if (!path) {
-		path = get_icon_path_helper(theme->themes_fallback, DEFAULT_ICON, size);
-	}
+	char *path = get_icon_path_helper(wrapper->themes, icon_name, size);
+	if (path)
+		return path;
+
+	fprintf(stderr, YELLOW "Icon not found in default theme: %s" RESET "\n", icon_name);
+	load_fallbacks(wrapper);
+
+	path = get_icon_path_helper(wrapper->themes_fallback, icon_name, size);
+	if (path)
+		return path;
+
+	fprintf(stderr, RED "Could not find icon %s, using default." RESET "\n", icon_name);
+	path = get_icon_path_helper(wrapper->themes, DEFAULT_ICON, size);
+	if (path)
+		return path;
+	path = get_icon_path_helper(wrapper->themes_fallback, DEFAULT_ICON, size);
 	return path;
 }

@@ -13,6 +13,8 @@ typedef struct IconThemeWrapper {
 	GSList *themes;
 	// List of IconTheme*
 	GSList *themes_fallback;
+	GSList *_queued;
+	gboolean _fallback_loaded;
 } IconThemeWrapper;
 
 typedef struct IconTheme {
