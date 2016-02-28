@@ -2294,8 +2294,7 @@ void load_desktop_file(const char *file, gboolean selected)
 
 void populate_from_entries(GList *entries, gboolean selected)
 {
-	GList *l;
-	for (l = entries; l; l = l->next) {
+	for (GList *l = entries; l; l = l->next) {
 		DesktopEntry *entry = (DesktopEntry *)l->data;
 		GdkPixbuf *pixbuf = load_icon(entry->icon);
 		GtkTreeIter iter;
@@ -2367,9 +2366,17 @@ void load_desktop_entries(const char *path, GList **entries)
 	g_list_free(files);
 }
 
-void load_theme_file(const char *file_name, const char *theme)
+static gint compare_themes(gconstpointer a, gconstpointer b)
 {
-	if (!file_name || !theme) {
+	gint result = strnatcasecmp(((IconTheme*)a)->description, ((IconTheme*)b)->description);
+	if (result)
+		return result;
+	return strnatcasecmp(((IconTheme*)a)->name, ((IconTheme*)b)->name);
+}
+
+void load_theme_file(const char *file_name, const char *theme_name, GList **themes)
+{
+	if (!file_name || !theme_name) {
 		return;
 	}
 
@@ -2397,13 +2404,12 @@ void load_theme_file(const char *file_name, const char *theme)
 
 		if (parse_theme_line(line, &key, &value)) {
 			if (strcmp(key, "Name") == 0) {
-				// value is like Tango
-				GtkTreeIter iter;
-				gtk_list_store_append(icon_themes, &iter);
-				gtk_list_store_set(icon_themes, &iter,
-								   iconsColName, g_strdup(theme),
-								   iconsColDescr, g_strdup(value),
-								   -1);
+				IconTheme *theme = calloc(1, sizeof(IconTheme));
+				theme->name = strdup(theme_name);
+				theme->description = strdup(value);
+				fprintf(stderr, "THEME %s %s %s\n", theme_name, value, file_name);
+				*themes = g_list_append(*themes, theme);
+				break;
 			}
 		}
 
@@ -2415,7 +2421,7 @@ void load_theme_file(const char *file_name, const char *theme)
 	free(line);
 }
 
-void load_icon_themes(const gchar *path, const gchar *parent)
+void load_icon_themes(const gchar *path, const gchar *parent, GList **themes)
 {
 	GDir *d = g_dir_open(path, 0, NULL);
 	if (!d)
@@ -2426,9 +2432,9 @@ void load_icon_themes(const gchar *path, const gchar *parent)
 		if (parent &&
 			g_file_test(file, G_FILE_TEST_IS_REGULAR) &&
 			g_str_equal(name, "index.theme")) {
-			load_theme_file(file, parent);
+			load_theme_file(file, parent, themes);
 		} else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
-			load_icon_themes(file, name);
+			load_icon_themes(file, name, themes);
 		}
 		g_free(file);
 	}
@@ -2796,18 +2802,34 @@ void create_launcher(GtkWidget *parent)
 
 	change_paragraph(parent);
 
+	fprintf(stderr, "Loading icon themes\n");
+	GList *themes = NULL;
+	const GSList *location;
+	for (location = get_icon_locations(); location; location = g_slist_next(location)) {
+		const gchar *path = (gchar*) location->data;
+		load_icon_themes(path, NULL, &themes);
+	}
+	themes = g_list_sort(themes, compare_themes);
+
 	GtkTreeIter iter;
 	gtk_list_store_append(icon_themes, &iter);
 	gtk_list_store_set(icon_themes, &iter,
 					   0, "",
 					   -1);
-
-	fprintf(stderr, "Loading icon themes\n");
-	const GSList *location;
-	for (location = get_icon_locations(); location; location = g_slist_next(location)) {
-		const gchar *path = (gchar*) location->data;
-		load_icon_themes(path, NULL);
+	for (GList *l = themes; l; l = l->next) {
+		IconTheme *theme = (IconTheme*)l->data;
+		GtkTreeIter iter;
+		gtk_list_store_append(icon_themes, &iter);
+		gtk_list_store_set(icon_themes, &iter,
+						   iconsColName, g_strdup(theme->name),
+						   iconsColDescr, g_strdup(theme->description),
+						   -1);
 	}
+
+	for (GList *l = themes; l; l = l->next) {
+		free_icon_theme((IconTheme*)l->data);
+	}
+	g_list_free(themes);
 	fprintf(stderr, "Icon themes loaded\n");
 
 	fprintf(stderr, "Loading .desktop files\n");
@@ -2819,8 +2841,7 @@ void create_launcher(GtkWidget *parent)
 	entries = g_list_sort(entries, compare_entries);
 	populate_from_entries(entries, FALSE);
 
-	GList *l;
-	for (l = entries; l; l = l->next) {
+	for (GList *l = entries; l; l = l->next) {
 		free_desktop_entry((DesktopEntry*)l->data);
 	}
 	g_list_free(entries);

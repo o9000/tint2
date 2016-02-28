@@ -279,6 +279,8 @@ void free_icon_theme(IconTheme *theme)
 		return;
 	free(theme->name);
 	theme->name = NULL;
+	free(theme->description);
+	theme->description = NULL;
 	for (GSList *l_inherits = theme->list_inherits; l_inherits; l_inherits = l_inherits->next) {
 		free(l_inherits->data);
 	}

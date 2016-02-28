@@ -17,6 +17,7 @@ typedef struct IconThemeWrapper {
 
 typedef struct IconTheme {
 	char *name;
+	char *description;
 	GSList *list_inherits;    // each item is a char* (theme name)
 	GSList *list_directories; // each item is an IconThemeDir*
 } IconTheme;
@@ -31,6 +32,7 @@ int parse_theme_line(char *line, char **key, char **value);
 IconThemeWrapper *load_themes(const char *icon_theme_name);
 
 void free_themes(IconThemeWrapper *themes);
+void free_icon_theme(IconTheme *theme);
 
 #define DEFAULT_ICON "application-x-executable"
 
