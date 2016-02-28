@@ -1512,9 +1512,9 @@ msgstr  "Format de la première ligne"
 
 #: ../properties.c:3841
 msgid   "Specifies the format used to display the first line of the clock "
-        "text. See 'man strftime' for all the available options."
+        "text. See 'man date' for all the available options."
 msgstr  "Spécifie le format utilisé pour afficher la première ligne de "
-        "l'horloge texte. Voir 'man strftime' pour les options disponibles."
+        "l'horloge texte. Voir 'man date' pour les options disponibles."
 
 #: ../properties.c:3845
 msgid   "Second line format"
@@ -1522,9 +1522,9 @@ msgstr  "Format de la seconde ligne"
 
 #: ../properties.c:3857
 msgid   "Specifies the format used to display the second line of the clock "
-        "text. See 'man strftime' for all the available options."
+        "text. See 'man date' for all the available options."
 msgstr  "Spécifie le format utilisé pour afficher la seconde ligne de "
-        "l'horloge texte. Voir 'man strftime' pour les options disponibles."
+        "l'horloge texte. Voir 'man date' pour les options disponibles."
 
 #: ../properties.c:3861
 msgid   "First line timezone"
@@ -1658,7 +1658,7 @@ msgstr  "Format"
 msgid   "Specifies the format used to display the clock tooltip. See 'man "
         "strftime' for the available options."
 msgstr  "Spécifie le format utilisé pour afficher l'infobulle de l'horloge. "
-        "Voir 'man strftime' pour les options disponibles."
+        "Voir 'man date' pour les options disponibles."
 
 #: ../properties.c:4132
 msgid   "Timezone"

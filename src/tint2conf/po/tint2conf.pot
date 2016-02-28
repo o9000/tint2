@@ -1364,7 +1364,7 @@ msgstr ""
 #: ../properties.c:3841
 msgid ""
 "Specifies the format used to display the first line of the clock text. See "
-"'man strftime' for all the available options."
+"'man date' for all the available options."
 msgstr ""
 
 #: ../properties.c:3845
@@ -1374,7 +1374,7 @@ msgstr ""
 #: ../properties.c:3857
 msgid ""
 "Specifies the format used to display the second line of the clock text. See "
-"'man strftime' for all the available options."
+"'man date' for all the available options."
 msgstr ""
 
 #: ../properties.c:3861
@@ -1497,7 +1497,7 @@ msgstr ""
 
 #: ../properties.c:4128
 msgid ""
-"Specifies the format used to display the clock tooltip. See 'man strftime' "
+"Specifies the format used to display the clock tooltip. See 'man date' "
 "for the available options."
 msgstr ""
 

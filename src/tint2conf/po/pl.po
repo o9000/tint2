@@ -1500,9 +1500,9 @@ msgstr  "Format pierwszej linii"
 
 #: ../properties.c:3841
 msgid   "Specifies the format used to display the first line of the clock "
-        "text. See 'man strftime' for all the available options."
+        "text. See 'man date' for all the available options."
 msgstr  "Określa format używany do wyświetlania pierwszej linii zegara. "
-        "Zobacz 'man strftime', aby dowiedzieć się o opcjach."
+        "Zobacz 'man date', aby dowiedzieć się o opcjach."
 
 #: ../properties.c:3845
 msgid   "Second line format"
@@ -1510,9 +1510,9 @@ msgstr  "Format drugiej linii"
 
 #: ../properties.c:3857
 msgid   "Specifies the format used to display the second line of the clock "
-        "text. See 'man strftime' for all the available options."
+        "text. See 'man date' for all the available options."
 msgstr  "Określa format używany do wyświetlania drugiej linii zegara. Zobacz "
-        "'man strftime', aby dowiedzieć się o opcjach."
+        "'man date', aby dowiedzieć się o opcjach."
 
 #: ../properties.c:3861
 msgid   "First line timezone"
@@ -1642,7 +1642,7 @@ msgstr  "Format"
 msgid   "Specifies the format used to display the clock tooltip. See 'man "
         "strftime' for the available options."
 msgstr  "Określa format w jakim pokazywana ma być podpowiedź dla zegara. "
-        "Zobacz 'man strftime' aby dowiedzieć się o dostepnych opcjach."
+        "Zobacz 'man date' aby dowiedzieć się o dostepnych opcjach."
 
 #: ../properties.c:4132
 msgid   "Timezone"

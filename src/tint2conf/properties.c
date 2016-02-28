@@ -3839,7 +3839,7 @@ void create_clock(GtkWidget *parent)
 	col++;
 	gtk_tooltips_set_tip(tooltips, clock_format_line1,
 						 _("Specifies the format used to display the first line of the clock text. "
-						 "See 'man strftime' for all the available options."), NULL);
+						 "See 'man date' for all the available options."), NULL);
 
 	row++, col = 2;
 	label = gtk_label_new(_("Second line format"));
@@ -3855,7 +3855,7 @@ void create_clock(GtkWidget *parent)
 	col++;
 	gtk_tooltips_set_tip(tooltips, clock_format_line2,
 						 _("Specifies the format used to display the second line of the clock text. "
-						 "See 'man strftime' for all the available options."), NULL);
+						 "See 'man date' for all the available options."), NULL);
 
 	row++, col = 2;
 	label = gtk_label_new(_("First line timezone"));
@@ -4126,7 +4126,7 @@ void create_clock(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), clock_format_tooltip, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 	gtk_tooltips_set_tip(tooltips, clock_format_tooltip, _("Specifies the format used to display the clock tooltip. "
-						 "See 'man strftime' for the available options."), NULL);
+						 "See 'man date' for the available options."), NULL);
 
 	row++, col = 2;
 	label = gtk_label_new(_("Timezone"));

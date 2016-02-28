@@ -1478,8 +1478,8 @@ msgstr  "формат прве линије"
 
 #: ../properties.c:3841
 msgid   "Specifies the format used to display the first line of the clock "
-        "text. See 'man strftime' for all the available options."
-msgstr  "Одређује формат за приказ прве линије сата. Погледај 'man strftime' "
+        "text. See 'man date' for all the available options."
+msgstr  "Одређује формат за приказ прве линије сата. Погледај 'man date' "
         "за све доступне могућности."
 
 #: ../properties.c:3845
@@ -1488,8 +1488,8 @@ msgstr  "Формат друге линије"
 
 #: ../properties.c:3857
 msgid   "Specifies the format used to display the second line of the clock "
-        "text. See 'man strftime' for all the available options."
-msgstr  "Одређује формат за приказ друге линије сата. Погледај 'man strftime' "
+        "text. See 'man date' for all the available options."
+msgstr  "Одређује формат за приказ друге линије сата. Погледај 'man date' "
         "за све доступне могућности."
 
 #: ../properties.c:3861
