@@ -2268,31 +2268,75 @@ void load_icons(GtkListStore *apps)
 
 void load_desktop_file(const char *file, gboolean selected)
 {
-	DesktopEntry entry;
-	if (read_desktop_file(file, &entry)) {
-		GdkPixbuf *pixbuf = load_icon(entry.icon);
+	char *file_contracted = contract_tilde(file);
+
+	GtkListStore *store = selected ? launcher_apps : all_apps;
+	gboolean duplicate = FALSE;
+	for (int index = 0; ; index++) {
+		GtkTreePath *path = gtk_tree_path_new_from_indices(index, -1);
 		GtkTreeIter iter;
-		gtk_list_store_append(selected ? launcher_apps : all_apps, &iter);
-		gtk_list_store_set(selected ? launcher_apps :all_apps, &iter,
-						   appsColIcon, pixbuf,
-						   appsColText, g_strdup(entry.name),
-						   appsColPath, g_strdup(file),
-						   appsColIconName, g_strdup(entry.icon),
-						   -1);
-		if (pixbuf)
-			g_object_unref(pixbuf);
-	} else {
-		printf("Could not load %s\n", file);
-		GtkTreeIter iter;
-		gtk_list_store_append(selected ? launcher_apps : all_apps, &iter);
-		gtk_list_store_set(selected ? launcher_apps :all_apps, &iter,
-						   appsColIcon, NULL,
-						   appsColText, g_strdup(file),
-						   appsColPath, g_strdup(file),
-						   appsColIconName, g_strdup(""),
-						   -1);
+		gboolean found = gtk_tree_model_get_iter(GTK_TREE_MODEL(store), &iter, path);
+		gtk_tree_path_free(path);
+		if (!found)
+			break;
+
+		gchar *app_path;
+		gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, appsColPath, &app_path, -1);
+		char *contracted = contract_tilde(app_path);
+		if (strcmp(contracted, file_contracted) == 0) {
+			duplicate = TRUE;
+			break;
+		}
+		free(contracted);
+		g_free(app_path);
 	}
-	free_desktop_entry(&entry);
+
+	if (!duplicate) {
+		DesktopEntry entry;
+		if (read_desktop_file(file, &entry)) {
+			int index;
+			gboolean stop = FALSE;
+			for (index = 0; !stop; index++) {
+				GtkTreePath *path = gtk_tree_path_new_from_indices(index, -1);
+				GtkTreeIter iter;
+				gboolean found = gtk_tree_model_get_iter(GTK_TREE_MODEL(store), &iter, path);
+				gtk_tree_path_free(path);
+				if (!found)
+					break;
+
+				gchar *app_name;
+				gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, appsColText, &app_name, -1);
+				if (strnatcasecmp(app_name, entry.name) >= 0)
+					stop = TRUE;
+				g_free(app_name);
+			}
+
+			GdkPixbuf *pixbuf = load_icon(entry.icon);
+			GtkTreeIter iter;
+			gtk_list_store_insert(store, &iter, index);
+			gtk_list_store_set(store, &iter,
+							   appsColIcon, pixbuf,
+							   appsColText, g_strdup(entry.name),
+							   appsColPath, g_strdup(file),
+							   appsColIconName, g_strdup(entry.icon),
+							   -1);
+			if (pixbuf)
+				g_object_unref(pixbuf);
+		} else {
+			printf("Could not load %s\n", file);
+			GtkTreeIter iter;
+			gtk_list_store_append(store, &iter);
+			gtk_list_store_set(store, &iter,
+							   appsColIcon, NULL,
+							   appsColText, g_strdup(file),
+							   appsColPath, g_strdup(file),
+							   appsColIconName, g_strdup(""),
+							   -1);
+		}
+		free_desktop_entry(&entry);
+	}
+
+	free(file_contracted);
 }
 
 void populate_from_entries(GList *entries, gboolean selected)
@@ -2444,7 +2488,6 @@ void load_icon_themes(const gchar *path, const gchar *parent, GList **themes)
 				char real_path[65536];
 #endif
 				if (realpath(file, real_path)) {
-					fprintf(stderr, "SYMLINK %s -> %s in %s\n", file, real_path, path);
 					if (strstr(real_path, path) == real_path)
 						duplicate = TRUE;
 				}

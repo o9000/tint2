@@ -53,11 +53,11 @@ void tint_exec(const char *command);
 
 // Returns a copy of s in which "~" is expanded to the path to the user's home directory.
 // The caller takes ownership of the string.
-char *expand_tilde(char *s);
+char *expand_tilde(const char *s);
 
 // The opposite of expand_tilde: replaces the path to the user's home directory with "~".
 // The caller takes ownership of the string.
-char *contract_tilde(char *s);
+char *contract_tilde(const char *s);
 
 // Color
 int hex_char_to_int(char c);

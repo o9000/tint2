@@ -112,7 +112,7 @@ void tint_exec(const char *command)
 	}
 }
 
-char *expand_tilde(char *s)
+char *expand_tilde(const char *s)
 {
 	const gchar *home = g_get_home_dir();
 	if (home && (strcmp(s, "~") == 0 || strstr(s, "~/") == s)) {
@@ -125,7 +125,7 @@ char *expand_tilde(char *s)
 	}
 }
 
-char *contract_tilde(char *s)
+char *contract_tilde(const char *s)
 {
 	const gchar *home = g_get_home_dir();
 	if (!home)
