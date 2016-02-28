@@ -14,6 +14,7 @@ typedef struct DesktopEntry {
 	char *exec;
 	char *icon;
 	char *path;
+	gboolean hidden_from_menus;
 } DesktopEntry;
 
 // Parses a line of the form "key = value". Modifies the line.

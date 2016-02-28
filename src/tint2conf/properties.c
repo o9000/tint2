@@ -2367,6 +2367,10 @@ void load_desktop_entry(const char *file, GList **entries)
 	DesktopEntry *entry = calloc(1, sizeof(DesktopEntry));
 	if (!read_desktop_file(file, entry))
 		printf("Could not load %s\n", file);
+	if (entry->hidden_from_menus) {
+		free(entry);
+		return;
+	}
 	if (!entry->name)
 		entry->name = strdup(file);
 	if (!entry->icon)

@@ -54,8 +54,8 @@ void expand_exec(DesktopEntry *entry, const char *path)
 	// %k -> path
 	if (entry->exec) {
 		char *exec2 = calloc(strlen(entry->exec) + (entry->name ? strlen(entry->name) : 1) +
-							 (entry->icon ? strlen(entry->icon) : 1) + 100,
-							 1);
+		                         (entry->icon ? strlen(entry->icon) : 1) + 100,
+		                     1);
 		char *p, *q;
 		// p will never point to an escaped char
 		for (p = entry->exec, q = exec2; *p; p++, q++) {
@@ -112,13 +112,14 @@ int read_desktop_file(const char *path, DesktopEntry *entry)
 
 	entry->path = strdup(path);
 	entry->name = entry->icon = entry->exec = NULL;
+	entry->hidden_from_menus = FALSE;
 
 	if ((fp = fopen(path, "rt")) == NULL) {
 		fprintf(stderr, "Could not open file %s\n", path);
 		return 0;
 	}
 
-  const gchar **languages = (const gchar **)g_get_language_names();
+	const gchar **languages = (const gchar **)g_get_language_names();
 	// lang_index is the index of the language for the best Name key in the language vector
 	// lang_index_default is a constant that encodes the Name key without a language
 	int lang_index, lang_index_default;
@@ -165,6 +166,8 @@ int read_desktop_file(const char *path, DesktopEntry *entry)
 				entry->exec = strdup(value);
 			} else if (!entry->icon && strcmp(key, "Icon") == 0) {
 				entry->icon = strdup(value);
+			} else if (!entry->icon && strcmp(key, "NoDisplay") == 0) {
+				entry->hidden_from_menus = strcasecmp(value, "true") == 0;
 			}
 		}
 	}
@@ -205,7 +208,8 @@ const GSList *get_apps_locations()
 
 	apps_locations = load_locations_from_env(apps_locations, "XDG_DATA_HOME", "applications", NULL);
 
-	apps_locations = g_slist_append(apps_locations, g_build_filename(g_get_home_dir(), ".local/share/applications", NULL));
+	apps_locations =
+	    g_slist_append(apps_locations, g_build_filename(g_get_home_dir(), ".local/share/applications", NULL));
 
 	apps_locations = load_locations_from_env(apps_locations, "XDG_DATA_DIRS", "applications", NULL);
 
