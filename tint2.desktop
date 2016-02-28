@@ -1,7 +1,9 @@
 [Desktop Entry]
 Type=Application
 Encoding=UTF-8
+
 Name=Tint2
+
 GenericName=Panel
 GenericName[am]=ፓነል
 GenericName[ar]=الشريط
@@ -50,10 +52,12 @@ GenericName[uk]=Панель
 GenericName[ur]=پینل
 GenericName[vi]=Panel
 GenericName[zh]=面板
+
 Comment=Lightweight panel
 Comment[fr]=Panel léger
 Comment[pl]=Lekki panel
 Comment[ru]=Легковесная панель
+
 Exec=tint2
 Icon=tint2
 Terminal=false

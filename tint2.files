@@ -169,3 +169,10 @@ src/tint2conf/po/hr.po
 src/tint2conf/po/pl.po
 src/tint2conf/po/sr.po
 README.md
+.gitignore
+tint2.config
+tint2.creator
+tint2.desktop
+tint2.files
+tint2.includes
+tint2.svg
