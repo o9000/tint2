@@ -1,10 +1,21 @@
-2016-02-26 master
+2016-02-28 master
 - Fixes:
   - Fix get_version.sh so that it returns the correct version when .git is missing
   - Create temporary files in /tmp
   - Compute task icon size correctly (issue #560)
   - Fix build on powerpc
   - Minor code cleanup in the system tray
+  - tint2conf:
+    - Sort applications correctly
+    - Avoid duplicate icon themes due to symlinks
+    - Avoid loading desktop files marked as NoDisplay
+- Enhancements:
+  - Use a better Name and GenericName in the .desktop files
+  - Use the XDG paths in addition to the defaults when looking for icons and applications
+  - Fallback icon themes are loaded lazily to speed up tint2 startup
+  - tint2conf:
+    - Sort icon themes
+    - Updated ru translation
 
 2016-01-29 0.12.7
 - Fixes:
