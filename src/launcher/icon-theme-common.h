@@ -9,12 +9,21 @@
 #include <glib.h>
 
 typedef struct IconThemeWrapper {
+	// The icon theme name for which this wrapper was created
+	char *icon_theme_name;
 	// List of IconTheme*
 	GSList *themes;
+	// Themes are loaded lazily when needed.
+	gboolean _themes_loaded;
 	// List of IconTheme*
 	GSList *themes_fallback;
-	GSList *_queued;
+	// Fallback themes are loaded lazily when needed.
 	gboolean _fallback_loaded;
+	GHashTable *_cache;
+	gboolean _cache_dirty;
+	// List of icon theme names that have been queued for loading.
+	// Used to avoid loading the same theme twice, and to avoid cycles.
+	GSList *_queued;
 } IconThemeWrapper;
 
 typedef struct IconTheme {
@@ -33,14 +42,16 @@ int parse_theme_line(char *line, char **key, char **value);
 // inherited themes, the hicolor theme and possibly fallback themes.
 IconThemeWrapper *load_themes(const char *icon_theme_name);
 
-void free_themes(IconThemeWrapper *themes);
+void save_icon_cache(IconThemeWrapper *wrapper);
+
+void free_themes(IconThemeWrapper *wrapper);
 void free_icon_theme(IconTheme *theme);
 
 #define DEFAULT_ICON "application-x-executable"
 
 // Returns the full path to an icon file (or NULL) given the list of icon themes to search and the icon name
 // Note: needs to be released with free().
-char *get_icon_path(IconThemeWrapper *theme, const char *icon_name, int size);
+char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size);
 
 // Returns a list of the directories used to store icons.
 // Do not free the result, it is cached.

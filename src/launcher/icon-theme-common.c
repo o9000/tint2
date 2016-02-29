@@ -300,24 +300,25 @@ void free_icon_theme(IconTheme *theme)
 	theme->list_directories = NULL;
 }
 
-void free_themes(IconThemeWrapper *themes)
+void free_themes(IconThemeWrapper *wrapper)
 {
-	if (!themes)
+	if (!wrapper)
 		return;
-	for (GSList *l = themes->themes; l; l = l->next) {
+	for (GSList *l = wrapper->themes; l; l = l->next) {
 		IconTheme *theme = (IconTheme *)l->data;
 		free_icon_theme(theme);
 		free(theme);
 	}
-	g_slist_free(themes->themes);
-	for (GSList *l = themes->themes_fallback; l; l = l->next) {
+	g_slist_free(wrapper->themes);
+	for (GSList *l = wrapper->themes_fallback; l; l = l->next) {
 		IconTheme *theme = (IconTheme *)l->data;
 		free_icon_theme(theme);
 		free(theme);
 	}
-	g_slist_free(themes->themes_fallback);
-	g_slist_free_full(themes->_queued, free);
-	free(themes);
+	g_slist_free(wrapper->themes_fallback);
+	g_slist_free_full(wrapper->_queued, free);
+	g_hash_table_destroy(wrapper->_cache);
+	free(wrapper);
 }
 
 void test_launcher_read_theme_file()
@@ -405,21 +406,17 @@ void load_themes_helper(const char *name, GSList **themes, GSList **queued)
 	g_slist_free(queue);
 }
 
-IconThemeWrapper *load_themes(const char *icon_theme_name)
+void load_default_theme(IconThemeWrapper *wrapper)
 {
-	IconThemeWrapper *wrapper = calloc(1, sizeof(IconThemeWrapper));
+	if (wrapper->_themes_loaded)
+		return;
 
-	if (!icon_theme_name) {
-		fprintf(stderr, "Missing icon_theme_name theme, default to 'hicolor'.\n");
-		icon_theme_name = "hicolor";
-	} else {
-		fprintf(stderr, "Loading %s. Icon theme :", icon_theme_name);
-	}
+	fprintf(stderr, GREEN "Loading icon theme %s:" RESET "\n", wrapper->icon_theme_name);
 
-	load_themes_helper(icon_theme_name, &wrapper->themes, &wrapper->_queued);
+	load_themes_helper(wrapper->icon_theme_name, &wrapper->themes, &wrapper->_queued);
 	load_themes_helper("hicolor", &wrapper->themes, &wrapper->_queued);
 
-	return wrapper;
+	wrapper->_themes_loaded = TRUE;
 }
 
 void load_fallbacks(IconThemeWrapper *wrapper)
@@ -448,6 +445,111 @@ void load_fallbacks(IconThemeWrapper *wrapper)
 	}
 
 	wrapper->_fallback_loaded = TRUE;
+}
+
+gchar *get_icon_cache_path()
+{
+	return g_build_filename(g_get_user_cache_dir(), "tint2", "icon.cache", NULL);
+}
+
+void load_cache(GHashTable **cache, gchar *cache_path)
+{
+	*cache = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+
+	FILE *f = fopen(cache_path, "rt");
+	if (!f)
+		return;
+
+	char *line = NULL;
+	size_t line_size;
+
+	while (getline(&line, &line_size, f) >= 0) {
+		char *key, *value;
+
+		size_t line_len = strlen(line);
+		gboolean has_newline = FALSE;
+		if (line_len >= 1) {
+			if (line[line_len - 1] == '\n') {
+				line[line_len - 1] = '\0';
+				line_len--;
+				has_newline = TRUE;
+			}
+		}
+		if (!has_newline)
+			break;
+
+		if (line_len == 0)
+			continue;
+
+		if (parse_theme_line(line, &key, &value)) {
+			g_hash_table_insert(*cache, g_strdup(key), g_strdup(value));
+		}
+	}
+	free(line);
+	fclose(f);
+}
+
+void write_cache_line(gpointer key, gpointer value, gpointer user_data)
+{
+	gchar *k = key;
+	gchar *v = value;
+	FILE *f = user_data;
+
+	fprintf(f, "%s=%s\n", k, v);
+}
+
+void save_cache(GHashTable *cache, gchar *cache_path)
+{
+	FILE *f = fopen(cache_path, "w");
+	if (!f) {
+		gchar *dir_path = g_path_get_dirname(cache_path);
+		g_mkdir_with_parents(dir_path, 0700);
+		g_free(dir_path);
+		f = fopen(cache_path, "w");
+		if (!f) {
+			fprintf(stderr, RED "Could not save icon theme cache!" RESET "\n");
+			return;
+		}
+	}
+	g_hash_table_foreach(cache, write_cache_line, f);
+	fclose(f);
+}
+
+void load_icon_cache(IconThemeWrapper *wrapper)
+{
+	if (wrapper->_cache)
+		return;
+
+	fprintf(stderr, GREEN "Loading icon theme cache..." RESET "\n");
+
+	gchar *cache_path = get_icon_cache_path();
+	load_cache(&wrapper->_cache, cache_path);
+	g_free(cache_path);
+}
+
+void save_icon_cache(IconThemeWrapper *wrapper)
+{
+	if (!wrapper || !wrapper->_cache || !wrapper->_cache_dirty)
+		return;
+
+	fprintf(stderr, GREEN "Saving icon theme cache..." RESET "\n");
+	gchar *cache_path = get_icon_cache_path();
+	save_cache(wrapper->_cache, cache_path);
+	g_free(cache_path);
+}
+
+IconThemeWrapper *load_themes(const char *icon_theme_name)
+{
+	IconThemeWrapper *wrapper = calloc(1, sizeof(IconThemeWrapper));
+
+	if (!icon_theme_name) {
+		fprintf(stderr, "Missing icon_theme_name theme, default to 'hicolor'.\n");
+		icon_theme_name = "hicolor";
+	}
+
+	wrapper->icon_theme_name = strdup(icon_theme_name);
+
+	return wrapper;
 }
 
 int directory_matches_size(IconThemeDir *dir, int size)
@@ -651,6 +753,49 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 	return NULL;
 }
 
+char *get_icon_path_from_cache(IconThemeWrapper *wrapper, const char *icon_name, int size)
+{
+	if (!wrapper || !icon_name || strlen(icon_name) == 0)
+		return NULL;
+
+	load_icon_cache(wrapper);
+
+	gchar *key = g_strdup_printf("%s\t%s\t%d", wrapper->icon_theme_name, icon_name, size);
+	gchar *value = g_hash_table_lookup(wrapper->_cache, key);
+	g_free(key);
+	if (!value) {
+		fprintf(stderr,
+		        YELLOW "Icon path not found in cache: theme = %s, icon = %s, size = %d" RESET "\n",
+		        wrapper->icon_theme_name,
+		        icon_name,
+		        size);
+		return NULL;
+	}
+
+	// fprintf(stderr, "Icon path found in cache: theme = %s, icon = %s, size = %d, path = %s\n", wrapper->icon_theme_name, icon_name, size, value);
+
+	return strdup(value);
+}
+
+void add_icon_path_to_cache(IconThemeWrapper *wrapper, const char *icon_name, int size, const char *path)
+{
+	if (!wrapper || !icon_name || strlen(icon_name) == 0 || !path || strlen(path) == 0)
+		return;
+
+	fprintf(stderr, "Adding icon path to cache: theme = %s, icon = %s, size = %d, path = %s\n", wrapper->icon_theme_name, icon_name, size, path);
+
+	load_icon_cache(wrapper);
+
+	gchar *key = g_strdup_printf("%s\t%s\t%d", wrapper->icon_theme_name, icon_name, size);
+	gchar *value = g_hash_table_lookup(wrapper->_cache, key);
+	if (value && g_str_equal(value, path)) {
+		g_free(key);
+		return;
+	}
+	g_hash_table_insert(wrapper->_cache, key, g_strdup(path));
+	wrapper->_cache_dirty = TRUE;
+}
+
 char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size)
 {
 	if (!wrapper)
@@ -659,17 +804,27 @@ char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size)
 	if (!icon_name || strlen(icon_name) == 0)
 		return NULL;
 
-	icon_name = icon_name ? icon_name : DEFAULT_ICON;
-	char *path = get_icon_path_helper(wrapper->themes, icon_name, size);
+	char *path = get_icon_path_from_cache(wrapper, icon_name, size);
 	if (path)
 		return path;
+
+	load_default_theme(wrapper);
+
+	icon_name = icon_name ? icon_name : DEFAULT_ICON;
+	path = get_icon_path_helper(wrapper->themes, icon_name, size);
+	if (path) {
+		add_icon_path_to_cache(wrapper, icon_name, size, path);
+		return path;
+	}
 
 	fprintf(stderr, YELLOW "Icon not found in default theme: %s" RESET "\n", icon_name);
 	load_fallbacks(wrapper);
 
 	path = get_icon_path_helper(wrapper->themes_fallback, icon_name, size);
-	if (path)
+	if (path) {
+		add_icon_path_to_cache(wrapper, icon_name, size, path);
 		return path;
+	}
 
 	fprintf(stderr, RED "Could not find icon %s, using default." RESET "\n", icon_name);
 	path = get_icon_path_helper(wrapper->themes, DEFAULT_ICON, size);

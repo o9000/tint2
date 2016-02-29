@@ -485,6 +485,7 @@ static void edit_current_theme()
 		GtkWidget *prop;
 		prop = create_properties();
 		config_read_file(file);
+		save_icon_cache(icon_theme);
 		gtk_window_present(GTK_WINDOW(prop));
 		g_free(file);
 	}

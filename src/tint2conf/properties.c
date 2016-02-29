@@ -2222,6 +2222,7 @@ void icon_theme_changed()
 
 	load_icons(launcher_apps);
 	load_icons(all_apps);
+	save_icon_cache(icon_theme);
 }
 
 void launcher_icon_theme_changed(GtkWidget *widget, gpointer data)

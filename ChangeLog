@@ -4,18 +4,22 @@
   - Create temporary files in /tmp
   - Compute task icon size correctly (issue #560)
   - Fix build on powerpc
+  - The XDG paths are used in the icon and application lookup in addition to the hardcoded defaults
   - Minor code cleanup in the system tray
   - tint2conf:
     - Sort applications correctly
     - Avoid duplicate icon themes due to symlinks
     - Avoid loading desktop files marked as NoDisplay
 - Enhancements:
-  - Use a better Name and GenericName in the .desktop files
-  - Use the XDG paths in addition to the defaults when looking for icons and applications
-  - Fallback icon themes are loaded lazily to speed up tint2 startup
+  - Launcher icon paths are now cached, which greatly improves loading time for tint2 and tint2conf.
+    The correct icon should be found even if you change the icon theme or install a new theme.
+    If this is not the case, delete the file ~/.cache/tint2/icon.cache, restart tint2 and please file a bug report
+    indicating the application name and the icon theme name.
+  - Fallback icon themes are loaded lazily to speed up tint2 and tint2conf startup
+  - A better Name and GenericName is used in the tint2 and tint2conf .desktop files
   - tint2conf:
-    - Sort icon themes
-    - Updated ru translation
+    - Sort icon themes in list
+    - Updated ru translation (thanks @Vladimir-csp)
 
 2016-01-29 0.12.7
 - Fixes:
