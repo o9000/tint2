@@ -2297,7 +2297,7 @@ void load_desktop_file(const char *file, gboolean selected)
 		if (read_desktop_file(file, &entry)) {
 			int index;
 			gboolean stop = FALSE;
-			for (index = 0; !stop; index++) {
+			for (index = 0; !stop || selected; index++) {
 				GtkTreePath *path = gtk_tree_path_new_from_indices(index, -1);
 				GtkTreeIter iter;
 				gboolean found = gtk_tree_model_get_iter(GTK_TREE_MODEL(store), &iter, path);
