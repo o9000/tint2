@@ -194,6 +194,7 @@ gboolean read_desktop_file(const char *path, DesktopEntry *entry)
 		} else {
 			free_desktop_entry(entry);
 		}
+		// TODO: Search subdirectories recursively
 		g_free(full_path);
 	}
 	entry->path = strdup(path);

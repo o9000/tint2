@@ -17,6 +17,8 @@
     indicating the application name and the icon theme name.
   - Fallback icon themes are loaded lazily to speed up tint2 and tint2conf startup
   - A better Name and GenericName is used in the tint2 and tint2conf .desktop files
+  - The launcher now allows launcher_item_app entries without a full path. In this case the .desktop file is searched
+    in the standard application directories.
   - tint2conf:
     - Sort icon themes in list
     - Updated ru translation (thanks @Vladimir-csp)
