@@ -25,7 +25,7 @@ int parse_dektop_line(char *line, char **key, char **value);
 // Reads the .desktop file from the given path into the DesktopEntry entry.
 // The DesktopEntry object must be initially empty.
 // Returns 1 if successful.
-int read_desktop_file(const char *path, DesktopEntry *entry);
+gboolean read_desktop_file(const char *path, DesktopEntry *entry);
 
 // Empties DesktopEntry: releases the memory of the *members* of entry.
 void free_desktop_entry(DesktopEntry *entry);

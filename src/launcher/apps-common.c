@@ -102,41 +102,38 @@ void expand_exec(DesktopEntry *entry, const char *path)
 	}
 }
 
-int read_desktop_file(const char *path, DesktopEntry *entry)
+gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 {
-	FILE *fp;
-	char *line = NULL;
-	size_t line_size;
-	char *key, *value;
-	int i;
-
 	entry->path = strdup(path);
 	entry->name = entry->icon = entry->exec = NULL;
 	entry->hidden_from_menus = FALSE;
 
-	if ((fp = fopen(path, "rt")) == NULL) {
-		fprintf(stderr, "Could not open file %s\n", path);
-		return 0;
+	FILE *fp = fopen(entry->path, "rt");
+	if (fp == NULL) {
+		fprintf(stderr, "Could not open file %s\n", entry->path);
+		return FALSE;
 	}
 
 	const gchar **languages = (const gchar **)g_get_language_names();
 	// lang_index is the index of the language for the best Name key in the language vector
 	// lang_index_default is a constant that encodes the Name key without a language
-	int lang_index, lang_index_default;
+	int lang_index_default = 1;
 #define LANG_DBG 0
 	if (LANG_DBG)
 		printf("Languages:");
-	for (i = 0; languages[i]; i++) {
+	for (int i = 0; languages[i]; i++) {
+		lang_index_default = i + 1;
 		if (LANG_DBG)
 			printf(" %s", languages[i]);
 	}
 	if (LANG_DBG)
 		printf("\n");
-	lang_index_default = i;
 	// we currently do not know about any Name key at all, so use an invalid index
-	lang_index = lang_index_default + 1;
+	int lang_index = lang_index_default + 1;
 
 	int inside_desktop_entry = 0;
+	char *line = NULL;
+	size_t line_size;
 	while (getline(&line, &line_size, fp) >= 0) {
 		int len = strlen(line);
 		if (len == 0)
@@ -145,13 +142,14 @@ int read_desktop_file(const char *path, DesktopEntry *entry)
 		if (line[0] == '[') {
 			inside_desktop_entry = (strcmp(line, "[Desktop Entry]") == 0);
 		}
+		char *key, *value;
 		if (inside_desktop_entry && parse_dektop_line(line, &key, &value)) {
 			if (strstr(key, "Name") == key) {
 				if (strcmp(key, "Name") == 0 && lang_index > lang_index_default) {
 					entry->name = strdup(value);
 					lang_index = lang_index_default;
 				} else {
-					for (i = 0; languages[i] && i < lang_index; i++) {
+					for (int i = 0; languages[i] && i < lang_index; i++) {
 						gchar *localized_key = g_strdup_printf("Name[%s]", languages[i]);
 						if (strcmp(key, localized_key) == 0) {
 							if (entry->name)
@@ -175,10 +173,31 @@ int read_desktop_file(const char *path, DesktopEntry *entry)
 	// From this point:
 	// entry->name, entry->icon, entry->exec will never be empty strings (can be NULL though)
 
-	expand_exec(entry, path);
+	expand_exec(entry, entry->path);
 
 	free(line);
-	return 1;
+	return entry->exec != NULL;
+}
+
+gboolean read_desktop_file(const char *path, DesktopEntry *entry)
+{
+	if (strchr(path, '/'))
+		return read_desktop_file_full_path(path, entry);
+	entry->path = NULL;
+	for (const GSList *location = get_apps_locations(); location; location = g_slist_next(location)) {
+		gchar *full_path = g_build_filename(location->data, path, NULL);
+		if (read_desktop_file_full_path(full_path, entry)) {
+			free(entry->path);
+			entry->path = strdup(full_path);
+			g_free(full_path);
+			return TRUE;
+		} else {
+			free_desktop_entry(entry);
+		}
+		g_free(full_path);
+	}
+	entry->path = strdup(path);
+	return FALSE;
 }
 
 void free_desktop_entry(DesktopEntry *entry)
