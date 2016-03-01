@@ -20,11 +20,17 @@
 
 #include "apps-common.h"
 #include "common.h"
+#include "strnatcmp.h"
 
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static gint compare_strings(gconstpointer a, gconstpointer b)
+{
+	return strnatcasecmp((const char*)a, (const char*)b);
+}
 
 int parse_dektop_line(char *line, char **key, char **value)
 {
@@ -104,13 +110,12 @@ void expand_exec(DesktopEntry *entry, const char *path)
 
 gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 {
-	entry->path = strdup(path);
 	entry->name = entry->icon = entry->exec = NULL;
 	entry->hidden_from_menus = FALSE;
 
-	FILE *fp = fopen(entry->path, "rt");
+	FILE *fp = fopen(path, "rt");
 	if (fp == NULL) {
-		fprintf(stderr, "Could not open file %s\n", entry->path);
+		fprintf(stderr, "Could not open file %s\n", path);
 		return FALSE;
 	}
 
@@ -179,25 +184,63 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 	return entry->exec != NULL;
 }
 
+gboolean read_desktop_file_from_dir(const char *path, const char *file_name, DesktopEntry *entry)
+{
+	gchar *full_path = g_build_filename(path, file_name, NULL);
+	if (read_desktop_file_full_path(full_path, entry)) {
+		g_free(full_path);
+		return TRUE;
+	}
+	free(entry->name);
+	free(entry->icon);
+	free(entry->exec);
+	entry->name = entry->icon = entry->exec = NULL;
+
+	GList *subdirs = NULL;
+
+	GDir *d = g_dir_open(path, 0, NULL);
+	if (d) {
+		const gchar *name;
+		while ((name = g_dir_read_name(d))) {
+			gchar *child = g_build_filename(path, name, NULL);
+			if (g_file_test(child, G_FILE_TEST_IS_DIR)) {
+				subdirs = g_list_append(subdirs, child);
+			} else {
+				g_free(child);
+			}
+		}
+		g_dir_close(d);
+	}
+
+	subdirs = g_list_sort(subdirs, compare_strings);
+	gboolean found = FALSE;
+	for (GList *l = subdirs; l; l = g_list_next(l)) {
+		if (read_desktop_file_from_dir(l->data, file_name, entry)) {
+			found = TRUE;
+			break;
+		}
+	}
+
+	for (GList *l = subdirs; l; l = g_list_next(l)) {
+		g_free(l->data);
+	}
+	g_list_free(subdirs);
+	g_free(full_path);
+
+	return found;
+}
+
 gboolean read_desktop_file(const char *path, DesktopEntry *entry)
 {
+	entry->path = strdup(path);
+	entry->name = entry->icon = entry->exec = NULL;
+
 	if (strchr(path, '/'))
 		return read_desktop_file_full_path(path, entry);
-	entry->path = NULL;
 	for (const GSList *location = get_apps_locations(); location; location = g_slist_next(location)) {
-		gchar *full_path = g_build_filename(location->data, path, NULL);
-		if (read_desktop_file_full_path(full_path, entry)) {
-			free(entry->path);
-			entry->path = strdup(full_path);
-			g_free(full_path);
+		if (read_desktop_file_from_dir(location->data, path, entry))
 			return TRUE;
-		} else {
-			free_desktop_entry(entry);
-		}
-		// TODO: Search subdirectories recursively
-		g_free(full_path);
 	}
-	entry->path = strdup(path);
 	return FALSE;
 }
 
