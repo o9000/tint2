@@ -27,6 +27,7 @@
 
 #include "apps-common.h"
 #include "common.h"
+#include "cache.h"
 
 #define ICON_DIR_TYPE_SCALABLE 0
 #define ICON_DIR_TYPE_FIXED 1
@@ -317,7 +318,7 @@ void free_themes(IconThemeWrapper *wrapper)
 	}
 	g_slist_free(wrapper->themes_fallback);
 	g_slist_free_full(wrapper->_queued, free);
-	g_hash_table_destroy(wrapper->_cache);
+	free_cache(&wrapper->_cache);
 	free(wrapper);
 }
 
@@ -452,72 +453,9 @@ gchar *get_icon_cache_path()
 	return g_build_filename(g_get_user_cache_dir(), "tint2", "icon.cache", NULL);
 }
 
-void load_cache(GHashTable **cache, gchar *cache_path)
-{
-	*cache = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-
-	FILE *f = fopen(cache_path, "rt");
-	if (!f)
-		return;
-
-	char *line = NULL;
-	size_t line_size;
-
-	while (getline(&line, &line_size, f) >= 0) {
-		char *key, *value;
-
-		size_t line_len = strlen(line);
-		gboolean has_newline = FALSE;
-		if (line_len >= 1) {
-			if (line[line_len - 1] == '\n') {
-				line[line_len - 1] = '\0';
-				line_len--;
-				has_newline = TRUE;
-			}
-		}
-		if (!has_newline)
-			break;
-
-		if (line_len == 0)
-			continue;
-
-		if (parse_theme_line(line, &key, &value)) {
-			g_hash_table_insert(*cache, g_strdup(key), g_strdup(value));
-		}
-	}
-	free(line);
-	fclose(f);
-}
-
-void write_cache_line(gpointer key, gpointer value, gpointer user_data)
-{
-	gchar *k = key;
-	gchar *v = value;
-	FILE *f = user_data;
-
-	fprintf(f, "%s=%s\n", k, v);
-}
-
-void save_cache(GHashTable *cache, gchar *cache_path)
-{
-	FILE *f = fopen(cache_path, "w");
-	if (!f) {
-		gchar *dir_path = g_path_get_dirname(cache_path);
-		g_mkdir_with_parents(dir_path, 0700);
-		g_free(dir_path);
-		f = fopen(cache_path, "w");
-		if (!f) {
-			fprintf(stderr, RED "Could not save icon theme cache!" RESET "\n");
-			return;
-		}
-	}
-	g_hash_table_foreach(cache, write_cache_line, f);
-	fclose(f);
-}
-
 void load_icon_cache(IconThemeWrapper *wrapper)
 {
-	if (wrapper->_cache)
+	if (wrapper->_cache.loaded)
 		return;
 
 	fprintf(stderr, GREEN "Loading icon theme cache..." RESET "\n");
@@ -529,12 +467,12 @@ void load_icon_cache(IconThemeWrapper *wrapper)
 
 void save_icon_cache(IconThemeWrapper *wrapper)
 {
-	if (!wrapper || !wrapper->_cache || !wrapper->_cache_dirty)
+	if (!wrapper || !wrapper->_cache.dirty)
 		return;
 
 	fprintf(stderr, GREEN "Saving icon theme cache..." RESET "\n");
 	gchar *cache_path = get_icon_cache_path();
-	save_cache(wrapper->_cache, cache_path);
+	save_cache(&wrapper->_cache, cache_path);
 	g_free(cache_path);
 }
 
@@ -761,8 +699,9 @@ char *get_icon_path_from_cache(IconThemeWrapper *wrapper, const char *icon_name,
 	load_icon_cache(wrapper);
 
 	gchar *key = g_strdup_printf("%s\t%s\t%d", wrapper->icon_theme_name, icon_name, size);
-	gchar *value = g_hash_table_lookup(wrapper->_cache, key);
+	const gchar *value = get_from_cache(&wrapper->_cache, key);
 	g_free(key);
+
 	if (!value) {
 		fprintf(stderr,
 		        YELLOW "Icon path not found in cache: theme = %s, icon = %s, size = %d" RESET "\n",
@@ -787,13 +726,8 @@ void add_icon_path_to_cache(IconThemeWrapper *wrapper, const char *icon_name, in
 	load_icon_cache(wrapper);
 
 	gchar *key = g_strdup_printf("%s\t%s\t%d", wrapper->icon_theme_name, icon_name, size);
-	gchar *value = g_hash_table_lookup(wrapper->_cache, key);
-	if (value && g_str_equal(value, path)) {
-		g_free(key);
-		return;
-	}
-	g_hash_table_insert(wrapper->_cache, key, g_strdup(path));
-	wrapper->_cache_dirty = TRUE;
+	add_to_cache(&wrapper->_cache, key, path);
+	g_free(key);
 }
 
 char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size)

@@ -20,8 +20,9 @@ include_directories( ../util
                      ${RSVG_INCLUDE_DIRS} )
 
 set(SOURCES ../util/common.c
-			../util/strnatcmp.c
-			../config.c
+            ../util/strnatcmp.c
+            ../util/cache.c
+            ../config.c
             ../server.c
             ../launcher/apps-common.c
             ../launcher/icon-theme-common.c

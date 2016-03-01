@@ -7,6 +7,7 @@
 #define ICON_THEME_COMMON_H
 
 #include <glib.h>
+#include "cache.h"
 
 typedef struct IconThemeWrapper {
 	// The icon theme name for which this wrapper was created
@@ -19,8 +20,7 @@ typedef struct IconThemeWrapper {
 	GSList *themes_fallback;
 	// Fallback themes are loaded lazily when needed.
 	gboolean _fallback_loaded;
-	GHashTable *_cache;
-	gboolean _cache_dirty;
+	Cache _cache;
 	// List of icon theme names that have been queued for loading.
 	// Used to avoid loading the same theme twice, and to avoid cycles.
 	GSList *_queued;
