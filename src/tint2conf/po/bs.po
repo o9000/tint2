@@ -1481,8 +1481,8 @@ msgstr  "Format prve linije"
 #: ../properties.c:3841
 msgid   "Specifies the format used to display the first line of the clock "
         "text. See 'man date' for all the available options."
-msgstr  "Određuje format za prikaz prve linije sata. Pogledaj 'man date' "
-        "za sve dostupne mogućnosti."
+msgstr  "Određuje format za prikaz prve linije sata. Pogledaj 'man date' za "
+        "sve dostupne mogućnosti."
 
 #: ../properties.c:3845
 msgid   "Second line format"
@@ -1491,8 +1491,8 @@ msgstr  "Format druge linije"
 #: ../properties.c:3857
 msgid   "Specifies the format used to display the second line of the clock "
         "text. See 'man date' for all the available options."
-msgstr  "Određuje format za prikaz druge linije sata. Pogledaj 'man date' "
-        "za sve dostupne mogućnosti."
+msgstr  "Određuje format za prikaz druge linije sata. Pogledaj 'man date' za "
+        "sve dostupne mogućnosti."
 
 #: ../properties.c:3861
 msgid   "First line timezone"
@@ -1618,8 +1618,9 @@ msgid   "Format"
 msgstr  "Format"
 
 #: ../properties.c:4128
+#, fuzzy
 msgid   "Specifies the format used to display the clock tooltip. See 'man "
-        "strftime' for the available options."
+        "date' for the available options."
 msgstr  "Određuje format korišten pri prikazivanju opisa sata. Pogledaj 'man "
         "strftime' za sve mogućnosti."
 
@@ -2044,6 +2045,14 @@ msgstr  "Određuje font za prikaz teksta unutar opisa."
 #: ../properties.c:5280
 msgid   "Specifies the font color used to display the text of the tooltip."
 msgstr  "Određuje boju fonta za prikaz teksta unutar opisa."
+
+#: ../properties.c:5385
+msgid   "Loading..."
+msgstr  ""
+
+#: ../properties.c:5386
+msgid   "Please wait..."
+msgstr  ""
 
 #: ../main.c:148
 msgid   "tint2conf"

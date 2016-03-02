@@ -2209,6 +2209,9 @@ void set_current_icon_theme(const char *theme)
 
 void icon_theme_changed()
 {
+	GtkWidget *dialog = create_please_wait();
+	process_events();
+
 	if (icon_theme)
 		free_themes(icon_theme);
 
@@ -2223,6 +2226,8 @@ void icon_theme_changed()
 	load_icons(launcher_apps);
 	load_icons(all_apps);
 	save_icon_cache(icon_theme);
+
+	gtk_widget_destroy(dialog);
 }
 
 void launcher_icon_theme_changed(GtkWidget *widget, gpointer data)
@@ -2232,6 +2237,8 @@ void launcher_icon_theme_changed(GtkWidget *widget, gpointer data)
 
 GdkPixbuf *load_icon(const gchar *name)
 {
+	process_events();
+
 	int size = 22;
 	char *path = get_icon_path(icon_theme, name, size);
 	GdkPixbuf *pixbuf = path ? gdk_pixbuf_new_from_file_at_size(path, size, size, NULL) : NULL;
@@ -2365,6 +2372,8 @@ static gint compare_entries(gconstpointer a, gconstpointer b)
 
 void load_desktop_entry(const char *file, GList **entries)
 {
+	process_events();
+
 	DesktopEntry *entry = calloc(1, sizeof(DesktopEntry));
 	if (!read_desktop_file(file, entry))
 		printf("Could not load %s\n", file);
@@ -2381,6 +2390,8 @@ void load_desktop_entry(const char *file, GList **entries)
 
 void load_desktop_entries(const char *path, GList **entries)
 {
+	process_events();
+
 	GList *subdirs = NULL;
 	GList *files = NULL;
 
@@ -2428,6 +2439,8 @@ static gint compare_themes(gconstpointer a, gconstpointer b)
 
 void load_theme_file(const char *file_name, const char *theme_name, GList **themes)
 {
+	process_events();
+
 	if (!file_name || !theme_name) {
 		return;
 	}
@@ -2474,6 +2487,8 @@ void load_theme_file(const char *file_name, const char *theme_name, GList **them
 
 void load_icon_themes(const gchar *path, const gchar *parent, GList **themes)
 {
+	process_events();
+
 	GDir *d = g_dir_open(path, 0, NULL);
 	if (!d)
 		return;
@@ -5363,4 +5378,21 @@ void create_tooltip(GtkWidget *parent)
 	gtk_tooltips_set_tip(tooltips, tooltip_font_color, _("Specifies the font color used to display the text of the tooltip."), NULL);
 
 	change_paragraph(parent);
+}
+
+GtkWidget *create_please_wait()
+{
+	GtkWidget *dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_NONE, "%s", _("Loading..."));
+	gtk_window_set_title(GTK_WINDOW(dialog), _("Please wait..."));
+	gtk_window_set_deletable(GTK_WINDOW(dialog), FALSE);
+	gtk_window_set_default_size(GTK_WINDOW(dialog), 400, 200);
+	gtk_widget_show_all(dialog);
+	gtk_widget_set_size_request(dialog, 300, 100);
+	return (GtkWidget*)dialog;
+}
+
+void process_events()
+{
+	while (gtk_events_pending())
+		gtk_main_iteration_do(FALSE);
 }

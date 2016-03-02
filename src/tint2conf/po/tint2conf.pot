@@ -1497,8 +1497,8 @@ msgstr ""
 
 #: ../properties.c:4128
 msgid ""
-"Specifies the format used to display the clock tooltip. See 'man date' "
-"for the available options."
+"Specifies the format used to display the clock tooltip. See 'man date' for "
+"the available options."
 msgstr ""
 
 #: ../properties.c:4132
@@ -1899,6 +1899,14 @@ msgstr ""
 
 #: ../properties.c:5280
 msgid "Specifies the font color used to display the text of the tooltip."
+msgstr ""
+
+#: ../properties.c:5385
+msgid "Loading..."
+msgstr ""
+
+#: ../properties.c:5386
+msgid "Please wait..."
 msgstr ""
 
 #: ../main.c:148

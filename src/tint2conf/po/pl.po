@@ -1639,8 +1639,9 @@ msgid   "Format"
 msgstr  "Format"
 
 #: ../properties.c:4128
+#, fuzzy
 msgid   "Specifies the format used to display the clock tooltip. See 'man "
-        "strftime' for the available options."
+        "date' for the available options."
 msgstr  "Określa format w jakim pokazywana ma być podpowiedź dla zegara. "
         "Zobacz 'man date' aby dowiedzieć się o dostepnych opcjach."
 
@@ -2078,6 +2079,14 @@ msgstr  "Określa czcionkę użytą do wyświetlania tekstu w podpowiedziach."
 #: ../properties.c:5280
 msgid   "Specifies the font color used to display the text of the tooltip."
 msgstr  "Określa kolor czcionki użyty w podpowiedziach."
+
+#: ../properties.c:5385
+msgid   "Loading..."
+msgstr  ""
+
+#: ../properties.c:5386
+msgid   "Please wait..."
+msgstr  ""
 
 #: ../main.c:148
 msgid   "tint2conf"

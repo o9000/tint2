@@ -1479,8 +1479,8 @@ msgstr  "формат прве линије"
 #: ../properties.c:3841
 msgid   "Specifies the format used to display the first line of the clock "
         "text. See 'man date' for all the available options."
-msgstr  "Одређује формат за приказ прве линије сата. Погледај 'man date' "
-        "за све доступне могућности."
+msgstr  "Одређује формат за приказ прве линије сата. Погледај 'man date' за "
+        "све доступне могућности."
 
 #: ../properties.c:3845
 msgid   "Second line format"
@@ -1489,8 +1489,8 @@ msgstr  "Формат друге линије"
 #: ../properties.c:3857
 msgid   "Specifies the format used to display the second line of the clock "
         "text. See 'man date' for all the available options."
-msgstr  "Одређује формат за приказ друге линије сата. Погледај 'man date' "
-        "за све доступне могућности."
+msgstr  "Одређује формат за приказ друге линије сата. Погледај 'man date' за "
+        "све доступне могућности."
 
 #: ../properties.c:3861
 msgid   "First line timezone"
@@ -1616,8 +1616,9 @@ msgid   "Format"
 msgstr  "Формат"
 
 #: ../properties.c:4128
+#, fuzzy
 msgid   "Specifies the format used to display the clock tooltip. See 'man "
-        "strftime' for the available options."
+        "date' for the available options."
 msgstr  "Одређује формат кориштен при приказивању описа сата. Погледај 'man "
         "strftime' за све могућности."
 
@@ -2043,6 +2044,14 @@ msgstr  "Одређује фонт за приказ текста унутар �
 #: ../properties.c:5280
 msgid   "Specifies the font color used to display the text of the tooltip."
 msgstr  "Одређује боју фонта за приказ текста унутар описа."
+
+#: ../properties.c:5385
+msgid   "Loading..."
+msgstr  ""
+
+#: ../properties.c:5386
+msgid   "Please wait..."
+msgstr  ""
 
 #: ../main.c:148
 msgid   "tint2conf"

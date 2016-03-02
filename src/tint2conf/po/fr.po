@@ -246,7 +246,7 @@ msgstr  "Moniteur principal en premier"
 msgid   "If enabled, the primary monitor will have index 1 in the monitor "
         "list even if it is not top-left."
 msgstr  "Si cette option est activée, le moniteur principal est le premier "
-		"dans la liste des moniteurs, même s'il est pas au top-gauche."
+        "dans la liste des moniteurs, même s'il est pas au top-gauche."
 
 #: ../properties.c:1176
 msgid   "Length"
@@ -924,10 +924,10 @@ msgid   "Has effect only if 'Show a taskbar for each desktop' is enabled. If "
         "taskbars. Otherwise, they are shown only on the taskbar of the "
         "current desktop."
 msgstr  "N'a d'effet que si «Affiche une barre des tâches pour chaque bureau» "
-		"est activée. Si cette option est activée, les tâches qui apparaissent "
-		"sur tous les bureaux sont affichés sur toutes les barres de tâches. "
-		"Sinon, ils sont affichés uniquement sur la barre des tâches du bureau "
-		"actuel."
+        "est activée. Si cette option est activée, les tâches qui "
+        "apparaissent sur tous les bureaux sont affichés sur toutes les "
+        "barres de tâches. Sinon, ils sont affichés uniquement sur la barre "
+        "des tâches du bureau actuel."
 
 #: ../properties.c:2932
 msgid   "Task sorting"
@@ -1093,8 +1093,8 @@ msgstr  "Spécifie la couleur de la police utilisée pour afficher le nom des "
 #: ../properties.c:5095 ../properties.c:5250
 msgid   "If not checked, the desktop theme font is used. If checked, the "
         "custom font specified here is used."
-msgstr  "Si non coché, la police du thème de bureau est utilisée. Si oui, "
-        "la police indiquée ici est utilisé."
+msgstr  "Si non coché, la police du thème de bureau est utilisée. Si oui, la "
+        "police indiquée ici est utilisé."
 
 #: ../properties.c:3156 ../properties.c:3545 ../properties.c:4429
 #: ../properties.c:5253
@@ -1656,7 +1656,7 @@ msgstr  "Format"
 
 #: ../properties.c:4128
 msgid   "Specifies the format used to display the clock tooltip. See 'man "
-        "strftime' for the available options."
+        "date' for the available options."
 msgstr  "Spécifie le format utilisé pour afficher l'infobulle de l'horloge. "
         "Voir 'man date' pour les options disponibles."
 
@@ -1688,14 +1688,14 @@ msgstr  "Intervalle"
 #: ../properties.c:4214
 msgid   "Specifies the interval at which the command is executed, in seconds. "
         "If zero, the command is executed only once."
-msgstr  "Indique la fréquence à laquelle la commande est exécutée, en secondes. "
-		"Si zéro, la commande est exécutée une seule fois."
+msgstr  "Indique la fréquence à laquelle la commande est exécutée, en "
+        "secondes. Si zéro, la commande est exécutée une seule fois."
 
 #: ../properties.c:4228
 msgid   "If enabled, the first line printed by the command is interpreted as "
         "a path to an image file."
-msgstr  "Si cette option est activée, la première ligne imprimée par la commande "
-		"est interprété comme un chemin vers un fichier d'icône."
+msgstr  "Si cette option est activée, la première ligne imprimée par la "
+        "commande est interprété comme un chemin vers un fichier d'icône."
 
 #: ../properties.c:4232
 msgid   "Cache icon"
@@ -1705,9 +1705,9 @@ msgstr  "Cache l'icône"
 msgid   "If enabled, the image is not reloaded from disk every time the "
         "command is executed if the path remains unchanged. Enabling this is "
         "recommended."
-msgstr  "Si cette option est activée, l'image n'est pas rechargé à partir du disque "
-		"chaque fois que la commande est exécutée si le chemin reste inchangé. "
-		"L'activation de cette option est recommandée."
+msgstr  "Si cette option est activée, l'image n'est pas rechargé à partir du "
+        "disque chaque fois que la commande est exécutée si le chemin reste "
+        "inchangé. L'activation de cette option est recommandée."
 
 #: ../properties.c:4246
 msgid   "Continuous output"
@@ -1719,10 +1719,11 @@ msgid   "If non-zero, the last execp_continuous lines from the output of the "
         "for showing the output of commands that run indefinitely, such as "
         "'ping 127.0.0.1'. If zero, the output of the command is displayed "
         "after it finishes executing."
-msgstr  "Si non nulle, les n dernières lignes de la sortie de la commande sont "
-		"affichés, tous les n lignes; ceci est utile pour montrer la sortie des "
-		"commandes qui exécutent indéfiniment, comme «ping 127.0.0.1». Si zéro, "
-		"la sortie de la commande est affichée après la fin de l'exécution."
+msgstr  "Si non nulle, les n dernières lignes de la sortie de la commande "
+        "sont affichés, tous les n lignes; ceci est utile pour montrer la "
+        "sortie des commandes qui exécutent indéfiniment, comme «ping "
+        "127.0.0.1». Si zéro, la sortie de la commande est affichée après la "
+        "fin de l'exécution."
 
 #: ../properties.c:4262
 msgid   "Display markup"
@@ -1733,10 +1734,11 @@ msgid   "If enabled, the output of the command is treated as Pango markup, "
         "which allows rich text formatting. Note that using this with "
         "commands that print data downloaded from the Internet is a potential "
         "security risk."
-msgstr  "Si cette option est activée, la sortie de la commande est traitée comme "
-		"du balisage Pango, qui permet formatage de texte enrichi. Notez que "
-		"l'utilisation de cette option avec les commandes qui impriment des données "
-		"téléchargées à partir de l'Internet est un risque potentiel de sécurité."
+msgstr  "Si cette option est activée, la sortie de la commande est traitée "
+        "comme du balisage Pango, qui permet formatage de texte enrichi. "
+        "Notez que l'utilisation de cette option avec les commandes qui "
+        "impriment des données téléchargées à partir de l'Internet est un "
+        "risque potentiel de sécurité."
 
 #: ../properties.c:4304
 msgid   "Specifies a command that will be executed when the executor receives "
@@ -1756,13 +1758,14 @@ msgstr  "Spécifie la commande à exécuter lors d'un clic du milieu."
 #: ../properties.c:4349
 msgid   "Specifies a command that will be executed when the executor receives "
         "a mouse scroll up."
-msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette vers le haut."
+msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
+        "vers le haut."
 
 #: ../properties.c:4364
 msgid   "Specifies a command that will be executed when the executor receives "
         "a mouse scroll down."
 msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
-		"vers le bas."
+        "vers le bas."
 
 #: ../properties.c:4391
 msgid   "Selects the background used to display the executor. Backgrounds can "
@@ -1773,14 +1776,14 @@ msgstr  "Sélectionne l'arrière-plan utilisé pour afficher l'exécuteur. Les "
 #: ../properties.c:4405
 msgid   "Specifies the horizontal padding of the executor. This is the space "
         "between the border and the content inside."
-msgstr  "Spécifie l'espacement horizontal de l'exécuteur. C'est l'espace entre "
-        "la bordure et le contenu."
+msgstr  "Spécifie l'espacement horizontal de l'exécuteur. C'est l'espace "
+        "entre la bordure et le contenu."
 
 #: ../properties.c:4419
 msgid   "Specifies the vertical padding of the executor. This is the space "
         "between the border and the content inside."
-msgstr  "Spécifie l'espacement vertical de l'exécuteur. C'est l'espace entre la "
-        "bordure et le contenu."
+msgstr  "Spécifie l'espacement vertical de l'exécuteur. C'est l'espace entre "
+        "la bordure et le contenu."
 
 #: ../properties.c:4457
 msgid   "Centered"
@@ -1810,8 +1813,8 @@ msgstr  "Texte infobulle"
 msgid   "The tooltip text to display. Leave this empty to display an "
         "automatically generated tooltip with information about when the "
         "command was last executed."
-msgstr  "Le texte de l'infobulle a afficher. Laissez ce champ vide pour afficher "
-        "une info-bulle générée automatiquement indiquant quand la "
+msgstr  "Le texte de l'infobulle a afficher. Laissez ce champ vide pour "
+        "afficher une info-bulle générée automatiquement indiquant quand la "
         "commande a été exécutée la dernière fois."
 
 #: ../properties.c:4611
@@ -2100,6 +2103,14 @@ msgstr  "Spécifie la police utlilisée pour afficher le texte de l'infobulle."
 msgid   "Specifies the font color used to display the text of the tooltip."
 msgstr  "Spécifie la couleur de police utilisée pour afficher le texte de "
         "l'infobulle."
+
+#: ../properties.c:5385
+msgid   "Loading..."
+msgstr  "Chargement en cours..."
+
+#: ../properties.c:5386
+msgid   "Please wait..."
+msgstr  "Veuillez patienter s'il vous plaît..."
 
 #: ../main.c:148
 msgid   "tint2conf"
