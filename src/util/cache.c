@@ -52,6 +52,8 @@ void load_cache(Cache *cache, const gchar *cache_path)
 {
 	init_cache(cache);
 
+	cache->loaded = TRUE;
+
 	int fd = open(cache_path, O_RDONLY);
 	if (fd == -1)
 		return;
@@ -89,8 +91,6 @@ void load_cache(Cache *cache, const gchar *cache_path)
 	free(line);
 	fclose(f);
 
-	cache->loaded = TRUE;
-
 unlock:
 	flock(fd, LOCK_UN);
 	close(fd);
@@ -107,21 +107,23 @@ void write_cache_line(gpointer key, gpointer value, gpointer user_data)
 
 void save_cache(Cache *cache, const gchar *cache_path)
 {
-	int fd = open(cache_path, O_RDONLY | O_CREAT);
-	if (fd == -1)
+	int fd = open(cache_path, O_RDONLY | O_CREAT, 0600);
+	if (fd == -1) {
+		gchar *dir_path = g_path_get_dirname(cache_path);
+		g_mkdir_with_parents(dir_path, 0700);
+		g_free(dir_path);
+		fd = open(cache_path, O_RDONLY | O_CREAT, 0600);
+	}
+	if (fd == -1) {
+		fprintf(stderr, RED "Could not save icon theme cache!" RESET "\n");
 		return;
+	}
 	flock(fd, LOCK_EX);
 
 	FILE *f = fopen(cache_path, "w");
 	if (!f) {
-		gchar *dir_path = g_path_get_dirname(cache_path);
-		g_mkdir_with_parents(dir_path, 0700);
-		g_free(dir_path);
-		f = fopen(cache_path, "w");
-		if (!f) {
-			fprintf(stderr, RED "Could not save icon theme cache!" RESET "\n");
-			goto unlock;
-		}
+		fprintf(stderr, RED "Could not save icon theme cache!" RESET "\n");
+		goto unlock;
 	}
 	g_hash_table_foreach(cache->_table, write_cache_line, f);
 	fclose(f);
