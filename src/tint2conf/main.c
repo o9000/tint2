@@ -481,7 +481,7 @@ static void edit_current_theme()
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
-		create_please_wait();
+		create_please_wait(GTK_WINDOW(g_window));
 		process_events();
 
 		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &file,  -1);

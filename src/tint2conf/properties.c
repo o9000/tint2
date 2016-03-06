@@ -164,7 +164,7 @@ void current_background_changed(GtkWidget *widget, gpointer data);
 void background_combo_changed(GtkWidget *widget, gpointer data);
 void create_panel(GtkWidget *parent);
 void create_panel_items(GtkWidget *parent);
-void create_launcher(GtkWidget *parent);
+void create_launcher(GtkWidget *parent, GtkWindow *window);
 gchar *get_default_theme_name();
 void icon_theme_changed();
 void load_icons(GtkListStore *apps);
@@ -336,7 +336,7 @@ GtkWidget *create_properties()
 	gtk_container_set_border_width(GTK_CONTAINER(page_launcher), 10);
 	gtk_widget_show(page_launcher);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_launcher), label);
-	create_launcher(page_launcher);
+	create_launcher(page_launcher, GTK_WINDOW(view));
 
 	label = gtk_label_new(_("Clock"));
 	gtk_widget_show(label);
@@ -2207,9 +2207,9 @@ void set_current_icon_theme(const char *theme)
 	}
 }
 
-void icon_theme_changed()
+void icon_theme_changed(gpointer data)
 {
-	create_please_wait();
+	create_please_wait(GTK_WINDOW(data));
 	process_events();
 
 	if (icon_theme)
@@ -2232,7 +2232,7 @@ void icon_theme_changed()
 
 void launcher_icon_theme_changed(GtkWidget *widget, gpointer data)
 {
-	icon_theme_changed();
+	icon_theme_changed(data);
 }
 
 GdkPixbuf *load_icon(const gchar *name)
@@ -2550,7 +2550,7 @@ GtkWidget *addScrollBarToWidget(GtkWidget *widget)
 	return scrolled_window;
 }
 
-void create_launcher(GtkWidget *parent)
+void create_launcher(GtkWidget *parent, GtkWindow *window)
 {
 	GtkWidget *image;
 	GtkTooltips *tooltips = gtk_tooltips_new();
@@ -2838,7 +2838,7 @@ void create_launcher(GtkWidget *parent)
 	GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(launcher_icon_theme), renderer, FALSE);
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(launcher_icon_theme), renderer, "text", iconsColDescr, NULL);
-	g_signal_connect(G_OBJECT(launcher_icon_theme), "changed", G_CALLBACK(launcher_icon_theme_changed), NULL);
+	g_signal_connect(G_OBJECT(launcher_icon_theme), "changed", G_CALLBACK(launcher_icon_theme_changed), window);
 	gtk_widget_show(launcher_icon_theme);
 	gtk_table_attach(GTK_TABLE(table), launcher_icon_theme, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
@@ -2925,7 +2925,7 @@ void create_launcher(GtkWidget *parent)
 	}
 	g_list_free(entries);
 
-	icon_theme_changed();
+	icon_theme_changed(window);
 	load_icons(launcher_apps);
 	load_icons(all_apps);
 	fprintf(stderr, "Desktop files loaded\n");
@@ -5381,16 +5381,30 @@ void create_tooltip(GtkWidget *parent)
 }
 
 static GtkWidget *please_wait_dialog = NULL;
-void create_please_wait()
+void create_please_wait(GtkWindow *parent)
 {
 	if (please_wait_dialog)
 		return;
-	please_wait_dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_NONE, "%s", _("Loading..."));
+
+	please_wait_dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(please_wait_dialog), "Center");
+	gtk_window_set_default_size(GTK_WINDOW(please_wait_dialog), 300, 150);
+	gtk_window_set_position(GTK_WINDOW(please_wait_dialog), GTK_WIN_POS_CENTER);
+	gtk_container_set_border_width(GTK_CONTAINER(please_wait_dialog), 15);
 	gtk_window_set_title(GTK_WINDOW(please_wait_dialog), _("Please wait..."));
 	gtk_window_set_deletable(GTK_WINDOW(please_wait_dialog), FALSE);
-	gtk_window_set_default_size(GTK_WINDOW(please_wait_dialog), 400, 200);
+
+	GtkWidget *label = gtk_label_new(_("Loading..."));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+
+	GtkWidget *halign = gtk_alignment_new(0.5, 0.5, 0, 0);
+	gtk_container_add(GTK_CONTAINER(halign), label);
+    gtk_container_add(GTK_CONTAINER(please_wait_dialog), halign);
+
 	gtk_widget_show_all(please_wait_dialog);
-	gtk_widget_set_size_request(please_wait_dialog, 300, 100);
+	gtk_window_set_modal(GTK_WINDOW(please_wait_dialog), TRUE);
+	// gtk_window_set_keep_above(GTK_WINDOW(please_wait_dialog), TRUE);
+	gtk_window_set_transient_for(GTK_WINDOW(please_wait_dialog), parent);
 }
 
 void process_events()

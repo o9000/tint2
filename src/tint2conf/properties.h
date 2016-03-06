@@ -204,7 +204,7 @@ Executor *execp_get_last();
 void execp_remove(int i);
 void execp_update_indices();
 
-void create_please_wait();
+void create_please_wait(GtkWindow *parent);
 void process_events();
 void destroy_please_wait();
 
