@@ -204,7 +204,8 @@ Executor *execp_get_last();
 void execp_remove(int i);
 void execp_update_indices();
 
-GtkWidget *create_please_wait();
+void create_please_wait();
 void process_events();
+void destroy_please_wait();
 
 #endif

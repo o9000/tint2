@@ -2209,7 +2209,7 @@ void set_current_icon_theme(const char *theme)
 
 void icon_theme_changed()
 {
-	GtkWidget *dialog = create_please_wait();
+	create_please_wait();
 	process_events();
 
 	if (icon_theme)
@@ -2227,7 +2227,7 @@ void icon_theme_changed()
 	load_icons(all_apps);
 	save_icon_cache(icon_theme);
 
-	gtk_widget_destroy(dialog);
+	destroy_please_wait();
 }
 
 void launcher_icon_theme_changed(GtkWidget *widget, gpointer data)
@@ -5380,19 +5380,29 @@ void create_tooltip(GtkWidget *parent)
 	change_paragraph(parent);
 }
 
-GtkWidget *create_please_wait()
+static GtkWidget *please_wait_dialog = NULL;
+void create_please_wait()
 {
-	GtkWidget *dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_NONE, "%s", _("Loading..."));
-	gtk_window_set_title(GTK_WINDOW(dialog), _("Please wait..."));
-	gtk_window_set_deletable(GTK_WINDOW(dialog), FALSE);
-	gtk_window_set_default_size(GTK_WINDOW(dialog), 400, 200);
-	gtk_widget_show_all(dialog);
-	gtk_widget_set_size_request(dialog, 300, 100);
-	return (GtkWidget*)dialog;
+	if (please_wait_dialog)
+		return;
+	please_wait_dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_NONE, "%s", _("Loading..."));
+	gtk_window_set_title(GTK_WINDOW(please_wait_dialog), _("Please wait..."));
+	gtk_window_set_deletable(GTK_WINDOW(please_wait_dialog), FALSE);
+	gtk_window_set_default_size(GTK_WINDOW(please_wait_dialog), 400, 200);
+	gtk_widget_show_all(please_wait_dialog);
+	gtk_widget_set_size_request(please_wait_dialog, 300, 100);
 }
 
 void process_events()
 {
 	while (gtk_events_pending())
 		gtk_main_iteration_do(FALSE);
+}
+
+void destroy_please_wait()
+{
+	if (!please_wait_dialog)
+		return;
+	gtk_widget_destroy(please_wait_dialog);
+	please_wait_dialog = NULL;
 }
