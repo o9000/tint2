@@ -136,14 +136,15 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 	// we currently do not know about any Name key at all, so use an invalid index
 	int lang_index = lang_index_default + 1;
 
-	int inside_desktop_entry = 0;
+	gboolean inside_desktop_entry = 0;
 	char *line = NULL;
 	size_t line_size;
 	while (getline(&line, &line_size, fp) >= 0) {
 		int len = strlen(line);
 		if (len == 0)
 			continue;
-		line[len - 1] = '\0';
+		if (line[len - 1] == '\n')
+			line[len - 1] = '\0';
 		if (line[0] == '[') {
 			inside_desktop_entry = (strcmp(line, "[Desktop Entry]") == 0);
 		}
@@ -169,7 +170,7 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 				entry->exec = strdup(value);
 			} else if (!entry->icon && strcmp(key, "Icon") == 0) {
 				entry->icon = strdup(value);
-			} else if (!entry->icon && strcmp(key, "NoDisplay") == 0) {
+			} else if (strcmp(key, "NoDisplay") == 0) {
 				entry->hidden_from_menus = strcasecmp(value, "true") == 0;
 			}
 		}
