@@ -711,6 +711,9 @@ char *get_icon_path_from_cache(IconThemeWrapper *wrapper, const char *icon_name,
 		return NULL;
 	}
 
+	if (!g_file_test(value, G_FILE_TEST_EXISTS))
+		return NULL;
+
 	// fprintf(stderr, "Icon path found in cache: theme = %s, icon = %s, size = %d, path = %s\n", wrapper->icon_theme_name, icon_name, size, value);
 
 	return strdup(value);

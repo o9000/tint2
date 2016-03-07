@@ -2332,14 +2332,17 @@ void load_desktop_file(const char *file, gboolean selected)
 				g_object_unref(pixbuf);
 		} else {
 			printf("Could not load %s\n", file);
+			GdkPixbuf *pixbuf = load_icon(DEFAULT_ICON);
 			GtkTreeIter iter;
 			gtk_list_store_append(store, &iter);
 			gtk_list_store_set(store, &iter,
-							   appsColIcon, NULL,
+							   appsColIcon, pixbuf,
 							   appsColText, g_strdup(file),
 							   appsColPath, g_strdup(file),
 							   appsColIconName, g_strdup(""),
 							   -1);
+			if (pixbuf)
+				g_object_unref(pixbuf);
 		}
 		free_desktop_entry(&entry);
 	}
