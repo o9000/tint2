@@ -739,7 +739,7 @@ char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size)
 		return NULL;
 
 	if (!icon_name || strlen(icon_name) == 0)
-		return NULL;
+		goto notfound;
 
 	char *path = get_icon_path_from_cache(wrapper, icon_name, size);
 	if (path)
@@ -763,7 +763,8 @@ char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size)
 		return path;
 	}
 
-	fprintf(stderr, RED "Could not find icon %s, using default." RESET "\n", icon_name);
+notfound:
+	fprintf(stderr, RED "Could not find icon '%s', using default." RESET "\n", icon_name);
 	path = get_icon_path_helper(wrapper->themes, DEFAULT_ICON, size);
 	if (path)
 		return path;
