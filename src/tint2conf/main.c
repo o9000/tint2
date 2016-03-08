@@ -62,6 +62,7 @@ static void menuAddWidget(GtkUIManager *ui_manager, GtkWidget *p_widget, GtkCont
 
 static void menuAddWidget(GtkUIManager *, GtkWidget *, GtkContainer *);
 static void menuImport();
+static void menuImportSelected();
 static void menuImportDefault();
 static void menuSaveAs();
 static void menuDelete();
@@ -88,6 +89,8 @@ GtkWidget *g_window;
 static GtkUIManager *globalUIManager = NULL;
 GtkWidget *tint_cmd;
 
+GtkActionGroup *actionGroup = NULL;
+
 static const char *global_ui =
 	"<ui>"
 	"  <menubar name='MenuBar'>"
@@ -113,10 +116,12 @@ static const char *global_ui =
 	"  <toolbar  name='ToolBar'>"
 	"    <toolitem action='ThemeProperties'/>"
 	"    <toolitem action='ThemeSelect'/>"
+	"    <toolitem action='ThemeAddIt'/>"
 	"  </toolbar>"
 	"  <popup  name='ThemePopup'>"
 	"    <menuitem action='ThemeProperties'/>"
 	"    <menuitem action='EditRefresh'/>"
+	"    <menuitem action='ThemeAddIt'/>"
 	"    <separator/>"
 	"    <menuitem action='ThemeDelete'/>"
 	"  </popup>"
@@ -130,8 +135,6 @@ int main(int argc, char **argv)
 	textdomain(GETTEXT_PACKAGE);
 
 	GtkWidget *vBox = NULL, *scrollbar = NULL;
-	GtkActionGroup *actionGroup;
-
 	gtk_init(&argc, &argv);
 
 #if !GLIB_CHECK_VERSION(2, 31, 0)
@@ -154,7 +157,7 @@ int main(int argc, char **argv)
 	// define main layout : container, menubar, toolbar
 	g_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(g_window), _("Panel theming"));
-	gtk_window_resize(GTK_WINDOW(g_window), 800, 600);
+	gtk_window_resize(GTK_WINDOW(g_window), 920, 600);
 	g_signal_connect(G_OBJECT(g_window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 	vBox = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(g_window), vBox);
@@ -165,6 +168,7 @@ int main(int argc, char **argv)
 	GtkActionEntry entries[] = {
 		{"ThemeMenu", NULL, _("Theme"), NULL, NULL, NULL},
 		{"ThemeAdd", GTK_STOCK_ADD, _("_Import theme..."), "<Control>N", _("Import theme"), G_CALLBACK(menuImport)},
+		{"ThemeAddIt", GTK_STOCK_ADD, _("_Import theme"), NULL, _("Import theme"), G_CALLBACK(menuImportSelected)},
 		{"ThemeDefault", GTK_STOCK_NEW, _("_Import default theme..."), NULL, _("Import default theme"), G_CALLBACK(menuImportDefault)},
 		{"ThemeSaveAs", GTK_STOCK_SAVE_AS, _("_Save as..."), NULL, _("Save theme as"), G_CALLBACK(menuSaveAs)},
 		{"ThemeDelete", GTK_STOCK_DELETE, _("_Delete"), NULL, _("Delete theme"), G_CALLBACK(menuDelete)},
@@ -286,6 +290,37 @@ static void menuImport()
 	g_slist_free(list);
 	gtk_widget_destroy(dialog);
 	load_all_themes();
+}
+
+static void menuImportSelected()
+{
+	GtkTreeSelection *sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
+		char *file;
+		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &file,  -1);
+
+		if (strstr(file, g_get_user_config_dir()) == file)
+			return;
+		gchar *pt1 = strrchr(file, '/');
+		if (!pt1)
+			return;
+		pt1++;
+		if (!*pt1)
+			return;
+
+		gchar *name = pt1;
+		gchar *path = g_build_filename(g_get_user_config_dir(), "tint2", name, NULL);
+		if (g_file_test(path, G_FILE_TEST_EXISTS)) {
+			g_free(path);
+			return;
+		}
+		copy_file(file, path);
+		theme_list_append(path, NULL);
+	}
+
+	g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
 }
 
 static void menuImportDefault()
@@ -419,10 +454,10 @@ static gboolean view_onPopupMenu(GtkWidget *treeview, gpointer userdata)
 // ====== Theme selection ======
 
 gboolean theme_selected(GtkTreeSelection *selection,
-							   GtkTreeModel *model,
-							   GtkTreePath *path,
-							   gboolean path_currently_selected,
-							   gpointer userdata)
+						GtkTreeModel *model,
+						GtkTreePath *path,
+						gboolean path_currently_selected,
+						gpointer userdata)
 {
 	GtkTreeIter iter;
 	if (gtk_tree_model_get_iter(model, &iter, path)) {
@@ -432,6 +467,10 @@ gboolean theme_selected(GtkTreeSelection *selection,
 			gchar *text = g_strdup_printf("tint2 -c %s", current_theme);
 			gtk_entry_set_text(GTK_ENTRY(tint_cmd), text);
 			g_free(text);
+			gboolean editable = strstr(current_theme, g_get_user_config_dir()) == current_theme;
+			gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeProperties"), editable);
+			gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeDelete"), editable);
+			gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeAddIt"), !editable);
 		} else {
 			gtk_entry_set_text(GTK_ENTRY(tint_cmd), "");
 		}
@@ -529,68 +568,32 @@ static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeV
 
 // ====== Theme load/reload ======
 
-#if 0
-static void copy_default_themes()
+static void ensure_default_theme_exists()
 {
+	// Without a user tint2rc file, copy the default
 	gchar *path_home = g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
 	if (!g_file_test(path_home, G_FILE_TEST_EXISTS)) {
 		const gchar * const * system_dirs = g_get_system_config_dirs();
-		int i;
-		for (i = 0; system_dirs[i]; i++) {
+		for (int i = 0; system_dirs[i]; i++) {
 			gchar *path = g_build_filename(system_dirs[i], "tint2", "tint2rc", NULL);
 			if (g_file_test(path, G_FILE_TEST_EXISTS)) {
 				copy_file(path, path_home);
+				break;
 			}
 			g_free(path);
 		}
 	}
 	g_free(path_home);
-
-	const gchar * const * data_dirs = g_get_system_data_dirs();
-	int i;
-	for (i = 0; data_dirs[i]; i++) {
-		gchar *path_tint2 = g_build_filename(data_dirs[i], "tint2", NULL);
-		fprintf(stderr, "%s\n", path_tint2);
-		GDir *dir = g_dir_open(path_tint2, 0, NULL);
-		if (dir) {
-			const gchar *file_name;
-			while ((file_name = g_dir_read_name(dir))) {
-				if (!g_file_test(file_name, G_FILE_TEST_IS_DIR) &&
-					!strstr(file_name, "backup") &&
-					!strstr(file_name, "copy") &&
-					!strstr(file_name, "~") &&
-					(endswith(file_name, "tint2rc") ||
-					 endswith(file_name, ".conf"))) {
-					gchar *path_home = g_build_filename(g_get_user_config_dir(), "tint2", file_name, NULL);
-					if (!g_file_test(path_home, G_FILE_TEST_EXISTS)) {
-						gchar *path_usr = g_build_filename(path_tint2, file_name, NULL);
-						copy_file(path_usr, path_home);
-						g_free(path_usr);
-					}
-					g_free(path_home);
-				}
-			}
-			g_dir_close(dir);
-		}
-		g_free(path_tint2);
-	}
 }
-#endif
 
-static void load_all_themes()
+static gboolean load_user_themes()
 {
-	// We don't do this anymore since it has proven unpopular...
-#if 0
-	copy_default_themes();
-#endif
-
-	gtk_list_store_clear(GTK_LIST_STORE(g_store));
-
+	// Load configs from home directory
 	gchar *tint2_config_dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
 	GDir *dir = g_dir_open(tint2_config_dir, 0, NULL);
 	if (dir == NULL) {
 		g_free(tint2_config_dir);
-		return;
+		return FALSE;
 	}
 	gboolean found_theme = FALSE;
 
@@ -603,13 +606,60 @@ static void load_all_themes()
 			(endswith(file_name, "tint2rc") ||
 			 endswith(file_name, ".conf"))) {
 			found_theme = TRUE;
-			gchar *name = g_build_filename(tint2_config_dir, file_name, NULL);
-			custom_list_append(name);
-			g_free(name);
+			gchar *path = g_build_filename(tint2_config_dir, file_name, NULL);
+			theme_list_append(path, NULL);
+			g_free(path);
 		}
 	}
+	g_dir_close(dir);
+	g_free(tint2_config_dir);
 
-	if (found_theme) {
+	return found_theme;
+}
+
+static gboolean load_system_themes()
+{
+	gboolean found_theme = FALSE;
+	// Load configs from /usr etc
+	const gchar * const * data_dirs = g_get_system_data_dirs();
+	for (int i = 0; data_dirs[i]; i++) {
+		gchar *path_tint2 = g_build_filename(data_dirs[i], "tint2", NULL);
+		GDir *dir = g_dir_open(path_tint2, 0, NULL);
+		if (dir) {
+			const gchar *file_name;
+			while ((file_name = g_dir_read_name(dir))) {
+				if (!g_file_test(file_name, G_FILE_TEST_IS_DIR) &&
+					!strstr(file_name, "backup") &&
+					!strstr(file_name, "copy") &&
+					!strstr(file_name, "~") &&
+					(endswith(file_name, "tint2rc") ||
+					 endswith(file_name, ".conf"))) {
+					found_theme = TRUE;
+					gchar *path = g_build_filename(path_tint2, file_name, NULL);
+					theme_list_append(path, data_dirs[i]);
+					g_free(path);
+				}
+			}
+			g_dir_close(dir);
+		}
+		g_free(path_tint2);
+	}
+	return found_theme;
+}
+
+static void load_all_themes()
+{
+	ensure_default_theme_exists();
+
+	gtk_list_store_clear(GTK_LIST_STORE(theme_list_store));
+
+	gboolean found_themes = FALSE;
+	if (load_user_themes())
+		found_themes = TRUE;
+	if (load_system_themes())
+		found_themes = TRUE;
+
+	if (found_themes) {
 		select_first_theme();
 
 		GtkTreeIter iter;
@@ -619,15 +669,12 @@ static void load_all_themes()
 		model = gtk_tree_view_get_model(GTK_TREE_VIEW(g_theme_view));
 		have_iter = gtk_tree_model_get_iter_first(model, &iter);
 		while (have_iter) {
-			gtk_list_store_set(g_store, &iter, COL_SNAPSHOT, NULL, -1);
+			gtk_list_store_set(theme_list_store, &iter, COL_SNAPSHOT, NULL, -1);
 			have_iter = gtk_tree_model_iter_next(model, &iter);
 		}
 
 		g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
 	}
-
-	g_dir_close(dir);
-	g_free(tint2_config_dir);
 }
 
 static void refresh_current_theme()
@@ -638,7 +685,7 @@ static void refresh_current_theme()
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
-		gtk_list_store_set(g_store, &iter, COL_SNAPSHOT, NULL, -1);
+		gtk_list_store_set(theme_list_store, &iter, COL_SNAPSHOT, NULL, -1);
 	}
 
 	g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);

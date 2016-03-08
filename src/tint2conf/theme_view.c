@@ -24,7 +24,7 @@
 
 // The data columns that we export via the tree model interface
 GtkWidget *g_theme_view;
-GtkListStore *g_store;
+GtkListStore *theme_list_store;
 int g_width_list, g_height_list;
 GtkCellRenderer *g_renderer;
 
@@ -39,13 +39,13 @@ GtkWidget *create_view()
 	GtkCellRenderer *renderer;
 	GtkWidget  *view;
 
-	g_store = gtk_list_store_new(NB_COL, G_TYPE_STRING, G_TYPE_STRING, GDK_TYPE_PIXBUF);
+	theme_list_store = gtk_list_store_new(NB_COL, G_TYPE_STRING, G_TYPE_STRING, GDK_TYPE_PIXBUF);
 
-	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(g_store));
+	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(theme_list_store));
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(view), TRUE);
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(view), FALSE);
 
-	g_object_unref(g_store); // destroy store automatically with view
+	g_object_unref(theme_list_store); // destroy store automatically with view
 
 	renderer = gtk_cell_renderer_text_new();
 	col = gtk_tree_view_column_new();
@@ -73,7 +73,7 @@ GtkWidget *create_view()
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view),col);
 
 	GtkTreeSortable *sortable;
-	sortable = GTK_TREE_SORTABLE(g_store);
+	sortable = GTK_TREE_SORTABLE(theme_list_store);
 	gtk_tree_sortable_set_sort_column_id(sortable, COL_THEME_FILE, GTK_SORT_ASCENDING);
 	gtk_tree_sortable_set_sort_func(sortable, COL_THEME_FILE, theme_name_compare, NULL, NULL);
 	return view;
@@ -87,6 +87,15 @@ gint theme_name_compare(GtkTreeModel *model,
 	gchar *path_a, *path_b;
 	gtk_tree_model_get(model, a, COL_THEME_FILE, &path_a, -1);
 	gtk_tree_model_get(model, b, COL_THEME_FILE, &path_b, -1);
+
+	gboolean home_a = strstr(path_a, g_get_user_config_dir()) == path_a;
+	gboolean home_b = strstr(path_b, g_get_user_config_dir()) == path_b;
+
+	if (home_a && !home_b)
+		return -1;
+	if (!home_a && home_b)
+		return 1;
+
 	gchar *name_a = path_a;
 	gchar *p;
 	for (p = name_a; *p; p++) {
@@ -110,15 +119,23 @@ gint theme_name_compare(GtkTreeModel *model,
 	return result;
 }
 
-void custom_list_append(const gchar *path)
+void theme_list_append(const gchar *path, const gchar *suffix)
 {
-	GtkTreeIter  iter;
+	GtkTreeIter iter;
 
-	gtk_list_store_append(g_store, &iter);
-	gtk_list_store_set(g_store, &iter, COL_THEME_FILE, path, -1);
+	gtk_list_store_append(theme_list_store, &iter);
+	gtk_list_store_set(theme_list_store, &iter, COL_THEME_FILE, path, -1);
 
-	gchar *name = g_strdup(strrchr(path, '/') + 1);
-	gtk_list_store_set(g_store, &iter, COL_THEME_NAME, name, -1);
+	gchar *name = strrchr(path, '/') + 1;
+
+	gchar *full_name;
+	if (suffix) {
+		full_name = g_strdup_printf("%s\n(%s)", name, suffix);
+	} else {
+		full_name = g_strdup(name);
+	}
+	gtk_list_store_set(theme_list_store, &iter, COL_THEME_NAME, full_name, -1);
+	g_free(full_name);
 }
 
 
@@ -126,7 +143,6 @@ gboolean update_snapshot()
 {
 	GtkTreeModel *model;
 	GtkTreeIter iter;
-	GdkPixbuf *icon;
 	gboolean have_iter;
 
 	gint pixWidth = 200, pixHeight = 30;
@@ -134,20 +150,27 @@ gboolean update_snapshot()
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(g_theme_view));
 	have_iter = gtk_tree_model_get_iter_first(model, &iter);
 	while (have_iter) {
-		gtk_tree_model_get(model, &iter, COL_SNAPSHOT, &icon, -1);
-		if (icon != NULL) {
-			g_object_unref(icon);
+		GdkPixbuf *pixbuf;
+		gtk_tree_model_get(model, &iter, COL_SNAPSHOT, &pixbuf, -1);
+		if (pixbuf) {
+			pixWidth = MAX(pixWidth, gdk_pixbuf_get_width(pixbuf));
+			pixHeight = MAX(pixHeight, gdk_pixbuf_get_height(pixbuf));
+			g_object_unref(pixbuf);
+			have_iter = gtk_tree_model_iter_next(model, &iter);
+			continue;
 		}
 
 		// build panel's snapshot
-		GdkPixbuf *pixbuf = NULL;
-		gchar *name, *snap, *cmd;
+		gchar *path;
+		gtk_tree_model_get(model, &iter,
+						   COL_THEME_FILE, &path,
+						   -1);
 
-		snap = g_build_filename(g_get_user_config_dir(), "tint2", "snap.jpg", NULL);
+
+		gchar *snap = g_build_filename(g_get_user_config_dir(), "tint2", "snap.jpg", NULL);
 		g_remove(snap);
 
-		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &name, -1);
-		cmd = g_strdup_printf("tint2 -c \'%s\' -s \'%s\'", name, snap);
+		gchar *cmd = g_strdup_printf("tint2 -c \'%s\' -s \'%s\' 1>/dev/null 2>/dev/null", path, snap);
 		if (system(cmd) == 0) {
 			// load
 			pixbuf = gdk_pixbuf_new_from_file(snap, NULL);
@@ -155,18 +178,16 @@ gboolean update_snapshot()
 				printf("snapshot NULL : %s\n", cmd);
 			}
 		}
-		g_free(snap);
 		g_free(cmd);
-		g_free(name);
+		g_free(snap);
+		g_free(path);
 
-		gint w, h;
-		w = gdk_pixbuf_get_width(pixbuf);
-		h = gdk_pixbuf_get_height(pixbuf);
-		pixWidth = w > pixWidth ? w : pixWidth;
-		pixHeight = h > pixHeight ? h : pixHeight;
+		pixWidth = MAX(pixWidth, gdk_pixbuf_get_width(pixbuf));
+		pixHeight = MAX(pixHeight, gdk_pixbuf_get_height(pixbuf));
 
-		gtk_list_store_set(g_store, &iter, COL_SNAPSHOT, pixbuf, -1);
-
+		gtk_list_store_set(theme_list_store, &iter, COL_SNAPSHOT, pixbuf, -1);
+		if (pixbuf)
+			g_object_unref(pixbuf);
 		have_iter = gtk_tree_model_iter_next(model, &iter);
 	}
 
@@ -174,6 +195,3 @@ gboolean update_snapshot()
 
 	return FALSE;
 }
-
-
-
