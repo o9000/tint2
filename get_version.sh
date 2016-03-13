@@ -31,7 +31,7 @@ then
             DIRTY="-dirty"
         fi
     fi
-    VERSION=$(git describe --exact-match 2>/dev/null || echo "$MAJOR-git$(git show -s --pretty=format:%cI.%h | tr -d ':' | tr -d '-' | tr '.' '-' | sed 's/T[0-9\+]*//g')")$DIRTY
+    VERSION=$(git describe --exact-match 2>/dev/null || echo "$MAJOR-git$(git show -s --pretty=format:%ci | cut -d ' ' -f 1 | tr -d '-').$(git show -s --pretty=format:%h)")$DIRTY
 else
     VERSION=$(head -n 1 ChangeLog | cut -d ' ' -f 2)
     if [ $VERSION = "master" ]
