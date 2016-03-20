@@ -526,6 +526,13 @@ gboolean add_icon(Window win)
 		}
 	}
 
+	// Dangerous actions begin
+	XSync(server.display, False);
+	error = FALSE;
+	XErrorHandler old = XSetErrorHandler(window_error_handler);
+
+	XSelectInput(server.display, win, StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask);
+
 	XTextProperty xname;
 	char *name;
 	if (XGetWMName(server.display, win, &xname)) {
@@ -571,8 +578,19 @@ gboolean add_icon(Window win)
 		fprintf(stderr, "XGetWindowAttributes(server.display, win = %ld, &attr)\n", win);
 	if (XGetWindowAttributes(server.display, win, &attr) == False) {
 		free(name);
+		XSelectInput(server.display, win, NoEventMask);
+
+		// Dangerous actions end
+		XSync(server.display, False);
+		XSetErrorHandler(old);
+
 		return FALSE;
 	}
+
+	// Dangerous actions end
+	XSync(server.display, False);
+	XSetErrorHandler(old);
+
 	unsigned long mask = 0;
 	XSetWindowAttributes set_attr;
 	Visual *visual = server.visual;
@@ -606,6 +624,7 @@ gboolean add_icon(Window win)
 			mask = CWBackPixmap;
 		}
 	}
+
 	if (systray_profile)
 		fprintf(stderr, "XCreateWindow(...)\n");
 	Window parent = XCreateWindow(server.display,
@@ -683,9 +702,6 @@ gboolean reparent_icon(TrayWindow *traywin)
 	XSync(server.display, False);
 	error = FALSE;
 	XErrorHandler old = XSetErrorHandler(window_error_handler);
-	if (systray_profile)
-		fprintf(stderr, "XSelectInput(server.display, traywin->win, ...)\n");
-	XSelectInput(server.display, traywin->win, StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask);
 	XWithdrawWindow(server.display, traywin->win, server.screen);
 	XReparentWindow(server.display, traywin->win, traywin->parent, 0, 0);
 
