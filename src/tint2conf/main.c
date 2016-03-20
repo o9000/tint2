@@ -248,14 +248,14 @@ int main(int argc, char **argv)
 	// Menubar and toolbar entries
 	GtkActionEntry entries[] =
 		{{"ThemeMenu", NULL, _("Theme"), NULL, NULL, NULL},
-		 {"ThemeImportFile", GTK_STOCK_ADD, _("_Import theme..."), "<Control>N", _("Import theme"), G_CALLBACK(menuImportFile)},
-		 {"ThemeSaveAs", GTK_STOCK_SAVE_AS, _("_Save as..."), NULL, _("Save theme as"), G_CALLBACK(menuSaveAs)},
-		 {"ThemeDelete", GTK_STOCK_DELETE, _("_Delete"), NULL, _("Delete theme"), G_CALLBACK(menuDelete)},
-		 {"ThemeReset", GTK_STOCK_REVERT_TO_SAVED, _("_Reset"), NULL, _("Reset theme"), G_CALLBACK(menuReset)},
-		 {"ThemeEdit", GTK_STOCK_PROPERTIES, _("_Edit theme..."), NULL, _("Edit selected theme"), G_CALLBACK(edit_theme)},
+		 {"ThemeImportFile", GTK_STOCK_ADD, _("_Import theme..."), "<Control>N", _("Import theme(s) from file system"), G_CALLBACK(menuImportFile)},
+		 {"ThemeSaveAs", GTK_STOCK_SAVE_AS, _("_Save as..."), NULL, _("Save the theme with a new name"), G_CALLBACK(menuSaveAs)},
+		 {"ThemeDelete", GTK_STOCK_DELETE, _("_Delete"), NULL, _("Delete the selected theme"), G_CALLBACK(menuDelete)},
+		 {"ThemeReset", GTK_STOCK_REVERT_TO_SAVED, _("_Reset"), NULL, _("Reset the selected theme to default"), G_CALLBACK(menuReset)},
+		 {"ThemeEdit", GTK_STOCK_PROPERTIES, _("_Edit theme..."), NULL, _("Edit the selected theme"), G_CALLBACK(edit_theme)},
 		 {"ThemeMakeDefault", GTK_STOCK_APPLY, _("_Make default"), NULL, _("Replace the default theme with the selected one"), G_CALLBACK(make_selected_theme_default)},
-		 {"ThemeRefresh", GTK_STOCK_REFRESH, _("Refresh"), NULL, _("Refresh"), G_CALLBACK(refresh_current_theme)},
-		 {"RefreshAll", GTK_STOCK_REFRESH, _("Refresh all"), NULL, _("Refresh all"), G_CALLBACK(load_all_themes)},
+		 {"ThemeRefresh", GTK_STOCK_REFRESH, _("Refresh"), NULL, _("Redraw the selected theme"), G_CALLBACK(refresh_current_theme)},
+		 {"RefreshAll", GTK_STOCK_REFRESH, _("Refresh all"), NULL, _("Redraw all themes"), G_CALLBACK(load_all_themes)},
 		 {"Quit", GTK_STOCK_QUIT, _("_Quit"), "<control>Q", _("Quit"), G_CALLBACK(gtk_main_quit)},
 		 {"HelpMenu", NULL, _("Help"), NULL, NULL, NULL},
 		 {"HelpAbout", GTK_STOCK_ABOUT, _("_About"), "<Control>A", _("About"), G_CALLBACK(menuAbout)}};
@@ -393,7 +393,7 @@ gchar *get_selected_theme_or_warn()
 											  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 											  GTK_MESSAGE_ERROR,
 											  GTK_BUTTONS_CLOSE,
-											  _("Please select a theme first."));
+											  _("Please select a theme."));
 		g_signal_connect_swapped(w, "response", G_CALLBACK(gtk_widget_destroy), w);
 		gtk_widget_show(w);
 	}
@@ -443,7 +443,7 @@ static void menuDelete()
 										  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 										  GTK_MESSAGE_QUESTION,
 										  GTK_BUTTONS_YES_NO,
-										  _("Delete the selected theme?"));
+										  _("Do you really want to delete the selected theme?"));
 	gint response = gtk_dialog_run(GTK_DIALOG(w));
 	gtk_widget_destroy(w);
 	if (response != GTK_RESPONSE_YES) {
@@ -482,7 +482,7 @@ static void menuReset()
 										  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 										  GTK_MESSAGE_QUESTION,
 										  GTK_BUTTONS_YES_NO,
-										  _("Reset the selected theme?"));
+										  _("Do you really want to reset the selected theme to default?"));
 	gint response = gtk_dialog_run(GTK_DIALOG(w));
 	gtk_widget_destroy(w);
 	if (response != GTK_RESPONSE_YES) {
@@ -650,7 +650,7 @@ static void make_selected_theme_default()
 										  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 										  GTK_MESSAGE_QUESTION,
 										  GTK_BUTTONS_YES_NO,
-										  _("Replace the default theme with the selected theme?"));
+										  _("Do you really want to replace the default theme with the selected theme?"));
 	gint response = gtk_dialog_run(GTK_DIALOG(w));
 	gtk_widget_destroy(w);
 	if (response != GTK_RESPONSE_YES) {
