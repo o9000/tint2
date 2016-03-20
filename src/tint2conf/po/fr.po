@@ -2129,43 +2129,38 @@ msgid   "_Import theme..."
 msgstr  "_Importer un thème..."
 
 #: ../main.c:251
-#, fuzzy
 msgid   "Import theme(s) from file system"
-msgstr  "Importer le(s) thème(s)"
+msgstr  "Importer des thèmes à partir du système de fichiers"
 
 #: ../main.c:252
 msgid   "_Save as..."
 msgstr  "_Enregistrer sous..."
 
 #: ../main.c:252
-#, fuzzy
 msgid   "Save the theme with a new name"
-msgstr  "Sélectionner le thème à sauvegarder."
+msgstr  "Enregistrer le thème sous un nouveau nom"
 
 #: ../main.c:253
 msgid   "_Delete"
 msgstr  "_Supprimer"
 
 #: ../main.c:253
-#, fuzzy
 msgid   "Delete the selected theme"
-msgstr  "Éditer le thème choisi"
+msgstr  "Supprimer le thème choisi"
 
 #: ../main.c:254
 msgid   "_Reset"
-msgstr  ""
+msgstr  "Réinitialiser"
 
 #: ../main.c:254
-#, fuzzy
 msgid   "Reset the selected theme to default"
-msgstr  "Éditer le thème choisi"
+msgstr  "Réinitialiser le thème choisi au défaut"
 
 #: ../main.c:255
 msgid   "_Edit theme..."
 msgstr  "_Éditer le thème..."
 
 #: ../main.c:255
-#, fuzzy
 msgid   "Edit the selected theme"
 msgstr  "Éditer le thème choisi"
 
@@ -2182,9 +2177,8 @@ msgid   "Refresh"
 msgstr  "Rafraîchir"
 
 #: ../main.c:257
-#, fuzzy
 msgid   "Redraw the selected theme"
-msgstr  "Éditer le thème choisi"
+msgstr  "Rafraîchir le thème choisi"
 
 #: ../main.c:258
 msgid   "Refresh all"
@@ -2192,7 +2186,7 @@ msgstr  "Tout rafraîchir"
 
 #: ../main.c:258
 msgid   "Redraw all themes"
-msgstr  ""
+msgstr  "Rafraîchir tous les thèmes"
 
 #: ../main.c:259
 msgid   "_Quit"
@@ -2239,47 +2233,22 @@ msgid   "Import theme(s)"
 msgstr  "Importer le(s) thème(s)"
 
 #: ../main.c:396
-#, fuzzy
 msgid   "Please select a theme."
-msgstr  "Éditer le thème choisi"
+msgstr  "S'il vous plaît sélectionner un thème."
 
 #: ../main.c:412
 msgid   "Save theme as"
 msgstr  "Enregistrer le thème sous"
 
 #: ../main.c:446
-#, fuzzy
 msgid   "Do you really want to delete the selected theme?"
-msgstr  "Éditer le thème choisi"
+msgstr  "Voulez-vous vraiment supprimer le thème choisi?"
 
 #: ../main.c:485
 msgid   "Do you really want to reset the selected theme to default?"
-msgstr  ""
+msgstr  "Voulez-vous vraiment réinitialiser le thème choisi au défaut?"
 
 #: ../main.c:653
-#, fuzzy
 msgid   "Do you really want to replace the default theme with the selected "
         "theme?"
-msgstr  "Remplacer le thème par défaut par celui sélectionné"
-
-#~ msgid        "Import theme"
-#~ msgstr       "Importer un thème"
-
-#~ msgid        "Delete theme"
-#~ msgstr       "Supprimer le thème"
-
-#, fuzzy
-#~ msgid        "Reset theme"
-#~ msgstr       "Supprimer le thème"
-
-#~ msgid        "_Import default theme..."
-#~ msgstr       "_Importer le thème par défaut..."
-
-#~ msgid        "Import default theme"
-#~ msgstr       "Importer le thème par défaut"
-
-#~ msgid        "Edit"
-#~ msgstr       "Editer"
-
-#~ msgid        "Save default theme as"
-#~ msgstr       "Enregistrer le thème par défaut sous"
+msgstr  "Voulez-vous vraiment remplacer le thème par défaut par celui sélectionné?"
