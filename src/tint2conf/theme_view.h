@@ -1,4 +1,3 @@
-
 #ifndef THEME_VIEW
 #define THEME_VIEW
 
@@ -13,6 +12,3 @@ GtkWidget *create_view();
 void theme_list_append(const gchar *path, const gchar *suffix);
 
 #endif
-
-
-

@@ -208,20 +208,20 @@ const gchar *get_default_font()
 
 void applyClicked(GtkWidget *widget, gpointer data)
 {
-	gchar *file = get_current_theme_file_name();
-	if (file) {
-		if (config_is_manual(file)) {
-			gchar *backup_path = g_strdup_printf("%s.backup.%ld", file, time(NULL));
-			copy_file(file, backup_path);
+	gchar *filepath = get_current_theme_path();
+	if (filepath) {
+		if (config_is_manual(filepath)) {
+			gchar *backup_path = g_strdup_printf("%s.backup.%ld", filepath, time(NULL));
+			copy_file(filepath, backup_path);
 			g_free(backup_path);
 		}
 
-		config_save_file(file);
+		config_save_file(filepath);
 	}
 	int unused = system("killall -SIGUSR1 tint2 || pkill -SIGUSR1 -x tint2");
 	(void)unused;
-	g_free(file);
-	g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
+	g_free(filepath);
+	refresh_current_theme();
 }
 
 void cancelClicked(GtkWidget *widget, gpointer data)

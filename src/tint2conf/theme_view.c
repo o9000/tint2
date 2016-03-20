@@ -17,7 +17,6 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
-
 #include "main.h"
 #include "strnatcmp.h"
 #include "theme_view.h"
@@ -37,11 +36,10 @@ GtkWidget *create_view()
 {
 	GtkTreeViewColumn *col;
 	GtkCellRenderer *renderer;
-	GtkWidget  *view;
 
 	theme_list_store = gtk_list_store_new(NB_COL, G_TYPE_STRING, G_TYPE_STRING, GDK_TYPE_PIXBUF);
 
-	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(theme_list_store));
+	GtkWidget *view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(theme_list_store));
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(view), TRUE);
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(view), FALSE);
 
@@ -66,14 +64,13 @@ GtkWidget *create_view()
 	g_object_set(g_renderer, "xalign", 0.0, NULL);
 	gtk_cell_renderer_set_fixed_size(g_renderer, g_width_list, g_height_list);
 	// specific to gtk-2.18 or higher
-	//gtk_cell_renderer_set_padding(g_renderer, 5, 5);
+	// gtk_cell_renderer_set_padding(g_renderer, 5, 5);
 	col = gtk_tree_view_column_new();
 	gtk_tree_view_column_pack_start(col, g_renderer, TRUE);
 	gtk_tree_view_column_add_attribute(col, g_renderer, "pixbuf", COL_SNAPSHOT);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(view),col);
 
-	GtkTreeSortable *sortable;
-	sortable = GTK_TREE_SORTABLE(theme_list_store);
+	GtkTreeSortable *sortable = GTK_TREE_SORTABLE(theme_list_store);
 	gtk_tree_sortable_set_sort_column_id(sortable, COL_THEME_FILE, GTK_SORT_ASCENDING);
 	gtk_tree_sortable_set_sort_func(sortable, COL_THEME_FILE, theme_name_compare, NULL, NULL);
 	return view;
@@ -119,23 +116,44 @@ gint theme_name_compare(GtkTreeModel *model,
 	return result;
 }
 
-void theme_list_append(const gchar *path, const gchar *suffix)
+gboolean theme_list_contains(const char *given_path)
 {
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(g_theme_view));
 	GtkTreeIter iter;
 
+	gboolean have_iter = gtk_tree_model_get_iter_first(model, &iter);
+	while (have_iter) {
+		gchar *filepath;
+		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &filepath, -1);
+		if (g_str_equal(filepath, given_path)) {
+			gtk_list_store_set(theme_list_store, &iter, COL_SNAPSHOT, NULL, -1);
+			g_free(filepath);
+			return TRUE;
+		}
+		g_free(filepath);
+		have_iter = gtk_tree_model_iter_next(model, &iter);
+	}
+	return FALSE;
+}
+
+void theme_list_append(const gchar *path, const gchar *suffix)
+{
+	if (theme_list_contains(path))
+		return;
+
+	GtkTreeIter iter;
 	gtk_list_store_append(theme_list_store, &iter);
-	gtk_list_store_set(theme_list_store, &iter, COL_THEME_FILE, path, -1);
 
 	gchar *name = strrchr(path, '/') + 1;
 
-	gchar *full_name;
+	gchar *display_name;
 	if (suffix) {
-		full_name = g_strdup_printf("%s\n(%s)", name, suffix);
+		display_name = g_strdup_printf("%s\n(%s)", name, suffix);
 	} else {
-		full_name = g_strdup(name);
+		display_name = g_strdup(name);
 	}
-	gtk_list_store_set(theme_list_store, &iter, COL_THEME_NAME, full_name, -1);
-	g_free(full_name);
+	gtk_list_store_set(theme_list_store, &iter, COL_THEME_FILE, path, COL_THEME_NAME, display_name, -1);
+	g_free(display_name);
 }
 
 
