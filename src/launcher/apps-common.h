@@ -11,6 +11,7 @@
 
 typedef struct DesktopEntry {
 	char *name;
+	char *generic_name;
 	char *exec;
 	char *icon;
 	char *path;

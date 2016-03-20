@@ -110,7 +110,7 @@ void expand_exec(DesktopEntry *entry, const char *path)
 
 gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 {
-	entry->name = entry->icon = entry->exec = NULL;
+	entry->name = entry->generic_name = entry->icon = entry->exec = NULL;
 	entry->hidden_from_menus = FALSE;
 
 	FILE *fp = fopen(path, "rt");
@@ -134,7 +134,8 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 	if (LANG_DBG)
 		printf("\n");
 	// we currently do not know about any Name key at all, so use an invalid index
-	int lang_index = lang_index_default + 1;
+	int lang_index_name = lang_index_default + 1;
+	int lang_index_generic_name = lang_index_default + 1;
 
 	gboolean inside_desktop_entry = 0;
 	char *line = NULL;
@@ -151,17 +152,33 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 		char *key, *value;
 		if (inside_desktop_entry && parse_dektop_line(line, &key, &value)) {
 			if (strstr(key, "Name") == key) {
-				if (strcmp(key, "Name") == 0 && lang_index > lang_index_default) {
+				if (strcmp(key, "Name") == 0 && lang_index_name > lang_index_default) {
 					entry->name = strdup(value);
-					lang_index = lang_index_default;
+					lang_index_name = lang_index_default;
 				} else {
-					for (int i = 0; languages[i] && i < lang_index; i++) {
+					for (int i = 0; languages[i] && i < lang_index_name; i++) {
 						gchar *localized_key = g_strdup_printf("Name[%s]", languages[i]);
 						if (strcmp(key, localized_key) == 0) {
 							if (entry->name)
 								free(entry->name);
 							entry->name = strdup(value);
-							lang_index = i;
+							lang_index_name = i;
+						}
+						g_free(localized_key);
+					}
+				}
+			} else if (strstr(key, "GenericName") == key) {
+				if (strcmp(key, "GenericName") == 0 && lang_index_generic_name > lang_index_default) {
+					entry->generic_name = strdup(value);
+					lang_index_generic_name = lang_index_default;
+				} else {
+					for (int i = 0; languages[i] && i < lang_index_generic_name; i++) {
+						gchar *localized_key = g_strdup_printf("GenericName[%s]", languages[i]);
+						if (strcmp(key, localized_key) == 0) {
+							if (entry->generic_name)
+								free(entry->generic_name);
+							entry->generic_name = strdup(value);
+							lang_index_generic_name = i;
 						}
 						g_free(localized_key);
 					}
@@ -177,7 +194,7 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 	}
 	fclose(fp);
 	// From this point:
-	// entry->name, entry->icon, entry->exec will never be empty strings (can be NULL though)
+	// entry->name, entry->generic_name, entry->icon, entry->exec will never be empty strings (can be NULL though)
 
 	expand_exec(entry, entry->path);
 
@@ -193,9 +210,10 @@ gboolean read_desktop_file_from_dir(const char *path, const char *file_name, Des
 		return TRUE;
 	}
 	free(entry->name);
+	free(entry->generic_name);
 	free(entry->icon);
 	free(entry->exec);
-	entry->name = entry->icon = entry->exec = NULL;
+	entry->name = entry->generic_name = entry->icon = entry->exec = NULL;
 
 	GList *subdirs = NULL;
 
@@ -234,7 +252,7 @@ gboolean read_desktop_file_from_dir(const char *path, const char *file_name, Des
 gboolean read_desktop_file(const char *path, DesktopEntry *entry)
 {
 	entry->path = strdup(path);
-	entry->name = entry->icon = entry->exec = NULL;
+	entry->name = entry->generic_name = entry->icon = entry->exec = NULL;
 
 	if (strchr(path, '/'))
 		return read_desktop_file_full_path(path, entry);
@@ -248,10 +266,11 @@ gboolean read_desktop_file(const char *path, DesktopEntry *entry)
 void free_desktop_entry(DesktopEntry *entry)
 {
 	free(entry->name);
+	free(entry->generic_name);
 	free(entry->icon);
 	free(entry->exec);
 	free(entry->path);
-	entry->name = entry->icon = entry->exec = entry->path = NULL;
+	entry->name = entry->generic_name = entry->icon = entry->exec = entry->path = NULL;
 }
 
 void test_read_desktop_file()
@@ -259,7 +278,7 @@ void test_read_desktop_file()
 	fprintf(stdout, "\033[1;33m");
 	DesktopEntry entry;
 	read_desktop_file("/usr/share/applications/firefox.desktop", &entry);
-	printf("Name:%s Icon:%s Exec:%s\n", entry.name, entry.icon, entry.exec);
+	printf("Name:%s GenericName:%s Icon:%s Exec:%s\n", entry.name, entry.generic_name, entry.icon, entry.exec);
 	fprintf(stdout, "\033[0m");
 }
 

@@ -140,7 +140,7 @@ void cleanup_launcher_theme(Launcher *launcher)
 			free(launcherIcon->icon_name);
 			free(launcherIcon->icon_path);
 			free(launcherIcon->cmd);
-			free(launcherIcon->icon_tooltip);
+			g_free(launcherIcon->icon_tooltip);
 		}
 		free(launcherIcon);
 	}
@@ -457,7 +457,19 @@ void launcher_load_icons(Launcher *launcher)
 			launcherIcon->cmd = strdup(entry.exec);
 			launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(DEFAULT_ICON);
 			launcherIcon->icon_size = 1;
-			launcherIcon->icon_tooltip = entry.name ? strdup(entry.name) : strdup(entry.exec);
+			if (entry.name) {
+				if (entry.generic_name) {
+					launcherIcon->icon_tooltip = g_strdup_printf("%s (%s)", entry.name, entry.generic_name);
+				} else {
+					launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.name);
+				}
+			} else {
+				if (entry.generic_name) {
+					launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.generic_name);
+				} else if (entry.exec) {
+					launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.exec);
+				}
+			}
 			launcher->list_icons = g_slist_append(launcher->list_icons, launcherIcon);
 			add_area(&launcherIcon->area, (Area *)launcher);
 		}
