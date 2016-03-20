@@ -1926,15 +1926,15 @@ msgid "_Import theme..."
 msgstr ""
 
 #: ../main.c:251
-msgid "Import theme"
+msgid "Import theme(s) from file system"
 msgstr ""
 
 #: ../main.c:252
 msgid "_Save as..."
 msgstr ""
 
-#: ../main.c:252 ../main.c:412
-msgid "Save theme as"
+#: ../main.c:252
+msgid "Save the theme with a new name"
 msgstr ""
 
 #: ../main.c:253
@@ -1942,7 +1942,7 @@ msgid "_Delete"
 msgstr ""
 
 #: ../main.c:253
-msgid "Delete theme"
+msgid "Delete the selected theme"
 msgstr ""
 
 #: ../main.c:254
@@ -1950,7 +1950,7 @@ msgid "_Reset"
 msgstr ""
 
 #: ../main.c:254
-msgid "Reset theme"
+msgid "Reset the selected theme to default"
 msgstr ""
 
 #: ../main.c:255
@@ -1958,7 +1958,7 @@ msgid "_Edit theme..."
 msgstr ""
 
 #: ../main.c:255
-msgid "Edit selected theme"
+msgid "Edit the selected theme"
 msgstr ""
 
 #: ../main.c:256
@@ -1973,8 +1973,16 @@ msgstr ""
 msgid "Refresh"
 msgstr ""
 
+#: ../main.c:257
+msgid "Redraw the selected theme"
+msgstr ""
+
 #: ../main.c:258
 msgid "Refresh all"
+msgstr ""
+
+#: ../main.c:258
+msgid "Redraw all themes"
 msgstr ""
 
 #: ../main.c:259
@@ -2021,17 +2029,22 @@ msgid "Import theme(s)"
 msgstr ""
 
 #: ../main.c:396
-msgid "Please select a theme first."
+msgid "Please select a theme."
+msgstr ""
+
+#: ../main.c:412
+msgid "Save theme as"
 msgstr ""
 
 #: ../main.c:446
-msgid "Delete the selected theme?"
+msgid "Do you really want to delete the selected theme?"
 msgstr ""
 
 #: ../main.c:485
-msgid "Reset the selected theme?"
+msgid "Do you really want to reset the selected theme to default?"
 msgstr ""
 
 #: ../main.c:653
-msgid "Replace the default theme with the selected theme?"
+msgid ""
+"Do you really want to replace the default theme with the selected theme?"
 msgstr ""

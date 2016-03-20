@@ -2105,24 +2105,27 @@ msgid   "_Import theme..."
 msgstr  "_Importuj motyw..."
 
 #: ../main.c:251
-msgid   "Import theme"
-msgstr  "Import motywu"
+#, fuzzy
+msgid   "Import theme(s) from file system"
+msgstr  "Importuj motyw(y)"
 
 #: ../main.c:252
 msgid   "_Save as..."
 msgstr  "_Zapisz jako..."
 
-#: ../main.c:252 ../main.c:412
-msgid   "Save theme as"
-msgstr  "Zapisz motyw jako"
+#: ../main.c:252
+#, fuzzy
+msgid   "Save the theme with a new name"
+msgstr  "Wybierz motyw do zapisu"
 
 #: ../main.c:253
 msgid   "_Delete"
 msgstr  "_Usuń"
 
 #: ../main.c:253
-msgid   "Delete theme"
-msgstr  "Usuń motyw"
+#, fuzzy
+msgid   "Delete the selected theme"
+msgstr  "Edycja wybranego motywu"
 
 #: ../main.c:254
 msgid   "_Reset"
@@ -2130,15 +2133,16 @@ msgstr  ""
 
 #: ../main.c:254
 #, fuzzy
-msgid   "Reset theme"
-msgstr  "Usuń motyw"
+msgid   "Reset the selected theme to default"
+msgstr  "Edycja wybranego motywu"
 
 #: ../main.c:255
 msgid   "_Edit theme..."
 msgstr  "_Edytuj motyw..."
 
 #: ../main.c:255
-msgid   "Edit selected theme"
+#, fuzzy
+msgid   "Edit the selected theme"
 msgstr  "Edycja wybranego motywu"
 
 #: ../main.c:256
@@ -2153,9 +2157,18 @@ msgstr  ""
 msgid   "Refresh"
 msgstr  "Odśwież"
 
+#: ../main.c:257
+#, fuzzy
+msgid   "Redraw the selected theme"
+msgstr  "Edycja wybranego motywu"
+
 #: ../main.c:258
 msgid   "Refresh all"
 msgstr  "Odśwież wszystkie"
+
+#: ../main.c:258
+msgid   "Redraw all themes"
+msgstr  ""
 
 #: ../main.c:259
 msgid   "_Quit"
@@ -2202,22 +2215,37 @@ msgid   "Import theme(s)"
 msgstr  "Importuj motyw(y)"
 
 #: ../main.c:396
-msgid   "Please select a theme first."
-msgstr  ""
+#, fuzzy
+msgid   "Please select a theme."
+msgstr  "Edycja wybranego motywu"
+
+#: ../main.c:412
+msgid   "Save theme as"
+msgstr  "Zapisz motyw jako"
 
 #: ../main.c:446
 #, fuzzy
-msgid   "Delete the selected theme?"
+msgid   "Do you really want to delete the selected theme?"
 msgstr  "Edycja wybranego motywu"
 
 #: ../main.c:485
-#, fuzzy
-msgid   "Reset the selected theme?"
-msgstr  "Edycja wybranego motywu"
+msgid   "Do you really want to reset the selected theme to default?"
+msgstr  ""
 
 #: ../main.c:653
-msgid   "Replace the default theme with the selected theme?"
+msgid   "Do you really want to replace the default theme with the selected "
+        "theme?"
 msgstr  ""
+
+#~ msgid        "Import theme"
+#~ msgstr       "Import motywu"
+
+#~ msgid        "Delete theme"
+#~ msgstr       "Usuń motyw"
+
+#, fuzzy
+#~ msgid        "Reset theme"
+#~ msgstr       "Usuń motyw"
 
 #~ msgid        "_Import default theme..."
 #~ msgstr       "_Importuj domyślny motyw..."
@@ -2230,6 +2258,3 @@ msgstr  ""
 
 #~ msgid        "Save default theme as"
 #~ msgstr       "Zapisz domyślny motyw jako"
-
-#~ msgid        "Select the theme to be saved."
-#~ msgstr       "Wybierz motyw do zapisu"

@@ -2071,24 +2071,27 @@ msgid   "_Import theme..."
 msgstr  "_Importuj temu..."
 
 #: ../main.c:251
-msgid   "Import theme"
-msgstr  "Importuj temu"
+#, fuzzy
+msgid   "Import theme(s) from file system"
+msgstr  "Importuj temu(e)"
 
 #: ../main.c:252
 msgid   "_Save as..."
 msgstr  "_Snimiti kao..."
 
-#: ../main.c:252 ../main.c:412
-msgid   "Save theme as"
-msgstr  "Snimiti temu kao"
+#: ../main.c:252
+#, fuzzy
+msgid   "Save the theme with a new name"
+msgstr  "Izaberi temu za snimanje."
 
 #: ../main.c:253
 msgid   "_Delete"
 msgstr  "Iz_briši"
 
 #: ../main.c:253
-msgid   "Delete theme"
-msgstr  "Izbriši temu"
+#, fuzzy
+msgid   "Delete the selected theme"
+msgstr  "Uredi odabranu temu"
 
 #: ../main.c:254
 msgid   "_Reset"
@@ -2096,15 +2099,16 @@ msgstr  ""
 
 #: ../main.c:254
 #, fuzzy
-msgid   "Reset theme"
-msgstr  "Izbriši temu"
+msgid   "Reset the selected theme to default"
+msgstr  "Uredi odabranu temu"
 
 #: ../main.c:255
 msgid   "_Edit theme..."
 msgstr  "Ur_edi temu..."
 
 #: ../main.c:255
-msgid   "Edit selected theme"
+#, fuzzy
+msgid   "Edit the selected theme"
 msgstr  "Uredi odabranu temu"
 
 #: ../main.c:256
@@ -2119,9 +2123,18 @@ msgstr  ""
 msgid   "Refresh"
 msgstr  "Osvježi"
 
+#: ../main.c:257
+#, fuzzy
+msgid   "Redraw the selected theme"
+msgstr  "Uredi odabranu temu"
+
 #: ../main.c:258
 msgid   "Refresh all"
 msgstr  "Osvježi sve"
+
+#: ../main.c:258
+msgid   "Redraw all themes"
+msgstr  ""
 
 #: ../main.c:259
 msgid   "_Quit"
@@ -2168,22 +2181,37 @@ msgid   "Import theme(s)"
 msgstr  "Importuj temu(e)"
 
 #: ../main.c:396
-msgid   "Please select a theme first."
-msgstr  ""
+#, fuzzy
+msgid   "Please select a theme."
+msgstr  "Uredi odabranu temu"
+
+#: ../main.c:412
+msgid   "Save theme as"
+msgstr  "Snimiti temu kao"
 
 #: ../main.c:446
 #, fuzzy
-msgid   "Delete the selected theme?"
+msgid   "Do you really want to delete the selected theme?"
 msgstr  "Uredi odabranu temu"
 
 #: ../main.c:485
-#, fuzzy
-msgid   "Reset the selected theme?"
-msgstr  "Uredi odabranu temu"
+msgid   "Do you really want to reset the selected theme to default?"
+msgstr  ""
 
 #: ../main.c:653
-msgid   "Replace the default theme with the selected theme?"
+msgid   "Do you really want to replace the default theme with the selected "
+        "theme?"
 msgstr  ""
+
+#~ msgid        "Import theme"
+#~ msgstr       "Importuj temu"
+
+#~ msgid        "Delete theme"
+#~ msgstr       "Izbriši temu"
+
+#, fuzzy
+#~ msgid        "Reset theme"
+#~ msgstr       "Izbriši temu"
 
 #~ msgid        "_Import default theme..."
 #~ msgstr       "_Importuj standardnu temu..."
@@ -2196,6 +2224,3 @@ msgstr  ""
 
 #~ msgid        "Save default theme as"
 #~ msgstr       "Snimiti standardnu temu kao"
-
-#~ msgid        "Select the theme to be saved."
-#~ msgstr       "Izaberi temu za snimanje."
