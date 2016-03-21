@@ -241,7 +241,8 @@ void extract_values(const char *value, char **value1, char **value2, char **valu
 void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright)
 {
 	unsigned int x, y;
-	unsigned int a, r, g, b, argb;
+	unsigned int argb;
+	int a, r, g, b;
 	unsigned long id;
 	int cmax, cmin;
 	float h2, f, p, q, t;
@@ -294,7 +295,7 @@ void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright
 				saturation = 0.0;
 			if (saturation > 1.0)
 				saturation = 1.0;
-			brightness += bright;
+			//brightness += bright;
 			if (brightness < 0.0)
 				brightness = 0.0;
 			if (brightness > 1.0)
@@ -344,6 +345,14 @@ void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright
 					break;
 				}
 			}
+
+			r += bright * 255;
+			g += bright * 255;
+			b += bright * 255;
+
+			r = MAX(0, MIN(255, r));
+			g = MAX(0, MIN(255, g));
+			b = MAX(0, MIN(255, b));
 
 			argb = a;
 			argb = (argb << 8) + r;
@@ -503,8 +512,8 @@ Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int bri
 			   imlib_image_get_width(),
 			   imlib_image_get_height(),
 			   alpha,
-			   (float)saturation / 100,
-			   (float)brightness / 100);
+			   saturation / 100.0,
+			   brightness / 100.0);
 	imlib_image_put_back_data(data);
 	return copy;
 }
