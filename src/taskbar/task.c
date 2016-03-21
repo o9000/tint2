@@ -316,8 +316,8 @@ void task_update_icon(Task *task)
 					   task->icon_width,
 					   task->icon_height,
 					   panel->g_task.alpha[k],
-					   (float)panel->g_task.saturation[k] / 100,
-					   (float)panel->g_task.brightness[k] / 100);
+					   panel->g_task.saturation[k] / 100.0,
+					   panel->g_task.brightness[k] / 100.0);
 			imlib_image_put_back_data(data32);
 		}
 		if (panel_config.mouse_effects) {

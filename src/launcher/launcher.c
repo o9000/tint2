@@ -349,8 +349,8 @@ Imlib_Image scale_icon(Imlib_Image original, int icon_size)
 				   icon_size,
 				   icon_size,
 				   launcher_alpha,
-				   (float)launcher_saturation / 100,
-				   (float)launcher_brightness / 100);
+				   launcher_saturation / 100.0,
+				   launcher_brightness / 100.0);
 		imlib_image_put_back_data(data);
 
 		imlib_context_set_image(icon_scaled);

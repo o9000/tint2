@@ -1339,8 +1339,8 @@ void systray_render_icon_composited(void *t)
 		           traywin->width,
 		           traywin->height,
 		           systray.alpha,
-		           (float)systray.saturation / 100,
-		           (float)systray.brightness / 100);
+				   systray.saturation / 100.0,
+				   systray.brightness / 100.0);
 	imlib_image_put_back_data(data);
 
 	systray_render_icon_from_image(traywin);
