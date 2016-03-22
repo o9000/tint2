@@ -953,6 +953,7 @@ void event_property_notify(XEvent *e)
 				init_taskbar();
 				for (int i = 0; i < num_panels; i++) {
 					init_taskbar_panel(&panels[i]);
+					place_panel_all_desktops(&panels[i]);
 					set_panel_items_order(&panels[i]);
 					update_taskbar_visibility(&panels[i]);
 					panels[i].area.resize_needed = 1;
@@ -963,6 +964,7 @@ void event_property_notify(XEvent *e)
 			} else if (old_desktop != server.desktop) {
 				for (int i = 0; i < num_panels; i++) {
 					Panel *panel = &panels[i];
+					place_panel_all_desktops(panel);
 					set_taskbar_state(&panel->taskbar[old_desktop], TASKBAR_NORMAL);
 					set_taskbar_state(&panel->taskbar[server.desktop], TASKBAR_ACTIVE);
 					// check ALL_DESKTOPS task => resize taskbar

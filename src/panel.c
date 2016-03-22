@@ -570,6 +570,34 @@ void set_panel_items_order(Panel *p)
 	initialize_positions(&p->area, 0);
 }
 
+void place_panel_all_desktops(Panel *p)
+{
+	long val = ALL_DESKTOPS;
+	XChangeProperty(server.display,
+					p->main_win,
+					server.atom._NET_WM_DESKTOP,
+					XA_CARDINAL,
+					32,
+					PropModeReplace,
+					(unsigned char *)&val,
+					1);
+
+	Atom state[4];
+	state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;
+	state[1] = server.atom._NET_WM_STATE_SKIP_TASKBAR;
+	state[2] = server.atom._NET_WM_STATE_STICKY;
+	state[3] = panel_layer == BOTTOM_LAYER ? server.atom._NET_WM_STATE_BELOW : server.atom._NET_WM_STATE_ABOVE;
+	int num_atoms = panel_layer == NORMAL_LAYER ? 3 : 4;
+	XChangeProperty(server.display,
+					p->main_win,
+					server.atom._NET_WM_STATE,
+					XA_ATOM,
+					32,
+					PropModeReplace,
+					(unsigned char *)state,
+					num_atoms);
+}
+
 void set_panel_properties(Panel *p)
 {
 	XStoreName(server.display, p->main_win, panel_window_name);
@@ -608,30 +636,7 @@ void set_panel_properties(Panel *p)
 					(unsigned char *)&val,
 					1);
 
-	val = ALL_DESKTOPS;
-	XChangeProperty(server.display,
-					p->main_win,
-					server.atom._NET_WM_DESKTOP,
-					XA_CARDINAL,
-					32,
-					PropModeReplace,
-					(unsigned char *)&val,
-					1);
-
-	Atom state[4];
-	state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;
-	state[1] = server.atom._NET_WM_STATE_SKIP_TASKBAR;
-	state[2] = server.atom._NET_WM_STATE_STICKY;
-	state[3] = panel_layer == BOTTOM_LAYER ? server.atom._NET_WM_STATE_BELOW : server.atom._NET_WM_STATE_ABOVE;
-	int num_atoms = panel_layer == NORMAL_LAYER ? 3 : 4;
-	XChangeProperty(server.display,
-					p->main_win,
-					server.atom._NET_WM_STATE,
-					XA_ATOM,
-					32,
-					PropModeReplace,
-					(unsigned char *)state,
-					num_atoms);
+	place_panel_all_desktops(p);
 
 	XWMHints wmhints;
 	memset(&wmhints, 0, sizeof(wmhints));
