@@ -348,7 +348,7 @@ Imlib_Image scale_icon(Imlib_Image original, int icon_size)
 		adjust_asb(data,
 				   icon_size,
 				   icon_size,
-				   launcher_alpha,
+				   launcher_alpha / 100.0,
 				   launcher_saturation / 100.0,
 				   launcher_brightness / 100.0);
 		imlib_image_put_back_data(data);

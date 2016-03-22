@@ -8,6 +8,7 @@
 
 #define WM_CLASS_TINT "panel"
 
+#include <glib.h>
 #include <Imlib2.h>
 #include <pango/pangocairo.h>
 #include "area.h"
@@ -17,6 +18,9 @@
 #define RED    "\033[1;31m"
 #define BLUE   "\033[1;34m"
 #define RESET  "\033[0m"
+
+#define MAX3(a, b, c)  MAX(MAX(a, b), c)
+#define MIN3(a, b, c)  MIN(MIN(a, b), c)
 
 // mouse actions
 typedef enum MouseAction {
@@ -67,8 +71,20 @@ void get_color(char *hex, double *rgb);
 Imlib_Image load_image(const char *path, int cached);
 
 // Adjusts the alpha/saturation/brightness on an ARGB image.
-// Parameters: alpha from 0 to 100, satur from 0 to 1, bright from 0 to 1.
-void adjust_asb(DATA32 *data, int w, int h, int alpha, float satur, float bright);
+// Parameters:
+// * alpha_adjust: multiplicative:
+//    * 0 = full transparency
+//    * 1 = no adjustment
+//    * 2 = twice the current opacity
+// * satur_adjust: additive:
+//   * -1 = full grayscale
+//   *  0 = no adjustment
+//   *  1 = full color
+// * bright_adjust: additive:
+//   * -1 = black
+//   *  0 = no adjustment
+//   *  1 = white
+void adjust_asb(DATA32 *data, int w, int h, float alpha_adjust, float satur_adjust, float bright_adjust);
 Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int brightness);
 
 void create_heuristic_mask(DATA32 *data, int w, int h);

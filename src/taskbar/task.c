@@ -315,7 +315,7 @@ void task_update_icon(Task *task)
 			adjust_asb(data32,
 					   task->icon_width,
 					   task->icon_height,
-					   panel->g_task.alpha[k],
+					   panel->g_task.alpha[k] / 100.0,
 					   panel->g_task.saturation[k] / 100.0,
 					   panel->g_task.brightness[k] / 100.0);
 			imlib_image_put_back_data(data32);

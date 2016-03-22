@@ -1338,7 +1338,7 @@ void systray_render_icon_composited(void *t)
 		adjust_asb(data,
 		           traywin->width,
 		           traywin->height,
-		           systray.alpha,
+				   systray.alpha / 100.0,
 				   systray.saturation / 100.0,
 				   systray.brightness / 100.0);
 	imlib_image_put_back_data(data);
