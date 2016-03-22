@@ -2150,19 +2150,19 @@ msgstr  "Supprimer le thème choisi"
 
 #: ../main.c:254
 msgid   "_Reset"
-msgstr  "Réinitialiser"
+msgstr  "_Réinitialiser"
 
 #: ../main.c:254
 msgid   "Reset the selected theme to default"
-msgstr  "Réinitialiser le thème choisi au défaut"
+msgstr  "Revenir au thème par défaut"
 
 #: ../main.c:255
 msgid   "_Edit theme..."
-msgstr  "_Éditer le thème..."
+msgstr  "_Modifier le thème..."
 
 #: ../main.c:255
 msgid   "Edit the selected theme"
-msgstr  "Éditer le thème choisi"
+msgstr  "Modifier le thème choisi"
 
 #: ../main.c:256
 msgid   "_Make default"
@@ -2234,7 +2234,7 @@ msgstr  "Importer le(s) thème(s)"
 
 #: ../main.c:396
 msgid   "Please select a theme."
-msgstr  "S'il vous plaît sélectionner un thème."
+msgstr  "Veuillez sélectionner un thème."
 
 #: ../main.c:412
 msgid   "Save theme as"
@@ -2246,7 +2246,7 @@ msgstr  "Voulez-vous vraiment supprimer le thème choisi?"
 
 #: ../main.c:485
 msgid   "Do you really want to reset the selected theme to default?"
-msgstr  "Voulez-vous vraiment réinitialiser le thème choisi au défaut?"
+msgstr  "Voulez-vous vraiment revenir au thème par défaut?"
 
 #: ../main.c:653
 msgid   "Do you really want to replace the default theme with the selected "
