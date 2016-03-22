@@ -184,8 +184,10 @@ gboolean update_snapshot()
 						   COL_THEME_FILE, &path,
 						   -1);
 
+		char fname[128];
+		sprintf(fname, "tint2-%d.jpg", (int)getpid());
 
-		gchar *snap = g_build_filename(g_get_user_config_dir(), "tint2", "snap.jpg", NULL);
+		gchar *snap = g_build_filename(g_get_tmp_dir(), fname, NULL);
 		g_remove(snap);
 
 		gchar *cmd = g_strdup_printf("tint2 -c \'%s\' -s \'%s\' 1>/dev/null 2>/dev/null", path, snap);
@@ -197,6 +199,8 @@ gboolean update_snapshot()
 			}
 		}
 		g_free(cmd);
+
+		g_remove(snap);
 		g_free(snap);
 		g_free(path);
 
