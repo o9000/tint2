@@ -1,13 +1,22 @@
-2016-02-28 master
+2016-03-20 master
+- Major changes (see details below):
+  - Icon cache and lazy icon theme loading to improve performance in tint2 and tint2conf
+  - Extra tint2rc themes are installed to /usr/share/tint2 and available in tint2conf
+  - Tint2conf GUI improvements
+- Config options with changed behavior:
+  - The launcher now also allows launcher_item_app entries without a full path.
+    In this case the .desktop file is searched in the standard application directories.
 - Fixes:
+  - Taskbar icons are now resized correctly for certain geometries (issue #560)
   - Fix get_version.sh so that it returns the correct version when .git is missing
-  - Create temporary files in /tmp
-  - Compute task icon size correctly (issue #560)
   - Fix build on powerpc
-  - The XDG paths are used in the icon and application lookup in addition to the hardcoded defaults
-  - Minor code cleanup in the system tray
+  - Temporary files are now created in /tmp
+  - The XDG paths are now used in the icon and application lookup in addition to the hardcoded defaults
+  - Brigtness adjustments no longer distort colors
+  - Fixed race in sorting systray icons by name
+  - Fixed desktop entry parsing (issue #570)
   - tint2conf:
-    - Sort applications correctly
+    - Applications are now sorted correctly
     - Avoid duplicate icon themes due to symlinks
     - Avoid loading desktop files marked as NoDisplay
 - Enhancements:
@@ -17,10 +26,10 @@
     indicating the application name and the icon theme name.
   - Fallback icon themes are loaded lazily to speed up tint2 and tint2conf startup
   - A better Name and GenericName is used in the tint2 and tint2conf .desktop files
-  - The launcher now allows launcher_item_app entries without a full path. In this case the .desktop file is searched
-    in the standard application directories.
   - tint2conf:
-    - Sort icon themes in list
+    - Allows selection of themes from /usr/share
+    - Menu reorganization (thanks @Vladimir-csp for feedback)
+    - Icon themes are now sorted in the displayed list
     - Updated ru translation (thanks @Vladimir-csp)
 
 2016-01-29 0.12.7
