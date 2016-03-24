@@ -96,7 +96,7 @@ typedef struct Panel {
 	// position relative to root window
 	int posx, posy;
 	int marginx, marginy;
-	int fractional_width, fractional_height;
+	gboolean fractional_width, fractional_height;
 	int monitor;
 	int font_shadow;
 	gboolean mouse_effects;

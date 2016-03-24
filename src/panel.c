@@ -287,11 +287,9 @@ void init_panel_size_and_position(Panel *panel)
 			panel->area.height = 32;
 		}
 		if (panel->fractional_width)
-			panel->area.width = server.monitors[panel->monitor].width * panel->area.width / 100;
+			panel->area.width = (server.monitors[panel->monitor].width - panel->marginx) * panel->area.width / 100;
 		if (panel->fractional_height)
-			panel->area.height = server.monitors[panel->monitor].height * panel->area.height / 100;
-		if (panel->area.width + panel->marginx > server.monitors[panel->monitor].width)
-			panel->area.width = server.monitors[panel->monitor].width - panel->marginx;
+			panel->area.height = (server.monitors[panel->monitor].height - panel->marginy) * panel->area.height / 100;
 		if (panel->area.bg->border.radius > panel->area.height / 2) {
 			printf("panel_background_id rounded is too big... please fix your tint2rc\n");
 			g_array_append_val(backgrounds, *panel->area.bg);
@@ -309,17 +307,14 @@ void init_panel_size_and_position(Panel *panel)
 		}
 		int old_panel_height = panel->area.height;
 		if (panel->fractional_width)
-			panel->area.height = server.monitors[panel->monitor].height * panel->area.width / 100;
+			panel->area.height = (server.monitors[panel->monitor].height - panel->marginy) * panel->area.width / 100;
 		else
 			panel->area.height = panel->area.width;
 
 		if (panel->fractional_height)
-			panel->area.width = server.monitors[panel->monitor].width * old_panel_height / 100;
+			panel->area.width = (server.monitors[panel->monitor].width - panel->marginx) * old_panel_height / 100;
 		else
 			panel->area.width = old_panel_height;
-
-		if (panel->area.height + panel->marginy > server.monitors[panel->monitor].height)
-			panel->area.height = server.monitors[panel->monitor].height - panel->marginy;
 
 		if (panel->area.bg->border.radius > panel->area.width / 2) {
 			printf("panel_background_id rounded is too big... please fix your tint2rc\n");
@@ -328,6 +323,11 @@ void init_panel_size_and_position(Panel *panel)
 			panel->area.bg->border.radius = panel->area.width / 2;
 		}
 	}
+
+	if (panel->area.width + panel->marginx > server.monitors[panel->monitor].width)
+		panel->area.width = server.monitors[panel->monitor].width - panel->marginx;
+	if (panel->area.height + panel->marginy > server.monitors[panel->monitor].height)
+		panel->area.height = server.monitors[panel->monitor].height - panel->marginy;
 
 	// panel position determined here
 	if (panel_position & LEFT) {

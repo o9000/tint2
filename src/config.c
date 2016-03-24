@@ -304,13 +304,13 @@ void add_entry(char *key, char *value)
 		char *b;
 		if ((b = strchr(value1, '%'))) {
 			b[0] = '\0';
-			panel_config.fractional_width = 1;
+			panel_config.fractional_width = TRUE;
 		}
 		panel_config.area.width = atoi(value1);
 		if (panel_config.area.width == 0) {
 			// full width mode
 			panel_config.area.width = 100;
-			panel_config.fractional_width = 1;
+			panel_config.fractional_width = TRUE;
 		}
 		if (value2) {
 			if ((b = strchr(value2, '%'))) {
