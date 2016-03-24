@@ -5,7 +5,11 @@
   - Tint2conf GUI improvements
 - Config options with changed behavior:
   - The launcher now also allows launcher_item_app entries without a full path.
-    In this case the .desktop file is searched in the standard application directories.
+    In this case the .desktop file is searched in the standard application directories (issue #565).
+  - If the panel size is given as a percentage and a non-zero margin is also specified,
+    the size is now computed as a fraction of the available size (i.e. monitor size - margin).
+    Before it was computed as a fraction of the monitor size first, then the margin was subtracted from the value, which
+    was not intuitive (issue #559).
 - Fixes:
   - Taskbar icons are now resized correctly for certain geometries (issue #560)
   - Fix get_version.sh so that it returns the correct version when .git is missing

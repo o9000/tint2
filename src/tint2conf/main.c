@@ -117,7 +117,7 @@ gchar *import_no_overwrite(const char *filepath)
 	gchar *newpath = g_build_filename(g_get_user_config_dir(), "tint2", filename, NULL);
 	if (!g_file_test(newpath, G_FILE_TEST_EXISTS)) {
 		copy_file(filepath, newpath);
-		theme_list_append(newpath, NULL);
+		theme_list_append(newpath);
 		g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
 	}
 
@@ -136,7 +136,7 @@ void import_with_overwrite(const char *filepath, const char *newpath)
 
 	if (theme_is_editable(newpath)) {
 		if (!theme_existed) {
-			theme_list_append(newpath, NULL);
+			theme_list_append(newpath);
 			g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
 		} else {
 			int unused = system("killall -SIGUSR1 tint2 || pkill -SIGUSR1 -x tint2");
@@ -708,7 +708,7 @@ static gboolean load_user_themes()
 			!strstr(file_name, "~") && (endswith(file_name, "tint2rc") || endswith(file_name, ".conf"))) {
 			found_theme = TRUE;
 			gchar *path = g_build_filename(tint2_config_dir, file_name, NULL);
-			theme_list_append(path, NULL);
+			theme_list_append(path);
 			g_free(path);
 		}
 	}
@@ -732,7 +732,7 @@ static gboolean load_themes_from_dirs(const gchar *const *dirs)
 					(endswith(file_name, "tint2rc") || endswith(file_name, ".conf"))) {
 					found_theme = TRUE;
 					gchar *path = g_build_filename(path_tint2, file_name, NULL);
-					theme_list_append(path, dirs[i]);
+					theme_list_append(path);
 					g_free(path);
 				}
 			}

@@ -20,6 +20,7 @@
 #include "main.h"
 #include "strnatcmp.h"
 #include "theme_view.h"
+#include "common.h"
 
 // The data columns that we export via the tree model interface
 GtkWidget *g_theme_view;
@@ -136,7 +137,7 @@ gboolean theme_list_contains(const char *given_path)
 	return FALSE;
 }
 
-void theme_list_append(const gchar *path, const gchar *suffix)
+void theme_list_append(const gchar *path)
 {
 	if (theme_list_contains(path))
 		return;
@@ -146,14 +147,15 @@ void theme_list_append(const gchar *path, const gchar *suffix)
 
 	gchar *name = strrchr(path, '/') + 1;
 
-	gchar *display_name;
-	if (suffix) {
-		display_name = g_strdup_printf("%s\n(%s)", name, suffix);
-	} else {
-		display_name = g_strdup(name);
-	}
+	gchar *dir = g_strdup(path);
+	strrchr(dir, '/')[0] = 0;
+	char *suffix = contract_tilde(dir);
+	g_free(dir);
+
+	gchar *display_name = g_strdup_printf("%s\n(%s)", name, suffix);
 	gtk_list_store_set(theme_list_store, &iter, COL_THEME_FILE, path, COL_THEME_NAME, display_name, -1);
 	g_free(display_name);
+	g_free(suffix);
 }
 
 
