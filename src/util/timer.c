@@ -199,7 +199,7 @@ void add_timeout_intern(int value_msec, int interval_msec, void (*_callback)(), 
 
 gint compare_timeouts(gconstpointer t1, gconstpointer t2)
 {
-  return compare_timespecs(&((const timeout *)t1)->timeout_expires, &((const timeout *)t2)->timeout_expires);
+	return compare_timespecs(&((const timeout *)t1)->timeout_expires, &((const timeout *)t2)->timeout_expires);
 }
 
 gint compare_timespecs(const struct timespec *t1, const struct timespec *t2)
@@ -257,7 +257,7 @@ int align_with_existing_timeouts(timeout *t)
 		timeout *t2 = it->data;
 		if (t2->interval_msec > 0) {
 			if (t->interval_msec % t2->interval_msec == 0 || t2->interval_msec % t->interval_msec == 0) {
-        if (!multi_timeouts)
+				if (!multi_timeouts)
 					multi_timeouts = g_hash_table_new(0, 0);
 				if (!t->multi_timeout && !t2->multi_timeout) {
 					// both timeouts can be aligned, but there is no multi timeout for them

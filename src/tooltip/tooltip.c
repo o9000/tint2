@@ -110,7 +110,6 @@ void tooltip_default_font_changed()
 	tooltip_update();
 }
 
-
 void tooltip_trigger_show(Area *area, Panel *p, XEvent *e)
 {
 	// Position the tooltip in the center of the area

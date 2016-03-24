@@ -156,9 +156,9 @@ void init_battery_panel(void *p)
 	battery->area._is_under_mouse = full_width_area_is_under_mouse;
 	battery->area.on_screen = TRUE;
 	battery->area.resize_needed = 1;
-	battery->area.has_mouse_over_effect = panel_config.mouse_effects &&
-										  (battery_lclick_command || battery_mclick_command || battery_rclick_command ||
-										   battery_uwheel_command || battery_dwheel_command);
+	battery->area.has_mouse_over_effect =
+		panel_config.mouse_effects && (battery_lclick_command || battery_mclick_command || battery_rclick_command ||
+									   battery_uwheel_command || battery_dwheel_command);
 	battery->area.has_mouse_press_effect = battery->area.has_mouse_over_effect;
 	if (battery_tooltip_enabled)
 		battery->area._get_tooltip_text = battery_get_tooltip;
@@ -168,13 +168,11 @@ void battery_init_fonts()
 {
 	if (!bat1_font_desc) {
 		bat1_font_desc = pango_font_description_from_string(get_default_font());
-		pango_font_description_set_size(bat1_font_desc,
-		                                pango_font_description_get_size(bat1_font_desc) - PANGO_SCALE);
+		pango_font_description_set_size(bat1_font_desc, pango_font_description_get_size(bat1_font_desc) - PANGO_SCALE);
 	}
 	if (!bat2_font_desc) {
 		bat2_font_desc = pango_font_description_from_string(get_default_font());
-		pango_font_description_set_size(bat2_font_desc,
-		                                pango_font_description_get_size(bat2_font_desc) - PANGO_SCALE);
+		pango_font_description_set_size(bat2_font_desc, pango_font_description_get_size(bat2_font_desc) - PANGO_SCALE);
 	}
 }
 

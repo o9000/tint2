@@ -135,37 +135,66 @@ void write_string(int fd, const char *s)
 const char *signal_name(int sig)
 {
 	switch (sig) {
-	case SIGHUP: return "SIGHUP: Hangup (POSIX).";
-	case SIGINT: return "SIGINT: Interrupt (ANSI).";
-	case SIGQUIT: return "SIGQUIT: Quit (POSIX).";
-	case SIGILL: return "SIGILL: Illegal instruction (ANSI).";
-	case SIGTRAP: return "SIGTRAP: Trace trap (POSIX).";
-	case SIGABRT: return "SIGABRT/SIGIOT: Abort (ANSI) / IOT trap (4.2 BSD).";
-	case SIGBUS: return "SIGBUS: BUS error (4.2 BSD).";
-	case SIGFPE: return "SIGFPE: Floating-point exception (ANSI).";
-	case SIGKILL: return "SIGKILL: Kill, unblockable (POSIX).";
-	case SIGUSR1: return "SIGUSR1: User-defined signal 1 (POSIX).";
-	case SIGSEGV: return "SIGSEGV: Segmentation violation (ANSI).";
-	case SIGUSR2: return "SIGUSR2: User-defined signal 2 (POSIX).";
-	case SIGPIPE: return "SIGPIPE: Broken pipe (POSIX).";
-	case SIGALRM: return "SIGALRM: Alarm clock (POSIX).";
-	case SIGTERM: return "SIGTERM: Termination (ANSI).";
-	//case SIGSTKFLT: return "SIGSTKFLT: Stack fault.";
-	case SIGCHLD: return "SIGCHLD: Child status has changed (POSIX).";
-	case SIGCONT: return "SIGCONT: Continue (POSIX).";
-	case SIGSTOP: return "SIGSTOP: Stop, unblockable (POSIX).";
-	case SIGTSTP: return "SIGTSTP: Keyboard stop (POSIX).";
-	case SIGTTIN: return "SIGTTIN: Background read from tty (POSIX).";
-	case SIGTTOU: return "SIGTTOU: Background write to tty (POSIX).";
-	case SIGURG: return "SIGURG: Urgent condition on socket (4.2 BSD).";
-	case SIGXCPU: return "SIGXCPU: CPU limit exceeded (4.2 BSD).";
-	case SIGXFSZ: return "SIGXFSZ: File size limit exceeded (4.2 BSD).";
-	case SIGVTALRM: return "SIGVTALRM: Virtual alarm clock (4.2 BSD).";
-	case SIGPROF: return "SIGPROF: Profiling alarm clock (4.2 BSD).";
-	case SIGWINCH: return "SIGWINCH: Window size change (4.3 BSD, Sun).";
-	case SIGIO: return "SIGIO: Pollable event occurred (System V) / I/O now possible (4.2 BSD).";
-	//case SIGPWR: return "SIGPWR: Power failure restart (System V).";
-	case SIGSYS: return "SIGSYS: Bad system call.";
+	case SIGHUP:
+		return "SIGHUP: Hangup (POSIX).";
+	case SIGINT:
+		return "SIGINT: Interrupt (ANSI).";
+	case SIGQUIT:
+		return "SIGQUIT: Quit (POSIX).";
+	case SIGILL:
+		return "SIGILL: Illegal instruction (ANSI).";
+	case SIGTRAP:
+		return "SIGTRAP: Trace trap (POSIX).";
+	case SIGABRT:
+		return "SIGABRT/SIGIOT: Abort (ANSI) / IOT trap (4.2 BSD).";
+	case SIGBUS:
+		return "SIGBUS: BUS error (4.2 BSD).";
+	case SIGFPE:
+		return "SIGFPE: Floating-point exception (ANSI).";
+	case SIGKILL:
+		return "SIGKILL: Kill, unblockable (POSIX).";
+	case SIGUSR1:
+		return "SIGUSR1: User-defined signal 1 (POSIX).";
+	case SIGSEGV:
+		return "SIGSEGV: Segmentation violation (ANSI).";
+	case SIGUSR2:
+		return "SIGUSR2: User-defined signal 2 (POSIX).";
+	case SIGPIPE:
+		return "SIGPIPE: Broken pipe (POSIX).";
+	case SIGALRM:
+		return "SIGALRM: Alarm clock (POSIX).";
+	case SIGTERM:
+		return "SIGTERM: Termination (ANSI).";
+	// case SIGSTKFLT: return "SIGSTKFLT: Stack fault.";
+	case SIGCHLD:
+		return "SIGCHLD: Child status has changed (POSIX).";
+	case SIGCONT:
+		return "SIGCONT: Continue (POSIX).";
+	case SIGSTOP:
+		return "SIGSTOP: Stop, unblockable (POSIX).";
+	case SIGTSTP:
+		return "SIGTSTP: Keyboard stop (POSIX).";
+	case SIGTTIN:
+		return "SIGTTIN: Background read from tty (POSIX).";
+	case SIGTTOU:
+		return "SIGTTOU: Background write to tty (POSIX).";
+	case SIGURG:
+		return "SIGURG: Urgent condition on socket (4.2 BSD).";
+	case SIGXCPU:
+		return "SIGXCPU: CPU limit exceeded (4.2 BSD).";
+	case SIGXFSZ:
+		return "SIGXFSZ: File size limit exceeded (4.2 BSD).";
+	case SIGVTALRM:
+		return "SIGVTALRM: Virtual alarm clock (4.2 BSD).";
+	case SIGPROF:
+		return "SIGPROF: Profiling alarm clock (4.2 BSD).";
+	case SIGWINCH:
+		return "SIGWINCH: Window size change (4.3 BSD, Sun).";
+	case SIGIO:
+		return "SIGIO: Pollable event occurred (System V) / I/O now possible (4.2 BSD).";
+	// case SIGPWR: return "SIGPWR: Power failure restart (System V).";
+	case SIGSYS:
+		return "SIGSYS: Bad system call.";
 	}
 	static char s[64];
 	sprintf(s, "SIG=%d: Unknown", sig);
@@ -203,7 +232,7 @@ void dump_backtrace(int log_fd)
 		unw_word_t offset;
 		char fname[128];
 		fname[0] = '\0';
-		(void) unw_get_proc_name(&cursor, fname, sizeof(fname), &offset);
+		(void)unw_get_proc_name(&cursor, fname, sizeof(fname), &offset);
 		log_string(log_fd, fname);
 		log_string(log_fd, "\n");
 	}
@@ -245,7 +274,7 @@ void handle_crash(const char *reason)
 	// We are going to crash, so restart the panel
 	char path[4096];
 	sprintf(path, "%s/.tint2-crash.log", get_home_dir());
-	int log_fd = open(path, O_WRONLY|O_CREAT|O_TRUNC, 0600);
+	int log_fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0600);
 	log_string(log_fd, RED "tint2 crashed, reason: ");
 	log_string(log_fd, reason);
 	log_string(log_fd, RESET "\n");
@@ -528,7 +557,8 @@ void get_snapshot(const char *path)
 	if (panel->area.width > server.monitors[0].width)
 		panel->area.width = server.monitors[0].width;
 
-	panel->temp_pmap = XCreatePixmap(server.display, server.root_win, panel->area.width, panel->area.height, server.depth);
+	panel->temp_pmap =
+		XCreatePixmap(server.display, server.root_win, panel->area.width, panel->area.height, server.depth);
 	render_panel(panel);
 
 	Imlib_Image img = NULL;
@@ -842,7 +872,8 @@ void event_button_release(XEvent *e)
 	// switch desktop
 	if (taskbar_mode == MULTI_DESKTOP) {
 		gboolean diff_desktop = FALSE;
-		if (taskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT && action != DESKTOP_RIGHT) {
+		if (taskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT &&
+			action != DESKTOP_RIGHT) {
 			diff_desktop = TRUE;
 			change_desktop(taskbar->desktop);
 		}
@@ -940,10 +971,8 @@ void event_property_notify(XEvent *e)
 			update_desktop_names();
 		}
 		// Change desktops
-		else if (at == server.atom._NET_NUMBER_OF_DESKTOPS ||
-				 at == server.atom._NET_DESKTOP_GEOMETRY ||
-				 at == server.atom._NET_DESKTOP_VIEWPORT ||
-				 at == server.atom._NET_WORKAREA ||
+		else if (at == server.atom._NET_NUMBER_OF_DESKTOPS || at == server.atom._NET_DESKTOP_GEOMETRY ||
+				 at == server.atom._NET_DESKTOP_VIEWPORT || at == server.atom._NET_WORKAREA ||
 				 at == server.atom._NET_CURRENT_DESKTOP) {
 			if (debug)
 				fprintf(stderr, "%s %d: win = root, atom = ?? desktops changed\n", __FUNCTION__, __LINE__);
@@ -1062,7 +1091,13 @@ void event_property_notify(XEvent *e)
 		Task *task = get_task(win);
 		if (debug) {
 			char *atom_name = XGetAtomName(server.display, at);
-			fprintf(stderr, "%s %d: win = %ld, task = %s, atom = %s\n", __FUNCTION__, __LINE__, win, task ? (task->title ? task->title : "??") : "null", atom_name);
+			fprintf(stderr,
+					"%s %d: win = %ld, task = %s, atom = %s\n",
+					__FUNCTION__,
+					__LINE__,
+					win,
+					task ? (task->title ? task->title : "??") : "null",
+					atom_name);
 			XFree(atom_name);
 		}
 		if (!task) {
@@ -1163,12 +1198,20 @@ void event_configure_notify(XEvent *e)
 
 	if (0) {
 		Task *task = get_task(win);
-		fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task ? (task->title ? task->title : "??") : "null");
+		fprintf(stderr,
+				"%s %d: win = %ld, task = %s\n",
+				__FUNCTION__,
+				__LINE__,
+				win,
+				task ? (task->title ? task->title : "??") : "null");
 	}
 
 	// change in root window (xrandr)
 	if (win == server.root_win) {
-		fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to configuration change in the root window" RESET "\n", __FILE__, __LINE__);
+		fprintf(stderr,
+				YELLOW "%s %d: triggering tint2 restart due to configuration change in the root window" RESET "\n",
+				__FILE__,
+				__LINE__);
 		signal_pending = SIGUSR1;
 		return;
 	}
@@ -1447,8 +1490,9 @@ start:
 	init_X11_pre_config();
 
 	if (!config_read()) {
-		fprintf(stderr, "Could not read config file.\n"
-						"Usage: tint2 [[-c] <config_file>]\n");
+		fprintf(stderr,
+				"Could not read config file.\n"
+				"Usage: tint2 [[-c] <config_file>]\n");
 		cleanup();
 		exit(1);
 	}
@@ -1484,7 +1528,11 @@ start:
 	while (1) {
 		if (panel_refresh) {
 			if (systray_profile)
-				fprintf(stderr, BLUE "[%f] %s:%d redrawing panel" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
+				fprintf(stderr,
+						BLUE "[%f] %s:%d redrawing panel" RESET "\n",
+						profiling_get_time(),
+						__FUNCTION__,
+						__LINE__);
 			panel_refresh = FALSE;
 
 			for (int i = 0; i < num_panels; i++) {
@@ -1492,7 +1540,11 @@ start:
 
 				if (panel->is_hidden) {
 					if (!panel->hidden_pixmap) {
-						panel->hidden_pixmap = XCreatePixmap(server.display, server.root_win, panel->hidden_width, panel->hidden_height, server.depth);
+						panel->hidden_pixmap = XCreatePixmap(server.display,
+															 server.root_win,
+															 panel->hidden_width,
+															 panel->hidden_height,
+															 server.depth);
 						int xoff = 0, yoff = 0;
 						if (panel_horizontal && panel_position & BOTTOM)
 							yoff = panel->area.height - panel->hidden_height;
@@ -1523,8 +1575,11 @@ start:
 				} else {
 					if (panel->temp_pmap)
 						XFreePixmap(server.display, panel->temp_pmap);
-					panel->temp_pmap =
-						XCreatePixmap(server.display, server.root_win, panel->area.width, panel->area.height, server.depth);
+					panel->temp_pmap = XCreatePixmap(server.display,
+													 server.root_win,
+													 panel->area.width,
+													 panel->area.height,
+													 server.depth);
 					render_panel(panel);
 					if (panel == (Panel *)systray.area.panel) {
 						if (refresh_systray && panel && !panel->is_hidden) {
@@ -1711,7 +1766,10 @@ start:
 				case DestroyNotify:
 					if (e.xany.window == server.composite_manager) {
 						// Stop real_transparency
-						fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to compositor shutdown" RESET "\n", __FILE__, __LINE__);
+						fprintf(stderr,
+								YELLOW "%s %d: triggering tint2 restart due to compositor shutdown" RESET "\n",
+								__FILE__,
+								__LINE__);
 						signal_pending = SIGUSR1;
 						break;
 					}
@@ -1730,11 +1788,17 @@ start:
 					if (ev->data.l[1] == server.atom._NET_WM_CM_S0) {
 						if (ev->data.l[2] == None) {
 							// Stop real_transparency
-							fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n", __FILE__, __LINE__);
+							fprintf(stderr,
+									YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n",
+									__FILE__,
+									__LINE__);
 							signal_pending = SIGUSR1;
 						} else {
 							// Start real_transparency
-							fprintf(stderr, YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n", __FILE__, __LINE__);
+							fprintf(stderr,
+									YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n",
+									__FILE__,
+									__LINE__);
 							signal_pending = SIGUSR1;
 						}
 					}

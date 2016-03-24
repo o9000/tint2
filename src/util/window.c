@@ -124,7 +124,8 @@ int get_window_desktop(Window win)
 
 	if (x < 0 || y < 0) {
 		int num_results;
-		long *x_screen_size = server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, &num_results);
+		long *x_screen_size =
+			server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, &num_results);
 		if (!x_screen_size)
 			return 0;
 		int x_screen_width = x_screen_size[0];
@@ -156,7 +157,8 @@ int get_window_desktop(Window win)
 
 	if (best_match < 0)
 		best_match = 0;
-	//fprintf(stderr, "window %lx %s : viewport %d, (%d, %d)\n", win, get_task(win) ? get_task(win)->title : "??", best_match+1, x, y);
+	// fprintf(stderr, "window %lx %s : viewport %d, (%d, %d)\n", win, get_task(win) ? get_task(win)->title : "??",
+	// best_match+1, x, y);
 	return best_match;
 }
 
@@ -183,7 +185,8 @@ int get_window_monitor(Window win)
 
 	if (best_match < 0)
 		best_match = 0;
-	//fprintf(stderr, "desktop %d, window %lx %s : monitor %d, (%d, %d)\n", 1 + get_current_desktop(), win, get_task(win) ? get_task(win)->title : "??", best_match+1, x, y);
+	// fprintf(stderr, "desktop %d, window %lx %s : monitor %d, (%d, %d)\n", 1 + get_current_desktop(), win,
+	// get_task(win) ? get_task(win)->title : "??", best_match+1, x, y);
 	return best_match;
 }
 

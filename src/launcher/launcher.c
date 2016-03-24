@@ -176,7 +176,7 @@ gboolean resize_launcher(void *obj)
 
 			// Get the path for an icon file with the new size
 			char *new_icon_path =
-			get_icon_path(launcher->icon_theme_wrapper, launcherIcon->icon_name, launcherIcon->icon_size);
+				get_icon_path(launcher->icon_theme_wrapper, launcherIcon->icon_name, launcherIcon->icon_size);
 			if (!new_icon_path) {
 				// Draw a blank icon
 				free_icon(launcherIcon->image);
@@ -339,8 +339,12 @@ Imlib_Image scale_icon(Imlib_Image original, int icon_size)
 	Imlib_Image icon_scaled;
 	if (original) {
 		imlib_context_set_image(original);
-		icon_scaled =
-		imlib_create_cropped_scaled_image(0, 0, imlib_image_get_width(), imlib_image_get_height(), icon_size, icon_size);
+		icon_scaled = imlib_create_cropped_scaled_image(0,
+														0,
+														imlib_image_get_width(),
+														imlib_image_get_height(),
+														icon_size,
+														icon_size);
 
 		imlib_context_set_image(icon_scaled);
 		imlib_image_set_has_alpha(1);

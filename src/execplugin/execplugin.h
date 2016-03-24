@@ -90,7 +90,6 @@ typedef struct Execp {
 	ExecpFrontend *frontend;
 } Execp;
 
-
 // Called before the config is read and panel_config/panels are created.
 // Afterwards, the config parsing code creates the array of Execp in panel_config and populates the configuration fields
 // in the backend.
@@ -120,7 +119,6 @@ void init_execp_panel(void *panel);
 // The frontend items are not freed by this function, only their members. The items are Areas which are freed in the
 // GUI element tree cleanup function (remove_area).
 void cleanup_execp();
-
 
 // Called on draw, obj = pointer to the front-end Execp item.
 void draw_execp(void *obj, cairo_t *c);

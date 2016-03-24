@@ -134,7 +134,8 @@ void relayout_dynamic(Area *a, int level)
 				pos += panel_horizontal ? child->width + a->paddingx : child->height + a->paddingx;
 			}
 		} else if (a->alignment == ALIGN_RIGHT) {
-			int pos = (panel_horizontal ? a->posx + a->width : a->posy + a->height) - a->bg->border.width - a->paddingxlr;
+			int pos =
+				(panel_horizontal ? a->posx + a->width : a->posy + a->height) - a->bg->border.width - a->paddingxlr;
 
 			for (GList *l = g_list_last(a->children); l; l = l->prev) {
 				Area *child = ((Area *)l->data);
@@ -228,7 +229,16 @@ void draw_tree(Area *a)
 	}
 
 	if (a->pix)
-		XCopyArea(server.display, a->pix, ((Panel *)a->panel)->temp_pmap, server.gc, 0, 0, a->width, a->height, a->posx, a->posy);
+		XCopyArea(server.display,
+				  a->pix,
+				  ((Panel *)a->panel)->temp_pmap,
+				  server.gc,
+				  0,
+				  0,
+				  a->width,
+				  a->height,
+				  a->posx,
+				  a->posy);
 
 	for (GList *l = a->children; l; l = l->next)
 		draw_tree((Area *)l->data);
@@ -382,7 +392,16 @@ void draw(Area *a)
 		// Add layer of root pixmap (or clear pixmap if real_transparency==true)
 		if (server.real_transparency)
 			clear_pixmap(a->pix, 0, 0, a->width, a->height);
-		XCopyArea(server.display, ((Panel *)a->panel)->temp_pmap, a->pix, server.gc, a->posx, a->posy, a->width, a->height, 0, 0);
+		XCopyArea(server.display,
+				  ((Panel *)a->panel)->temp_pmap,
+				  a->pix,
+				  server.gc,
+				  a->posx,
+				  a->posy,
+				  a->width,
+				  a->height,
+				  0,
+				  0);
 	} else {
 		a->_clear(a);
 	}
@@ -531,11 +550,8 @@ void mouse_over(Area *area, int pressed)
 		if (!pressed) {
 			new_state = area->has_mouse_over_effect ? MOUSE_OVER : MOUSE_NORMAL;
 		} else {
-			new_state = area->has_mouse_press_effect
-						? MOUSE_DOWN
-						: area->has_mouse_over_effect
-						  ? MOUSE_OVER
-						  : MOUSE_NORMAL;
+			new_state =
+				area->has_mouse_press_effect ? MOUSE_DOWN : area->has_mouse_over_effect ? MOUSE_OVER : MOUSE_NORMAL;
 		}
 	}
 
@@ -547,7 +563,8 @@ void mouse_over(Area *area, int pressed)
 	mouse_over_area = area;
 
 	mouse_over_area->mouse_state = new_state;
-	mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->has_mouse_over_effect ? mouse_over_area->mouse_state : 0];
+	mouse_over_area->pix =
+		mouse_over_area->pix_by_state[mouse_over_area->has_mouse_over_effect ? mouse_over_area->mouse_state : 0];
 	if (!mouse_over_area->pix)
 		mouse_over_area->_redraw_needed = TRUE;
 	panel_refresh = TRUE;
@@ -558,7 +575,8 @@ void mouse_out()
 	if (!mouse_over_area)
 		return;
 	mouse_over_area->mouse_state = MOUSE_NORMAL;
-	mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->has_mouse_over_effect ? mouse_over_area->mouse_state : 0];
+	mouse_over_area->pix =
+		mouse_over_area->pix_by_state[mouse_over_area->has_mouse_over_effect ? mouse_over_area->mouse_state : 0];
 	if (!mouse_over_area->pix)
 		mouse_over_area->_redraw_needed = TRUE;
 	panel_refresh = TRUE;

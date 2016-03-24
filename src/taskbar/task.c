@@ -83,7 +83,8 @@ Task *add_task(Window win)
 	task_update_title(&task_template);
 	task_update_icon(&task_template);
 
-	// fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task_template.title ? task_template.title : "??");
+	// fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task_template.title ?
+	// task_template.title : "??");
 	// fprintf(stderr, "new task %s win %u: desktop %d, monitor %d\n", new_task.title, win, new_task.desktop, monitor);
 
 	GPtrArray *task_buttons = g_ptr_array_new();
@@ -126,20 +127,20 @@ Task *add_task(Window win)
 	*key = task_template.win;
 	g_hash_table_insert(win_to_task, key, task_buttons);
 
-	set_task_state((Task*)g_ptr_array_index(task_buttons, 0), task_template.current_state);
+	set_task_state((Task *)g_ptr_array_index(task_buttons, 0), task_template.current_state);
 
 	sort_taskbar_for_win(win);
 
 	if (taskbar_mode == MULTI_DESKTOP) {
-		Panel *panel = (Panel*)task_template.area.panel;
+		Panel *panel = (Panel *)task_template.area.panel;
 		panel->area.resize_needed = TRUE;
 	}
 
 	if (window_is_urgent(win)) {
-		add_urgent((Task*)g_ptr_array_index(task_buttons, 0));
+		add_urgent((Task *)g_ptr_array_index(task_buttons, 0));
 	}
 
-	return (Task*)g_ptr_array_index(task_buttons, 0);
+	return (Task *)g_ptr_array_index(task_buttons, 0);
 }
 
 void remove_task(Task *task)
@@ -147,7 +148,8 @@ void remove_task(Task *task)
 	if (!task)
 		return;
 
-	// fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, task->win, task->title ? task->title : "??");
+	// fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, task->win, task->title ? task->title :
+	// "??");
 
 	if (taskbar_mode == MULTI_DESKTOP) {
 		Panel *panel = task->area.panel;
@@ -299,7 +301,7 @@ void task_update_icon(Task *task)
 	int w = imlib_image_get_width();
 	int h = imlib_image_get_height();
 	Imlib_Image orig_image =
-			imlib_create_cropped_scaled_image(0, 0, w, h, panel->g_task.icon_size1, panel->g_task.icon_size1);
+		imlib_create_cropped_scaled_image(0, 0, w, h, panel->g_task.icon_size1, panel->g_task.icon_size1);
 	imlib_free_image();
 
 	imlib_context_set_image(orig_image);
@@ -322,13 +324,13 @@ void task_update_icon(Task *task)
 		}
 		if (panel_config.mouse_effects) {
 			task->icon_hover[k] = adjust_icon(task->icon[k],
-											 panel_config.mouse_over_alpha,
-											 panel_config.mouse_over_saturation,
-											 panel_config.mouse_over_brightness);
+											  panel_config.mouse_over_alpha,
+											  panel_config.mouse_over_saturation,
+											  panel_config.mouse_over_brightness);
 			task->icon_press[k] = adjust_icon(task->icon[k],
-											 panel_config.mouse_pressed_alpha,
-											 panel_config.mouse_pressed_saturation,
-											 panel_config.mouse_pressed_brightness);
+											  panel_config.mouse_pressed_alpha,
+											  panel_config.mouse_pressed_saturation,
+											  panel_config.mouse_pressed_brightness);
 		}
 	}
 	imlib_context_set_image(orig_image);

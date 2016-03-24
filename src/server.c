@@ -419,7 +419,8 @@ void server_get_number_of_desktops()
 	int work_area_height = work_area_size[1] + work_area_size[3];
 	XFree(work_area_size);
 
-	long *x_screen_size = server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, &num_results);
+	long *x_screen_size =
+		server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, &num_results);
 	if (!x_screen_size)
 		return;
 	int x_screen_width = x_screen_size[0];
@@ -459,7 +460,8 @@ GSList *get_desktop_names()
 
 	int count;
 	GSList *list = NULL;
-	gchar *data_ptr = server_get_property(server.root_win, server.atom._NET_DESKTOP_NAMES, server.atom.UTF8_STRING, &count);
+	gchar *data_ptr =
+		server_get_property(server.root_win, server.atom._NET_DESKTOP_NAMES, server.atom.UTF8_STRING, &count);
 	if (data_ptr) {
 		list = g_slist_append(list, g_strdup(data_ptr));
 		for (int j = 0; j < count - 1; j++) {
@@ -476,7 +478,9 @@ GSList *get_desktop_names()
 int get_current_desktop()
 {
 	if (!server.viewports) {
-		return MAX(0, MIN(server.num_desktops - 1, get_property32(server.root_win, server.atom._NET_CURRENT_DESKTOP, XA_CARDINAL)));
+		return MAX(0,
+				   MIN(server.num_desktops - 1,
+					   get_property32(server.root_win, server.atom._NET_CURRENT_DESKTOP, XA_CARDINAL)));
 	}
 
 	int num_results;
@@ -497,7 +501,8 @@ int get_current_desktop()
 	int viewport_y = viewport[1];
 	XFree(viewport);
 
-	long *x_screen_size = server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, &num_results);
+	long *x_screen_size =
+		server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, &num_results);
 	if (!x_screen_size)
 		return 0;
 	int x_screen_width = x_screen_size[0];
@@ -505,10 +510,10 @@ int get_current_desktop()
 
 	int ncols = x_screen_width / work_area_width;
 
-//	fprintf(stderr, "\n");
-//	fprintf(stderr, "Work area size: %d x %d\n", work_area_width, work_area_height);
-//	fprintf(stderr, "Viewport pos: %d x %d\n", viewport_x, viewport_y);
-//	fprintf(stderr, "Viewport i: %d\n", (viewport_y / work_area_height) * ncols + viewport_x / work_area_width);
+	//	fprintf(stderr, "\n");
+	//	fprintf(stderr, "Work area size: %d x %d\n", work_area_width, work_area_height);
+	//	fprintf(stderr, "Viewport pos: %d x %d\n", viewport_x, viewport_y);
+	//	fprintf(stderr, "Viewport i: %d\n", (viewport_y / work_area_height) * ncols + viewport_x / work_area_width);
 
 	int result = (viewport_y / work_area_height) * ncols + viewport_x / work_area_width;
 	return MAX(0, MIN(server.num_desktops - 1, result));
@@ -548,7 +553,8 @@ void server_init_visual()
 	// inspired by freedesktops fdclock ;)
 	XVisualInfo templ = {.screen = server.screen, .depth = 32, .class = TrueColor};
 	int nvi;
-	XVisualInfo *xvi = XGetVisualInfo(server.display, VisualScreenMask | VisualDepthMask | VisualClassMask, &templ, &nvi);
+	XVisualInfo *xvi =
+		XGetVisualInfo(server.display, VisualScreenMask | VisualDepthMask | VisualClassMask, &templ, &nvi);
 
 	Visual *visual = NULL;
 	if (xvi) {

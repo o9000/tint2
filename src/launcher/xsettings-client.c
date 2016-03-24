@@ -350,17 +350,17 @@ static void read_settings(XSettingsClient *client)
 
 	old_handler = XSetErrorHandler(ignore_errors);
 	int result = XGetWindowProperty(client->display,
-								client->manager_window,
-								server.atom._XSETTINGS_SETTINGS,
-								0,
-								LONG_MAX,
-								False,
-								server.atom._XSETTINGS_SETTINGS,
-								&type,
-								&format,
-								&n_items,
-								&bytes_after,
-								&data);
+									client->manager_window,
+									server.atom._XSETTINGS_SETTINGS,
+									0,
+									LONG_MAX,
+									False,
+									server.atom._XSETTINGS_SETTINGS,
+									&type,
+									&format,
+									&n_items,
+									&bytes_after,
+									&data);
 	XSetErrorHandler(old_handler);
 
 	if (result == Success && type == server.atom._XSETTINGS_SETTINGS) {

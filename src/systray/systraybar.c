@@ -1488,8 +1488,7 @@ void refresh_systray_icons()
 
 gboolean systray_on_monitor(int i_monitor, int num_panels)
 {
-	return (i_monitor == systray_monitor) ||
-		   (i_monitor == 0 && (systray_monitor >= num_panels || systray_monitor < 0));
+	return (i_monitor == systray_monitor) || (i_monitor == 0 && (systray_monitor >= num_panels || systray_monitor < 0));
 }
 
 TrayWindow *systray_find_icon(Window win)

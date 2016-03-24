@@ -248,7 +248,7 @@ void adjust_asb(DATA32 *data, int w, int h, float alpha_adjust, float satur_adju
 			continue;
 		int r = (argb >> 16) & 0xff;
 		int g = (argb >> 8) & 0xff;
-		int b = (argb) & 0xff;
+		int b = (argb)&0xff;
 
 		// Convert RGB to HSV
 		int cmax = MAX3(r, g, b);
@@ -392,9 +392,15 @@ void render_image(Drawable d, int x, int y)
 	imlib_context_set_blend(0);
 	imlib_render_image_on_drawable(0, 0);
 
-	Picture pict = XRenderCreatePicture(server.display, pixmap, XRenderFindStandardFormat(server.display, PictStandardARGB32), 0, 0);
-	Picture pict_drawable = XRenderCreatePicture(server.display, d, XRenderFindVisualFormat(server.display, server.visual), 0, 0);
-	Picture pict_mask =	XRenderCreatePicture(server.display, mask, XRenderFindStandardFormat(server.display, PictStandardARGB32), 0, 0);
+	Picture pict = XRenderCreatePicture(server.display,
+										pixmap,
+										XRenderFindStandardFormat(server.display, PictStandardARGB32),
+										0,
+										0);
+	Picture pict_drawable =
+		XRenderCreatePicture(server.display, d, XRenderFindVisualFormat(server.display, server.visual), 0, 0);
+	Picture pict_mask =
+		XRenderCreatePicture(server.display, mask, XRenderFindStandardFormat(server.display, PictStandardARGB32), 0, 0);
 	XRenderComposite(server.display, PictOpOver, pict, pict_mask, pict_drawable, 0, 0, 0, 0, x, y, w, h);
 
 	XRenderFreePicture(server.display, pict_mask);
@@ -417,8 +423,8 @@ void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color
 									  0.0,
 									  0.0,
 									  1.0 -
-									  (1.0 - shadow_edge_alpha) *
-									  sqrt((i * i + j * j) / (double)(shadow_size * shadow_size)));
+										  (1.0 - shadow_edge_alpha) *
+											  sqrt((i * i + j * j) / (double)(shadow_size * shadow_size)));
 				pango_cairo_update_layout(c, layout);
 				cairo_move_to(c, posx + i, posy + j);
 				pango_cairo_show_layout(c, layout);
@@ -520,7 +526,8 @@ void draw_rect(cairo_t *c, double x, double y, double w, double h, double r)
 
 void clear_pixmap(Pixmap p, int x, int y, int w, int h)
 {
-	Picture pict = XRenderCreatePicture(server.display, p, XRenderFindVisualFormat(server.display, server.visual), 0, 0);
+	Picture pict =
+		XRenderCreatePicture(server.display, p, XRenderFindVisualFormat(server.display, server.visual), 0, 0);
 	XRenderColor col;
 	col.red = col.green = col.blue = col.alpha = 0;
 	XRenderFillRectangle(server.display, PictOpSrc, pict, &col, x, y, w, h);
@@ -569,7 +576,7 @@ void get_text_size2(PangoFontDescription *font,
 	XFreePixmap(server.display, pmap);
 }
 
-#if !GLIB_CHECK_VERSION (2, 33, 4)
+#if !GLIB_CHECK_VERSION(2, 33, 4)
 GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data)
 {
 	list = g_list_copy(list);

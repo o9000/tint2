@@ -247,7 +247,10 @@ void init_panel()
 			event_mask |= PointerMotionMask | LeaveWindowMask;
 		if (panel_autohide)
 			event_mask |= LeaveWindowMask | EnterWindowMask;
-		XChangeWindowAttributes(server.display, p->main_win, CWEventMask, &(XSetWindowAttributes){.event_mask = event_mask});
+		XChangeWindowAttributes(server.display,
+								p->main_win,
+								CWEventMask,
+								&(XSetWindowAttributes){.event_mask = event_mask});
 
 		if (!server.gc) {
 			XGCValues gcv;
@@ -331,12 +334,12 @@ void init_panel_size_and_position(Panel *panel)
 		panel->posx = server.monitors[panel->monitor].x + panel->marginx;
 	} else {
 		if (panel_position & RIGHT) {
-			panel->posx = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width - panel->area.width -
-						  panel->marginx;
+			panel->posx = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width -
+						  panel->area.width - panel->marginx;
 		} else {
 			if (panel_horizontal)
-				panel->posx =
-				server.monitors[panel->monitor].x + ((server.monitors[panel->monitor].width - panel->area.width) / 2);
+				panel->posx = server.monitors[panel->monitor].x +
+							  ((server.monitors[panel->monitor].width - panel->area.width) / 2);
 			else
 				panel->posx = server.monitors[panel->monitor].x + panel->marginx;
 		}
@@ -349,7 +352,7 @@ void init_panel_size_and_position(Panel *panel)
 						  panel->area.height - panel->marginy;
 		} else {
 			panel->posy =
-			server.monitors[panel->monitor].y + ((server.monitors[panel->monitor].height - panel->area.height) / 2);
+				server.monitors[panel->monitor].y + ((server.monitors[panel->monitor].height - panel->area.height) / 2);
 		}
 	}
 
@@ -564,7 +567,7 @@ void set_panel_items_order(Panel *p)
 			GList *item = g_list_nth(p->execp_list, i_execp);
 			i_execp++;
 			if (item)
-				p->area.children = g_list_append(p->area.children, (Area*)item->data);
+				p->area.children = g_list_append(p->area.children, (Area *)item->data);
 		}
 	}
 	initialize_positions(&p->area, 0);

@@ -732,7 +732,7 @@ void add_entry(char *key, char *value)
 		panel_config.g_taskbar.background_name[TASKBAR_NORMAL] = &g_array_index(backgrounds, Background, id);
 		if (panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] == 0)
 			panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] =
-			panel_config.g_taskbar.background_name[TASKBAR_NORMAL];
+				panel_config.g_taskbar.background_name[TASKBAR_NORMAL];
 	} else if (strcmp(key, "taskbar_name_active_background_id") == 0) {
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;

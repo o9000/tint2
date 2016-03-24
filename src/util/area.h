@@ -156,12 +156,7 @@ typedef enum Alignment {
 	ALIGN_RIGHT = 2,
 } Alignment;
 
-typedef enum MouseState {
-	MOUSE_NORMAL = 0,
-	MOUSE_OVER = 1,
-	MOUSE_DOWN = 2,
-	MOUSE_STATE_COUNT
-} MouseState;
+typedef enum MouseState { MOUSE_NORMAL = 0, MOUSE_OVER = 1, MOUSE_DOWN = 2, MOUSE_STATE_COUNT } MouseState;
 
 struct Panel;
 

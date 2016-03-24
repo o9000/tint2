@@ -22,9 +22,9 @@
 
 enum uevent_action {
 	UEVENT_UNKNOWN = 0x01,
-	UEVENT_ADD     = 0x02,
-	UEVENT_REMOVE  = 0x04,
-	UEVENT_CHANGE  = 0x08,
+	UEVENT_ADD = 0x02,
+	UEVENT_REMOVE = 0x04,
+	UEVENT_CHANGE = 0x08,
 };
 
 struct uevent_parameter {
@@ -41,7 +41,7 @@ struct uevent {
 };
 
 struct uevent_notify {
-	int action; /* bitfield */
+	int action;      /* bitfield */
 	char *subsystem; /* NULL => any */
 	void *userdata;
 
@@ -56,15 +56,26 @@ void uevent_handler();
 void uevent_register_notifier(struct uevent_notify *nb);
 void uevent_unregister_notifier(struct uevent_notify *nb);
 #else
-static inline int uevent_init() {
+static inline int uevent_init()
+{
 	return -1;
 }
 
-static inline void uevent_cleanup() { }
-static inline void uevent_handler() { }
+static inline void uevent_cleanup()
+{
+}
 
-static inline void uevent_register_notifier(struct uevent_notify *nb) { }
-static inline void uevent_unregister_notifier(struct uevent_notify *nb) { }
+static inline void uevent_handler()
+{
+}
+
+static inline void uevent_register_notifier(struct uevent_notify *nb)
+{
+}
+
+static inline void uevent_unregister_notifier(struct uevent_notify *nb)
+{
+}
 #endif
 
 #endif

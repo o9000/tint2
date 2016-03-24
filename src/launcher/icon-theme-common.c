@@ -346,9 +346,9 @@ void test_launcher_read_theme_file()
 			   dir->max_size,
 			   dir->threshold,
 			   dir->type == ICON_DIR_TYPE_FIXED ? "Fixed" : dir->type == ICON_DIR_TYPE_SCALABLE
-															? "Scalable"
-															: dir->type == ICON_DIR_TYPE_THRESHOLD ? "Threshold"
-																								   : "?????");
+																? "Scalable"
+																: dir->type == ICON_DIR_TYPE_THRESHOLD ? "Threshold"
+																									   : "?????");
 		item = g_slist_next(item);
 	}
 	fprintf(stdout, "\033[0m");
@@ -585,9 +585,9 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 
 	for (theme = themes; theme; theme = g_slist_next(theme)) {
 		((IconTheme *)theme->data)->list_directories =
-		g_slist_sort_with_data(((IconTheme *)theme->data)->list_directories,
-							   compare_theme_directories,
-							   GINT_TO_POINTER(size));
+			g_slist_sort_with_data(((IconTheme *)theme->data)->list_directories,
+								   compare_theme_directories,
+								   GINT_TO_POINTER(size));
 		GSList *dir;
 		for (dir = ((IconTheme *)theme->data)->list_directories; dir; dir = g_slist_next(dir)) {
 			// Closest match
@@ -607,7 +607,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 					char *dir_name = ((IconThemeDir *)dir->data)->name;
 					char *extension = (char *)ext->data;
 					if (strlen(base_name) + strlen(theme_name) + strlen(dir_name) + strlen(icon_name) +
-						strlen(extension) + 100 >
+							strlen(extension) + 100 >
 						file_name_size) {
 						file_name_size = strlen(base_name) + strlen(theme_name) + strlen(dir_name) + strlen(icon_name) +
 										 strlen(extension) + 100;
@@ -714,7 +714,8 @@ char *get_icon_path_from_cache(IconThemeWrapper *wrapper, const char *icon_name,
 	if (!g_file_test(value, G_FILE_TEST_EXISTS))
 		return NULL;
 
-	// fprintf(stderr, "Icon path found in cache: theme = %s, icon = %s, size = %d, path = %s\n", wrapper->icon_theme_name, icon_name, size, value);
+	// fprintf(stderr, "Icon path found in cache: theme = %s, icon = %s, size = %d, path = %s\n",
+	// wrapper->icon_theme_name, icon_name, size, value);
 
 	return strdup(value);
 }
@@ -724,7 +725,12 @@ void add_icon_path_to_cache(IconThemeWrapper *wrapper, const char *icon_name, in
 	if (!wrapper || !icon_name || strlen(icon_name) == 0 || !path || strlen(path) == 0)
 		return;
 
-	fprintf(stderr, "Adding icon path to cache: theme = %s, icon = %s, size = %d, path = %s\n", wrapper->icon_theme_name, icon_name, size, path);
+	fprintf(stderr,
+			"Adding icon path to cache: theme = %s, icon = %s, size = %d, path = %s\n",
+			wrapper->icon_theme_name,
+			icon_name,
+			size,
+			path);
 
 	load_icon_cache(wrapper);
 

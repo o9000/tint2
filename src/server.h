@@ -166,5 +166,4 @@ GSList *get_desktop_names();
 int get_current_desktop();
 void change_desktop(int desktop);
 
-
 #endif

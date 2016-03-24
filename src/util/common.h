@@ -13,14 +13,14 @@
 #include <pango/pangocairo.h>
 #include "area.h"
 
-#define GREEN  "\033[1;32m"
+#define GREEN "\033[1;32m"
 #define YELLOW "\033[1;33m"
-#define RED    "\033[1;31m"
-#define BLUE   "\033[1;34m"
-#define RESET  "\033[0m"
+#define RED "\033[1;31m"
+#define BLUE "\033[1;34m"
+#define RESET "\033[0m"
 
-#define MAX3(a, b, c)  MAX(MAX(a, b), c)
-#define MIN3(a, b, c)  MIN(MIN(a, b), c)
+#define MAX3(a, b, c) MAX(MAX(a, b), c)
+#define MIN3(a, b, c) MIN(MIN(a, b), c)
 
 // mouse actions
 typedef enum MouseAction {
@@ -39,7 +39,7 @@ typedef enum MouseAction {
 	PREV_TASK
 } MouseAction;
 
-#define ALL_DESKTOPS  0xFFFFFFFF
+#define ALL_DESKTOPS 0xFFFFFFFF
 
 // Copies a file to another path
 void copy_file(const char *path_src, const char *path_dest);
@@ -119,13 +119,17 @@ GSList *load_locations_from_env(GSList *locations, const char *var, ...);
 
 GSList *slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr);
 
-#define free_and_null(p) { free(p); p = NULL; }
+#define free_and_null(p) \
+	{                    \
+		free(p);         \
+		p = NULL;        \
+	}
 
-#if !GLIB_CHECK_VERSION (2, 33, 4)
+#if !GLIB_CHECK_VERSION(2, 33, 4)
 GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data);
 #endif
 
-#if !GLIB_CHECK_VERSION (2, 38, 0)
+#if !GLIB_CHECK_VERSION(2, 38, 0)
 #define g_assert_null(expr) g_assert((expr) == NULL)
 #endif
 
