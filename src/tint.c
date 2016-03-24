@@ -919,6 +919,14 @@ void event_property_notify(XEvent *e)
 
 	if (xsettings_client)
 		xsettings_client_process_event(xsettings_client, e);
+	for (int i = 0; i < num_panels; i++) {
+		Panel *p = &panels[i];
+		if (win == p->main_win) {
+			if (at == server.atom._NET_WM_DESKTOP && get_window_desktop(p->main_win) != ALL_DESKTOPS)
+				place_panel_all_desktops(p);
+			return;
+		}
+	}
 	if (win == server.root_win) {
 		if (!server.got_root_win) {
 			XSelectInput(server.display, server.root_win, PropertyChangeMask | StructureNotifyMask);
@@ -953,7 +961,6 @@ void event_property_notify(XEvent *e)
 				init_taskbar();
 				for (int i = 0; i < num_panels; i++) {
 					init_taskbar_panel(&panels[i]);
-					place_panel_all_desktops(&panels[i]);
 					set_panel_items_order(&panels[i]);
 					update_taskbar_visibility(&panels[i]);
 					panels[i].area.resize_needed = 1;
@@ -964,7 +971,6 @@ void event_property_notify(XEvent *e)
 			} else if (old_desktop != server.desktop) {
 				for (int i = 0; i < num_panels; i++) {
 					Panel *panel = &panels[i];
-					place_panel_all_desktops(panel);
 					set_taskbar_state(&panel->taskbar[old_desktop], TASKBAR_NORMAL);
 					set_taskbar_state(&panel->taskbar[server.desktop], TASKBAR_ACTIVE);
 					// check ALL_DESKTOPS task => resize taskbar

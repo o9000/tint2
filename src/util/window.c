@@ -108,17 +108,16 @@ gboolean window_is_hidden(Window win)
 
 int get_window_desktop(Window win)
 {
-	if (!server.viewports) {
-		int desktop = get_property32(win, server.atom._NET_WM_DESKTOP, XA_CARDINAL);
-		if (desktop != ALL_DESKTOPS)
-			desktop = MAX(0, MIN(server.num_desktops - 1, desktop));
+	int desktop = get_property32(win, server.atom._NET_WM_DESKTOP, XA_CARDINAL);
+	if (desktop == ALL_DESKTOPS)
 		return desktop;
-	}
+	if (!server.viewports)
+		return CLAMP(desktop, 0, server.num_desktops - 1);
 
 	int x, y, w, h;
 	get_window_coordinates(win, &x, &y, &w, &h);
 
-	int desktop = get_current_desktop();
+	desktop = get_current_desktop();
 	// Window coordinates are relative to the current viewport, make them absolute
 	x += server.viewports[desktop].x;
 	y += server.viewports[desktop].y;

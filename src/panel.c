@@ -241,7 +241,7 @@ void init_panel()
 									mask,
 									&att);
 
-		long event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask;
+		long event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | PropertyChangeMask;
 		if (p->mouse_effects || p->g_task.tooltip_enabled || p->clock.area._get_tooltip_text ||
 			(launcher_enabled && launcher_tooltip_enabled))
 			event_mask |= PointerMotionMask | LeaveWindowMask;
