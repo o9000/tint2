@@ -220,6 +220,7 @@ const char *get_home_dir()
 
 void dump_backtrace(int log_fd)
 {
+#ifndef DISABLE_BACKTRACE
 	log_string(log_fd, "\n" YELLOW "Backtrace:" RESET "\n");
 
 #ifdef ENABLE_LIBUNWIND
@@ -249,12 +250,9 @@ void dump_backtrace(int log_fd)
 	}
 
 	free(strings);
-#else
-#ifdef DISABLE_BACKTRACE
-	log_string(log_fd, "Backtrace support disabled at compile time.\n");
-#endif
-#endif
-#endif
+#endif // ENABLE_EXECINFO
+#endif // ENABLE_LIBUNWIND
+#endif // DISABLE_BACKTRACE
 }
 
 // sleep() returns early when signals arrive. This function does not.
@@ -271,7 +269,7 @@ void safe_sleep(int seconds)
 
 void handle_crash(const char *reason)
 {
-	// We are going to crash, so restart the panel
+#ifndef DISABLE_BACKTRACE
 	char path[4096];
 	sprintf(path, "%s/.tint2-crash.log", get_home_dir());
 	int log_fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0600);
@@ -281,6 +279,7 @@ void handle_crash(const char *reason)
 	dump_backtrace(log_fd);
 	log_string(log_fd, RED "Please create a bug report with this log output." RESET "\n");
 	close(log_fd);
+#endif
 }
 
 #ifdef BACKTRACE_ON_SIGNAL
