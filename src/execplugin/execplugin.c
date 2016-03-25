@@ -155,9 +155,9 @@ void init_execp_panel(void *p)
 		execp->area.paddingx = execp->backend->paddingx;
 		execp->area.paddingy = execp->backend->paddingy;
 		execp->area.paddingxlr = execp->backend->paddingxlr;
-
 		execp->area.parent = panel;
 		execp->area.panel = panel;
+		snprintf(execp->area.name, sizeof(execp->area.name), "Execp %s", execp->backend->command ? execp->backend->command : "null");
 		execp->area._draw_foreground = draw_execp;
 		execp->area.size_mode = LAYOUT_FIXED;
 		execp->area._resize = resize_execp;

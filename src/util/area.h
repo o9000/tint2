@@ -194,6 +194,7 @@ typedef struct Area {
 	// This is the pixmap on which the Area is rendered. Render to it directly if needed.
 	Pixmap pix;
 	Pixmap pix_by_state[MOUSE_STATE_COUNT];
+	char name[32];
 
 	// Callbacks
 

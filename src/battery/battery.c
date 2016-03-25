@@ -150,6 +150,7 @@ void init_battery_panel(void *p)
 
 	battery->area.parent = p;
 	battery->area.panel = p;
+	snprintf(battery->area.name, sizeof(battery->area.name), "Battery");
 	battery->area._draw_foreground = draw_battery;
 	battery->area.size_mode = LAYOUT_FIXED;
 	battery->area._resize = resize_battery;

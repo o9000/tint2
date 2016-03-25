@@ -65,6 +65,7 @@ Task *add_task(Window win)
 
 	Task task_template;
 	memset(&task_template, 0, sizeof(task_template));
+	snprintf(task_template.area.name, sizeof(task_template.area.name), "Task %d", (int)win);
 	task_template.area.has_mouse_over_effect = panel_config.mouse_effects;
 	task_template.area.has_mouse_press_effect = panel_config.mouse_effects;
 	task_template.area._is_under_mouse = full_width_area_is_under_mouse;
@@ -82,6 +83,7 @@ Task *add_task(Window win)
 	}
 	task_update_title(&task_template);
 	task_update_icon(&task_template);
+	snprintf(task_template.area.name, sizeof(task_template.area.name), "Task %d %s", (int)win, task_template.title ? task_template.title : "null");
 
 	// fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task_template.title ?
 	// task_template.title : "??");

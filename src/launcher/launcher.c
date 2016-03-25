@@ -83,6 +83,7 @@ void init_launcher_panel(void *p)
 
 	launcher->area.parent = p;
 	launcher->area.panel = p;
+	snprintf(launcher->area.name, sizeof(launcher->area.name), "Launcher");
 	launcher->area._draw_foreground = NULL;
 	launcher->area.size_mode = LAYOUT_FIXED;
 	launcher->area._resize = resize_launcher;
@@ -452,6 +453,7 @@ void launcher_load_icons(Launcher *launcher)
 		if (entry.exec) {
 			LauncherIcon *launcherIcon = calloc(1, sizeof(LauncherIcon));
 			launcherIcon->area.panel = launcher->area.panel;
+			snprintf(launcherIcon->area.name, sizeof(launcherIcon->area.name), "LauncherIcon %s", entry.name ? entry.name : "null");
 			launcherIcon->area._draw_foreground = draw_launcher_icon;
 			launcherIcon->area.size_mode = LAYOUT_FIXED;
 			launcherIcon->area._resize = NULL;

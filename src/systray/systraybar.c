@@ -113,6 +113,7 @@ void init_systray_panel(void *p)
 	Panel *panel = (Panel *)p;
 	systray.area.parent = panel;
 	systray.area.panel = panel;
+	snprintf(systray.area.name, sizeof(systray.area.name), "Systray");
 	if (!systray.area.bg)
 		systray.area.bg = &g_array_index(backgrounds, Background, 0);
 	show(&systray.area);
