@@ -294,6 +294,16 @@ gboolean resize_launcher(void *obj)
 		}
 	}
 
+	if ((panel_horizontal && icons_per_column == 1) || (!panel_horizontal && icons_per_row == 1)) {
+		launcher->area._is_under_mouse = full_width_area_is_under_mouse;
+		for (GSList *l = launcher->list_icons; l; l = l->next)
+			((LauncherIcon *)l->data)->area._is_under_mouse = full_width_area_is_under_mouse;
+	} else {
+		launcher->area._is_under_mouse = NULL;
+		for (GSList *l = launcher->list_icons; l; l = l->next)
+			((LauncherIcon *)l->data)->area._is_under_mouse = NULL;
+	}
+
 	return TRUE;
 }
 
