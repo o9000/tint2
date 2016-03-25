@@ -594,7 +594,7 @@ gboolean area_is_first(void *obj)
 	Area *node = &panel->area;
 
 	while (node) {
-		if (!node->on_screen)
+		if (!node->on_screen || node->width == 0 || node->height == 0)
 			return FALSE;
 		if (node == a)
 			return TRUE;
@@ -603,7 +603,7 @@ gboolean area_is_first(void *obj)
 		node = NULL;
 		for (; l; l = l->next) {
 			Area *child = l->data;
-			if (!child->on_screen)
+			if (!child->on_screen || child->width == 0 || child->height == 0)
 				continue;
 			node = child;
 			break;
@@ -624,7 +624,7 @@ gboolean area_is_last(void *obj)
 	Area *node = &panel->area;
 
 	while (node) {
-		if (!node->on_screen)
+		if (!node->on_screen || node->width == 0 || node->height == 0)
 			return FALSE;
 		if (node == a)
 			return TRUE;
@@ -633,7 +633,7 @@ gboolean area_is_last(void *obj)
 		node = NULL;
 		for (; l; l = l->next) {
 			Area *child = l->data;
-			if (!child->on_screen)
+			if (!child->on_screen || child->width == 0 || child->height == 0)
 				continue;
 			node = child;
 		}
@@ -645,7 +645,7 @@ gboolean area_is_last(void *obj)
 gboolean area_is_under_mouse(void *obj, int x, int y)
 {
 	Area *a = obj;
-	if (!a->on_screen)
+	if (!a->on_screen || a->width == 0 || a->height == 0)
 		return FALSE;
 
 	if (a->_is_under_mouse)
