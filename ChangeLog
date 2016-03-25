@@ -1,4 +1,4 @@
-2016-03-20 master
+2016-03-25 0.12.8
 - Major changes (see details below):
   - Icon cache and lazy icon theme loading to improve performance in tint2 and tint2conf
   - Extra tint2rc themes are installed to /usr/share/tint2 and available in tint2conf
