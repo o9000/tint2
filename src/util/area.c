@@ -583,6 +583,65 @@ void mouse_out()
 	mouse_over_area = NULL;
 }
 
+gboolean area_is_first(void *obj)
+{
+	Area *a = obj;
+	if (!a->on_screen)
+		return FALSE;
+
+	Panel *panel = a->panel;
+
+	Area *node = &panel->area;
+
+	while (node) {
+		if (!node->on_screen)
+			return FALSE;
+		if (node == a)
+			return TRUE;
+
+		GList *l = node->children;
+		node = NULL;
+		for (; l; l = l->next) {
+			Area *child = l->data;
+			if (!child->on_screen)
+				continue;
+			node = child;
+			break;
+		}
+	}
+
+	return FALSE;
+}
+
+gboolean area_is_last(void *obj)
+{
+	Area *a = obj;
+	if (!a->on_screen)
+		return FALSE;
+
+	Panel *panel = a->panel;
+
+	Area *node = &panel->area;
+
+	while (node) {
+		if (!node->on_screen)
+			return FALSE;
+		if (node == a)
+			return TRUE;
+
+		GList *l = node->children;
+		node = NULL;
+		for (; l; l = l->next) {
+			Area *child = l->data;
+			if (!child->on_screen)
+				continue;
+			node = child;
+		}
+	}
+
+	return FALSE;
+}
+
 gboolean area_is_under_mouse(void *obj, int x, int y)
 {
 	Area *a = obj;
@@ -605,9 +664,9 @@ gboolean full_width_area_is_under_mouse(void *obj, int x, int y)
 		return a->_is_under_mouse(a, x, y);
 
 	if (panel_horizontal)
-		return x >= a->posx && x <= a->posx + a->width;
+		return (x >= a->posx || area_is_first(a)) && (x <= a->posx + a->width || area_is_last(a));
 	else
-		return y >= a->posy && y <= a->posy + a->height;
+		return (y >= a->posy || area_is_first(a)) && (y <= a->posy + a->height || area_is_last(a));
 }
 
 Area *find_area_under_mouse(void *root, int x, int y)
