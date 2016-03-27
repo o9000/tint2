@@ -567,38 +567,42 @@ void get_snapshot(const char *path)
 
 	XSync(server.display, False);
 
-	DATA32 *pixels = calloc(panel->area.width * panel->area.height, sizeof(DATA32));
+	Imlib_Image img = NULL;
 	XImage *ximg =
 		XGetImage(server.display, panel->temp_pmap, 0, 0, panel->area.width, panel->area.height, AllPlanes, ZPixmap);
 
-	for (int x = 0; x < panel->area.width; x++) {
-		for (int y = 0; y < panel->area.height; y++) {
-			DATA32 xpixel = XGetPixel(ximg, x, y);
+	if (ximg) {
+		DATA32 *pixels = calloc(panel->area.width * panel->area.height, sizeof(DATA32));
+		for (int x = 0; x < panel->area.width; x++) {
+			for (int y = 0; y < panel->area.height; y++) {
+				DATA32 xpixel = XGetPixel(ximg, x, y);
 
-			DATA32 r = (xpixel >> 16) & 0xff;
-			DATA32 g = (xpixel >> 8) & 0xff;
-			DATA32 b = (xpixel >> 0) & 0xff;
-			DATA32 a = 0x0;
+				DATA32 r = (xpixel >> 16) & 0xff;
+				DATA32 g = (xpixel >> 8) & 0xff;
+				DATA32 b = (xpixel >> 0) & 0xff;
+				DATA32 a = 0x0;
 
-			DATA32 argb = (a << 24) | (r << 16) | (g << 8) | b;
-			pixels[y * panel->area.width + x] = argb;
+				DATA32 argb = (a << 24) | (r << 16) | (g << 8) | b;
+				pixels[y * panel->area.width + x] = argb;
+			}
 		}
+		XDestroyImage(ximg);
+		img = imlib_create_image_using_data(panel->area.width, panel->area.height, pixels);
+	} else {
+		imlib_context_set_drawable(panel->temp_pmap);
+		img = imlib_create_image_from_drawable(0, 0, 0, panel->area.width, panel->area.height, 1);
 	}
-	XDestroyImage(ximg);
 
-	Imlib_Image img = imlib_create_image_using_data(panel->area.width, panel->area.height, pixels);
-
-	// imlib_context_set_drawable(panel->temp_pmap);
-	// Imlib_Image img = imlib_create_image_from_drawable(0, 0, 0, panel->area.width, panel->area.height, 1);
-
-	imlib_context_set_image(img);
-	if (!panel_horizontal) {
-		// rotate 90° vertical panel
-		imlib_image_flip_horizontal();
-		imlib_image_flip_diagonal();
+	if (img) {
+		imlib_context_set_image(img);
+		if (!panel_horizontal) {
+			// rotate 90° vertical panel
+			imlib_image_flip_horizontal();
+			imlib_image_flip_diagonal();
+		}
+		imlib_save_image(path);
+		imlib_free_image();
 	}
-	imlib_save_image(path);
-	imlib_free_image();
 }
 
 void window_action(Task *task, MouseAction action)
