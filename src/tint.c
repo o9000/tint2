@@ -505,6 +505,11 @@ void init_X11_post_config()
 			default_icon = imlib_load_image(path);
 		g_free(path);
 	}
+	if (!default_icon) {
+		fprintf(stderr,
+				RED "Could not load default_icon.png. Please check that tint2 has been installed correctly!" RESET
+					"\n");
+	}
 }
 
 void cleanup()
