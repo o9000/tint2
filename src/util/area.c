@@ -664,9 +664,9 @@ gboolean full_width_area_is_under_mouse(void *obj, int x, int y)
 		return a->_is_under_mouse(a, x, y);
 
 	if (panel_horizontal)
-		return (x >= a->posx || area_is_first(a)) && (x <= a->posx + a->width || area_is_last(a));
+		return (x >= a->posx) && (x <= a->posx + a->width);
 	else
-		return (y >= a->posy || area_is_first(a)) && (y <= a->posy + a->height || area_is_last(a));
+		return (y >= a->posy) && (y <= a->posy + a->height);
 }
 
 Area *find_area_under_mouse(void *root, int x, int y)
