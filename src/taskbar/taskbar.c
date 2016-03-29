@@ -232,6 +232,7 @@ void init_taskbar_panel(void *p)
 		panel->g_task.area.posy = panel->g_taskbar.area.posy +
 								  panel->g_taskbar.background[TASKBAR_NORMAL]->border.width +
 								  panel->g_taskbar.area.paddingy;
+		panel->g_task.area.width = panel->g_task.maximum_width;
 		panel->g_task.area.height = panel->area.height - (2 * panel->g_task.area.posy);
 	} else {
 		panel->g_task.area.posx = panel->g_taskbar.area.posx +
@@ -271,12 +272,22 @@ void init_taskbar_panel(void *p)
 	panel->g_task.text_height = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
 	if (panel->g_task.has_icon) {
 		panel->g_task.icon_size1 =
-			MIN(panel->g_task.maximum_width, MIN(panel->g_task.maximum_height, panel->g_task.area.height)) -
+			MIN(MIN(panel->g_task.maximum_width, panel->g_task.maximum_height),
+				MIN(panel->g_task.area.width, panel->g_task.area.height)) -
 			(2 * panel->g_task.area.paddingy) - 2 * panel->g_task.area.bg->border.width;
 		panel->g_task.text_posx += panel->g_task.icon_size1 + panel->g_task.area.paddingx;
 		panel->g_task.icon_posy = (panel->g_task.area.height - panel->g_task.icon_size1) / 2;
+		if (0)
+			printf("task: icon_size = %d, textx = %f, texth = %f, icony = %d, w = %d, h = %d, maxw = %d, maxh = %d\n",
+				   panel->g_task.icon_size1,
+				   panel->g_task.text_posx,
+				   panel->g_task.text_height,
+				   panel->g_task.icon_posy,
+				   panel->g_task.area.width,
+				   panel->g_task.area.height,
+				   panel->g_task.maximum_width,
+				   panel->g_task.maximum_height);
 	}
-	// printf("monitor %d, task_maximum_width %d\n", panel->monitor, panel->g_task.maximum_width);
 
 	Taskbar *taskbar;
 	panel->num_desktops = server.num_desktops;
