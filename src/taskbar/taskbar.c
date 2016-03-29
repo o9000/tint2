@@ -223,6 +223,11 @@ void init_taskbar_panel(void *p)
 	if ((panel->g_task.config_background_mask & (1 << TASK_URGENT)) == 0)
 		panel->g_task.background[TASK_URGENT] = panel->g_task.background[TASK_ACTIVE];
 
+	if (!panel->g_task.maximum_width)
+		panel->g_task.maximum_width = server.monitors[panel->monitor].width;
+	if (!panel->g_task.maximum_height)
+		panel->g_task.maximum_height = server.monitors[panel->monitor].height;
+
 	if (panel_horizontal) {
 		panel->g_task.area.posy = panel->g_taskbar.area.posy +
 								  panel->g_taskbar.background[TASKBAR_NORMAL]->border.width +
@@ -261,9 +266,6 @@ void init_taskbar_panel(void *p)
 				   PANGO_WRAP_WORD_CHAR,
 				   PANGO_ELLIPSIZE_END,
 				   FALSE);
-
-	if (!panel->g_task.maximum_width && panel_horizontal)
-		panel->g_task.maximum_width = server.monitors[panel->monitor].width;
 
 	panel->g_task.text_posx = panel->g_task.background[0]->border.width + panel->g_task.area.paddingxlr;
 	panel->g_task.text_height = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
