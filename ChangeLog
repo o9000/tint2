@@ -1,6 +1,9 @@
-2016-03-25 master
+2016-04-02 0.12.9
 - Fixes:
-  - Do not detect empty areas as clickable
+  - Regression: Do not detect empty areas as clickable (issue #572)
+  - Regression: Position and resize task icon correctly (issue #575)
+  - Use imlib2 for taking screenshot; if it fails, use Xlib (issue #574)
+  - Battery: lower sample frequency when there is no support for reading current/power
 
 2016-03-25 0.12.8
 - Major changes (see details below):
