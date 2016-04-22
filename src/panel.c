@@ -603,6 +603,21 @@ void place_panel_all_desktops(Panel *p)
 					num_atoms);
 }
 
+void replace_panel_all_desktops(Panel *p)
+{
+	XClientMessageEvent m;
+	memset(&m, 0, sizeof(m));
+	m.type = ClientMessage;
+	m.send_event = True;
+	m.display = server.display;
+	m.window = p->main_win;
+	m.message_type = server.atom._NET_WM_DESKTOP;
+	m.format = 32;
+	m.data.l[0] = ALL_DESKTOPS;
+	XSendEvent(server.display, server.root_win, False, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *)&m);
+	XSync(server.display, False);
+}
+
 void set_panel_properties(Panel *p)
 {
 	XStoreName(server.display, p->main_win, panel_window_name);

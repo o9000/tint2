@@ -155,6 +155,7 @@ void render_panel(Panel *panel);
 
 void set_panel_items_order(Panel *p);
 void place_panel_all_desktops(Panel *p);
+void replace_panel_all_desktops(Panel *p);
 void set_panel_properties(Panel *p);
 
 // draw background panel

@@ -985,7 +985,7 @@ void event_property_notify(XEvent *e)
 		Panel *p = &panels[i];
 		if (win == p->main_win) {
 			if (at == server.atom._NET_WM_DESKTOP && get_window_desktop(p->main_win) != ALL_DESKTOPS)
-				place_panel_all_desktops(p);
+				replace_panel_all_desktops(p);
 			return;
 		}
 	}
