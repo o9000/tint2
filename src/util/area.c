@@ -70,17 +70,15 @@ void relayout_fixed(Area *a)
 		relayout_fixed(l->data);
 
 	// Recalculate size
-	a->_changed = 0;
+	a->_changed = FALSE;
 	if (a->resize_needed && a->size_mode == LAYOUT_FIXED) {
-		a->resize_needed = 0;
+		a->resize_needed = FALSE;
 
-		if (a->_resize) {
-			if (a->_resize(a)) {
-				// The size hash changed => resize needed for the parent
-				if (a->parent)
-					((Area *)a->parent)->resize_needed = 1;
-				a->_changed = 1;
-			}
+		if (a->_resize && a->_resize(a)) {
+			// The size has changed => resize needed for the parent
+			if (a->parent)
+				((Area *)a->parent)->resize_needed = TRUE;
+			a->_changed = TRUE;
 		}
 	}
 }
@@ -92,10 +90,11 @@ void relayout_dynamic(Area *a, int level)
 
 	// Area is resized before its children
 	if (a->resize_needed && a->size_mode == LAYOUT_DYNAMIC) {
-		a->resize_needed = 0;
+		a->resize_needed = FALSE;
 
 		if (a->_resize) {
-			a->_resize(a);
+			if (a->_resize(a))
+				a->_changed = TRUE;
 			// resize children with LAYOUT_DYNAMIC
 			for (GList *l = a->children; l; l = l->next) {
 				Area *child = ((Area *)l->data);
@@ -119,13 +118,13 @@ void relayout_dynamic(Area *a, int level)
 					if (pos != child->posx) {
 						// pos changed => redraw
 						child->posx = pos;
-						child->_changed = 1;
+						child->_changed = TRUE;
 					}
 				} else {
 					if (pos != child->posy) {
 						// pos changed => redraw
 						child->posy = pos;
-						child->_changed = 1;
+						child->_changed = TRUE;
 					}
 				}
 
@@ -148,13 +147,13 @@ void relayout_dynamic(Area *a, int level)
 					if (pos != child->posx) {
 						// pos changed => redraw
 						child->posx = pos;
-						child->_changed = 1;
+						child->_changed = TRUE;
 					}
 				} else {
 					if (pos != child->posy) {
 						// pos changed => redraw
 						child->posy = pos;
-						child->_changed = 1;
+						child->_changed = TRUE;
 					}
 				}
 
@@ -187,13 +186,13 @@ void relayout_dynamic(Area *a, int level)
 					if (pos != child->posx) {
 						// pos changed => redraw
 						child->posx = pos;
-						child->_changed = 1;
+						child->_changed = TRUE;
 					}
 				} else {
 					if (pos != child->posy) {
 						// pos changed => redraw
 						child->posy = pos;
-						child->_changed = 1;
+						child->_changed = TRUE;
 					}
 				}
 
@@ -224,7 +223,7 @@ void draw_tree(Area *a)
 		return;
 
 	if (a->_redraw_needed) {
-		a->_redraw_needed = 0;
+		a->_redraw_needed = FALSE;
 		draw(a);
 	}
 
@@ -286,7 +285,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
 					modulo--;
 				}
 				if (child->width != old_width)
-					child->_changed = 1;
+					child->_changed = TRUE;
 			}
 		}
 	} else {
@@ -326,7 +325,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
 					modulo--;
 				}
 				if (child->height != old_height)
-					child->_changed = 1;
+					child->_changed = TRUE;
 			}
 		}
 	}
@@ -361,7 +360,7 @@ void hide(Area *a)
 
 	a->on_screen = FALSE;
 	if (parent)
-		parent->resize_needed = 1;
+		parent->resize_needed = TRUE;
 	if (panel_horizontal)
 		a->width = 0;
 	else
@@ -374,12 +373,27 @@ void show(Area *a)
 
 	a->on_screen = TRUE;
 	if (parent)
-		parent->resize_needed = 1;
-	a->resize_needed = 1;
+		parent->resize_needed = TRUE;
+	a->resize_needed = TRUE;
 }
 
 void draw(Area *a)
 {
+	if (a->_changed) {
+		// On resize/move, invalidate cached pixmaps
+		for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
+			XFreePixmap(server.display, a->pix_by_state[i]);
+			if (a->pix == a->pix_by_state[i]) {
+				a->pix = None;
+			}
+			a->pix_by_state[i] = None;
+		}
+		if (a->pix) {
+			XFreePixmap(server.display, a->pix);
+			a->pix = None;
+		}
+	}
+
 	if (a->pix) {
 		XFreePixmap(server.display, a->pix);
 		if (a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0] != a->pix)
