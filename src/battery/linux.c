@@ -437,6 +437,7 @@ int battery_os_update(BatteryState *state)
 			seconds = 3600 * (total_energy_full - total_energy_now) / total_power_now;
 		else if (state->state == BATTERY_DISCHARGING)
 			seconds = 3600 * total_energy_now / total_power_now;
+		seconds = MAX(0, seconds);
 	}
 	battery_state_set_time(state, seconds);
 
