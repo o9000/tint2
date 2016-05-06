@@ -1,3 +1,10 @@
+2016-05-07 master
+- Fixes:
+  - Fixed crash in systray with non-Latin languagess (thanks zcodes)
+  - Invalidate cached pixmaps on resize/move (issue #576)
+  - Battery: do not show negative durations when the sensors return garbage
+  - Proper workaround for issue #555
+
 2016-04-02 0.12.9
 - Fixes:
   - Regression: Do not detect empty areas as clickable (issue #572)

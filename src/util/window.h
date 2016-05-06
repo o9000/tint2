@@ -33,4 +33,6 @@ void change_window_desktop(Window win, int desktop);
 int get_icon_count(gulong *data, int num);
 gulong *get_best_icon(gulong *data, int icon_count, int num, int *iw, int *ih, int best_icon_size);
 
+char *get_window_name(Window win);
+
 #endif

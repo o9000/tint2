@@ -320,3 +320,32 @@ gulong *get_best_icon(gulong *data, int icon_count, int num, int *iw, int *ih, i
 	*ih = height[icon_num];
 	return icon_data[icon_num];
 }
+
+// Thanks zcodes!
+char *get_window_name(Window win)
+{
+    XTextProperty text_property;
+    Status status = XGetWMName(server.display, win, &text_property);
+    if (!status || !text_property.value || !text_property.nitems) {
+        return strdup("");
+    }
+
+    char **name_list;
+    int count;
+    status = Xutf8TextPropertyToTextList(server.display, &text_property, &name_list, &count);
+    if (status < Success || !count) {
+        XFree(text_property.value);
+        return strdup("");
+    }
+
+    if (!name_list[0]) {
+        XFreeStringList(name_list);
+        XFree(text_property.value);
+        return strdup("");
+    }
+
+    char *result = strdup(name_list[0]);
+    XFreeStringList(name_list);
+    XFree(text_property.value);
+    return result;
+}

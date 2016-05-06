@@ -33,6 +33,7 @@
 #include "systraybar.h"
 #include "server.h"
 #include "panel.h"
+#include "window.h"
 
 GSList *icons;
 
@@ -534,15 +535,7 @@ gboolean add_icon(Window win)
 
 	XSelectInput(server.display, win, StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask);
 
-	XTextProperty xname;
-	char *name;
-	if (XGetWMName(server.display, win, &xname)) {
-		name = strdup((char *)xname.value);
-		XFree(xname.value);
-	} else {
-		name = strdup("");
-	}
-
+    char *name = get_window_name(win);
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, win, name);
 	Panel *panel = systray.area.panel;
@@ -1068,15 +1061,7 @@ void systray_property_notify(TrayWindow *traywin, XEvent *e)
 	Atom at = e->xproperty.atom;
 	if (at == server.atom.WM_NAME) {
 		free(traywin->name);
-
-		XTextProperty xname;
-		if (XGetWMName(server.display, traywin->win, &xname)) {
-			traywin->name = strdup((char *)xname.value);
-			XFree(xname.value);
-		} else {
-			traywin->name = strdup("");
-		}
-
+        traywin->name = get_window_name(traywin->win);
 		if (systray.sort == SYSTRAY_SORT_ASCENDING || systray.sort == SYSTRAY_SORT_DESCENDING) {
 			systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
 			// print_icons();
