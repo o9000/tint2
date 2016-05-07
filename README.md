@@ -1,5 +1,5 @@
-# New stable release: 0.12.9
-Changes: https://gitlab.com/o9000/tint2/blob/0.12.9/ChangeLog
+# Latest stable release: 0.12.10
+Changes: https://gitlab.com/o9000/tint2/blob/0.12.10/ChangeLog
 
 Documentation: https://gitlab.com/o9000/tint2/wikis/Configure
 
@@ -7,7 +7,7 @@ Compile it with (see also [dependencies](https://gitlab.com/o9000/tint2/wikis/In
 ```
 git clone https://gitlab.com/o9000/tint2.git
 cd tint2
-git checkout 0.12.9
+git checkout 0.12.10
 mkdir build
 cd build
 cmake ..
@@ -69,10 +69,10 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 
 # Screenshots
 
-## Default config of the latest release:
+## Default config:
 
 ![Screenshot_2016-01-23_14-42-57](https://gitlab.com/o9000/tint2/uploads/948fa74eca60864352a033580350b4c3/Screenshot_2016-01-23_14-42-57.png)
 
-## Various configurations:
+## Various configs:
 
 ![screenshot](https://gitlab.com/o9000/tint2/wikis/screenshot.png)
