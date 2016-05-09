@@ -2226,7 +2226,7 @@ msgstr  "Zapisz motyw jako"
 #: ../main.c:439
 #, c-format
 msgid   "A file named \"%s\" already exists.  Do you want to replace it?"
-msgstr  ""
+msgstr  "Plik o nazwie \"%s\" już istnieje. Zastąpić go?"
 
 #: ../main.c:472
 #, fuzzy

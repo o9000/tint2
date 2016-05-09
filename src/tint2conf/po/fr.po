@@ -2243,7 +2243,7 @@ msgstr  "Enregistrer le thème sous"
 #: ../main.c:439
 #, c-format
 msgid   "A file named \"%s\" already exists.  Do you want to replace it?"
-msgstr  ""
+msgstr  "Un fichier nommé « %s » existe déjà. Voulez-vous le remplacer ?"
 
 #: ../main.c:472
 msgid   "Do you really want to delete the selected theme?"

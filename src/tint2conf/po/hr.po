@@ -2192,7 +2192,7 @@ msgstr  "Snimiti temu kao"
 #: ../main.c:439
 #, c-format
 msgid   "A file named \"%s\" already exists.  Do you want to replace it?"
-msgstr  ""
+msgstr  "Datoteka imena \"%s\" već postoji. Želite li ju zamjeniti?"
 
 #: ../main.c:472
 #, fuzzy

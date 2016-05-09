@@ -2181,7 +2181,7 @@ msgstr  "Сохранить тему как"
 #: ../main.c:439
 #, c-format
 msgid   "A file named \"%s\" already exists.  Do you want to replace it?"
-msgstr  ""
+msgstr  "Файл с именем «%s» уже существует. Заменить его?"
 
 #: ../main.c:472
 msgid   "Do you really want to delete the selected theme?"
