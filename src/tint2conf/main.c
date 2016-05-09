@@ -418,13 +418,38 @@ static void menuSaveAs()
 													GTK_RESPONSE_ACCEPT,
 													NULL);
 	GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
-	gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
+	gtk_file_chooser_set_do_overwrite_confirmation(chooser, FALSE);
 	gchar *config_dir = g_build_filename(g_get_home_dir(), ".config", "tint2", NULL);
 	gtk_file_chooser_set_current_folder(chooser, config_dir);
 	g_free(config_dir);
+	GtkFileFilter *filter = gtk_file_filter_new();
+	gtk_file_filter_add_pattern(filter, "*.tint2rc");
+	gtk_file_filter_add_pattern(filter, "tint2rc");
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filter);
 	gtk_file_chooser_set_current_name(chooser, filename);
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 		gchar *newpath = gtk_file_chooser_get_filename(chooser);
+		if (!endswith(newpath, ".tint2rc") && !endswith(newpath, "/tint2rc")) {
+			gchar *proper_path = g_strdup_printf("%s.tint2rc", newpath);
+			g_free(newpath);
+			newpath = proper_path;
+		}
+		if (g_file_test(newpath, G_FILE_TEST_EXISTS)) {
+			GtkWidget *w = gtk_message_dialog_new(GTK_WINDOW(g_window),
+												  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+												  GTK_MESSAGE_QUESTION,
+												  GTK_BUTTONS_YES_NO,
+												  _("A file named \"%s\" already exists.  Do you want to replace it?"),
+												  newpath);
+			gint response = gtk_dialog_run(GTK_DIALOG(w));
+			gtk_widget_destroy(w);
+			if (response != GTK_RESPONSE_YES) {
+				g_free(newpath);
+				gtk_widget_destroy(dialog);
+				g_free(filepath);
+				return;
+			}
+		}
 		import_with_overwrite(filepath, newpath);
 		g_free(newpath);
 	}
