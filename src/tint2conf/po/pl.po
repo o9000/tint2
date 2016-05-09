@@ -2223,16 +2223,21 @@ msgstr  "Edycja wybranego motywu"
 msgid   "Save theme as"
 msgstr  "Zapisz motyw jako"
 
-#: ../main.c:446
+#: ../main.c:439
+#, c-format
+msgid   "A file named \"%s\" already exists.  Do you want to replace it?"
+msgstr  ""
+
+#: ../main.c:472
 #, fuzzy
 msgid   "Do you really want to delete the selected theme?"
 msgstr  "Edycja wybranego motywu"
 
-#: ../main.c:485
+#: ../main.c:511
 msgid   "Do you really want to reset the selected theme to default?"
 msgstr  ""
 
-#: ../main.c:653
+#: ../main.c:679
 msgid   "Do you really want to replace the default theme with the selected "
         "theme?"
 msgstr  ""
