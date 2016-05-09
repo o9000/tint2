@@ -1,3 +1,8 @@
+2016-05-09 master
+- Fixes:
+  - Fixed crash in tint2conf when adding background
+  - Add correct extension to file name in tint2conf for 'Save as'
+
 2016-05-07 0.12.10
 - Fixes:
   - Fixed crash in systray with non-Latin languagess (thanks zcodes)
