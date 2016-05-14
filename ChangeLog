@@ -1,7 +1,9 @@
-2016-05-09 master
+2016-05-14 0.12.11
 - Fixes:
-  - Fixed crash in tint2conf when adding background
-  - Add correct extension to file name in tint2conf for 'Save as'
+  - tint2conf:
+    - Fixed crash in tint2conf when adding background
+    - Add correct extension to file name in tint2conf for 'Save as'
+    - Changed main window title in tint2conf
 
 2016-05-07 0.12.10
 - Fixes:

@@ -1,5 +1,5 @@
-# Latest stable release: 0.12.10
-Changes: https://gitlab.com/o9000/tint2/blob/0.12.10/ChangeLog
+# Latest stable release: 0.12.11
+Changes: https://gitlab.com/o9000/tint2/blob/0.12.11/ChangeLog
 
 Documentation: https://gitlab.com/o9000/tint2/wikis/Configure
 
@@ -7,7 +7,7 @@ Compile it with (see also [dependencies](https://gitlab.com/o9000/tint2/wikis/In
 ```
 git clone https://gitlab.com/o9000/tint2.git
 cd tint2
-git checkout 0.12.10
+git checkout 0.12.11
 mkdir build
 cd build
 cmake ..
