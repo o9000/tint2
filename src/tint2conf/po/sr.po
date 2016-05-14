@@ -2058,7 +2058,7 @@ msgid   "tint2conf"
 msgstr  "тинт2конф"
 
 #: ../main.c:240
-msgid   "Panel theming"
+msgid   "Tint2 panel themes"
 msgstr  "Изглед плоче"
 
 #: ../main.c:250

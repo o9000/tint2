@@ -1914,7 +1914,7 @@ msgid "tint2conf"
 msgstr ""
 
 #: ../main.c:240
-msgid "Panel theming"
+msgid "Tint2 panel themes"
 msgstr ""
 
 #: ../main.c:250

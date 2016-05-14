@@ -2059,7 +2059,7 @@ msgid   "tint2conf"
 msgstr  "tint2conf"
 
 #: ../main.c:240
-msgid   "Panel theming"
+msgid   "Tint2 panel themes"
 msgstr  "Izgled ploče"
 
 #: ../main.c:250

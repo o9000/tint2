@@ -2117,8 +2117,8 @@ msgid   "tint2conf"
 msgstr  "tint2conf"
 
 #: ../main.c:240
-msgid   "Panel theming"
-msgstr  "Thème du panel"
+msgid   "Tint2 panel themes"
+msgstr  "Thème du panel tint2"
 
 #: ../main.c:250
 msgid   "Theme"
