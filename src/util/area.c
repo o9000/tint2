@@ -36,6 +36,7 @@ Area *mouse_over_area = NULL;
 void init_background(Background *bg)
 {
 	memset(bg, 0, sizeof(Background));
+	bg->border.mask = BORDER_TOP | BORDER_BOTTOM | BORDER_LEFT | BORDER_RIGHT;
 }
 
 void initialize_positions(void *obj, int offset)
@@ -454,12 +455,18 @@ void draw_background(Area *a, cairo_t *c)
 								  a->bg->fill_color.rgb[1],
 								  a->bg->fill_color.rgb[2],
 								  a->bg->fill_color.alpha);
+		// Not sure about this
 		draw_rect(c,
-				  a->bg->border.width,
-				  a->bg->border.width,
-				  a->width - (2.0 * a->bg->border.width),
-				  a->height - (2.0 * a->bg->border.width),
+				  a->bg->border.mask & BORDER_LEFT ? a->bg->border.width : 0,
+				  a->bg->border.mask & BORDER_TOP ? a->bg->border.width : 0,
+				  a->width
+				  - (a->bg->border.mask & BORDER_LEFT ? a->bg->border.width : 0)
+				  - (a->bg->border.mask & BORDER_RIGHT ? a->bg->border.width : 0),
+				  a->height
+				  - (a->bg->border.mask & BORDER_TOP ? a->bg->border.width : 0)
+				  - (a->bg->border.mask & BORDER_BOTTOM ? a->bg->border.width : 0),
 				  a->bg->border.radius - a->bg->border.width / 1.571);
+
 		cairo_fill(c);
 	}
 
@@ -485,12 +492,17 @@ void draw_background(Area *a, cairo_t *c)
 								  a->bg->border.color.rgb[1],
 								  a->bg->border.color.rgb[2],
 								  a->bg->border.color.alpha);
-		draw_rect(c,
-				  a->bg->border.width / 2.0,
-				  a->bg->border.width / 2.0,
-				  a->width - a->bg->border.width,
-				  a->height - a->bg->border.width,
-				  a->bg->border.radius);
+		draw_rect_on_sides(c,
+						   a->bg->border.mask & BORDER_LEFT ? a->bg->border.width / 2. : 0,
+						   a->bg->border.mask & BORDER_TOP ? a->bg->border.width / 2.0 : 0,
+						   a->width
+						   - (a->bg->border.mask & BORDER_LEFT ? a->bg->border.width / 2. : 0)
+						   - (a->bg->border.mask & BORDER_RIGHT ? a->bg->border.width / 2. : 0),
+						   a->height
+						   - (a->bg->border.mask & BORDER_TOP ? a->bg->border.width / 2. : 0)
+						   - (a->bg->border.mask & BORDER_BOTTOM ? a->bg->border.width / 2. : 0),
+						   a->bg->border.radius,
+						   a->bg->border.mask);
 
 		cairo_stroke(c);
 	}

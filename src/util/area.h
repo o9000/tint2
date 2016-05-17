@@ -124,6 +124,15 @@ typedef struct Color {
 	double alpha;
 } Color;
 
+typedef enum BorderMask {
+	BORDER_TOP     = 1 << 0,
+	BORDER_BOTTOM  = 1 << 1,
+	BORDER_LEFT    = 1 << 2,
+	BORDER_RIGHT   = 1 << 3
+} BorderMask;
+
+#define BORDER_ALL (BORDER_TOP | BORDER_BOTTOM | BORDER_LEFT | BORDER_RIGHT)
+
 typedef struct Border {
 	// It's essential that the first member is color
 	Color color;
@@ -131,6 +140,8 @@ typedef struct Border {
 	int width;
 	// Corner radius
 	int radius;
+	// Mask: bitwise OR of BorderMask
+	int mask;
 } Border;
 
 typedef struct Background {

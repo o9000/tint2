@@ -239,6 +239,19 @@ void add_entry(char *key, char *value)
 		read_border_color_press = 0;
 	} else if (strcmp(key, "border_width") == 0) {
 		g_array_index(backgrounds, Background, backgrounds->len - 1).border.width = atoi(value);
+	} else if (strcmp(key, "border_sides") == 0) {
+		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
+		bg->border.mask = 0;
+		if (strchr(value, 'l') || strchr(value, 'L'))
+			bg->border.mask |= BORDER_LEFT;
+		if (strchr(value, 'r') || strchr(value, 'R'))
+			bg->border.mask |= BORDER_RIGHT;
+		if (strchr(value, 't') || strchr(value, 'T'))
+			bg->border.mask |= BORDER_TOP;
+		if (strchr(value, 'b') || strchr(value, 'B'))
+			bg->border.mask |= BORDER_BOTTOM;
+		if (!bg->border.mask)
+			bg->border.width = 0;
 	} else if (strcmp(key, "background_color") == 0) {
 		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
 		extract_values(value, &value1, &value2, &value3);

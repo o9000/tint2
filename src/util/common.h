@@ -108,6 +108,7 @@ void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color
 
 // Draws a rounded rectangle
 void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
+void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, double r, int border_mask);
 
 // Clears the pixmap (with transparent color)
 void clear_pixmap(Pixmap p, int x, int y, int w, int h);
