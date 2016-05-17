@@ -521,40 +521,48 @@ void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, doub
 	else
 		cairo_rel_move_to(c, w - 2 * r, y);
 	// Top right corner
-	if (r > 0 && (border_mask & BORDER_TOP) && (border_mask & BORDER_RIGHT))
-		cairo_rel_curve_to(c, c1, 0.0, r, c1, r, r);
-	else
-		cairo_rel_move_to(c, r, r);
+	if (r > 0) {
+		if ((border_mask & BORDER_TOP) && (border_mask & BORDER_RIGHT))
+			cairo_rel_curve_to(c, c1, 0.0, r, c1, r, r);
+		else
+			cairo_rel_move_to(c, r, r);
+	}
 	// Right line
 	if (border_mask & BORDER_RIGHT)
 		cairo_rel_line_to(c, 0, h - 2 * r);
 	else
 		cairo_rel_move_to(c, 0, h - 2 * r);
 	// Bottom right corner
-	if (r > 0 && (border_mask & BORDER_RIGHT) && (border_mask & BORDER_BOTTOM))
-		cairo_rel_curve_to(c, 0.0, c1, c1 - r, r, -r, r);
-	else
-		cairo_rel_move_to(c, -r, r);
+	if (r > 0) {
+		if ((border_mask & BORDER_RIGHT) && (border_mask & BORDER_BOTTOM))
+			cairo_rel_curve_to(c, 0.0, c1, c1 - r, r, -r, r);
+		else
+			cairo_rel_move_to(c, -r, r);
+	}
 	// Bottom line
 	if (border_mask & BORDER_BOTTOM)
 		cairo_rel_line_to(c, -w + 2 * r, 0);
 	else
 		cairo_rel_move_to(c, -w + 2 * r, 0);
 	// Bottom left corner
-	if (r > 0 && (border_mask & BORDER_LEFT) && (border_mask & BORDER_BOTTOM))
-		cairo_rel_curve_to(c, -c1, 0, -r, -c1, -r, -r);
-	else
-		cairo_rel_move_to(c, -r, -r);
+	if (r > 0) {
+		if ((border_mask & BORDER_LEFT) && (border_mask & BORDER_BOTTOM))
+			cairo_rel_curve_to(c, -c1, 0, -r, -c1, -r, -r);
+		else
+			cairo_rel_move_to(c, -r, -r);
+	}
 	// Left line
 	if (border_mask & BORDER_LEFT)
 		cairo_rel_line_to(c, 0, -h + 2 * r);
 	else
 		cairo_rel_move_to(c, 0, -h + 2 * r);
 	// Top left corner
-	if (r > 0 && (border_mask & BORDER_LEFT) && (border_mask & BORDER_TOP))
-		cairo_rel_curve_to(c, 0, -c1, r - c1, -r, r, -r);
-	else
-		cairo_rel_move_to(c, r, -r);
+	if (r > 0) {
+		if ((border_mask & BORDER_LEFT) && (border_mask & BORDER_TOP))
+			cairo_rel_curve_to(c, 0, -c1, r - c1, -r, r, -r);
+		else
+			cairo_rel_move_to(c, r, -r);
+	}
 }
 
 void clear_pixmap(Pixmap p, int x, int y, int w, int h)
