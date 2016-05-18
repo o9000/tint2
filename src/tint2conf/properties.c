@@ -679,25 +679,21 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(background_border_sides_top);
     gtk_table_attach(GTK_TABLE(table), background_border_sides_top, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, background_border_sides_top, _("Draw a line at top of task button."), NULL);
 
     background_border_sides_bottom = gtk_check_button_new_with_label("Bottom");
     gtk_widget_show(background_border_sides_bottom);
     gtk_table_attach(GTK_TABLE(table), background_border_sides_bottom, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, background_border_sides_top, _("Draw a line at bottom of task button."), NULL);
 
     background_border_sides_left = gtk_check_button_new_with_label("Left");
     gtk_widget_show(background_border_sides_left);
     gtk_table_attach(GTK_TABLE(table), background_border_sides_left, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, background_border_sides_left, _("Draw a line at left of task button."), NULL);
 
     background_border_sides_right = gtk_check_button_new_with_label("Right");
     gtk_widget_show(background_border_sides_right);
     gtk_table_attach(GTK_TABLE(table), background_border_sides_right, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, background_border_sides_right, _("Draw a line at right of task button."), NULL);
 
 	g_signal_connect(G_OBJECT(current_background), "changed", G_CALLBACK(current_background_changed), NULL);
 	g_signal_connect(G_OBJECT(background_fill_color), "color-set", G_CALLBACK(background_update), NULL);
