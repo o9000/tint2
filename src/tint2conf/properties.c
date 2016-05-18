@@ -746,10 +746,10 @@ void background_create_new()
 {
 	int r = 0;
 	int b = 0;
-    gboolean sideTop = FALSE;
-    gboolean sideBottom = FALSE;
-    gboolean sideLeft = FALSE;
-    gboolean sideRight = FALSE;
+    gboolean sideTop = TRUE;
+    gboolean sideBottom = TRUE;
+    gboolean sideLeft = TRUE;
+    gboolean sideRight = TRUE;
 	GdkColor fillColor;
 	cairoColor2GdkColor(0, 0, 0, &fillColor);
 	int fillOpacity = 0;
