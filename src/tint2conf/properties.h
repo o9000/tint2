@@ -179,6 +179,10 @@ enum {
 	bgColFillOpacityPress,
 	bgColBorderColorPress,
 	bgColBorderOpacityPress,
+    bgColBorderSidesTop,
+    bgColBorderSidesBottom,
+    bgColBorderSidesLeft,
+    bgColBorderSidesRight,
 	bgNumCols
 };
 
@@ -191,6 +195,10 @@ extern GtkWidget *current_background,
 		  *background_fill_color_press,
 		  *background_border_color_press,
 		  *background_border_width,
+          *background_border_sides_top,
+          *background_border_sides_bottom,
+          *background_border_sides_left,
+          *background_border_sides_right,
 		  *background_corner_radius;
 
 void background_create_new();

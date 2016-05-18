@@ -115,6 +115,10 @@ void config_write_backgrounds(FILE *fp)
 
 		int r;
 		int b;
+        int sideTop;
+        int sideBottom;
+        int sideLeft;
+        int sideRight;
 		GdkColor *fillColor;
 		int fillOpacity;
 		GdkColor *borderColor;
@@ -145,10 +149,26 @@ void config_write_backgrounds(FILE *fp)
 						   bgColBorderWidth, &b,
 						   bgColCornerRadius, &r,
 						   bgColText, &text,
+                           bgColBorderSidesTop, &sideTop,
+                           bgColBorderSidesBottom, &sideBottom,
+                           bgColBorderSidesLeft, &sideLeft,
+                           bgColBorderSidesRight, &sideRight,
 						   -1);
 		fprintf(fp, "# Background %d: %s\n", index, text ? text : "");
 		fprintf(fp, "rounded = %d\n", r);
 		fprintf(fp, "border_width = %d\n", b);
+
+        char *sides = "\0";
+        if (sideTop)
+            sides = append(sides, 'T');
+        if (sideBottom)
+            sides = append(sides, 'B');
+        if (sideLeft)
+            sides = append(sides, 'L');
+        if (sideRight)
+            sides = append(sides, 'R');
+        fprintf(fp, "border_sides = %s\n", sides);
+
 		config_write_color(fp, "background_color", *fillColor, fillOpacity);
 		config_write_color(fp, "border_color", *borderColor, borderOpacity);
 		config_write_color(fp, "background_color_hover", *fillColorOver, fillOpacityOver);
@@ -922,7 +942,17 @@ void add_entry(char *key, char *value)
 		background_force_update();
 		read_border_color_press = 1;
 	}
-
+	else if (strcmp(key, "border_sides") == 0) {
+        if (strchr(value, 't') || strchr(value, 'T'))
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_top), 1);
+        if (strchr(value, 'b') || strchr(value, 'B'))
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_bottom), 1);
+        if (strchr(value, 'l') || strchr(value, 'L'))
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_left), 1);
+        if (strchr(value, 'r') || strchr(value, 'R'))
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_right), 1);
+        background_force_update();
+    }
 	/* Panel */
 	else if (strcmp(key, "panel_size") == 0) {
 		extract_values(value, &value1, &value2, &value3);
@@ -1086,7 +1116,7 @@ void add_entry(char *key, char *value)
 	else if (strcmp(key, "primary_monitor_first") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(panel_primary_monitor_first), atoi(value));
 	}
-	
+
 	/* autohide options */
 	else if (strcmp(key, "autohide") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(panel_autohide), atoi(value));

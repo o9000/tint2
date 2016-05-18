@@ -41,6 +41,9 @@ typedef enum MouseAction {
 
 #define ALL_DESKTOPS 0xFFFFFFFF
 
+// add c to s
+char *append(char *s, char c);
+
 // Copies a file to another path
 void copy_file(const char *path_src, const char *path_dest);
 
