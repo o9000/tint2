@@ -943,14 +943,14 @@ void add_entry(char *key, char *value)
 		read_border_color_press = 1;
 	}
 	else if (strcmp(key, "border_sides") == 0) {
-        if (strchr(value, 't') || strchr(value, 'T'))
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_top), 1);
-        if (strchr(value, 'b') || strchr(value, 'B'))
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_bottom), 1);
-        if (strchr(value, 'l') || strchr(value, 'L'))
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_left), 1);
-        if (strchr(value, 'r') || strchr(value, 'R'))
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_right), 1);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_top),
+                                     strchr(value, 't') || strchr(value, 'T'));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_bottom),
+                                     strchr(value, 'b') || strchr(value, 'B'));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_left),
+                                     strchr(value, 'l') || strchr(value, 'L'));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_right),
+                                     strchr(value, 'r') || strchr(value, 'R'));
         background_force_update();
     }
 	/* Panel */
