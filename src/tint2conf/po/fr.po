@@ -147,9 +147,9 @@ msgid   "The corner radius of the current background"
 msgstr  "Rayon d'angle de l'actuel arrière-plan"
 
 #: ../properties.c:672
-#, fuzzy
+#
 msgid   "Border sides"
-msgstr  "Largeur de la bordure"
+msgstr  "Côtés de la bordure"
 
 #: ../properties.c:1163
 msgid   "<b>Geometry</b>"
