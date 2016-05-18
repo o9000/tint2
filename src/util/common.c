@@ -44,17 +44,6 @@
 #include <librsvg/rsvg.h>
 #endif
 
-char *append(char *s, char c) {
-    int len = strlen(s);
-    char buf[len+2];
-
-    strcpy(buf, s);
-    buf[len] = c;
-    buf[len + 1] = 0;
-
-    return strdup(buf);
-}
-
 void copy_file(const char *path_src, const char *path_dest)
 {
 	if (g_str_equal(path_src, path_dest))

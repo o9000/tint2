@@ -158,15 +158,16 @@ void config_write_backgrounds(FILE *fp)
 		fprintf(fp, "rounded = %d\n", r);
 		fprintf(fp, "border_width = %d\n", b);
 
-        char *sides = "\0";
+        char sides[10];
+        sides[0] = '\0';
         if (sideTop)
-            sides = append(sides, 'T');
+            strcat(sides, "T");
         if (sideBottom)
-            sides = append(sides, 'B');
+            strcat(sides, "B");
         if (sideLeft)
-            sides = append(sides, 'L');
+            strcat(sides, "L");
         if (sideRight)
-            sides = append(sides, 'R');
+            strcat(sides, "R");
         fprintf(fp, "border_sides = %s\n", sides);
 
 		config_write_color(fp, "background_color", *fillColor, fillOpacity);
