@@ -508,10 +508,10 @@ void create_background(GtkWidget *parent)
 									 GTK_TYPE_INT,
 									 GDK_TYPE_COLOR,
 									 GTK_TYPE_INT,
-                                     GTK_TYPE_INT,
-                                     GTK_TYPE_INT,
-                                     GTK_TYPE_INT,
-                                     GTK_TYPE_INT);
+                                     GTK_TYPE_BOOL,
+                                     GTK_TYPE_BOOL,
+                                     GTK_TYPE_BOOL,
+                                     GTK_TYPE_BOOL);
 
 	GtkWidget *table, *label, *button;
 	int row, col;
@@ -746,10 +746,10 @@ void background_create_new()
 {
 	int r = 0;
 	int b = 0;
-    int sideTop = 0;
-    int sideBottom = 0;
-    int sideLeft = 0;
-    int sideRight = 0;
+    gboolean sideTop = FALSE;
+    gboolean sideBottom = FALSE;
+    gboolean sideLeft = FALSE;
+    gboolean sideRight = FALSE;
 	GdkColor fillColor;
 	cairoColor2GdkColor(0, 0, 0, &fillColor);
 	int fillOpacity = 0;
@@ -820,10 +820,10 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 
 	int r;
 	int b;
-    int sideTop;
-    int sideBottom;
-    int sideLeft;
-    int sideRight;
+    gboolean sideTop;
+    gboolean sideBottom;
+    gboolean sideLeft;
+    gboolean sideRight;
 	GdkColor *fillColor;
 	int fillOpacity;
 	GdkColor *borderColor;
@@ -1013,10 +1013,10 @@ void background_update(GtkWidget *widget, gpointer data)
 	r = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_corner_radius));
 	b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_border_width));
 
-    int sideTop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_top));
-    int sideBottom = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_bottom));
-    int sideLeft = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_left));
-    int sideRight = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_right));
+    gboolean sideTop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_top));
+    gboolean sideBottom = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_bottom));
+    gboolean sideLeft = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_left));
+    gboolean sideRight = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_right));
 
 	GdkColor fillColor;
 	int fillOpacity;
@@ -1085,10 +1085,10 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 	int r;
 	int b;
 
-    int sideTop;
-    int sideBottom;
-    int sideLeft;
-    int sideRight;
+    gboolean sideTop;
+    gboolean sideBottom;
+    gboolean sideLeft;
+    gboolean sideRight;
 
 	GdkColor *fillColor;
 	int fillOpacity;

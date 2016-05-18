@@ -115,10 +115,10 @@ void config_write_backgrounds(FILE *fp)
 
 		int r;
 		int b;
-        int sideTop;
-        int sideBottom;
-        int sideLeft;
-        int sideRight;
+        gboolean sideTop;
+        gboolean sideBottom;
+        gboolean sideLeft;
+        gboolean sideRight;
 		GdkColor *fillColor;
 		int fillOpacity;
 		GdkColor *borderColor;
