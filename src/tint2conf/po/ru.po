@@ -146,9 +146,8 @@ msgid   "The corner radius of the current background"
 msgstr  "Радиус угла текущего фона"
 
 #: ../properties.c:672
-#, fuzzy
 msgid   "Border sides"
-msgstr  "Толщина рамки"
+msgstr  "Стороны рамки"
 
 #: ../properties.c:1163
 msgid   "<b>Geometry</b>"
@@ -536,7 +535,7 @@ msgstr  "Слой панели"
 
 #: ../properties.c:1688
 msgid   "Top"
-msgstr  "Верхний"
+msgstr  "Сверху"
 
 #: ../properties.c:1689
 msgid   "Normal"
@@ -544,7 +543,7 @@ msgstr  "Нормальный"
 
 #: ../properties.c:1690
 msgid   "Bottom"
-msgstr  "Нижний"
+msgstr  "Снизу"
 
 #: ../properties.c:1692
 msgid   "Specifies the layer on which the panel window should be placed. \n"
