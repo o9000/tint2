@@ -250,6 +250,20 @@ void relayout(Area *a);
 // If maximum_size > 0, it is an upper limit for the child size.
 int relayout_with_constraint(Area *a, int maximum_size);
 
+int left_border_width(Area *a);
+int right_border_width(Area *a);
+int left_right_border_width(Area *a);
+int top_border_width(Area *a);
+int bottom_border_width(Area *a);
+int top_bottom_border_width(Area *a);
+
+int left_bg_border_width(Background *bg);
+int right_bg_border_width(Background *bg);
+int top_bg_border_width(Background *bg);
+int bottom_bg_border_width(Background *bg);
+int left_right_bg_border_width(Background *bg);
+int top_bottom_bg_border_width(Background *bg);
+
 // Rendering
 
 // Sets the redraw_needed flag on the area and its descendants

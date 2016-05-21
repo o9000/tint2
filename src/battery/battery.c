@@ -158,8 +158,8 @@ void init_battery_panel(void *p)
 	battery->area.on_screen = TRUE;
 	battery->area.resize_needed = 1;
 	battery->area.has_mouse_over_effect =
-		panel_config.mouse_effects && (battery_lclick_command || battery_mclick_command || battery_rclick_command ||
-									   battery_uwheel_command || battery_dwheel_command);
+	    panel_config.mouse_effects && (battery_lclick_command || battery_mclick_command || battery_rclick_command ||
+	                                   battery_uwheel_command || battery_dwheel_command);
 	battery->area.has_mouse_press_effect = battery->area.has_mouse_over_effect;
 	if (battery_tooltip_enabled)
 		battery->area._get_tooltip_text = battery_get_tooltip;
@@ -227,12 +227,12 @@ void update_battery_tick(void *arg)
 	}
 
 	if (battery_state.percentage < battery_low_status && battery_state.state == BATTERY_DISCHARGING &&
-		!battery_low_cmd_sent) {
+	    !battery_low_cmd_sent) {
 		tint_exec(battery_low_cmd);
 		battery_low_cmd_sent = TRUE;
 	}
 	if (battery_state.percentage > battery_low_status && battery_state.state == BATTERY_CHARGING &&
-		battery_low_cmd_sent) {
+	    battery_low_cmd_sent) {
 		battery_low_cmd_sent = FALSE;
 	}
 
@@ -259,7 +259,7 @@ void update_battery_tick(void *arg)
 		// Redraw if needed
 		if (panels[i].battery.area.on_screen) {
 			if (old_found != battery_found || old_percentage != battery_state.percentage ||
-				old_hours != battery_state.time.hours || old_minutes != battery_state.time.minutes) {
+			    old_hours != battery_state.time.hours || old_minutes != battery_state.time.minutes) {
 				panels[i].battery.area.resize_needed = TRUE;
 				panel_refresh = TRUE;
 			}
@@ -302,31 +302,31 @@ gboolean resize_battery(void *obj)
 		snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
 	}
 	get_text_size2(bat1_font_desc,
-				   &bat_percentage_height_ink,
-				   &bat_percentage_height,
-				   &bat_percentage_width,
-				   panel->area.height,
-				   panel->area.width,
-				   buf_bat_percentage,
-				   strlen(buf_bat_percentage),
-				   PANGO_WRAP_WORD_CHAR,
-				   PANGO_ELLIPSIZE_NONE,
-				   FALSE);
+	               &bat_percentage_height_ink,
+	               &bat_percentage_height,
+	               &bat_percentage_width,
+	               panel->area.height,
+	               panel->area.width,
+	               buf_bat_percentage,
+	               strlen(buf_bat_percentage),
+	               PANGO_WRAP_WORD_CHAR,
+	               PANGO_ELLIPSIZE_NONE,
+	               FALSE);
 	get_text_size2(bat2_font_desc,
-				   &bat_time_height_ink,
-				   &bat_time_height,
-				   &bat_time_width,
-				   panel->area.height,
-				   panel->area.width,
-				   buf_bat_time,
-				   strlen(buf_bat_time),
-				   PANGO_WRAP_WORD_CHAR,
-				   PANGO_ELLIPSIZE_NONE,
-				   FALSE);
+	               &bat_time_height_ink,
+	               &bat_time_height,
+	               &bat_time_width,
+	               panel->area.height,
+	               panel->area.width,
+	               buf_bat_time,
+	               strlen(buf_bat_time),
+	               PANGO_WRAP_WORD_CHAR,
+	               PANGO_ELLIPSIZE_NONE,
+	               FALSE);
 
 	if (panel_horizontal) {
 		int new_size = (bat_percentage_width > bat_time_width) ? bat_percentage_width : bat_time_width;
-		new_size += 2 * battery->area.paddingxlr + 2 * battery->area.bg->border.width;
+		new_size += 2 * battery->area.paddingxlr + left_right_border_width(&battery->area);
 		if (new_size > battery->area.width || new_size < battery->area.width - 2) {
 			// we try to limit the number of resize
 			battery->area.width = new_size;
@@ -335,8 +335,8 @@ gboolean resize_battery(void *obj)
 			ret = 1;
 		}
 	} else {
-		int new_size =
-		    bat_percentage_height + bat_time_height + (2 * (battery->area.paddingxlr + battery->area.bg->border.width));
+		int new_size = bat_percentage_height + bat_time_height + 2 * battery->area.paddingxlr +
+		               top_bottom_border_width(&battery->area);
 		if (new_size > battery->area.height || new_size < battery->area.height - 2) {
 			battery->area.height = new_size;
 			battery->bat1_posy = (battery->area.height - bat_percentage_height - bat_time_height - 2) / 2;

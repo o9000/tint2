@@ -184,10 +184,10 @@ void init_panel()
 	}
 
 	fprintf(stderr,
-			"tint2 : nb monitor %d, nb monitor used %d, nb desktop %d\n",
-			server.num_monitors,
-			num_panels,
-			server.num_desktops);
+	        "tint2 : nb monitor %d, nb monitor used %d, nb desktop %d\n",
+	        server.num_monitors,
+	        num_panels,
+	        server.num_desktops);
 	for (int i = 0; i < num_panels; i++) {
 		Panel *p = &panels[i];
 
@@ -231,28 +231,28 @@ void init_panel()
 		XSetWindowAttributes att = {.colormap = server.colormap, .background_pixel = 0, .border_pixel = 0};
 		unsigned long mask = CWEventMask | CWColormap | CWBackPixel | CWBorderPixel;
 		p->main_win = XCreateWindow(server.display,
-									server.root_win,
-									p->posx,
-									p->posy,
-									p->area.width,
-									p->area.height,
-									0,
-									server.depth,
-									InputOutput,
-									server.visual,
-									mask,
-									&att);
+		                            server.root_win,
+		                            p->posx,
+		                            p->posy,
+		                            p->area.width,
+		                            p->area.height,
+		                            0,
+		                            server.depth,
+		                            InputOutput,
+		                            server.visual,
+		                            mask,
+		                            &att);
 
 		long event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | PropertyChangeMask;
 		if (p->mouse_effects || p->g_task.tooltip_enabled || p->clock.area._get_tooltip_text ||
-			(launcher_enabled && launcher_tooltip_enabled))
+		    (launcher_enabled && launcher_tooltip_enabled))
 			event_mask |= PointerMotionMask | LeaveWindowMask;
 		if (panel_autohide)
 			event_mask |= LeaveWindowMask | EnterWindowMask;
 		XChangeWindowAttributes(server.display,
-								p->main_win,
-								CWEventMask,
-								&(XSetWindowAttributes){.event_mask = event_mask});
+		                        p->main_win,
+		                        CWEventMask,
+		                        &(XSetWindowAttributes){.event_mask = event_mask});
 
 		if (!server.gc) {
 			XGCValues gcv;
@@ -337,11 +337,11 @@ void init_panel_size_and_position(Panel *panel)
 	} else {
 		if (panel_position & RIGHT) {
 			panel->posx = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width -
-						  panel->area.width - panel->marginx;
+			              panel->area.width - panel->marginx;
 		} else {
 			if (panel_horizontal)
 				panel->posx = server.monitors[panel->monitor].x +
-							  ((server.monitors[panel->monitor].width - panel->area.width) / 2);
+				              ((server.monitors[panel->monitor].width - panel->area.width) / 2);
 			else
 				panel->posx = server.monitors[panel->monitor].x + panel->marginx;
 		}
@@ -351,10 +351,10 @@ void init_panel_size_and_position(Panel *panel)
 	} else {
 		if (panel_position & BOTTOM) {
 			panel->posy = server.monitors[panel->monitor].y + server.monitors[panel->monitor].height -
-						  panel->area.height - panel->marginy;
+			              panel->area.height - panel->marginy;
 		} else {
 			panel->posy =
-				server.monitors[panel->monitor].y + ((server.monitors[panel->monitor].height - panel->area.height) / 2);
+			    server.monitors[panel->monitor].y + ((server.monitors[panel->monitor].height - panel->area.height) / 2);
 		}
 	}
 
@@ -435,7 +435,9 @@ gboolean resize_panel(void *obj)
 			for (int i = 0; i < panel->num_desktops; i++) {
 				Taskbar *taskbar = &panel->taskbar[i];
 
-				int requested_size = (2 * taskbar->area.bg->border.width) + (2 * taskbar->area.paddingxlr);
+				int requested_size = (panel_horizontal ? left_right_border_width(&taskbar->area)
+				                                       : top_bottom_border_width(&taskbar->area)) +
+									 2 * taskbar->area.paddingxlr;
 				int items = 0;
 				GList *l = taskbar->area.children;
 				if (taskbarname_enabled)
@@ -519,21 +521,21 @@ void update_strut(Panel *p)
 	}
 	// Old specification : fluxbox need _NET_WM_STRUT.
 	XChangeProperty(server.display,
-					p->main_win,
-					server.atom._NET_WM_STRUT,
-					XA_CARDINAL,
-					32,
-					PropModeReplace,
-					(unsigned char *)&struts,
-					4);
+	                p->main_win,
+	                server.atom._NET_WM_STRUT,
+	                XA_CARDINAL,
+	                32,
+	                PropModeReplace,
+	                (unsigned char *)&struts,
+	                4);
 	XChangeProperty(server.display,
-					p->main_win,
-					server.atom._NET_WM_STRUT_PARTIAL,
-					XA_CARDINAL,
-					32,
-					PropModeReplace,
-					(unsigned char *)&struts,
-					12);
+	                p->main_win,
+	                server.atom._NET_WM_STRUT_PARTIAL,
+	                XA_CARDINAL,
+	                32,
+	                PropModeReplace,
+	                (unsigned char *)&struts,
+	                12);
 }
 
 void set_panel_items_order(Panel *p)
@@ -579,13 +581,13 @@ void place_panel_all_desktops(Panel *p)
 {
 	long val = ALL_DESKTOPS;
 	XChangeProperty(server.display,
-					p->main_win,
-					server.atom._NET_WM_DESKTOP,
-					XA_CARDINAL,
-					32,
-					PropModeReplace,
-					(unsigned char *)&val,
-					1);
+	                p->main_win,
+	                server.atom._NET_WM_DESKTOP,
+	                XA_CARDINAL,
+	                32,
+	                PropModeReplace,
+	                (unsigned char *)&val,
+	                1);
 
 	Atom state[4];
 	state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;
@@ -594,13 +596,13 @@ void place_panel_all_desktops(Panel *p)
 	state[3] = panel_layer == BOTTOM_LAYER ? server.atom._NET_WM_STATE_BELOW : server.atom._NET_WM_STATE_ABOVE;
 	int num_atoms = panel_layer == NORMAL_LAYER ? 3 : 4;
 	XChangeProperty(server.display,
-					p->main_win,
-					server.atom._NET_WM_STATE,
-					XA_ATOM,
-					32,
-					PropModeReplace,
-					(unsigned char *)state,
-					num_atoms);
+	                p->main_win,
+	                server.atom._NET_WM_STATE,
+	                XA_ATOM,
+	                32,
+	                PropModeReplace,
+	                (unsigned char *)state,
+	                num_atoms);
 }
 
 void replace_panel_all_desktops(Panel *p)
@@ -627,34 +629,34 @@ void set_panel_properties(Panel *p)
 	gchar *name = g_locale_to_utf8(panel_window_name, -1, NULL, &len, NULL);
 	if (name != NULL) {
 		XChangeProperty(server.display,
-						p->main_win,
-						server.atom._NET_WM_NAME,
-						server.atom.UTF8_STRING,
-						8,
-						PropModeReplace,
-						(unsigned char *)name,
-						(int)len);
+		                p->main_win,
+		                server.atom._NET_WM_NAME,
+		                server.atom.UTF8_STRING,
+		                8,
+		                PropModeReplace,
+		                (unsigned char *)name,
+		                (int)len);
 		XChangeProperty(server.display,
-						p->main_win,
-						server.atom._NET_WM_ICON_NAME,
-						server.atom.UTF8_STRING,
-						8,
-						PropModeReplace,
-						(unsigned char *)name,
-						(int)len);
+		                p->main_win,
+		                server.atom._NET_WM_ICON_NAME,
+		                server.atom.UTF8_STRING,
+		                8,
+		                PropModeReplace,
+		                (unsigned char *)name,
+		                (int)len);
 		g_free(name);
 	}
 
 	// Dock
 	long val = server.atom._NET_WM_WINDOW_TYPE_DOCK;
 	XChangeProperty(server.display,
-					p->main_win,
-					server.atom._NET_WM_WINDOW_TYPE,
-					XA_ATOM,
-					32,
-					PropModeReplace,
-					(unsigned char *)&val,
-					1);
+	                p->main_win,
+	                server.atom._NET_WM_WINDOW_TYPE,
+	                XA_ATOM,
+	                32,
+	                PropModeReplace,
+	                (unsigned char *)&val,
+	                1);
 
 	place_panel_all_desktops(p);
 
@@ -675,24 +677,24 @@ void set_panel_properties(Panel *p)
 	// Undecorated
 	long prop[5] = {2, 0, 0, 0, 0};
 	XChangeProperty(server.display,
-					p->main_win,
-					server.atom._MOTIF_WM_HINTS,
-					server.atom._MOTIF_WM_HINTS,
-					32,
-					PropModeReplace,
-					(unsigned char *)prop,
-					5);
+	                p->main_win,
+	                server.atom._MOTIF_WM_HINTS,
+	                server.atom._MOTIF_WM_HINTS,
+	                32,
+	                PropModeReplace,
+	                (unsigned char *)prop,
+	                5);
 
 	// XdndAware - Register for Xdnd events
 	Atom version = 4;
 	XChangeProperty(server.display,
-					p->main_win,
-					server.atom.XdndAware,
-					XA_ATOM,
-					32,
-					PropModeReplace,
-					(unsigned char *)&version,
-					1);
+	                p->main_win,
+	                server.atom.XdndAware,
+	                XA_ATOM,
+	                32,
+	                PropModeReplace,
+	                (unsigned char *)&version,
+	                1);
 
 	update_strut(p);
 
@@ -858,21 +860,21 @@ void autohide_show(void *p)
 			XResizeWindow(server.display, panel->main_win, panel->area.width, panel->area.height);
 		else
 			XMoveResizeWindow(server.display,
-							  panel->main_win,
-							  panel->posx,
-							  panel->posy,
-							  panel->area.width,
-							  panel->area.height);
+			                  panel->main_win,
+			                  panel->posx,
+			                  panel->posy,
+			                  panel->area.width,
+			                  panel->area.height);
 	} else {
 		if (panel_position & LEFT)
 			XResizeWindow(server.display, panel->main_win, panel->area.width, panel->area.height);
 		else
 			XMoveResizeWindow(server.display,
-							  panel->main_win,
-							  panel->posx,
-							  panel->posy,
-							  panel->area.width,
-							  panel->area.height);
+			                  panel->main_win,
+			                  panel->posx,
+			                  panel->posy,
+			                  panel->area.width,
+			                  panel->area.height);
 	}
 	if (panel_strut_policy == STRUT_FOLLOW_SIZE)
 		update_strut(panel);
@@ -896,21 +898,21 @@ void autohide_hide(void *p)
 			XResizeWindow(server.display, panel->main_win, panel->hidden_width, panel->hidden_height);
 		else
 			XMoveResizeWindow(server.display,
-							  panel->main_win,
-							  panel->posx,
-							  panel->posy + diff,
-							  panel->hidden_width,
-							  panel->hidden_height);
+			                  panel->main_win,
+			                  panel->posx,
+			                  panel->posy + diff,
+			                  panel->hidden_width,
+			                  panel->hidden_height);
 	} else {
 		if (panel_position & LEFT)
 			XResizeWindow(server.display, panel->main_win, panel->hidden_width, panel->hidden_height);
 		else
 			XMoveResizeWindow(server.display,
-							  panel->main_win,
-							  panel->posx + diff,
-							  panel->posy,
-							  panel->hidden_width,
-							  panel->hidden_height);
+			                  panel->main_win,
+			                  panel->posx + diff,
+			                  panel->posy,
+			                  panel->hidden_width,
+			                  panel->hidden_height);
 	}
 	panel_refresh = TRUE;
 }

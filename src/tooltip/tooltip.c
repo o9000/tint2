@@ -160,8 +160,8 @@ void tooltip_update_geometry()
 	pango_layout_set_text(layout, g_tooltip.tooltip_text, -1);
 	pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
 	pango_layout_get_pixel_extents(layout, &r1, &r2);
-	width = 2 * g_tooltip.bg->border.width + 2 * g_tooltip.paddingx + r2.width;
-	height = 2 * g_tooltip.bg->border.width + 2 * g_tooltip.paddingy + r2.height;
+	width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx + r2.width;
+	height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy + r2.height;
 
 	if (panel_horizontal && panel_position & BOTTOM)
 		y = panel->posy - height;
@@ -275,8 +275,8 @@ void tooltip_update()
 	// I do not know why this is the right way, but with the below cairo_move_to it seems to be centered (horiz. and
 	// vert.)
 	cairo_move_to(c,
-				  -r1.x / 2 + g_tooltip.bg->border.width + g_tooltip.paddingx,
-				  -r1.y / 2 + 1 + g_tooltip.bg->border.width + g_tooltip.paddingy);
+				  -r1.x / 2 + left_bg_border_width(g_tooltip.bg) + g_tooltip.paddingx,
+				  -r1.y / 2 + 1 + top_bg_border_width(g_tooltip.bg) + g_tooltip.paddingy);
 	pango_cairo_show_layout(c, layout);
 
 	g_object_unref(layout);

@@ -57,15 +57,15 @@ int freespace_get_max_size(Panel *p)
 			continue;
 
 		if (panel_horizontal)
-			size += a->width + (a->bg->border.width * 2) + p->area.paddingx;
+			size += a->width + p->area.paddingx;
 		else
-			size += a->height + (a->bg->border.width * 2) + p->area.paddingy;
+			size += a->height + p->area.paddingy;
 	}
 
 	if (panel_horizontal)
-		size = p->area.width - size - (p->area.bg->border.width * 2) - p->area.paddingxlr;
+		size = p->area.width - size - left_right_border_width(&p->area) - p->area.paddingxlr;
 	else
-		size = p->area.height - size - (p->area.bg->border.width * 2) - p->area.paddingxlr;
+		size = p->area.height - size - top_bottom_border_width(&p->area) - p->area.paddingxlr;
 
 	return size;
 }

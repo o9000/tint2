@@ -322,8 +322,8 @@ gboolean resize_execp(void *obj)
 					   panel->area.height,
 					   !text_next_line
 						   ? execp->area.width - icon_w - (icon_w ? interior_padding : 0) -
-								 2 * (horiz_padding + execp->area.bg->border.width)
-						   : execp->area.width - 2 * (horiz_padding + execp->area.bg->border.width),
+								 2 * horiz_padding - left_right_border_width(&execp->area)
+						   : execp->area.width - 2 * horiz_padding - left_right_border_width(&execp->area),
 					   execp->backend->text,
 					   strlen(execp->backend->text),
 					   PANGO_WRAP_WORD_CHAR,
@@ -336,7 +336,7 @@ gboolean resize_execp(void *obj)
 		int new_size = txt_width;
 		if (icon_w)
 			new_size += interior_padding + icon_w;
-		new_size += 2 * (horiz_padding + execp->area.bg->border.width);
+		new_size += 2 * horiz_padding + left_right_border_width(&execp->area);
 		if (new_size > execp->area.width || new_size < (execp->area.width - 6)) {
 			// we try to limit the number of resize
 			execp->area.width = new_size + 1;
@@ -345,12 +345,10 @@ gboolean resize_execp(void *obj)
 	} else {
 		int new_size;
 		if (!text_next_line) {
-			new_size = txt_height + (2 * (vert_padding + execp->area.bg->border.width));
-			if (new_size < icon_h + (2 * (vert_padding + execp->area.bg->border.width))) {
-				new_size = icon_h + (2 * (vert_padding + execp->area.bg->border.width));
-			}
+			new_size = txt_height + 2 * vert_padding + top_bottom_border_width(&execp->area);
+			new_size = MAX(new_size, icon_h + 2 * vert_padding + top_bottom_border_width(&execp->area));
 		} else {
-			new_size = icon_h + interior_padding + txt_height + (2 * (vert_padding + execp->area.bg->border.width));
+			new_size = icon_h + interior_padding + txt_height + 2 * vert_padding + top_bottom_border_width(&execp->area);
 		}
 		if (new_size != execp->area.height) {
 			execp->area.height = new_size;
@@ -380,18 +378,18 @@ gboolean resize_execp(void *obj)
 		if (icon_w) {
 			if (!text_next_line) {
 				execp->frontend->icony = (execp->area.height - icon_h) / 2;
-				execp->frontend->iconx = execp->area.bg->border.width + horiz_padding;
+				execp->frontend->iconx = left_border_width(&execp->area) + horiz_padding;
 				execp->frontend->texty = (execp->area.height - txt_height) / 2;
 				execp->frontend->textx = execp->frontend->iconx + icon_w + interior_padding;
 			} else {
 				execp->frontend->icony = (execp->area.height - icon_h - interior_padding - txt_height) / 2;
-				execp->frontend->iconx = execp->area.bg->border.width + horiz_padding;
+				execp->frontend->iconx = left_border_width(&execp->area) + horiz_padding;
 				execp->frontend->texty = execp->frontend->icony + icon_h + interior_padding;
 				execp->frontend->textx = execp->frontend->iconx;
 			}
 		} else {
 			execp->frontend->texty = (execp->area.height - txt_height) / 2;
-			execp->frontend->textx = execp->area.bg->border.width + horiz_padding;
+			execp->frontend->textx = left_border_width(&execp->area) + horiz_padding;
 		}
 	}
 

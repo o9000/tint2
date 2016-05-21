@@ -276,7 +276,7 @@ gboolean resize_clock(void *obj)
 
 	if (panel_horizontal) {
 		int new_size = (time_width > date_width) ? time_width : date_width;
-		new_size += (2 * clock->area.paddingxlr) + (2 * clock->area.bg->border.width);
+		new_size += 2 * clock->area.paddingxlr + left_right_border_width(&clock->area);
 		if (new_size > clock->area.width || new_size < (clock->area.width - 6)) {
 			// we try to limit the number of resizes
 			clock->area.width = new_size + 1;
@@ -288,7 +288,7 @@ gboolean resize_clock(void *obj)
 			result = TRUE;
 		}
 	} else {
-		int new_size = time_height + date_height + (2 * (clock->area.paddingxlr + clock->area.bg->border.width));
+		int new_size = time_height + date_height + 2 * clock->area.paddingxlr + top_bottom_border_width(&clock->area);
 		if (new_size != clock->area.height) {
 			// we try to limit the number of resizes
 			clock->area.height = new_size;

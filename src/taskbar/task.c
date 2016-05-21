@@ -369,7 +369,7 @@ void draw_task_icon(Task *task, int text_width)
 		else
 			pos_x = (task->area.width - panel->g_task.icon_size1) / 2;
 	} else {
-		pos_x = task->area.bg->border.width + task->area.paddingxlr;
+		pos_x = left_border_width(&task->area) + task->area.paddingxlr;
 	}
 
 	// Render
@@ -393,7 +393,7 @@ void draw_task_icon(Task *task, int text_width)
 		fprintf(stderr, "Task icon size: %d %d pos %d %d\n", imlib_image_get_width(), imlib_image_get_height(), pos_x, panel->g_task.icon_posy);
 		fprintf(stderr, "Task max size : %d %d\n", panel->g_task.maximum_width, panel->g_task.maximum_height);
 		fprintf(stderr, "Task area size: %d %d\n", task->area.width, task->area.height);
-		fprintf(stderr, "Task border   : %d\n", task->area.bg->border.width);
+		fprintf(stderr, "Task border   : %d\n", left_border_width(&task->area));
 		fprintf(stderr, "\n");
 	}
 }

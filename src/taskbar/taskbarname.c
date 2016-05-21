@@ -147,14 +147,14 @@ gboolean resize_taskbarname(void *obj)
 				   FALSE);
 
 	if (panel_horizontal) {
-		int new_size = name_width + (2 * (taskbar_name->area.paddingxlr + taskbar_name->area.bg->border.width));
+		int new_size = name_width + 2 * taskbar_name->area.paddingxlr + left_right_border_width(&taskbar_name->area);
 		if (new_size != taskbar_name->area.width) {
 			taskbar_name->area.width = new_size;
 			taskbar_name->posy = (taskbar_name->area.height - name_height) / 2;
 			result = TRUE;
 		}
 	} else {
-		int new_size = name_height + (2 * (taskbar_name->area.paddingxlr + taskbar_name->area.bg->border.width));
+		int new_size = name_height + 2 * taskbar_name->area.paddingxlr + top_bottom_border_width(&taskbar_name->area);
 		if (new_size != taskbar_name->area.height) {
 			taskbar_name->area.height = new_size;
 			taskbar_name->posy = (taskbar_name->area.height - name_height) / 2;
