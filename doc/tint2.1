@@ -1,51 +1,809 @@
-.\"                                      Hey, EMACS: -*- nroff -*-
-.\" First parameter, NAME, should be all caps
-.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
-.\" other parameters are allowed: see man(7), man(1)
-.TH TINT2 1 "2015-07-05"
-.\" Please adjust this date whenever revising the manpage.
-.\"
-.\" Some roff macros, for reference:
-.\" .nh        disable hyphenation
-.\" .hy        enable hyphenation
-.\" .ad l      left justify
-.\" .ad b      justify to both left and right margins
-.\" .nf        disable filling
-.\" .fi        enable filling
-.\" .br        insert line break
-.\" .sp <n>    insert n+1 empty lines
-.\" for manpage-specific macros, see man(7)
+.TH TINT2 1 "2016\-05\-22"
 .SH NAME
+.PP
 tint2 \- lightweight panel/taskbar
 .SH SYNOPSIS
-.B tint2
-.br
-.B tint2
-.RI -c
-.IR /path_to_config_file 
+.PP
+\fB\fCtint2 [\-c path_to_config_file]\fR
 .SH DESCRIPTION
-This manual page documents briefly the
-.B tint2
-command.
 .PP
-.\" TeX users may be more comfortable with the \fB<whatever>\fP and
-.\" \fI<whatever>\fP escape sequences to invode bold face and italics,
-.\" respectively.
-\fBtint2\fP is a simple panel/taskbar intentionally made for openbox3, but 
-should also work with other window managers. It's based on ttm code. The goal is to keep a clean and unintrusive look with code lightweight and 
-compliance with freedesktop specifications.
+tint2 is a simple panel/taskbar made for modern X window managers.
+It was specifically made for Openbox but it should also work with other window managers (GNOME, KDE, XFCE etc.).
 .PP
-On the first startup tint2 creates a config file in $HOME/.config/tint2/tint2rc.
+Features:
+.RS
+.IP \(bu 2
+Panel with taskbar, system tray, clock and launcher icons;
+.IP \(bu 2
+Easy to customize: color/transparency on fonts, icons, borders and backgrounds;
+.IP \(bu 2
+Pager like capability: move tasks between workspaces (virtual desktops), switch between workspaces;
+.IP \(bu 2
+Multi\-monitor capability: create one panel per monitor, showing only the tasks from the current monitor;
+.IP \(bu 2
+Customizable mouse events.
+.RE
 .PP
-See the wiki page at https://gitlab.com/o9000/tint2/wikis/home for more information.
+Goals:
+.RS
+.IP \(bu 2
+Be unintrusive and light (in terms of memory, CPU and aesthetic);
+.IP \(bu 2
+Follow the freedesktop.org specifications;
+.IP \(bu 2
+Make certain workflows, such as multi\-desktop and multi\-monitor, easy to use.
+.RE
 .SH OPTIONS
 .TP
-.B \-c config-file
-Specify which configuration file to use instead of the default.
-.SH AUTHOR
-tint2 was written by Thierry Lorthiois <lorthiois@bbsoft.fr>.  It is based on
-ttm, originally written by Pål Staurland <staura@gmail.com>
+\fB\fC\-c path_to_config_file\fR
+Specifies which configuration file to use instead of the default.
+.SH CONFIGURATION
+.SS Introduction
 .PP
-This manual page was written by Daniel Moerner <dmoerner@gmail.com>,
-for the Debian project (but may be used by others).  It was adopted from the
-tint2 docs.
+The first time you run tint2, it will create the config file in \fB\fC$HOME/.config/tint2/tint2rc\fR (This applies if you have done a clean install. Running tint2 in the source directory without doing 'make install' will not create the config file.)
+.PP
+You can also specify another file on the command line with the \-c option, e.g.: \fB\fCtint2 \-c $HOME/tint2.conf\fR\&. This can be used to run multiple instances of tint2 that use different settings.
+.PP
+If you change the config file while tint2 is running, the command \fB\fCkillall \-SIGUSR1 tint2\fR will force tint2 to reload it.
+.PP
+All the configuration options supported in the config file are listed below. Please note that options marked as \fIunstable\fP are not yet supported in the stable version and might change until the next stable release.
+.PP
+Try to respect as much as possible the order of the options as given below.
+.SS Backgrounds and borders
+.PP
+The tint2 config file starts with the options defining background elements with borders:
+.RS
+.IP \(bu 2
+\fB\fCrounded = number_of_pixels\fR : the corner radius
+.IP \(bu 2
+\fB\fCborder_width = integer\fR : the border width in pixels
+.IP \(bu 2
+\fB\fCborder_sides = LRTB\fR : the sides to draw the border on (left, right, top, bottom). If not specified, all sides are used.
+.IP \(bu 2
+\fB\fCbackground_color = color opacity\fR
+.RS
+.IP \(bu 2
+\fB\fCcolor\fR is specified in hex RGB, e.g. #ff0000 is red
+.IP \(bu 2
+\fB\fCopacity\fR varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque. Note that for a transparent panel you need to enable a desktop compositor (such as compton or compiz).
+.RE
+.IP \(bu 2
+\fB\fCborder_color = color opacity\fR
+.RS
+.IP \(bu 2
+\fB\fCcolor\fR is specified in hex RGB, e.g. #ff0000 is red
+.IP \(bu 2
+\fB\fCopacity\fR varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque
+.RE
+.IP \(bu 2
+\fB\fCbackground_color_hover = color opacity\fR (default: same as background_color) \fI(since 0.12.3)\fP
+.RS
+.IP \(bu 2
+\fB\fCcolor\fR is specified in hex RGB, e.g. #ff0000 is red
+.IP \(bu 2
+\fB\fCopacity\fR varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque. Note that for a transparent panel you need to enable a desktop compositor (such as compton or compiz)
+.RE
+.IP \(bu 2
+\fB\fCborder_color_hover = color opacity\fR (default: same as border_color) \fI(since 0.12.3)\fP
+.RS
+.IP \(bu 2
+\fB\fCcolor\fR is specified in hex RGB, e.g. #ff0000 is red
+.IP \(bu 2
+\fB\fCopacity\fR varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque
+.RE
+.IP \(bu 2
+\fB\fCbackground_color_pressed = color opacity\fR (default: same as background\fIcolor\fPhover) \fI(since 0.12.3)\fP
+.RS
+.IP \(bu 2
+\fB\fCcolor\fR is specified in hex RGB, e.g. #ff0000 is red
+.IP \(bu 2
+\fB\fCopacity\fR varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque. Note that for a transparent panel you need to enable a desktop compositor (such as compton or compiz)
+.RE
+.IP \(bu 2
+\fB\fCborder_color_pressed = color opacity\fR (default: same as border\fIcolor\fPhover) \fI(since 0.12.3)\fP
+.RS
+.IP \(bu 2
+\fB\fCcolor\fR is specified in hex RGB, e.g. #ff0000 is red
+.IP \(bu 2
+\fB\fCopacity\fR varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque
+.RE
+.RE
+.PP
+You can define as many backgrounds as you want. For example, the following config defines two backgrounds:
+.PP
+.RS
+.nf
+rounded = 1
+border_width = 0
+background_color = #282828 100
+border_color = #000000 0
+
+rounded = 1
+border_width = 0
+background_color = #f6b655 90
+border_color = #cccccc 40
+.fi
+.RE
+.PP
+tint2 automatically identifies each background with a number starting from 1 (1, 2, ...).
+Afterwards, you can apply a background to objects (panel, taskbar, task, clock, systray) using the background id, for example:
+.PP
+.RS
+.nf
+panel_background_id = 1
+taskbar_background_id = 0
+task_background_id = 0
+task_active_background_id = 2
+systray_background_id = 0
+clock_background_id = 0
+.fi
+.RE
+.PP
+Identifier 0 refers to a special background which is fully transparent, identifier 1 applies the first background defined in the config file etc.
+.SS Panel
+.RS
+.IP \(bu 2
+\fB\fCpanel_items = LTSBC\fR defines the items tint2 will show and the order of those items. Each letter refers to an item, defined as:
+.RS
+.IP \(bu 2
+\fB\fCL\fR shows the Launcher
+.IP \(bu 2
+\fB\fCT\fR shows the Taskbar
+.IP \(bu 2
+\fB\fCS\fR shows the Systray (also called notification area)
+.IP \(bu 2
+\fB\fCB\fR shows the Battery status
+.IP \(bu 2
+\fB\fCC\fR shows the Clock
+.IP \(bu 2
+\fB\fCF\fR adds an extensible spacer (freespace). Has no effect if \fB\fCT\fR is also present. \fI(since 0.12)\fP
+.IP \(bu 2
+\fB\fCE\fR adds an executor plugin. You can specify more than one. \fI(since 0.12.4)\fP
+.RE
+.PP
+For example, \fB\fCpanel_items = STC\fR will show the systray, the taskbar and the clock (from left to right).
+.IP \(bu 2
+\fB\fCpanel_monitor = monitor (all or 1 or 2 or ...)\fR : Which monitor tint2 draws the panel on
+.RS
+.IP \(bu 2
+The first monitor is \fB\fC1\fR
+.IP \(bu 2
+Use \fB\fCpanel_monitor = all\fR to get a separate panel per monitor
+.RE
+.IP \(bu 2
+\fB\fCprimary_monitor_first = boolean (0 or 1)\fR : Place the primary monitor before all the other monitors in the list. \fI(since 0.12.4)\fP
+.RE
+.PP
+[\[la]http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg](http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg)\[ra]
+.RS
+.IP \(bu 2
+\fB\fCpanel_position = vertical_position horizontal_position orientation\fR
+.RS
+.IP \(bu 2
+\fB\fCvertical_position\fR is one of: \fB\fCbottom\fR, \fB\fCtop\fR, \fB\fCcenter\fR
+.IP \(bu 2
+\fB\fChorizontal_position\fR is one of: \fB\fCleft\fR, \fB\fCright\fR, \fB\fCcenter\fR
+.IP \(bu 2
+\fB\fCorientation\fR is one of: \fB\fChorizontal\fR, \fB\fCvertical\fR
+.RE
+.IP \(bu 2
+\fB\fCpanel_size = width height\fR
+.RS
+.IP \(bu 2
+\fB\fCwidth\fR and \fB\fCheight\fR can be specified without units (e.g. \fB\fC123\fR) as pixels, or followed by \fB\fC%\fR as percentages of the monitor size (e.g. \fB\fC50%\fR). Use \fB\fC100%\fR for full monitor width/height.
+Example:
+.RE
+.RE
+.PP
+.RS
+.nf
+# The panel's width is 94% the size of the monitor, the height is 30 pixels:
+panel_size = 94% 30
+.fi
+.RE
+.RS
+.IP \(bu 2
+\fB\fCpanel_margin = horizontal_margin vertical_margin\fR : The margins define the distance between the panel and the horizontal/vertical monitor edge. Use \fB\fC0\fR to obtain a panel with the same size as the edge of the monitor (no margin).
+.RE
+.PP
+[\[la]http://farm4.static.flickr.com/3438/3266303192_476a188196.jpg](http://farm4.static.flickr.com/3438/3266303192_476a188196.jpg)\[ra]
+.RS
+.IP \(bu 2
+\fB\fCpanel_padding = horizontal_padding vertical_padding spacing\fR : Please refer to the image below.
+.RE
+.PP
+[\[la]http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg](http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg)\[ra]
+.RS
+.IP \(bu 2
+\fB\fCfont_shadow = boolean (0 or 1)\fR
+.IP \(bu 2
+\fB\fCpanel_background_id = integer\fR : Which background to use for the panel.
+.IP \(bu 2
+\fB\fCwm_menu = boolean (0 or 1)\fR : Defines if tint2 forwards unhandled mouse events to your window manager. Useful for window managers such as openbox, which display the start menu if you right click on the desktop.
+.IP \(bu 2
+\fB\fCpanel_dock = boolean (0 or 1)\fR : Defines if tint2 is placed into the window manager's dock. For the openbox window manager it is advised to also use a modifier for the moveButton option, otherwise the mouse click is not forwarded to tint2 (in ~/.config/openbox/rc.xml).
+.IP \(bu 2
+\fB\fCpanel_layer = bottom/normal/top\fR : Places tint2 into the bottom/normal/top layer. This is helpful for specifying if the panel can be covered by other windows or not. The default is the bottom layer, but with real transparency normal or top layer may be a nice alternative.
+.IP \(bu 2
+\fB\fCstrut_policy = follow_size/minimum/none\fR : STRUTs are used by the window manager to decide the size of maximized windows. Note: on multi\-monitor (Xinerama) setups, the panel must be placed at the edge (not in the middle) of the virtual screen for this to work correctly.
+.RS
+.IP \(bu 2
+\fB\fCfollow_size\fR means that the maximized windows always resize to have a common edge with tint2.
+.IP \(bu 2
+\fB\fCminimum\fR means that the maximized windows always expand to have a common edge with the hidden panel. This is useful if the \fB\fCautohide\fR option is enabled.
+.IP \(bu 2
+\fB\fCnone\fR means that the maximized windows use the full screen size.
+.RE
+.IP \(bu 2
+\fB\fCpanel_window_name = string\fR : Defines the name of the panel's window. Default: 'tint2'. \fI(since 0.12)\fP
+.IP \(bu 2
+\fB\fCdisable_transparency = boolean (0 or 1)\fR : Whether to disable transparency instead of detecting if it is supported. Useful on broken graphics stacks. \fI(since 0.12)\fP
+.IP \(bu 2
+\fB\fCmouse_effects = boolean (0 or 1)\fR : Whether to enable mouse hover effects for clickable items. \fI(since 0.12.3)\fP
+.IP \(bu 2
+\fB\fCmouse_hover_icon_asb = alpha (0 to 100) saturation (\-100 to 100) brightness (\-100 to 100)\fR : Adjusts the icon color and transparency on mouse hover (works only when mouse_effects = 1).` \fI(since 0.12.3)\fP
+.IP \(bu 2
+\fB\fCmouse_pressed_icon_asb = alpha (0 to 100) saturation (\-100 to 100) brightness (\-100 to 100)\fR : Adjusts the icon color and transparency on mouse press (works only when mouse_effects = 1).` \fI(since 0.12.3)\fP
+.IP \(bu 2
+\fB\fCautohide = boolean (0 or 1)\fR : Whether to enable panel hiding when the mouse cursor exists the panel.
+.IP \(bu 2
+\fB\fCautohide_show_timeout = float\fR : Show timeout in seconds after the mouse cursor enters the panel. Use '.' as decimal separator.
+.IP \(bu 2
+\fB\fCautohide_hide_timeout = float\fR : Hide timeout in seconds after the mouse cursor exits the panel. Use '.' as decimal separator.
+.IP \(bu 2
+\fB\fCautohide_height = integer\fR : panel height (width for vertical panels) in hidden mode.
+.RE
+.SS Launcher
+.RS
+.IP \(bu 2
+\fB\fClauncher_item_app = path_to_application\fR : Each \fB\fClauncher_item_app\fR must be a file path to a .desktop file following the freedesktop.org specification \[la]http://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html\[ra]\&. The paths may begin with \fB\fC~\fR, which is expanded to the path of the user's home directory. If only a file name is specified, the file is search in the standard application directories (\fB\fC$XDG_DATA_HOME/applications\fR, \fB\fC~/.local/share/applications\fR, \fB\fC$XDG_DATA_DIRS/applications\fR, \fB\fC/usr/local/share/applications\fR, \fB\fC/usr/share/applications\fR, \fB\fC/opt/share/applications\fR).
+.IP \(bu 2
+\fB\fClauncher_apps_dir = path_to_directory\fR : Specifies a path to a directory from which the launcher is loading all .desktop files (all subdirectories are explored recursively). Can be used multiple times. The path may begin with \fB\fC~\fR, which is expanded to the path of the user's home directory. \fI(since 0.12)\fP
+.IP \(bu 2
+\fB\fClauncher_background_id = integer\fR : Defines which background to use.
+.IP \(bu 2
+\fB\fClauncher_icon_background_id = integer\fR : Defines which background to use for icons.
+.IP \(bu 2
+\fB\fClauncher_padding = horizontal_padding vertical_padding spacing\fR
+.IP \(bu 2
+\fB\fClauncher_icon_size = integer\fR : The launcher icon size, in pixels.
+.IP \(bu 2
+\fB\fClauncher_icon_theme = name_of_theme\fR : (Optional) Uses the specified icon theme to display shortcut icons. Note that tint2 will detect and use the icon theme of your desktop if you have an XSETTINGS manager running (which you probably do), unless \fB\fClauncher_icon_theme_override = 1\fR\&.
+.IP \(bu 2
+\fB\fClauncher_icon_theme_override = boolean (0 or 1)\fR : Whether \fB\fClauncher_icon_theme\fR overrides the value obtained from the XSETTINGS manager. \fI(since 0.12)\fP
+.IP \(bu 2
+\fB\fClauncher_icon_asb = alpha (0 to 100) saturation (\-100 to 100) brightness (\-100 to 100)\fR : Adjusts the icon color and transparency.
+.IP \(bu 2
+\fB\fClauncher_tooltip = boolean (0 or 1)\fR : Whether to show tooltips for the launcher icons.
+.IP \(bu 2
+\fB\fCstartup_notifications = boolean (0 or 1)\fR : Whether to show startup notifications when starting applications from the launcher. \fI(since 0.12)\fP
+.RE
+.SS Taskbar / Pager
+.RS
+.IP \(bu 2
+\fB\fCtaskbar_mode = single_desktop/multi_desktop\fR
+.RS
+.IP \(bu 2
+\fB\fCsingle_desktop\fR : Shows a normal taskbar listing the tasks running on the current virtual desktop (also known as 'workspace');
+.IP \(bu 2
+\fB\fCmulti_desktop\fR : Pager like capability. Shows multiple taskbars, one per virtual desktop, with which:
+.RS
+.IP \(bu 2
+You can drag\-and\-drop tasks between virtual desktops;
+.IP \(bu 2
+You can switch between virtual desktops.
+.RE
+.RE
+.IP \(bu 2
+\fB\fCtaskbar_distribute_size = boolean (0 or 1)\fR :  If enabled, in multi\-desktop mode distributes between taskbars the available size proportionally to the number of tasks. Default: disabled. \fI(since 0.12)\fP
+.IP \(bu 2
+\fB\fCtaskbar_padding = horizontal_padding vertical_padding spacing\fR
+.RE
+.PP
+[\[la]http://farm4.static.flickr.com/3521/3266303292_14d9b6b623.jpg](http://farm4.static.flickr.com/3521/3266303292_14d9b6b623.jpg)\[ra]
+.RS
+.IP \(bu 2
+\fB\fCtaskbar_background_id = integer\fR : Which background to use
+.IP \(bu 2
+\fB\fCtaskbar_active_background_id = integer\fR : Which background to use for the taskbar of the current virtual desktop.
+.IP \(bu 2
+\fB\fCtaskbar_hide_inactive_tasks = boolean (0 or 1)\fR :  If enabled, the taskbar shows only the active task. \fI(since 0.12)\fP
+.IP \(bu 2
+\fB\fCtaskbar_hide_different_monitor = boolean (0 or 1)\fR :  If enabled, the taskbar shows only the tasks from the current monitor. Useful when running different tint2 instances on different monitors, each one having its own config. \fI(since 0.12)\fP
+.IP \(bu 2
+\fB\fCtaskbar_always_show_all_desktop_tasks = boolean (0 or 1)\fR :  Has effect only if \fB\fCtaskbar_mode = multi_desktop\fR\&. If enabled, tasks that appear on all desktops are shown on all taskbars. Otherwise, they are shown only on the taskbar of the current desktop. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCtaskbar_sort_order = none/title/center\fR : Specifies the sort order of the tasks on the taskbar.  \fI(since 0.12)\fP
+.RS
+.IP \(bu 2
+\fB\fCnone\fR : No sorting. New tasks are simply appended at the end of the taskbar when they appear.
+.IP \(bu 2
+\fB\fCtitle\fR : Sorts the tasks by title.
+.IP \(bu 2
+\fB\fCcenter\fR : Sorts the tasks by their window centers.
+.IP \(bu 2
+\fB\fCmru\fR : Shows the most recently used tasks first. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fClru\fR : Shows the most recently used tasks last. \fI(since 0.12.4)\fP
+.RE
+.IP \(bu 2
+\fB\fCtask_align = left/center/right\fR : Specifies the alignment of the tasks on the taskbar. Default: left.
+.IP \(bu 2
+\fB\fCtaskbar_name = boolean (0 or 1)\fR :  Whether to show the virtual desktop name in the taskbar.
+.IP \(bu 2
+\fB\fCtaskbar_name_padding = padding\fR :  Padding for the virtual desktop name.
+.IP \(bu 2
+\fB\fCtaskbar_name_background_id = integer\fR :  Which background to use for the desktop name.
+.IP \(bu 2
+\fB\fCtaskbar_name_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR :  Font configuration for the desktop name.
+.IP \(bu 2
+\fB\fCtaskbar_name_font_color = color opacity (0 to 100)\fR :  Font color for the desktop name.
+.IP \(bu 2
+\fB\fCtaskbar_name_active_background_id = integer\fR :  Which background to use for the name of the current desktop.
+.IP \(bu 2
+\fB\fCtaskbar_name_active_font_color = color opacity (0 to 100)\fR :  Font color for the name of the current desktop.
+.RE
+.SH Taskbar buttons
+.PP
+The following options configure the task buttons in the taskbar:
+.RS
+.IP \(bu 2
+\fB\fCtask_icon = boolean (0 or 1)\fR : Whether to display the task icon.
+.IP \(bu 2
+\fB\fCtask_text = boolean (0 or 1)\fR : Whether to display the task text.
+.IP \(bu 2
+\fB\fCtask_centered = boolean (0 or 1)\fR : Whether the task text is centered.
+.IP \(bu 2
+\fB\fCtask_tooltip = boolean (0 or 1)\fR : Whether to show tooltips for tasks.
+.IP \(bu 2
+\fB\fCtask_maximum_size = width height\fR
+.RS
+.IP \(bu 2
+\fB\fCwidth\fR is used with horizontal panels to limit the size of the tasks. Use \fB\fCwidth = 0\fR to get full taskbar width.
+.IP \(bu 2
+\fB\fCheight\fR is used with vertical panels.
+.RE
+.IP \(bu 2
+\fB\fCtask_padding = horizontal_padding vertical_padding spacing\fR
+.IP \(bu 2
+\fB\fCurgent_nb_of_blink = integer\fR : Number of blinks on 'get attention' events.
+.RE
+.PP
+[\[la]http://farm4.static.flickr.com/3086/3265475337_262799ded3.jpg](http://farm4.static.flickr.com/3086/3265475337_262799ded3.jpg)\[ra]
+.RS
+.IP \(bu 2
+\fB\fCtask_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR
+.IP \(bu 2
+\fB\fCtask_font_color = color opacity (0 to 100)\fR
+.IP \(bu 2
+\fB\fCtask_icon_asb = alpha (0 to 100) saturation (\-100 to 100) brightness (\-100 to 100)\fR : Adjust the task icon's color and transparency.
+.IP \(bu 2
+\fB\fCtask_background_id = integer\fR : Which background to use for non selected tasks
+.RE
+.TP
+For the next 3 options STATUS can be \fB\fCactive\fR / \fB\fCiconified\fR  / \fB\fCurgent\fR:
+* \fB\fCtask_STATUS_font_color = color opacity (0 to 100)\fR
+.RS
+.IP \(bu 2
+\fB\fCtask_STATUS_icon_asb = alpha (0 to 100) saturation (\-100 to 100) brightness (\-100 to 100)\fR : Adjusts the task icon's color and transparency.
+.IP \(bu 2
+\fB\fCtask_STATUS_background_id = integer\fR : Which background to use for the task.
+.RE
+.SS Mouse actions for taskbar buttons
+.PP
+The possible mouse events are: \fB\fCleft, middle, right, scroll_up, scroll_down\fR\&.
+.PP
+The possible mouse actions are: \fB\fCnone, close, toggle, iconify, shade, toggle_iconify, maximize_restore, desktop_left, desktop_right, next_task, prev_task\fR\&.
+.PP
+Use \fB\fCmouse_event = action\fR to customize mouse actions. Example:
+\fB\fC
+  mouse_middle = none
+  mouse_right = close
+  mouse_scroll_up = toggle
+  mouse_scroll_down = iconify
+\fR
+.TP
+The action semantics:
+* \fB\fCnone\fR : If \fB\fCwm_menu = 1\fR is set, the mouse event is forwarded to the window manager. Otherwise it is ignored.
+* \fB\fCclose\fR : close the task
+* \fB\fCtoggle\fR : toggle the task
+* \fB\fCiconify\fR : iconify (minimize) the task
+* \fB\fCtoggle_iconify\fR : toggle or iconify the task
+* \fB\fCmaximize_restore\fR : maximized or minimized the task
+* \fB\fCshade\fR : shades (collapses) the task
+* \fB\fCdesktop_left\fR : send the task to the desktop on the left
+* \fB\fCdesktop_right\fR : send the task to the desktop on the right
+* \fB\fCnext_task\fR : send the focus to next task
+* \fB\fCprev_task\fR : send the focus to previous task
+.SS System Tray
+.RS
+.IP \(bu 2
+\fB\fCsystray_padding = horizontal_padding vertical_padding spacing\fR
+.IP \(bu 2
+\fB\fCsystray_background_id = integer\fR : Which background to use.
+.IP \(bu 2
+\fB\fCsystray_sort = ascending/descending/left2right/right2left\fR : Specifies the sorting order for the icons in the systray: in ascending/descending alphabetical order of the icon title, or always add icons to the right/left (note that with \fB\fCleft2right\fR or \fB\fCright2left\fR the order can be different on panel restart).
+.IP \(bu 2
+\fB\fCsystray_icon_size = max_icon_size\fR : Set the maximum system tray icon size to \fB\fCnumber\fR\&. Set to \fB\fC0\fR for automatic icon sizing.
+.IP \(bu 2
+\fB\fCsystray_icon_asb = alpha (0 to 100) saturation (\-100 to 100) brightness (\-100 to 100)\fR : Adjust the systray icons color and transparency.
+.IP \(bu 2
+\fB\fCsystray_monitor = integer (1, 2, ...)\fR :  On which monitor to draw the systray. The first monitor is \fB\fC1\fR\&. \fI(since 0.12)\fP
+.RE
+.SS Clock
+.RS
+.IP \(bu 2
+\fB\fCtime1_format = %H:%M\fR : The format used by the first line of the clock.
+.RS
+.IP \(bu 2
+\fB\fCtime1_format\fR, \fB\fCtime2_format\fR and \fB\fCclock_tooltip\fR use the 'strftime' syntax. More info can be found here: \[la]http://www.manpagez.com/man/3/strftime/\[ra]
+.IP \(bu 2
+To hide the clock, comment \fB\fCtime1_format\fR and \fB\fCtime2_format\fR\&.
+.RE
+.IP \(bu 2
+\fB\fCtime1_timezone = :US/Hawaii\fR
+.RS
+.IP \(bu 2
+\fB\fCtime1_timezone\fR, \fB\fCtime2_timezone\fR and \fB\fCclock_tooltip_timezone\fR can be used to specify a timezone. If you do not specify a value the system\-wide timezone is used. The timezones can usually be found in \fB\fC/usr/share/zoneinfo\fR\&. If your timezones are in a different directory, you need to specify the absolute path, e.g. \fB\fCtime1_timezone = :/different/zoneinfo/dir/US/Hawaii\fR Always prepend the timezone with a ':'
+.RE
+.IP \(bu 2
+\fB\fCtime1_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR
+.IP \(bu 2
+\fB\fCtime2_format = %A %d %B\fR
+.IP \(bu 2
+\fB\fCtime2_timezone = :Europe/Berlin\fR
+.IP \(bu 2
+\fB\fCtime2_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR
+.IP \(bu 2
+\fB\fCclock_font_color = color opacity (0 to 100)\fR
+.IP \(bu 2
+\fB\fCclock_padding = horizontal_padding vertical_padding\fR
+.IP \(bu 2
+\fB\fCclock_background_id = integer\fR : Which background to use
+.IP \(bu 2
+\fB\fCclock_tooltip = %a, %d. %b %Y\fR : Format for the clock's tooltip.
+.IP \(bu 2
+\fB\fCclock_tooltip_timezone = :UTC\fR
+.IP \(bu 2
+\fB\fCclock_lclick_command = text\fR : Command to execute on left click.
+.IP \(bu 2
+\fB\fCclock_rclick_command = text\fR : Command to execute on right click.
+.IP \(bu 2
+\fB\fCclock_mclick_command = text\fR : Command to execute on middle click. \fI(since 0.12.1)\fP
+.IP \(bu 2
+\fB\fCclock_uwheel_command = text\fR : Command to execute on wheel scroll up. \fI(since 0.12.1)\fP
+.IP \(bu 2
+\fB\fCclock_dwheel_command = text\fR : Command to execute on wheel scroll down. \fI(since 0.12.1)\fP
+.RE
+.SS Tooltip
+.RS
+.IP \(bu 2
+\fB\fCtooltip_padding = horizontal_padding vertical_padding\fR
+.IP \(bu 2
+\fB\fCtooltip_show_timeout = float\fR : Delay to show the tooltip in seconds. Use '.' as decimal separator.
+.IP \(bu 2
+\fB\fCtooltip_hide_timeout = float\fR : Delay to hide the tooltip in seconds. Use '.' as decimal separator.
+.IP \(bu 2
+\fB\fCtooltip_background_id = integer\fR : Which background to use for tooltips. Note that with fake transparency the alpha channel and corner radius options are not respected.
+.IP \(bu 2
+\fB\fCtooltip_font_color = color opacity  (0 to 100)\fR
+.IP \(bu 2
+\fB\fCtooltip_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR
+.RE
+.SS Battery
+.RS
+.IP \(bu 2
+\fB\fCbattery_hide = never/integer (0 to 100)\fR : At what battery percentage the battery item is hidden.
+.IP \(bu 2
+\fB\fCbattery_low_status = integer\fR: At what battery percentage the low command is executed.
+.IP \(bu 2
+\fB\fCbattery_low_cmd = notify\-send "battery low"\fR : Command to execute when the battery is low.
+.IP \(bu 2
+\fB\fCbat1_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR
+.IP \(bu 2
+\fB\fCbat2_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR
+.IP \(bu 2
+\fB\fCbattery_font_color = color opacity (0 to 100)\fR
+.IP \(bu 2
+\fB\fCbattery_padding = horizontal_padding vertical_padding\fR
+.IP \(bu 2
+\fB\fCbattery_background_id = integer\fR : Which background to use for the battery.
+.IP \(bu 2
+\fB\fCbattery_tooltip_enabled = boolean (0 or 1)\fR : Enable/disable battery tooltips. \fI(since 0.12.3)\fP
+.IP \(bu 2
+\fB\fCbattery_lclick_command = text\fR : Command to execute on left click. \fI(since 0.12.1)\fP
+.IP \(bu 2
+\fB\fCbattery_rclick_command = text\fR : Command to execute on right click. \fI(since 0.12.1)\fP
+.IP \(bu 2
+\fB\fCbattery_mclick_command = text\fR : Command to execute on middle click. \fI(since 0.12.1)\fP
+.IP \(bu 2
+\fB\fCbattery_uwheel_command = text\fR : Command to execute on wheel scroll up. \fI(since 0.12.1)\fP
+.IP \(bu 2
+\fB\fCbattery_dwheel_command = text\fR : Command to execute on wheel scroll down. \fI(since 0.12.1)\fP
+.IP \(bu 2
+\fB\fCac_connected_cmd = text\fR : Command to execute when the power adapter is plugged in. \fI(since 0.12.3)\fP
+.IP \(bu 2
+\fB\fCac_disconnected_cmd = text\fR : Command to execute when the power adapter is unplugged. \fI(since 0.12.3)\fP
+.RE
+.SS Executor
+.RS
+.IP \(bu 2
+\fB\fCexecp = new\fR : Begins the configuration of a new executor plugin. Multiple such plugins are supported; just use multiple \fB\fCE\fRs in \fB\fCpanel_items\fR\&. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_command = text\fR : Command to execute. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_interval = integer\fR : The command is executed again after \fB\fCexecp_interval\fR seconds from the moment it exits. If zero, the command is executed only once. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_continuous = integer\fR : If non\-zero, the last \fB\fCexecp_continuous\fR lines from the output of the command are displayed, every \fB\fCexecp_continuous\fR lines; this is useful for showing the output of commands that run indefinitely, such as \fB\fCping 127.0.0.1\fR\&. If zero, the output of the command is displayed after it finishes executing. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_has_icon = boolean (0 or 1)\fR : If \fB\fCexecp_has_icon = 1\fR, the first line printed by the command is interpreted as a path to an image file. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_cache_icon = boolean (0 or 1)\fR : If execp\fIcache\fPicon = 0, the image is reloaded each time the command is executed (useful if the image file is changed on disk by the program executed by \fB\fCexecp_command\fR). \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_icon_w = integer\fR : You can use execp\fIicon\fPw and execp\fIicon\fPh to resize the image. If one of them is zero/missing, the image is rescaled proportionally. If both of them are zero/missing, the image is not rescaled. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_icon_h = integer\fR : See \fB\fCexecp_icon_w\fR\&. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_tooltip = text\fR : The tooltip. Leave it empty to not display a tooltip. Not specifying this option leads to showing an automatically generated tooltip with information about when the command was last executed. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR : The font used to draw the text.  \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_font_color = color opacity\fR : The font color. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_markup = boolean (0 or 1)\fR : If non\-zero, the output of the command is treated as Pango markup, which allows rich text formatting. The format is documented here \[la]https://developer.gnome.org/pygtk/stable/pango-markup-language.html\[ra]\&. Note that using this with commands that print data downloaded from the Internet is a possible security risk. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_background_id = integer\fR : Which background to use. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_centered = boolean (0 or 1)\fR : Whether to center the text. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_padding = horizontal_padding vertical_padding spacing_between_icon_and_text\fR \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_lclick_command = text\fR : Command to execute on left click. If not defined, \fB\fCexecp_command\fR is  executed immediately, unless it is currently running. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_mclick_command = text\fR : Command to execute on right click. If not defined, \fB\fCexecp_command\fR is  executed immediately, unless it is currently running. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_rclick_command = text\fR : Command to execute on middle click. If not defined, \fB\fCexecp_command\fR is  executed immediately, unless it is currently running. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_uwheel_command = text\fR : Command to execute on wheel scroll up. If not defined, \fB\fCexecp_command\fR is  executed immediately, unless it is currently running. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp_dwheel_command = text\fR : Command to execute on wheel scroll down. If not defined, \fB\fCexecp_command\fR is  executed immediately, unless it is currently running. \fI(since 0.12.4)\fP
+.RE
+.SS Executor samples
+.SS Print the hostname
+.PP
+.RS
+.nf
+execp = new
+execp_command = hostname
+execp_interval = 0
+.fi
+.RE
+.SS Print disk usage for the root partition every 10 seconds
+.PP
+.RS
+.nf
+execp = new
+execp_command = df \-h | awk '/\\/$/ { print $6 ": " $2 " " $5}'
+execp_interval = 10
+.fi
+.RE
+.SS Button with icon and rich text, executes command when clicked
+.PP
+.RS
+.nf
+execp = new
+execp_command = echo /usr/share/icons/elementary\-xfce/emblems/24/emblem\-colors\-blue.png; echo '<span foreground="#7f7">Click</span> <span foreground="#77f">me</span> <span foreground="#f77">pls</span>'
+execp_has_icon = 1
+execp_interval = 0
+execp_centered = 1
+execp_font = sans 9
+execp_markup = 1
+execp_font_color = #aaffaa 100
+execp_padding = 2 0
+execp_tooltip = I will tell you a secret...
+execp_lclick_command = zenity \-\-info "\-\-text=$(uname \-sr)"
+execp_background_id = 2
+.fi
+.RE
+.SS Desktop pager with text
+.PP
+.RS
+.nf
+execp = new
+execp_command = xprop \-root \-spy | awk '/^_NET_CURRENT_DESKTOP/ { print "Workspace " ($3 + 1) ; fflush(); }'
+execp_interval = 1
+execp_continuous = 1
+.fi
+.RE
+.SS Desktop pager with icon
+.PP
+.RS
+.nf
+execp_command = xprop \-root \-spy | awk \-v home="$HOME" '/^_NET_CURRENT_DESKTOP/ { print home "/.config/myPager/" ($3 + 1) ".png\\n" ; fflush(); }'
+execp_interval = 1
+execp_has_icon = 1
+execp_cache_icon = 1
+execp_continuous = 2
+.fi
+.RE
+.SS Round\-trip time to the gateway, refreshed every second
+.PP
+.RS
+.nf
+execp = new
+execp_command = ping \-i 1 \-W 1 \-O \-D \-n $(ip route | grep default | grep via | grep \-o '[0\-9]*\\.[0\-9]*\\.[0\-9]*\\.[0\-9]*') | awk '/no/ { print "<span foreground=\\"#faa\\">timeout</span>"; fflush(); }; /time=/ { gsub(/time=/, "", $8); printf "<span foreground=\\"#7af\\">%3.0f %s</span>\\n", $8, $9; fflush(); } '
+execp_continuous = 1
+execp_interval = 1
+execp_markup = 1
+.fi
+.RE
+.SS Memory usage
+.PP
+.RS
+.nf
+execp = new
+execp_command = free \-s 2 | awk '/^\-/ { printf "Mem: '$(free \-h | awk '/^Mem:/ { print $2 }')' %.0f%\\n", 100*$3/($3+$4); fflush(stdout) }'
+execp_interval = 1
+execp_continuous = 1
+.fi
+.RE
+.SS Network load
+.PP
+.RS
+.nf
+# Note the use of "stdbuf \-oL" to force the program to flush the output line by line.
+execp = new
+execp_command = stdbuf \-oL bwm\-ng \-o csv \-t 1000 | awk \-F ';' '/total/ { printf "Net: %.0f Mb/s\\n", ($5*8/1.0e6) }; fflush(stdout)'
+execp_continuous = 1
+execp_interval = 1
+.fi
+.RE
+.SH EXAMPLE CONFIG
+.PP
+.RS
+.nf
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+## TINT2 CONFIG FILE
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+## BACKGROUND AND BORDER
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+rounded = 7
+border_width = 2
+background_color = #000000 60
+border_color = #ffffff 18
+
+rounded = 5
+border_width = 0
+background_color = #ffffff 40
+border_color = #ffffff 50
+
+rounded = 5
+border_width = 0
+background_color = #ffffff 18
+border_color = #ffffff 70
+
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+## PANEL
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+panel_monitor = all
+panel_position = bottom center
+panel_size = 94% 30
+panel_margin = 0 0
+panel_padding = 7 0
+font_shadow = 0
+panel_background_id = 1
+wm_menu = 0
+panel_dock = 0
+panel_layer = bottom
+
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+## TASKBAR
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+#taskbar_mode = multi_desktop
+taskbar_mode = single_desktop
+taskbar_padding = 2 3 2
+taskbar_background_id = 0
+#taskbar_active_background_id = 0
+
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+## TASKS
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+task_icon = 1
+task_text = 1
+task_maximum_size = 140 35
+task_centered = 1
+task_padding = 6 3
+task_font = sans 7
+task_font_color = #ffffff 70
+task_background_id = 3
+task_icon_asb = 100 0 0
+## replace STATUS by 'urgent', 'active' or 'iconfied'
+#task_STATUS_background_id = 2
+#task_STATUS_font_color = #ffffff 85
+#task_STATUS_icon_asb = 100 0 0
+## example:
+task_active_background_id = 2
+task_active_font_color = #ffffff 85
+task_active_icon_asb = 100 0 0
+urgent_nb_of_blink = 8
+
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+## SYSTRAYBAR
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+systray = 1
+systray_padding = 0 4 5
+systray_background_id = 0
+systray_sort = left2right
+systray_icon_size = 0
+systray_icon_asb = 100 0 0
+
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+## CLOCK
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+time1_format = %H:%M
+time1_font = sans 8
+time2_format = %A %d %B
+time2_font = sans 6
+clock_font_color = #ffffff 76
+clock_padding = 1 0
+clock_background_id = 0
+#clock_lclick_command = xclock
+clock_rclick_command = orage
+#clock_tooltip = %A %d %B
+#time1_timezone = :US/Hawaii
+#time2_timezone = :Europe/Berlin
+#clock_tooltip_timezone = :/usr/share/zoneinfo/Europe/Paris
+
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+## BATTERY
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+battery = 0
+battery_hide = 98
+battery_low_status = 10
+battery_low_cmd = notify\-send "battery low"
+bat1_font = sans 8
+bat2_font = sans 6
+battery_font_color = #ffffff 76
+battery_padding = 1 0
+battery_background_id = 0
+
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+## TOOLTIP
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+tooltip = 0
+tooltip_padding = 2 2
+tooltip_show_timeout = 0.7
+tooltip_hide_timeout = 0.3
+tooltip_background_id = 1
+tooltip_font_color = #OOOOOO 80
+tooltip_font = sans 10
+
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+## MOUSE ACTION ON TASK
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+mouse_middle = none
+mouse_right = close
+mouse_scroll_up = toggle
+mouse_scroll_down = iconify
+
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+## AUTOHIDE OPTIONS
+#\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+autohide = 0
+autohide_show_timeout = 0.3
+autohide_hide_timeout = 2
+autohide_height = 4
+strut_policy = minimum
+.fi
+.RE
+.SH AUTHOR
+.PP
+tint2 was written by Thierry Lorthiois \[la]lorthiois@bbsoft.fr\[ra]\&.
+It is based on ttm, originally written by Pål Staurland \[la]staura@gmail.com\[ra]\&.
+.PP
+This manual page was written by Daniel Moerner \[la]dmoerner@gmail.com\[ra], for the Debian project (but may be used by others).
+It was adopted from the tint2 docs.
+.PP
+See the wiki page at \[la]https://gitlab.com/o9000/tint2/wikis/home\[ra] for more information.

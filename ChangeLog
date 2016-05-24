@@ -1,6 +1,7 @@
 2016-05-21 master
 - Enhancements:
   - Borders can now be drawn on only some sides; configurable with the option border_sides (issue #580; thanks @stophe)
+  - Updated man page
 
 2016-05-14 0.12.11
 - Fixes:
