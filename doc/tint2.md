@@ -30,6 +30,34 @@ Goals:
 
 ## CONFIGURATION
 
+### Table of contents
+
+  * [Introduction](#introduction)
+
+  * [Backgrounds and borders](#backgrounds-and-borders)
+
+  * [Panel](#panel)
+
+  * [Launcher](#launcher)
+
+  * [Taskbar/Pager](#taskbar-pager)
+
+  * [Taskbar buttons](#taskbar-buttons)
+
+  * [Mouse actions for taskbar buttons](#mouse-actions-for-taskbar-buttons)
+
+  * [System tray](#system-tray)
+
+  * [Clock](#clock)
+
+  * [Tooltip](#tooltip)
+
+  * [Battery](#battery)
+
+  * [Executor](#executor)
+
+  * [Example](#an-example-tint2rc)
+
 ### Introduction
 
 The first time you run tint2, it will create the config file in `$HOME/.config/tint2/tint2rc` (This applies if you have done a clean install. Running tint2 in the source directory without doing 'make install' will not create the config file.)
