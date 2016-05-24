@@ -60,6 +60,9 @@ Goals:
 
 ### Introduction
 
+These are instructions for configuring tint2 directly by editing its config file.
+You may also use instead the graphical interface `tint2conf`.
+
 The first time you run tint2, it will create the config file in `$HOME/.config/tint2/tint2rc` (This applies if you have done a clean install. Running tint2 in the source directory without doing 'make install' will not create the config file.)
 
 You can also specify another file on the command line with the -c option, e.g.: `tint2 -c $HOME/tint2.conf`. This can be used to run multiple instances of tint2 that use different settings.
@@ -706,4 +709,6 @@ It is based on ttm, originally written by Pål Staurland <staura@gmail.com>.
 This manual page was written by Daniel Moerner <dmoerner@gmail.com>, for the Debian project (but may be used by others).
 It was adopted from the tint2 docs.
 
-See the wiki page at https://gitlab.com/o9000/tint2/wikis/home for more information.
+## SEE ALSO
+The main website https://gitlab.com/o9000/tint2
+and the wiki page at https://gitlab.com/o9000/tint2/wikis/home.
