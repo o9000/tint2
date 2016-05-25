@@ -65,7 +65,7 @@ Battery \[la]#battery\[ra]
 .IP \(bu 2
 Executor \[la]#executor\[ra]
 .IP \(bu 2
-Example \[la]#an-example-tint2rc\[ra]
+Example configuration \[la]#example-configuration\[ra]
 .RE
 .SS Introduction
 .PP
@@ -89,7 +89,7 @@ The tint2 config file starts with the options defining background elements with 
 .IP \(bu 2
 \fB\fCborder_width = integer\fR : the border width in pixels
 .IP \(bu 2
-\fB\fCborder_sides = LRTB\fR : the sides to draw the border on (left, right, top, bottom). If not specified, all sides are used.
+\fB\fCborder_sides = LRTB\fR : the sides to draw the border on (left, right, top, bottom). If not specified, all sides are used. \fI(since 0.12.12)\fP
 .IP \(bu 2
 \fB\fCbackground_color = color opacity\fR
 .RS
@@ -107,7 +107,7 @@ The tint2 config file starts with the options defining background elements with 
 \fB\fCopacity\fR varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque
 .RE
 .IP \(bu 2
-\fB\fCbackground_color_hover = color opacity\fR (default: same as background_color) \fI(since 0.12.3)\fP
+\fB\fCbackground_color_hover = color opacity\fR (default: same as \fB\fCbackground_color\fR) \fI(since 0.12.3)\fP
 .RS
 .IP \(bu 2
 \fB\fCcolor\fR is specified in hex RGB, e.g. #ff0000 is red
@@ -115,7 +115,7 @@ The tint2 config file starts with the options defining background elements with 
 \fB\fCopacity\fR varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque. Note that for a transparent panel you need to enable a desktop compositor (such as compton or compiz)
 .RE
 .IP \(bu 2
-\fB\fCborder_color_hover = color opacity\fR (default: same as border_color) \fI(since 0.12.3)\fP
+\fB\fCborder_color_hover = color opacity\fR (default: same as \fB\fCborder_color\fR) \fI(since 0.12.3)\fP
 .RS
 .IP \(bu 2
 \fB\fCcolor\fR is specified in hex RGB, e.g. #ff0000 is red
@@ -123,7 +123,7 @@ The tint2 config file starts with the options defining background elements with 
 \fB\fCopacity\fR varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque
 .RE
 .IP \(bu 2
-\fB\fCbackground_color_pressed = color opacity\fR (default: same as background\fIcolor\fPhover) \fI(since 0.12.3)\fP
+\fB\fCbackground_color_pressed = color opacity\fR (default: same as \fB\fCbackground_color_hover\fR) \fI(since 0.12.3)\fP
 .RS
 .IP \(bu 2
 \fB\fCcolor\fR is specified in hex RGB, e.g. #ff0000 is red
@@ -131,7 +131,7 @@ The tint2 config file starts with the options defining background elements with 
 \fB\fCopacity\fR varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque. Note that for a transparent panel you need to enable a desktop compositor (such as compton or compiz)
 .RE
 .IP \(bu 2
-\fB\fCborder_color_pressed = color opacity\fR (default: same as border\fIcolor\fPhover) \fI(since 0.12.3)\fP
+\fB\fCborder_color_pressed = color opacity\fR (default: same as \fB\fCborder_color_hover\fR) \fI(since 0.12.3)\fP
 .RS
 .IP \(bu 2
 \fB\fCcolor\fR is specified in hex RGB, e.g. #ff0000 is red
@@ -205,7 +205,7 @@ Use \fB\fCpanel_monitor = all\fR to get a separate panel per monitor
 \fB\fCprimary_monitor_first = boolean (0 or 1)\fR : Place the primary monitor before all the other monitors in the list. \fI(since 0.12.4)\fP
 .RE
 .PP
-[\[la]http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg](http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg)\[ra]
+[](images/panel_padding.jpg)
 .RS
 .IP \(bu 2
 \fB\fCpanel_position = vertical_position horizontal_position orientation\fR
@@ -237,13 +237,13 @@ panel_size = 94% 30
 \fB\fCpanel_margin = horizontal_margin vertical_margin\fR : The margins define the distance between the panel and the horizontal/vertical monitor edge. Use \fB\fC0\fR to obtain a panel with the same size as the edge of the monitor (no margin).
 .RE
 .PP
-[\[la]http://farm4.static.flickr.com/3438/3266303192_476a188196.jpg](http://farm4.static.flickr.com/3438/3266303192_476a188196.jpg)\[ra]
+[](images/panel\fIsize\fPmargin.jpg)
 .RS
 .IP \(bu 2
 \fB\fCpanel_padding = horizontal_padding vertical_padding spacing\fR : Please refer to the image below.
 .RE
 .PP
-[\[la]http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg](http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg)\[ra]
+[](images/panel_padding.jpg)
 .RS
 .IP \(bu 2
 \fB\fCfont_shadow = boolean (0 or 1)\fR
@@ -331,7 +331,7 @@ You can switch between virtual desktops.
 \fB\fCtaskbar_padding = horizontal_padding vertical_padding spacing\fR
 .RE
 .PP
-[\[la]http://farm4.static.flickr.com/3521/3266303292_14d9b6b623.jpg](http://farm4.static.flickr.com/3521/3266303292_14d9b6b623.jpg)\[ra]
+[](images/taskbar_padding.jpg)
 .RS
 .IP \(bu 2
 \fB\fCtaskbar_background_id = integer\fR : Which background to use
@@ -400,7 +400,7 @@ The following options configure the task buttons in the taskbar:
 \fB\fCurgent_nb_of_blink = integer\fR : Number of blinks on 'get attention' events.
 .RE
 .PP
-[\[la]http://farm4.static.flickr.com/3086/3265475337_262799ded3.jpg](http://farm4.static.flickr.com/3086/3265475337_262799ded3.jpg)\[ra]
+[](images/task_padding.jpg)
 .RS
 .IP \(bu 2
 \fB\fCtask_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR
@@ -511,9 +511,9 @@ To hide the clock, comment \fB\fCtime1_format\fR and \fB\fCtime2_format\fR\&.
 .IP \(bu 2
 \fB\fCtooltip_padding = horizontal_padding vertical_padding\fR
 .IP \(bu 2
-\fB\fCtooltip_show_timeout = float\fR : Delay to show the tooltip in seconds. Use '.' as decimal separator.
+\fB\fCtooltip_show_timeout = float\fR : Delay to show the tooltip in seconds. Use \fB\fC\&.\fR as decimal separator.
 .IP \(bu 2
-\fB\fCtooltip_hide_timeout = float\fR : Delay to hide the tooltip in seconds. Use '.' as decimal separator.
+\fB\fCtooltip_hide_timeout = float\fR : Delay to hide the tooltip in seconds. Use \fB\fC\&.\fR as decimal separator.
 .IP \(bu 2
 \fB\fCtooltip_background_id = integer\fR : Which background to use for tooltips. Note that with fake transparency the alpha channel and corner radius options are not respected.
 .IP \(bu 2
@@ -569,9 +569,9 @@ To hide the clock, comment \fB\fCtime1_format\fR and \fB\fCtime2_format\fR\&.
 .IP \(bu 2
 \fB\fCexecp_has_icon = boolean (0 or 1)\fR : If \fB\fCexecp_has_icon = 1\fR, the first line printed by the command is interpreted as a path to an image file. \fI(since 0.12.4)\fP
 .IP \(bu 2
-\fB\fCexecp_cache_icon = boolean (0 or 1)\fR : If execp\fIcache\fPicon = 0, the image is reloaded each time the command is executed (useful if the image file is changed on disk by the program executed by \fB\fCexecp_command\fR). \fI(since 0.12.4)\fP
+\fB\fCexecp_cache_icon = boolean (0 or 1)\fR : If \fB\fCexecp_cache_icon = 0\fR, the image is reloaded each time the command is executed (useful if the image file is changed on disk by the program executed by \fB\fCexecp_command\fR). \fI(since 0.12.4)\fP
 .IP \(bu 2
-\fB\fCexecp_icon_w = integer\fR : You can use execp\fIicon\fPw and execp\fIicon\fPh to resize the image. If one of them is zero/missing, the image is rescaled proportionally. If both of them are zero/missing, the image is not rescaled. \fI(since 0.12.4)\fP
+\fB\fCexecp_icon_w = integer\fR : You can use \fB\fCexecp_icon_w\fR and \fB\fCexecp_icon_h\fR to resize the image. If one of them is zero/missing, the image is rescaled proportionally. If both of them are zero/missing, the image is not rescaled. \fI(since 0.12.4)\fP
 .IP \(bu 2
 \fB\fCexecp_icon_h = integer\fR : See \fB\fCexecp_icon_w\fR\&. \fI(since 0.12.4)\fP
 .IP \(bu 2
@@ -689,7 +689,7 @@ execp_continuous = 1
 execp_interval = 1
 .fi
 .RE
-.SH EXAMPLE CONFIG
+.SS Example configuration
 .PP
 .RS
 .nf
@@ -834,7 +834,7 @@ strut_policy = minimum
 tint2 was written by Thierry Lorthiois \[la]lorthiois@bbsoft.fr\[ra]\&.
 It is based on ttm, originally written by Pål Staurland \[la]staura@gmail.com\[ra]\&.
 .PP
-This manual page was written by Daniel Moerner \[la]dmoerner@gmail.com\[ra], for the Debian project (but may be used by others).
+This manual page was originally written by Daniel Moerner \[la]dmoerner@gmail.com\[ra], for the Debian project (but may be used by others).
 It was adopted from the tint2 docs.
 .SH SEE ALSO
 .PP

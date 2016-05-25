@@ -56,7 +56,7 @@ Goals:
 
   * [Executor](#executor)
 
-  * [Example](#an-example-tint2rc)
+  * [Example configuration](#example-configuration)
 
 ### Introduction
 
@@ -80,7 +80,7 @@ The tint2 config file starts with the options defining background elements with 
 
   * `border_width = integer` : the border width in pixels
 
-  * `border_sides = LRTB` : the sides to draw the border on (left, right, top, bottom). If not specified, all sides are used.
+  * `border_sides = LRTB` : the sides to draw the border on (left, right, top, bottom). If not specified, all sides are used. *(since 0.12.12)*
 
   * `background_color = color opacity`
     * `color` is specified in hex RGB, e.g. #ff0000 is red
@@ -90,19 +90,19 @@ The tint2 config file starts with the options defining background elements with 
     * `color` is specified in hex RGB, e.g. #ff0000 is red
     * `opacity` varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque
 
-  * `background_color_hover = color opacity` (default: same as background_color) *(since 0.12.3)*
+  * `background_color_hover = color opacity` (default: same as `background_color`) *(since 0.12.3)*
     * `color` is specified in hex RGB, e.g. #ff0000 is red
     * `opacity` varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque. Note that for a transparent panel you need to enable a desktop compositor (such as compton or compiz)
 
-  * `border_color_hover = color opacity` (default: same as border_color) *(since 0.12.3)*
+  * `border_color_hover = color opacity` (default: same as `border_color`) *(since 0.12.3)*
     * `color` is specified in hex RGB, e.g. #ff0000 is red
     * `opacity` varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque
 
-  * `background_color_pressed = color opacity` (default: same as background_color_hover) *(since 0.12.3)*
+  * `background_color_pressed = color opacity` (default: same as `background_color_hover`) *(since 0.12.3)*
     * `color` is specified in hex RGB, e.g. #ff0000 is red
     * `opacity` varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque. Note that for a transparent panel you need to enable a desktop compositor (such as compton or compiz)
 
-  * `border_color_pressed = color opacity` (default: same as border_color_hover) *(since 0.12.3)*
+  * `border_color_pressed = color opacity` (default: same as `border_color_hover`) *(since 0.12.3)*
     * `color` is specified in hex RGB, e.g. #ff0000 is red
     * `opacity` varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque
 
@@ -153,7 +153,7 @@ Identifier 0 refers to a special background which is fully transparent, identifi
 
   * `primary_monitor_first = boolean (0 or 1)` : Place the primary monitor before all the other monitors in the list. *(since 0.12.4)*
 
-![http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg](http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg)
+![](images/panel_padding.jpg)
 
   * `panel_position = vertical_position horizontal_position orientation`
     * `vertical_position` is one of: `bottom`, `top`, `center`
@@ -171,11 +171,11 @@ panel_size = 94% 30
 
   * `panel_margin = horizontal_margin vertical_margin` : The margins define the distance between the panel and the horizontal/vertical monitor edge. Use `0` to obtain a panel with the same size as the edge of the monitor (no margin).
 
-![http://farm4.static.flickr.com/3438/3266303192_476a188196.jpg](http://farm4.static.flickr.com/3438/3266303192_476a188196.jpg)
+![](images/panel_size_margin.jpg)
 
   * `panel_padding = horizontal_padding vertical_padding spacing` : Please refer to the image below.
 
-![http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg](http://farm4.static.flickr.com/3425/3265475271_81e8ed56e0.jpg)
+![](images/panel_padding.jpg)
 
   * `font_shadow = boolean (0 or 1)`
 
@@ -245,7 +245,7 @@ panel_size = 94% 30
 
   * `taskbar_padding = horizontal_padding vertical_padding spacing`
 
-![http://farm4.static.flickr.com/3521/3266303292_14d9b6b623.jpg](http://farm4.static.flickr.com/3521/3266303292_14d9b6b623.jpg)
+![](images/taskbar_padding.jpg)
 
   * `taskbar_background_id = integer` : Which background to use
 
@@ -300,7 +300,7 @@ The following options configure the task buttons in the taskbar:
 
   * `urgent_nb_of_blink = integer` : Number of blinks on 'get attention' events.
 
-![http://farm4.static.flickr.com/3086/3265475337_262799ded3.jpg](http://farm4.static.flickr.com/3086/3265475337_262799ded3.jpg)
+![](images/task_padding.jpg)
 
   * `task_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]`
 
@@ -399,9 +399,9 @@ The action semantics:
 
   * `tooltip_padding = horizontal_padding vertical_padding`
 
-  * `tooltip_show_timeout = float` : Delay to show the tooltip in seconds. Use '.' as decimal separator.
+  * `tooltip_show_timeout = float` : Delay to show the tooltip in seconds. Use `.` as decimal separator.
 
-  * `tooltip_hide_timeout = float` : Delay to hide the tooltip in seconds. Use '.' as decimal separator.
+  * `tooltip_hide_timeout = float` : Delay to hide the tooltip in seconds. Use `.` as decimal separator.
 
   * `tooltip_background_id = integer` : Which background to use for tooltips. Note that with fake transparency the alpha channel and corner radius options are not respected.
 
@@ -455,9 +455,9 @@ The action semantics:
 
   * `execp_has_icon = boolean (0 or 1)` : If `execp_has_icon = 1`, the first line printed by the command is interpreted as a path to an image file. *(since 0.12.4)*
 
-  * `execp_cache_icon = boolean (0 or 1)` : If execp_cache_icon = 0, the image is reloaded each time the command is executed (useful if the image file is changed on disk by the program executed by `execp_command`). *(since 0.12.4)*
+  * `execp_cache_icon = boolean (0 or 1)` : If `execp_cache_icon = 0`, the image is reloaded each time the command is executed (useful if the image file is changed on disk by the program executed by `execp_command`). *(since 0.12.4)*
 
-  * `execp_icon_w = integer` : You can use execp_icon_w and execp_icon_h to resize the image. If one of them is zero/missing, the image is rescaled proportionally. If both of them are zero/missing, the image is not rescaled. *(since 0.12.4)*
+  * `execp_icon_w = integer` : You can use `execp_icon_w` and `execp_icon_h` to resize the image. If one of them is zero/missing, the image is rescaled proportionally. If both of them are zero/missing, the image is not rescaled. *(since 0.12.4)*
 
   * `execp_icon_h = integer` : See `execp_icon_w`. *(since 0.12.4)*
 
@@ -564,7 +564,8 @@ execp_continuous = 1
 execp_interval = 1
 ```
 
-# EXAMPLE CONFIG
+### Example configuration
+
 ```
 #---------------------------------------------
 ## TINT2 CONFIG FILE
@@ -706,7 +707,7 @@ strut_policy = minimum
 tint2 was written by Thierry Lorthiois <lorthiois@bbsoft.fr>.
 It is based on ttm, originally written by Pål Staurland <staura@gmail.com>.
 
-This manual page was written by Daniel Moerner <dmoerner@gmail.com>, for the Debian project (but may be used by others).
+This manual page was originally written by Daniel Moerner <dmoerner@gmail.com>, for the Debian project (but may be used by others).
 It was adopted from the tint2 docs.
 
 ## SEE ALSO

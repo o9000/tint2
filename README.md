@@ -4,6 +4,7 @@ Changes: https://gitlab.com/o9000/tint2/blob/0.12.11/ChangeLog
 Documentation: [doc/tint2.md](doc/tint2.md)
 
 Compile it with (see also [dependencies](https://gitlab.com/o9000/tint2/wikis/Install#dependencies)):
+
 ```
 git clone https://gitlab.com/o9000/tint2.git
 cd tint2
@@ -15,6 +16,7 @@ make -j4
 ```
 
 To install, run (as root):
+
 ```
 make install
 ```
