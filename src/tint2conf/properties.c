@@ -990,8 +990,11 @@ void background_force_update()
 	background_update(NULL, NULL);
 }
 
+static gboolean background_updates_disabled = FALSE;
 void background_update(GtkWidget *widget, gpointer data)
 {
+	if (background_updates_disabled)
+		return;
 	int index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_background));
 	if (index < 0)
 		return;
@@ -1070,6 +1073,8 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 	int index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_background));
 	if (index < 0)
 		return;
+
+	background_updates_disabled = TRUE;
 
 	GtkTreePath *path;
 	GtkTreeIter iter;
@@ -1150,6 +1155,9 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 	g_boxed_free(GDK_TYPE_COLOR, borderColorOver);
 	g_boxed_free(GDK_TYPE_COLOR, fillColorPress);
 	g_boxed_free(GDK_TYPE_COLOR, borderColorPress);
+
+	background_updates_disabled = FALSE;
+	background_update_image(index);
 }
 
 void create_panel(GtkWidget *parent)
