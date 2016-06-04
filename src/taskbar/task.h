@@ -67,6 +67,11 @@ typedef struct Task {
 	int win_w;
 	int win_h;
 	struct timespec last_activation_time;
+	int _text_width;
+	int _text_height;
+	double _text_posy;
+	int _icon_x;
+	int _icon_y;
 } Task;
 
 extern timeout *urgent_timeout;

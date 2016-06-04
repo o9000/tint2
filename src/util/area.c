@@ -177,7 +177,8 @@ void relayout_dynamic(Area *a, int level)
 				children_size += (l == a->children) ? 0 : a->paddingx;
 			}
 
-			int pos = (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingxlr;
+			int pos =
+			    (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingxlr;
 			pos += ((panel_horizontal ? a->width : a->height) - children_size) / 2;
 
 			for (GList *l = a->children; l; l = l->next) {
@@ -459,10 +460,10 @@ void draw_background(Area *a, cairo_t *c)
 			                      a->bg->fill_color.alpha);
 		// Not sure about this
 		draw_rect(c,
-				  left_border_width(a),
-				  top_border_width(a),
-				  a->width - left_right_border_width(a),
-				  a->height - top_bottom_border_width(a),
+		          left_border_width(a),
+		          top_border_width(a),
+		          a->width - left_right_border_width(a),
+		          a->height - top_bottom_border_width(a),
 		          a->bg->border.radius - a->bg->border.width / 1.571);
 
 		cairo_fill(c);
@@ -491,10 +492,10 @@ void draw_background(Area *a, cairo_t *c)
 			                      a->bg->border.color.rgb[2],
 			                      a->bg->border.color.alpha);
 		draw_rect_on_sides(c,
-						   left_border_width(a) / 2.,
-						   top_border_width(a) / 2.,
-						   a->width - left_right_border_width(a) / 2.,
-						   a->height - top_bottom_border_width(a) / 2.,
+		                   left_border_width(a) / 2.,
+		                   top_border_width(a) / 2.,
+		                   a->width - left_right_border_width(a) / 2.,
+		                   a->height - top_bottom_border_width(a) / 2.,
 		                   a->bg->border.radius,
 		                   a->bg->border.mask);
 
@@ -771,4 +772,45 @@ int left_right_bg_border_width(Background *bg)
 int top_bottom_bg_border_width(Background *bg)
 {
 	return top_bg_border_width(bg) + bottom_bg_border_width(bg);
+}
+
+void area_dump_geometry(Area *area, int indent)
+{
+	fprintf(stderr, "%*s%s:\n", indent, "", area->name);
+	indent += 2;
+	if (!area->on_screen) {
+		fprintf(stderr, "%*shidden\n", indent, "");
+		return;
+	}
+	fprintf(stderr,
+	        "%*sBox: x = %d, y = %d, w = %d, h = %d\n",
+	        indent,
+	        "",
+	        area->posx,
+	        area->posy,
+	        area->width,
+	        area->height);
+	fprintf(stderr,
+			"%*sBorder: left = %d, right = %d, top = %d, bottom = %d\n",
+			indent,
+			"",
+			left_border_width(area),
+			right_border_width(area),
+			top_border_width(area),
+			bottom_border_width(area));
+	fprintf(stderr,
+			"%*sPadding: left = right = %d, top = bottom = %d, spacing = %d\n",
+			indent,
+			"",
+			area->paddingxlr,
+			area->paddingy,
+			area->paddingx);
+	if (area->_dump_geometry)
+		area->_dump_geometry(area, indent);
+	if (area->children) {
+		fprintf(stderr, "%*sChildren:\n", indent, "");
+		indent += 2;
+		for (GList *l = area->children; l; l = l->next)
+			area_dump_geometry((Area *)l->data, indent);
+	}
 }

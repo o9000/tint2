@@ -55,6 +55,7 @@ static timeout *clock_timeout;
 
 void clock_init_fonts();
 char *clock_get_tooltip(void *obj);
+void clock_dump_geometry(void *obj, int indent);
 
 void default_clock()
 {
@@ -188,6 +189,7 @@ void init_clock_panel(void *p)
 	clock->area._draw_foreground = draw_clock;
 	clock->area.size_mode = LAYOUT_FIXED;
 	clock->area._resize = resize_clock;
+	clock->area._dump_geometry = clock_dump_geometry;
 	// check consistency
 	if (!time1_format)
 		return;
@@ -332,6 +334,26 @@ void draw_clock(void *obj, cairo_t *c)
 	}
 
 	g_object_unref(layout);
+}
+
+void clock_dump_geometry(void *obj, int indent)
+{
+	Clock *clock = (Clock *)obj;
+	fprintf(stderr,
+			"%*sText 1: y = %d, text = %s\n",
+			indent,
+			"",
+			clock->time1_posy,
+			buf_time);
+	if (time2_format) {
+		fprintf(stderr,
+			"%*sText 2: y = %d, text = %s\n",
+			indent,
+			"",
+			clock->time2_posy,
+			buf_date);
+	}
+
 }
 
 char *clock_get_tooltip(void *obj)

@@ -58,6 +58,7 @@ gboolean battery_found;
 
 void battery_init_fonts();
 char *battery_get_tooltip(void *obj);
+void battery_dump_geometry(void *obj, int indent);
 
 void default_battery()
 {
@@ -380,6 +381,23 @@ void draw_battery(void *obj, cairo_t *c)
 	pango_cairo_show_layout(c, layout);
 
 	g_object_unref(layout);
+}
+
+void battery_dump_geometry(void *obj, int indent)
+{
+	Battery *battery = obj;
+	fprintf(stderr,
+			"%*sText 1: y = %d, text = %s\n",
+			indent,
+			"",
+			battery->bat1_posy,
+			buf_bat_percentage);
+	fprintf(stderr,
+		"%*sText 2: y = %d, text = %s\n",
+		indent,
+		"",
+		battery->bat2_posy,
+		buf_bat_time);
 }
 
 char *battery_get_tooltip(void *obj)

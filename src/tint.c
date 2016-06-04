@@ -372,6 +372,8 @@ void init(int argc, char *argv[])
 	sigaction(SIGABRT, &sa_crash, 0);
 	sigaction(SIGSYS, &sa_crash, 0);
 #endif
+
+	debug_geometry = getenv("DEBUG_GEOMETRY") != NULL;
 }
 
 static int sn_pipe_valid = 0;

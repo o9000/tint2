@@ -230,6 +230,9 @@ typedef struct Area {
 	// Returns true if the Area handles a mouse event at the given x, y coordinates relative to the window.
 	// Leave this to NULL to use a default implementation.
 	gboolean (*_is_under_mouse)(void *obj, int x, int y);
+
+	// Prints the geometry of the object on stderr, with left indentation of indent spaces.
+	void (*_dump_geometry)(void *obj, int indent);
 } Area;
 
 // Initializes the Background member to default values.
@@ -305,6 +308,8 @@ gboolean area_is_under_mouse(void *obj, int x, int y);
 // Useful so that a click at the edge of the screen is still handled by task buttons etc., even if technically
 // they are outside the drawing area of the button.
 gboolean full_width_area_is_under_mouse(void *obj, int x, int y);
+
+void area_dump_geometry(Area *area, int indent);
 
 void mouse_over(Area *area, int pressed);
 void mouse_out();

@@ -65,6 +65,8 @@ const int slow_resize_period = 5000;
 const int min_bad_resize_events = 3;
 const int max_bad_resize_events = 10;
 
+void systray_dump_geometry(void *obj, int indent);
+
 void default_systray()
 {
 	systray_enabled = 0;
@@ -114,6 +116,7 @@ void init_systray_panel(void *p)
 	Panel *panel = (Panel *)p;
 	systray.area.parent = panel;
 	systray.area.panel = panel;
+	systray.area._dump_geometry = systray_dump_geometry;
 	snprintf(systray.area.name, sizeof(systray.area.name), "Systray");
 	if (!systray.area.bg)
 		systray.area.bg = &g_array_index(backgrounds, Background, 0);
@@ -206,6 +209,29 @@ void draw_systray(void *obj, cairo_t *c)
 	}
 
 	refresh_systray = TRUE;
+}
+
+void systray_dump_geometry(void *obj, int indent)
+{
+	Systray *tray = (Systray *)obj;
+
+	fprintf(stderr,
+			"%*sIcons:\n",
+			indent,
+			"");
+	indent += 2;
+	for (GSList *l = tray->list_icons; l; l = l->next) {
+		TrayWindow *traywin = (TrayWindow *)l->data;
+		fprintf(stderr,
+				"%*sIcon: x = %d, y = %d, w = %d, h = %d, name = %s\n",
+				indent,
+				"",
+				traywin->x,
+				traywin->y,
+				traywin->width,
+				traywin->height,
+				traywin->name);
+	}
 }
 
 void on_change_systray(void *obj)

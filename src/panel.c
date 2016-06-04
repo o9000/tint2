@@ -55,6 +55,7 @@ gboolean panel_horizontal;
 gboolean panel_refresh;
 gboolean task_dragged;
 char *panel_window_name = NULL;
+gboolean debug_geometry;
 
 gboolean panel_autohide;
 int panel_autohide_show_timeout;
@@ -942,6 +943,8 @@ void autohide_trigger_hide(Panel *p)
 void render_panel(Panel *panel)
 {
 	relayout(&panel->area);
+	if (debug_geometry)
+		area_dump_geometry(&panel->area, 0);
 	draw_tree(&panel->area);
 }
 

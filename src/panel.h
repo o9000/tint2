@@ -86,6 +86,7 @@ extern Imlib_Image default_icon;
 #define DEFAULT_FONT "sans 10"
 extern char *default_font;
 extern XSettingsClient *xsettings_client;
+extern gboolean debug_geometry;
 
 typedef struct Panel {
 	Area area;

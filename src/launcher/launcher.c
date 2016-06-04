@@ -56,6 +56,7 @@ Background *launcher_icon_bg;
 
 Imlib_Image scale_icon(Imlib_Image original, int icon_size);
 void free_icon(Imlib_Image icon);
+void launcher_icon_dump_geometry(void *obj, int indent);
 
 void default_launcher()
 {
@@ -346,6 +347,17 @@ void draw_launcher_icon(void *obj, cairo_t *c)
 	render_image(launcherIcon->area.pix, 0, 0);
 }
 
+void launcher_icon_dump_geometry(void *obj, int indent)
+{
+	LauncherIcon *launcherIcon = (LauncherIcon *)obj;
+	fprintf(stderr,
+			"%*sIcon: w = h = %d, name = %s\n",
+			indent,
+			"",
+			launcherIcon->icon_size,
+			launcherIcon->icon_name);
+}
+
 Imlib_Image scale_icon(Imlib_Image original, int icon_size)
 {
 	Imlib_Image icon_scaled;
@@ -468,6 +480,7 @@ void launcher_load_icons(Launcher *launcher)
 			launcherIcon->area.bg = launcher_icon_bg;
 			launcherIcon->area.on_screen = TRUE;
 			launcherIcon->area._on_change_layout = launcher_icon_on_change_layout;
+			launcherIcon->area._dump_geometry = launcher_icon_dump_geometry;
 			if (launcher_tooltip_enabled) {
 				launcherIcon->area._get_tooltip_text = launcher_icon_get_tooltip_text;
 			} else {

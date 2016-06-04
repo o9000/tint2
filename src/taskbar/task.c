@@ -38,6 +38,8 @@
 timeout *urgent_timeout;
 GSList *urgent_list;
 
+void task_dump_geometry(void *obj, int indent);
+
 char *task_get_tooltip(void *obj)
 {
 	Task *t = (Task *)obj;
@@ -68,6 +70,7 @@ Task *add_task(Window win)
 	snprintf(task_template.area.name, sizeof(task_template.area.name), "Task %d", (int)win);
 	task_template.area.has_mouse_over_effect = panel_config.mouse_effects;
 	task_template.area.has_mouse_press_effect = panel_config.mouse_effects;
+	task_template.area._dump_geometry = task_dump_geometry;
 	task_template.area._is_under_mouse = full_width_area_is_under_mouse;
 	task_template.win = win;
 	task_template.desktop = get_window_desktop(win);
@@ -83,7 +86,11 @@ Task *add_task(Window win)
 	}
 	task_update_title(&task_template);
 	task_update_icon(&task_template);
-	snprintf(task_template.area.name, sizeof(task_template.area.name), "Task %d %s", (int)win, task_template.title ? task_template.title : "null");
+	snprintf(task_template.area.name,
+	         sizeof(task_template.area.name),
+	         "Task %d %s",
+	         (int)win,
+	         task_template.title ? task_template.title : "null");
 
 	// fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task_template.title ?
 	// task_template.title : "??");
@@ -99,6 +106,7 @@ Task *add_task(Window win)
 		memcpy(&task_instance->area, &panels[monitor].g_task.area, sizeof(Area));
 		task_instance->area.has_mouse_over_effect = panel_config.mouse_effects;
 		task_instance->area.has_mouse_press_effect = panel_config.mouse_effects;
+		task_instance->area._dump_geometry = task_dump_geometry;
 		task_instance->area._is_under_mouse = full_width_area_is_under_mouse;
 		task_instance->win = task_template.win;
 		task_instance->desktop = task_template.desktop;
@@ -303,7 +311,7 @@ void task_update_icon(Task *task)
 	int w = imlib_image_get_width();
 	int h = imlib_image_get_height();
 	Imlib_Image orig_image =
-		imlib_create_cropped_scaled_image(0, 0, w, h, panel->g_task.icon_size1, panel->g_task.icon_size1);
+	    imlib_create_cropped_scaled_image(0, 0, w, h, panel->g_task.icon_size1, panel->g_task.icon_size1);
 	imlib_free_image();
 
 	imlib_context_set_image(orig_image);
@@ -317,22 +325,22 @@ void task_update_icon(Task *task)
 		if (panel->g_task.alpha[k] != 100 || panel->g_task.saturation[k] != 0 || panel->g_task.brightness[k] != 0) {
 			data32 = imlib_image_get_data();
 			adjust_asb(data32,
-					   task->icon_width,
-					   task->icon_height,
-					   panel->g_task.alpha[k] / 100.0,
-					   panel->g_task.saturation[k] / 100.0,
-					   panel->g_task.brightness[k] / 100.0);
+			           task->icon_width,
+			           task->icon_height,
+			           panel->g_task.alpha[k] / 100.0,
+			           panel->g_task.saturation[k] / 100.0,
+			           panel->g_task.brightness[k] / 100.0);
 			imlib_image_put_back_data(data32);
 		}
 		if (panel_config.mouse_effects) {
 			task->icon_hover[k] = adjust_icon(task->icon[k],
-											  panel_config.mouse_over_alpha,
-											  panel_config.mouse_over_saturation,
-											  panel_config.mouse_over_brightness);
+			                                  panel_config.mouse_over_alpha,
+			                                  panel_config.mouse_over_saturation,
+			                                  panel_config.mouse_over_brightness);
 			task->icon_press[k] = adjust_icon(task->icon[k],
-											  panel_config.mouse_pressed_alpha,
-											  panel_config.mouse_pressed_saturation,
-											  panel_config.mouse_pressed_brightness);
+			                                  panel_config.mouse_pressed_alpha,
+			                                  panel_config.mouse_pressed_saturation,
+			                                  panel_config.mouse_pressed_brightness);
 		}
 	}
 	imlib_context_set_image(orig_image);
@@ -361,15 +369,14 @@ void draw_task_icon(Task *task, int text_width)
 		return;
 
 	// Find pos
-	int pos_x;
 	Panel *panel = (Panel *)task->area.panel;
 	if (panel->g_task.centered) {
 		if (panel->g_task.has_text)
-			pos_x = (task->area.width - text_width - panel->g_task.icon_size1) / 2;
+			task->_icon_x = (task->area.width - text_width - panel->g_task.icon_size1) / 2;
 		else
-			pos_x = (task->area.width - panel->g_task.icon_size1) / 2;
+			task->_icon_x = (task->area.width - panel->g_task.icon_size1) / 2;
 	} else {
-		pos_x = left_border_width(&task->area) + task->area.paddingxlr;
+		task->_icon_x = left_border_width(&task->area) + task->area.paddingxlr;
 	}
 
 	// Render
@@ -388,14 +395,8 @@ void draw_task_icon(Task *task, int text_width)
 	}
 
 	imlib_context_set_image(image);
-	render_image(task->area.pix, pos_x, (task->area.height - panel->g_task.icon_size1) / 2);
-	if (0) {
-		fprintf(stderr, "Task icon size: %d %d pos %d %d\n", imlib_image_get_width(), imlib_image_get_height(), pos_x, panel->g_task.icon_posy);
-		fprintf(stderr, "Task max size : %d %d\n", panel->g_task.maximum_width, panel->g_task.maximum_height);
-		fprintf(stderr, "Task area size: %d %d\n", task->area.width, task->area.height);
-		fprintf(stderr, "Task border   : %d\n", left_border_width(&task->area));
-		fprintf(stderr, "\n");
-	}
+	task->_icon_y = (task->area.height - panel->g_task.icon_size1) / 2;
+	render_image(task->area.pix, task->_icon_x, task->_icon_y);
 }
 
 void draw_task(void *obj, cairo_t *c)
@@ -403,7 +404,7 @@ void draw_task(void *obj, cairo_t *c)
 	Task *task = (Task *)obj;
 	Panel *panel = (Panel *)task->area.panel;
 
-	int text_width = 0;
+	task->_text_width = 0;
 	if (panel->g_task.has_text) {
 		PangoLayout *layout = pango_cairo_create_layout(c);
 		pango_layout_set_font_description(layout, panel->g_task.font_desc);
@@ -419,18 +420,41 @@ void draw_task(void *obj, cairo_t *c)
 		else
 			pango_layout_set_alignment(layout, PANGO_ALIGN_LEFT);
 
-		int text_height;
-		pango_layout_get_pixel_size(layout, &text_width, &text_height);
-		double text_posy = (panel->g_task.area.height - text_height) / 2.0;
+		pango_layout_get_pixel_size(layout, &task->_text_width, &task->_text_height);
+		task->_text_posy = (panel->g_task.area.height - task->_text_height) / 2.0;
 
 		Color *config_text = &panel->g_task.font[task->current_state];
-		draw_text(layout, c, panel->g_task.text_posx, text_posy, config_text, panel->font_shadow);
+		draw_text(layout, c, panel->g_task.text_posx, task->_text_posy, config_text, panel->font_shadow);
 
 		g_object_unref(layout);
 	}
 
 	if (panel->g_task.has_icon)
-		draw_task_icon(task, text_width);
+		draw_task_icon(task, task->_text_width);
+}
+
+void task_dump_geometry(void *obj, int indent)
+{
+	Task *task = (Task *)obj;
+	Panel *panel = (Panel *)task->area.panel;
+
+	fprintf(stderr,
+			"%*sText: x = %d, y = %d, w = %d, h = %d, align = %s, text = %s\n",
+			indent,
+			"",
+			(int)panel->g_task.text_posx,
+			(int)task->_text_posy,
+			task->_text_width,
+			task->_text_height,
+			panel->g_task.centered ? "center" : "left",
+			task->title);
+	fprintf(stderr,
+			"%*sIcon: x = %d, y = %d, w = h = %d\n",
+			indent,
+			"",
+			task->_icon_x,
+			task->_icon_y,
+			panel->g_task.icon_size1);
 }
 
 void on_change_task(void *obj)
@@ -440,13 +464,13 @@ void on_change_task(void *obj)
 
 	long value[] = {panel->posx + task->area.posx, panel->posy + task->area.posy, task->area.width, task->area.height};
 	XChangeProperty(server.display,
-					task->win,
-					server.atom._NET_WM_ICON_GEOMETRY,
-					XA_CARDINAL,
-					32,
-					PropModeReplace,
-					(unsigned char *)value,
-					4);
+	                task->win,
+	                server.atom._NET_WM_ICON_GEOMETRY,
+	                XA_CARDINAL,
+	                32,
+	                PropModeReplace,
+	                (unsigned char *)value,
+	                4);
 }
 
 Task *find_active_task(Task *current_task)
@@ -579,7 +603,7 @@ void set_task_state(Task *task, TaskState state)
 					}
 				}
 				if (get_window_monitor(task->win) != ((Panel *)task->area.panel)->monitor &&
-					(hide_task_diff_monitor || num_panels > 1)) {
+				    (hide_task_diff_monitor || num_panels > 1)) {
 					hide = TRUE;
 				}
 				if ((!hide) != task1->area.on_screen) {
