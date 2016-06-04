@@ -809,9 +809,10 @@ void add_entry(char *key, char *value)
 	} else if (strcmp(key, "task_maximum_size") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		panel_config.g_task.maximum_width = atoi(value1);
-		panel_config.g_task.maximum_height = 30;
 		if (value2)
 			panel_config.g_task.maximum_height = atoi(value2);
+		else
+			panel_config.g_task.maximum_height = panel_config.g_task.maximum_width;
 	} else if (strcmp(key, "task_padding") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 		panel_config.g_task.area.paddingxlr = panel_config.g_task.area.paddingx = atoi(value1);
