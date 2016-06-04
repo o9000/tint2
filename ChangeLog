@@ -1,7 +1,12 @@
-2016-05-21 master
+2016-06-04 master
+- Fixes:
+  - Set task maximum height equal to width if not specified, instead of hardcoding 30 (issue #583)
+  - tint2conf
+    - Process background selection events correctly (issue #582)
 - Enhancements:
   - Borders can now be drawn on only some sides; configurable with the option border_sides (issue #580; thanks @stophe)
   - Updated man page
+  - The geometry of panel items is printed to stderr if the environment variable DEBUG_GEOMETRY is set
 
 2016-05-14 0.12.11
 - Fixes:
