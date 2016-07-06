@@ -263,6 +263,7 @@ int main(int argc, char **argv)
 	gtk_action_group_add_actions(actionGroup, entries, G_N_ELEMENTS(entries), NULL);
 	globalUIManager = gtk_ui_manager_new();
 	gtk_ui_manager_insert_action_group(globalUIManager, actionGroup, 0);
+	gtk_window_add_accel_group(GTK_WINDOW(g_window), gtk_ui_manager_get_accel_group(globalUIManager));
 	gtk_ui_manager_add_ui_from_string(globalUIManager, global_ui, -1, (NULL));
 	g_signal_connect(globalUIManager, "add_widget", G_CALLBACK(menuAddWidget), vBox);
 	gtk_ui_manager_ensure_update(globalUIManager);
