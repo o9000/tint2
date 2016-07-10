@@ -247,7 +247,7 @@ int main(int argc, char **argv)
 
 	// Menubar and toolbar entries
 	GtkActionEntry entries[] =
-		{{"ThemeMenu", NULL, _("Theme"), NULL, NULL, NULL},
+		{{"ThemeMenu", NULL, _("_Theme"), NULL, NULL, NULL},
 		 {"ThemeImportFile", GTK_STOCK_ADD, _("_Import theme..."), "<Control>N", _("Import theme(s) from file system"), G_CALLBACK(menuImportFile)},
 		 {"ThemeSaveAs", GTK_STOCK_SAVE_AS, _("_Save as..."), NULL, _("Save the theme with a new name"), G_CALLBACK(menuSaveAs)},
 		 {"ThemeDelete", GTK_STOCK_DELETE, _("_Delete"), NULL, _("Delete the selected theme"), G_CALLBACK(menuDelete)},
@@ -257,7 +257,7 @@ int main(int argc, char **argv)
 		 {"ThemeRefresh", GTK_STOCK_REFRESH, _("Refresh"), NULL, _("Redraw the selected theme"), G_CALLBACK(refresh_current_theme)},
 		 {"RefreshAll", GTK_STOCK_REFRESH, _("Refresh all"), NULL, _("Redraw all themes"), G_CALLBACK(load_all_themes)},
 		 {"Quit", GTK_STOCK_QUIT, _("_Quit"), "<control>Q", _("Quit"), G_CALLBACK(gtk_main_quit)},
-		 {"HelpMenu", NULL, _("Help"), NULL, NULL, NULL},
+		 {"HelpMenu", NULL, _("_Help"), NULL, NULL, NULL},
 		 {"HelpAbout", GTK_STOCK_ABOUT, _("_About"), "<Control>A", _("About"), G_CALLBACK(menuAbout)}};
 
 	gtk_action_group_add_actions(actionGroup, entries, G_N_ELEMENTS(entries), NULL);
