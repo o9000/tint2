@@ -1257,10 +1257,6 @@ msgstr  "Spécifie l'action à engager lorsque les boutons de tâches reçoivent
 msgid   "Middle click"
 msgstr  "Clic milieu"
 
-#: ../properties.c:3506
-msgid   "sShade"
-msgstr  "Réduire"
-
 #: ../properties.c:3514
 msgid   "Specifies the action performed when task buttons receive a middle "
         "click event: \n"

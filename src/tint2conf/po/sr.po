@@ -1133,7 +1133,6 @@ msgstr  "Умањи"
 
 #: ../properties.c:3434 ../properties.c:3470 ../properties.c:3542
 #: ../properties.c:3578
-#, fuzzy
 msgid   "Shade"
 msgstr  "Затамни"
 
@@ -1229,11 +1228,6 @@ msgstr  "Одређује акцију након померања колути�
 #: ../properties.c:3492
 msgid   "Middle click"
 msgstr  "Средњи клик"
-
-#: ../properties.c:3506
-#, fuzzy
-msgid   "sShade"
-msgstr  "зЗатамни"
 
 #: ../properties.c:3514
 msgid   "Specifies the action performed when task buttons receive a middle "

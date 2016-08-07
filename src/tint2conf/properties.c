@@ -3503,7 +3503,7 @@ void create_task(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Close"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Toggle"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Iconify"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("sShade"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Shade"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Toggle or iconify"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Maximize or restore"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(task_mouse_middle), _("Desktop left"));

@@ -1232,11 +1232,6 @@ msgstr  "Određuje akciju nakon pomijeranja kolutića miša gore na zadatku: \n"
 msgid   "Middle click"
 msgstr  "Srednji klik"
 
-#: ../properties.c:3506
-#, fuzzy
-msgid   "sShade"
-msgstr  "zZatamni"
-
 #: ../properties.c:3514
 msgid   "Specifies the action performed when task buttons receive a middle "
         "click event: \n"

@@ -1248,10 +1248,6 @@ msgstr  "Określa akcję, która zostanie wykonana po poruszeniu kółka myszy w
 msgid   "Middle click"
 msgstr  "Klik środkowym"
 
-#: ../properties.c:3506
-msgid   "sShade"
-msgstr  "Zwiń"
-
 #: ../properties.c:3514
 msgid   "Specifies the action performed when task buttons receive a middle "
         "click event: \n"

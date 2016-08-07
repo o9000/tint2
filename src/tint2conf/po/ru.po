@@ -1220,10 +1220,6 @@ msgstr  "Задает действие, выполняемое когда кно
 msgid   "Middle click"
 msgstr  "Средний щелчок"
 
-#: ../properties.c:3506
-msgid   "sShade"
-msgstr  "Скрутить"
-
 #: ../properties.c:3514
 msgid   "Specifies the action performed when task buttons receive a middle "
         "click event: \n"

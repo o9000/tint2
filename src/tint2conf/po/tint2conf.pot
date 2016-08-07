@@ -1148,7 +1148,7 @@ msgid "Middle click"
 msgstr ""
 
 #: ../properties.c:3506
-msgid "sShade"
+msgid "Shade"
 msgstr ""
 
 #: ../properties.c:3514

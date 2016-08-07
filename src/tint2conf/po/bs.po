@@ -1133,12 +1133,6 @@ msgstr  "Prebaci"
 msgid   "Iconify"
 msgstr  "Umanji"
 
-#: ../properties.c:3434 ../properties.c:3470 ../properties.c:3542
-#: ../properties.c:3578
-#, fuzzy
-msgid   "Shade"
-msgstr  "Zatamni"
-
 #: ../properties.c:3435 ../properties.c:3471 ../properties.c:3507
 #: ../properties.c:3543 ../properties.c:3579
 msgid   "Toggle or iconify"
@@ -1233,9 +1227,8 @@ msgid   "Middle click"
 msgstr  "Srednji klik"
 
 #: ../properties.c:3506
-#, fuzzy
-msgid   "sShade"
-msgstr  "zZatamni"
+msgid   "Shade"
+msgstr  "Zatamni"
 
 #: ../properties.c:3514
 msgid   "Specifies the action performed when task buttons receive a middle "
