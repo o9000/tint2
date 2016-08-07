@@ -1,3 +1,7 @@
+2016-08-07 master
+- Enhancements:
+  - Desktop files (shortcuts) used in launcher are reloaded on click, in case the file has changed
+
 2016-08-02 0.12.12
 - Fixes:
   - Set task maximum height equal to width if not specified, instead of hardcoding 30 (issue #583; thanks @VastOne)
