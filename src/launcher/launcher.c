@@ -57,6 +57,10 @@ Background *launcher_icon_bg;
 Imlib_Image scale_icon(Imlib_Image original, int icon_size);
 void free_icon(Imlib_Image icon);
 void launcher_icon_dump_geometry(void *obj, int indent);
+void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon);
+void launcher_reload_icon_image(Launcher *launcher, LauncherIcon *launcherIcon);
+void launcher_reload_hidden_icons(Launcher *launcher);
+void launcher_icon_on_change_layout(void *obj);
 
 void default_launcher()
 {
@@ -143,6 +147,7 @@ void cleanup_launcher_theme(Launcher *launcher)
 			free(launcherIcon->icon_path);
 			free(launcherIcon->cmd);
 			g_free(launcherIcon->icon_tooltip);
+			free(launcherIcon->config_path);
 		}
 		free(launcherIcon);
 	}
@@ -176,61 +181,17 @@ gboolean resize_launcher(void *obj)
 			launcherIcon->icon_size = icon_size;
 			launcherIcon->area.width = launcherIcon->icon_size;
 			launcherIcon->area.height = launcherIcon->icon_size;
-
-			// Get the path for an icon file with the new size
-			char *new_icon_path =
-			    get_icon_path(launcher->icon_theme_wrapper, launcherIcon->icon_name, launcherIcon->icon_size);
-			if (!new_icon_path) {
-				// Draw a blank icon
-				free_icon(launcherIcon->image);
-				free_icon(launcherIcon->image_hover);
-				free_icon(launcherIcon->image_pressed);
-				launcherIcon->image = NULL;
-				continue;
-			}
-
-			// Free the old files
-			free_icon(launcherIcon->image);
-			free_icon(launcherIcon->image_hover);
-			free_icon(launcherIcon->image_pressed);
-			// Load the new file
-			launcherIcon->image = load_image(new_icon_path, 1);
-			// On loading error, fallback to default
-			if (!launcherIcon->image) {
-				free(new_icon_path);
-				new_icon_path = get_icon_path(launcher->icon_theme_wrapper, DEFAULT_ICON, launcherIcon->icon_size);
-				if (new_icon_path)
-					launcherIcon->image = imlib_load_image_immediately(new_icon_path);
-			}
-
-			if (!launcherIcon->image) {
-				// Loading default icon failed, draw a blank icon
-				free(new_icon_path);
-			} else {
-				// Loaded icon successfully, rescale it
-				Imlib_Image original = launcherIcon->image;
-				launcherIcon->image = scale_icon(launcherIcon->image, launcherIcon->icon_size);
-				free_icon(original);
-				free(launcherIcon->icon_path);
-				launcherIcon->icon_path = new_icon_path;
-				fprintf(stderr, "launcher.c %d: Using icon %s\n", __LINE__, launcherIcon->icon_path);
-			}
-		}
-
-		if (panel_config.mouse_effects) {
-			launcherIcon->image_hover = adjust_icon(launcherIcon->image,
-			                                        panel_config.mouse_over_alpha,
-			                                        panel_config.mouse_over_saturation,
-			                                        panel_config.mouse_over_brightness);
-			launcherIcon->image_pressed = adjust_icon(launcherIcon->image,
-			                                          panel_config.mouse_pressed_alpha,
-			                                          panel_config.mouse_pressed_saturation,
-			                                          panel_config.mouse_pressed_brightness);
+			launcher_reload_icon_image(launcher, launcherIcon);
 		}
 	}
 	save_icon_cache(launcher->icon_theme_wrapper);
 
-	int count = g_slist_length(launcher->list_icons);
+	int count = 0;
+	for (GSList *l = launcher->list_icons; l; l = l->next) {
+		LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
+		if (launcherIcon->area.on_screen)
+			count++;
+	}
 
 	if (panel_horizontal) {
 		if (!count) {
@@ -268,17 +229,15 @@ gboolean resize_launcher(void *obj)
 		posy = top_border_width(&launcher->area) + launcher->area.paddingxlr;
 	}
 
-	int i;
-	GSList *l;
-	for (i = 1, l = launcher->list_icons; l; i++, l = l->next) {
+	int i = 0;
+	for (GSList *l = launcher->list_icons; l; l = l->next) {
 		LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
-
+		if (!launcherIcon->area.on_screen)
+			continue;
+		i++;
 		launcherIcon->y = posy;
 		launcherIcon->x = posx;
-		launcherIcon->area.posy = ((Area *)launcherIcon->area.parent)->posy + launcherIcon->y;
-		launcherIcon->area.posx = ((Area *)launcherIcon->area.parent)->posx + launcherIcon->x;
-		launcherIcon->area.width = launcherIcon->icon_size;
-		launcherIcon->area.height = launcherIcon->icon_size;
+		launcher_icon_on_change_layout(launcherIcon);
 		// printf("launcher %d : %d,%d\n", i, posx, posy);
 		if (panel_horizontal) {
 			if (i % icons_per_column) {
@@ -401,6 +360,8 @@ void free_icon(Imlib_Image icon)
 
 void launcher_action(LauncherIcon *icon, XEvent *evt)
 {
+	launcher_reload_icon((Launcher *)icon->area.parent, icon);
+	launcher_reload_hidden_icons((Launcher *)icon->area.parent);
 	char *cmd = calloc(strlen(icon->cmd) + 10, 1);
 	sprintf(cmd, "(%s&)", icon->cmd);
 #if HAVE_SN
@@ -461,53 +422,102 @@ void launcher_load_icons(Launcher *launcher)
 	// Load apps (.desktop style launcher items)
 	GSList *app = launcher->list_apps;
 	while (app != NULL) {
-		DesktopEntry entry;
-		read_desktop_file(app->data, &entry);
-		if (entry.exec) {
-			LauncherIcon *launcherIcon = calloc(1, sizeof(LauncherIcon));
-			launcherIcon->area.panel = launcher->area.panel;
-			snprintf(launcherIcon->area.name,
-			         sizeof(launcherIcon->area.name),
-			         "LauncherIcon %s",
-			         entry.name ? entry.name : "null");
-			launcherIcon->area._draw_foreground = draw_launcher_icon;
-			launcherIcon->area.size_mode = LAYOUT_FIXED;
-			launcherIcon->area._resize = NULL;
-			launcherIcon->area.resize_needed = 0;
-			schedule_redraw(&launcherIcon->area);
-			launcherIcon->area.has_mouse_over_effect = panel_config.mouse_effects;
-			launcherIcon->area.has_mouse_press_effect = launcherIcon->area.has_mouse_over_effect;
-			launcherIcon->area.bg = launcher_icon_bg;
-			launcherIcon->area.on_screen = TRUE;
-			launcherIcon->area._on_change_layout = launcher_icon_on_change_layout;
-			launcherIcon->area._dump_geometry = launcher_icon_dump_geometry;
-			if (launcher_tooltip_enabled) {
-				launcherIcon->area._get_tooltip_text = launcher_icon_get_tooltip_text;
-			} else {
-				launcherIcon->area._get_tooltip_text = NULL;
-			}
-			launcherIcon->is_app_desktop = 1;
-			launcherIcon->cmd = strdup(entry.exec);
-			launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(DEFAULT_ICON);
-			launcherIcon->icon_size = 1;
-			if (entry.name) {
-				if (entry.generic_name) {
-					launcherIcon->icon_tooltip = g_strdup_printf("%s (%s)", entry.name, entry.generic_name);
-				} else {
-					launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.name);
-				}
-			} else {
-				if (entry.generic_name) {
-					launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.generic_name);
-				} else if (entry.exec) {
-					launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.exec);
-				}
-			}
-			launcher->list_icons = g_slist_append(launcher->list_icons, launcherIcon);
-			add_area(&launcherIcon->area, (Area *)launcher);
+		LauncherIcon *launcherIcon = calloc(1, sizeof(LauncherIcon));
+		launcherIcon->area.panel = launcher->area.panel;
+		launcherIcon->area._draw_foreground = draw_launcher_icon;
+		launcherIcon->area.size_mode = LAYOUT_FIXED;
+		launcherIcon->area._resize = NULL;
+		launcherIcon->area.resize_needed = 0;
+		launcherIcon->area.has_mouse_over_effect = panel_config.mouse_effects;
+		launcherIcon->area.has_mouse_press_effect = launcherIcon->area.has_mouse_over_effect;
+		launcherIcon->area.bg = launcher_icon_bg;
+		launcherIcon->area.on_screen = TRUE;
+		launcherIcon->area._on_change_layout = launcher_icon_on_change_layout;
+		launcherIcon->area._dump_geometry = launcher_icon_dump_geometry;
+		if (launcher_tooltip_enabled) {
+			launcherIcon->area._get_tooltip_text = launcher_icon_get_tooltip_text;
+		} else {
+			launcherIcon->area._get_tooltip_text = NULL;
 		}
-		free_desktop_entry(&entry);
+		launcherIcon->config_path = strdup(app->data);
+		add_area(&launcherIcon->area, (Area *)launcher);
+		launcher->list_icons = g_slist_append(launcher->list_icons, launcherIcon);
+		launcher_reload_icon(launcher, launcherIcon);
 		app = g_slist_next(app);
+	}
+}
+
+void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon)
+{
+	DesktopEntry entry;
+	if (read_desktop_file(launcherIcon->config_path, &entry) && entry.exec) {
+		schedule_redraw(&launcherIcon->area);
+		launcherIcon->cmd = strdup(entry.exec);
+		launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(DEFAULT_ICON);
+		if (entry.name) {
+			if (entry.generic_name) {
+				launcherIcon->icon_tooltip = g_strdup_printf("%s (%s)", entry.name, entry.generic_name);
+			} else {
+				launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.name);
+			}
+		} else {
+			if (entry.generic_name) {
+				launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.generic_name);
+			} else if (entry.exec) {
+				launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.exec);
+			}
+		}
+		launcher_reload_icon_image(launcher, launcherIcon);
+		if (!launcherIcon->area.on_screen)
+			show(&launcherIcon->area);
+	} else {
+		hide(&launcherIcon->area);
+	}
+	free_desktop_entry(&entry);
+}
+
+void launcher_reload_hidden_icons(Launcher *launcher)
+{
+	for (GSList *l = launcher->list_icons; l; l = l->next) {
+		LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
+		if (!launcherIcon->area.on_screen)
+			launcher_reload_icon(launcher, launcherIcon);
+	}
+}
+
+void launcher_reload_icon_image(Launcher *launcher, LauncherIcon *launcherIcon)
+{
+	free_icon(launcherIcon->image);
+	free_icon(launcherIcon->image_hover);
+	free_icon(launcherIcon->image_pressed);
+	launcherIcon->image = NULL;
+
+	char *new_icon_path = get_icon_path(launcher->icon_theme_wrapper, launcherIcon->icon_name, launcherIcon->icon_size);
+	if (new_icon_path)
+		launcherIcon->image = load_image(new_icon_path, 1);
+	// On loading error, fallback to default
+	if (!launcherIcon->image) {
+		free(new_icon_path);
+		new_icon_path = get_icon_path(launcher->icon_theme_wrapper, DEFAULT_ICON, launcherIcon->icon_size);
+		if (new_icon_path)
+			launcherIcon->image = imlib_load_image_immediately(new_icon_path);
+	}
+	Imlib_Image original = launcherIcon->image;
+	launcherIcon->image = scale_icon(launcherIcon->image, launcherIcon->icon_size);
+	free_icon(original);
+	free(launcherIcon->icon_path);
+	launcherIcon->icon_path = new_icon_path;
+	// fprintf(stderr, "launcher.c %d: Using icon %s\n", __LINE__, launcherIcon->icon_path);
+
+	if (panel_config.mouse_effects) {
+		launcherIcon->image_hover = adjust_icon(launcherIcon->image,
+												panel_config.mouse_over_alpha,
+												panel_config.mouse_over_saturation,
+												panel_config.mouse_over_brightness);
+		launcherIcon->image_pressed = adjust_icon(launcherIcon->image,
+												  panel_config.mouse_pressed_alpha,
+												  panel_config.mouse_pressed_saturation,
+												  panel_config.mouse_pressed_brightness);
 	}
 }
 
