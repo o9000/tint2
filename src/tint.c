@@ -37,10 +37,10 @@
 #include <pwd.h>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 
 #ifdef HAVE_SN
 #include <libsn/sn.h>
-#include <sys/wait.h>
 #endif
 
 #include <version.h>
