@@ -487,7 +487,7 @@ void init_X11_post_config()
 			fcntl(sn_pipe[0], F_SETFL, O_NONBLOCK | fcntl(sn_pipe[0], F_GETFL));
 			fcntl(sn_pipe[1], F_SETFL, O_NONBLOCK | fcntl(sn_pipe[1], F_GETFL));
 			sn_pipe_valid = 1;
-			struct sigaction act = {.sa_handler = sigchld_handler, .sa_flags = SA_NOCLDWAIT | SA_RESTART};
+			struct sigaction act = {.sa_handler = sigchld_handler, .sa_flags = SA_RESTART};
 			if (sigaction(SIGCHLD, &act, 0)) {
 				perror("sigaction");
 			}
