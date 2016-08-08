@@ -305,6 +305,7 @@ void free_themes(IconThemeWrapper *wrapper)
 {
 	if (!wrapper)
 		return;
+	free(wrapper->icon_theme_name);
 	for (GSList *l = wrapper->themes; l; l = l->next) {
 		IconTheme *theme = (IconTheme *)l->data;
 		free_icon_theme(theme);

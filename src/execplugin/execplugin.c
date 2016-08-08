@@ -59,6 +59,9 @@ void destroy_execp(void *obj)
 		// This is a frontend element
 		execp->backend->instances = g_list_remove_all(execp->backend->instances, execp);
 		free_and_null(execp->frontend);
+		remove_area(&execp->area);
+		free_area(&execp->area);
+		free_and_null(execp);
 	} else {
 		// This is a backend element
 		stop_timeout(execp->backend->timer);

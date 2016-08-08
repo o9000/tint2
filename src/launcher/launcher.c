@@ -452,7 +452,11 @@ void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon)
 	DesktopEntry entry;
 	if (read_desktop_file(launcherIcon->config_path, &entry) && entry.exec) {
 		schedule_redraw(&launcherIcon->area);
+		if (launcherIcon->cmd)
+			free(launcherIcon->cmd);
 		launcherIcon->cmd = strdup(entry.exec);
+		if (launcherIcon->icon_name)
+			free(launcherIcon->icon_name);
 		launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(DEFAULT_ICON);
 		if (entry.name) {
 			if (entry.generic_name) {
