@@ -416,7 +416,7 @@ static void sigchld_handler_async()
 	// Wait for all dead processes
 	pid_t pid;
 	int status;
-	while ((pid = waitpid(-1, &status, WNOHANG)) != -1) {
+	while ((pid = waitpid(-1, &status, WNOHANG)) != -1 && pid != 0) {
 #ifdef HAVE_SN
 		SnLauncherContext *ctx = (SnLauncherContext *)g_tree_lookup(server.pids, GINT_TO_POINTER(pid));
 		if (ctx) {
