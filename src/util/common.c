@@ -673,3 +673,13 @@ GSList *slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr
 
 	return new_list;
 }
+
+gint cmp_ptr(gconstpointer a, gconstpointer b)
+{
+	if (a < b)
+		return -1;
+	else if (a == b)
+		return 0;
+	else
+		return 1;
+}

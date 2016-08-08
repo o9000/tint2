@@ -70,6 +70,7 @@ typedef struct ExecpBackend {
 
 	// List of Execp which are frontends for this backend, one for each panel
 	GList *instances;
+	GTree *cmd_pids;
 } ExecpBackend;
 
 typedef struct ExecpFrontend {
@@ -129,6 +130,8 @@ gboolean resize_execp(void *obj);
 
 // Called on mouse click event.
 void execp_action(void *obj, int button, int x, int y);
+
+void execp_cmd_completed(Execp *obj, pid_t pid);
 
 // Called to check if new output from the command can be read.
 // No command might be running.

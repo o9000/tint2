@@ -18,6 +18,7 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
+#include <errno.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -376,8 +377,8 @@ void init(int argc, char *argv[])
 	debug_geometry = getenv("DEBUG_GEOMETRY") != NULL;
 }
 
-static int sn_pipe_valid = 0;
-static int sn_pipe[2];
+static int sigchild_pipe_valid = FALSE;
+static int sigchild_pipe[2];
 
 #ifdef HAVE_SN
 static int error_trap_depth = 0;
@@ -397,49 +398,40 @@ static void error_trap_pop(SnDisplay *display, Display *xdisplay)
 	XSync(xdisplay, False); /* get all errors out of the queue */
 	--error_trap_depth;
 }
+#endif // HAVE_SN
 
 static void sigchld_handler(int sig)
 {
-	if (!startup_notifications)
+	if (!sigchild_pipe_valid)
 		return;
-	if (!sn_pipe_valid)
-		return;
-	ssize_t wur = write(sn_pipe[1], "x", 1);
-	(void)wur;
-	fsync(sn_pipe[1]);
+	int savedErrno = errno;
+	ssize_t unused = write(sigchild_pipe[1], "x", 1);
+	(void)unused;
+	fsync(sigchild_pipe[1]);
+	errno = savedErrno;
 }
 
 static void sigchld_handler_async()
 {
-	if (!startup_notifications)
-		return;
 	// Wait for all dead processes
 	pid_t pid;
-	while ((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
-		SnLauncherContext *ctx;
-		ctx = (SnLauncherContext *)g_tree_lookup(server.pids, GINT_TO_POINTER(pid));
+	int status;
+	while ((pid = waitpid(-1, &status, WNOHANG)) != -1) {
+#ifdef HAVE_SN
+		SnLauncherContext *ctx = (SnLauncherContext *)g_tree_lookup(server.pids, GINT_TO_POINTER(pid));
 		if (ctx) {
 			g_tree_remove(server.pids, GINT_TO_POINTER(pid));
 			sn_launcher_context_complete(ctx);
 			sn_launcher_context_unref(ctx);
 		}
+#endif
+		for (GList *l = panel_config.execp_list; l; l = l->next) {
+			Execp *execp = (Execp *)l->data;
+			if (g_tree_lookup(execp->backend->cmd_pids, GINT_TO_POINTER(pid)))
+				execp_cmd_completed(execp, pid);
+		}
 	}
 }
-
-static gint cmp_ptr(gconstpointer a, gconstpointer b)
-{
-	if (a < b)
-		return -1;
-	else if (a == b)
-		return 0;
-	else
-		return 1;
-}
-#else
-static void sigchld_handler_async()
-{
-}
-#endif // HAVE_SN
 
 void init_X11_pre_config()
 {
@@ -475,25 +467,32 @@ void init_X11_post_config()
 {
 	server_init_visual();
 
+	gboolean need_sigchld = FALSE;
 #ifdef HAVE_SN
 	// Initialize startup-notification
 	if (startup_notifications) {
 		server.sn_display = sn_display_new(server.display, error_trap_push, error_trap_pop);
 		server.pids = g_tree_new(cmp_ptr);
+		need_sigchld = TRUE;
+	}
+#endif // HAVE_SN
+	if (panel_config.execp_list)
+		need_sigchld = TRUE;
+
+	if (need_sigchld) {
 		// Setup a handler for child termination
-		if (pipe(sn_pipe) != 0) {
+		if (pipe(sigchild_pipe) != 0) {
 			fprintf(stderr, "Creating pipe failed.\n");
 		} else {
-			fcntl(sn_pipe[0], F_SETFL, O_NONBLOCK | fcntl(sn_pipe[0], F_GETFL));
-			fcntl(sn_pipe[1], F_SETFL, O_NONBLOCK | fcntl(sn_pipe[1], F_GETFL));
-			sn_pipe_valid = 1;
+			fcntl(sigchild_pipe[0], F_SETFL, O_NONBLOCK | fcntl(sigchild_pipe[0], F_GETFL));
+			fcntl(sigchild_pipe[1], F_SETFL, O_NONBLOCK | fcntl(sigchild_pipe[1], F_GETFL));
+			sigchild_pipe_valid = 1;
 			struct sigaction act = {.sa_handler = sigchld_handler, .sa_flags = SA_RESTART};
 			if (sigaction(SIGCHLD, &act, 0)) {
 				perror("sigaction");
 			}
 		}
 	}
-#endif // HAVE_SN
 
 	imlib_context_set_display(server.display);
 	imlib_context_set_visual(server.visual);
@@ -543,15 +542,11 @@ void cleanup()
 		XCloseDisplay(server.display);
 	server.display = NULL;
 
-#ifdef HAVE_SN
-	if (startup_notifications) {
-		if (sn_pipe_valid) {
-			sn_pipe_valid = 0;
-			close(sn_pipe[1]);
-			close(sn_pipe[0]);
-		}
+	if (sigchild_pipe_valid) {
+		sigchild_pipe_valid = FALSE;
+		close(sigchild_pipe[1]);
+		close(sigchild_pipe[0]);
 	}
-#endif
 
 	uevent_cleanup();
 }
@@ -1641,9 +1636,9 @@ start:
 		FD_ZERO(&fdset);
 		FD_SET(x11_fd, &fdset);
 		int maxfd = x11_fd;
-		if (sn_pipe_valid) {
-			FD_SET(sn_pipe[0], &fdset);
-			maxfd = maxfd < sn_pipe[0] ? sn_pipe[0] : maxfd;
+		if (sigchild_pipe_valid) {
+			FD_SET(sigchild_pipe[0], &fdset);
+			maxfd = maxfd < sigchild_pipe[0] ? sigchild_pipe[0] : maxfd;
 		}
 		for (GList *l = panel_config.execp_list; l; l = l->next) {
 			Execp *execp = (Execp *)l->data;
@@ -1664,9 +1659,9 @@ start:
 		if (XPending(server.display) > 0 || select(maxfd + 1, &fdset, 0, 0, select_timeout) >= 0) {
 			uevent_handler();
 
-			if (sn_pipe_valid) {
+			if (sigchild_pipe_valid) {
 				char buffer[1];
-				while (read(sn_pipe[0], buffer, sizeof(buffer)) > 0) {
+				while (read(sigchild_pipe[0], buffer, sizeof(buffer)) > 0) {
 					sigchld_handler_async();
 				}
 			}

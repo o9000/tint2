@@ -120,6 +120,9 @@ GSList *load_locations_from_env(GSList *locations, const char *var, ...);
 
 GSList *slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr);
 
+// A trivial pointer comparator.
+gint cmp_ptr(gconstpointer a, gconstpointer b);
+
 #define free_and_null(p) \
 	{                    \
 		free(p);         \

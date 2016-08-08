@@ -140,6 +140,11 @@ void cleanup_server()
 		XFreeGC(server.display, server.gc);
 	server.gc = NULL;
 	server.disable_transparency = FALSE;
+#ifdef HAVE_SN
+	if (server.pids)
+		g_tree_destroy(server.pids);
+	server.pids = NULL;
+#endif
 }
 
 void send_event32(Window win, Atom at, long data1, long data2, long data3)
