@@ -48,7 +48,7 @@ void copy_file(const char *path_src, const char *path_dest);
 // Strips key and value.
 // Values may contain spaces and the equal sign.
 // Returns 1 if both key and value could be read, zero otherwise.
-int parse_line(const char *line, char **key, char **value);
+gboolean parse_line(const char *line, char **key, char **value);
 
 void extract_values(const char *value, char **value1, char **value2, char **value3);
 

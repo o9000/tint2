@@ -73,15 +73,15 @@ void copy_file(const char *path_src, const char *path_dest)
 	fclose(file_src);
 }
 
-int parse_line(const char *line, char **key, char **value)
+gboolean parse_line(const char *line, char **key, char **value)
 {
 	char *a, *b;
 
 	/* Skip useless lines */
 	if ((line[0] == '#') || (line[0] == '\n'))
-		return 0;
+		return FALSE;
 	if (!(a = strchr(line, '=')))
-		return 0;
+		return FALSE;
 
 	/* overwrite '=' with '\0' */
 	a[0] = '\0';
@@ -96,7 +96,7 @@ int parse_line(const char *line, char **key, char **value)
 
 	g_strstrip(*key);
 	g_strstrip(*value);
-	return 1;
+	return TRUE;
 }
 
 void tint_exec(const char *command)
