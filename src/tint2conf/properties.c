@@ -121,6 +121,9 @@ GtkWidget *tooltip_task_show, *tooltip_show_after, *tooltip_hide_after;
 GtkWidget *clock_format_tooltip, *clock_tmz_tooltip;
 GtkWidget *tooltip_background;
 
+// Separators
+GArray *separators;
+
 // Executors
 GArray *executors;
 
@@ -186,6 +189,7 @@ void create_task_status(GtkWidget *notebook,
 						GtkWidget **task_status_icon_brightness,
 						GtkWidget **task_status_background,
 						GtkWidget **task_status_background_set);
+void create_separator(GtkWidget *parent, int i);
 void create_execp(GtkWidget *parent, int i);
 void create_clock(GtkWidget *parent);
 void create_systemtray(GtkWidget *parent);
@@ -257,6 +261,7 @@ GtkWidget *create_properties()
 	tooltips = gtk_tooltips_new();
 	(void) tooltips;
 
+	separators = g_array_new(FALSE, TRUE, sizeof(Separator));
 	executors = g_array_new(FALSE, TRUE, sizeof(Executor));
 
 	// global layer
@@ -1791,6 +1796,11 @@ void create_panel_items(GtkWidget *parent)
 					   -1);
 	gtk_list_store_append(all_items, &iter);
 	gtk_list_store_set(all_items, &iter,
+					  itemsColName, _("Separator"),
+					  itemsColValue, ":",
+					  -1);
+	gtk_list_store_append(all_items, &iter);
+	gtk_list_store_set(all_items, &iter,
 					   itemsColName, _("Executor"),
 					   itemsColValue, "E",
 					   -1);
@@ -1952,7 +1962,9 @@ void set_panel_items(const char *items)
 {
 	gtk_list_store_clear(panel_items);
 
+	int separator_index = -1;
 	int execp_index = -1;
+
 	for (; items && *items; items++) {
 		const char *value = NULL;
 		const char *name = NULL;
@@ -1977,6 +1989,12 @@ void set_panel_items(const char *items)
 		} else if (v == 'F') {
 			value = "F";
 			name = _("Free space");
+		} else if (v == ':') {
+			separator_index++;
+			buffer[0] = 0;
+			sprintf(buffer, "%s %d", _("Separator"), separator_index + 1);
+			name = buffer;
+			value = ":";
 		} else if (v == 'E') {
 			execp_index++;
 			buffer[0] = 0;
@@ -2010,7 +2028,17 @@ void panel_add_item(GtkWidget *widget, gpointer data)
 						   itemsColValue, &value,
 						   -1);
 
-		if (!panel_contains(value) || g_str_equal(value, "E")) {
+		if (!panel_contains(value) || g_str_equal(value, ":")) {
+			GtkTreeIter iter;
+			gtk_list_store_append(panel_items, &iter);
+			gtk_list_store_set(panel_items, &iter,
+							   itemsColName, g_strdup(name),
+							   itemsColValue, g_strdup(value),
+							   -1);
+			if (g_str_equal(value, ":")) {
+				separator_create_new();
+			}
+		} else if (!panel_contains(value) || g_str_equal(value, "E")) {
 			GtkTreeIter iter;
 			gtk_list_store_append(panel_items, &iter);
 			gtk_list_store_set(panel_items, &iter,
@@ -2022,6 +2050,7 @@ void panel_add_item(GtkWidget *widget, gpointer data)
 			}
 		}
 	}
+	separator_update_indices();
 	execp_update_indices();
 }
 
@@ -2039,7 +2068,15 @@ void panel_remove_item(GtkWidget *widget, gpointer data)
 						   itemsColValue, &value,
 						   -1);
 
-		if (g_str_equal(value, "E")) {
+		if (g_str_equal(value, ":")) {
+			for (int i = 0; i < separators->len; i++) {
+				Separator *separator = &g_array_index(separators, Separator, i);
+				if (g_str_equal(name, separator->name)) {
+					separator_remove(i);
+					break;
+				}
+			}
+		} else if (g_str_equal(value, "E")) {
 			for (int i = 0; i < executors->len; i++) {
 				Executor *executor = &g_array_index(executors, Executor, i);
 				if (g_str_equal(name, executor->name)) {
@@ -2052,6 +2089,7 @@ void panel_remove_item(GtkWidget *widget, gpointer data)
 		gtk_list_store_remove(panel_items, &iter);
 	}
 
+	separator_update_indices();
 	execp_update_indices();
 }
 
@@ -2076,7 +2114,22 @@ void panel_move_item_down(GtkWidget *widget, gpointer data)
 							   itemsColValue, &value2,
 							   -1);
 
-			if (g_str_equal(value1, "E") && g_str_equal(value2, "E")) {
+			if (g_str_equal(value1, ":") && g_str_equal(value2, ":")) {
+				Separator *separator1 = NULL;
+				Separator *separator2 = NULL;
+				for (int i = 0; i < separators->len; i++) {
+					Separator *separator = &g_array_index(separators, Separator, i);
+					if (g_str_equal(name1, separator->name)) {
+						separator1 = separator;
+					}
+					if (g_str_equal(name2, separator->name)) {
+						separator2 = separator;
+					}
+				}
+				Separator tmp = *separator1;
+				*separator1 = *separator2;
+				*separator2 = tmp;
+			} else if (g_str_equal(value1, "E") && g_str_equal(value2, "E")) {
 				Executor *executor1 = NULL;
 				Executor *executor2 = NULL;
 				for (int i = 0; i < executors->len; i++) {
@@ -2096,6 +2149,7 @@ void panel_move_item_down(GtkWidget *widget, gpointer data)
 			gtk_list_store_swap(panel_items, &iter, &next);
 		}
 	}
+	separator_update_indices();
 	execp_update_indices();
 }
 
@@ -2121,7 +2175,22 @@ void panel_move_item_up(GtkWidget *widget, gpointer data)
 								   itemsColValue, &value2,
 								   -1);
 
-				if (g_str_equal(value1, "E") && g_str_equal(value2, "E")) {
+				if (g_str_equal(value1, ":") && g_str_equal(value2, ":")) {
+					Separator *separator1 = NULL;
+					Separator *separator2 = NULL;
+					for (int i = 0; i < separators->len; i++) {
+						Separator *separator = &g_array_index(separators, Separator, i);
+						if (g_str_equal(name1, separator->name)) {
+							separator1 = separator;
+						}
+						if (g_str_equal(name2, separator->name)) {
+							separator2 = separator;
+						}
+					}
+					Separator tmp = *separator1;
+					*separator1 = *separator2;
+					*separator2 = tmp;
+				} else if (g_str_equal(value1, "E") && g_str_equal(value2, "E")) {
 					Executor *executor1 = NULL;
 					Executor *executor2 = NULL;
 					for (int i = 0; i < executors->len; i++) {
@@ -2142,6 +2211,7 @@ void panel_move_item_up(GtkWidget *widget, gpointer data)
 			}
 		}
 	}
+	separator_update_indices();
 	execp_update_indices();
 }
 
@@ -4354,6 +4424,76 @@ void create_clock(GtkWidget *parent)
 	change_paragraph(parent);
 }
 
+void create_separator(GtkWidget *notebook, int i)
+{
+	GtkWidget *label;
+	GtkWidget *table;
+	int row, col;
+	GtkTooltips *tooltips = gtk_tooltips_new();
+
+	Separator *separator = &g_array_index(separators, Separator, i);
+
+	separator->name[0] = 0;
+	sprintf(separator->name, "%s %d", _("Separator"), i + 1);
+	separator->page_label = gtk_label_new(separator->name);
+	gtk_widget_show(separator->page_label);
+	separator->page_separator = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
+	separator->container = addScrollBarToWidget(separator->page_separator);
+	gtk_container_set_border_width(GTK_CONTAINER(separator->page_separator), 10);
+	gtk_widget_show(separator->page_separator);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), separator->container, separator->page_label);
+
+	GtkWidget *parent = separator->page_separator;
+
+	table = gtk_table_new(1, 2, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
+
+	label = gtk_label_new(_("<b>Format</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
+
+	table = gtk_table_new(3, 10, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
+
+	label = gtk_label_new(_("Foreground color"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	separator->separator_color = gtk_color_button_new();
+	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(separator->separator_color), TRUE);
+	gtk_widget_show(separator->separator_color);
+	gtk_table_attach(GTK_TABLE(table), separator->separator_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, separator->separator_color, _("Specifies separator's color."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Separator style"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	separator->separator_style = gtk_spin_button_new_with_range(0, 6, 1);
+	gtk_widget_show(separator->separator_style);
+	gtk_table_attach(GTK_TABLE(table), separator->separator_style, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, separator->separator_style, _("Specifies separator's appearance. 0 is empty/invisible separator."), NULL);
+
+	change_paragraph(parent);
+}
+
 void create_execp(GtkWidget *notebook, int i)
 {
 	GtkWidget *label;
@@ -4730,10 +4870,23 @@ void create_execp(GtkWidget *notebook, int i)
 	change_paragraph(parent);
 }
 
+void separator_create_new()
+{
+	g_array_set_size(separators, separators->len + 1);
+	create_separator(notebook, separators->len - 1);
+}
+
 void execp_create_new()
 {
 	g_array_set_size(executors, executors->len + 1);
 	create_execp(notebook, executors->len - 1);
+}
+
+Separator *separator_get_last()
+{
+	if (separators->len <= 0)
+		separator_create_new();
+	return &g_array_index(separators, Separator, separators->len - 1);
 }
 
 Executor *execp_get_last()
@@ -4741,6 +4894,21 @@ Executor *execp_get_last()
 	if (executors->len <= 0)
 		execp_create_new();
 	return &g_array_index(executors, Executor, executors->len - 1);
+}
+
+void separator_remove(int i)
+{
+	Separator *separator = &g_array_index(separators, Separator, i);
+
+	for (int i_page = 0; i_page < gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook)); i_page++) {
+		GtkWidget *page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), i_page);
+		if (page == separator->container) {
+			gtk_widget_hide(page);
+			gtk_notebook_remove_page(GTK_NOTEBOOK(notebook), i_page);
+		}
+	}
+
+	separators = g_array_remove_index(separators, i);
 }
 
 void execp_remove(int i)
@@ -4756,6 +4924,43 @@ void execp_remove(int i)
 	}
 
 	executors = g_array_remove_index(executors, i);
+}
+
+void separator_update_indices()
+{
+	for (int i = 0; i < separators->len; i++) {
+		Separator *separator = &g_array_index(separators, Separator, i);
+		sprintf(separator->name, "%s %d", _("Separator"), i + 1);
+		gtk_label_set_text(GTK_LABEL(separator->page_label), separator->name);
+	}
+
+	GtkTreeModel *model = GTK_TREE_MODEL(panel_items);
+	GtkTreeIter iter;
+	if (!gtk_tree_model_get_iter_first(model, &iter))
+		return;
+	int separator_index = -1;
+	while (1) {
+		gchar *name;
+		gchar *value;
+		gtk_tree_model_get(model, &iter,
+						   itemsColName, &name,
+						   itemsColValue, &value,
+						   -1);
+
+		if (g_str_equal(value, ":")) {
+			separator_index++;
+			char buffer[256];
+			buffer[0] = 0;
+			sprintf(buffer, "%s %d", _("Separator"), separator_index + 1);
+
+			gtk_list_store_set(panel_items, &iter,
+							   itemsColName, buffer,
+							   -1);
+		}
+
+		if (!gtk_tree_model_iter_next(model, &iter))
+			break;
+	}
 }
 
 void execp_update_indices()

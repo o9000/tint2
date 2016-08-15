@@ -670,6 +670,26 @@ void config_write_battery(FILE *fp)
 	fprintf(fp, "\n");
 }
 
+void config_write_separator(FILE *fp)
+{
+	for (int i = 0; i < separators->len; i++) {
+		fprintf(fp, "#-------------------------------------\n");
+		fprintf(fp, "# Separator %d\n", i + 1);
+
+		Separator *separator = &g_array_index(separators, Separator, i);
+
+		fprintf(fp, "separator = new\n");
+		GdkColor color;
+		gtk_color_button_get_color(GTK_COLOR_BUTTON(separator->separator_color), &color);
+		config_write_color(fp,
+					   "separator_color",
+					   color,
+					   gtk_color_button_get_alpha(GTK_COLOR_BUTTON(separator->separator_color)) * 100 / 0xffff);
+		fprintf(fp, "separator_style = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(separator->separator_style)));
+		fprintf(fp, "\n");
+	}
+}
+
 void config_write_execp(FILE *fp)
 {
 	for (int i = 0; i < executors->len; i++) {
@@ -789,6 +809,7 @@ void config_save_file(const char *path) {
 	config_write_launcher(fp);
 	config_write_clock(fp);
 	config_write_battery(fp);
+	config_write_separator(fp);
 	config_write_execp(fp);
 	config_write_tooltip(fp);
 
@@ -1673,6 +1694,24 @@ void add_entry(char *key, char *value)
 	}
 	else if (strcmp(key, "mouse_scroll_down") == 0) {
 		set_action(value, task_mouse_scroll_down);
+	}
+
+	/* Separator */
+	else if (strcmp(key, "separator") == 0) {
+		separator_create_new();
+	}
+	else if (strcmp(key, "separator_color") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		GdkColor col;
+		hex2gdk(value1, &col);
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(separator_get_last()->separator_color), &col);
+		if (value2) {
+			int alpha = atoi(value2);
+			gtk_color_button_set_alpha(GTK_COLOR_BUTTON(separator_get_last()->separator_color), (alpha*65535)/100);
+		}
+	}
+	else if (strcmp(key, "separator_style") == 0) {
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->separator_style), atoi(value));
 	}
 
 	/* Executor */

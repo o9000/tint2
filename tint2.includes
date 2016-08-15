@@ -21,5 +21,6 @@ po
 src/tint2conf/po
 src/freespace
 src/execplugin
+src/separator
 themes
 doc

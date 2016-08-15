@@ -22,6 +22,7 @@
 #include "launcher.h"
 #include "freespace.h"
 #include "execplugin.h"
+#include "separator.h"
 
 #ifdef ENABLE_BATTERY
 #include "battery.h"
@@ -127,6 +128,7 @@ typedef struct Panel {
 
 	Launcher launcher;
 	FreeSpace freespace;
+	GList *separator_list;
 	GList *execp_list;
 
 	// Autohide

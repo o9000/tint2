@@ -51,6 +51,7 @@
 #include "window.h"
 #include "tooltip.h"
 #include "timer.h"
+#include "separator.h"
 #include "execplugin.h"
 
 #ifdef ENABLE_BATTERY
@@ -199,6 +200,15 @@ void load_launcher_app_dir(const char *path)
 		g_free(file);
 	}
 	g_list_free(files);
+}
+
+Separator *get_or_create_last_separator()
+{
+	if (!panel_config.separator_list) {
+		fprintf(stderr, "Warning: separator items should shart with 'separator = new'\n");
+		panel_config.separator_list = g_list_append(panel_config.separator_list, create_separator());
+	}
+	return (Separator *)g_list_last(panel_config.separator_list)->data;
 }
 
 Execp *get_or_create_last_execp()
@@ -524,6 +534,22 @@ void add_entry(char *key, char *value)
 #ifdef ENABLE_BATTERY
 		battery_tooltip_enabled = atoi(value);
 #endif
+	}
+
+	/* Separator */
+	else if (strcmp(key, "separator") == 0) {
+		panel_config.separator_list = g_list_append(panel_config.separator_list, create_separator());
+	} else if (strcmp(key, "separator_color") == 0) {
+		Separator *separator = get_or_create_last_separator();
+		extract_values(value, &value1, &value2, &value3);
+		get_color(value1, separator->color.rgb);
+		if (value2)
+			separator->color.alpha = (atoi(value2) / 100.0);
+		else
+			separator->color.alpha = 0.5;
+	} else if (strcmp(key, "separator_style") == 0) {
+		Separator *separator = get_or_create_last_separator();
+		separator->style = atoi(value);
 	}
 
 	/* Execp */

@@ -87,6 +87,7 @@ include_directories( ${PROJECT_BINARY_DIR}
                      src/util
                      src/execplugin
                      src/freespace
+                     src/separator
                      ${X11_INCLUDE_DIRS}
                      ${PANGOCAIRO_INCLUDE_DIRS}
                      ${PANGO_INCLUDE_DIRS}
@@ -114,6 +115,7 @@ set( SOURCES src/config.c
              src/tooltip/tooltip.c
              src/execplugin/execplugin.c
              src/freespace/freespace.c
+             src/separator/separator.c
              src/util/area.c
              src/util/common.c
              src/util/strnatcmp.c

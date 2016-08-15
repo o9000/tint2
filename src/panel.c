@@ -171,6 +171,7 @@ void init_panel()
 	init_battery();
 #endif
 	init_taskbar();
+	init_separator();
 	init_execp();
 
 	// number of panels (one monitor or 'all' monitors)
@@ -204,6 +205,7 @@ void init_panel()
 		p->area.size_mode = LAYOUT_DYNAMIC;
 		p->area._resize = resize_panel;
 		p->area._clear = panel_clear_background;
+		p->separator_list = NULL;
 		init_panel_size_and_position(p);
 		// add children according to panel_items
 		for (int k = 0; k < strlen(panel_items_order); k++) {
@@ -223,6 +225,8 @@ void init_panel()
 				init_clock_panel(p);
 			if (panel_items_order[k] == 'F' && !strstr(panel_items_order, "T"))
 				init_freespace_panel(p);
+			if (panel_items_order[k] == ':')
+				init_separator_panel(p);
 			if (panel_items_order[k] == 'E')
 				init_execp_panel(p);
 		}
@@ -552,6 +556,7 @@ void set_panel_items_order(Panel *p)
 	}
 
 	int i_execp = 0;
+	int i_separator = 0;
 	for (int k = 0; k < strlen(panel_items_order); k++) {
 		if (panel_items_order[k] == 'L') {
 			p->area.children = g_list_append(p->area.children, &p->launcher);
@@ -573,6 +578,12 @@ void set_panel_items_order(Panel *p)
 			p->area.children = g_list_append(p->area.children, &p->clock);
 		if (panel_items_order[k] == 'F')
 			p->area.children = g_list_append(p->area.children, &p->freespace);
+		if (panel_items_order[k] == ':') {
+			GList *item = g_list_nth(p->separator_list, i_separator);
+			i_separator++;
+			if (item)
+				p->area.children = g_list_append(p->area.children, (Area *)item->data);
+		}
 		if (panel_items_order[k] == 'E') {
 			GList *item = g_list_nth(p->execp_list, i_execp);
 			i_execp++;

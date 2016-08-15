@@ -119,6 +119,19 @@ extern GtkWidget *tooltip_task_show, *tooltip_show_after, *tooltip_hide_after;
 extern GtkWidget *clock_format_tooltip, *clock_tmz_tooltip;
 extern GtkWidget *tooltip_background;
 
+// Separator
+typedef struct Separator {
+	char name[256];
+	GtkWidget *container;
+	GtkWidget *page_separator;
+	GtkWidget *page_label;
+	GtkWidget *separator_background;
+	GtkWidget *separator_color;
+	GtkWidget *separator_style;
+} Separator;
+
+extern GArray *separators;
+
 // Executor
 typedef struct Executor {
 	char name[256];
@@ -207,6 +220,11 @@ void background_force_update();
 int background_index_safe(int index);
 
 GtkWidget *create_properties();
+
+void separator_create_new();
+Separator *separator_get_last();
+void separator_remove(int i);
+void separator_update_indices();
 
 void execp_create_new();
 Executor *execp_get_last();
