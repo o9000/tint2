@@ -71,6 +71,8 @@ char *snapshot_path;
 // detect if it's an old config file (==1)
 static gboolean new_config_file;
 
+static gboolean read_bg_color2;
+static gboolean read_bg_gradient;
 static gboolean read_bg_color_hover;
 static gboolean read_border_color_hover;
 static gboolean read_bg_color_press;
@@ -229,6 +231,10 @@ void add_entry(char *key, char *value)
 		// 'rounded' is the first parameter => alloc a new background
 		if (backgrounds->len > 0) {
 			Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
+			if (!read_bg_color2)
+				memcpy(&bg->fill_color2, &bg->fill_color, sizeof(Color));
+			if (!read_bg_gradient)
+				bg->gradient = 0;
 			if (!read_bg_color_hover)
 				memcpy(&bg->fill_color_hover, &bg->fill_color, sizeof(Color));
 			if (!read_border_color_hover)
@@ -242,6 +248,8 @@ void add_entry(char *key, char *value)
 		init_background(&bg);
 		bg.border.radius = atoi(value);
 		g_array_append_val(backgrounds, bg);
+		read_bg_color2 = 0;
+		read_bg_gradient = 0;
 		read_bg_color_hover = 0;
 		read_border_color_hover = 0;
 		read_bg_color_press = 0;
@@ -269,6 +277,19 @@ void add_entry(char *key, char *value)
 			bg->fill_color.alpha = (atoi(value2) / 100.0);
 		else
 			bg->fill_color.alpha = 0.5;
+	} else if (strcmp(key, "background_color2") == 0) {
+		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
+		extract_values(value, &value1, &value2, &value3);
+		get_color (value1, bg->fill_color2.rgb);
+		if (value2)
+			bg->fill_color2.alpha = (atoi (value2) / 100.0);
+		else
+			bg->fill_color2.alpha = 0.5;
+		read_bg_color2 = 1;
+	} else if (strcmp(key, "gradient") == 0) {
+		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
+		bg->gradient = atoi(value);
+		read_bg_gradient = 1;
 	} else if (strcmp(key, "border_color") == 0) {
 		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
 		extract_values(value, &value1, &value2, &value3);
@@ -1154,6 +1175,10 @@ gboolean config_read_file(const char *path)
 
 	if (backgrounds->len > 0) {
 		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
+		if (!read_bg_color2)
+			memcpy(&bg->fill_color2, &bg->fill_color, sizeof(Color));
+		if (!read_bg_gradient)
+			bg->gradient = 0;
 		if (!read_bg_color_hover)
 			memcpy(&bg->fill_color_hover, &bg->fill_color, sizeof(Color));
 		if (!read_border_color_hover)

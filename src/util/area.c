@@ -438,9 +438,18 @@ void draw(Area *a)
 
 void draw_background(Area *a, cairo_t *c)
 {
-	if (a->bg->fill_color.alpha > 0.0 ||
-	    (panel_config.mouse_effects && (a->has_mouse_over_effect || a->has_mouse_press_effect))) {
-		if (a->mouse_state == MOUSE_OVER)
+	if ((a->bg->fill_color.alpha > 0.0) ||
+	    (panel_config.mouse_effects && (a->has_mouse_over_effect || a->has_mouse_press_effect)) ||
+	    (area_has_gradient_fill(a))) {
+
+		cairo_pattern_t *cairo_gradient_pattern;
+
+		if (area_has_gradient_fill(a)) {
+			cairo_gradient_pattern = cairo_pattern_create_linear(0.0, 0.0, 0.0, a->height - top_bottom_border_width(a));
+			cairo_pattern_add_color_stop_rgba(cairo_gradient_pattern, 0.1, a->bg->fill_color.rgb[0], a->bg->fill_color.rgb[1], a->bg->fill_color.rgb[2], a->bg->fill_color.alpha);
+			cairo_pattern_add_color_stop_rgba(cairo_gradient_pattern, 0.9, a->bg->fill_color2.rgb[0], a->bg->fill_color2.rgb[1], a->bg->fill_color2.rgb[2], a->bg->fill_color2.alpha);
+			cairo_set_source(c, cairo_gradient_pattern);
+		} else if (a->mouse_state == MOUSE_OVER)
 			cairo_set_source_rgba(c,
 			                      a->bg->fill_color_hover.rgb[0],
 			                      a->bg->fill_color_hover.rgb[1],
@@ -467,6 +476,8 @@ void draw_background(Area *a, cairo_t *c)
 		          a->bg->border.radius - a->bg->border.width / 1.571);
 
 		cairo_fill(c);
+		if (area_has_gradient_fill(a))
+			cairo_pattern_destroy(cairo_gradient_pattern);
 	}
 
 	if (a->bg->border.width > 0) {
@@ -813,4 +824,19 @@ void area_dump_geometry(Area *area, int indent)
 		for (GList *l = area->children; l; l = l->next)
 			area_dump_geometry((Area *)l->data, indent);
 	}
+}
+
+gboolean area_has_gradient_fill(Area *area)
+{
+	if (!area->bg->gradient)
+		return FALSE;
+	else if ((area->bg->fill_color.alpha <= 0.0 ) && (area->bg->fill_color2.alpha <= 0.0))
+		return FALSE;
+	else if ((area->bg->fill_color.rgb[0] == area->bg->fill_color2.rgb[0]) &&
+		 (area->bg->fill_color.rgb[1] == area->bg->fill_color2.rgb[1]) &&
+		 (area->bg->fill_color.rgb[2] == area->bg->fill_color2.rgb[2]) &&
+		 (area->bg->fill_color.alpha == area->bg->fill_color2.alpha))
+		return FALSE;
+	else return TRUE;
+
 }

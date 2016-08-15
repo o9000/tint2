@@ -147,6 +147,8 @@ typedef struct Border {
 typedef struct Background {
 	// Normal state
 	Color fill_color;
+	Color fill_color2;
+	gboolean gradient;
 	Border border;
 	// On mouse hover
 	Color fill_color_hover;
@@ -313,5 +315,7 @@ void area_dump_geometry(Area *area, int indent);
 
 void mouse_over(Area *area, int pressed);
 void mouse_out();
+
+gboolean area_has_gradient_fill(Area *area);
 
 #endif
