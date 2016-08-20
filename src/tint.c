@@ -1203,6 +1203,8 @@ void event_property_notify(XEvent *e)
 				add_urgent(task);
 			}
 			XFree(wmhints);
+			task_update_icon(task);
+			panel_refresh = TRUE;
 		}
 
 		if (!server.got_root_win)
