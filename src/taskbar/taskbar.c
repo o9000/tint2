@@ -430,18 +430,46 @@ gboolean resize_taskbar(void *obj)
 	return FALSE;
 }
 
+void update_one_taskbar_visibility(Taskbar *taskbar)
+{
+	//TODO handle hidden name
+	gboolean taskbar_non_empty = g_list_length(taskbar->area.children) > 1;
+
+	if (taskbar->desktop == server.desktop) {
+		// Taskbar for current desktop is always shown
+		taskbar->area.on_screen = TRUE;
+	}
+	else if (taskbar_mode == MULTI_DESKTOP && taskbar_non_empty) {
+		// MULTI_DESKTOP : show non-empty taskbars
+		taskbar->area.on_screen = TRUE;
+	}
+	else {
+		taskbar->area.on_screen = FALSE;
+	}
+
+	panel_refresh = TRUE;
+}
+
+void update_all_taskbars_visibility()
+{
+	for (int i = 0; i < num_panels; i++) {
+		Panel *panel = &panels[i];
+		for (int j = 0; j < panel->num_desktops; j++) {
+			update_one_taskbar_visibility(&panel->taskbar[j]);
+		}
+	}
+	panel_refresh = TRUE;
+}
+
 void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 {
 	taskbar->area.bg = panels[0].g_taskbar.background[state];
 	if (taskbarname_enabled) {
 		taskbar->bar_name.area.bg = panels[0].g_taskbar.background_name[state];
 	}
-	if (taskbar_mode != MULTI_DESKTOP) {
-		if (state == TASKBAR_NORMAL)
-			taskbar->area.on_screen = FALSE;
-		else
-			taskbar->area.on_screen = TRUE;
-	}
+
+	update_one_taskbar_visibility(taskbar);
+
 	if (taskbar->area.on_screen) {
 		schedule_redraw(&taskbar->area);
 		if (taskbarname_enabled) {
@@ -454,22 +482,6 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 				l = l->next;
 			for (; l; l = l->next)
 				schedule_redraw((Area *)l->data);
-		}
-	}
-	panel_refresh = TRUE;
-}
-
-void update_taskbar_visibility(void *p)
-{
-	Panel *panel = (Panel *)p;
-
-	for (int j = 0; j < panel->num_desktops; j++) {
-		Taskbar *taskbar = &panel->taskbar[j];
-		if (taskbar_mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) {
-			// SINGLE_DESKTOP and not current desktop
-			taskbar->area.on_screen = FALSE;
-		} else {
-			taskbar->area.on_screen = TRUE;
 		}
 	}
 	panel_refresh = TRUE;

@@ -79,10 +79,11 @@ Task *get_task(Window win);
 // However for windows shown on all desktops, there are multiple buttons, one for each taskbar.
 GPtrArray *get_task_buttons(Window win);
 
+// Change state of a taskbar (ACTIVE or NORMAL)
 void set_taskbar_state(Taskbar *taskbar, TaskbarState state);
 
-// Updates the visibility of each taskbar when the current desktop changes.
-void update_taskbar_visibility(void *p);
+// Updates the visibility of all taskbars
+void update_all_taskbars_visibility();
 
 // Sorts the taskbar(s) on which the window is present.
 void sort_taskbar_for_win(Window win);

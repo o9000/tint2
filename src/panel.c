@@ -269,12 +269,11 @@ void init_panel()
 
 		if (panel_autohide)
 			autohide_trigger_hide(p);
-
-		update_taskbar_visibility(p);
 	}
 
 	taskbar_refresh_tasklist();
 	reset_active_task();
+	update_all_taskbars_visibility();
 }
 
 void init_panel_size_and_position(Panel *panel)
