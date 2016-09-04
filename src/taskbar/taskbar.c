@@ -41,6 +41,7 @@ gboolean taskbar_enabled;
 gboolean taskbar_distribute_size;
 gboolean hide_inactive_tasks;
 gboolean hide_task_diff_monitor;
+gboolean hide_taskbar_if_empty;
 gboolean always_show_all_desktop_tasks;
 TaskbarSortMethod taskbar_sort_method;
 Alignment taskbar_alignment;
@@ -74,6 +75,7 @@ void default_taskbar()
 	taskbar_distribute_size = FALSE;
 	hide_inactive_tasks = FALSE;
 	hide_task_diff_monitor = FALSE;
+	hide_taskbar_if_empty = FALSE;
 	always_show_all_desktop_tasks = FALSE;
 	taskbar_sort_method = TASKBAR_NOSORT;
 	taskbar_alignment = ALIGN_LEFT;
@@ -430,7 +432,7 @@ gboolean resize_taskbar(void *obj)
 	return FALSE;
 }
 
-gboolean taskbar_is_empty(Taskbar *taskbar)
+gboolean taskbar_is_not_empty(Taskbar *taskbar)
 {
 	GList *l = taskbar->area.children;
 	if (taskbarname_enabled)
@@ -448,7 +450,8 @@ void update_one_taskbar_visibility(Taskbar *taskbar)
 	if (taskbar->desktop == server.desktop) {
 		// Taskbar for current desktop is always shown
 		show(&taskbar->area);
-	} else if (taskbar_mode == MULTI_DESKTOP && taskbar_is_empty(taskbar)) {
+	}
+	else if (taskbar_mode == MULTI_DESKTOP && (taskbar_is_not_empty(taskbar) || hide_taskbar_if_empty == FALSE)) {
 		// MULTI_DESKTOP : show non-empty taskbars
 		show(&taskbar->area);
 	} else {
