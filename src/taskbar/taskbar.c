@@ -169,7 +169,7 @@ void init_taskbar_panel(void *p)
 	if (panel_horizontal) {
 		panel->g_taskbar.area.posy = top_border_width(&panel->area) + panel->area.paddingy;
 		panel->g_taskbar.area.height =
-			panel->area.height - top_bottom_border_width(&panel->area) - 2 * panel->area.paddingy;
+		    panel->area.height - top_bottom_border_width(&panel->area) - 2 * panel->area.paddingy;
 		panel->g_taskbar.area_name.posy = panel->g_taskbar.area.posy;
 		panel->g_taskbar.area_name.height = panel->g_taskbar.area.height;
 	} else {
@@ -430,24 +430,30 @@ gboolean resize_taskbar(void *obj)
 	return FALSE;
 }
 
+gboolean taskbar_is_empty(Taskbar *taskbar)
+{
+	GList *l = taskbar->area.children;
+	if (taskbarname_enabled)
+		l = l->next;
+	for (; l != NULL; l = l->next) {
+		if (((Task *)l->data)->area.on_screen) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 void update_one_taskbar_visibility(Taskbar *taskbar)
 {
-	//TODO handle hidden name
-	gboolean taskbar_non_empty = g_list_length(taskbar->area.children) > 1;
-
 	if (taskbar->desktop == server.desktop) {
 		// Taskbar for current desktop is always shown
-		taskbar->area.on_screen = TRUE;
-	}
-	else if (taskbar_mode == MULTI_DESKTOP && taskbar_non_empty) {
+		show(&taskbar->area);
+	} else if (taskbar_mode == MULTI_DESKTOP && taskbar_is_empty(taskbar)) {
 		// MULTI_DESKTOP : show non-empty taskbars
-		taskbar->area.on_screen = TRUE;
+		show(&taskbar->area);
+	} else {
+		hide(&taskbar->area);
 	}
-	else {
-		taskbar->area.on_screen = FALSE;
-	}
-
-	panel_refresh = TRUE;
 }
 
 void update_all_taskbars_visibility()
@@ -458,7 +464,6 @@ void update_all_taskbars_visibility()
 			update_one_taskbar_visibility(&panel->taskbar[j]);
 		}
 	}
-	panel_refresh = TRUE;
 }
 
 void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
