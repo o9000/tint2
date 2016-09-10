@@ -1010,7 +1010,7 @@ void event_property_notify(XEvent *e)
 			int old_desktop = server.desktop;
 			server_get_number_of_desktops();
 			server.desktop = get_current_desktop();
-			if (old_num_desktops != server.num_desktops) {
+			if (old_num_desktops != server.num_desktops) { // If number of desktop changed
 				if (server.num_desktops <= server.desktop) {
 					server.desktop = server.num_desktops - 1;
 				}
@@ -1019,11 +1019,11 @@ void event_property_notify(XEvent *e)
 				for (int i = 0; i < num_panels; i++) {
 					init_taskbar_panel(&panels[i]);
 					set_panel_items_order(&panels[i]);
-					update_taskbar_visibility(&panels[i]);
 					panels[i].area.resize_needed = 1;
 				}
 				taskbar_refresh_tasklist();
 				reset_active_task();
+				update_all_taskbars_visibility();
 				panel_refresh = TRUE;
 			} else if (old_desktop != server.desktop) {
 				for (int i = 0; i < num_panels; i++) {
@@ -1092,6 +1092,7 @@ void event_property_notify(XEvent *e)
 			if (debug)
 				fprintf(stderr, "%s %d: win = root, atom = _NET_CLIENT_LIST\n", __FUNCTION__, __LINE__);
 			taskbar_refresh_tasklist();
+			update_all_taskbars_visibility();
 			panel_refresh = TRUE;
 		}
 		// Change active

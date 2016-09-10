@@ -269,12 +269,11 @@ void init_panel()
 
 		if (panel_autohide)
 			autohide_trigger_hide(p);
-
-		update_taskbar_visibility(p);
 	}
 
 	taskbar_refresh_tasklist();
 	reset_active_task();
+	update_all_taskbars_visibility();
 }
 
 void init_panel_size_and_position(Panel *panel)
@@ -395,7 +394,11 @@ gboolean resize_panel(void *obj)
 		int total_size = 0;
 		int total_name_size = 0;
 		int total_items = 0;
+		int visible_taskbars = 0;
 		for (int i = 0; i < panel->num_desktops; i++) {
+			if (!panel->taskbar[i].area.on_screen)
+				continue;
+			visible_taskbars++;
 			if (panel_horizontal) {
 				total_size += panel->taskbar[i].area.width;
 			} else {
@@ -427,14 +430,16 @@ gboolean resize_panel(void *obj)
 		if (total_items) {
 			int actual_name_size;
 			if (total_name_size <= total_size) {
-				actual_name_size = total_name_size / panel->num_desktops;
+				actual_name_size = total_name_size / visible_taskbars;
 			} else {
-				actual_name_size = total_size / panel->num_desktops;
+				actual_name_size = total_size / visible_taskbars;
 			}
 			total_size -= total_name_size;
 
 			for (int i = 0; i < panel->num_desktops; i++) {
 				Taskbar *taskbar = &panel->taskbar[i];
+				if (!taskbar->area.on_screen)
+					continue;
 
 				int requested_size = (panel_horizontal ? left_right_border_width(&taskbar->area)
 				                                       : top_bottom_border_width(&taskbar->area)) +

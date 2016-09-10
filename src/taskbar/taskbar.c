@@ -41,6 +41,7 @@ gboolean taskbar_enabled;
 gboolean taskbar_distribute_size;
 gboolean hide_inactive_tasks;
 gboolean hide_task_diff_monitor;
+gboolean hide_taskbar_if_empty;
 gboolean always_show_all_desktop_tasks;
 TaskbarSortMethod taskbar_sort_method;
 Alignment taskbar_alignment;
@@ -74,6 +75,7 @@ void default_taskbar()
 	taskbar_distribute_size = FALSE;
 	hide_inactive_tasks = FALSE;
 	hide_task_diff_monitor = FALSE;
+	hide_taskbar_if_empty = FALSE;
 	always_show_all_desktop_tasks = FALSE;
 	taskbar_sort_method = TASKBAR_NOSORT;
 	taskbar_alignment = ALIGN_LEFT;
@@ -169,7 +171,7 @@ void init_taskbar_panel(void *p)
 	if (panel_horizontal) {
 		panel->g_taskbar.area.posy = top_border_width(&panel->area) + panel->area.paddingy;
 		panel->g_taskbar.area.height =
-			panel->area.height - top_bottom_border_width(&panel->area) - 2 * panel->area.paddingy;
+		    panel->area.height - top_bottom_border_width(&panel->area) - 2 * panel->area.paddingy;
 		panel->g_taskbar.area_name.posy = panel->g_taskbar.area.posy;
 		panel->g_taskbar.area_name.height = panel->g_taskbar.area.height;
 	} else {
@@ -430,18 +432,52 @@ gboolean resize_taskbar(void *obj)
 	return FALSE;
 }
 
+gboolean taskbar_is_not_empty(Taskbar *taskbar)
+{
+	GList *l = taskbar->area.children;
+	if (taskbarname_enabled)
+		l = l->next;
+	for (; l != NULL; l = l->next) {
+		if (((Task *)l->data)->area.on_screen) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+void update_one_taskbar_visibility(Taskbar *taskbar)
+{
+	if (taskbar->desktop == server.desktop) {
+		// Taskbar for current desktop is always shown
+		show(&taskbar->area);
+	}
+	else if (taskbar_mode == MULTI_DESKTOP && (taskbar_is_not_empty(taskbar) || hide_taskbar_if_empty == FALSE)) {
+		// MULTI_DESKTOP : show non-empty taskbars
+		show(&taskbar->area);
+	} else {
+		hide(&taskbar->area);
+	}
+}
+
+void update_all_taskbars_visibility()
+{
+	for (int i = 0; i < num_panels; i++) {
+		Panel *panel = &panels[i];
+		for (int j = 0; j < panel->num_desktops; j++) {
+			update_one_taskbar_visibility(&panel->taskbar[j]);
+		}
+	}
+}
+
 void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 {
 	taskbar->area.bg = panels[0].g_taskbar.background[state];
 	if (taskbarname_enabled) {
 		taskbar->bar_name.area.bg = panels[0].g_taskbar.background_name[state];
 	}
-	if (taskbar_mode != MULTI_DESKTOP) {
-		if (state == TASKBAR_NORMAL)
-			taskbar->area.on_screen = FALSE;
-		else
-			taskbar->area.on_screen = TRUE;
-	}
+
+	update_one_taskbar_visibility(taskbar);
+
 	if (taskbar->area.on_screen) {
 		schedule_redraw(&taskbar->area);
 		if (taskbarname_enabled) {
@@ -454,22 +490,6 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 				l = l->next;
 			for (; l; l = l->next)
 				schedule_redraw((Area *)l->data);
-		}
-	}
-	panel_refresh = TRUE;
-}
-
-void update_taskbar_visibility(void *p)
-{
-	Panel *panel = (Panel *)p;
-
-	for (int j = 0; j < panel->num_desktops; j++) {
-		Taskbar *taskbar = &panel->taskbar[j];
-		if (taskbar_mode != MULTI_DESKTOP && taskbar->desktop != server.desktop) {
-			// SINGLE_DESKTOP and not current desktop
-			taskbar->area.on_screen = FALSE;
-		} else {
-			taskbar->area.on_screen = TRUE;
 		}
 	}
 	panel_refresh = TRUE;
