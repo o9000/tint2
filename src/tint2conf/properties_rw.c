@@ -1694,7 +1694,12 @@ void add_entry(char *key, char *value)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_markup), atoi(value));
 	}
 	else if (strcmp(key, "execp_tooltip") == 0) {
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_show_tooltip), 1);
+		if (strlen(value) > 0) {
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_show_tooltip), 1);
+		}
+		else {
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_show_tooltip), 0);
+		}
 		gtk_entry_set_text(GTK_ENTRY(execp_get_last()->execp_tooltip), value);
 	}
 	else if (strcmp(key, "execp_lclick_command") == 0) {
