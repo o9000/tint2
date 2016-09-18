@@ -295,6 +295,7 @@ void config_write_taskbar(FILE *fp)
 			gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_show_desktop)) ?
 				"multi_desktop" :
 				"single_desktop");
+	fprintf(fp, "taskbar_hide_if_empty = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_hide_empty)) ? 1 : 0);
 	fprintf(fp,
 			"taskbar_padding = %d %d %d\n",
 			(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(taskbar_padding_x)),
@@ -1283,6 +1284,9 @@ void add_entry(char *key, char *value)
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_show_desktop), 1);
 		else
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_show_desktop), 0);
+	}
+	else if (strcmp(key, "taskbar_hide_if_empty") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_hide_empty), atoi(value));
 	}
 	else if (strcmp(key, "taskbar_distribute_size") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_distribute_size), atoi(value));

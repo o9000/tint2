@@ -59,6 +59,7 @@ GtkWidget *taskbar_name_font, *taskbar_name_font_set;
 GtkWidget *taskbar_active_background, *taskbar_inactive_background;
 GtkWidget *taskbar_name_active_background, *taskbar_name_inactive_background;
 GtkWidget *taskbar_distribute_size, *taskbar_sort_order, *taskbar_alignment, *taskbar_always_show_all_desktop_tasks;
+GtkWidget *taskbar_hide_empty;
 
 // task
 GtkWidget *task_mouse_left, *task_mouse_middle, *task_mouse_right, *task_mouse_scroll_up, *task_mouse_scroll_down;
@@ -3059,6 +3060,19 @@ void create_taskbar(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), taskbar_show_desktop, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 	gtk_tooltips_set_tip(tooltips, taskbar_show_desktop, _("If enabled, the taskbar is split into multiple smaller taskbars, one for each virtual desktop."), NULL);
+
+	col = 2;
+	row++;
+	label = gtk_label_new(_("Hide taskbars for empty desktops"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	taskbar_hide_empty = gtk_check_button_new();
+	gtk_widget_show(taskbar_hide_empty);
+	gtk_table_attach(GTK_TABLE(table), taskbar_hide_empty, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	col = 2;
 	row++;
