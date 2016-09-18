@@ -31,8 +31,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <glib/gstdio.h>
-#include <pango/pangocairo.h>
-#include <pango/pangoxft.h>
+#include <pango/pango-font.h>
 #include <Imlib2.h>
 
 #include "config.h"
