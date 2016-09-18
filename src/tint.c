@@ -1024,8 +1024,11 @@ void event_property_notify(XEvent *e)
 				taskbar_refresh_tasklist();
 				reset_active_task();
 				update_all_taskbars_visibility();
+				if (old_desktop != server.desktop)
+					tooltip_trigger_hide();
 				panel_refresh = TRUE;
 			} else if (old_desktop != server.desktop) {
+				tooltip_trigger_hide();
 				for (int i = 0; i < num_panels; i++) {
 					Panel *panel = &panels[i];
 					set_taskbar_state(&panel->taskbar[old_desktop], TASKBAR_NORMAL);
