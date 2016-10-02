@@ -4518,8 +4518,6 @@ void create_separator(GtkWidget *notebook, int i)
 	GtkWidget *label;
 	GtkWidget *table;
 	int row, col;
-	GtkTooltips *tooltips = gtk_tooltips_new();
-
 	Separator *separator = &g_array_index(separators, Separator, i);
 
 	separator->name[0] = 0;
