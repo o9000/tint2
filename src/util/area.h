@@ -11,6 +11,9 @@
 #include <cairo.h>
 #include <cairo-xlib.h>
 
+#include "color.h"
+#include "gradient.h"
+
 // DATA ORGANISATION
 //
 // Areas in tint2 are similar to widgets in a GUI.
@@ -117,13 +120,6 @@
 //   The caller takes ownership of the pointer.
 //   The Area's _get_tooltip_text member must point to this function.
 
-typedef struct Color {
-	// Values are in [0, 1], with 0 meaning no intensity.
-	double rgb[3];
-	// Values are in [0, 1], with 0 meaning fully transparent, 1 meaning fully opaque.
-	double alpha;
-} Color;
-
 typedef enum BorderMask {
 	BORDER_TOP     = 1 << 0,
 	BORDER_BOTTOM  = 1 << 1,
@@ -147,8 +143,6 @@ typedef struct Border {
 typedef struct Background {
 	// Normal state
 	Color fill_color;
-	Color fill_color2;
-	gboolean gradient;
 	Border border;
 	// On mouse hover
 	Color fill_color_hover;
@@ -179,6 +173,12 @@ typedef struct Area {
 	// Size, including borders
 	int width, height;
 	Background *bg;
+	// Each element is a pointer to a GradientClass (list can be empty), no ownership
+	GList *gradients;
+	// Each element is a GradientInstance attached to this Area (list can be empty)
+	GList *gradient_instances;
+	// Each element is a GradientInstance that depends on this Area's geometry (position or size)
+	GList *dependent_gradients;
 	// List of children, each one a pointer to Area
 	GList *children;
 	// Pointer to the parent Area or NULL
@@ -311,11 +311,15 @@ gboolean area_is_under_mouse(void *obj, int x, int y);
 // they are outside the drawing area of the button.
 gboolean full_width_area_is_under_mouse(void *obj, int x, int y);
 
+void init_area_gradients(Area *area);
+void free_area_gradients(Area *area);
+
 void area_dump_geometry(Area *area, int indent);
 
 void mouse_over(Area *area, int pressed);
 void mouse_out();
 
-gboolean area_has_gradient_fill(Area *area);
+void update_gradient(GradientInstance *gi);
+void update_dependent_gradients(Area *a);
 
 #endif

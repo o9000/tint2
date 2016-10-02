@@ -43,6 +43,8 @@ typedef struct GlobalTaskbar {
 	Area area_name;
 	Background *background[TASKBAR_STATE_COUNT];
 	Background *background_name[TASKBAR_STATE_COUNT];
+	GList *gradient[TASKBAR_STATE_COUNT];
+	GList *gradient_name[TASKBAR_STATE_COUNT];
 } GlobalTaskbar;
 
 extern gboolean taskbar_enabled;

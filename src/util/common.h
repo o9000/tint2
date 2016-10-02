@@ -51,6 +51,7 @@ void copy_file(const char *path_src, const char *path_dest);
 gboolean parse_line(const char *line, char **key, char **value);
 
 void extract_values(const char *value, char **value1, char **value2, char **value3);
+void extract_values_4(const char *value, char **value1, char **value2, char **value3, char **value4);
 
 // Executes a command in a shell.
 void tint_exec(const char *command);

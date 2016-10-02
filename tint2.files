@@ -210,3 +210,7 @@ themes/vertical-neutral-icons.tint2rc
 doc/tint2.md
 src/separator/separator.c
 src/separator/separator.h
+src/util/gradient.h
+src/util/gradient.c
+src/util/color.h
+src/util/color.c

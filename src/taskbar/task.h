@@ -36,6 +36,7 @@ typedef struct GlobalTask {
 	int brightness[TASK_STATE_COUNT];
 	int config_asb_mask;
 	Background *background[TASK_STATE_COUNT];
+	GList *gradient[TASK_STATE_COUNT];
 	int config_background_mask;
 	// starting position for text ~ task_padding + task_border + icon_size
 	double text_posx, text_height;

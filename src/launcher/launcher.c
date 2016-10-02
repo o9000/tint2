@@ -53,6 +53,7 @@ char *icon_theme_name_xsettings;
 int launcher_icon_theme_override;
 int startup_notifications;
 Background *launcher_icon_bg;
+GradientClass *launcher_icon_gradient;
 
 Imlib_Image scale_icon(Imlib_Image original, int icon_size);
 void free_icon(Imlib_Image icon);

@@ -231,10 +231,6 @@ void add_entry(char *key, char *value)
 		// 'rounded' is the first parameter => alloc a new background
 		if (backgrounds->len > 0) {
 			Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-			if (!read_bg_color2)
-				memcpy(&bg->fill_color2, &bg->fill_color, sizeof(Color));
-			if (!read_bg_gradient)
-				bg->gradient = 0;
 			if (!read_bg_color_hover)
 				memcpy(&bg->fill_color_hover, &bg->fill_color, sizeof(Color));
 			if (!read_border_color_hover)
@@ -277,19 +273,6 @@ void add_entry(char *key, char *value)
 			bg->fill_color.alpha = (atoi(value2) / 100.0);
 		else
 			bg->fill_color.alpha = 0.5;
-	} else if (strcmp(key, "background_color2") == 0) {
-		Background* bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
-		extract_values(value, &value1, &value2, &value3);
-		get_color (value1, bg->fill_color2.rgb);
-		if (value2)
-			bg->fill_color2.alpha = (atoi (value2) / 100.0);
-		else
-			bg->fill_color2.alpha = 0.5;
-		read_bg_color2 = 1;
-	} else if (strcmp(key, "gradient") == 0) {
-		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len-1);
-		bg->gradient = atoi(value);
-		read_bg_gradient = 1;
 	} else if (strcmp(key, "border_color") == 0) {
 		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
 		extract_values(value, &value1, &value2, &value3);
@@ -334,6 +317,131 @@ void add_entry(char *key, char *value)
 		else
 			bg->border_color_pressed.alpha = 0.5;
 		read_border_color_press = 1;
+	}
+
+	/* Gradients */
+	else if (strcmp(key, "gradient") == 0) {
+		// Create a new gradient
+		GradientClass g;
+		init_gradient(&g, gradient_type_from_string(value));
+		g_array_append_val(gradients, g);
+	} else if (strcmp(key, "start_color") == 0) {
+		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
+		extract_values(value, &value1, &value2, &value3);
+		get_color(value1, g->start_color.rgb);
+		if (value2)
+			g->start_color.alpha = (atoi(value2) / 100.0);
+		else
+			g->start_color.alpha = 0.5;
+	} else if (strcmp(key, "end_color") == 0) {
+		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
+		extract_values(value, &value1, &value2, &value3);
+		get_color(value1, g->end_color.rgb);
+		if (value2)
+			g->end_color.alpha = (atoi(value2) / 100.0);
+		else
+			g->end_color.alpha = 0.5;
+	} else if (strcmp(key, "color_stop") == 0) {
+		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
+		extract_values(value, &value1, &value2, &value3);
+		ColorStop *color_stop = (ColorStop *) calloc(1, sizeof(ColorStop));
+		color_stop->offset = atof(value1);
+		get_color(value2, color_stop->color.rgb);
+		if (value3)
+			color_stop->color.alpha = (atoi(value2) / 100.0);
+		else
+			color_stop->color.alpha = 0.5;
+		g->extra_color_stops = g_list_append(g->extra_color_stops, color_stop);
+	} else if (strcmp(key, "from_origin") == 0) {
+		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
+		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
+			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
+		} else {
+			g->from.origin = origin_from_string(value);
+		}
+	} else if (strcmp(key, "to_origin") == 0) {
+		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
+		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
+			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
+		} else {
+			g->to.origin = origin_from_string(value);
+		}
+	} else if (strcmp(key, "from_offset_x") == 0) {
+		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
+		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
+			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
+		} else {
+			Offset *offset = offset_from_string(value);
+			if (!offset) {
+				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
+			} else {
+				g->from.offsets_x = g_list_append(g->from.offsets_x, offset);
+			}
+		}
+	} else if (strcmp(key, "from_offset_y") == 0) {
+		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
+		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
+			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
+		} else {
+			Offset *offset = offset_from_string(value);
+			if (!offset) {
+				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
+			} else {
+				g->from.offsets_y = g_list_append(g->from.offsets_y, offset);
+			}
+		}
+	} else if (strcmp(key, "from_offset_r") == 0) {
+		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
+		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
+			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
+		} else if (g->type == GRADIENT_LINEAR) {
+			fprintf(stderr, RED "Invalid parameter for linear gradient: line %s = %s" RESET "\n", key, value);
+		} else {
+			Offset *offset = offset_from_string(value);
+			if (!offset) {
+				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
+			} else {
+				g->from.offsets_r = g_list_append(g->from.offsets_r, offset);
+			}
+		}
+	} else if (strcmp(key, "to_offset_x") == 0) {
+		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
+		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
+			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
+		} else {
+			Offset *offset = offset_from_string(value);
+			if (!offset) {
+				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
+			} else {
+				g->to.offsets_x = g_list_append(g->to.offsets_x, offset);
+			}
+		}
+	} else if (strcmp(key, "to_offset_y") == 0) {
+		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
+		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
+			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
+		} else {
+			Offset *offset = offset_from_string(value);
+			if (!offset) {
+				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
+			} else {
+				g->to.offsets_y = g_list_append(g->to.offsets_y, offset);
+			}
+		}
+	} else if (strcmp(key, "to_offset_r") == 0) {
+		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
+		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
+			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
+		} else if (g->type == GRADIENT_LINEAR) {
+			fprintf(stderr, RED "Invalid parameter for linear gradient: line %s = %s" RESET "\n", key, value);
+		} else {
+			Offset *offset = offset_from_string(value);
+			if (!offset) {
+				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
+			} else {
+				g->to.offsets_r = g_list_append(g->to.offsets_r, offset);
+			}
+		}
 	}
 
 	/* Panel */
@@ -442,6 +550,11 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		panel_config.area.bg = &g_array_index(backgrounds, Background, id);
+	} else if (strcmp(key, "panel_gradient_id") == 0) {
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			panel_config.area.gradients = g_list_append(panel_config.area.gradients, &g_array_index(backgrounds, Background, id));
 	} else if (strcmp(key, "wm_menu") == 0)
 		wm_menu = atoi(value);
 	else if (strcmp(key, "panel_dock") == 0)
@@ -545,6 +658,13 @@ void add_entry(char *key, char *value)
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		panel_config.battery.area.bg = &g_array_index(backgrounds, Background, id);
 #endif
+	} else if (strcmp(key, "battery_gradient_id") == 0) {
+#ifdef ENABLE_BATTERY
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			panel_config.battery.area.gradients = g_list_append(panel_config.battery.area.gradients, &g_array_index(backgrounds, Background, id));
+#endif
 	} else if (strcmp(key, "battery_hide") == 0) {
 #ifdef ENABLE_BATTERY
 		percentage_hide = atoi(value);
@@ -565,6 +685,12 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		separator->area.bg = &g_array_index(backgrounds, Background, id);
+	} else if (strcmp(key, "separator_gradient_id") == 0) {
+		Separator *separator = get_or_create_last_separator();
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			separator->area.gradients = g_list_append(separator->area.gradients, &g_array_index(backgrounds, Background, id));
 	} else if (strcmp(key, "separator_color") == 0) {
 		Separator *separator = get_or_create_last_separator();
 		extract_values(value, &value1, &value2, &value3);
@@ -657,6 +783,12 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		execp->backend->bg = &g_array_index(backgrounds, Background, id);
+	} else if (strcmp(key, "execp_gradient_id") == 0) {
+		Execp *execp = get_or_create_last_execp();
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			execp->area.gradients = g_list_append(execp->area.gradients, &g_array_index(backgrounds, Background, id));
 	} else if (strcmp(key, "execp_centered") == 0) {
 		Execp *execp = get_or_create_last_execp();
 		execp->backend->centered = atoi(value);
@@ -753,6 +885,11 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		panel_config.clock.area.bg = &g_array_index(backgrounds, Background, id);
+	} else if (strcmp(key, "clock_gradient_id") == 0) {
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			panel_config.clock.area.gradients = g_list_append(panel_config.clock.area.gradients, &g_array_index(backgrounds, Background, id));
 	} else if (strcmp(key, "clock_tooltip") == 0) {
 		if (strlen(value) > 0)
 			time_tooltip_format = strdup(value);
@@ -794,13 +931,23 @@ void add_entry(char *key, char *value)
 	} else if (strcmp(key, "taskbar_background_id") == 0) {
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
-		panel_config.g_taskbar.background[TASKBAR_NORMAL] = &g_array_index(backgrounds, Background, id);
+		panel_config.g_taskbar.area.bg = &g_array_index(backgrounds, Background, id);
 		if (panel_config.g_taskbar.background[TASKBAR_ACTIVE] == 0)
 			panel_config.g_taskbar.background[TASKBAR_ACTIVE] = panel_config.g_taskbar.background[TASKBAR_NORMAL];
+	} else if (strcmp(key, "taskbar_gradient_id") == 0) {
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			panel_config.g_taskbar.gradient[TASKBAR_NORMAL] = g_list_append(panel_config.g_taskbar.gradient[TASKBAR_NORMAL], &g_array_index(gradients, GradientClass, id));
 	} else if (strcmp(key, "taskbar_active_background_id") == 0) {
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		panel_config.g_taskbar.background[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
+	} else if (strcmp(key, "taskbar_active_gradient_id") == 0) {
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			panel_config.g_taskbar.gradient[TASKBAR_ACTIVE] = g_list_append(panel_config.g_taskbar.gradient[TASKBAR_ACTIVE], &g_array_index(gradients, GradientClass, id));
 	} else if (strcmp(key, "taskbar_name") == 0) {
 		taskbarname_enabled = atoi(value);
 	} else if (strcmp(key, "taskbar_name_padding") == 0) {
@@ -815,10 +962,20 @@ void add_entry(char *key, char *value)
 		if (panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] == 0)
 			panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] =
 				panel_config.g_taskbar.background_name[TASKBAR_NORMAL];
+	} else if (strcmp(key, "taskbar_name_gradient_id") == 0) {
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			panel_config.g_taskbar.gradient_name[TASKBAR_NORMAL] = g_list_append(panel_config.g_taskbar.gradient_name[TASKBAR_NORMAL], &g_array_index(gradients, GradientClass, id));
 	} else if (strcmp(key, "taskbar_name_active_background_id") == 0) {
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
+	} else if (strcmp(key, "taskbar_name_active_gradient_id") == 0) {
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			panel_config.g_taskbar.gradient_name[TASKBAR_ACTIVE] = g_list_append(panel_config.g_taskbar.gradient_name[TASKBAR_ACTIVE], &g_array_index(gradients, GradientClass, id));
 	} else if (strcmp(key, "taskbar_name_font") == 0) {
 		panel_config.taskbarname_font_desc = pango_font_description_from_string(value);
 		panel_config.taskbarname_has_font = TRUE;
@@ -930,6 +1087,17 @@ void add_entry(char *key, char *value)
 			if (status == TASK_NORMAL)
 				panel_config.g_task.area.bg = panel_config.g_task.background[TASK_NORMAL];
 		}
+	} else if (g_regex_match_simple("task.*_gradient_id", key, 0, 0)) {
+		gchar **split = g_regex_split_simple("_", key, 0, 0);
+		int status = g_strv_length(split) == 3 ? TASK_NORMAL : get_task_status(split[1]);
+		g_strfreev(split);
+		if (status >= 0) {
+			int id = atoi(value);
+			id = (id < gradients->len && id >= 0) ? id : -1;
+			if (id >= 0) {
+				panel_config.g_task.gradient[status] = g_list_append(panel_config.g_task.gradient[status], &g_array_index(gradients, GradientClass, id));
+			}
+		}
 	}
 	// "tooltip" is deprecated but here for backwards compatibility
 	else if (strcmp(key, "task_tooltip") == 0 || strcmp(key, "tooltip") == 0)
@@ -957,6 +1125,11 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		systray.area.bg = &g_array_index(backgrounds, Background, id);
+	} else if (strcmp(key, "systray_gradient_id") == 0) {
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			systray.area.gradients = g_list_append(systray.area.gradients, &g_array_index(gradients, GradientClass, id));
 	} else if (strcmp(key, "systray_sort") == 0) {
 		if (strcmp(value, "descending") == 0)
 			systray.sort = SYSTRAY_SORT_DESCENDING;
@@ -989,10 +1162,20 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		panel_config.launcher.area.bg = &g_array_index(backgrounds, Background, id);
+	} else if (strcmp(key, "launcher_gradient_id") == 0) {
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			panel_config.launcher.area.gradients = g_list_append(panel_config.launcher.area.gradients, &g_array_index(gradients, GradientClass, id));
 	} else if (strcmp(key, "launcher_icon_background_id") == 0) {
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
 		launcher_icon_bg = &g_array_index(backgrounds, Background, id);
+	} else if (strcmp(key, "launcher_icon_gradient_id") == 0) {
+		int id = atoi(value);
+		id = (id < gradients->len && id >= 0) ? id : -1;
+		if (id >= 0)
+			launcher_icon_gradient = &g_array_index(gradients, GradientClass, id);
 	} else if (strcmp(key, "launcher_icon_size") == 0) {
 		launcher_max_icon_size = atoi(value);
 	} else if (strcmp(key, "launcher_item_app") == 0) {
@@ -1175,10 +1358,6 @@ gboolean config_read_file(const char *path)
 
 	if (backgrounds->len > 0) {
 		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-		if (!read_bg_color2)
-			memcpy(&bg->fill_color2, &bg->fill_color, sizeof(Color));
-		if (!read_bg_gradient)
-			bg->gradient = 0;
 		if (!read_bg_color_hover)
 			memcpy(&bg->fill_color_hover, &bg->fill_color, sizeof(Color));
 		if (!read_border_color_hover)

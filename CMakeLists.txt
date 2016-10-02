@@ -121,6 +121,8 @@ set( SOURCES src/config.c
              src/util/strnatcmp.c
              src/util/timer.c
              src/util/cache.c
+             src/util/color.c
+             src/util/gradient.c
              src/util/window.c )
 
 if( ENABLE_BATTERY )

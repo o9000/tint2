@@ -73,6 +73,7 @@ Panel *panels;
 int num_panels;
 
 GArray *backgrounds;
+GArray *gradients;
 
 Imlib_Image default_icon;
 char *default_font = NULL;
@@ -98,6 +99,7 @@ void default_panel()
 	max_tick_urgent = 14;
 	mouse_left = TOGGLE_ICONIFY;
 	backgrounds = g_array_new(0, 0, sizeof(Background));
+	gradients = g_array_new(0, 0, sizeof(GradientClass));
 
 	memset(&panel_config, 0, sizeof(Panel));
 	snprintf(panel_config.area.name, sizeof(panel_config.area.name), "Panel");
@@ -145,8 +147,14 @@ void cleanup_panel()
 	free(panels);
 	panels = NULL;
 	if (backgrounds)
-		g_array_free(backgrounds, 1);
+		g_array_free(backgrounds, TRUE);
 	backgrounds = NULL;
+	if (gradients) {
+		for (guint i = 0; i < gradients->len; i++)
+			cleanup_gradient(&g_array_index(gradients, GradientClass, i));
+		g_array_free(gradients, TRUE);
+	}
+	gradients = NULL;
 	pango_font_description_free(panel_config.g_task.font_desc);
 	panel_config.g_task.font_desc = NULL;
 	pango_font_description_free(panel_config.taskbarname_font_desc);
@@ -961,6 +969,7 @@ void render_panel(Panel *panel)
 	relayout(&panel->area);
 	if (debug_geometry)
 		area_dump_geometry(&panel->area, 0);
+	update_dependent_gradients(&panel->area);
 	draw_tree(&panel->area);
 }
 

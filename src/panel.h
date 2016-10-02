@@ -83,6 +83,7 @@ extern Strut panel_strut_policy;
 extern char *panel_items_order;
 extern int max_tick_urgent;
 extern GArray *backgrounds;
+extern GArray *gradients;
 extern Imlib_Image default_icon;
 #define DEFAULT_FONT "sans 10"
 extern char *default_font;
