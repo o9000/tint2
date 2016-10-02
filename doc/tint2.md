@@ -56,6 +56,8 @@ Goals:
 
   * [Executor](#executor)
 
+  * [Separator](#separator)
+
   * [Example configuration](#example-configuration)
 
 ### Introduction
@@ -144,6 +146,7 @@ Identifier 0 refers to a special background which is fully transparent, identifi
     * `C` shows the Clock
     * `F` adds an extensible spacer (freespace). Has no effect if `T` is also present. *(since 0.12)*
     * `E` adds an executor plugin. You can specify more than one. *(since 0.12.4)*
+    * `:` adds a separator. You can specify more than one. *(since 0.13.0)*
 
     For example, `panel_items = STC` will show the systray, the taskbar and the clock (from left to right).
 
@@ -565,6 +568,20 @@ execp_command = stdbuf -oL bwm-ng -o csv -t 1000 | awk -F ';' '/total/ { printf 
 execp_continuous = 1
 execp_interval = 1
 ```
+
+### Separator
+
+  * `separator = new` : Begins the configuration of a new separator. Multiple such plugins are supported; just use multiple `:`s in `panel_items`. *(since 0.13.0)*
+
+  * `separator_background_id = integer` : Which background to use. *(since 0.13.0)*
+
+  * `separator_color = color opacity` : The foreground color. *(since 0.13.0)*
+
+  * `separator_style = [empty | line | dots]` : The separator style. *(since 0.13.0)*
+
+  * `separator_size = integer` : The thickness of the separator. Does not include the border and padding. For example, if the style is `line`, this is the line thickness; if the style is `dots`, this is the dot's diameter. *(since 0.13.0)*
+
+  * `separator_padding = side_padding cap_padding` : The padding to add to the sides of the separator, in pixels. *(since 0.13.0)*
 
 ### Example configuration
 

@@ -199,7 +199,7 @@ pre {
 </style>
 </head>
 <body>
-<h1 id="latest-stable-release-0-12-12"><span class="md2man-title">Latest</span> <span class="md2man-section">stable</span> <span class="md2man-date">release:</span> <span class="md2man-source">0.12.12</span><a name="latest-stable-release-0-12-12" href="#latest-stable-release-0-12-12" class="md2man-permalink" title="permalink"></a></h1><p>Changes: <a href="https://gitlab.com/o9000/tint2/blob/0.12.12/ChangeLog">https://gitlab.com/o9000/tint2/blob/0.12.12/ChangeLog</a></p><p>Documentation: <a href="manual.html">manual.html</a></p><p>Compile it with (see also <a href="https://gitlab.com/o9000/tint2/wikis/Install#dependencies">dependencies</a>):</p><pre class="highlight plaintext"><code>git clone https://gitlab.com/o9000/tint2.git
+<h1 id="latest-stable-release-0-12-12"><span class="md2man-title">Latest</span> <span class="md2man-section">stable</span> <span class="md2man-date">release:</span> <span class="md2man-source">0.12.12</span><a name="latest-stable-release-0-12-12" href="#latest-stable-release-0-12-12" class="md2man-permalink" title="permalink"></a></h1><p>Changes: <a href="https://gitlab.com/o9000/tint2/blob/0.12.12/ChangeLog">https://gitlab.com/o9000/tint2/blob/0.12.12/ChangeLog</a></p><p>Documentation: <a href="manual.html">manual.html</a></p><p>Compile it with (after you install the <a href="https://gitlab.com/o9000/tint2/wikis/Install#dependencies">dependencies</a>):</p><pre class="highlight plaintext"><code>git clone https://gitlab.com/o9000/tint2.git
 cd tint2
 git checkout 0.12.12
 mkdir build
@@ -234,6 +234,12 @@ make -j4
 <li><a href="https://gitlab.com/o9000/tint2/wikis/ThirdPartyApplets">Add applet not supported by tint2</a></li>
 <li><a href="https://gitlab.com/o9000/tint2/wikis/FAQ">Other frequently asked questions</a></li>
 <li><a href="https://gitlab.com/o9000/tint2/wikis/Debug">Obtain a stack trace when tint2 crashes</a></li>
+</ul>
+<h1 id="known-issues">Known issues<a name="known-issues" href="#known-issues" class="md2man-permalink" title="permalink"></a></h1>
+<ul>
+<li>Graphic glitches on Intel graphics cards can be avoided by changing the acceleration method to UXA (<a href="https://gitlab.com/o9000/tint2/issues/595">issue 595</a>)</li>
+<li>Window managers that do not follow exactly the EWMH specification might not interact well with tint2 (known issues for <a href="https://gitlab.com/o9000/tint2/issues/385">awesome</a>, <a href="https://gitlab.com/o9000/tint2/issues/524">bspwm</a>. <a href="https://gitlab.com/o9000/tint2/issues/456">openbox-multihead</a>)</li>
+<li>Full transparency requires a compositor such as Compton (if not provided already by the window manager, as in Compiz/Unity, KDE or XFCE)</li>
 </ul>
 <h1 id="how-can-i-help-out">How can I help out?<a name="how-can-i-help-out" href="#how-can-i-help-out" class="md2man-permalink" title="permalink"></a></h1>
 <ul>

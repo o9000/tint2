@@ -228,6 +228,7 @@ It was specifically made for Openbox but it should also work with other window m
 <li><p><a href="#tooltip">Tooltip</a></p></li>
 <li><p><a href="#battery">Battery</a></p></li>
 <li><p><a href="#executor">Executor</a></p></li>
+<li><p><a href="#separator">Separator</a></p></li>
 <li><p><a href="#example-configuration">Example configuration</a></p></li>
 </ul>
 <h3 id="introduction">Introduction<a name="introduction" href="#introduction" class="md2man-permalink" title="permalink"></a></h3><p>These are instructions for configuring tint2 directly by editing its config file.
@@ -297,6 +298,7 @@ clock_background_id = 0
 <li><code>C</code> shows the Clock</li>
 <li><code>F</code> adds an extensible spacer (freespace). Has no effect if <code>T</code> is also present. <em>(since 0.12)</em></li>
 <li><code>E</code> adds an executor plugin. You can specify more than one. <em>(since 0.12.4)</em></li>
+<li><code>:</code> adds a separator. You can specify more than one. <em>(since 0.13.0)</em></li>
 </ul>
 <p>For example, <code>panel_items = STC</code> will show the systray, the taskbar and the clock (from left to right).</p></li>
 <li><p><code>panel_monitor = monitor (all or 1 or 2 or ...)</code> : Which monitor tint2 draws the panel on</p>
@@ -585,6 +587,15 @@ execp_command = stdbuf -oL bwm-ng -o csv -t 1000 | awk -F ';' '/total/ { printf 
 execp_continuous = 1
 execp_interval = 1
 </code></pre>
+<h3 id="separator">Separator<a name="separator" href="#separator" class="md2man-permalink" title="permalink"></a></h3>
+<ul>
+<li><p><code>separator = new</code> : Begins the configuration of a new separator. Multiple such plugins are supported; just use multiple <code>:</code>s in <code>panel_items</code>. <em>(since 0.13.0)</em></p></li>
+<li><p><code>separator_background_id = integer</code> : Which background to use. <em>(since 0.13.0)</em></p></li>
+<li><p><code>separator_color = color opacity</code> : The foreground color. <em>(since 0.13.0)</em></p></li>
+<li><p><code>separator_style = [empty | line | dots]</code> : The separator style. <em>(since 0.13.0)</em></p></li>
+<li><p><code>separator_size = integer</code> : The thickness of the separator. Does not include the border and padding. For example, if the style is <code>line</code>, this is the line thickness; if the style is <code>dots</code>, this is the dot&#39;s diameter. <em>(since 0.13.0)</em></p></li>
+<li><p><code>separator_padding = side_padding cap_padding</code> : The padding to add to the sides of the separator, in pixels. <em>(since 0.13.0)</em></p></li>
+</ul>
 <h3 id="example-configuration">Example configuration<a name="example-configuration" href="#example-configuration" class="md2man-permalink" title="permalink"></a></h3><pre class="highlight plaintext"><code>#---------------------------------------------
 ## TINT2 CONFIG FILE
 #---------------------------------------------

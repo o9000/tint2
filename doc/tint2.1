@@ -65,6 +65,8 @@ Battery \[la]#battery\[ra]
 .IP \(bu 2
 Executor \[la]#executor\[ra]
 .IP \(bu 2
+Separator \[la]#separator\[ra]
+.IP \(bu 2
 Example configuration \[la]#example-configuration\[ra]
 .RE
 .SS Introduction
@@ -190,6 +192,8 @@ Identifier 0 refers to a special background which is fully transparent, identifi
 \fB\fCF\fR adds an extensible spacer (freespace). Has no effect if \fB\fCT\fR is also present. \fI(since 0.12)\fP
 .IP \(bu 2
 \fB\fCE\fR adds an executor plugin. You can specify more than one. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fC:\fR adds a separator. You can specify more than one. \fI(since 0.13.0)\fP
 .RE
 .PP
 For example, \fB\fCpanel_items = STC\fR will show the systray, the taskbar and the clock (from left to right).
@@ -690,6 +694,21 @@ execp_command = stdbuf \-oL bwm\-ng \-o csv \-t 1000 | awk \-F ';' '/total/ { pr
 execp_continuous = 1
 execp_interval = 1
 .fi
+.RE
+.SS Separator
+.RS
+.IP \(bu 2
+\fB\fCseparator = new\fR : Begins the configuration of a new separator. Multiple such plugins are supported; just use multiple \fB\fC:\fRs in \fB\fCpanel_items\fR\&. \fI(since 0.13.0)\fP
+.IP \(bu 2
+\fB\fCseparator_background_id = integer\fR : Which background to use. \fI(since 0.13.0)\fP
+.IP \(bu 2
+\fB\fCseparator_color = color opacity\fR : The foreground color. \fI(since 0.13.0)\fP
+.IP \(bu 2
+\fB\fCseparator_style = [empty | line | dots]\fR : The separator style. \fI(since 0.13.0)\fP
+.IP \(bu 2
+\fB\fCseparator_size = integer\fR : The thickness of the separator. Does not include the border and padding. For example, if the style is \fB\fCline\fR, this is the line thickness; if the style is \fB\fCdots\fR, this is the dot's diameter. \fI(since 0.13.0)\fP
+.IP \(bu 2
+\fB\fCseparator_padding = side_padding cap_padding\fR : The padding to add to the sides of the separator, in pixels. \fI(since 0.13.0)\fP
 .RE
 .SS Example configuration
 .PP
