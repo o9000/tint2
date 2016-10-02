@@ -4452,7 +4452,7 @@ void create_separator(GtkWidget *notebook, int i)
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
 	row = 0, col = 2;
 
-	label = gtk_label_new(_("<b>Format</b>"));
+	label = gtk_label_new(_("<b>Appearance</b>"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_widget_show(label);
@@ -4465,6 +4465,18 @@ void create_separator(GtkWidget *notebook, int i)
 	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
 	row = 0, col = 2;
 
+	label = gtk_label_new(_("Background"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	separator->separator_background = create_background_combo(_("Separator"));
+	gtk_widget_show(separator->separator_background);
+	gtk_table_attach(GTK_TABLE(table), separator->separator_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
 	label = gtk_label_new(_("Foreground color"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
@@ -4476,7 +4488,6 @@ void create_separator(GtkWidget *notebook, int i)
 	gtk_widget_show(separator->separator_color);
 	gtk_table_attach(GTK_TABLE(table), separator->separator_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
-	gtk_tooltips_set_tip(tooltips, separator->separator_color, _("Specifies separator's color."), NULL);
 
 	row++, col = 2;
 	label = gtk_label_new(_("Separator style"));
@@ -4489,7 +4500,6 @@ void create_separator(GtkWidget *notebook, int i)
 	gtk_widget_show(separator->separator_style);
 	gtk_table_attach(GTK_TABLE(table), separator->separator_style, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
-	gtk_tooltips_set_tip(tooltips, separator->separator_style, _("Specifies separator's appearance. 0 is empty/invisible separator."), NULL);
 
 	change_paragraph(parent);
 }

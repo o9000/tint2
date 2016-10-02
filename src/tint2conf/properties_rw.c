@@ -115,10 +115,10 @@ void config_write_backgrounds(FILE *fp)
 
 		int r;
 		int b;
-        gboolean sideTop;
-        gboolean sideBottom;
-        gboolean sideLeft;
-        gboolean sideRight;
+		gboolean sideTop;
+		gboolean sideBottom;
+		gboolean sideLeft;
+		gboolean sideRight;
 		GdkColor *fillColor;
 		int fillOpacity;
 		GdkColor *borderColor;
@@ -149,26 +149,26 @@ void config_write_backgrounds(FILE *fp)
 						   bgColBorderWidth, &b,
 						   bgColCornerRadius, &r,
 						   bgColText, &text,
-                           bgColBorderSidesTop, &sideTop,
-                           bgColBorderSidesBottom, &sideBottom,
-                           bgColBorderSidesLeft, &sideLeft,
-                           bgColBorderSidesRight, &sideRight,
+						   bgColBorderSidesTop, &sideTop,
+						   bgColBorderSidesBottom, &sideBottom,
+						   bgColBorderSidesLeft, &sideLeft,
+						   bgColBorderSidesRight, &sideRight,
 						   -1);
 		fprintf(fp, "# Background %d: %s\n", index, text ? text : "");
 		fprintf(fp, "rounded = %d\n", r);
 		fprintf(fp, "border_width = %d\n", b);
 
-        char sides[10];
-        sides[0] = '\0';
-        if (sideTop)
-            strcat(sides, "T");
-        if (sideBottom)
-            strcat(sides, "B");
-        if (sideLeft)
-            strcat(sides, "L");
-        if (sideRight)
-            strcat(sides, "R");
-        fprintf(fp, "border_sides = %s\n", sides);
+		char sides[10];
+		sides[0] = '\0';
+		if (sideTop)
+			strcat(sides, "T");
+		if (sideBottom)
+			strcat(sides, "B");
+		if (sideLeft)
+			strcat(sides, "L");
+		if (sideRight)
+			strcat(sides, "R");
+		fprintf(fp, "border_sides = %s\n", sides);
 
 		config_write_color(fp, "background_color", *fillColor, fillOpacity);
 		config_write_color(fp, "border_color", *borderColor, borderOpacity);
@@ -679,6 +679,7 @@ void config_write_separator(FILE *fp)
 		Separator *separator = &g_array_index(separators, Separator, i);
 
 		fprintf(fp, "separator = new\n");
+		fprintf(fp, "separator_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(separator->separator_background)));
 		GdkColor color;
 		gtk_color_button_get_color(GTK_COLOR_BUTTON(separator->separator_color), &color);
 		config_write_color(fp,
@@ -769,7 +770,7 @@ void config_write_tooltip(FILE *fp)
 // Similar to BSD checksum, except we skip the first line (metadata)
 unsigned short checksum_txt(FILE *f)
 {
-    unsigned int checksum = 0;
+	unsigned int checksum = 0;
 	fseek(f, 0, SEEK_SET);
 
 	// Skip the first line
@@ -780,13 +781,13 @@ unsigned short checksum_txt(FILE *f)
 
 	while ((c = getc(f)) != EOF) {
 		// Rotate right
-        checksum = (checksum >> 1) + ((checksum & 1) << 15);
-        // Update checksum
+		checksum = (checksum >> 1) + ((checksum & 1) << 15);
+		// Update checksum
 		checksum += c;
 		// Truncate to 16 bits
-        checksum &= 0xffff;
-    }
-    return checksum;
+		checksum &= 0xffff;
+	}
+	return checksum;
 }
 
 void config_save_file(const char *path) {
@@ -966,16 +967,16 @@ void add_entry(char *key, char *value)
 		read_border_color_press = 1;
 	}
 	else if (strcmp(key, "border_sides") == 0) {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_top),
-                                     strchr(value, 't') || strchr(value, 'T'));
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_bottom),
-                                     strchr(value, 'b') || strchr(value, 'B'));
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_left),
-                                     strchr(value, 'l') || strchr(value, 'L'));
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_right),
-                                     strchr(value, 'r') || strchr(value, 'R'));
-        background_force_update();
-    }
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_top),
+									 strchr(value, 't') || strchr(value, 'T'));
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_bottom),
+									 strchr(value, 'b') || strchr(value, 'B'));
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_left),
+									 strchr(value, 'l') || strchr(value, 'L'));
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_right),
+									 strchr(value, 'r') || strchr(value, 'R'));
+		background_force_update();
+	}
 	/* Panel */
 	else if (strcmp(key, "panel_size") == 0) {
 		extract_values(value, &value1, &value2, &value3);
@@ -1699,6 +1700,10 @@ void add_entry(char *key, char *value)
 	/* Separator */
 	else if (strcmp(key, "separator") == 0) {
 		separator_create_new();
+	}
+	else if (strcmp(key, "separator_background_id") == 0) {
+		int id = background_index_safe(atoi(value));
+		gtk_combo_box_set_active(GTK_COMBO_BOX(separator_get_last()->separator_background), id);
 	}
 	else if (strcmp(key, "separator_color") == 0) {
 		extract_values(value, &value1, &value2, &value3);

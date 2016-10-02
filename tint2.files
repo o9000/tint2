@@ -208,3 +208,5 @@ themes/vertical-light-opaque.tint2rc
 themes/vertical-light-transparent.tint2rc
 themes/vertical-neutral-icons.tint2rc
 doc/tint2.md
+src/separator/separator.c
+src/separator/separator.h

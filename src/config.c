@@ -539,6 +539,11 @@ void add_entry(char *key, char *value)
 	/* Separator */
 	else if (strcmp(key, "separator") == 0) {
 		panel_config.separator_list = g_list_append(panel_config.separator_list, create_separator());
+	} else if (strcmp(key, "separator_background_id") == 0) {
+		Separator *separator = get_or_create_last_separator();
+		int id = atoi(value);
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		separator->area.bg = &g_array_index(backgrounds, Background, id);
 	} else if (strcmp(key, "separator_color") == 0) {
 		Separator *separator = get_or_create_last_separator();
 		extract_values(value, &value1, &value2, &value3);

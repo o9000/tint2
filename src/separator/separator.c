@@ -17,7 +17,7 @@
 
 Separator *create_separator()
 {
-	Separator *separator = calloc(1, sizeof(Separator));
+	Separator *separator = (Separator *)calloc(1, sizeof(Separator));
 	return separator;
 }
 
@@ -61,13 +61,12 @@ void init_separator_panel(void *p)
 	if (panel->separator_list)
 		return;
 
-
 	// panel->separator_list is now a copy of the pointer panel_config.separator_list
 	// We make it a deep copy
 	panel->separator_list = g_list_copy_deep(panel_config.separator_list, NULL, NULL);
 
 	for (GList *l = panel->separator_list; l; l = l->next) {
-		Separator *separator = l->data;
+		Separator *separator = (Separator *)l->data;
 		if (!separator->area.bg)
 			separator->area.bg = &g_array_index(backgrounds, Background, 0);
 		separator->area.parent = p;
@@ -96,7 +95,7 @@ void cleanup_separator()
 
 gboolean resize_separator(void *obj)
 {
-	Separator *separator = obj;
+	Separator *separator = (Separator *)obj;
 	// Panel *panel = separator->area.panel;
 	if (!separator->area.on_screen)
 		return FALSE;
@@ -147,15 +146,15 @@ gboolean resize_separator(void *obj)
 
 void draw_separator(void *obj, cairo_t *c)
 {
-	Separator *separator = obj;
+	Separator *separator = (Separator *)obj;
 
-	if (separator->style == 0 )
+	if (separator->style == 0)
 		return;
 
-	double start_point = 0 + ( separator->thickness * 2 );
-	double end_point = separator->area.height - ( separator->thickness * 2 );
+	double start_point = 0 + (separator->thickness * 2);
+	double end_point = separator->area.height - (separator->thickness * 2);
 	if (!panel_horizontal)
-		end_point = separator->area.width - ( separator->thickness * 2 );
+		end_point = separator->area.width - (separator->thickness * 2);
 	double count = end_point - start_point;
 	double thickness = separator->thickness;
 	double len = separator->len;
@@ -164,10 +163,18 @@ void draw_separator(void *obj, cairo_t *c)
 
 	if (separator->style == 2) {
 		if (!panel_horizontal)
-			start_point=start_point + 2;
-		cairo_set_source_rgba(c, separator->color.rgb[0], separator->color.rgb[1], separator->color.rgb[2], separator->color.alpha);
+			start_point = start_point + 2;
+		cairo_set_source_rgba(c,
+		                      separator->color.rgb[0],
+		                      separator->color.rgb[1],
+		                      separator->color.rgb[2],
+		                      separator->color.alpha);
 		cairo_set_line_width(c, 1);
-		cairo_rectangle(c, start_point - 2, start_point - (panel_horizontal ? 0 : 4), end_point - thickness - 3, end_point - thickness - ( panel_horizontal ? 3 : 3));
+		cairo_rectangle(c,
+		                start_point - 2,
+		                start_point - (panel_horizontal ? 0 : 4),
+		                end_point - thickness - 3,
+		                end_point - thickness - (panel_horizontal ? 3 : 3));
 		cairo_stroke_preserve(c);
 		cairo_fill(c);
 		return;
@@ -176,7 +183,7 @@ void draw_separator(void *obj, cairo_t *c)
 	if (count < thickness)
 		return;
 
-	while (((int) count) % 2) {
+	while (((int)count) % 2) {
 		if (alt) {
 			start_point++;
 			alt = 0;
@@ -198,9 +205,13 @@ void draw_separator(void *obj, cairo_t *c)
 		end_point--;
 	}
 
-	double separator_pattern[] = { len, len };
-	double separator_style6_pattern[] = { 1.0 };
-	cairo_set_source_rgba(c, separator->color.rgb[0], separator->color.rgb[1], separator->color.rgb[2], separator->color.alpha);
+	double separator_pattern[] = {len, len};
+	double separator_style6_pattern[] = {1.0};
+	cairo_set_source_rgba(c,
+	                      separator->color.rgb[0],
+	                      separator->color.rgb[1],
+	                      separator->color.rgb[2],
+	                      separator->color.alpha);
 	cairo_set_line_width(c, thickness);
 	if (separator->style == 6)
 		cairo_set_dash(c, separator_style6_pattern, 1, 0);
