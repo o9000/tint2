@@ -7,13 +7,18 @@
 #include "common.h"
 #include "area.h"
 
+typedef enum SeparatorStyle {
+	SEPARATOR_EMPTY = 0,
+	SEPARATOR_LINE,
+	SEPARATOR_DOTS
+} SeparatorStyle;
+
 typedef struct Separator {
 	Area area;
-	int style;
+	SeparatorStyle style;
 	Color color;
-	double empty_thickness;
-	double thickness;
-	double len;
+	int thickness;
+	int length;
 } Separator;
 
 Separator *create_separator();

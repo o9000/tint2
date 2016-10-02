@@ -128,6 +128,9 @@ typedef struct Separator {
 	GtkWidget *separator_background;
 	GtkWidget *separator_color;
 	GtkWidget *separator_style;
+	GtkWidget *separator_size;
+	GtkWidget *separator_padding_x;
+	GtkWidget *separator_padding_y;
 } Separator;
 
 extern GArray *separators;
@@ -234,5 +237,7 @@ void execp_update_indices();
 void create_please_wait(GtkWindow *parent);
 void process_events();
 void destroy_please_wait();
+
+void hex2gdk(char *hex, GdkColor *color);
 
 #endif

@@ -4486,19 +4486,65 @@ void create_separator(GtkWidget *notebook, int i)
 	separator->separator_color = gtk_color_button_new();
 	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(separator->separator_color), TRUE);
 	gtk_widget_show(separator->separator_color);
+	GdkColor color;
+	hex2gdk("#777777", &color);
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(separator->separator_color), &color);
+	gtk_color_button_set_alpha(GTK_COLOR_BUTTON(separator_get_last()->separator_color), (90*65535)/100);
 	gtk_table_attach(GTK_TABLE(table), separator->separator_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
 	row++, col = 2;
-	label = gtk_label_new(_("Separator style"));
+	label = gtk_label_new(_("Style"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
-	separator->separator_style = gtk_spin_button_new_with_range(0, 6, 1);
+	separator->separator_style = gtk_combo_box_new_text();
 	gtk_widget_show(separator->separator_style);
 	gtk_table_attach(GTK_TABLE(table), separator->separator_style, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_combo_box_append_text(GTK_COMBO_BOX(separator->separator_style), _("Empty"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(separator->separator_style), _("Line"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(separator->separator_style), _("Dots"));
+	gtk_combo_box_set_active(GTK_COMBO_BOX(separator->separator_style), 2);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Size"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	separator->separator_size = gtk_spin_button_new_with_range(0, 10000, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator->separator_size), 3);
+	gtk_widget_show(separator->separator_size);
+	gtk_table_attach(GTK_TABLE(table), separator->separator_size, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Horizontal padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	separator->separator_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator->separator_padding_x), 1);
+	gtk_widget_show(separator->separator_padding_x);
+	gtk_table_attach(GTK_TABLE(table), separator->separator_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Vertical padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	separator->separator_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(separator->separator_padding_y);
+	gtk_table_attach(GTK_TABLE(table), separator->separator_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
 	change_paragraph(parent);

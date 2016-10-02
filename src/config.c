@@ -554,7 +554,25 @@ void add_entry(char *key, char *value)
 			separator->color.alpha = 0.5;
 	} else if (strcmp(key, "separator_style") == 0) {
 		Separator *separator = get_or_create_last_separator();
-		separator->style = atoi(value);
+		if (g_str_equal(value, "empty"))
+			separator->style = SEPARATOR_EMPTY;
+		else if (g_str_equal(value, "line"))
+			separator->style = SEPARATOR_LINE;
+		else if (g_str_equal(value, "dots"))
+			separator->style = SEPARATOR_DOTS;
+		else
+			fprintf(stderr, RED "Invalid separator_style value: %s" RESET "\n", value);
+	} else if (strcmp(key, "separator_size") == 0) {
+		Separator *separator = get_or_create_last_separator();
+		separator->thickness = atoi(value);
+	} else if (strcmp(key, "separator_padding") == 0) {
+		Separator *separator = get_or_create_last_separator();
+		extract_values(value, &value1, &value2, &value3);
+		separator->area.paddingxlr = separator->area.paddingx = atoi(value1);
+		if (value2)
+			separator->area.paddingy = atoi(value2);
+		if (value3)
+			separator->area.paddingx = atoi(value3);
 	}
 
 	/* Execp */
