@@ -157,7 +157,7 @@ void draw_separator_line(void *obj, cairo_t *c)
 		cairo_line_to(c, separator->area.width / 2.0, separator->area.height / 2.0 + separator->length / 2.0);
 	} else {
 		cairo_move_to(c, separator->area.width / 2.0 - separator->length / 2.0, separator->area.height / 2.0);
-		cairo_line_to(c, separator->area.width / 2.0 - separator->length / 2.0, separator->area.height / 2.0);
+		cairo_line_to(c, separator->area.width / 2.0 + separator->length / 2.0, separator->area.height / 2.0);
 	}
 	cairo_stroke(c);
 }
