@@ -182,6 +182,7 @@ void init_execp_panel(void *p)
 
 		execp->area.resize_needed = TRUE;
 		execp->area.on_screen = TRUE;
+		init_area_gradients(&execp->area);
 
 		if (!execp->backend->timer)
 			execp->backend->timer = add_timeout(10, 0, execp_timer_callback, execp, &execp->backend->timer);

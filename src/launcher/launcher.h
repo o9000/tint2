@@ -46,7 +46,7 @@ extern char *icon_theme_name_config;
 extern int launcher_icon_theme_override;
 extern int startup_notifications;
 extern Background *launcher_icon_bg;
-extern GradientClass *launcher_icon_gradient;
+extern GList *launcher_icon_gradients;
 
 // default global data
 void default_launcher();

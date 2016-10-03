@@ -123,6 +123,7 @@ void init_systray_panel(void *p)
 	show(&systray.area);
 	schedule_redraw(&systray.area);
 	refresh_systray = TRUE;
+	init_area_gradients(&systray.area);
 }
 
 gboolean resize_systray(void *obj)
@@ -1500,9 +1501,9 @@ void refresh_systray_icons()
 	}
 }
 
-gboolean systray_on_monitor(int i_monitor, int num_panels)
+gboolean systray_on_monitor(int i_monitor, int n_panels)
 {
-	return (i_monitor == systray_monitor) || (i_monitor == 0 && (systray_monitor >= num_panels || systray_monitor < 0));
+	return (i_monitor == systray_monitor) || (i_monitor == 0 && (systray_monitor >= n_panels || systray_monitor < 0));
 }
 
 TrayWindow *systray_find_icon(Window win)

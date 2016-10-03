@@ -375,6 +375,7 @@ void init(int argc, char *argv[])
 #endif
 
 	debug_geometry = getenv("DEBUG_GEOMETRY") != NULL;
+	debug_gradients = getenv("DEBUG_GRADIENTS") != NULL;
 }
 
 static int sigchild_pipe_valid = FALSE;

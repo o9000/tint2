@@ -23,23 +23,22 @@ typedef struct ColorStop {
 	double offset;
 } ColorStop;
 
-typedef enum Origin {
-	ORIGIN_ELEMENT = 0,
-	ORIGIN_PARENT,
-	ORIGIN_PANEL,
-	ORIGIN_SCREEN,
-	ORIGIN_DESKTOP
-} Origin;
+typedef enum Element {
+	ELEMENT_SELF = 0,
+	ELEMENT_PARENT,
+	ELEMENT_PANEL
+} Element;
 
 typedef enum SizeVariable {
 	SIZE_WIDTH = 0,
 	SIZE_HEIGHT,
+	SIZE_RADIUS,
 	SIZE_LEFT,
 	SIZE_RIGHT,
 	SIZE_TOP,
 	SIZE_BOTTOM,
-	SIZE_CENTER,
-	SIZE_RADIUS
+	SIZE_CENTERX,
+	SIZE_CENTERY
 } SizeVariable;
 
 typedef struct Offset {
@@ -47,13 +46,12 @@ typedef struct Offset {
 	// if constant == true
 	double constant_value;
 	// else
-	Origin variable_element;
+	Element element;
 	SizeVariable variable;
 	double multiplier;
 } Offset;
 
 typedef struct ControlPoint {
-	Origin origin;
 	// Each element is an Offset
 	GList *offsets_x;
 	GList *offsets_y;
@@ -72,7 +70,7 @@ typedef struct GradientClass {
 } GradientClass;
 
 GradientType gradient_type_from_string(const char *str);
-Origin origin_from_string(const char *str);
+Element element_from_string(const char *str);
 Offset *offset_from_string(const char *str);
 void init_gradient(GradientClass *g, GradientType type);
 void cleanup_gradient(GradientClass *g);
@@ -83,33 +81,12 @@ void cleanup_gradient(GradientClass *g);
 struct Area;
 typedef struct Area Area;
 
-typedef struct OffsetInstance {
-	gboolean constant;
-	// if constant == true
-	double constant_value;
-	// else
-	Area *variable_element;
-	SizeVariable variable;
-	double multiplier;
-} OffsetInstance;
-
-typedef struct ControlPointInstance {
-	Area *origin;
-	// Each element is an OffsetInstance
-	GList *offsets_x;
-	GList *offsets_y;
-	GList *offsets_r;
-} ControlPointInstance;
-
 typedef struct GradientInstance {
 	GradientClass *gradient_class;
 	Area *area;
-	ControlPointInstance from;
-	ControlPointInstance to;
 	cairo_pattern_t *pattern;
-	// Each element is an Area whose geometry is used to compute this gradient
-	// TODO why do we need it?
-	GList *gradient_dependencies;
 } GradientInstance;
+
+extern gboolean debug_gradients;
 
 #endif // GRADIENT_H

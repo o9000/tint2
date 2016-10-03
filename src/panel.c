@@ -56,6 +56,7 @@ gboolean panel_refresh;
 gboolean task_dragged;
 char *panel_window_name = NULL;
 gboolean debug_geometry;
+gboolean debug_gradients;
 
 gboolean panel_autohide;
 int panel_autohide_show_timeout;
@@ -115,6 +116,9 @@ void default_panel()
 	Background transparent_bg;
 	init_background(&transparent_bg);
 	g_array_append_val(backgrounds, transparent_bg);
+	GradientClass transparent_gradient;
+	init_gradient(&transparent_gradient, GRADIENT_VERTICAL);
+	g_array_append_val(gradients, transparent_gradient);
 }
 
 void cleanup_panel()
@@ -215,6 +219,7 @@ void init_panel()
 		p->area._clear = panel_clear_background;
 		p->separator_list = NULL;
 		init_panel_size_and_position(p);
+		init_area_gradients(&p->area);
 		// add children according to panel_items
 		for (int k = 0; k < strlen(panel_items_order); k++) {
 			if (panel_items_order[k] == 'L')

@@ -595,6 +595,9 @@ void set_task_state(Task *task, TaskState state)
 				Task *task1 = g_ptr_array_index(task_buttons, i);
 				task1->current_state = state;
 				task1->area.bg = panels[0].g_task.background[state];
+				free_area_gradients(&task1->area);
+				task1->area.gradients = panels[0].g_task.gradient[state];
+				init_area_gradients(&task1->area);
 				schedule_redraw(&task1->area);
 				if (state == TASK_ACTIVE && g_slist_find(urgent_list, task1))
 					del_urgent(task1);

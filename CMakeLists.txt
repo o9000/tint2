@@ -194,7 +194,7 @@ endif( ENABLE_TINT2CONF )
 
 if( ENABLE_ASAN )
   SET(ASAN_C_FLAGS " -O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -Wshadow")
-  SET(ASAN_L_FLAGS " -O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic ")
+  SET(ASAN_L_FLAGS " -O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -fuse-ld=gold ")
 else()
   SET(ASAN_C_FLAGS "")
   SET(ASAN_L_FLAGS "")

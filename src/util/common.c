@@ -199,101 +199,44 @@ void get_color(char *hex, double *rgb)
 	rgb[2] = (b / 255.0);
 }
 
-void extract_values(const char *value, char **value1, char **value2, char **value3)
+void extract_values(const char *str, char **value1, char **value2, char **value3)
 {
-	char *value0 = strdup(value);
-	char *b = 0, *c = 0;
-
-	if (*value1)
-		free(*value1);
-	if (*value2)
-		free(*value2);
-	if (*value3)
-		free(*value3);
-
-	if ((b = strchr(value0, ' '))) {
-		b[0] = '\0';
-		b++;
-	} else {
-		*value2 = 0;
-		*value3 = 0;
-	}
-	*value1 = strdup(value0);
-	g_strstrip(*value1);
-
-	if (b) {
-		if ((c = strchr(b, ' '))) {
-			c[0] = '\0';
-			c++;
-		} else {
-			c = 0;
-			*value3 = 0;
+	*value1 = NULL;
+	*value2 = NULL;
+	*value3 = NULL;
+	char **tokens = g_strsplit(str, " ", 3);
+	if (tokens[0]) {
+		*value1 = strdup(tokens[0]);
+		if (tokens[1]) {
+			*value2 = strdup(tokens[1]);
+			if (tokens[2]) {
+				*value3 = strdup(tokens[2]);
+			}
 		}
-		*value2 = strdup(b);
-		g_strstrip(*value2);
 	}
-
-	if (c) {
-		*value3 = strdup(c);
-		g_strstrip(*value3);
-	}
-
-	free(value0);
+	g_strfreev(tokens);
 }
 
-void extract_values_4(const char *value, char **value1, char **value2, char **value3, char **value4)
+void extract_values_4(const char *str, char **value1, char **value2, char **value3, char **value4)
 {
-	char *value0 = strdup(value);
-	char *b = 0, *c = 0, *d;
-
-	if (*value1)
-		free(*value1);
-	if (*value2)
-		free(*value2);
-	if (*value3)
-		free(*value3);
-	if (*value4)
-		free(*value4);
-
-	if ((b = strchr(value0, ' '))) {
-		b[0] = '\0';
-		b++;
-	} else {
-		*value2 = 0;
-		*value3 = 0;
-		*value4 = 0;
-	}
-	*value1 = strdup(value0);
-	g_strstrip(*value1);
-
-	if (b) {
-		if ((c = strchr(b, ' '))) {
-			c[0] = '\0';
-			c++;
-		} else {
-			c = 0;
-			*value3 = 0;
-			*value4 = 0;
+	*value1 = NULL;
+	*value2 = NULL;
+	*value3 = NULL;
+	*value4 = NULL;
+	char **tokens = g_strsplit(str, " ", 4);
+	if (tokens[0]) {
+		*value1 = strdup(tokens[0]);
+		if (tokens[1]) {
+			*value2 = strdup(tokens[1]);
+			if (tokens[2]) {
+				*value3 = strdup(tokens[2]);
+				if (tokens[3]) {
+					*value4 = strdup(tokens[3]);
+				}
+			}
 		}
-		*value2 = strdup(b);
-		g_strstrip(*value2);
 	}
-
-	if (c) {
-		if ((d = strchr(c, ' '))) {
-			d[0] = '\0';
-			d++;
-		} else {
-			d = 0;
-			*value4 = 0;
-		}
-		*value3 = strdup(c);
-		g_strstrip(*value3);
-
-		*value4 = strdup(d);
-		g_strstrip(*value4);
-	}
-	free(value0);
+	g_strfreev(tokens);
 }
 
 void adjust_asb(DATA32 *data, int w, int h, float alpha_adjust, float satur_adjust, float bright_adjust)

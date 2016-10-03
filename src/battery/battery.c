@@ -164,6 +164,7 @@ void init_battery_panel(void *p)
 	battery->area.has_mouse_press_effect = battery->area.has_mouse_over_effect;
 	if (battery_tooltip_enabled)
 		battery->area._get_tooltip_text = battery_get_tooltip;
+	init_area_gradients(&battery->area);
 }
 
 void battery_init_fonts()

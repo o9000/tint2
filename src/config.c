@@ -71,8 +71,6 @@ char *snapshot_path;
 // detect if it's an old config file (==1)
 static gboolean new_config_file;
 
-static gboolean read_bg_color2;
-static gboolean read_bg_gradient;
 static gboolean read_bg_color_hover;
 static gboolean read_border_color_hover;
 static gboolean read_bg_color_press;
@@ -244,12 +242,10 @@ void add_entry(char *key, char *value)
 		init_background(&bg);
 		bg.border.radius = atoi(value);
 		g_array_append_val(backgrounds, bg);
-		read_bg_color2 = 0;
-		read_bg_gradient = 0;
-		read_bg_color_hover = 0;
-		read_border_color_hover = 0;
-		read_bg_color_press = 0;
-		read_border_color_press = 0;
+		read_bg_color_hover = FALSE;
+		read_border_color_hover = FALSE;
+		read_bg_color_press = FALSE;
+		read_border_color_press = FALSE;
 	} else if (strcmp(key, "border_width") == 0) {
 		g_array_index(backgrounds, Background, backgrounds->len - 1).border.width = atoi(value);
 	} else if (strcmp(key, "border_sides") == 0) {
@@ -345,27 +341,13 @@ void add_entry(char *key, char *value)
 		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
 		extract_values(value, &value1, &value2, &value3);
 		ColorStop *color_stop = (ColorStop *) calloc(1, sizeof(ColorStop));
-		color_stop->offset = atof(value1);
+		color_stop->offset = atof(value1) / 100.0;
 		get_color(value2, color_stop->color.rgb);
 		if (value3)
-			color_stop->color.alpha = (atoi(value2) / 100.0);
+			color_stop->color.alpha = (atoi(value3) / 100.0);
 		else
 			color_stop->color.alpha = 0.5;
 		g->extra_color_stops = g_list_append(g->extra_color_stops, color_stop);
-	} else if (strcmp(key, "from_origin") == 0) {
-		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
-			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
-		} else {
-			g->from.origin = origin_from_string(value);
-		}
-	} else if (strcmp(key, "to_origin") == 0) {
-		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
-			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
-		} else {
-			g->to.origin = origin_from_string(value);
-		}
 	} else if (strcmp(key, "from_offset_x") == 0) {
 		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
 		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
@@ -554,7 +536,7 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < gradients->len && id >= 0) ? id : -1;
 		if (id >= 0)
-			panel_config.area.gradients = g_list_append(panel_config.area.gradients, &g_array_index(backgrounds, Background, id));
+			panel_config.area.gradients = g_list_append(panel_config.area.gradients, &g_array_index(gradients, GradientClass, id));
 	} else if (strcmp(key, "wm_menu") == 0)
 		wm_menu = atoi(value);
 	else if (strcmp(key, "panel_dock") == 0)
@@ -663,7 +645,7 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < gradients->len && id >= 0) ? id : -1;
 		if (id >= 0)
-			panel_config.battery.area.gradients = g_list_append(panel_config.battery.area.gradients, &g_array_index(backgrounds, Background, id));
+			panel_config.battery.area.gradients = g_list_append(panel_config.battery.area.gradients, &g_array_index(gradients, GradientClass, id));
 #endif
 	} else if (strcmp(key, "battery_hide") == 0) {
 #ifdef ENABLE_BATTERY
@@ -690,7 +672,7 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < gradients->len && id >= 0) ? id : -1;
 		if (id >= 0)
-			separator->area.gradients = g_list_append(separator->area.gradients, &g_array_index(backgrounds, Background, id));
+			separator->area.gradients = g_list_append(separator->area.gradients, &g_array_index(gradients, GradientClass, id));
 	} else if (strcmp(key, "separator_color") == 0) {
 		Separator *separator = get_or_create_last_separator();
 		extract_values(value, &value1, &value2, &value3);
@@ -788,7 +770,7 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < gradients->len && id >= 0) ? id : -1;
 		if (id >= 0)
-			execp->area.gradients = g_list_append(execp->area.gradients, &g_array_index(backgrounds, Background, id));
+			execp->area.gradients = g_list_append(execp->area.gradients, &g_array_index(gradients, GradientClass, id));
 	} else if (strcmp(key, "execp_centered") == 0) {
 		Execp *execp = get_or_create_last_execp();
 		execp->backend->centered = atoi(value);
@@ -889,7 +871,7 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < gradients->len && id >= 0) ? id : -1;
 		if (id >= 0)
-			panel_config.clock.area.gradients = g_list_append(panel_config.clock.area.gradients, &g_array_index(backgrounds, Background, id));
+			panel_config.clock.area.gradients = g_list_append(panel_config.clock.area.gradients, &g_array_index(gradients, GradientClass, id));
 	} else if (strcmp(key, "clock_tooltip") == 0) {
 		if (strlen(value) > 0)
 			time_tooltip_format = strdup(value);
@@ -1175,7 +1157,7 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < gradients->len && id >= 0) ? id : -1;
 		if (id >= 0)
-			launcher_icon_gradient = &g_array_index(gradients, GradientClass, id);
+			launcher_icon_gradients = g_list_append(launcher_icon_gradients, &g_array_index(gradients, GradientClass, id));
 	} else if (strcmp(key, "launcher_icon_size") == 0) {
 		launcher_max_icon_size = atoi(value);
 	} else if (strcmp(key, "launcher_item_app") == 0) {

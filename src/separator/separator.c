@@ -84,6 +84,7 @@ void init_separator_panel(void *p)
 		separator->area.on_screen = TRUE;
 		separator->area._resize = resize_separator;
 		separator->area._draw_foreground = draw_separator;
+		init_area_gradients(&separator->area);
 	}
 }
 

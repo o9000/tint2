@@ -53,7 +53,7 @@ char *icon_theme_name_xsettings;
 int launcher_icon_theme_override;
 int startup_notifications;
 Background *launcher_icon_bg;
-GradientClass *launcher_icon_gradient;
+GList *launcher_icon_gradients;
 
 Imlib_Image scale_icon(Imlib_Image original, int icon_size);
 void free_icon(Imlib_Image icon);
@@ -76,6 +76,7 @@ void default_launcher()
 	launcher_icon_theme_override = 0;
 	startup_notifications = 0;
 	launcher_icon_bg = NULL;
+	launcher_icon_gradients = NULL;
 }
 
 void init_launcher()
@@ -107,6 +108,7 @@ void init_launcher_panel(void *p)
 
 	launcher->area.on_screen = TRUE;
 	panel_refresh = TRUE;
+	init_area_gradients(&launcher->area);
 
 	launcher_load_themes(launcher);
 	launcher_load_icons(launcher);
@@ -422,16 +424,20 @@ void launcher_load_icons(Launcher *launcher)
 {
 	// Load apps (.desktop style launcher items)
 	GSList *app = launcher->list_apps;
+	int index = 0;
 	while (app != NULL) {
-		LauncherIcon *launcherIcon = calloc(1, sizeof(LauncherIcon));
+		index++;
+		LauncherIcon *launcherIcon = (LauncherIcon *)calloc(1, sizeof(LauncherIcon));
 		launcherIcon->area.panel = launcher->area.panel;
 		launcherIcon->area._draw_foreground = draw_launcher_icon;
 		launcherIcon->area.size_mode = LAYOUT_FIXED;
 		launcherIcon->area._resize = NULL;
+		sprintf(launcherIcon->area.name, "LauncherIcon %d", index);
 		launcherIcon->area.resize_needed = 0;
 		launcherIcon->area.has_mouse_over_effect = panel_config.mouse_effects;
 		launcherIcon->area.has_mouse_press_effect = launcherIcon->area.has_mouse_over_effect;
 		launcherIcon->area.bg = launcher_icon_bg;
+		launcherIcon->area.gradients = launcher_icon_gradients;
 		launcherIcon->area.on_screen = TRUE;
 		launcherIcon->area._on_change_layout = launcher_icon_on_change_layout;
 		launcherIcon->area._dump_geometry = launcher_icon_dump_geometry;
@@ -444,6 +450,7 @@ void launcher_load_icons(Launcher *launcher)
 		add_area(&launcherIcon->area, (Area *)launcher);
 		launcher->list_icons = g_slist_append(launcher->list_icons, launcherIcon);
 		launcher_reload_icon(launcher, launcherIcon);
+		init_area_gradients(&launcherIcon->area);
 		app = g_slist_next(app);
 	}
 }
