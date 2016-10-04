@@ -4,6 +4,7 @@
 - Enhancements:
   - Desktop files (shortcuts) used in launcher are reloaded on click, in case the file has changed
   - New config option taskbar_hide_if_empty to hide an empty taskbar in multi_desktop mode (contributed by Benoit Averty)
+  - Gradient backgrounds (contributed by Oskari Rauta)
 - New plugin: separator (contributed by Oskari Rauta)
 
 2016-08-02 0.12.12
