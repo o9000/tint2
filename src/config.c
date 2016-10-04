@@ -913,7 +913,7 @@ void add_entry(char *key, char *value)
 	} else if (strcmp(key, "taskbar_background_id") == 0) {
 		int id = atoi(value);
 		id = (id < backgrounds->len && id >= 0) ? id : 0;
-		panel_config.g_taskbar.area.bg = &g_array_index(backgrounds, Background, id);
+		panel_config.g_taskbar.background[TASKBAR_NORMAL] = &g_array_index(backgrounds, Background, id);
 		if (panel_config.g_taskbar.background[TASKBAR_ACTIVE] == 0)
 			panel_config.g_taskbar.background[TASKBAR_ACTIVE] = panel_config.g_taskbar.background[TASKBAR_NORMAL];
 	} else if (strcmp(key, "taskbar_gradient_id") == 0) {
