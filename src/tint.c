@@ -1567,6 +1567,7 @@ start:
 	double ts_event_processed = 0;
 	double ts_render_finished = 0;
 	double ts_flush_finished = 0;
+	double fps_sum = 0, fps_count = 0;
 	while (1) {
 		if (panel_refresh) {
 			if (debug_fps)
@@ -1654,9 +1655,12 @@ start:
 				double proc_ratio = (ts_event_processed - ts_event_read) / period;
 				double render_ratio = (ts_render_finished - ts_event_processed) / period;
 				double flush_ratio = (ts_flush_finished - ts_render_finished) / period;
+				fps_sum += fps;
+				fps_count += 1;
 				fprintf(stderr,
-				        BLUE "fps = %.1f : processing %.1f%%, rendering %.1f%%, flushing %.1f%%" RESET "\n",
+						BLUE "fps = %.1f (avg %.1f) : processing %.1f%%, rendering %.1f%%, flushing %.1f%%" RESET "\n",
 				        fps,
+						fps_sum / fps_count,
 				        proc_ratio * 100,
 				        render_ratio * 100,
 				        flush_ratio * 100);
