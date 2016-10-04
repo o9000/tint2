@@ -62,10 +62,10 @@ void init_taskbarname_panel(void *p)
 		taskbar->bar_name.area.has_mouse_press_effect = panel_config.mouse_effects;
 		if (j == server.desktop) {
 			taskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_ACTIVE];
-			taskbar->bar_name.area.gradients = panel->g_taskbar.gradient_name[TASKBAR_ACTIVE];
+			taskbar->bar_name.area.gradients = g_list_copy(panel->g_taskbar.gradient_name[TASKBAR_ACTIVE]);
 		} else {
 			taskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_NORMAL];
-			taskbar->bar_name.area.gradients = panel->g_taskbar.gradient_name[TASKBAR_NORMAL];
+			taskbar->bar_name.area.gradients = g_list_copy(panel->g_taskbar.gradient_name[TASKBAR_NORMAL]);
 		}
 
 		// use desktop number if name is missing
@@ -78,7 +78,7 @@ void init_taskbarname_panel(void *p)
 
 		// append the name at the beginning of taskbar
 		taskbar->area.children = g_list_append(taskbar->area.children, &taskbar->bar_name);
-		init_area_gradients(&taskbar->bar_name.area);
+		instantiate_area_gradients(&taskbar->bar_name.area);
 	}
 
 	for (l = list; l; l = l->next)

@@ -123,7 +123,7 @@ void init_systray_panel(void *p)
 	show(&systray.area);
 	schedule_redraw(&systray.area);
 	refresh_systray = TRUE;
-	init_area_gradients(&systray.area);
+	instantiate_area_gradients(&systray.area);
 }
 
 gboolean resize_systray(void *obj)

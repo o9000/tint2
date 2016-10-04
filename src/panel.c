@@ -150,6 +150,9 @@ void cleanup_panel()
 	panel_window_name = NULL;
 	free(panels);
 	panels = NULL;
+
+	free_area(&panel_config.area);
+
 	if (backgrounds)
 		g_array_free(backgrounds, TRUE);
 	backgrounds = NULL;
@@ -195,6 +198,7 @@ void init_panel()
 	panels = calloc(num_panels, sizeof(Panel));
 	for (int i = 0; i < num_panels; i++) {
 		memcpy(&panels[i], &panel_config, sizeof(Panel));
+		panels[i].area.gradients = g_list_copy(panel_config.area.gradients);
 	}
 
 	fprintf(stderr,
@@ -219,7 +223,7 @@ void init_panel()
 		p->area._clear = panel_clear_background;
 		p->separator_list = NULL;
 		init_panel_size_and_position(p);
-		init_area_gradients(&p->area);
+		instantiate_area_gradients(&p->area);
 		// add children according to panel_items
 		for (int k = 0; k < strlen(panel_items_order); k++) {
 			if (panel_items_order[k] == 'L')

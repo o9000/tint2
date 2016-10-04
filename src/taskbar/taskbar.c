@@ -116,6 +116,15 @@ void cleanup_taskbar()
 	urgent_list = NULL;
 
 	stop_timeout(urgent_timeout);
+
+	for (int state = 0; state < TASK_STATE_COUNT; state++) {
+		g_list_free(panel_config.g_task.gradient[state]);
+	}
+
+	for (int state = 0; state < TASKBAR_STATE_COUNT; state++) {
+		g_list_free(panel_config.g_taskbar.gradient[state]);
+		g_list_free(panel_config.g_taskbar.gradient_name[state]);
+	}
 }
 
 void init_taskbar()
@@ -306,14 +315,14 @@ void init_taskbar_panel(void *p)
 		taskbar->desktop = j;
 		if (j == server.desktop) {
 			taskbar->area.bg = panel->g_taskbar.background[TASKBAR_ACTIVE];
-			free_area_gradients(&taskbar->area);
-			taskbar->area.gradients = panel->g_taskbar.gradient[TASKBAR_ACTIVE];
-			init_area_gradients(&taskbar->area);
+			free_area_gradient_instances(&taskbar->area);
+			taskbar->area.gradients = g_list_copy(panel->g_taskbar.gradient[TASKBAR_ACTIVE]);
+			instantiate_area_gradients(&taskbar->area);
 		} else {
 			taskbar->area.bg = panel->g_taskbar.background[TASKBAR_NORMAL];
-			free_area_gradients(&taskbar->area);
-			taskbar->area.gradients = panel->g_taskbar.gradient[TASKBAR_NORMAL];
-			init_area_gradients(&taskbar->area);
+			free_area_gradient_instances(&taskbar->area);
+			taskbar->area.gradients = g_list_copy(panel->g_taskbar.gradient[TASKBAR_NORMAL]);
+			instantiate_area_gradients(&taskbar->area);
 		}
 
 	}
@@ -486,15 +495,15 @@ void update_all_taskbars_visibility()
 void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 {
 	taskbar->area.bg = panels[0].g_taskbar.background[state];
-	free_area_gradients(&taskbar->area);
-	taskbar->area.gradients = panels[0].g_taskbar.gradient[state];
-	init_area_gradients(&taskbar->area);
+	free_area_gradient_instances(&taskbar->area);
+	taskbar->area.gradients = g_list_copy(panels[0].g_taskbar.gradient[state]);
+	instantiate_area_gradients(&taskbar->area);
 
 	if (taskbarname_enabled) {
 		taskbar->bar_name.area.bg = panels[0].g_taskbar.background_name[state];
-		free_area_gradients(&taskbar->bar_name.area);
-		taskbar->bar_name.area.gradients = panels[0].g_taskbar.gradient_name[state];
-		init_area_gradients(&taskbar->bar_name.area);
+		free_area_gradient_instances(&taskbar->bar_name.area);
+		taskbar->bar_name.area.gradients = g_list_copy(panels[0].g_taskbar.gradient_name[state]);
+		instantiate_area_gradients(&taskbar->bar_name.area);
 	}
 
 	update_taskbar_visibility(taskbar);

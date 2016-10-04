@@ -196,7 +196,7 @@ void init_clock_panel(void *p)
 
 	clock->area.resize_needed = 1;
 	clock->area.on_screen = TRUE;
-	init_area_gradients(&clock->area);
+	instantiate_area_gradients(&clock->area);
 
 	if (time_tooltip_format) {
 		clock->area._get_tooltip_text = clock_get_tooltip;

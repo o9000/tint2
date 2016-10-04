@@ -108,7 +108,7 @@ void init_launcher_panel(void *p)
 
 	launcher->area.on_screen = TRUE;
 	panel_refresh = TRUE;
-	init_area_gradients(&launcher->area);
+	instantiate_area_gradients(&launcher->area);
 
 	launcher_load_themes(launcher);
 	launcher_load_icons(launcher);
@@ -450,7 +450,7 @@ void launcher_load_icons(Launcher *launcher)
 		add_area(&launcherIcon->area, (Area *)launcher);
 		launcher->list_icons = g_slist_append(launcher->list_icons, launcherIcon);
 		launcher_reload_icon(launcher, launcherIcon);
-		init_area_gradients(&launcherIcon->area);
+		instantiate_area_gradients(&launcherIcon->area);
 		app = g_slist_next(app);
 	}
 }
