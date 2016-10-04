@@ -79,6 +79,8 @@ XSettingsClient *xsettings_client = NULL;
 timeout *detect_compositor_timer = NULL;
 int detect_compositor_timer_counter = 0;
 
+gboolean debug_fps = FALSE;
+
 void detect_compositor(void *arg)
 {
 	if (server.composite_manager) {
@@ -376,6 +378,7 @@ void init(int argc, char *argv[])
 
 	debug_geometry = getenv("DEBUG_GEOMETRY") != NULL;
 	debug_gradients = getenv("DEBUG_GRADIENTS") != NULL;
+	debug_fps = getenv("DEBUG_FPS") != NULL;
 }
 
 static int sigchild_pipe_valid = FALSE;
@@ -509,8 +512,8 @@ void init_X11_post_config()
 	}
 	if (!default_icon) {
 		fprintf(stderr,
-				RED "Could not load default_icon.png. Please check that tint2 has been installed correctly!" RESET
-					"\n");
+		        RED "Could not load default_icon.png. Please check that tint2 has been installed correctly!" RESET
+		            "\n");
 	}
 }
 
@@ -560,7 +563,7 @@ void get_snapshot(const char *path)
 		panel->area.width = server.monitors[0].width;
 
 	panel->temp_pmap =
-		XCreatePixmap(server.display, server.root_win, panel->area.width, panel->area.height, server.depth);
+	    XCreatePixmap(server.display, server.root_win, panel->area.width, panel->area.height, server.depth);
 	render_panel(panel);
 
 	XSync(server.display, False);
@@ -570,7 +573,7 @@ void get_snapshot(const char *path)
 
 	if (!img) {
 		XImage *ximg =
-			XGetImage(server.display, panel->temp_pmap, 0, 0, panel->area.width, panel->area.height, AllPlanes, ZPixmap);
+		    XGetImage(server.display, panel->temp_pmap, 0, 0, panel->area.width, panel->area.height, AllPlanes, ZPixmap);
 
 		if (ximg) {
 			DATA32 *pixels = calloc(panel->area.width * panel->area.height, sizeof(DATA32));
@@ -672,8 +675,8 @@ int tint2_handles_click(Panel *panel, XButtonEvent *e)
 	Task *task = click_task(panel, e->x, e->y);
 	if (task) {
 		if ((e->button == 1 && mouse_left != 0) || (e->button == 2 && mouse_middle != 0) ||
-			(e->button == 3 && mouse_right != 0) || (e->button == 4 && mouse_scroll_up != 0) ||
-			(e->button == 5 && mouse_scroll_down != 0)) {
+		    (e->button == 3 && mouse_right != 0) || (e->button == 4 && mouse_scroll_up != 0) ||
+		    (e->button == 5 && mouse_scroll_down != 0)) {
 			return 1;
 		} else
 			return 0;
@@ -692,8 +695,8 @@ int tint2_handles_click(Panel *panel, XButtonEvent *e)
 		return 1;
 	if (click_clock(panel, e->x, e->y)) {
 		if ((e->button == 1 && clock_lclick_command) || (e->button == 2 && clock_mclick_command) ||
-			(e->button == 3 && clock_rclick_command) || (e->button == 4 && clock_uwheel_command) ||
-			(e->button == 5 && clock_dwheel_command))
+		    (e->button == 3 && clock_rclick_command) || (e->button == 4 && clock_uwheel_command) ||
+		    (e->button == 5 && clock_dwheel_command))
 			return 1;
 		else
 			return 0;
@@ -701,8 +704,8 @@ int tint2_handles_click(Panel *panel, XButtonEvent *e)
 #ifdef ENABLE_BATTERY
 	if (click_battery(panel, e->x, e->y)) {
 		if ((e->button == 1 && battery_lclick_command) || (e->button == 2 && battery_mclick_command) ||
-			(e->button == 3 && battery_rclick_command) || (e->button == 4 && battery_uwheel_command) ||
-			(e->button == 5 && battery_dwheel_command))
+		    (e->button == 3 && battery_rclick_command) || (e->button == 4 && battery_uwheel_command) ||
+		    (e->button == 5 && battery_dwheel_command))
 			return 1;
 		else
 			return 0;
@@ -902,7 +905,7 @@ void event_button_release(XEvent *e)
 	if (taskbar_mode == MULTI_DESKTOP) {
 		gboolean diff_desktop = FALSE;
 		if (taskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT &&
-			action != DESKTOP_RIGHT) {
+		    action != DESKTOP_RIGHT) {
 			diff_desktop = TRUE;
 			change_desktop(taskbar->desktop);
 		}
@@ -1001,8 +1004,8 @@ void event_property_notify(XEvent *e)
 		}
 		// Change desktops
 		else if (at == server.atom._NET_NUMBER_OF_DESKTOPS || at == server.atom._NET_DESKTOP_GEOMETRY ||
-				 at == server.atom._NET_DESKTOP_VIEWPORT || at == server.atom._NET_WORKAREA ||
-				 at == server.atom._NET_CURRENT_DESKTOP) {
+		         at == server.atom._NET_DESKTOP_VIEWPORT || at == server.atom._NET_WORKAREA ||
+		         at == server.atom._NET_CURRENT_DESKTOP) {
 			if (debug)
 				fprintf(stderr, "%s %d: win = root, atom = ?? desktops changed\n", __FUNCTION__, __LINE__);
 			if (!taskbar_enabled)
@@ -1125,12 +1128,12 @@ void event_property_notify(XEvent *e)
 		if (debug) {
 			char *atom_name = XGetAtomName(server.display, at);
 			fprintf(stderr,
-					"%s %d: win = %ld, task = %s, atom = %s\n",
-					__FUNCTION__,
-					__LINE__,
-					win,
-					task ? (task->title ? task->title : "??") : "null",
-					atom_name);
+			        "%s %d: win = %ld, task = %s, atom = %s\n",
+			        __FUNCTION__,
+			        __LINE__,
+			        win,
+			        task ? (task->title ? task->title : "??") : "null",
+			        atom_name);
 			XFree(atom_name);
 		}
 		if (!task) {
@@ -1234,19 +1237,19 @@ void event_configure_notify(XEvent *e)
 	if (0) {
 		Task *task = get_task(win);
 		fprintf(stderr,
-				"%s %d: win = %ld, task = %s\n",
-				__FUNCTION__,
-				__LINE__,
-				win,
-				task ? (task->title ? task->title : "??") : "null");
+		        "%s %d: win = %ld, task = %s\n",
+		        __FUNCTION__,
+		        __LINE__,
+		        win,
+		        task ? (task->title ? task->title : "??") : "null");
 	}
 
 	// change in root window (xrandr)
 	if (win == server.root_win) {
 		fprintf(stderr,
-				YELLOW "%s %d: triggering tint2 restart due to configuration change in the root window" RESET "\n",
-				__FILE__,
-				__LINE__);
+		        YELLOW "%s %d: triggering tint2 restart due to configuration change in the root window" RESET "\n",
+		        __FILE__,
+		        __LINE__);
 		signal_pending = SIGUSR1;
 		return;
 	}
@@ -1264,8 +1267,8 @@ void event_configure_notify(XEvent *e)
 			Panel *p = task->area.panel;
 			int monitor = get_window_monitor(win);
 			if ((hide_task_diff_monitor && p->monitor != monitor && task->area.on_screen) ||
-				(hide_task_diff_monitor && p->monitor == monitor && !task->area.on_screen) ||
-				(p->monitor != monitor && num_panels > 1)) {
+			    (hide_task_diff_monitor && p->monitor == monitor && !task->area.on_screen) ||
+			    (p->monitor != monitor && num_panels > 1)) {
 				remove_task(task);
 				task = add_task(win);
 				if (win == get_active_window()) {
@@ -1321,17 +1324,17 @@ struct Property read_property(Display *disp, Window w, Atom property)
 		if (ret != 0)
 			XFree(ret);
 		XGetWindowProperty(disp,
-						   w,
-						   property,
-						   0,
-						   read_bytes,
-						   False,
-						   AnyPropertyType,
-						   &actual_type,
-						   &actual_format,
-						   &nitems,
-						   &bytes_after,
-						   &ret);
+		                   w,
+		                   property,
+		                   0,
+		                   read_bytes,
+		                   False,
+		                   AnyPropertyType,
+		                   &actual_type,
+		                   &actual_format,
+		                   &nitems,
+		                   &bytes_after,
+		                   &ret);
 		read_bytes *= 2;
 	} while (bytes_after != 0);
 
@@ -1487,18 +1490,18 @@ void dnd_drop(XClientMessageEvent *e)
 	if (dnd_target_window && dnd_launcher_exec) {
 		if (dnd_version >= 1) {
 			XConvertSelection(server.display,
-							  server.atom.XdndSelection,
-							  XA_STRING,
-							  dnd_selection,
-							  dnd_target_window,
-							  e->data.l[2]);
+			                  server.atom.XdndSelection,
+			                  XA_STRING,
+			                  dnd_selection,
+			                  dnd_target_window,
+			                  e->data.l[2]);
 		} else {
 			XConvertSelection(server.display,
-							  server.atom.XdndSelection,
-							  XA_STRING,
-							  dnd_selection,
-							  dnd_target_window,
-							  CurrentTime);
+			                  server.atom.XdndSelection,
+			                  XA_STRING,
+			                  dnd_selection,
+			                  dnd_target_window,
+			                  CurrentTime);
 		}
 	} else {
 		// The source is sending anyway, despite instructions to the contrary.
@@ -1526,8 +1529,8 @@ start:
 
 	if (!config_read()) {
 		fprintf(stderr,
-				"Could not read config file.\n"
-				"Usage: tint2 [[-c] <config_file>]\n");
+		        "Could not read config file.\n"
+		        "Usage: tint2 [[-c] <config_file>]\n");
 		cleanup();
 		exit(1);
 	}
@@ -1560,14 +1563,20 @@ start:
 	int ufd = uevent_init();
 	int hidden_dnd = 0;
 
+	double ts_event_read = 0;
+	double ts_event_processed = 0;
+	double ts_render_finished = 0;
+	double ts_flush_finished = 0;
 	while (1) {
 		if (panel_refresh) {
+			if (debug_fps)
+				ts_event_processed = get_time();
 			if (systray_profile)
 				fprintf(stderr,
-						BLUE "[%f] %s:%d redrawing panel" RESET "\n",
-						profiling_get_time(),
-						__FUNCTION__,
-						__LINE__);
+				        BLUE "[%f] %s:%d redrawing panel" RESET "\n",
+				        profiling_get_time(),
+				        __FUNCTION__,
+				        __LINE__);
 			panel_refresh = FALSE;
 
 			for (int i = 0; i < num_panels; i++) {
@@ -1576,45 +1585,45 @@ start:
 				if (panel->is_hidden) {
 					if (!panel->hidden_pixmap) {
 						panel->hidden_pixmap = XCreatePixmap(server.display,
-															 server.root_win,
-															 panel->hidden_width,
-															 panel->hidden_height,
-															 server.depth);
+						                                     server.root_win,
+						                                     panel->hidden_width,
+						                                     panel->hidden_height,
+						                                     server.depth);
 						int xoff = 0, yoff = 0;
 						if (panel_horizontal && panel_position & BOTTOM)
 							yoff = panel->area.height - panel->hidden_height;
 						else if (!panel_horizontal && panel_position & RIGHT)
 							xoff = panel->area.width - panel->hidden_width;
 						XCopyArea(server.display,
-								  panel->area.pix,
-								  panel->hidden_pixmap,
-								  server.gc,
-								  xoff,
-								  yoff,
-								  panel->hidden_width,
-								  panel->hidden_height,
-								  0,
-								  0);
+						          panel->area.pix,
+						          panel->hidden_pixmap,
+						          server.gc,
+						          xoff,
+						          yoff,
+						          panel->hidden_width,
+						          panel->hidden_height,
+						          0,
+						          0);
 					}
 					XCopyArea(server.display,
-							  panel->hidden_pixmap,
-							  panel->main_win,
-							  server.gc,
-							  0,
-							  0,
-							  panel->hidden_width,
-							  panel->hidden_height,
-							  0,
-							  0);
+					          panel->hidden_pixmap,
+					          panel->main_win,
+					          server.gc,
+					          0,
+					          0,
+					          panel->hidden_width,
+					          panel->hidden_height,
+					          0,
+					          0);
 					XSetWindowBackgroundPixmap(server.display, panel->main_win, panel->hidden_pixmap);
 				} else {
 					if (panel->temp_pmap)
 						XFreePixmap(server.display, panel->temp_pmap);
 					panel->temp_pmap = XCreatePixmap(server.display,
-													 server.root_win,
-													 panel->area.width,
-													 panel->area.height,
-													 server.depth);
+					                                 server.root_win,
+					                                 panel->area.width,
+					                                 panel->area.height,
+					                                 server.depth);
 					render_panel(panel);
 					if (panel == (Panel *)systray.area.panel) {
 						if (refresh_systray && panel && !panel->is_hidden) {
@@ -1624,18 +1633,34 @@ start:
 						}
 					}
 					XCopyArea(server.display,
-							  panel->temp_pmap,
-							  panel->main_win,
-							  server.gc,
-							  0,
-							  0,
-							  panel->area.width,
-							  panel->area.height,
-							  0,
-							  0);
+					          panel->temp_pmap,
+					          panel->main_win,
+					          server.gc,
+					          0,
+					          0,
+					          panel->area.width,
+					          panel->area.height,
+					          0,
+					          0);
 				}
 			}
+			if (debug_fps)
+				ts_render_finished = get_time();
 			XFlush(server.display);
+			if (debug_fps) {
+				ts_flush_finished = get_time();
+				double period = ts_flush_finished - ts_event_read;
+				double fps = 1.0 / period;
+				double proc_ratio = (ts_event_processed - ts_event_read) / period;
+				double render_ratio = (ts_render_finished - ts_event_processed) / period;
+				double flush_ratio = (ts_flush_finished - ts_render_finished) / period;
+				fprintf(stderr,
+				        BLUE "fps = %.1f : processing %.1f%%, rendering %.1f%%, flushing %.1f%%" RESET "\n",
+				        fps,
+				        proc_ratio * 100,
+				        render_ratio * 100,
+				        flush_ratio * 100);
+			}
 		}
 
 		// Create a File Description Set containing x11_fd
@@ -1686,6 +1711,8 @@ start:
 			if (XPending(server.display) > 0) {
 				XEvent e;
 				XNextEvent(server.display, &e);
+				if (debug_fps)
+					ts_event_read = get_time();
 #if HAVE_SN
 				if (startup_notifications)
 					sn_display_process_event(server.sn_display, &e);
@@ -1704,7 +1731,7 @@ start:
 						} else
 							continue; // discard further processing of this event because the panel is not visible yet
 					} else if (hidden_dnd && e.type == ClientMessage &&
-							   e.xclient.message_type == server.atom.XdndLeave) {
+					           e.xclient.message_type == server.atom.XdndLeave) {
 						hidden_dnd = 0;
 						autohide_hide(panel);
 					}
@@ -1802,9 +1829,9 @@ start:
 					if (e.xany.window == server.composite_manager) {
 						// Stop real_transparency
 						fprintf(stderr,
-								YELLOW "%s %d: triggering tint2 restart due to compositor shutdown" RESET "\n",
-								__FILE__,
-								__LINE__);
+						        YELLOW "%s %d: triggering tint2 restart due to compositor shutdown" RESET "\n",
+						        __FILE__,
+						        __LINE__);
 						signal_pending = SIGUSR1;
 						break;
 					}
@@ -1824,21 +1851,21 @@ start:
 						if (ev->data.l[2] == None) {
 							// Stop real_transparency
 							fprintf(stderr,
-									YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n",
-									__FILE__,
-									__LINE__);
+							        YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n",
+							        __FILE__,
+							        __LINE__);
 							signal_pending = SIGUSR1;
 						} else {
 							// Start real_transparency
 							fprintf(stderr,
-									YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n",
-									__FILE__,
-									__LINE__);
+							        YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n",
+							        __FILE__,
+							        __LINE__);
 							signal_pending = SIGUSR1;
 						}
 					}
 					if (systray_enabled && e.xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE &&
-						e.xclient.format == 32 && e.xclient.window == net_sel_win) {
+					    e.xclient.format == 32 && e.xclient.window == net_sel_win) {
 						net_message(&e.xclient);
 					} else if (e.xclient.message_type == server.atom.XdndEnter) {
 						dnd_enter(&e.xclient);
@@ -1856,20 +1883,20 @@ start:
 					fprintf(stderr, "DnD %s:%d: A selection notify has arrived!\n", __FILE__, __LINE__);
 					fprintf(stderr, "DnD %s:%d: Requestor = %lu\n", __FILE__, __LINE__, e.xselectionrequest.requestor);
 					fprintf(stderr,
-							"DnD %s:%d: Selection atom = %s\n",
-							__FILE__,
-							__LINE__,
-							GetAtomName(server.display, e.xselection.selection));
+					        "DnD %s:%d: Selection atom = %s\n",
+					        __FILE__,
+					        __LINE__,
+					        GetAtomName(server.display, e.xselection.selection));
 					fprintf(stderr,
-							"DnD %s:%d: Target atom    = %s\n",
-							__FILE__,
-							__LINE__,
-							GetAtomName(server.display, target));
+					        "DnD %s:%d: Target atom    = %s\n",
+					        __FILE__,
+					        __LINE__,
+					        GetAtomName(server.display, target));
 					fprintf(stderr,
-							"DnD %s:%d: Property atom  = %s\n",
-							__FILE__,
-							__LINE__,
-							GetAtomName(server.display, e.xselection.property));
+					        "DnD %s:%d: Property atom  = %s\n",
+					        __FILE__,
+					        __LINE__,
+					        GetAtomName(server.display, e.xselection.property));
 
 					if (e.xselection.property != None && dnd_launcher_exec) {
 						Property prop = read_property(server.display, dnd_target_window, dnd_selection);
@@ -1885,11 +1912,11 @@ start:
 								// Request the data type we are able to select
 								fprintf(stderr, "Now requsting type %s", GetAtomName(server.display, dnd_atom));
 								XConvertSelection(server.display,
-												  dnd_selection,
-												  dnd_atom,
-												  dnd_selection,
-												  dnd_target_window,
-												  CurrentTime);
+								                  dnd_selection,
+								                  dnd_atom,
+								                  dnd_selection,
+								                  dnd_target_window,
+								                  CurrentTime);
 							}
 						} else if (target == dnd_atom) {
 							// Dump the binary data
