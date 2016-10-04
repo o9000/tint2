@@ -156,13 +156,13 @@ the gradient index, starting from 1. The `*_gradient_id` option can be repeated
 for the same element, which results in multiple gradients
 being drawn on top of each other in the given order.
 
-# Simple gradients
+#### Simple gradients
 
 These are gradients that vary from fixed control points (top-to-bottom, left-to-right
 or center-to-corners). The user must specify the start and end colors,
 and can optionally add extra color stops in between.
 
-## Vertical gradient, with color varying from the top edge to the bottom edge, two colors
+##### Vertical gradient, with color varying from the top edge to the bottom edge, two colors
 
 ```
 gradient = vertical
@@ -170,7 +170,7 @@ start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 ```
 
-## Horizontal gradient, with color varying from the left edge to the right edge, two colors
+##### Horizontal gradient, with color varying from the left edge to the right edge, two colors
 
 ```
 gradient = horizontal
@@ -178,7 +178,7 @@ start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 ```
 
-## Centered radial gradient, with color varying from the center to the corner, two colors:
+##### Centered radial gradient, with color varying from the center to the corner, two colors:
 
 ```
 gradient = centered
@@ -186,13 +186,13 @@ start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 ```
 
-## Adding extra color stops (0% and 100% remain fixed, more colors at x% between the start and end control points)
+##### Adding extra color stops (0% and 100% remain fixed, more colors at x% between the start and end control points)
 
 ```
 color_stop = percentage #rrggbb opacity
 ```
 
-# Advanced gradients
+#### Advanced gradients
 
 These gradient types allow specifying the control points. This permits, for example,
 adding off-center radial glow effects, linear gradients with arbitrary angles,
@@ -200,7 +200,7 @@ or using another element's edge as a control point.
 
 Note: updates are currently a little buggy for task buttons.
 
-## Linear or radial gradients, with arbitrary control points (and orientation)
+##### Linear or radial gradients, with arbitrary control points (and orientation)
 
 ```
 gradient = linear | radial
@@ -243,7 +243,7 @@ while `- 1.234` is not.
 
 Multiple `*_offset_*` can be given, in which case they are added together.
 
-# Gradient examples
+#### Gradient examples
 
 ```
 # Gradient 1: thin film effect

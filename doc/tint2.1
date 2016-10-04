@@ -192,12 +192,12 @@ where \fB\fC*\fR is an element name, for example \fB\fCpanel\fR, and \fB\fCINDEX
 the gradient index, starting from 1. The \fB\fC*_gradient_id\fR option can be repeated
 for the same element, which results in multiple gradients
 being drawn on top of each other in the given order.
-.SH Simple gradients
+.SS Simple gradients
 .PP
 These are gradients that vary from fixed control points (top\-to\-bottom, left\-to\-right
 or center\-to\-corners). The user must specify the start and end colors,
 and can optionally add extra color stops in between.
-.SH Vertical gradient, with color varying from the top edge to the bottom edge, two colors
+.SS Vertical gradient, with color varying from the top edge to the bottom edge, two colors
 .PP
 .RS
 .nf
@@ -206,7 +206,7 @@ start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 .fi
 .RE
-.SH Horizontal gradient, with color varying from the left edge to the right edge, two colors
+.SS Horizontal gradient, with color varying from the left edge to the right edge, two colors
 .PP
 .RS
 .nf
@@ -215,7 +215,7 @@ start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 .fi
 .RE
-.SH Centered radial gradient, with color varying from the center to the corner, two colors:
+.SS Centered radial gradient, with color varying from the center to the corner, two colors:
 .PP
 .RS
 .nf
@@ -224,21 +224,21 @@ start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 .fi
 .RE
-.SH Adding extra color stops (0% and 100% remain fixed, more colors at x% between the start and end control points)
+.SS Adding extra color stops (0% and 100% remain fixed, more colors at x% between the start and end control points)
 .PP
 .RS
 .nf
 color_stop = percentage #rrggbb opacity
 .fi
 .RE
-.SH Advanced gradients
+.SS Advanced gradients
 .PP
 These gradient types allow specifying the control points. This permits, for example,
 adding off\-center radial glow effects, linear gradients with arbitrary angles,
 or using another element's edge as a control point.
 .PP
 Note: updates are currently a little buggy for task buttons.
-.SH Linear or radial gradients, with arbitrary control points (and orientation)
+.SS Linear or radial gradients, with arbitrary control points (and orientation)
 .PP
 .RS
 .nf
@@ -284,7 +284,7 @@ the minus sign and the first digit, for example \fB\fC\-1.234\fR is correct,
 while \fB\fC\- 1.234\fR is not.
 .PP
 Multiple \fB\fC*_offset_*\fR can be given, in which case they are added together.
-.SH Gradient examples
+.SS Gradient examples
 .PP
 .RS
 .nf

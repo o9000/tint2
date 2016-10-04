@@ -296,25 +296,25 @@ ideally after backgrounds but before all the other options.</p><p>Then gradients
 where <code>*</code> is an element name, for example <code>panel</code>, and <code>INDEX</code> is
 the gradient index, starting from 1. The <code>*_gradient_id</code> option can be repeated
 for the same element, which results in multiple gradients
-being drawn on top of each other in the given order.</p><h1 id="simple-gradients">Simple gradients<a name="simple-gradients" href="#simple-gradients" class="md2man-permalink" title="permalink"></a></h1><p>These are gradients that vary from fixed control points (top-to-bottom, left-to-right
+being drawn on top of each other in the given order.</p><h4 id="simple-gradients">Simple gradients<a name="simple-gradients" href="#simple-gradients" class="md2man-permalink" title="permalink"></a></h4><p>These are gradients that vary from fixed control points (top-to-bottom, left-to-right
 or center-to-corners). The user must specify the start and end colors,
-and can optionally add extra color stops in between.</p><h2 id="vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors">Vertical gradient, with color varying from the top edge to the bottom edge, two colors<a name="vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors" href="#vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors" class="md2man-permalink" title="permalink"></a></h2><pre class="highlight plaintext"><code>gradient = vertical
+and can optionally add extra color stops in between.</p><h5 id="vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors">Vertical gradient, with color varying from the top edge to the bottom edge, two colors<a name="vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors" href="#vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>gradient = vertical
 start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 </code></pre>
-<h2 id="horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors">Horizontal gradient, with color varying from the left edge to the right edge, two colors<a name="horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors" href="#horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors" class="md2man-permalink" title="permalink"></a></h2><pre class="highlight plaintext"><code>gradient = horizontal
+<h5 id="horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors">Horizontal gradient, with color varying from the left edge to the right edge, two colors<a name="horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors" href="#horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>gradient = horizontal
 start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 </code></pre>
-<h2 id="centered-radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors">Centered radial gradient, with color varying from the center to the corner, two colors:<a name="centered-radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors" href="#centered-radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors" class="md2man-permalink" title="permalink"></a></h2><pre class="highlight plaintext"><code>gradient = centered
+<h5 id="centered-radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors">Centered radial gradient, with color varying from the center to the corner, two colors:<a name="centered-radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors" href="#centered-radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>gradient = centered
 start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 </code></pre>
-<h2 id="adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points">Adding extra color stops (0% and 100% remain fixed, more colors at x% between the start and end control points)<a name="adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points" href="#adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points" class="md2man-permalink" title="permalink"></a></h2><pre class="highlight plaintext"><code>color_stop = percentage #rrggbb opacity
+<h5 id="adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points">Adding extra color stops (0% and 100% remain fixed, more colors at x% between the start and end control points)<a name="adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points" href="#adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>color_stop = percentage #rrggbb opacity
 </code></pre>
-<h1 id="advanced-gradients">Advanced gradients<a name="advanced-gradients" href="#advanced-gradients" class="md2man-permalink" title="permalink"></a></h1><p>These gradient types allow specifying the control points. This permits, for example,
+<h4 id="advanced-gradients">Advanced gradients<a name="advanced-gradients" href="#advanced-gradients" class="md2man-permalink" title="permalink"></a></h4><p>These gradient types allow specifying the control points. This permits, for example,
 adding off-center radial glow effects, linear gradients with arbitrary angles,
-or using another element&#39;s edge as a control point.</p><p>Note: updates are currently a little buggy for task buttons.</p><h2 id="linear-or-radial-gradients-with-arbitrary-control-points-and-orientation">Linear or radial gradients, with arbitrary control points (and orientation)<a name="linear-or-radial-gradients-with-arbitrary-control-points-and-orientation" href="#linear-or-radial-gradients-with-arbitrary-control-points-and-orientation" class="md2man-permalink" title="permalink"></a></h2><pre class="highlight plaintext"><code>gradient = linear | radial
+or using another element&#39;s edge as a control point.</p><p>Note: updates are currently a little buggy for task buttons.</p><h5 id="linear-or-radial-gradients-with-arbitrary-control-points-and-orientation">Linear or radial gradients, with arbitrary control points (and orientation)<a name="linear-or-radial-gradients-with-arbitrary-control-points-and-orientation" href="#linear-or-radial-gradients-with-arbitrary-control-points-and-orientation" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>gradient = linear | radial
 # Geometry
 from_offset_x = SIZE_EXPRESSION
 from_offset_y = SIZE_EXPRESSION
@@ -343,7 +343,7 @@ ELEMENT = self | parent | panel
 <p>All coordinates are computed in the drawn element&#39;s coordinate system,
 with origin in the top-left corner and the vertical axis growing down.</p><p>Numbers are any real numbers. Negative numbers must not have spaces between
 the minus sign and the first digit, for example <code>-1.234</code> is correct,
-while <code>- 1.234</code> is not.</p><p>Multiple <code>*_offset_*</code> can be given, in which case they are added together.</p><h1 id="gradient-examples">Gradient examples<a name="gradient-examples" href="#gradient-examples" class="md2man-permalink" title="permalink"></a></h1><pre class="highlight plaintext"><code># Gradient 1: thin film effect
+while <code>- 1.234</code> is not.</p><p>Multiple <code>*_offset_*</code> can be given, in which case they are added together.</p><h4 id="gradient-examples">Gradient examples<a name="gradient-examples" href="#gradient-examples" class="md2man-permalink" title="permalink"></a></h4><pre class="highlight plaintext"><code># Gradient 1: thin film effect
 gradient = horizontal
 start_color = #111122 30
 end_color = #112211 30
