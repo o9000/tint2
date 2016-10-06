@@ -1648,7 +1648,7 @@ start:
 			if (debug_fps)
 				ts_render_finished = get_time();
 			XFlush(server.display);
-			if (debug_fps) {
+			if (debug_fps && ts_event_read > 0) {
 				ts_flush_finished = get_time();
 				double period = ts_flush_finished - ts_event_read;
 				double fps = 1.0 / period;
@@ -1658,7 +1658,7 @@ start:
 				fps_sum += fps;
 				fps_count += 1;
 				fprintf(stderr,
-						BLUE "fps = %.1f (avg %.1f) : processing %.1f%%, rendering %.1f%%, flushing %.1f%%" RESET "\n",
+						BLUE "fps = %.0f (avg %.0f) : processing %.0f%%, rendering %.0f%%, flushing %.0f%%" RESET "\n",
 				        fps,
 						fps_sum / fps_count,
 				        proc_ratio * 100,
@@ -1692,6 +1692,7 @@ start:
 		struct timeval *select_timeout = (next_timeout.tv_sec >= 0 && next_timeout.tv_usec >= 0) ? &next_timeout : NULL;
 
 		// Wait for X Event or a Timer
+		ts_event_read = 0;
 		if (XPending(server.display) > 0 || select(maxfd + 1, &fdset, 0, 0, select_timeout) >= 0) {
 			uevent_handler();
 
