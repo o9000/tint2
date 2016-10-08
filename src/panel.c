@@ -131,8 +131,6 @@ void cleanup_panel()
 	for (int i = 0; i < num_panels; i++) {
 		Panel *p = &panels[i];
 
-		cleanup_freespace(p);
-
 		free_area(&p->area);
 		if (p->temp_pmap)
 			XFreePixmap(server.display, p->temp_pmap);
@@ -144,6 +142,7 @@ void cleanup_panel()
 			XDestroyWindow(server.display, p->main_win);
 		p->main_win = 0;
 		stop_timeout(p->autohide_timeout);
+		cleanup_freespace(p);
 	}
 
 	free(panel_items_order);
