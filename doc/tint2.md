@@ -351,6 +351,8 @@ panel_gradient_id = 5
 panel_size = 94% 30
 ```
 
+  * `panel_shrink = boolean (0 or 1)` : If set to 1, the panel will shrink to a compact size dynamically.
+
   * `panel_margin = horizontal_margin vertical_margin` : The margins define the distance between the panel and the horizontal/vertical monitor edge. Use `0` to obtain a panel with the same size as the edge of the monitor (no margin).
 
 ![](images/panel_size_margin.jpg)

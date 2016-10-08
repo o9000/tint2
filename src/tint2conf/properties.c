@@ -1387,7 +1387,7 @@ void create_panel(GtkWidget *parent)
 
 	row++;
 	col = 2;
-	label = gtk_label_new(_("Shrink"));
+	label = gtk_label_new(_("Compact"));
 	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
 	gtk_widget_show(label);
 	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);

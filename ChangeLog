@@ -1,10 +1,11 @@
-2016-10-02 master
+2016-10-08 master
 - Fixes:
   - tint2conf: executor tooltips are now correctly disabled when text config value is empty (contributed by Justin Jacobs)
 - Enhancements:
   - Desktop files (shortcuts) used in launcher are reloaded on click, in case the file has changed
   - New config option taskbar_hide_if_empty to hide an empty taskbar in multi_desktop mode (contributed by Benoit Averty)
   - Gradient backgrounds (contributed by Oskari Rauta)
+  - New option: panel_shrink (fixes issue #333)
 - New plugin: separator (contributed by Oskari Rauta)
 
 2016-08-02 0.12.12
