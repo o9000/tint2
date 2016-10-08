@@ -216,36 +216,32 @@ void relayout_dynamic(Area *a, int level)
 	}
 }
 
+int compute_desired_size(Area *a)
+{
+	if (!a->on_screen)
+		return 0;
+	if (a->_compute_desired_size)
+		return a->_compute_desired_size(a);
+	if (a->size_mode == LAYOUT_FIXED)
+		fprintf(stderr, YELLOW "Area %s does not set desired size!" RESET "\n", a->name);
+	int result = 2 * a->paddingxlr + (panel_horizontal ? left_right_border_width(a) : top_bottom_border_width(a));
+	int children_count = 0;
+	for (GList *l = a->children; l != NULL; l = l->next) {
+		Area *child = (Area *)l->data;
+		if (child->on_screen) {
+			result += compute_desired_size(child);
+			children_count++;
+		}
+	}
+	if (children_count > 0)
+		result += (children_count - 1) * a->paddingx;
+	return result;
+}
+
 void relayout(Area *a)
 {
 	relayout_fixed(a);
 	relayout_dynamic(a, 1);
-}
-
-void draw_tree(Area *a)
-{
-	if (!a->on_screen)
-		return;
-
-	if (a->_redraw_needed) {
-		a->_redraw_needed = FALSE;
-		draw(a);
-	}
-
-	if (a->pix)
-		XCopyArea(server.display,
-		          a->pix,
-		          ((Panel *)a->panel)->temp_pmap,
-		          server.gc,
-		          0,
-		          0,
-		          a->width,
-		          a->height,
-		          a->posx,
-		          a->posy);
-
-	for (GList *l = a->children; l; l = l->next)
-		draw_tree((Area *)l->data);
 }
 
 int relayout_with_constraint(Area *a, int maximum_size)
@@ -357,6 +353,32 @@ void schedule_redraw(Area *a)
 	for (GList *l = a->children; l; l = l->next)
 		schedule_redraw((Area *)l->data);
 	panel_refresh = TRUE;
+}
+
+void draw_tree(Area *a)
+{
+	if (!a->on_screen)
+		return;
+
+	if (a->_redraw_needed) {
+		a->_redraw_needed = FALSE;
+		draw(a);
+	}
+
+	if (a->pix)
+		XCopyArea(server.display,
+				  a->pix,
+				  ((Panel *)a->panel)->temp_pmap,
+				  server.gc,
+				  0,
+				  0,
+				  a->width,
+				  a->height,
+				  a->posx,
+				  a->posy);
+
+	for (GList *l = a->children; l; l = l->next)
+		draw_tree((Area *)l->data);
 }
 
 void hide(Area *a)
@@ -818,13 +840,14 @@ void area_dump_geometry(Area *area, int indent)
 		return;
 	}
 	fprintf(stderr,
-	        "%*sBox: x = %d, y = %d, w = %d, h = %d\n",
+			"%*sBox: x = %d, y = %d, w = %d, h = %d, desired size = %d\n",
 	        indent,
 	        "",
 	        area->posx,
 	        area->posy,
 	        area->width,
-	        area->height);
+			area->height,
+			compute_desired_size(area));
 	fprintf(stderr,
 	        "%*sBorder: left = %d, right = %d, top = %d, bottom = %d\n",
 	        indent,

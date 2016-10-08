@@ -58,6 +58,7 @@ gboolean battery_found;
 
 void battery_init_fonts();
 char *battery_get_tooltip(void *obj);
+int battery_compute_desired_size(void *obj);
 void battery_dump_geometry(void *obj, int indent);
 
 void default_battery()
@@ -155,6 +156,7 @@ void init_battery_panel(void *p)
 	battery->area._draw_foreground = draw_battery;
 	battery->area.size_mode = LAYOUT_FIXED;
 	battery->area._resize = resize_battery;
+	battery->area._compute_desired_size = battery_compute_desired_size;
 	battery->area._is_under_mouse = full_width_area_is_under_mouse;
 	battery->area.on_screen = TRUE;
 	battery->area.resize_needed = 1;
@@ -287,15 +289,60 @@ int update_battery()
 	return err;
 }
 
+int battery_compute_desired_size(void *obj)
+{
+	Battery *battery = (Battery *)obj;
+	Panel *panel = (Panel *)battery->area.panel;
+	int bat_percentage_height, bat_percentage_width, bat_percentage_height_ink;
+	int bat_time_height, bat_time_width, bat_time_height_ink;
+
+	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
+	if (battery_state.state == BATTERY_FULL) {
+		strcpy(buf_bat_time, "Full");
+	} else {
+		snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
+	}
+	get_text_size2(bat1_font_desc,
+				   &bat_percentage_height_ink,
+				   &bat_percentage_height,
+				   &bat_percentage_width,
+				   panel->area.height,
+				   panel->area.width,
+				   buf_bat_percentage,
+				   strlen(buf_bat_percentage),
+				   PANGO_WRAP_WORD_CHAR,
+				   PANGO_ELLIPSIZE_NONE,
+				   FALSE);
+	get_text_size2(bat2_font_desc,
+				   &bat_time_height_ink,
+				   &bat_time_height,
+				   &bat_time_width,
+				   panel->area.height,
+				   panel->area.width,
+				   buf_bat_time,
+				   strlen(buf_bat_time),
+				   PANGO_WRAP_WORD_CHAR,
+				   PANGO_ELLIPSIZE_NONE,
+				   FALSE);
+
+	if (panel_horizontal) {
+		int new_size = (bat_percentage_width > bat_time_width) ? bat_percentage_width : bat_time_width;
+		new_size += 2 * battery->area.paddingxlr + left_right_border_width(&battery->area);
+		return new_size;
+	} else {
+		int new_size = bat_percentage_height + bat_time_height + 2 * battery->area.paddingxlr +
+					   top_bottom_border_width(&battery->area);
+		return new_size;
+	}
+}
+
 gboolean resize_battery(void *obj)
 {
-	Battery *battery = obj;
-	Panel *panel = battery->area.panel;
+	Battery *battery = (Battery *)obj;
+	Panel *panel = (Panel *)battery->area.panel;
 	int bat_percentage_height, bat_percentage_width, bat_percentage_height_ink;
 	int bat_time_height, bat_time_width, bat_time_height_ink;
 	int ret = 0;
-
-	schedule_redraw(&battery->area);
 
 	snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
 	if (battery_state.state == BATTERY_FULL) {
@@ -346,6 +393,8 @@ gboolean resize_battery(void *obj)
 			ret = 1;
 		}
 	}
+
+	schedule_redraw(&battery->area);
 	return ret;
 }
 

@@ -274,6 +274,10 @@ void config_write_panel(FILE *fp)
 	        "primary_monitor_first = %d\n",
 	        gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(panel_primary_monitor_first)) ? 1 : 0);
 
+	fprintf(fp,
+			"panel_shrink = %d\n",
+			gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(panel_shrink)) ? 1 : 0);
+
 	fprintf(fp, "autohide = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(panel_autohide)) ? 1 : 0);
 	fprintf(fp, "autohide_show_timeout = %g\n", gtk_spin_button_get_value(GTK_SPIN_BUTTON(panel_autohide_show_time)));
 	fprintf(fp, "autohide_hide_timeout = %g\n", gtk_spin_button_get_value(GTK_SPIN_BUTTON(panel_autohide_hide_time)));
@@ -1196,6 +1200,8 @@ void add_entry(char *key, char *value)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 6);
 	} else if (strcmp(key, "primary_monitor_first") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(panel_primary_monitor_first), atoi(value));
+	} else if (strcmp(key, "primary_shrink") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(panel_shrink), atoi(value));
 	}
 
 	/* autohide options */

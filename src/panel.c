@@ -62,6 +62,7 @@ gboolean panel_autohide;
 int panel_autohide_show_timeout;
 int panel_autohide_hide_timeout;
 int panel_autohide_height;
+gboolean panel_shrink;
 Strut panel_strut_policy;
 char *panel_items_order;
 
@@ -92,6 +93,7 @@ void default_panel()
 	panel_autohide_show_timeout = 0;
 	panel_autohide_hide_timeout = 0;
 	panel_autohide_height = 5; // for vertical panels this is of course the width
+	panel_shrink = FALSE;
 	panel_strut_policy = STRUT_FOLLOW_SIZE;
 	panel_dock = FALSE;         // default not in the dock
 	panel_layer = BOTTOM_LAYER; // default is bottom layer
@@ -298,9 +300,8 @@ void init_panel()
 	update_all_taskbars_visibility();
 }
 
-void init_panel_size_and_position(Panel *panel)
+void panel_compute_size(Panel *panel)
 {
-	// detect panel size
 	if (panel_horizontal) {
 		if (panel->area.width == 0) {
 			panel->fractional_width = TRUE;
@@ -353,17 +354,22 @@ void init_panel_size_and_position(Panel *panel)
 	if (panel->area.height + panel->marginy > server.monitors[panel->monitor].height)
 		panel->area.height = server.monitors[panel->monitor].height - panel->marginy;
 
+	panel->max_size = panel_horizontal ? panel->area.width : panel->area.height;
+}
+
+void panel_compute_position(Panel *panel)
+{
 	// panel position determined here
 	if (panel_position & LEFT) {
 		panel->posx = server.monitors[panel->monitor].x + panel->marginx;
 	} else {
 		if (panel_position & RIGHT) {
 			panel->posx = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width -
-			              panel->area.width - panel->marginx;
+						  panel->area.width - panel->marginx;
 		} else {
 			if (panel_horizontal)
 				panel->posx = server.monitors[panel->monitor].x +
-				              ((server.monitors[panel->monitor].width - panel->area.width) / 2);
+							  ((server.monitors[panel->monitor].width - panel->area.width) / 2);
 			else
 				panel->posx = server.monitors[panel->monitor].x + panel->marginx;
 		}
@@ -373,10 +379,10 @@ void init_panel_size_and_position(Panel *panel)
 	} else {
 		if (panel_position & BOTTOM) {
 			panel->posy = server.monitors[panel->monitor].y + server.monitors[panel->monitor].height -
-			              panel->area.height - panel->marginy;
+						  panel->area.height - panel->marginy;
 		} else {
 			panel->posy =
-			    server.monitors[panel->monitor].y + ((server.monitors[panel->monitor].height - panel->area.height) / 2);
+				server.monitors[panel->monitor].y + ((server.monitors[panel->monitor].height - panel->area.height) / 2);
 		}
 	}
 
@@ -391,6 +397,12 @@ void init_panel_size_and_position(Panel *panel)
 	}
 	// printf("panel : posx %d, posy %d, width %d, height %d\n", panel->posx, panel->posy, panel->area.width,
 	// panel->area.height);
+}
+
+void init_panel_size_and_position(Panel *panel)
+{
+	panel_compute_size(panel);
+	panel_compute_position(panel);
 }
 
 gboolean resize_panel(void *obj)
@@ -660,6 +672,58 @@ void replace_panel_all_desktops(Panel *p)
 	XSync(server.display, False);
 }
 
+void set_panel_window_geometry(Panel *panel)
+{
+	update_strut(panel);
+
+	// Fixed position and non-resizable window
+	// Allow panel move and resize when tint2 reload config file
+	int minwidth = panel_autohide ? panel->hidden_width : panel->area.width;
+	int minheight = panel_autohide ? panel->hidden_height : panel->area.height;
+	XSizeHints size_hints;
+	size_hints.flags = PPosition | PMinSize | PMaxSize;
+	size_hints.min_width = minwidth;
+	size_hints.max_width = panel->area.width;
+	size_hints.min_height = minheight;
+	size_hints.max_height = panel->area.height;
+	XSetWMNormalHints(server.display, panel->main_win, &size_hints);
+
+	if (!panel->is_hidden) {
+		if (panel_horizontal) {
+			XMoveResizeWindow(server.display,
+								  panel->main_win,
+								  panel->posx,
+								  panel->posy,
+								  panel->area.width,
+								  panel->area.height);
+		} else {
+			XMoveResizeWindow(server.display,
+								  panel->main_win,
+								  panel->posx,
+								  panel->posy,
+								  panel->area.width,
+								  panel->area.height);
+		}
+	} else {
+		int diff = (panel_horizontal ? panel->area.height : panel->area.width) - panel_autohide_height;
+		if (panel_horizontal) {
+			XMoveResizeWindow(server.display,
+							  panel->main_win,
+							  panel->posx,
+							  panel->posy + diff,
+							  panel->hidden_width,
+							  panel->hidden_height);
+		} else {
+			XMoveResizeWindow(server.display,
+							  panel->main_win,
+							  panel->posx + diff,
+							  panel->posy,
+							  panel->hidden_width,
+							  panel->hidden_height);
+		}
+	}
+}
+
 void set_panel_properties(Panel *p)
 {
 	XStoreName(server.display, p->main_win, panel_window_name);
@@ -736,26 +800,14 @@ void set_panel_properties(Panel *p)
 	                (unsigned char *)&version,
 	                1);
 
-	update_strut(p);
-
-	// Fixed position and non-resizable window
-	// Allow panel move and resize when tint2 reload config file
-	int minwidth = panel_autohide ? p->hidden_width : p->area.width;
-	int minheight = panel_autohide ? p->hidden_height : p->area.height;
-	XSizeHints size_hints;
-	size_hints.flags = PPosition | PMinSize | PMaxSize;
-	size_hints.min_width = minwidth;
-	size_hints.max_width = p->area.width;
-	size_hints.min_height = minheight;
-	size_hints.max_height = p->area.height;
-	XSetWMNormalHints(server.display, p->main_win, &size_hints);
-
 	// Set WM_CLASS
 	XClassHint *classhint = XAllocClassHint();
 	classhint->res_name = (char *)"tint2";
 	classhint->res_class = (char *)"Tint2";
 	XSetClassHint(server.display, p->main_win, classhint);
 	XFree(classhint);
+
+	set_panel_window_geometry(p);
 }
 
 void panel_clear_background(void *obj)
@@ -893,31 +945,8 @@ void autohide_show(void *p)
 	Panel *panel = (Panel *)p;
 	stop_autohide_timeout(panel);
 	panel->is_hidden = 0;
-
 	XMapSubwindows(server.display, panel->main_win); // systray windows
-	if (panel_horizontal) {
-		if (panel_position & TOP)
-			XResizeWindow(server.display, panel->main_win, panel->area.width, panel->area.height);
-		else
-			XMoveResizeWindow(server.display,
-			                  panel->main_win,
-			                  panel->posx,
-			                  panel->posy,
-			                  panel->area.width,
-			                  panel->area.height);
-	} else {
-		if (panel_position & LEFT)
-			XResizeWindow(server.display, panel->main_win, panel->area.width, panel->area.height);
-		else
-			XMoveResizeWindow(server.display,
-			                  panel->main_win,
-			                  panel->posx,
-			                  panel->posy,
-			                  panel->area.width,
-			                  panel->area.height);
-	}
-	if (panel_strut_policy == STRUT_FOLLOW_SIZE)
-		update_strut(panel);
+	set_panel_window_geometry(panel);
 	refresh_systray = TRUE; // ugly hack, because we actually only need to call XSetBackgroundPixmap
 	panel_refresh = TRUE;
 }
@@ -927,33 +956,8 @@ void autohide_hide(void *p)
 	Panel *panel = (Panel *)p;
 	stop_autohide_timeout(panel);
 	panel->is_hidden = TRUE;
-	if (panel_strut_policy == STRUT_FOLLOW_SIZE)
-		update_strut(panel);
-
 	XUnmapSubwindows(server.display, panel->main_win); // systray windows
-	int diff = (panel_horizontal ? panel->area.height : panel->area.width) - panel_autohide_height;
-	// printf("autohide_hide : diff %d, w %d, h %d\n", diff, panel->hidden_width, panel->hidden_height);
-	if (panel_horizontal) {
-		if (panel_position & TOP)
-			XResizeWindow(server.display, panel->main_win, panel->hidden_width, panel->hidden_height);
-		else
-			XMoveResizeWindow(server.display,
-			                  panel->main_win,
-			                  panel->posx,
-			                  panel->posy + diff,
-			                  panel->hidden_width,
-			                  panel->hidden_height);
-	} else {
-		if (panel_position & LEFT)
-			XResizeWindow(server.display, panel->main_win, panel->hidden_width, panel->hidden_height);
-		else
-			XMoveResizeWindow(server.display,
-			                  panel->main_win,
-			                  panel->posx + diff,
-			                  panel->posy,
-			                  panel->hidden_width,
-			                  panel->hidden_height);
-	}
+	set_panel_window_geometry(panel);
 	panel_refresh = TRUE;
 }
 
@@ -977,6 +981,34 @@ void autohide_trigger_hide(Panel *p)
 			return; // mouse over one of the system tray icons
 
 	change_timeout(&p->autohide_timeout, panel_autohide_hide_timeout, 0, autohide_hide, p);
+}
+
+void shrink_panel(Panel *panel)
+{
+	if (!panel_shrink)
+		return;
+	int size = MIN(compute_desired_size(&panel->area), panel->max_size);
+	gboolean update = FALSE;
+	if (panel_horizontal) {
+		if (panel->area.width != size) {
+			panel->area.width = size;
+			update = TRUE;
+		}
+	} else {
+		if (panel->area.height != size) {
+			panel->area.height = size;
+			update = TRUE;
+		}
+	}
+	if (update) {
+		panel_compute_position(panel);
+		set_panel_window_geometry(panel);
+		set_panel_background(panel);
+		panel->area.resize_needed = TRUE;
+		systray.area.resize_needed = TRUE;
+		schedule_redraw(&systray.area);
+		refresh_systray = TRUE;
+	}
 }
 
 void render_panel(Panel *panel)

@@ -39,6 +39,7 @@ timeout *urgent_timeout;
 GSList *urgent_list;
 
 void task_dump_geometry(void *obj, int indent);
+int task_compute_desired_size(void *obj);
 
 char *task_get_tooltip(void *obj)
 {
@@ -108,6 +109,7 @@ Task *add_task(Window win)
 		task_instance->area.has_mouse_press_effect = panel_config.mouse_effects;
 		task_instance->area._dump_geometry = task_dump_geometry;
 		task_instance->area._is_under_mouse = full_width_area_is_under_mouse;
+		task_instance->area._compute_desired_size = task_compute_desired_size;
 		task_instance->win = task_template.win;
 		task_instance->desktop = task_template.desktop;
 		task_instance->win_x = task_template.win_x;
@@ -463,6 +465,14 @@ void task_dump_geometry(void *obj, int indent)
 			task->_icon_x,
 			task->_icon_y,
 			panel->g_task.icon_size1);
+}
+
+int task_compute_desired_size(void *obj)
+{
+	Task *task = (Task *)obj;
+	Panel *panel = (Panel *)task->area.panel;
+	int size = panel_horizontal ? panel->g_task.maximum_width : panel->g_task.maximum_height;
+	return size;
 }
 
 void on_change_task(void *obj)

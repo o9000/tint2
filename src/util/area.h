@@ -221,6 +221,10 @@ typedef struct Area {
 	// Returns 1 if the new size is different than the previous size.
 	gboolean (*_resize)(void *obj);
 
+	// Called before resize, obj = pointer to the Area
+	// Returns the desired size of the Area
+	int (*_compute_desired_size)(void *obj);
+
 	// Implemented only to override the default layout algorithm for this widget.
 	// For example, if this widget is a cell in a table, its position and size should be computed here.
 	void (*_on_change_layout)(void *obj);
@@ -254,6 +258,8 @@ void relayout(Area *a);
 // Distributes the Area's size to its children, repositioning them as needed.
 // If maximum_size > 0, it is an upper limit for the child size.
 int relayout_with_constraint(Area *a, int maximum_size);
+
+int compute_desired_size(Area *a);
 
 int left_border_width(Area *a);
 int right_border_width(Area *a);

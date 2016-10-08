@@ -40,7 +40,7 @@ GtkWidget *panel_window_name, *disable_transparency;
 GtkWidget *panel_mouse_effects;
 GtkWidget *mouse_hover_icon_opacity, *mouse_hover_icon_saturation, *mouse_hover_icon_brightness;
 GtkWidget *mouse_pressed_icon_opacity, *mouse_pressed_icon_saturation, *mouse_pressed_icon_brightness;
-GtkWidget *panel_primary_monitor_first;
+GtkWidget *panel_primary_monitor_first, *panel_shrink;
 
 GtkListStore *panel_items, *all_items;
 GtkWidget *panel_items_view, *all_items_view;
@@ -1384,6 +1384,19 @@ void create_panel(GtkWidget *parent)
 	gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_width_type), _("Pixels"));
 	gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_width_type), 0);
 	gtk_tooltips_set_tip(tooltips, panel_combo_width_type, _("The units used to specify the length of the panel: pixels or percentage of the monitor size"), NULL);
+
+	row++;
+	col = 2;
+	label = gtk_label_new(_("Shrink"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	panel_shrink = gtk_check_button_new();
+	gtk_widget_show(panel_shrink);
+	gtk_table_attach(GTK_TABLE(table), panel_shrink, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 
 	row++;
 	col = 2;

@@ -431,6 +431,8 @@ void add_entry(char *key, char *value)
 		panel_config.monitor = config_get_monitor(value);
 	} else if (strcmp(key, "primary_monitor_first") == 0) {
 		primary_monitor_first = atoi(value);
+	} else if (strcmp(key, "panel_shrink") == 0) {
+		panel_shrink = atoi(value);
 	} else if (strcmp(key, "panel_size") == 0) {
 		extract_values(value, &value1, &value2, &value3);
 

@@ -1568,6 +1568,7 @@ start:
 	double ts_render_finished = 0;
 	double ts_flush_finished = 0;
 	double fps_sum = 0, fps_count = 0;
+	gboolean first_render = TRUE;
 	while (1) {
 		if (panel_refresh) {
 			if (debug_fps)
@@ -1582,6 +1583,19 @@ start:
 
 			for (int i = 0; i < num_panels; i++) {
 				Panel *panel = &panels[i];
+				if (!first_render)
+					shrink_panel(panel);
+
+				if (!panel->is_hidden || panel->area.resize_needed) {
+					if (panel->temp_pmap)
+						XFreePixmap(server.display, panel->temp_pmap);
+					panel->temp_pmap = XCreatePixmap(server.display,
+													 server.root_win,
+													 panel->area.width,
+													 panel->area.height,
+													 server.depth);
+					render_panel(panel);
+				}
 
 				if (panel->is_hidden) {
 					if (!panel->hidden_pixmap) {
@@ -1618,14 +1632,6 @@ start:
 					          0);
 					XSetWindowBackgroundPixmap(server.display, panel->main_win, panel->hidden_pixmap);
 				} else {
-					if (panel->temp_pmap)
-						XFreePixmap(server.display, panel->temp_pmap);
-					panel->temp_pmap = XCreatePixmap(server.display,
-					                                 server.root_win,
-					                                 panel->area.width,
-					                                 panel->area.height,
-					                                 server.depth);
-					render_panel(panel);
 					if (panel == (Panel *)systray.area.panel) {
 						if (refresh_systray && panel && !panel->is_hidden) {
 							refresh_systray = FALSE;
@@ -1644,6 +1650,11 @@ start:
 					          0,
 					          0);
 				}
+			}
+			if (first_render) {
+				first_render = FALSE;
+				if (panel_shrink)
+					panel_refresh = TRUE;
 			}
 			if (debug_fps)
 				ts_render_finished = get_time();

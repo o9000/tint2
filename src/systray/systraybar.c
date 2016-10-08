@@ -65,6 +65,7 @@ const int slow_resize_period = 5000;
 const int min_bad_resize_events = 3;
 const int max_bad_resize_events = 10;
 
+int systray_compute_desired_size(void *obj);
 void systray_dump_geometry(void *obj, int indent);
 
 void default_systray()
@@ -117,6 +118,7 @@ void init_systray_panel(void *p)
 	systray.area.parent = panel;
 	systray.area.panel = panel;
 	systray.area._dump_geometry = systray_dump_geometry;
+	systray.area._compute_desired_size = systray_compute_desired_size;
 	snprintf(systray.area.name, sizeof(systray.area.name), "Systray");
 	if (!systray.area.bg)
 		systray.area.bg = &g_array_index(backgrounds, Background, 0);
@@ -126,19 +128,56 @@ void init_systray_panel(void *p)
 	instantiate_area_gradients(&systray.area);
 }
 
+void systray_compute_geometry(int *size)
+{
+	systray.icon_size = panel_horizontal ? systray.area.height : systray.area.width;
+	systray.icon_size -= MAX(left_right_border_width(&systray.area), top_bottom_border_width(&systray.area)) +
+						 2 * systray.area.paddingy;
+	if (systray_max_icon_size > 0)
+		systray.icon_size = MIN(systray.icon_size, systray_max_icon_size);
+
+	int count = 0;
+	for (GSList *l = systray.list_icons; l; l = l->next) {
+		count++;
+	}
+
+	if (panel_horizontal) {
+		int height = systray.area.height - top_bottom_border_width(&systray.area) - 2 * systray.area.paddingy;
+		// here icons_per_column always higher than 0
+		systray.icons_per_column = (height + systray.area.paddingx) / (systray.icon_size + systray.area.paddingx);
+		systray.margin =
+			height - (systray.icons_per_column - 1) * (systray.icon_size + systray.area.paddingx) - systray.icon_size;
+		systray.icons_per_row = count / systray.icons_per_column + (count % systray.icons_per_column != 0);
+		*size = left_right_border_width(&systray.area) + 2 * systray.area.paddingxlr +
+							 (systray.icon_size * systray.icons_per_row) +
+							 ((systray.icons_per_row - 1) * systray.area.paddingx);
+	} else {
+		int width = systray.area.width - left_right_border_width(&systray.area) - 2 * systray.area.paddingy;
+		// here icons_per_row always higher than 0
+		systray.icons_per_row = (width + systray.area.paddingx) / (systray.icon_size + systray.area.paddingx);
+		systray.margin =
+			width - (systray.icons_per_row - 1) * (systray.icon_size + systray.area.paddingx) - systray.icon_size;
+		systray.icons_per_column = count / systray.icons_per_row + (count % systray.icons_per_row != 0);
+		*size = top_bottom_border_width(&systray.area) + (2 * systray.area.paddingxlr) +
+							  (systray.icon_size * systray.icons_per_column) +
+							  ((systray.icons_per_column - 1) * systray.area.paddingx);
+	}
+}
+
+int systray_compute_desired_size(void *obj)
+{
+	int size;
+	systray_compute_geometry(&size);
+	return size;
+}
+
 gboolean resize_systray(void *obj)
 {
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 
-	if (panel_horizontal)
-		systray.icon_size = systray.area.height;
-	else
-		systray.icon_size = systray.area.width;
-	systray.icon_size -= MAX(left_right_border_width(&systray.area), top_bottom_border_width(&systray.area)) +
-						 2 * systray.area.paddingy;
-	if (systray_max_icon_size > 0)
-		systray.icon_size = MIN(systray.icon_size, systray_max_icon_size);
+	int size;
+	systray_compute_geometry(&size);
 
 	if (systray.icon_size > 0) {
 		long icon_size = systray.icon_size;
@@ -152,40 +191,27 @@ gboolean resize_systray(void *obj)
 		                1);
 	}
 
-	int count = 0;
-	for (GSList *l = systray.list_icons; l; l = l->next) {
-		count++;
-	}
-	if (systray_profile)
-		fprintf(stderr, BLUE "%s:%d number of icons = %d" RESET "\n", __FUNCTION__, __LINE__, count);
-
-	if (panel_horizontal) {
-		int height = systray.area.height - top_bottom_border_width(&systray.area) - 2 * systray.area.paddingy;
-		// here icons_per_column always higher than 0
-		systray.icons_per_column = (height + systray.area.paddingx) / (systray.icon_size + systray.area.paddingx);
-		systray.margin =
-		    height - (systray.icons_per_column - 1) * (systray.icon_size + systray.area.paddingx) - systray.icon_size;
-		systray.icons_per_row = count / systray.icons_per_column + (count % systray.icons_per_column != 0);
-		systray.area.width = left_right_border_width(&systray.area) + 2 * systray.area.paddingxlr +
-		                     (systray.icon_size * systray.icons_per_row) +
-		                     ((systray.icons_per_row - 1) * systray.area.paddingx);
-	} else {
-		int width = systray.area.width - left_right_border_width(&systray.area) - 2 * systray.area.paddingy;
-		// here icons_per_row always higher than 0
-		systray.icons_per_row = (width + systray.area.paddingx) / (systray.icon_size + systray.area.paddingx);
-		systray.margin =
-		    width - (systray.icons_per_row - 1) * (systray.icon_size + systray.area.paddingx) - systray.icon_size;
-		systray.icons_per_column = count / systray.icons_per_row + (count % systray.icons_per_row != 0);
-		systray.area.height = top_bottom_border_width(&systray.area) + (2 * systray.area.paddingxlr) +
-		                      (systray.icon_size * systray.icons_per_column) +
-		                      ((systray.icons_per_column - 1) * systray.area.paddingx);
-	}
-
+	gboolean result = refresh_systray;
 	if (net_sel_win == None) {
 		start_net();
+		result = TRUE;
 	}
 
-	return TRUE;
+	if (panel_horizontal) {
+		if (systray.area.width != size) {
+			systray.area.width = size;
+			result = TRUE;
+		}
+	} else {
+		if (systray.area.height != size) {
+			systray.area.height = size;
+			result = TRUE;
+		}
+	}
+
+	on_change_systray(&systray.area);
+
+	return result;
 }
 
 void draw_systray(void *obj, cairo_t *c)
@@ -1407,28 +1433,30 @@ on_systray_error:
 void systray_render_icon(void *t)
 {
 	TrayWindow *traywin = t;
-	if (systray_profile)
-		fprintf(stderr,
-		        "[%f] %s:%d win = %lu (%s)\n",
-		        profiling_get_time(),
-		        __FUNCTION__,
-		        __LINE__,
-		        traywin->win,
-		        traywin->name);
 	if (!traywin->reparented || !traywin->embedded) {
-		if (systray_profile)
-			fprintf(stderr,
-			        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
-			        profiling_get_time(),
-			        __FUNCTION__,
-			        __LINE__,
-			        traywin->win,
-			        traywin->name);
+//		if (systray_profile)
+//			fprintf(stderr,
+//			        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
+//			        profiling_get_time(),
+//			        __FUNCTION__,
+//			        __LINE__,
+//			        traywin->win,
+//			        traywin->name);
 		stop_timeout(traywin->render_timeout);
 		traywin->render_timeout =
 		    add_timeout(min_refresh_period, 0, systray_render_icon, traywin, &traywin->render_timeout);
 		return;
 	}
+
+	if (systray_profile)
+		fprintf(stderr,
+				"[%f] %s:%d win = %lu (%s)\n",
+				profiling_get_time(),
+				__FUNCTION__,
+				__LINE__,
+				traywin->win,
+				traywin->name);
+
 
 	if (systray_composited) {
 		XSync(server.display, False);
