@@ -128,7 +128,7 @@ typedef struct Panel {
 #endif
 
 	Launcher launcher;
-	FreeSpace freespace;
+	GList *freespace_list;
 	GList *separator_list;
 	GList *execp_list;
 

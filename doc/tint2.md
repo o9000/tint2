@@ -323,7 +323,7 @@ panel_gradient_id = 5
     * `S` shows the Systray (also called notification area)
     * `B` shows the Battery status
     * `C` shows the Clock
-    * `F` adds an extensible spacer (freespace). Has no effect if `T` is also present. *(since 0.12)*
+    * `F` adds an extensible spacer (freespace). You can specify more than one. Has no effect if `T` is also present. *(since 0.12)*
     * `E` adds an executor plugin. You can specify more than one. *(since 0.12.4)*
     * `:` adds a separator. You can specify more than one. *(since 0.13.0)*
 

@@ -131,6 +131,8 @@ void cleanup_panel()
 	for (int i = 0; i < num_panels; i++) {
 		Panel *p = &panels[i];
 
+		cleanup_freespace(p);
+
 		free_area(&p->area);
 		if (p->temp_pmap)
 			XFreePixmap(server.display, p->temp_pmap);
@@ -495,8 +497,8 @@ gboolean resize_panel(void *obj)
 			}
 		}
 	}
-	if (panel->freespace.area.on_screen)
-		resize_freespace(&panel->freespace);
+	for (GList *l = panel->freespace_list; l; l = g_list_next(l))
+		resize_freespace(l->data);
 	return FALSE;
 }
 
@@ -574,6 +576,7 @@ void set_panel_items_order(Panel *p)
 
 	int i_execp = 0;
 	int i_separator = 0;
+	int i_freespace = 0;
 	for (int k = 0; k < strlen(panel_items_order); k++) {
 		if (panel_items_order[k] == 'L') {
 			p->area.children = g_list_append(p->area.children, &p->launcher);
@@ -593,8 +596,12 @@ void set_panel_items_order(Panel *p)
 		}
 		if (panel_items_order[k] == 'C')
 			p->area.children = g_list_append(p->area.children, &p->clock);
-		if (panel_items_order[k] == 'F')
-			p->area.children = g_list_append(p->area.children, &p->freespace);
+		if (panel_items_order[k] == 'F') {
+			GList *item = g_list_nth(p->freespace_list, i_freespace);
+			i_freespace++;
+			if (item)
+				p->area.children = g_list_append(p->area.children, (Area *)item->data);
+		}
 		if (panel_items_order[k] == ':') {
 			GList *item = g_list_nth(p->separator_list, i_separator);
 			i_separator++;

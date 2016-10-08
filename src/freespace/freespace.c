@@ -33,28 +33,49 @@
 void init_freespace_panel(void *p)
 {
 	Panel *panel = (Panel *)p;
-	FreeSpace *freespace = &panel->freespace;
 
-	if (!freespace->area.bg)
-		freespace->area.bg = &g_array_index(backgrounds, Background, 0);
-	freespace->area.parent = p;
-	freespace->area.panel = p;
-	snprintf(freespace->area.name, sizeof(freespace->area.name), "Freespace");
-	freespace->area.size_mode = LAYOUT_FIXED;
-	freespace->area.resize_needed = 1;
-	freespace->area.on_screen = TRUE;
-	freespace->area._resize = resize_freespace;
+	// Make sure this is only done once if there are multiple items
+	if (panel->freespace_list)
+		return;
+
+	for (size_t k = 0; k < strlen(panel_items_order); k++) {
+		if (panel_items_order[k] == 'F') {
+			FreeSpace *freespace = (FreeSpace *) calloc(1, sizeof(FreeSpace));
+			panel->freespace_list = g_list_append(panel->freespace_list, freespace);
+			if (!freespace->area.bg)
+				freespace->area.bg = &g_array_index(backgrounds, Background, 0);
+			freespace->area.parent = p;
+			freespace->area.panel = p;
+			snprintf(freespace->area.name, sizeof(freespace->area.name), "Freespace");
+			freespace->area.size_mode = LAYOUT_FIXED;
+			freespace->area.resize_needed = 1;
+			freespace->area.on_screen = TRUE;
+			freespace->area._resize = resize_freespace;
+		}
+	}
+}
+
+void cleanup_freespace(Panel *panel)
+{
+	if (panel->freespace_list)
+		g_list_free_full(panel->freespace_list, free);
+	panel->freespace_list = NULL;
 }
 
 int freespace_get_max_size(Panel *p)
 {
 	// Get space used by every element except the freespace
 	int size = 0;
+	int spacers = 0;
 	for (GList *walk = p->area.children; walk; walk = g_list_next(walk)) {
 		Area *a = (Area *)walk->data;
 
-		if (a->_resize == resize_freespace || !a->on_screen)
+		if (!a->on_screen)
 			continue;
+		if (a->_resize == resize_freespace) {
+			spacers++;
+			continue;
+		}
 
 		if (panel_horizontal)
 			size += a->width + p->area.paddingx;
@@ -67,7 +88,7 @@ int freespace_get_max_size(Panel *p)
 	else
 		size = p->area.height - size - top_bottom_border_width(&p->area) - p->area.paddingxlr;
 
-	return size;
+	return size / spacers;
 }
 
 gboolean resize_freespace(void *obj)

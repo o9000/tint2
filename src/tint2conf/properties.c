@@ -2117,7 +2117,7 @@ void panel_add_item(GtkWidget *widget, gpointer data)
 						   itemsColValue, &value,
 						   -1);
 
-		if (!panel_contains(value) || g_str_equal(value, ":")) {
+		if (!panel_contains(value) || g_str_equal(value, ":") || g_str_equal(value, "E") || g_str_equal(value, "F")) {
 			GtkTreeIter iter;
 			gtk_list_store_append(panel_items, &iter);
 			gtk_list_store_set(panel_items, &iter,
@@ -2126,15 +2126,7 @@ void panel_add_item(GtkWidget *widget, gpointer data)
 							   -1);
 			if (g_str_equal(value, ":")) {
 				separator_create_new();
-			}
-		} else if (!panel_contains(value) || g_str_equal(value, "E")) {
-			GtkTreeIter iter;
-			gtk_list_store_append(panel_items, &iter);
-			gtk_list_store_set(panel_items, &iter,
-							   itemsColName, g_strdup(name),
-							   itemsColValue, g_strdup(value),
-							   -1);
-			if (g_str_equal(value, "E")) {
+			} else if (g_str_equal(value, "E")) {
 				execp_create_new();
 			}
 		}
