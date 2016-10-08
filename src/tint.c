@@ -80,6 +80,82 @@ timeout *detect_compositor_timer = NULL;
 int detect_compositor_timer_counter = 0;
 
 gboolean debug_fps = FALSE;
+float *fps_distribution = NULL;
+
+void create_fps_distribution()
+{
+	// measure FPS with resolution:
+	// 0-59: 1		   (60 samples)
+	// 60-199: 10      (14)
+	// 200-1,999: 25   (72)
+	// 1k-19,999: 1000 (19)
+	// 20x+: inf       (1)
+	// => 166 samples
+	if (fps_distribution)
+		return;
+	fps_distribution = calloc(170, sizeof(float));
+}
+
+void cleanup_fps_distribution()
+{
+	free(fps_distribution);
+	fps_distribution = NULL;
+}
+
+void sample_fps(double fps)
+{
+	int fps_rounded = (int)(fps + 0.5);
+	int i = 1;
+	if (fps_rounded < 60) {
+		i += fps_rounded;
+	} else {
+		i += 60;
+		if (fps_rounded < 200) {
+			i += (fps_rounded - 60) / 10;
+		} else {
+			i += 14;
+			if (fps_rounded < 2000) {
+				i += (fps_rounded - 200) / 25;
+			} else {
+				i += 72;
+				if (fps_rounded < 20000) {
+					i += (fps_rounded - 2000) / 1000;
+				} else {
+					i += 20;
+				}
+			}
+		}
+	}
+	// fprintf(stderr, "fps = %.0f => i = %d\n", fps, i);
+	fps_distribution[i] += 1.;
+	fps_distribution[0] += 1.;
+}
+
+void fps_compute_stats(double *low, double *median, double *high, double *samples)
+{
+	*median = *low = *high = *samples = -1;
+	if (!fps_distribution || fps_distribution[0] < 1)
+		return;
+	float total = fps_distribution[0];
+	*samples = (double) fps_distribution[0];
+	float cum_low = 0.05f * total;
+	float cum_median = 0.5f * total;
+	float cum_high = 0.95f * total;
+	float cum = 0;
+	for (int i = 1; i <= 166; i++) {
+		double value =
+			(i < 60) ? i : (i < 74) ? (60 + (i - 60) * 10) : (i < 146) ? (200 + (i - 74) * 25)
+																	  : (i < 165) ? (2000 + (i - 146) * 1000) : 20000;
+		// fprintf(stderr, "%6.0f (i = %3d) : %.0f | ", value, i, (double)fps_distribution[i]);
+		cum += fps_distribution[i];
+		if (*low < 0 && cum >= cum_low)
+			*low = value;
+		if (*median < 0 && cum >= cum_median)
+			*median = value;
+		if (*high < 0 && cum >= cum_high)
+			*high = value;
+	}
+}
 
 void detect_compositor(void *arg)
 {
@@ -379,6 +455,8 @@ void init(int argc, char *argv[])
 	debug_geometry = getenv("DEBUG_GEOMETRY") != NULL;
 	debug_gradients = getenv("DEBUG_GRADIENTS") != NULL;
 	debug_fps = getenv("DEBUG_FPS") != NULL;
+	if (debug_fps)
+		create_fps_distribution();
 }
 
 static int sigchild_pipe_valid = FALSE;
@@ -553,6 +631,7 @@ void cleanup()
 	}
 
 	uevent_cleanup();
+	cleanup_fps_distribution();
 }
 
 void get_snapshot(const char *path)
@@ -1567,7 +1646,6 @@ start:
 	double ts_event_processed = 0;
 	double ts_render_finished = 0;
 	double ts_flush_finished = 0;
-	double fps_sum = 0, fps_count = 0;
 	gboolean first_render = TRUE;
 	while (1) {
 		if (panel_refresh) {
@@ -1590,10 +1668,10 @@ start:
 					if (panel->temp_pmap)
 						XFreePixmap(server.display, panel->temp_pmap);
 					panel->temp_pmap = XCreatePixmap(server.display,
-													 server.root_win,
-													 panel->area.width,
-													 panel->area.height,
-													 server.depth);
+					                                 server.root_win,
+					                                 panel->area.width,
+					                                 panel->area.height,
+					                                 server.depth);
 					render_panel(panel);
 				}
 
@@ -1663,15 +1741,20 @@ start:
 				ts_flush_finished = get_time();
 				double period = ts_flush_finished - ts_event_read;
 				double fps = 1.0 / period;
+				sample_fps(fps);
 				double proc_ratio = (ts_event_processed - ts_event_read) / period;
 				double render_ratio = (ts_render_finished - ts_event_processed) / period;
 				double flush_ratio = (ts_flush_finished - ts_render_finished) / period;
-				fps_sum += fps;
-				fps_count += 1;
+				double fps_low, fps_median, fps_high, fps_samples;
+				fps_compute_stats(&fps_low, &fps_median, &fps_high, &fps_samples);
 				fprintf(stderr,
-						BLUE "fps = %.0f (avg %.0f) : processing %.0f%%, rendering %.0f%%, flushing %.0f%%" RESET "\n",
+						BLUE "fps = %.0f (low %.0f, med %.0f, high %.0f, samples %.0f) : processing %.0f%%, rendering %.0f%%, "
+				             "flushing %.0f%%" RESET "\n",
 				        fps,
-						fps_sum / fps_count,
+				        fps_low,
+				        fps_median,
+				        fps_high,
+						fps_samples,
 				        proc_ratio * 100,
 				        render_ratio * 100,
 				        flush_ratio * 100);
