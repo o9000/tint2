@@ -30,7 +30,6 @@
 #include <glib/gi18n.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <sys/types.h>
 
 #include "window.h"
