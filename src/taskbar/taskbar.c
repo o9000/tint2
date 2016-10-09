@@ -47,6 +47,7 @@ TaskbarSortMethod taskbar_sort_method;
 Alignment taskbar_alignment;
 
 void taskbar_init_fonts();
+int taskbar_compute_desired_size(void *obj);
 
 // Removes the task with &win = key. The other args are ignored.
 void taskbar_remove_task(Window *win);
@@ -174,6 +175,7 @@ void init_taskbar_panel(void *p)
 	panel->g_taskbar.area.size_mode = LAYOUT_DYNAMIC;
 	panel->g_taskbar.area.alignment = taskbar_alignment;
 	panel->g_taskbar.area._resize = resize_taskbar;
+	panel->g_taskbar.area._compute_desired_size = taskbar_compute_desired_size;
 	panel->g_taskbar.area._is_under_mouse = full_width_area_is_under_mouse;
 	panel->g_taskbar.area.resize_needed = 1;
 	panel->g_taskbar.area.on_screen = TRUE;
@@ -417,6 +419,22 @@ void taskbar_refresh_tasklist()
 			add_task(win[i]);
 
 	XFree(win);
+}
+
+int taskbar_compute_desired_size(void *obj)
+{
+	Taskbar *taskbar = (Taskbar *)obj;
+	Panel *panel = (Panel *)taskbar->area.panel;
+
+	if (taskbar_mode == MULTI_DESKTOP && !taskbar_distribute_size && !hide_taskbar_if_empty) {
+		int result = 0;
+		for (int i = 0; i < panel->num_desktops; i++) {
+			 Taskbar *t = &panel->taskbar[i];
+			 result = MAX(result, container_compute_desired_size(&t->area));
+		}
+		return result;
+	}
+	return container_compute_desired_size(&taskbar->area);
 }
 
 gboolean resize_taskbar(void *obj)

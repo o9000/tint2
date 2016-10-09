@@ -260,6 +260,7 @@ void relayout(Area *a);
 int relayout_with_constraint(Area *a, int maximum_size);
 
 int compute_desired_size(Area *a);
+int container_compute_desired_size(Area *a);
 
 int left_border_width(Area *a);
 int right_border_width(Area *a);

@@ -224,6 +224,13 @@ int compute_desired_size(Area *a)
 		return a->_compute_desired_size(a);
 	if (a->size_mode == LAYOUT_FIXED)
 		fprintf(stderr, YELLOW "Area %s does not set desired size!" RESET "\n", a->name);
+	return container_compute_desired_size(a);
+}
+
+int container_compute_desired_size(Area *a)
+{
+	if (!a->on_screen)
+		return 0;
 	int result = 2 * a->paddingxlr + (panel_horizontal ? left_right_border_width(a) : top_bottom_border_width(a));
 	int children_count = 0;
 	for (GList *l = a->children; l != NULL; l = l->next) {
