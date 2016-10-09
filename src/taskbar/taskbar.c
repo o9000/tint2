@@ -85,7 +85,6 @@ void default_taskbar()
 
 void cleanup_taskbar()
 {
-	cleanup_taskbarname();
 	if (win_to_task) {
 		while (g_hash_table_size(win_to_task)) {
 			GHashTableIter iter;
@@ -99,6 +98,7 @@ void cleanup_taskbar()
 		g_hash_table_destroy(win_to_task);
 		win_to_task = NULL;
 	}
+	cleanup_taskbarname();
 	for (int i = 0; i < num_panels; i++) {
 		Panel *panel = &panels[i];
 		for (int j = 0; j < panel->num_desktops; j++) {
