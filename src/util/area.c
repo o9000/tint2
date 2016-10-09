@@ -392,6 +392,8 @@ void hide(Area *a)
 {
 	Area *parent = (Area *)a->parent;
 
+	if (!a->on_screen)
+		return;
 	a->on_screen = FALSE;
 	if (parent)
 		parent->resize_needed = TRUE;
@@ -405,10 +407,13 @@ void show(Area *a)
 {
 	Area *parent = (Area *)a->parent;
 
+	if (a->on_screen)
+		return;
 	a->on_screen = TRUE;
 	if (parent)
 		parent->resize_needed = TRUE;
 	a->resize_needed = TRUE;
+	panel_refresh = TRUE;
 }
 
 void update_dependent_gradients(Area *a)

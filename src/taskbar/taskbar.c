@@ -426,7 +426,7 @@ int taskbar_compute_desired_size(void *obj)
 	Taskbar *taskbar = (Taskbar *)obj;
 	Panel *panel = (Panel *)taskbar->area.panel;
 
-	if (taskbar_mode == MULTI_DESKTOP && !taskbar_distribute_size && !hide_taskbar_if_empty) {
+	if (taskbar_mode == MULTI_DESKTOP && !taskbar_distribute_size) {
 		int result = 0;
 		for (int i = 0; i < panel->num_desktops; i++) {
 			 Taskbar *t = &panel->taskbar[i];

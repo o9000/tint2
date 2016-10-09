@@ -152,6 +152,9 @@ Task *add_task(Window win)
 		add_urgent((Task *)g_ptr_array_index(task_buttons, 0));
 	}
 
+	if (hide_taskbar_if_empty)
+		update_all_taskbars_visibility();
+
 	return (Task *)g_ptr_array_index(task_buttons, 0);
 }
 
@@ -206,6 +209,8 @@ void remove_task(Task *task)
 		free(task2);
 	}
 	g_hash_table_remove(win_to_task, &win);
+	if (hide_taskbar_if_empty)
+		update_all_taskbars_visibility();
 }
 
 gboolean task_update_title(Task *task)

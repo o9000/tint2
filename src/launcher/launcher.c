@@ -524,8 +524,7 @@ void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon)
 			}
 		}
 		launcher_reload_icon_image(launcher, launcherIcon);
-		if (!launcherIcon->area.on_screen)
-			show(&launcherIcon->area);
+		show(&launcherIcon->area);
 	} else {
 		hide(&launcherIcon->area);
 	}

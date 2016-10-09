@@ -701,8 +701,7 @@ gboolean add_icon(Window win)
 	traywin->chrono = chrono;
 	chrono++;
 
-	if (!systray.area.on_screen)
-		show(&systray.area);
+	show(&systray.area);
 
 	if (systray.sort == SYSTRAY_SORT_RIGHT2LEFT)
 		systray.list_icons = g_slist_prepend(systray.list_icons, traywin);

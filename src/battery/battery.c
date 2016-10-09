@@ -243,22 +243,12 @@ void update_battery_tick(void *arg)
 	for (int i = 0; i < num_panels; i++) {
 		// Show/hide if needed
 		if (!battery_found) {
-			if (panels[i].battery.area.on_screen) {
-				hide(&panels[i].battery.area);
-				panel_refresh = TRUE;
-			}
+			hide(&panels[i].battery.area);
 		} else {
-			if (battery_state.percentage >= percentage_hide) {
-				if (panels[i].battery.area.on_screen) {
-					hide(&panels[i].battery.area);
-					panel_refresh = TRUE;
-				}
-			} else {
-				if (!panels[i].battery.area.on_screen) {
-					show(&panels[i].battery.area);
-					panel_refresh = TRUE;
-				}
-			}
+			if (battery_state.percentage >= percentage_hide)
+				hide(&panels[i].battery.area);
+			else
+				show(&panels[i].battery.area);
 		}
 		// Redraw if needed
 		if (panels[i].battery.area.on_screen) {

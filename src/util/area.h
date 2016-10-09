@@ -172,6 +172,7 @@ typedef struct Area {
 	int posx, posy;
 	// Size, including borders
 	int width, height;
+	int old_width, old_height;
 	Background *bg;
 	// Each element is a pointer to a GradientClass (list can be empty), no ownership
 	GList *gradients;

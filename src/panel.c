@@ -365,11 +365,11 @@ void panel_compute_position(Panel *panel)
 	} else {
 		if (panel_position & RIGHT) {
 			panel->posx = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width -
-						  panel->area.width - panel->marginx;
+			              panel->area.width - panel->marginx;
 		} else {
 			if (panel_horizontal)
 				panel->posx = server.monitors[panel->monitor].x +
-							  ((server.monitors[panel->monitor].width - panel->area.width) / 2);
+				              ((server.monitors[panel->monitor].width - panel->area.width) / 2);
 			else
 				panel->posx = server.monitors[panel->monitor].x + panel->marginx;
 		}
@@ -379,10 +379,10 @@ void panel_compute_position(Panel *panel)
 	} else {
 		if (panel_position & BOTTOM) {
 			panel->posy = server.monitors[panel->monitor].y + server.monitors[panel->monitor].height -
-						  panel->area.height - panel->marginy;
+			              panel->area.height - panel->marginy;
 		} else {
 			panel->posy =
-				server.monitors[panel->monitor].y + ((server.monitors[panel->monitor].height - panel->area.height) / 2);
+			    server.monitors[panel->monitor].y + ((server.monitors[panel->monitor].height - panel->area.height) / 2);
 		}
 	}
 
@@ -416,96 +416,101 @@ gboolean resize_panel(void *obj)
 		int width = panel->taskbar[server.desktop].area.width;
 		int height = panel->taskbar[server.desktop].area.height;
 		for (int i = 0; i < panel->num_desktops; i++) {
+			panel->taskbar[i].area.resize_needed =
+			    panel->taskbar[i].area.width != width || panel->taskbar[i].area.height != height;
 			panel->taskbar[i].area.width = width;
 			panel->taskbar[i].area.height = height;
-			panel->taskbar[i].area.resize_needed = 1;
 		}
-	}
-	if (taskbar_mode == MULTI_DESKTOP && taskbar_enabled && taskbar_distribute_size) {
-		// Distribute the available space between taskbars
-
-		// Compute the total available size, and the total size requested by the taskbars
-		int total_size = 0;
-		int total_name_size = 0;
-		int total_items = 0;
-		int visible_taskbars = 0;
+	} else if (taskbar_mode == MULTI_DESKTOP && taskbar_enabled && taskbar_distribute_size) {
 		for (int i = 0; i < panel->num_desktops; i++) {
-			if (!panel->taskbar[i].area.on_screen)
-				continue;
-			visible_taskbars++;
-			if (panel_horizontal) {
-				total_size += panel->taskbar[i].area.width;
-			} else {
-				total_size += panel->taskbar[i].area.height;
-			}
-
 			Taskbar *taskbar = &panel->taskbar[i];
-			GList *l;
-			for (l = taskbar->area.children; l; l = l->next) {
+			taskbar->area.old_width = taskbar->area.width;
+			taskbar->area.old_height = taskbar->area.height;
+		}
+
+		// The total available size
+		int total_size = 0;
+		for (int i = 0; i < panel->num_desktops; i++) {
+			Taskbar *taskbar = &panel->taskbar[i];
+			if (!taskbar->area.on_screen)
+				continue;
+			total_size += panel_horizontal ? taskbar->area.width : taskbar->area.height;
+		}
+
+		// Reserve size for padding, taskbarname and spacings
+		for (int i = 0; i < panel->num_desktops; i++) {
+			Taskbar *taskbar = &panel->taskbar[i];
+			if (!taskbar->area.on_screen)
+				continue;
+			if (!taskbar->area.children)
+				continue;
+			if (panel_horizontal)
+				taskbar->area.width = 2 * taskbar->area.paddingxlr;
+			else
+				taskbar->area.height = 2 * taskbar->area.paddingxlr;
+			if (taskbarname_enabled && taskbar->area.children) {
+				Area *name = (Area *)taskbar->area.children->data;
+				if (name->on_screen) {
+					if (panel_horizontal)
+						taskbar->area.width += name->width;
+					else
+						taskbar->area.height += name->height;
+				}
+			}
+			gboolean first_child = TRUE;
+			for (GList *l = taskbar->area.children; l; l = l->next) {
 				Area *child = (Area *)l->data;
 				if (!child->on_screen)
 					continue;
-				total_items++;
-			}
-			if (taskbarname_enabled) {
-				if (taskbar->area.children) {
-					total_items--;
-					Area *name = (Area *)taskbar->area.children->data;
-					if (panel_horizontal) {
-						total_name_size += name->width;
-					} else {
-						total_name_size += name->height;
-					}
+				if (!first_child) {
+					if (panel_horizontal)
+						taskbar->area.width += taskbar->area.paddingx;
+					else
+						taskbar->area.height += taskbar->area.paddingy;
 				}
+				first_child = FALSE;
+			}
+			total_size -= panel_horizontal ? taskbar->area.width : taskbar->area.height;
+		}
+
+		// Compute the total number of tasks
+		int num_tasks = 0;
+		for (int i = 0; i < panel->num_desktops; i++) {
+			Taskbar *taskbar = &panel->taskbar[i];
+			if (!taskbar->area.on_screen)
+				continue;
+			for (GList *l = taskbar->area.children; l; l = l->next) {
+				Area *child = (Area *)l->data;
+				if (!child->on_screen)
+					continue;
+				if (taskbarname_enabled && l == taskbar->area.children)
+					continue;
+				num_tasks++;
 			}
 		}
-		// Distribute the space proportionally to the requested size (that is, to the
-		// number of tasks in each taskbar)
-		if (total_items) {
-			int actual_name_size;
-			if (total_name_size <= total_size) {
-				actual_name_size = total_name_size / visible_taskbars;
-			} else {
-				actual_name_size = total_size / visible_taskbars;
-			}
-			total_size -= total_name_size;
 
-			for (int i = 0; i < panel->num_desktops; i++) {
-				Taskbar *taskbar = &panel->taskbar[i];
-				if (!taskbar->area.on_screen)
+		// Distribute the remaining size between tasks
+		int task_size = total_size / MAX(num_tasks, 1);
+		for (int i = 0; i < panel->num_desktops; i++) {
+			Taskbar *taskbar = &panel->taskbar[i];
+			if (!taskbar->area.on_screen)
+				continue;
+			for (GList *l = taskbar->area.children; l; l = l->next) {
+				Area *child = (Area *)l->data;
+				if (!child->on_screen)
 					continue;
-
-				int requested_size = (panel_horizontal ? left_right_border_width(&taskbar->area)
-				                                       : top_bottom_border_width(&taskbar->area)) +
-									 2 * taskbar->area.paddingxlr;
-				int items = 0;
-				GList *l = taskbar->area.children;
-				if (taskbarname_enabled)
-					l = l->next;
-				for (; l; l = l->next) {
-					Area *child = (Area *)l->data;
-					if (!child->on_screen)
-						continue;
-					items++;
-					if (panel_horizontal) {
-						requested_size += child->width + taskbar->area.paddingy;
-					} else {
-						requested_size += child->height + taskbar->area.paddingx;
-					}
-				}
-				if (panel_horizontal) {
-					requested_size -= taskbar->area.paddingy;
-				} else {
-					requested_size -= taskbar->area.paddingx;
-				}
-
-				if (panel_horizontal) {
-					taskbar->area.width = actual_name_size + items / (float)total_items * total_size;
-				} else {
-					taskbar->area.height = actual_name_size + items / (float)total_items * total_size;
-				}
-				taskbar->area.resize_needed = 1;
+				if (taskbarname_enabled && l == taskbar->area.children)
+					continue;
+				if (panel_horizontal)
+					taskbar->area.width += task_size;
+				else
+					taskbar->area.height += task_size;
 			}
+		}
+		for (int i = 0; i < panel->num_desktops; i++) {
+			Taskbar *taskbar = &panel->taskbar[i];
+			taskbar->area.resize_needed =
+			    taskbar->area.old_width != taskbar->area.width || taskbar->area.old_height != taskbar->area.height;
 		}
 	}
 	for (GList *l = panel->freespace_list; l; l = g_list_next(l))
@@ -691,35 +696,35 @@ void set_panel_window_geometry(Panel *panel)
 	if (!panel->is_hidden) {
 		if (panel_horizontal) {
 			XMoveResizeWindow(server.display,
-								  panel->main_win,
-								  panel->posx,
-								  panel->posy,
-								  panel->area.width,
-								  panel->area.height);
+			                  panel->main_win,
+			                  panel->posx,
+			                  panel->posy,
+			                  panel->area.width,
+			                  panel->area.height);
 		} else {
 			XMoveResizeWindow(server.display,
-								  panel->main_win,
-								  panel->posx,
-								  panel->posy,
-								  panel->area.width,
-								  panel->area.height);
+			                  panel->main_win,
+			                  panel->posx,
+			                  panel->posy,
+			                  panel->area.width,
+			                  panel->area.height);
 		}
 	} else {
 		int diff = (panel_horizontal ? panel->area.height : panel->area.width) - panel_autohide_height;
 		if (panel_horizontal) {
 			XMoveResizeWindow(server.display,
-							  panel->main_win,
-							  panel->posx,
-							  panel->posy + diff,
-							  panel->hidden_width,
-							  panel->hidden_height);
+			                  panel->main_win,
+			                  panel->posx,
+			                  panel->posy + diff,
+			                  panel->hidden_width,
+			                  panel->hidden_height);
 		} else {
 			XMoveResizeWindow(server.display,
-							  panel->main_win,
-							  panel->posx + diff,
-							  panel->posy,
-							  panel->hidden_width,
-							  panel->hidden_height);
+			                  panel->main_win,
+			                  panel->posx + diff,
+			                  panel->posy,
+			                  panel->hidden_width,
+			                  panel->hidden_height);
 		}
 	}
 }
