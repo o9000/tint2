@@ -15,6 +15,8 @@
 #include "common.h"
 #include "separator.h"
 
+int separator_compute_desired_size(void *obj);
+
 Separator *create_separator()
 {
 	Separator *separator = (Separator *)calloc(1, sizeof(Separator));
@@ -83,6 +85,7 @@ void init_separator_panel(void *p)
 		separator->area.resize_needed = 1;
 		separator->area.on_screen = TRUE;
 		separator->area._resize = resize_separator;
+		separator->area._compute_desired_size = separator_compute_desired_size;
 		separator->area._draw_foreground = draw_separator;
 		instantiate_area_gradients(&separator->area);
 	}
@@ -99,6 +102,18 @@ void cleanup_separator()
 	// Cleanup backends
 	g_list_free_full(panel_config.separator_list, destroy_separator);
 	panel_config.separator_list = NULL;
+}
+
+int separator_compute_desired_size(void *obj)
+{
+	Separator *separator = (Separator *)obj;
+	if (!separator->area.on_screen)
+		return 0;
+
+	if (panel_horizontal)
+		return separator->thickness + 2 * separator->area.paddingxlr + left_right_border_width(&separator->area);
+	else
+		return separator->thickness + 2 * separator->area.paddingxlr + top_bottom_border_width(&separator->area);
 }
 
 gboolean resize_separator(void *obj)
