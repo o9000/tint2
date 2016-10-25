@@ -1200,7 +1200,7 @@ void add_entry(char *key, char *value)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 6);
 	} else if (strcmp(key, "primary_monitor_first") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(panel_primary_monitor_first), atoi(value));
-	} else if (strcmp(key, "primary_shrink") == 0) {
+	} else if (strcmp(key, "panel_shrink") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(panel_shrink), atoi(value));
 	}
 
