@@ -490,21 +490,34 @@ gboolean resize_panel(void *obj)
 		}
 
 		// Distribute the remaining size between tasks
-		int task_size = total_size / MAX(num_tasks, 1);
-		for (int i = 0; i < panel->num_desktops; i++) {
-			Taskbar *taskbar = &panel->taskbar[i];
-			if (!taskbar->area.on_screen)
-				continue;
-			for (GList *l = taskbar->area.children; l; l = l->next) {
-				Area *child = (Area *)l->data;
-				if (!child->on_screen)
+		if (num_tasks > 0) {
+			int task_size = total_size / num_tasks;
+			for (int i = 0; i < panel->num_desktops; i++) {
+				Taskbar *taskbar = &panel->taskbar[i];
+				if (!taskbar->area.on_screen)
 					continue;
-				if (taskbarname_enabled && l == taskbar->area.children)
+				for (GList *l = taskbar->area.children; l; l = l->next) {
+					Area *child = (Area *)l->data;
+					if (!child->on_screen)
+						continue;
+					if (taskbarname_enabled && l == taskbar->area.children)
+						continue;
+					if (panel_horizontal)
+						taskbar->area.width += task_size;
+					else
+						taskbar->area.height += task_size;
+				}
+			}
+		} else {
+			// No tasks => expand the first visible taskbar
+			for (int i = 0; i < panel->num_desktops; i++) {
+				Taskbar *taskbar = &panel->taskbar[i];
+				if (!taskbar->area.on_screen)
 					continue;
 				if (panel_horizontal)
-					taskbar->area.width += task_size;
+					taskbar->area.width += total_size;
 				else
-					taskbar->area.height += task_size;
+					taskbar->area.height += total_size;
 			}
 		}
 		for (int i = 0; i < panel->num_desktops; i++) {
