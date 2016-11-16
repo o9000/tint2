@@ -34,7 +34,7 @@ Name[nb]=Panelbehandler
 Name[nl]=Paneel Manager
 Name[nn]=Panelhandsamar
 Name[pa]=ਪੈਨਲ ਮੈਨੇਜਰ
-Name[pl]=Ustawienia panelu
+Name[pl]=Ustawienia panelu tint2
 Name[pt]=Gestor do Painel
 Name[pt_BR]=Gerenciador do painel
 Name[ro]=Manager de panouri
@@ -86,7 +86,7 @@ GenericName[nb]=Panelbehandler
 GenericName[nl]=Paneel Manager
 GenericName[nn]=Panelhandsamar
 GenericName[pa]=ਪੈਨਲ ਮੈਨੇਜਰ
-GenericName[pl]=Ustawienia panelu
+GenericName[pl]=Ustawienia panelu tint2
 GenericName[pt]=Gestor do Painel
 GenericName[pt_BR]=Gerenciador do painel
 GenericName[ro]=Manager de panouri
@@ -106,6 +106,7 @@ GenericName[zh_CN]=面板管理器
 GenericName[zh_TW]=面板管理程式
 
 Comment=Tool to configure the tint2 panel
+Comment[pl]=Narzędzie do konfiguracji panelu tint2 configure the tint2 panel
 Comment[ru]=Инструмент конфигурирования панели tint2
 
 Exec=tint2conf
