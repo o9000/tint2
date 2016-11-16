@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: tint2conf 0.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-01-17 13:33+0100\n"
-"PO-Revision-Date: 2016-11-16 16:13+0100\n"
+"PO-Revision-Date: 2016-11-16 16:36+0100\n"
 "Last-Translator: Daniel Napora <napcok@gmail.com>\n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -91,13 +91,12 @@ msgid "The fill color of the current background"
 msgstr "Kolor wypełnienia zaznaczonego tła"
 
 #: ../properties.c:586
-#, fuzzy
 msgid "Secondary fill color"
-msgstr "Kolor wypelnienia"
+msgstr "Drugi kolor wypełnienia"
 
 #: ../properties.c:598
 msgid "Enable gradient"
-msgstr ""
+msgstr "Włącz gradienty"
 
 #: ../properties.c:603
 #, fuzzy
@@ -113,9 +112,8 @@ msgid "The border color of the current background"
 msgstr "Kolor obramowania zaznaczonego tła"
 
 #: ../properties.c:620
-#, fuzzy
 msgid "Fill color (mouse over)"
-msgstr "Kolor wypelnienia"
+msgstr "Kolor wypełnienia (mouse over)"
 
 #: ../properties.c:631
 #, fuzzy
@@ -123,9 +121,8 @@ msgid "The fill color of the current background on mouse over"
 msgstr "Kolor wypełnienia zaznaczonego tła"
 
 #: ../properties.c:634
-#, fuzzy
 msgid "Border color (mouse over)"
-msgstr "Kolor obramowania"
+msgstr "Kolor obramowania (mouse over)"
 
 #: ../properties.c:645
 #, fuzzy
@@ -133,9 +130,8 @@ msgid "The border color of the current background on mouse over"
 msgstr "Kolor obramowania zaznaczonego tła"
 
 #: ../properties.c:648
-#, fuzzy
 msgid "Fill color (pressed)"
-msgstr "Kolor wypelnienia"
+msgstr "Kolor wypełnienia (wciśnięty)"
 
 #: ../properties.c:659
 #, fuzzy
@@ -143,9 +139,8 @@ msgid "The fill color of the current background on mouse button press"
 msgstr "Kolor wypełnienia zaznaczonego tła"
 
 #: ../properties.c:662
-#, fuzzy
 msgid "Border color (pressed)"
-msgstr "Kolor obramowania"
+msgstr "Kolor obramowania (wciśnięty)"
 
 #: ../properties.c:673
 #, fuzzy
@@ -465,6 +460,8 @@ msgid ""
 "Clickable interface items change appearance when the mouse is moved over "
 "them."
 msgstr ""
+"Klikalne elementy interfejsu zmieniają wygląd, gdy wskaźnik myszy znajduje "
+"się ponad nimi."
 
 #: ../properties.c:1576
 msgid "Icon opacity (hovered)"
@@ -523,9 +520,8 @@ msgid ""
 msgstr "Określa nasycenie koloru ikon w zasobniku systemowym, w procentach."
 
 #: ../properties.c:1651
-#, fuzzy
 msgid "Icon brightness (pressed)"
-msgstr "Jasność ikon"
+msgstr "Jasność ikon (wciśnięty)"
 
 #: ../properties.c:1662
 #, fuzzy
@@ -709,7 +705,7 @@ msgstr "Separator"
 #: ../properties.c:1906 ../properties.c:2103 ../properties.c:4655
 #: ../properties.c:4883 ../properties.c:5118 ../properties.c:5139
 msgid "Executor"
-msgstr ""
+msgstr "Egzekutor"
 
 #: ../properties.c:1921
 msgid ""
@@ -839,7 +835,6 @@ msgid "Launcher icon"
 msgstr "Ikona uruchamiania"
 
 #: ../properties.c:2989
-#, fuzzy
 msgid ""
 "Selects the background used to display the launcher icon. Backgrounds can be "
 "edited in the Backgrounds tab."
@@ -970,9 +965,8 @@ msgstr ""
 "jednym dla każdego wirtualnego pulpitu."
 
 #: ../properties.c:3230
-#, fuzzy
 msgid "Hide taskbars for empty desktops"
-msgstr "Pokaż pasek zadań dla każdego pulpitu"
+msgstr "Ukryj pasek zadań dla pustych pulpitów"
 
 #: ../properties.c:3243
 msgid "Distribute size between taskbars"
@@ -1041,11 +1035,11 @@ msgstr "Wg środka okna"
 
 #: ../properties.c:3317
 msgid "Most recently used first"
-msgstr ""
+msgstr "Ostatnio używane pierwsze"
 
 #: ../properties.c:3318
 msgid "Most recently used last"
-msgstr ""
+msgstr "Ostatnio używane ostatnie"
 
 #: ../properties.c:3320
 msgid ""
@@ -1675,9 +1669,8 @@ msgstr ""
 "Określa komendę, która będzie uruchamiana po prawym kliknięciu w zegar."
 
 #: ../properties.c:4309 ../properties.c:4818 ../properties.c:5527
-#, fuzzy
 msgid "Middle click command"
-msgstr "Komenda po lewym kliknięciu"
+msgstr "Komenda po środkowym kliknięciu"
 
 #: ../properties.c:4321
 #, fuzzy
@@ -1687,9 +1680,8 @@ msgid ""
 msgstr "Określa komendę, która będzie uruchamiana po lewym kliknięciu w zegar."
 
 #: ../properties.c:4324 ../properties.c:4833 ../properties.c:5542
-#, fuzzy
 msgid "Wheel scroll up command"
-msgstr "Kółko myszy w górę"
+msgstr "Komenda  kółko myszy w górę"
 
 #: ../properties.c:4336
 #, fuzzy
@@ -1699,9 +1691,8 @@ msgid ""
 msgstr "Określa komendę, która będzie uruchamiana po lewym kliknięciu w zegar."
 
 #: ../properties.c:4339 ../properties.c:4848 ../properties.c:5557
-#, fuzzy
 msgid "Wheel scroll down command"
-msgstr "Kółko myszy w dół"
+msgstr "Komenda kółko myszy w dół"
 
 #: ../properties.c:4351
 #, fuzzy
@@ -1794,7 +1785,7 @@ msgstr "Styl"
 
 #: ../properties.c:4599
 msgid "Empty"
-msgstr ""
+msgstr "Puste"
 
 #: ../properties.c:4600
 msgid "Line"
