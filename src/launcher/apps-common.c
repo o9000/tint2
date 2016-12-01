@@ -110,7 +110,7 @@ void expand_exec(DesktopEntry *entry, const char *path)
 
 gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 {
-	entry->name = entry->generic_name = entry->icon = entry->exec = NULL;
+	entry->name = entry->generic_name = entry->icon = entry->exec = entry->cwd = NULL;
 	entry->hidden_from_menus = FALSE;
 
 	FILE *fp = fopen(path, "rt");
@@ -185,6 +185,8 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 				}
 			} else if (!entry->exec && strcmp(key, "Exec") == 0) {
 				entry->exec = strdup(value);
+			} else if (!entry->cwd && strcmp(key, "Path") == 0) {
+				entry->cwd = strdup(value);
 			} else if (!entry->icon && strcmp(key, "Icon") == 0) {
 				entry->icon = strdup(value);
 			} else if (strcmp(key, "NoDisplay") == 0) {
