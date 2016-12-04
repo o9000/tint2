@@ -15,6 +15,7 @@ typedef struct DesktopEntry {
 	char *exec;
 	char *icon;
 	char *path;
+	char *cwd;
 	gboolean hidden_from_menus;
 } DesktopEntry;
 

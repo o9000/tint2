@@ -28,6 +28,7 @@ typedef struct LauncherIcon {
 	Imlib_Image image_hover;
 	Imlib_Image image_pressed;
 	char *cmd;
+	char *cwd;
 	char *icon_name;
 	char *icon_path;
 	char *icon_tooltip;
