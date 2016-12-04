@@ -211,11 +211,11 @@ gboolean read_desktop_file_from_dir(const char *path, const char *file_name, Des
 		g_free(full_path);
 		return TRUE;
 	}
-	free(entry->name);
-	free(entry->generic_name);
-	free(entry->icon);
-	free(entry->exec);
-	entry->name = entry->generic_name = entry->icon = entry->exec = NULL;
+	free_and_null(entry->name);
+	free_and_null(entry->generic_name);
+	free_and_null(entry->icon);
+	free_and_null(entry->exec);
+	free_and_null(entry->cwd);
 
 	GList *subdirs = NULL;
 
@@ -254,7 +254,7 @@ gboolean read_desktop_file_from_dir(const char *path, const char *file_name, Des
 gboolean read_desktop_file(const char *path, DesktopEntry *entry)
 {
 	entry->path = strdup(path);
-	entry->name = entry->generic_name = entry->icon = entry->exec = NULL;
+	entry->name = entry->generic_name = entry->icon = entry->exec = entry->cwd = NULL;
 
 	if (strchr(path, '/'))
 		return read_desktop_file_full_path(path, entry);
@@ -267,12 +267,12 @@ gboolean read_desktop_file(const char *path, DesktopEntry *entry)
 
 void free_desktop_entry(DesktopEntry *entry)
 {
-	free(entry->name);
-	free(entry->generic_name);
-	free(entry->icon);
-	free(entry->exec);
-	free(entry->path);
-	entry->name = entry->generic_name = entry->icon = entry->exec = entry->path = NULL;
+	free_and_null(entry->name);
+	free_and_null(entry->generic_name);
+	free_and_null(entry->icon);
+	free_and_null(entry->exec);
+	free_and_null(entry->path);
+	free_and_null(entry->cwd);
 }
 
 void test_read_desktop_file()

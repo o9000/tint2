@@ -441,7 +441,8 @@ void launcher_action(LauncherIcon *icon, XEvent *evt)
 		// Allow children to exist after parent destruction
 		setsid();
 		// Run the command
-		chdir(icon->cwd);
+		if (icon->cwd)
+			chdir(icon->cwd);
 		execl("/bin/sh", "/bin/sh", "-c", icon->cmd, NULL);
 		fprintf(stderr, "Failed to execlp %s\n", icon->cmd);
 #if HAVE_SN
@@ -510,11 +511,10 @@ void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon)
 		launcherIcon->cmd = strdup(entry.exec);
 		if (launcherIcon->cwd) 
 			free(launcherIcon->cwd);
-		if (entry.cwd) {
+		if (entry.cwd)
 			launcherIcon->cwd = strdup(entry.cwd);
-		} else {
-			launcherIcon->cwd = get_current_dir_name();
-		}
+		else
+			launcherIcon->cwd = NULL;
 		if (launcherIcon->icon_name)
 			free(launcherIcon->icon_name);
 		launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(DEFAULT_ICON);
