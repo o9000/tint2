@@ -302,6 +302,11 @@ int monitor_includes_monitor(const void *monitor1, const void *monitor2)
 	}
 }
 
+void sort_monitors()
+{
+	qsort(server.monitors, server.num_monitors, sizeof(Monitor), compare_monitor_pos);
+}
+
 void get_monitors()
 {
 	if (XineramaIsActive(server.display)) {

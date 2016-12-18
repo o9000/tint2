@@ -547,6 +547,9 @@ void init_X11_pre_config()
 
 void init_X11_post_config()
 {
+	if (primary_monitor_first)
+		sort_monitors();
+
 	server_init_visual();
 
 	gboolean need_sigchld = FALSE;
