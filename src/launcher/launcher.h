@@ -18,6 +18,7 @@ typedef struct Launcher {
 	GSList *list_apps;  // List of char*, each is a path to a app.desktop file
 	GSList *list_icons; // List of LauncherIcon*
 	IconThemeWrapper *icon_theme_wrapper;
+	int icon_size;
 } Launcher;
 
 typedef struct LauncherIcon {
