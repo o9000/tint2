@@ -56,6 +56,8 @@ char *battery_uwheel_command;
 char *battery_dwheel_command;
 gboolean battery_found;
 
+char *battery_sys_prefix = (char*)"";
+
 void battery_init_fonts();
 char *battery_get_tooltip(void *obj);
 int battery_compute_desired_size(void *obj);

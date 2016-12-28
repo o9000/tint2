@@ -422,7 +422,20 @@ void init(int argc, char *argv[])
 			}
 		} else if (i + 1 == argc) {
 			config_path = strdup(argv[i]);
-		} else {
+		}
+#ifdef ENABLE_BATTERY
+		  else if (strcmp(argv[i], "--battery-sys-prefix") == 0) {
+			if (i + 1 < argc) {
+				i++;
+				battery_sys_prefix = strdup(argv[i]);
+			} else {
+				error = 1;
+			}
+		}
+#endif
+
+
+		else {
 			error = 1;
 		}
 		if (error) {

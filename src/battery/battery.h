@@ -64,6 +64,8 @@ extern char *battery_rclick_command;
 extern char *battery_uwheel_command;
 extern char *battery_dwheel_command;
 
+extern char *battery_sys_prefix;
+
 static inline gchar *chargestate2str(ChargeState state)
 {
 	switch (state) {

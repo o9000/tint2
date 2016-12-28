@@ -1,0 +1,154 @@
+/sys/class/power_supply/BAT0/
+cat: /sys/class/power_supply/BAT0/: Is a directory
+/sys/class/power_supply/BAT0/type
+Battery
+/sys/class/power_supply/BAT0/power_now
+16382000
+/sys/class/power_supply/BAT0/alarm
+2446000
+/sys/class/power_supply/BAT0/power
+cat: /sys/class/power_supply/BAT0/power: Is a directory
+/sys/class/power_supply/BAT0/power/control
+auto
+/sys/class/power_supply/BAT0/power/async
+disabled
+/sys/class/power_supply/BAT0/power/runtime_enabled
+disabled
+/sys/class/power_supply/BAT0/power/runtime_active_kids
+0
+/sys/class/power_supply/BAT0/power/runtime_active_time
+0
+/sys/class/power_supply/BAT0/power/autosuspend_delay_ms
+cat: /sys/class/power_supply/BAT0/power/autosuspend_delay_ms: Input/output error
+/sys/class/power_supply/BAT0/power/runtime_status
+unsupported
+/sys/class/power_supply/BAT0/power/runtime_usage
+0
+/sys/class/power_supply/BAT0/power/runtime_suspended_time
+0
+/sys/class/power_supply/BAT0/device
+cat: /sys/class/power_supply/BAT0/device: Is a directory
+/sys/class/power_supply/BAT0/capacity
+97
+/sys/class/power_supply/BAT0/subsystem
+cat: /sys/class/power_supply/BAT0/subsystem: Is a directory
+/sys/class/power_supply/BAT0/capacity_level
+Normal
+/sys/class/power_supply/BAT0/status
+Discharging
+/sys/class/power_supply/BAT0/voltage_now
+12144000
+/sys/class/power_supply/BAT0/uevent
+POWER_SUPPLY_NAME=BAT0
+POWER_SUPPLY_STATUS=Discharging
+POWER_SUPPLY_PRESENT=1
+POWER_SUPPLY_TECHNOLOGY=Li-ion
+POWER_SUPPLY_CYCLE_COUNT=0
+POWER_SUPPLY_VOLTAGE_MIN_DESIGN=11100000
+POWER_SUPPLY_VOLTAGE_NOW=12144000
+POWER_SUPPLY_POWER_NOW=16382000
+POWER_SUPPLY_ENERGY_FULL_DESIGN=86580000
+POWER_SUPPLY_ENERGY_FULL=48920000
+POWER_SUPPLY_ENERGY_NOW=47660000
+POWER_SUPPLY_CAPACITY=97
+POWER_SUPPLY_CAPACITY_LEVEL=Normal
+POWER_SUPPLY_MODEL_NAME=45N1029
+POWER_SUPPLY_MANUFACTURER=LGC
+POWER_SUPPLY_SERIAL_NUMBER=  494
+/sys/class/power_supply/BAT0/energy_now
+47660000
+/sys/class/power_supply/BAT0/model_name
+45N1029
+/sys/class/power_supply/BAT0/manufacturer
+LGC
+/sys/class/power_supply/BAT0/technology
+Li-ion
+/sys/class/power_supply/BAT0/cycle_count
+0
+/sys/class/power_supply/BAT0/energy_full_design
+86580000
+/sys/class/power_supply/BAT0/voltage_min_design
+11100000
+/sys/class/power_supply/BAT0/serial_number
+  494
+/sys/class/power_supply/BAT0/energy_full
+48920000
+/sys/class/power_supply/BAT0/present
+1
+/sys/class/power_supply/BAT0/
+cat: /sys/class/power_supply/BAT0/: Is a directory
+/sys/class/power_supply/BAT0/type
+Battery
+/sys/class/power_supply/BAT0/power_now
+16382000
+/sys/class/power_supply/BAT0/alarm
+2446000
+/sys/class/power_supply/BAT0/power
+cat: /sys/class/power_supply/BAT0/power: Is a directory
+/sys/class/power_supply/BAT0/power/control
+auto
+/sys/class/power_supply/BAT0/power/async
+disabled
+/sys/class/power_supply/BAT0/power/runtime_enabled
+disabled
+/sys/class/power_supply/BAT0/power/runtime_active_kids
+0
+/sys/class/power_supply/BAT0/power/runtime_active_time
+0
+/sys/class/power_supply/BAT0/power/autosuspend_delay_ms
+cat: /sys/class/power_supply/BAT0/power/autosuspend_delay_ms: Input/output error
+/sys/class/power_supply/BAT0/power/runtime_status
+unsupported
+/sys/class/power_supply/BAT0/power/runtime_usage
+0
+/sys/class/power_supply/BAT0/power/runtime_suspended_time
+0
+/sys/class/power_supply/BAT0/device
+cat: /sys/class/power_supply/BAT0/device: Is a directory
+/sys/class/power_supply/BAT0/capacity
+97
+/sys/class/power_supply/BAT0/subsystem
+cat: /sys/class/power_supply/BAT0/subsystem: Is a directory
+/sys/class/power_supply/BAT0/capacity_level
+Normal
+/sys/class/power_supply/BAT0/status
+Discharging
+/sys/class/power_supply/BAT0/voltage_now
+12144000
+/sys/class/power_supply/BAT0/uevent
+POWER_SUPPLY_NAME=BAT0
+POWER_SUPPLY_STATUS=Discharging
+POWER_SUPPLY_PRESENT=1
+POWER_SUPPLY_TECHNOLOGY=Li-ion
+POWER_SUPPLY_CYCLE_COUNT=0
+POWER_SUPPLY_VOLTAGE_MIN_DESIGN=11100000
+POWER_SUPPLY_VOLTAGE_NOW=12144000
+POWER_SUPPLY_POWER_NOW=16382000
+POWER_SUPPLY_ENERGY_FULL_DESIGN=86580000
+POWER_SUPPLY_ENERGY_FULL=48920000
+POWER_SUPPLY_ENERGY_NOW=47660000
+POWER_SUPPLY_CAPACITY=97
+POWER_SUPPLY_CAPACITY_LEVEL=Normal
+POWER_SUPPLY_MODEL_NAME=45N1029
+POWER_SUPPLY_MANUFACTURER=LGC
+POWER_SUPPLY_SERIAL_NUMBER=  494
+/sys/class/power_supply/BAT0/energy_now
+47660000
+/sys/class/power_supply/BAT0/model_name
+45N1029
+/sys/class/power_supply/BAT0/manufacturer
+LGC
+/sys/class/power_supply/BAT0/technology
+Li-ion
+/sys/class/power_supply/BAT0/cycle_count
+0
+/sys/class/power_supply/BAT0/energy_full_design
+86580000
+/sys/class/power_supply/BAT0/voltage_min_design
+11100000
+/sys/class/power_supply/BAT0/serial_number
+  494
+/sys/class/power_supply/BAT0/energy_full
+48920000
+/sys/class/power_supply/BAT0/present
+1
