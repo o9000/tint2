@@ -165,6 +165,7 @@ void place_panel_all_desktops(Panel *p);
 void replace_panel_all_desktops(Panel *p);
 void set_panel_properties(Panel *p);
 void set_panel_window_geometry(Panel *panel);
+void set_panel_layer(Panel *p, Layer layer);
 
 // draw background panel
 void set_panel_background(Panel *p);

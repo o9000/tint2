@@ -548,7 +548,7 @@ void update_strut(Panel *p)
 	long struts[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	if (panel_horizontal) {
 		int height = p->area.height + p->marginy;
-		if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && p->is_hidden))
+		if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide))
 			height = p->hidden_height;
 		if (panel_position & TOP) {
 			struts[2] = height + monitor.y;
@@ -563,7 +563,7 @@ void update_strut(Panel *p)
 		}
 	} else {
 		int width = p->area.width + p->marginx;
-		if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && p->is_hidden))
+		if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide))
 			width = p->hidden_width;
 		if (panel_position & LEFT) {
 			struts[0] = width + monitor.x;
@@ -658,21 +658,24 @@ void place_panel_all_desktops(Panel *p)
 	                PropModeReplace,
 	                (unsigned char *)&val,
 	                1);
+}
 
+void set_panel_layer(Panel *p, Layer layer)
+{
 	Atom state[4];
 	state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;
 	state[1] = server.atom._NET_WM_STATE_SKIP_TASKBAR;
 	state[2] = server.atom._NET_WM_STATE_STICKY;
-	state[3] = panel_layer == BOTTOM_LAYER ? server.atom._NET_WM_STATE_BELOW : server.atom._NET_WM_STATE_ABOVE;
-	int num_atoms = panel_layer == NORMAL_LAYER ? 3 : 4;
+	state[3] = layer == BOTTOM_LAYER ? server.atom._NET_WM_STATE_BELOW : server.atom._NET_WM_STATE_ABOVE;
+	int num_atoms = layer == NORMAL_LAYER ? 3 : 4;
 	XChangeProperty(server.display,
-	                p->main_win,
-	                server.atom._NET_WM_STATE,
-	                XA_ATOM,
-	                32,
-	                PropModeReplace,
-	                (unsigned char *)state,
-	                num_atoms);
+					p->main_win,
+					server.atom._NET_WM_STATE,
+					XA_ATOM,
+					32,
+					PropModeReplace,
+					(unsigned char *)state,
+					num_atoms);
 }
 
 void replace_panel_all_desktops(Panel *p)
@@ -781,6 +784,7 @@ void set_panel_properties(Panel *p)
 	                1);
 
 	place_panel_all_desktops(p);
+	set_panel_layer(p, panel_layer);
 
 	XWMHints wmhints;
 	memset(&wmhints, 0, sizeof(wmhints));
@@ -965,6 +969,7 @@ void autohide_show(void *p)
 	panel->is_hidden = 0;
 	XMapSubwindows(server.display, panel->main_win); // systray windows
 	set_panel_window_geometry(panel);
+	set_panel_layer(panel, TOP_LAYER);
 	refresh_systray = TRUE; // ugly hack, because we actually only need to call XSetBackgroundPixmap
 	panel_refresh = TRUE;
 }
@@ -973,6 +978,7 @@ void autohide_hide(void *p)
 {
 	Panel *panel = (Panel *)p;
 	stop_autohide_timeout(panel);
+	set_panel_layer(panel, panel_layer);
 	panel->is_hidden = TRUE;
 	XUnmapSubwindows(server.display, panel->main_win); // systray windows
 	set_panel_window_geometry(panel);
