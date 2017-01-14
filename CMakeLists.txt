@@ -248,7 +248,6 @@ set_target_properties( tint2 PROPERTIES LINK_FLAGS "-pthread -fno-strict-aliasin
 install( TARGETS tint2 DESTINATION bin )
 install( FILES tint2.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps )
 install( FILES tint2.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications )
-install( CODE "execute_process(COMMAND gtk-update-icon-cache -f -t ${CMAKE_INSTALL_FULL_DATADIR}/icons/hicolor WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX})" )
 install( FILES themes/tint2rc DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/xdg/tint2 )
 install( FILES default_icon.png DESTINATION ${CMAKE_INSTALL_DATADIR}/tint2 )
 install( FILES AUTHORS ChangeLog README.md doc/tint2.md DESTINATION ${docdir} )
