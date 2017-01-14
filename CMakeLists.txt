@@ -1,5 +1,5 @@
 project( tint2 )
-cmake_minimum_required( VERSION 2.6 )
+cmake_minimum_required( VERSION 2.8.5 )
 
 option( ENABLE_BATTERY "Enable battery status plugin" ON )
 option( ENABLE_TINT2CONF "Enable tint2conf build, a GTK+2 theme configurator for tint2" ON )
@@ -12,6 +12,14 @@ option( ENABLE_BACKTRACE_ON_SIGNAL "Dump a backtrace also when receiving signals
 if( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
   option( ENABLE_UEVENT "Kernel event handling support" ON )
 endif( CMAKE_SYSTEM_NAME STREQUAL "Linux" )
+
+include( GNUInstallDirs )
+if(NOT docdir)
+  set(docdir ${CMAKE_INSTALL_DOCDIR})
+endif()
+if(NOT htmldir)
+  set(htmldir ${docdir}/html)
+endif()
 
 include( FindPkgConfig )
 include( CheckLibraryExists )
@@ -200,11 +208,6 @@ else()
   SET(ASAN_L_FLAGS "")
 endif()
 
-set( MANDIR share/man CACHE PATH "Directory for man pages" )
-set( DATADIR share CACHE PATH "Directory for shared data" )
-set( SYSCONFDIR /etc CACHE PATH "Directory for configuration files" )
-set( DOCDIR share/doc/tint2 CACHE PATH "Directory for documentation files" )
-
 add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_version.sh" "\"${PROJECT_SOURCE_DIR}\"" )
 
 link_directories( ${X11_LIBRARY_DIRS}
@@ -243,14 +246,15 @@ set_target_properties( tint2 PROPERTIES COMPILE_FLAGS "-Wall -Wpointer-arith -fn
 set_target_properties( tint2 PROPERTIES LINK_FLAGS "-pthread -fno-strict-aliasing ${ASAN_L_FLAGS} ${BACKTRACE_L_FLAGS}" )
 
 install( TARGETS tint2 DESTINATION bin )
-install( FILES tint2.svg DESTINATION ${DATADIR}/icons/hicolor/scalable/apps )
-install( FILES tint2.desktop DESTINATION ${DATADIR}/applications )
-install( CODE "execute_process(COMMAND gtk-update-icon-cache -f -t ${DATADIR}/icons/hicolor WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX})" )
-install( FILES themes/tint2rc DESTINATION ${SYSCONFDIR}/xdg/tint2 )
-install( FILES default_icon.png DESTINATION ${DATADIR}/tint2 )
-install( FILES AUTHORS ChangeLog README.md doc/tint2.md doc/manual.html doc/readme.html DESTINATION ${DOCDIR} )
-install( DIRECTORY doc/images DESTINATION ${DOCDIR} )
-install( FILES doc/tint2.1 DESTINATION ${MANDIR}/man1 )
+install( FILES tint2.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps )
+install( FILES tint2.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications )
+install( CODE "execute_process(COMMAND gtk-update-icon-cache -f -t ${CMAKE_INSTALL_FULL_DATADIR}/icons/hicolor WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX})" )
+install( FILES themes/tint2rc DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/xdg/tint2 )
+install( FILES default_icon.png DESTINATION ${CMAKE_INSTALL_DATADIR}/tint2 )
+install( FILES AUTHORS ChangeLog README.md doc/tint2.md DESTINATION ${docdir} )
+install( FILES doc/manual.html doc/readme.html DESTINATION ${htmldir} )
+install( DIRECTORY doc/images DESTINATION ${htmldir} )
+install( FILES doc/tint2.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 )
 if( ENABLE_EXTRA_THEMES )
   add_subdirectory(themes)
 endif( ENABLE_EXTRA_THEMES )
