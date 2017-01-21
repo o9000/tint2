@@ -317,38 +317,34 @@ void get_monitors()
 
 		if (res && res->ncrtc >= num_monitors) {
 			// use xrandr to identify monitors (does not work with proprietery nvidia drivers)
-
-			// Workaround for issue https://gitlab.com/o9000/tint2/issues/353
-			// on some recent configs, XRRGetScreenResourcesCurrent returns a fantom monitor at last position
-			{
-				int i = res->ncrtc - 1;
-				XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(server.display, res, res->crtcs[i]);
-				if (!(crtc_info->x || crtc_info->y || crtc_info->width || crtc_info->height)) {
-					res->ncrtc -= 1;
-				}
-				XRRFreeCrtcInfo(crtc_info);
-			}
-
 			printf("xRandr: Found crtc's: %d\n", res->ncrtc);
 			server.monitors = calloc(res->ncrtc, sizeof(Monitor));
+			num_monitors = 0;
 			for (int i = 0; i < res->ncrtc; ++i) {
 				XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(server.display, res, res->crtcs[i]);
-				server.monitors[i].x = crtc_info->x;
-				server.monitors[i].y = crtc_info->y;
-				server.monitors[i].width = crtc_info->width;
-				server.monitors[i].height = crtc_info->height;
-				server.monitors[i].names = calloc((crtc_info->noutput + 1), sizeof(gchar *));
+				// Ignore empty crtc
+				if (!crtc_info->width || !crtc_info->height) {
+					printf("xRandr: crtc %d seems disabled\n", i);
+					XRRFreeCrtcInfo(crtc_info);
+					continue;
+				}
+				int i_monitor = num_monitors;
+				num_monitors++;
+				server.monitors[i_monitor].x = crtc_info->x;
+				server.monitors[i_monitor].y = crtc_info->y;
+				server.monitors[i_monitor].width = crtc_info->width;
+				server.monitors[i_monitor].height = crtc_info->height;
+				server.monitors[i_monitor].names = calloc((crtc_info->noutput + 1), sizeof(gchar *));
 				for (int j = 0; j < crtc_info->noutput; ++j) {
 					XRROutputInfo *output_info = XRRGetOutputInfo(server.display, res, crtc_info->outputs[j]);
 					printf("xRandr: Linking output %s with crtc %d\n", output_info->name, i);
-					server.monitors[i].names[j] = g_strdup(output_info->name);
+					server.monitors[i_monitor].names[j] = g_strdup(output_info->name);
 					XRRFreeOutputInfo(output_info);
-					server.monitors[i].primary = crtc_info->outputs[j] == primary_output;
+					server.monitors[i_monitor].primary = crtc_info->outputs[j] == primary_output;
 				}
-				server.monitors[i].names[crtc_info->noutput] = NULL;
+				server.monitors[i_monitor].names[crtc_info->noutput] = NULL;
 				XRRFreeCrtcInfo(crtc_info);
 			}
-			num_monitors = res->ncrtc;
 		} else if (info && num_monitors > 0) {
 			server.monitors = calloc(num_monitors, sizeof(Monitor));
 			for (int i = 0; i < num_monitors; i++) {
@@ -356,7 +352,7 @@ void get_monitors()
 				server.monitors[i].y = info[i].y_org;
 				server.monitors[i].width = info[i].width;
 				server.monitors[i].height = info[i].height;
-				server.monitors[i].names = 0;
+				server.monitors[i].names = NULL;
 			}
 		}
 
