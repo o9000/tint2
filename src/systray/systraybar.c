@@ -54,6 +54,7 @@ int systray_monitor;
 int chrono;
 int systray_composited;
 int systray_profile;
+char systray_hide_icons[100];
 // background pixmap if we render ourselves the icons
 static Pixmap render_background;
 
@@ -583,6 +584,22 @@ gboolean add_icon(Window win)
 		}
 	}
 
+	char *name = get_window_name(win);
+	
+	// Filter out systray_hide_by_icon_name
+	char *token;
+	char *string;
+	string = strdup(systray_hide_icons);
+	if (string != NULL) {
+		while ((token = strsep(&string, ",")) != NULL) {
+			if (strcmp(token,name) == 0) {
+				if (strcmp(token,"") == 0) token = "empty name";
+				fprintf(stderr, GREEN "filtering out '%s'\n", token);
+				return FALSE;
+			}
+		}
+	}
+	
 	// Dangerous actions begin
 	XSync(server.display, False);
 	error = FALSE;
@@ -590,7 +607,6 @@ gboolean add_icon(Window win)
 
 	XSelectInput(server.display, win, StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask);
 
-	char *name = get_window_name(win);
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, win, name);
 	Panel *panel = systray.area.panel;
