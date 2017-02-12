@@ -590,7 +590,7 @@ gboolean add_icon(Window win)
 	char *token;
 	char *string;
 	string = strdup(systray_hide_icons);
-	if (string != NULL) {
+	if (string != NULL && string[0] != '0') {
 		while ((token = strsep(&string, ",")) != NULL) {
 			if (strcmp(token,name) == 0) {
 				if (strcmp(token,"") == 0) token = "empty name";
