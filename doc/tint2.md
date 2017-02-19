@@ -142,18 +142,17 @@ Identifier 0 refers to a special background which is fully transparent, identifi
 
 (Available since 0.13.0)
 
-Most of the panel elements that accept backgrounds also allow specifying
-one or more gradient layers that are drawn on top of the solid color
-background.
+Backgrounds also allow specifying one or more gradient layers
+that are drawn on top of the solid color background.
 
 First the user must define one or more gradients in the config file,
-each starting with `gradient = TYPE`. These should be added
-ideally after backgrounds but before all the other options.
+each starting with `gradient = TYPE`. These must be added before backgrounds.
 
-Then gradients can be added by index to elements, using `*_gradient_id = INDEX`,
-where `*` is an element name, for example `panel`, and `INDEX` is
-the gradient index, starting from 1. The `*_gradient_id` option can be repeated
-for the same element, which results in multiple gradients
+Then gradients can be added by index to backgrounds,
+using the `gradient_id = INDEX`, `hover_gradient_id = INDEX` and
+`pressed_gradient_id = INDEX`, where `INDEX` is
+the gradient index, starting from 1. The `*gradient_id` option can be repeated
+for the same background, which results in multiple gradients
 being drawn on top of each other in the given order.
 
 #### Simple gradients
@@ -310,9 +309,21 @@ gradient = horizontal
 start_color = #111111 100
 end_color = #222222 100
 
-[....]
+# Background 1: Active desktop name
+rounded = 2
+border_width = 1
+border_sides = TBLR
+background_color = #555555 10
+border_color = #ffffff 60
+background_color_hover = #555555 10
+border_color_hover = #ffffff 60
+background_color_pressed = #555555 10
+border_color_pressed = #ffffff 60
+gradient_id = 3
+hover_gradient_id = 4
+pressed_gradient_id = 2
 
-panel_gradient_id = 5
+[...]
 ```
 
 ### Panel

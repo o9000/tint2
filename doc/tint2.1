@@ -179,18 +179,17 @@ Identifier 0 refers to a special background which is fully transparent, identifi
 .PP
 (Available since 0.13.0)
 .PP
-Most of the panel elements that accept backgrounds also allow specifying
-one or more gradient layers that are drawn on top of the solid color
-background.
+Backgrounds also allow specifying one or more gradient layers
+that are drawn on top of the solid color background.
 .PP
 First the user must define one or more gradients in the config file,
-each starting with \fB\fCgradient = TYPE\fR\&. These should be added
-ideally after backgrounds but before all the other options.
+each starting with \fB\fCgradient = TYPE\fR\&. These must be added before backgrounds.
 .PP
-Then gradients can be added by index to elements, using \fB\fC*_gradient_id = INDEX\fR,
-where \fB\fC*\fR is an element name, for example \fB\fCpanel\fR, and \fB\fCINDEX\fR is
-the gradient index, starting from 1. The \fB\fC*_gradient_id\fR option can be repeated
-for the same element, which results in multiple gradients
+Then gradients can be added by index to backgrounds,
+using the \fB\fCgradient_id = INDEX\fR, \fB\fChover_gradient_id = INDEX\fR and
+\fB\fCpressed_gradient_id = INDEX\fR, where \fB\fCINDEX\fR is
+the gradient index, starting from 1. The \fB\fC*gradient_id\fR option can be repeated
+for the same background, which results in multiple gradients
 being drawn on top of each other in the given order.
 .SS Simple gradients
 .PP
@@ -352,9 +351,21 @@ gradient = horizontal
 start_color = #111111 100
 end_color = #222222 100
 
-[....]
+# Background 1: Active desktop name
+rounded = 2
+border_width = 1
+border_sides = TBLR
+background_color = #555555 10
+border_color = #ffffff 60
+background_color_hover = #555555 10
+border_color_hover = #ffffff 60
+background_color_pressed = #555555 10
+border_color_pressed = #ffffff 60
+gradient_id = 3
+hover_gradient_id = 4
+pressed_gradient_id = 2
 
-panel_gradient_id = 5
+[...]
 .fi
 .RE
 .SS Panel
