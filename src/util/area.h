@@ -140,6 +140,8 @@ typedef struct Border {
 	int mask;
 } Border;
 
+typedef enum MouseState { MOUSE_NORMAL = 0, MOUSE_OVER = 1, MOUSE_DOWN = 2, MOUSE_STATE_COUNT } MouseState;
+
 typedef struct Background {
 	// Normal state
 	Color fill_color;
@@ -150,6 +152,8 @@ typedef struct Background {
 	// On mouse press
 	Color fill_color_pressed;
 	Color border_color_pressed;
+	// Each list element is a pointer to a GradientClass (list can be empty), no ownership
+	GList *gradients[MOUSE_STATE_COUNT];
 } Background;
 
 typedef enum Layout {
@@ -163,8 +167,6 @@ typedef enum Alignment {
 	ALIGN_RIGHT = 2,
 } Alignment;
 
-typedef enum MouseState { MOUSE_NORMAL = 0, MOUSE_OVER = 1, MOUSE_DOWN = 2, MOUSE_STATE_COUNT } MouseState;
-
 struct Panel;
 
 typedef struct Area {
@@ -174,10 +176,8 @@ typedef struct Area {
 	int width, height;
 	int old_width, old_height;
 	Background *bg;
-	// Each element is a pointer to a GradientClass (list can be empty), no ownership
-	GList *gradients;
 	// Each element is a GradientInstance attached to this Area (list can be empty)
-	GList *gradient_instances;
+	GList *gradient_instances_by_state[MOUSE_STATE_COUNT];
 	// Each element is a GradientInstance that depends on this Area's geometry (position or size)
 	GList *dependent_gradients;
 	// List of children, each one a pointer to Area
@@ -244,6 +244,7 @@ typedef struct Area {
 
 // Initializes the Background member to default values.
 void init_background(Background *bg);
+void cleanup_background(Background *bg);
 
 // Layout
 

@@ -156,8 +156,10 @@ void cleanup_panel()
 
 	free_area(&panel_config.area);
 
-	if (backgrounds)
-		g_array_free(backgrounds, TRUE);
+	if (backgrounds) {
+		for (guint i = 0; i < backgrounds->len; i++)
+			cleanup_background(&g_array_index(backgrounds, Background, i));
+	}
 	backgrounds = NULL;
 	if (gradients) {
 		for (guint i = 0; i < gradients->len; i++)
@@ -201,7 +203,6 @@ void init_panel()
 	panels = calloc(num_panels, sizeof(Panel));
 	for (int i = 0; i < num_panels; i++) {
 		memcpy(&panels[i], &panel_config, sizeof(Panel));
-		panels[i].area.gradients = g_list_copy(panel_config.area.gradients);
 	}
 
 	fprintf(stderr,

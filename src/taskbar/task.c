@@ -611,7 +611,6 @@ void set_task_state(Task *task, TaskState state)
 				task1->current_state = state;
 				task1->area.bg = panels[0].g_task.background[state];
 				free_area_gradient_instances(&task1->area);
-				task1->area.gradients = g_list_copy(panels[0].g_task.gradient[state]);
 				instantiate_area_gradients(&task1->area);
 				schedule_redraw(&task1->area);
 				if (state == TASK_ACTIVE && g_slist_find(urgent_list, task1))

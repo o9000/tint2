@@ -492,7 +492,6 @@ void launcher_load_icons(Launcher *launcher)
 		launcherIcon->area.has_mouse_over_effect = panel_config.mouse_effects;
 		launcherIcon->area.has_mouse_press_effect = launcherIcon->area.has_mouse_over_effect;
 		launcherIcon->area.bg = launcher_icon_bg;
-		launcherIcon->area.gradients = launcher_icon_gradients;
 		launcherIcon->area.on_screen = TRUE;
 		launcherIcon->area.posx = -1;
 		launcherIcon->area._on_change_layout = launcher_icon_on_change_layout;

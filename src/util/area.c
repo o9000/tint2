@@ -40,6 +40,16 @@ void init_background(Background *bg)
 	bg->border.mask = BORDER_TOP | BORDER_BOTTOM | BORDER_LEFT | BORDER_RIGHT;
 }
 
+void cleanup_background(Background *bg)
+{
+	if (debug_gradients)
+		fprintf(stderr, YELLOW "freeing gradient list %p" RESET "\n", (void*)bg->gradients);
+	for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
+		g_list_free(bg->gradients[i]);
+		bg->gradients[i] = NULL;
+	}
+}
+
 void initialize_positions(void *obj, int offset)
 {
 	Area *a = (Area *)obj;
@@ -517,7 +527,7 @@ void draw_background(Area *a, cairo_t *c)
 
 		cairo_fill(c);
 	}
-	for (GList *l = a->gradient_instances; l; l = l->next) {
+	for (GList *l = a->gradient_instances_by_state[a->mouse_state]; l; l = l->next) {
 		GradientInstance *gi = (GradientInstance *)l->data;
 		if (!gi->pattern)
 			update_gradient(gi);
@@ -624,10 +634,6 @@ void free_area(Area *a)
 		mouse_over_area = NULL;
 	}
 	free_area_gradient_instances(a);
-	if (debug_gradients)
-		fprintf(stderr, YELLOW "freeing gradient list %p" RESET "\n", (void*)a->gradients);
-	g_list_free(a->gradients);
-	a->gradients = NULL;
 }
 
 void mouse_over(Area *area, int pressed)
@@ -653,8 +659,7 @@ void mouse_over(Area *area, int pressed)
 	mouse_over_area = area;
 
 	mouse_over_area->mouse_state = new_state;
-	mouse_over_area->pix =
-	    mouse_over_area->pix_by_state[mouse_over_area->has_mouse_over_effect ? mouse_over_area->mouse_state : 0];
+	mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->mouse_state];
 	if (!mouse_over_area->pix)
 		mouse_over_area->_redraw_needed = TRUE;
 	panel_refresh = TRUE;
@@ -665,8 +670,7 @@ void mouse_out()
 	if (!mouse_over_area)
 		return;
 	mouse_over_area->mouse_state = MOUSE_NORMAL;
-	mouse_over_area->pix =
-	    mouse_over_area->pix_by_state[mouse_over_area->has_mouse_over_effect ? mouse_over_area->mouse_state : 0];
+	mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->mouse_state];
 	if (!mouse_over_area->pix)
 		mouse_over_area->_redraw_needed = TRUE;
 	panel_refresh = TRUE;
@@ -956,14 +960,16 @@ void free_gradient_instance(GradientInstance *gi)
 
 void instantiate_area_gradients(Area *area)
 {
-	g_assert_null(area->gradient_instances);
 	if (debug_gradients)
 		fprintf(stderr, "Initializing gradients for area %s\n", area->name);
-	for (GList *l = area->gradients; l; l = l->next) {
-		GradientClass *g = (GradientClass *)l->data;
-		GradientInstance *gi = (GradientInstance *)calloc(1, sizeof(GradientInstance));
-		instantiate_gradient(area, g, gi);
-		area->gradient_instances = g_list_append(area->gradient_instances, gi);
+	for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
+		g_assert_null(area->gradient_instances_by_state[i]);
+		for (GList *l = area->bg->gradients[i]; l; l = l->next) {
+			GradientClass *g = (GradientClass *)l->data;
+			GradientInstance *gi = (GradientInstance *)calloc(1, sizeof(GradientInstance));
+			instantiate_gradient(area, g, gi);
+			area->gradient_instances_by_state[i] = g_list_append(area->gradient_instances_by_state[i], gi);
+		}
 	}
 }
 
@@ -971,12 +977,14 @@ void free_area_gradient_instances(Area *area)
 {
 	if (debug_gradients)
 		fprintf(stderr, "Freeing gradients for area %s\n", area->name);
-	for (GList *l = area->gradient_instances; l; l = l->next) {
-		GradientInstance *gi = (GradientInstance *)l->data;
-		free_gradient_instance(gi);
+	for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
+		for (GList *l = area->gradient_instances_by_state[i]; l; l = l->next) {
+			GradientInstance *gi = (GradientInstance *)l->data;
+			free_gradient_instance(gi);
+		}
+		g_list_free_full(area->gradient_instances_by_state[i], free);
+		area->gradient_instances_by_state[i] = NULL;
 	}
-	g_list_free_full(area->gradient_instances, free);
-	area->gradient_instances = NULL;
 	g_assert_null(area->dependent_gradients);
 }
 

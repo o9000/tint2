@@ -64,10 +64,8 @@ void init_taskbarname_panel(void *p)
 		taskbar->bar_name.area._compute_desired_size = taskbarname_compute_desired_size;
 		if (j == server.desktop) {
 			taskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_ACTIVE];
-			taskbar->bar_name.area.gradients = g_list_copy(panel->g_taskbar.gradient_name[TASKBAR_ACTIVE]);
 		} else {
 			taskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_NORMAL];
-			taskbar->bar_name.area.gradients = g_list_copy(panel->g_taskbar.gradient_name[TASKBAR_NORMAL]);
 		}
 
 		// use desktop number if name is missing
