@@ -142,7 +142,7 @@ Identifier 0 refers to a special background which is fully transparent, identifi
 
 (Available since 0.13.0)
 
-Backgrounds also allow specifying one or more gradient layers
+Backgrounds also allow specifying gradient layers
 that are drawn on top of the solid color background.
 
 First the user must define one or more gradients in the config file,
@@ -151,9 +151,7 @@ each starting with `gradient = TYPE`. These must be added before backgrounds.
 Then gradients can be added by index to backgrounds,
 using the `gradient_id = INDEX`, `hover_gradient_id = INDEX` and
 `pressed_gradient_id = INDEX`, where `INDEX` is
-the gradient index, starting from 1. The `*gradient_id` option can be repeated
-for the same background, which results in multiple gradients
-being drawn on top of each other in the given order.
+the gradient index, starting from 1.
 
 #### Simple gradients
 

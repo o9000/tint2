@@ -152,8 +152,8 @@ typedef struct Background {
 	// On mouse press
 	Color fill_color_pressed;
 	Color border_color_pressed;
-	// Each list element is a pointer to a GradientClass (list can be empty), no ownership
-	GList *gradients[MOUSE_STATE_COUNT];
+	// Pointer to a GradientClass or NULL, no ownership
+	GradientClass *gradients[MOUSE_STATE_COUNT];
 } Background;
 
 typedef enum Layout {
@@ -244,7 +244,6 @@ typedef struct Area {
 
 // Initializes the Background member to default values.
 void init_background(Background *bg);
-void cleanup_background(Background *bg);
 
 // Layout
 

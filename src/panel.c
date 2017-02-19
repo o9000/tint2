@@ -156,10 +156,7 @@ void cleanup_panel()
 
 	free_area(&panel_config.area);
 
-	if (backgrounds) {
-		for (guint i = 0; i < backgrounds->len; i++)
-			cleanup_background(&g_array_index(backgrounds, Background, i));
-	}
+	g_array_free(backgrounds, TRUE);
 	backgrounds = NULL;
 	if (gradients) {
 		for (guint i = 0; i < gradients->len; i++)

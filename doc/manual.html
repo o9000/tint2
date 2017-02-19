@@ -288,14 +288,12 @@ task_active_background_id = 2
 systray_background_id = 0
 clock_background_id = 0
 </code></pre>
-<p>Identifier 0 refers to a special background which is fully transparent, identifier 1 applies the first background defined in the config file etc.</p><h3 id="gradients">Gradients<a name="gradients" href="#gradients" class="md2man-permalink" title="permalink"></a></h3><p>(Available since 0.13.0)</p><p>Backgrounds also allow specifying one or more gradient layers
+<p>Identifier 0 refers to a special background which is fully transparent, identifier 1 applies the first background defined in the config file etc.</p><h3 id="gradients">Gradients<a name="gradients" href="#gradients" class="md2man-permalink" title="permalink"></a></h3><p>(Available since 0.13.0)</p><p>Backgrounds also allow specifying gradient layers
 that are drawn on top of the solid color background.</p><p>First the user must define one or more gradients in the config file,
 each starting with <code>gradient = TYPE</code>. These must be added before backgrounds.</p><p>Then gradients can be added by index to backgrounds,
 using the <code>gradient_id = INDEX</code>, <code>hover_gradient_id = INDEX</code> and
 <code>pressed_gradient_id = INDEX</code>, where <code>INDEX</code> is
-the gradient index, starting from 1. The <code>*gradient_id</code> option can be repeated
-for the same background, which results in multiple gradients
-being drawn on top of each other in the given order.</p><h4 id="simple-gradients">Simple gradients<a name="simple-gradients" href="#simple-gradients" class="md2man-permalink" title="permalink"></a></h4><p>These are gradients that vary from fixed control points (top-to-bottom, left-to-right
+the gradient index, starting from 1.</p><h4 id="simple-gradients">Simple gradients<a name="simple-gradients" href="#simple-gradients" class="md2man-permalink" title="permalink"></a></h4><p>These are gradients that vary from fixed control points (top-to-bottom, left-to-right
 or center-to-corners). The user must specify the start and end colors,
 and can optionally add extra color stops in between.</p><h5 id="vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors">Vertical gradient, with color varying from the top edge to the bottom edge, two colors<a name="vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors" href="#vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>gradient = vertical
 start_color = #rrggbb opacity

@@ -40,16 +40,6 @@ void init_background(Background *bg)
 	bg->border.mask = BORDER_TOP | BORDER_BOTTOM | BORDER_LEFT | BORDER_RIGHT;
 }
 
-void cleanup_background(Background *bg)
-{
-	if (debug_gradients)
-		fprintf(stderr, YELLOW "freeing gradient list %p" RESET "\n", (void*)bg->gradients);
-	for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
-		g_list_free(bg->gradients[i]);
-		bg->gradients[i] = NULL;
-	}
-}
-
 void initialize_positions(void *obj, int offset)
 {
 	Area *a = (Area *)obj;
@@ -964,12 +954,12 @@ void instantiate_area_gradients(Area *area)
 		fprintf(stderr, "Initializing gradients for area %s\n", area->name);
 	for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
 		g_assert_null(area->gradient_instances_by_state[i]);
-		for (GList *l = area->bg->gradients[i]; l; l = l->next) {
-			GradientClass *g = (GradientClass *)l->data;
-			GradientInstance *gi = (GradientInstance *)calloc(1, sizeof(GradientInstance));
-			instantiate_gradient(area, g, gi);
-			area->gradient_instances_by_state[i] = g_list_append(area->gradient_instances_by_state[i], gi);
-		}
+		GradientClass *g = area->bg->gradients[i];
+		if (!g)
+			continue;
+		GradientInstance *gi = (GradientInstance *)calloc(1, sizeof(GradientInstance));
+		instantiate_gradient(area, g, gi);
+		area->gradient_instances_by_state[i] = g_list_append(area->gradient_instances_by_state[i], gi);
 	}
 }
 

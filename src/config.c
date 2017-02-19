@@ -318,19 +318,19 @@ void add_entry(char *key, char *value)
 		int id = atoi(value);
 		id = (id < gradients->len && id >= 0) ? id : -1;
 		if (id >= 0)
-			bg->gradients[MOUSE_NORMAL] = g_list_append(bg->gradients[MOUSE_NORMAL], &g_array_index(gradients, GradientClass, id));
+			bg->gradients[MOUSE_NORMAL] = &g_array_index(gradients, GradientClass, id);
 	} else if (strcmp(key, "hover_gradient_id") == 0) {
 		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
 		int id = atoi(value);
 		id = (id < gradients->len && id >= 0) ? id : -1;
 		if (id >= 0)
-			bg->gradients[MOUSE_OVER] = g_list_append(bg->gradients[MOUSE_OVER], &g_array_index(gradients, GradientClass, id));
+			bg->gradients[MOUSE_OVER] = &g_array_index(gradients, GradientClass, id);
 	} else if (strcmp(key, "pressed_gradient_id") == 0) {
 		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
 		int id = atoi(value);
 		id = (id < gradients->len && id >= 0) ? id : -1;
 		if (id >= 0)
-			bg->gradients[MOUSE_DOWN] = g_list_append(bg->gradients[MOUSE_DOWN], &g_array_index(gradients, GradientClass, id));
+			bg->gradients[MOUSE_DOWN] = &g_array_index(gradients, GradientClass, id);
 	}
 
 	/* Gradients */
