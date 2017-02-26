@@ -214,3 +214,6 @@ src/util/gradient.h
 src/util/gradient.c
 src/util/color.h
 src/util/color.c
+src/tint2conf/background_gui.h
+src/tint2conf/background_gui.c
+src/tint2conf/gui.h

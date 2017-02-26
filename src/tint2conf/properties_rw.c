@@ -23,7 +23,6 @@ int no_items_systray_enabled;
 int no_items_battery_enabled;
 
 static int num_bg;
-static int read_bg_color2;
 static int read_bg_color_hover;
 static int read_border_color_hover;
 static int read_bg_color_press;
@@ -184,9 +183,6 @@ void config_write_backgrounds(FILE *fp)
 		if (sideRight)
 			strcat(sides, "R");
 		fprintf(fp, "border_sides = %s\n", sides);
-
-		// This is a workaround. For some reason, there was a problem while storing fillOpacity2
-		//fillOpacity2 = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color2)) * 100.0 / 0xffff);
 
 		config_write_color(fp, "background_color", *fillColor, fillOpacity);
 		config_write_color(fp, "border_color", *borderColor, borderOpacity);
@@ -928,14 +924,6 @@ gboolean config_is_manual(const char *path)
 void finalize_bg()
 {
 	if (num_bg > 0) {
-		if (!read_bg_color2) {
-			GdkColor fillColor;
-			gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color),&fillColor);
-			gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color2), &fillColor);
-			int fillOpacity = gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color2));
-			gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color2), fillOpacity);
-			background_force_update();
-		}
 		if (!read_bg_color_hover) {
 			GdkColor fillColor;
 			gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color), &fillColor);
@@ -981,7 +969,6 @@ void add_entry(char *key, char *value)
 		finalize_bg();
 		background_create_new();
 		num_bg++;
-		read_bg_color2 = 0;
 		read_bg_color_hover = 0;
 		read_border_color_hover = 0;
 		read_bg_color_press = 0;

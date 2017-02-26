@@ -183,9 +183,6 @@ enum {
 	bgColPixbuf = 0,
 	bgColFillColor,
 	bgColFillOpacity,
-	bgColFillColor2,
-	bgColFillOpacity2,
-	bgColGradient,
 	bgColBorderColor,
 	bgColBorderOpacity,
 	bgColBorderWidth,
@@ -209,8 +206,6 @@ enum {
 extern GtkListStore *backgrounds;
 extern GtkWidget *current_background,
 		  *background_fill_color,
-		  *background_fill_color2,
-		  *background_gradient,
 		  *background_border_color,
 		  *background_fill_color_over,
 		  *background_border_color_over,
@@ -222,6 +217,8 @@ extern GtkWidget *current_background,
           *background_border_sides_left,
           *background_border_sides_right,
 		  *background_corner_radius;
+
+extern GtkListStore *gradients_list;
 
 void background_create_new();
 void background_force_update();

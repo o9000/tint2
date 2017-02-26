@@ -29,7 +29,8 @@ set(SOURCES ../util/common.c
             main.c
             properties.c
             properties_rw.c
-            theme_view.c )
+            theme_view.c
+            background_gui.c )
 
 add_definitions( -DTINT2CONF )
 
