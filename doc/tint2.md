@@ -149,15 +149,19 @@ First the user must define one or more gradients in the config file,
 each starting with `gradient = TYPE`. These must be added before backgrounds.
 
 Then gradients can be added by index to backgrounds,
-using the `gradient_id = INDEX`, `hover_gradient_id = INDEX` and
-`pressed_gradient_id = INDEX`, where `INDEX` is
+using the `gradient_id = INDEX`, `gradient_id_hover = INDEX` and
+`gradient_id_pressed = INDEX`, where `INDEX` is
 the gradient index, starting from 1.
 
-#### Simple gradients
+#### Gradient types
 
-These are gradients that vary from fixed control points (top-to-bottom, left-to-right
-or center-to-corners). The user must specify the start and end colors,
-and can optionally add extra color stops in between.
+Gradients vary the color between fixed control points:
+* vertical gradients: top-to-bottom;
+* horizontal gradients: left-to-right;
+* radial gradients: center-to-corners.
+
+The user must specify the start and end colors, and can optionally add extra color stops in between
+using the `color_stop` option, as explained below.
 
 ##### Vertical gradient, with color varying from the top edge to the bottom edge, two colors
 
@@ -175,10 +179,10 @@ start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 ```
 
-##### Centered radial gradient, with color varying from the center to the corner, two colors:
+##### Radial gradient, with color varying from the center to the corner, two colors:
 
 ```
-gradient = centered
+gradient = radial
 start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 ```
@@ -189,57 +193,6 @@ end_color = #rrggbb opacity
 color_stop = percentage #rrggbb opacity
 ```
 
-#### Advanced gradients
-
-These gradient types allow specifying the control points. This permits, for example,
-adding off-center radial glow effects, linear gradients with arbitrary angles,
-or using another element's edge as a control point.
-
-Note: updates are currently a little buggy for task buttons.
-
-##### Linear or radial gradients, with arbitrary control points (and orientation)
-
-```
-gradient = linear | radial
-# Geometry
-from_offset_x = SIZE_EXPRESSION
-from_offset_y = SIZE_EXPRESSION
-# from_offset_r for radial only
-from_offset_r = SIZE_EXPRESSION
-to_offset_x = SIZE_EXPRESSION
-to_offset_y = SIZE_EXPRESSION
-# to_offset_r for radial only
-to_offset_r = SIZE_EXPRESSION
-# Colors
-start_color = #rrggbb opacity
-end_color = #rrggbb opacity
-# Optional: more color stops
-color_stop = percentage #rrggbb opacity
-color_stop = percentage #rrggbb opacity
-```
-
-`SIZE_EXPRESSION` is an expression that encodes an offset,
-following the grammar:
-
-```
-SIZE_EXPRESSION = number |
-                  SIZE |
-                  SIZE * number |
-                  SIZE * number%
-SIZE = width | height | radius | left | right | top | bottom | centerx | centery |
-       ELEMENT width | ELEMENT height | ELEMENT radius | ELEMENT left | ELEMENT right | ELEMENT top | ELEMENT bottom | ELEMENT centerx | ELEMENT centery
-ELEMENT = self | parent | panel
-```
-
-All coordinates are computed in the drawn element's coordinate system,
-with origin in the top-left corner and the vertical axis growing down.
-
-Numbers are any real numbers. Negative numbers must not have spaces between
-the minus sign and the first digit, for example `-1.234` is correct,
-while `- 1.234` is not.
-
-Multiple `*_offset_*` can be given, in which case they are added together.
-
 #### Gradient examples
 
 ```
@@ -249,60 +202,17 @@ start_color = #111122 30
 end_color = #112211 30
 color_stop = 60 #221111 30
 
-# Gradient 2: center glow
-gradient = centered
-start_color = #ffffff 20
-end_color = #ffffff 0
-
-# Gradient 3: glow
+# Gradient 2: radial glow
 gradient = radial
 start_color = #ffffff 20
 end_color = #ffffff 0
-from_offset_x = width * 0.28
-from_offset_y = height * 0.28
-from_offset_r = 0
-to_offset_x = width * 0.28
-to_offset_y = height * 0.28
-to_offset_r = radius * 2
 
-# Gradient 4: aurora
-gradient = linear
-start_color = #ffffff 0
-end_color = #ffffff 0
-from_offset_x = panel left
-from_offset_y = panel top
-to_offset_x = panel width * 3
-to_offset_x = panel height * 3
-to_offset_y = panel width
-to_offset_y = panel height
-color_stop = 0.1 #ffffff 30
-color_stop = 0.8 #ffffff 30
-color_stop = 2.1 #7777aa 30
-color_stop = 3.1 #7777aa 30
-color_stop = 4.0 #ffffaa 30
-color_stop = 4.8 #aa7733 30
-color_stop = 5.1 #ff7733 30
-color_stop = 6.5 #337788 30
-color_stop = 9.2 #ffffaa 30
-color_stop = 10.1 #777777 30
-color_stop = 12.1 #aaaaff 30
-color_stop = 14.0 #77ff77 30
-color_stop = 18.0 #ffff77 30
-color_stop = 19.8 #77ffaa 30
-color_stop = 21.1 #ffffaa 20
-color_stop = 23.5 #337733 30
-color_stop = 25.5 #337733 30
-color_stop = 29.2 #77ffff 30
-color_stop = 30.1 #77ffaa 30
-color_stop = 31.0 #ffffaa 30
-color_stop = 34.8 #aa7733 30
-
-# Gradient 5: elegant black
+# Gradient 3: elegant black
 gradient = vertical
 start_color = #444444 100
 end_color = #222222 100
 
-# Gradient 6: elegant black
+# Gradient 4: elegant black
 gradient = horizontal
 start_color = #111111 100
 end_color = #222222 100
@@ -318,8 +228,8 @@ border_color_hover = #ffffff 60
 background_color_pressed = #555555 10
 border_color_pressed = #ffffff 60
 gradient_id = 3
-hover_gradient_id = 4
-pressed_gradient_id = 2
+gradient_id_hover = 4
+gradient_id_pressed = 2
 
 [...]
 ```

@@ -12,9 +12,7 @@
 typedef enum GradientType {
 	GRADIENT_VERTICAL = 0,
 	GRADIENT_HORIZONTAL,
-	GRADIENT_CENTERED,
-	GRADIENT_LINEAR,
-	GRADIENT_RADIAL
+	GRADIENT_CENTERED
 } GradientType;
 
 typedef struct ColorStop {
@@ -70,8 +68,6 @@ typedef struct GradientClass {
 } GradientClass;
 
 GradientType gradient_type_from_string(const char *str);
-Element element_from_string(const char *str);
-Offset *offset_from_string(const char *str);
 void init_gradient(GradientClass *g, GradientType type);
 void cleanup_gradient(GradientClass *g);
 

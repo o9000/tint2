@@ -19,6 +19,7 @@
 
 #include "gui.h"
 #include "background_gui.h"
+#include "gradient_gui.h"
 
 GtkWidget *panel_width, *panel_height, *panel_margin_x, *panel_margin_y, *panel_padding_x, *panel_padding_y, *panel_spacing;
 GtkWidget *panel_wm_menu, *panel_dock, *panel_autohide, *panel_autohide_show_time, *panel_autohide_hide_time, *panel_autohide_size;
@@ -129,8 +130,6 @@ IconThemeWrapper *icon_theme;
 GtkWidget *launcher_tooltip;
 GtkWidget *launcher_icon_theme_override;
 
-GtkListStore *gradients_lists;
-
 GtkWidget *addScrollBarToWidget(GtkWidget *widget);
 gboolean gtk_tree_model_iter_prev_tint2(GtkTreeModel *model, GtkTreeIter *iter);
 
@@ -220,7 +219,7 @@ GtkWidget *create_properties()
 	GtkWidget *view, *dialog_vbox3, *button;
 	GtkTooltips *tooltips;
 	GtkWidget *page_panel, *page_panel_items, *page_launcher, *page_taskbar, *page_battery, *page_clock,
-			  *page_tooltip, *page_systemtray, *page_task, *page_background;
+			  *page_tooltip, *page_systemtray, *page_task, *page_background, *page_gradient;
 	GtkWidget *label;
 
 	tooltips = gtk_tooltips_new();
@@ -265,6 +264,14 @@ GtkWidget *create_properties()
 	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 
 	// notebook
+	label = gtk_label_new(_("Gradients"));
+	gtk_widget_show(label);
+	page_gradient = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
+	gtk_container_set_border_width(GTK_CONTAINER(page_gradient), 10);
+	gtk_widget_show(page_gradient);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_gradient), label);
+	create_gradient(page_gradient);
+
 	label = gtk_label_new(_("Backgrounds"));
 	gtk_widget_show(label);
 	page_background = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);

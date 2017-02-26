@@ -319,13 +319,13 @@ void add_entry(char *key, char *value)
 		id = (id < gradients->len && id >= 0) ? id : -1;
 		if (id >= 0)
 			bg->gradients[MOUSE_NORMAL] = &g_array_index(gradients, GradientClass, id);
-	} else if (strcmp(key, "hover_gradient_id") == 0) {
+	} else if (strcmp(key, "gradient_id_hover") == 0 || strcmp(key, "hover_gradient_id") == 0) {
 		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
 		int id = atoi(value);
 		id = (id < gradients->len && id >= 0) ? id : -1;
 		if (id >= 0)
 			bg->gradients[MOUSE_OVER] = &g_array_index(gradients, GradientClass, id);
-	} else if (strcmp(key, "pressed_gradient_id") == 0) {
+	} else if (strcmp(key, "gradient_id_pressed") == 0 || strcmp(key, "pressed_gradient_id") == 0) {
 		Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
 		int id = atoi(value);
 		id = (id < gradients->len && id >= 0) ? id : -1;
@@ -366,82 +366,6 @@ void add_entry(char *key, char *value)
 		else
 			color_stop->color.alpha = 0.5;
 		g->extra_color_stops = g_list_append(g->extra_color_stops, color_stop);
-	} else if (strcmp(key, "from_offset_x") == 0) {
-		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
-			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
-		} else {
-			Offset *offset = offset_from_string(value);
-			if (!offset) {
-				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
-			} else {
-				g->from.offsets_x = g_list_append(g->from.offsets_x, offset);
-			}
-		}
-	} else if (strcmp(key, "from_offset_y") == 0) {
-		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
-			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
-		} else {
-			Offset *offset = offset_from_string(value);
-			if (!offset) {
-				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
-			} else {
-				g->from.offsets_y = g_list_append(g->from.offsets_y, offset);
-			}
-		}
-	} else if (strcmp(key, "from_offset_r") == 0) {
-		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
-			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
-		} else if (g->type == GRADIENT_LINEAR) {
-			fprintf(stderr, RED "Invalid parameter for linear gradient: line %s = %s" RESET "\n", key, value);
-		} else {
-			Offset *offset = offset_from_string(value);
-			if (!offset) {
-				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
-			} else {
-				g->from.offsets_r = g_list_append(g->from.offsets_r, offset);
-			}
-		}
-	} else if (strcmp(key, "to_offset_x") == 0) {
-		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
-			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
-		} else {
-			Offset *offset = offset_from_string(value);
-			if (!offset) {
-				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
-			} else {
-				g->to.offsets_x = g_list_append(g->to.offsets_x, offset);
-			}
-		}
-	} else if (strcmp(key, "to_offset_y") == 0) {
-		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
-			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
-		} else {
-			Offset *offset = offset_from_string(value);
-			if (!offset) {
-				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
-			} else {
-				g->to.offsets_y = g_list_append(g->to.offsets_y, offset);
-			}
-		}
-	} else if (strcmp(key, "to_offset_r") == 0) {
-		GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-		if (g->type == GRADIENT_HORIZONTAL || g->type == GRADIENT_VERTICAL || g->type == GRADIENT_CENTERED) {
-			fprintf(stderr, RED "Control points can only be specified for linear and radial gradients: line %s = %s" RESET "\n", key, value);
-		} else if (g->type == GRADIENT_LINEAR) {
-			fprintf(stderr, RED "Invalid parameter for linear gradient: line %s = %s" RESET "\n", key, value);
-		} else {
-			Offset *offset = offset_from_string(value);
-			if (!offset) {
-				fprintf(stderr, RED "Invalid value: line %s = %s" RESET "\n", key, value);
-			} else {
-				g->to.offsets_r = g_list_append(g->to.offsets_r, offset);
-			}
-		}
 	}
 
 	/* Panel */

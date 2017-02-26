@@ -30,7 +30,8 @@ set(SOURCES ../util/common.c
             properties.c
             properties_rw.c
             theme_view.c
-            background_gui.c )
+            background_gui.c
+            gradient_gui.c )
 
 add_definitions( -DTINT2CONF )
 

@@ -1061,8 +1061,7 @@ void update_gradient(GradientInstance *gi)
 	compute_control_point(gi, &gi->gradient_class->from, &from_x, &from_y, &from_r);
 	double to_x, to_y, to_r;
 	compute_control_point(gi, &gi->gradient_class->to, &to_x, &to_y, &to_r);
-	if (gi->gradient_class->type == GRADIENT_VERTICAL || gi->gradient_class->type == GRADIENT_HORIZONTAL ||
-	    gi->gradient_class->type == GRADIENT_LINEAR) {
+	if (gi->gradient_class->type == GRADIENT_VERTICAL || gi->gradient_class->type == GRADIENT_HORIZONTAL) {
 		gi->pattern = cairo_pattern_create_linear(from_x, from_y, to_x, to_y);
 		if (debug_gradients)
 			fprintf(stderr,
@@ -1072,7 +1071,7 @@ void update_gradient(GradientInstance *gi)
 			        from_y,
 			        to_x,
 			        to_y);
-	} else if (gi->gradient_class->type == GRADIENT_CENTERED || gi->gradient_class->type == GRADIENT_RADIAL) {
+	} else if (gi->gradient_class->type == GRADIENT_CENTERED) {
 		gi->pattern = cairo_pattern_create_radial(from_x, from_y, from_r, to_x, to_y, to_r);
 		if (debug_gradients)
 			fprintf(stderr,

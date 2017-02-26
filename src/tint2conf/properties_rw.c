@@ -6,7 +6,9 @@
 #include "common.h"
 #include "properties.h"
 #include "properties_rw.h"
+#include "gradient_gui.h"
 
+void finalize_gradient();
 void finalize_bg();
 void add_entry(char *key, char *value);
 void hex2gdk(char *hex, GdkColor *color);
@@ -28,10 +30,13 @@ static int read_border_color_hover;
 static int read_bg_color_press;
 static int read_border_color_press;
 
+static int num_gr;
+
 void config_read_file(const char *path)
 {
 	num_bg = 0;
 	background_create_new();
+	gradient_create_new(GRADIENT_CONFIG_VERTICAL);
 
 	FILE *fp;
 	char line[512];
@@ -58,6 +63,7 @@ void config_read_file(const char *path)
 	}
 	fclose(fp);
 
+	finalize_gradient();
 	finalize_bg();
 
 	if (!config_has_panel_items) {
@@ -89,6 +95,40 @@ void config_write_color(FILE *fp, const char *name, GdkColor color, int opacity)
 	fprintf(fp, "%s = #%02x%02x%02x %d\n", name, color.red >> 8, color.green >> 8, color.blue >> 8, opacity);
 }
 
+void config_write_gradients(FILE *fp)
+{
+	fprintf(fp, "#-------------------------------------\n");
+	fprintf(fp, "# Gradients\n");
+
+	int index = 1;
+
+	for (GList *gl = gradients ? gradients->next : NULL; gl; gl = gl->next, index++) {
+		GradientConfig *g = (GradientConfig *)gl->data;
+		GdkColor color;
+		int opacity;
+
+		fprintf(fp, "# Gradient %d\n", index);
+		fprintf(fp, "gradient = %s\n", g->type == GRADIENT_CONFIG_HORIZONTAL ? "horizontal" : g->type == GRADIENT_CONFIG_VERTICAL ? "vertical" : "radial");
+
+		cairoColor2GdkColor(g->start_color.color.rgb[0], g->start_color.color.rgb[1], g->start_color.color.rgb[2], &color);
+		opacity = g->start_color.color.alpha * 100;
+		config_write_color(fp, "start_color", color, opacity);
+
+		cairoColor2GdkColor(g->end_color.color.rgb[0], g->end_color.color.rgb[1], g->end_color.color.rgb[2], &color);
+		opacity = g->end_color.color.alpha * 100;
+		config_write_color(fp, "end_color", color, opacity);
+
+		for (GList *l = g->extra_color_stops; l; l = l->next) {
+			GradientConfigColorStop *stop = (GradientConfigColorStop *)l->data;
+			// color_stop = percentage #rrggbb opacity
+			cairoColor2GdkColor(stop->color.rgb[0], stop->color.rgb[1], stop->color.rgb[2], &color);
+			opacity = stop->color.alpha * 100;
+			fprintf(fp, "color_stop = %f #%02x%02x%02x %d\n", stop->offset * 100, color.red >> 8, color.green >> 8, color.blue >> 8, opacity);
+		}
+		fprintf(fp, "\n");
+	}
+}
+
 void config_write_backgrounds(FILE *fp)
 {
 	fprintf(fp, "#-------------------------------------\n");
@@ -117,14 +157,17 @@ void config_write_backgrounds(FILE *fp)
 		int fillOpacity;
 		GdkColor *borderColor;
 		int borderOpacity;
+		int gradient_id;
 		GdkColor *fillColorOver;
 		int fillOpacityOver;
 		GdkColor *borderColorOver;
 		int borderOpacityOver;
+		int gradient_id_over;
 		GdkColor *fillColorPress;
 		int fillOpacityPress;
 		GdkColor *borderColorPress;
 		int borderOpacityPress;
+		int gradient_id_press;
 		gchar *text;
 
 		gtk_tree_model_get(GTK_TREE_MODEL(backgrounds),
@@ -137,6 +180,8 @@ void config_write_backgrounds(FILE *fp)
 		                   &borderColor,
 		                   bgColBorderOpacity,
 		                   &borderOpacity,
+						   bgColGradientId,
+						   &gradient_id,
 		                   bgColFillColorOver,
 		                   &fillColorOver,
 		                   bgColFillOpacityOver,
@@ -145,6 +190,8 @@ void config_write_backgrounds(FILE *fp)
 		                   &borderColorOver,
 		                   bgColBorderOpacityOver,
 		                   &borderOpacityOver,
+						   bgColGradientIdOver,
+						   &gradient_id_over,
 		                   bgColFillColorPress,
 		                   &fillColorPress,
 		                   bgColFillOpacityPress,
@@ -153,6 +200,8 @@ void config_write_backgrounds(FILE *fp)
 		                   &borderColorPress,
 		                   bgColBorderOpacityPress,
 		                   &borderOpacityPress,
+						   bgColGradientIdPress,
+						   &gradient_id_press,
 		                   bgColBorderWidth,
 		                   &b,
 		                   bgColCornerRadius,
@@ -186,10 +235,13 @@ void config_write_backgrounds(FILE *fp)
 
 		config_write_color(fp, "background_color", *fillColor, fillOpacity);
 		config_write_color(fp, "border_color", *borderColor, borderOpacity);
+		fprintf(fp, "gradient_id = %d\n", gradient_id);
 		config_write_color(fp, "background_color_hover", *fillColorOver, fillOpacityOver);
 		config_write_color(fp, "border_color_hover", *borderColorOver, borderOpacityOver);
+		fprintf(fp, "gradient_id_hover = %d\n", gradient_id_over);
 		config_write_color(fp, "background_color_pressed", *fillColorPress, fillOpacityPress);
 		config_write_color(fp, "border_color_pressed", *borderColorPress, borderOpacityPress);
+		fprintf(fp, "gradient_id_pressed = %d\n", gradient_id_press);
 		fprintf(fp, "\n");
 	}
 }
@@ -871,6 +923,7 @@ void config_save_file(const char *path)
 	fprintf(fp, "# See https://gitlab.com/o9000/tint2/wikis/Configure for \n");
 	fprintf(fp, "# full documentation of the configuration options.\n");
 
+	config_write_gradients(fp);
 	config_write_backgrounds(fp);
 	config_write_panel(fp);
 	config_write_taskbar(fp);
@@ -959,9 +1012,59 @@ void finalize_bg()
 	}
 }
 
+void finalize_gradient()
+{
+	if (num_gr > 0) {
+		gradient_force_update();
+	}
+}
+
 void add_entry(char *key, char *value)
 {
 	char *value1 = 0, *value2 = 0, *value3 = 0;
+
+	/* Gradients */
+	if (strcmp(key, "gradient") == 0) {
+		finalize_gradient();
+		GradientConfigType t;
+		if (g_str_equal(value, "horizontal"))
+			t = GRADIENT_CONFIG_HORIZONTAL;
+		else if (g_str_equal(value, "vertical"))
+			t = GRADIENT_CONFIG_VERTICAL;
+		else
+			t = GRADIENT_CONFIG_RADIAL;
+		gradient_create_new(t);
+		num_gr++;
+		gradient_force_update();
+	} else if (strcmp(key, "start_color") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		GdkColor col;
+		hex2gdk(value1, &col);
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(gradient_start_color), &col);
+		int alpha = value2 ? atoi(value2) : 50;
+		gtk_color_button_set_alpha(GTK_COLOR_BUTTON(gradient_start_color), (alpha * 65535) / 100);
+		gradient_force_update();
+	} else if (strcmp(key, "end_color") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		GdkColor col;
+		hex2gdk(value1, &col);
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(gradient_end_color), &col);
+		int alpha = value2 ? atoi(value2) : 50;
+		gtk_color_button_set_alpha(GTK_COLOR_BUTTON(gradient_end_color), (alpha * 65535) / 100);
+		gradient_force_update();
+	} else if (strcmp(key, "color_stop") == 0) {
+		GradientConfig *g = (GradientConfig *)g_list_last(gradients)->data;
+		extract_values(value, &value1, &value2, &value3);
+		GradientConfigColorStop *color_stop = (GradientConfigColorStop *) calloc(1, sizeof(GradientConfigColorStop));
+		color_stop->offset = atof(value1) / 100.0;
+		get_color(value2, color_stop->color.rgb);
+		if (value3)
+			color_stop->color.alpha = (atoi(value3) / 100.0);
+		else
+			color_stop->color.alpha = 0.5;
+		g->extra_color_stops = g_list_append(g->extra_color_stops, color_stop);
+		current_gradient_changed(NULL, NULL);
+	} else
 
 	/* Background and border */
 	if (strcmp(key, "rounded") == 0) {
@@ -1040,7 +1143,20 @@ void add_entry(char *key, char *value)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_right),
 		                             strchr(value, 'r') || strchr(value, 'R'));
 		background_force_update();
+	} else if (strcmp(key, "gradient_id") == 0) {
+		int id = gradient_index_safe(atoi(value));
+		gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient), id);
+		background_force_update();
+	} else if (strcmp(key, "gradient_id_hover") == 0 || strcmp(key, "hover_gradient_id") == 0) {
+		int id = gradient_index_safe(atoi(value));
+		gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient_over), id);
+		background_force_update();
+	} else if (strcmp(key, "gradient_id_pressed") == 0 || strcmp(key, "pressed_gradient_id") == 0) {
+		int id = gradient_index_safe(atoi(value));
+		gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient_press), id);
+		background_force_update();
 	}
+
 	/* Panel */
 	else if (strcmp(key, "panel_size") == 0) {
 		extract_values(value, &value1, &value2, &value3);

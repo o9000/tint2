@@ -185,6 +185,7 @@ enum {
 	bgColFillOpacity,
 	bgColBorderColor,
 	bgColBorderOpacity,
+	bgColGradientId,
 	bgColBorderWidth,
 	bgColCornerRadius,
 	bgColText,
@@ -192,10 +193,12 @@ enum {
 	bgColFillOpacityOver,
 	bgColBorderColorOver,
 	bgColBorderOpacityOver,
+	bgColGradientIdOver,
 	bgColFillColorPress,
 	bgColFillOpacityPress,
 	bgColBorderColorPress,
 	bgColBorderOpacityPress,
+	bgColGradientIdPress,
     bgColBorderSidesTop,
     bgColBorderSidesBottom,
     bgColBorderSidesLeft,
@@ -207,10 +210,13 @@ extern GtkListStore *backgrounds;
 extern GtkWidget *current_background,
 		  *background_fill_color,
 		  *background_border_color,
+		  *background_gradient,
 		  *background_fill_color_over,
 		  *background_border_color_over,
+		  *background_gradient_over,
 		  *background_fill_color_press,
 		  *background_border_color_press,
+		  *background_gradient_press,
 		  *background_border_width,
           *background_border_sides_top,
           *background_border_sides_bottom,
@@ -218,7 +224,21 @@ extern GtkWidget *current_background,
           *background_border_sides_right,
 		  *background_corner_radius;
 
-extern GtkListStore *gradients_list;
+// gradients
+enum {
+	grColPixbuf = 0,
+	grColId,
+	grColText,
+	grNumCols
+};
+extern GtkListStore *gradient_ids;
+extern GList *gradients;
+
+extern GtkWidget *current_gradient,
+	*gradient_combo_type,
+	*gradient_start_color,
+	*gradient_end_color,
+	*gradient_color_stops;
 
 void background_create_new();
 void background_force_update();
