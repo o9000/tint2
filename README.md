@@ -66,7 +66,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 # How can I help out?
 
   * Report bugs and ask questions on the [issue tracker](https://gitlab.com/o9000/tint2/issues);
-  * Contribute to the development by helping us fix bugs and suggesting new features.
+  * Contribute to the development by helping us fix bugs and suggesting new features. Please read the contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 # Links
   * Home page: https://gitlab.com/o9000/tint2
