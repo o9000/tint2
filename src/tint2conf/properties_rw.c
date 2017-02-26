@@ -235,13 +235,16 @@ void config_write_backgrounds(FILE *fp)
 
 		config_write_color(fp, "background_color", *fillColor, fillOpacity);
 		config_write_color(fp, "border_color", *borderColor, borderOpacity);
-		fprintf(fp, "gradient_id = %d\n", gradient_id);
+		if (gradient_id >= 0)
+			fprintf(fp, "gradient_id = %d\n", gradient_id);
 		config_write_color(fp, "background_color_hover", *fillColorOver, fillOpacityOver);
 		config_write_color(fp, "border_color_hover", *borderColorOver, borderOpacityOver);
-		fprintf(fp, "gradient_id_hover = %d\n", gradient_id_over);
+		if (gradient_id_over >= 0)
+			fprintf(fp, "gradient_id_hover = %d\n", gradient_id_over);
 		config_write_color(fp, "background_color_pressed", *fillColorPress, fillOpacityPress);
 		config_write_color(fp, "border_color_pressed", *borderColorPress, borderOpacityPress);
-		fprintf(fp, "gradient_id_pressed = %d\n", gradient_id_press);
+		if (gradient_id_press >= 0)
+			fprintf(fp, "gradient_id_pressed = %d\n", gradient_id_press);
 		fprintf(fp, "\n");
 	}
 }

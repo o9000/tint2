@@ -427,7 +427,7 @@ void background_create_new()
 	                   bgColBorderOpacity,
 	                   borderOpacity,
 					   bgColGradientId,
-					   0,
+					   -1,
 	                   bgColBorderWidth,
 	                   b,
 	                   bgColCornerRadius,
@@ -443,7 +443,7 @@ void background_create_new()
 	                   bgColBorderOpacityOver,
 	                   borderOpacityOver,
 					   bgColGradientIdOver,
-					   0,
+					   -1,
 	                   bgColFillColorPress,
 	                   &fillColorPress,
 	                   bgColFillOpacityPress,
@@ -453,7 +453,7 @@ void background_create_new()
 	                   bgColBorderOpacityPress,
 	                   borderOpacityPress,
 					   bgColGradientIdPress,
-					   0,
+					   -1,
 	                   bgColBorderSidesTop,
 	                   sideTop,
 	                   bgColBorderSidesBottom,
@@ -502,6 +502,7 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 	int fillOpacityPress;
 	GdkColor *borderColorPress;
 	int borderOpacityPress;
+	int gradient_id, gradient_id_over, gradient_id_press;
 
 	gtk_tree_model_get(GTK_TREE_MODEL(backgrounds),
 	                   &iter,
@@ -541,6 +542,12 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 	                   &sideLeft,
 	                   bgColBorderSidesRight,
 	                   &sideRight,
+					   bgColGradientId,
+					   &gradient_id,
+					   bgColGradientIdOver,
+					   &gradient_id_over,
+					   bgColGradientIdPress,
+					   &gradient_id_press,
 	                   -1);
 
 	gtk_list_store_append(backgrounds, &iter);
@@ -555,7 +562,7 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 	                   bgColBorderColor,
 	                   borderColor,
 					   bgColGradientId,
-					   0,
+					   gradient_id,
 	                   bgColBorderOpacity,
 	                   borderOpacity,
 	                   bgColText,
@@ -569,7 +576,7 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 	                   bgColBorderOpacityOver,
 	                   borderOpacityOver,
 					   bgColGradientIdOver,
-					   0,
+					   gradient_id_over,
 	                   bgColFillColorPress,
 	                   fillColorPress,
 	                   bgColFillOpacityPress,
@@ -579,7 +586,7 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 	                   bgColBorderOpacityPress,
 	                   borderOpacityPress,
 					   bgColGradientIdPress,
-					   0,
+					   gradient_id_press,
 	                   bgColBorderWidth,
 	                   b,
 	                   bgColCornerRadius,
