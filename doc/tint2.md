@@ -270,7 +270,7 @@ gradient_id_pressed = 2
 panel_size = 94% 30
 ```
 
-  * `panel_shrink = boolean (0 or 1)` : If set to 1, the panel will shrink to a compact size dynamically.
+  * `panel_shrink = boolean (0 or 1)` : If set to 1, the panel will shrink to a compact size dynamically. *(since 0.13)*
 
   * `panel_margin = horizontal_margin vertical_margin` : The margins define the distance between the panel and the horizontal/vertical monitor edge. Use `0` to obtain a panel with the same size as the edge of the monitor (no margin).
 
@@ -344,7 +344,7 @@ panel_size = 94% 30
       * You can drag-and-drop tasks between virtual desktops;
       * You can switch between virtual desktops.
 
-  * `taskbar_hide_if_empty = boolean (0 or 1)` : If enabled, in multi-desktop mode the taskbars corresponding to empty desktops different from the current desktop are hidden.
+  * `taskbar_hide_if_empty = boolean (0 or 1)` : If enabled, in multi-desktop mode the taskbars corresponding to empty desktops different from the current desktop are hidden. *(since 0.13)*
 
   * `taskbar_distribute_size = boolean (0 or 1)` : If enabled, in multi-desktop mode distributes between taskbars the available size proportionally to the number of tasks. Default: disabled. *(since 0.12)*
 
