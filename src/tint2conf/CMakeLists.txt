@@ -26,6 +26,7 @@ set(SOURCES ../util/common.c
             ../server.c
             ../launcher/apps-common.c
             ../launcher/icon-theme-common.c
+            md4.c
             main.c
             properties.c
             properties_rw.c

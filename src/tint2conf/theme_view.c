@@ -22,6 +22,7 @@
 #include "strnatcmp.h"
 #include "theme_view.h"
 #include "common.h"
+#include "md4.h"
 
 // The data columns that we export via the tree model interface
 GtkWidget *g_theme_view;
@@ -154,6 +155,13 @@ void theme_list_append(const gchar *path)
 
 gboolean update_snapshot()
 {
+	{
+		gchar *tint2_cache_dir = g_build_filename(g_get_user_cache_dir(), "tint2", NULL);
+		if (!g_file_test(tint2_cache_dir, G_FILE_TEST_IS_DIR))
+			g_mkdir(tint2_cache_dir, 0700);
+		g_free(tint2_cache_dir);
+	}
+
 	const gint PADDING = 20;
 
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(g_theme_view));
@@ -162,19 +170,7 @@ gboolean update_snapshot()
 	gboolean have_iter;
 
 	int num_updates = 0;
-	have_iter = gtk_tree_model_get_iter_first(model, &iter);
-	while (have_iter) {
-		GdkPixbuf *pixbuf;
-		gtk_tree_model_get(model, &iter, COL_SNAPSHOT, &pixbuf, -1);
-		if (pixbuf)
-			g_object_unref(pixbuf);
-		else
-			num_updates++;
-		have_iter = gtk_tree_model_iter_next(model, &iter);
-	}
-	gboolean need_pls_wait = num_updates > 3;
-	if (need_pls_wait)
-		create_please_wait(GTK_WINDOW(g_window));
+	gboolean need_pls_wait = FALSE;
 
 	have_iter = gtk_tree_model_get_iter_first(model, &iter);
 	while (have_iter) {
@@ -186,27 +182,29 @@ gboolean update_snapshot()
 			continue;
 		}
 
-		// build panel's snapshot
 		gchar *path;
 		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &path, -1);
 
-		char fname[128];
-		sprintf(fname, "tint2-%d.png", (int)getpid());
+		char hash[MD4_HEX_SIZE + 4];
+		md4hexf(path, hash);
+		strcat(hash, ".png");
 
-		gchar *snap = g_build_filename(g_get_tmp_dir(), fname, NULL);
-		g_remove(snap);
-
-		gchar *cmd = g_strdup_printf("tint2 -c \'%s\' -s \'%s\' 1>/dev/null 2>/dev/null", path, snap);
-		if (system(cmd) == 0) {
-			// load
-			pixbuf = gdk_pixbuf_new_from_file(snap, NULL);
-			if (pixbuf == NULL) {
-				printf("snapshot NULL : %s\n", cmd);
+		gchar *snap = g_build_filename(g_get_user_cache_dir(), "tint2", hash, NULL);
+		pixbuf = gdk_pixbuf_new_from_file(snap, NULL);
+		if (!pixbuf) {
+			gchar *cmd = g_strdup_printf("tint2 -c \'%s\' -s \'%s\' 1>/dev/null 2>/dev/null", path, snap);
+			num_updates++;
+			if (num_updates > 3 && !need_pls_wait) {
+				need_pls_wait = TRUE;
+				create_please_wait(GTK_WINDOW(g_window));
 			}
+			if (system(cmd) == 0) {
+				// load
+				pixbuf = gdk_pixbuf_new_from_file(snap, NULL);
+			}
+			g_free(cmd);
 		}
-		g_free(cmd);
 
-		g_remove(snap);
 		g_free(snap);
 		g_free(path);
 

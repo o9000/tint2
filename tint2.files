@@ -219,3 +219,5 @@ src/tint2conf/background_gui.c
 src/tint2conf/gui.h
 src/tint2conf/gradient_gui.h
 src/tint2conf/gradient_gui.c
+src/tint2conf/md4.h
+src/tint2conf/md4.c
