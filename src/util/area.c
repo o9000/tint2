@@ -384,6 +384,8 @@ void draw_tree(Area *a)
 				  a->height,
 				  a->posx,
 				  a->posy);
+	else
+		fprintf(stderr, RED "%s %d: area %s has no pixmap!!!" RESET "\n", __FILE__, __LINE__, a->name);
 
 	for (GList *l = a->children; l; l = l->next)
 		draw_tree((Area *)l->data);
