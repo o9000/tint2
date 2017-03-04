@@ -667,13 +667,13 @@ void set_panel_layer(Panel *p, Layer layer)
 	state[3] = layer == BOTTOM_LAYER ? server.atom._NET_WM_STATE_BELOW : server.atom._NET_WM_STATE_ABOVE;
 	int num_atoms = layer == NORMAL_LAYER ? 3 : 4;
 	XChangeProperty(server.display,
-					p->main_win,
-					server.atom._NET_WM_STATE,
-					XA_ATOM,
-					32,
-					PropModeReplace,
-					(unsigned char *)state,
-					num_atoms);
+	                p->main_win,
+	                server.atom._NET_WM_STATE,
+	                XA_ATOM,
+	                32,
+	                PropModeReplace,
+	                (unsigned char *)state,
+	                num_atoms);
 }
 
 void replace_panel_all_desktops(Panel *p)

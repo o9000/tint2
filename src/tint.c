@@ -1734,6 +1734,16 @@ start:
 					          0);
 					XSetWindowBackgroundPixmap(server.display, panel->main_win, panel->hidden_pixmap);
 				} else {
+					XCopyArea(server.display,
+							  panel->temp_pmap,
+							  panel->main_win,
+							  server.gc,
+							  0,
+							  0,
+							  panel->area.width,
+							  panel->area.height,
+							  0,
+							  0);
 					if (panel == (Panel *)systray.area.panel) {
 						if (refresh_systray && panel && !panel->is_hidden) {
 							refresh_systray = FALSE;
@@ -1741,16 +1751,6 @@ start:
 							refresh_systray_icons();
 						}
 					}
-					XCopyArea(server.display,
-					          panel->temp_pmap,
-					          panel->main_win,
-					          server.gc,
-					          0,
-					          0,
-					          panel->area.width,
-					          panel->area.height,
-					          0,
-					          0);
 				}
 			}
 			if (first_render) {
