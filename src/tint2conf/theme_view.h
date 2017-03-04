@@ -10,6 +10,7 @@ enum { COL_THEME_FILE = 0,
 	   COL_SNAPSHOT,
 	   COL_WIDTH,
 	   COL_HEIGHT,
+	   COL_FORCE_REFRESH,
 	   NB_COL, };
 
 GtkWidget *create_view();

@@ -38,7 +38,7 @@ GtkWidget *create_view()
 	GtkCellRenderer *renderer;
 
 	theme_list_store =
-		gtk_list_store_new(NB_COL, G_TYPE_STRING, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_INT, G_TYPE_INT);
+		gtk_list_store_new(NB_COL, G_TYPE_STRING, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_INT, G_TYPE_INT, G_TYPE_BOOLEAN);
 
 	GtkWidget *view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(theme_list_store));
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(view), TRUE);
@@ -148,7 +148,7 @@ void theme_list_append(const gchar *path)
 	g_free(dir);
 
 	gchar *display_name = g_strdup_printf("%s\n(%s)", name, suffix);
-	gtk_list_store_set(theme_list_store, &iter, COL_THEME_FILE, path, COL_THEME_NAME, display_name, -1);
+	gtk_list_store_set(theme_list_store, &iter, COL_THEME_FILE, path, COL_THEME_NAME, display_name, COL_FORCE_REFRESH, FALSE, -1);
 	g_free(display_name);
 	g_free(suffix);
 }
@@ -183,14 +183,15 @@ gboolean update_snapshot()
 		}
 
 		gchar *path;
-		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &path, -1);
+		gboolean force_refresh;
+		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &path, COL_FORCE_REFRESH, &force_refresh, -1);
 
 		char hash[MD4_HEX_SIZE + 4];
 		md4hexf(path, hash);
 		strcat(hash, ".png");
 
 		gchar *snap = g_build_filename(g_get_user_cache_dir(), "tint2", hash, NULL);
-		pixbuf = gdk_pixbuf_new_from_file(snap, NULL);
+		pixbuf = force_refresh ? NULL : gdk_pixbuf_new_from_file(snap, NULL);
 		if (!pixbuf) {
 			gchar *cmd = g_strdup_printf("tint2 -c \'%s\' -s \'%s\' 1>/dev/null 2>/dev/null", path, snap);
 			num_updates++;
@@ -216,6 +217,8 @@ gboolean update_snapshot()
 						   gdk_pixbuf_get_width(pixbuf) + PADDING,
 						   COL_HEIGHT,
 						   gdk_pixbuf_get_height(pixbuf) + PADDING,
+						   COL_FORCE_REFRESH,
+						   FALSE,
 						   -1);
 		if (pixbuf)
 			g_object_unref(pixbuf);
