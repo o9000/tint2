@@ -191,7 +191,7 @@ gboolean update_snapshot()
 		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &path, -1);
 
 		char fname[128];
-		sprintf(fname, "tint2-%d.jpg", (int)getpid());
+		sprintf(fname, "tint2-%d.png", (int)getpid());
 
 		gchar *snap = g_build_filename(g_get_tmp_dir(), fname, NULL);
 		g_remove(snap);

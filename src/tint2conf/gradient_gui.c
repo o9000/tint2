@@ -168,9 +168,42 @@ void gradient_create_new(GradientConfigType t)
 	current_gradient_changed(0, 0);
 }
 
+gpointer copy_GradientConfigColorStop(gconstpointer arg, gpointer data)
+{
+	GradientConfigColorStop *old = (GradientConfigColorStop *)arg;
+
+	GradientConfigColorStop *copy = (GradientConfigColorStop *)calloc(1, sizeof(GradientConfigColorStop));
+	memcpy(copy, old, sizeof(GradientConfigColorStop));
+	return copy;
+}
+
 void gradient_duplicate(GtkWidget *widget, gpointer data)
 {
-	gradient_create_new(GRADIENT_CONFIG_VERTICAL);
+	int old_index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_gradient));
+	if (old_index < 0) {
+		gradient_create_new(GRADIENT_CONFIG_VERTICAL);
+		return;
+	}
+
+	GradientConfig *g_old = (GradientConfig*)g_list_nth(gradients, (guint)old_index)->data;
+
+	int index = get_model_length(GTK_TREE_MODEL(gradient_ids));
+
+	GradientConfig *g = (GradientConfig *)calloc(1, sizeof(GradientConfig));
+	g->type = g_old->type;
+	g->extra_color_stops = g_list_copy_deep(g->extra_color_stops, copy_GradientConfigColorStop, NULL);
+	gradients = g_list_append(gradients, g);
+	GtkTreeIter iter;
+	gtk_list_store_append(gradient_ids, &iter);
+	gtk_list_store_set(gradient_ids, &iter,
+					   grColPixbuf, NULL,
+					   grColId, &index,
+					   grColText, "",
+					   -1);
+
+	gradient_update_image(index);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(current_gradient), index);
+	current_gradient_changed(0, 0);
 }
 
 void gradient_delete(GtkWidget *widget, gpointer data)
@@ -192,9 +225,11 @@ void gradient_delete(GtkWidget *widget, gpointer data)
 	gradients = g_list_remove(gradients, g_list_nth(gradients, (guint)index)->data);
 	gtk_list_store_remove(gradient_ids, &iter);
 
-	if (index == get_model_length(GTK_TREE_MODEL(gradient_ids)))
+	background_update_for_gradient(index);
+
+	if (index >= get_model_length(GTK_TREE_MODEL(gradient_ids)))
 		index--;
-	gtk_combo_box_set_active(GTK_COMBO_BOX(gradient_ids), index);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(current_gradient), index);
 }
 
 void gradient_draw(cairo_t *c, GradientConfig *g, int w, int h, gboolean preserve)
@@ -302,6 +337,7 @@ void gradient_update(GtkWidget *widget, gpointer data)
 					   grColText, "",
 					   -1);
 	gradient_update_image(index);
+	background_update_for_gradient(index);
 }
 
 void current_gradient_changed(GtkWidget *widget, gpointer data)

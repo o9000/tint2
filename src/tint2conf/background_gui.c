@@ -98,7 +98,7 @@ void create_background(GtkWidget *parent)
 	                                 GTK_TYPE_INT,
 	                                 GDK_TYPE_COLOR,
 	                                 GTK_TYPE_INT,
-									 GTK_TYPE_INT,
+	                                 GTK_TYPE_INT,
 	                                 GTK_TYPE_INT,
 	                                 GTK_TYPE_INT,
 	                                 GTK_TYPE_STRING,
@@ -106,12 +106,12 @@ void create_background(GtkWidget *parent)
 	                                 GTK_TYPE_INT,
 	                                 GDK_TYPE_COLOR,
 	                                 GTK_TYPE_INT,
-									 GTK_TYPE_INT,
-	                                 GDK_TYPE_COLOR,
 	                                 GTK_TYPE_INT,
 	                                 GDK_TYPE_COLOR,
 	                                 GTK_TYPE_INT,
-									 GTK_TYPE_INT,
+	                                 GDK_TYPE_COLOR,
+	                                 GTK_TYPE_INT,
+	                                 GTK_TYPE_INT,
 	                                 GTK_TYPE_BOOL,
 	                                 GTK_TYPE_BOOL,
 	                                 GTK_TYPE_BOOL,
@@ -359,7 +359,7 @@ void create_background(GtkWidget *parent)
 	g_signal_connect(G_OBJECT(background_gradient_over), "changed", G_CALLBACK(background_update), NULL);
 	g_signal_connect(G_OBJECT(background_fill_color_press), "color-set", G_CALLBACK(background_update), NULL);
 	g_signal_connect(G_OBJECT(background_border_color_press), "color-set", G_CALLBACK(background_update), NULL);
-	g_signal_connect(G_OBJECT(background_gradient_over), "changed", G_CALLBACK(background_update), NULL);
+	g_signal_connect(G_OBJECT(background_gradient_press), "changed", G_CALLBACK(background_update), NULL);
 	g_signal_connect(G_OBJECT(background_border_width), "value-changed", G_CALLBACK(background_update), NULL);
 	g_signal_connect(G_OBJECT(background_corner_radius), "value-changed", G_CALLBACK(background_update), NULL);
 	g_signal_connect(G_OBJECT(background_border_sides_top), "toggled", G_CALLBACK(background_update), NULL);
@@ -426,8 +426,8 @@ void background_create_new()
 	                   &borderColor,
 	                   bgColBorderOpacity,
 	                   borderOpacity,
-					   bgColGradientId,
-					   -1,
+	                   bgColGradientId,
+	                   -1,
 	                   bgColBorderWidth,
 	                   b,
 	                   bgColCornerRadius,
@@ -442,8 +442,8 @@ void background_create_new()
 	                   &borderColorOver,
 	                   bgColBorderOpacityOver,
 	                   borderOpacityOver,
-					   bgColGradientIdOver,
-					   -1,
+	                   bgColGradientIdOver,
+	                   -1,
 	                   bgColFillColorPress,
 	                   &fillColorPress,
 	                   bgColFillOpacityPress,
@@ -452,8 +452,8 @@ void background_create_new()
 	                   &borderColorPress,
 	                   bgColBorderOpacityPress,
 	                   borderOpacityPress,
-					   bgColGradientIdPress,
-					   -1,
+	                   bgColGradientIdPress,
+	                   -1,
 	                   bgColBorderSidesTop,
 	                   sideTop,
 	                   bgColBorderSidesBottom,
@@ -542,12 +542,12 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 	                   &sideLeft,
 	                   bgColBorderSidesRight,
 	                   &sideRight,
-					   bgColGradientId,
-					   &gradient_id,
-					   bgColGradientIdOver,
-					   &gradient_id_over,
-					   bgColGradientIdPress,
-					   &gradient_id_press,
+	                   bgColGradientId,
+	                   &gradient_id,
+	                   bgColGradientIdOver,
+	                   &gradient_id_over,
+	                   bgColGradientIdPress,
+	                   &gradient_id_press,
 	                   -1);
 
 	gtk_list_store_append(backgrounds, &iter);
@@ -561,8 +561,8 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 	                   fillOpacity,
 	                   bgColBorderColor,
 	                   borderColor,
-					   bgColGradientId,
-					   gradient_id,
+	                   bgColGradientId,
+	                   gradient_id,
 	                   bgColBorderOpacity,
 	                   borderOpacity,
 	                   bgColText,
@@ -575,8 +575,8 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 	                   borderColorOver,
 	                   bgColBorderOpacityOver,
 	                   borderOpacityOver,
-					   bgColGradientIdOver,
-					   gradient_id_over,
+	                   bgColGradientIdOver,
+	                   gradient_id_over,
 	                   bgColFillColorPress,
 	                   fillColorPress,
 	                   bgColFillOpacityPress,
@@ -585,8 +585,8 @@ void background_duplicate(GtkWidget *widget, gpointer data)
 	                   borderColorPress,
 	                   bgColBorderOpacityPress,
 	                   borderOpacityPress,
-					   bgColGradientIdPress,
-					   gradient_id_press,
+	                   bgColGradientIdPress,
+	                   gradient_id_press,
 	                   bgColBorderWidth,
 	                   b,
 	                   bgColCornerRadius,
@@ -651,6 +651,7 @@ void background_update_image(int index)
 	int fillOpacity = 50;
 	GdkColor *borderColor;
 	int borderOpacity = 100;
+	int gradient_id;
 
 	gtk_tree_model_get(GTK_TREE_MODEL(backgrounds),
 	                   &iter,
@@ -666,6 +667,8 @@ void background_update_image(int index)
 	                   &b,
 	                   bgColCornerRadius,
 	                   &r,
+					   bgColGradientId,
+					   &gradient_id,
 	                   -1);
 
 	double bg_r, bg_g, bg_b, bg_a;
@@ -697,9 +700,8 @@ void background_update_image(int index)
 	cairo_arc(cr, r + b, r + b, r, 180 * degrees, 270 * degrees);
 	cairo_close_path(cr);
 
-	int gradient_index = gtk_combo_box_get_active(GTK_COMBO_BOX(background_gradient));
-	if (index >= 1 && gradient_index >= 1) {
-		GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)gradient_index)->data;
+	if (index >= 1 && gradient_id >= 1) {
+		GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)gradient_id)->data;
 		gradient_draw(cr, g, w, h, TRUE);
 	}
 
@@ -800,8 +802,8 @@ void background_update(GtkWidget *widget, gpointer data)
 	                   &borderColor,
 	                   bgColBorderOpacity,
 	                   borderOpacity,
-					   bgColGradientId,
-					   gradient_id,
+	                   bgColGradientId,
+	                   gradient_id,
 	                   bgColFillColorOver,
 	                   &fillColorOver,
 	                   bgColFillOpacityOver,
@@ -810,8 +812,8 @@ void background_update(GtkWidget *widget, gpointer data)
 	                   &borderColorOver,
 	                   bgColBorderOpacityOver,
 	                   borderOpacityOver,
-					   bgColGradientIdOver,
-					   gradient_id_over,
+	                   bgColGradientIdOver,
+	                   gradient_id_over,
 	                   bgColFillColorPress,
 	                   &fillColorPress,
 	                   bgColFillOpacityPress,
@@ -820,8 +822,8 @@ void background_update(GtkWidget *widget, gpointer data)
 	                   &borderColorPress,
 	                   bgColBorderOpacityPress,
 	                   borderOpacityPress,
-					   bgColGradientIdPress,
-					   gradient_id_press,
+	                   bgColGradientIdPress,
+	                   gradient_id_press,
 	                   bgColBorderWidth,
 	                   b,
 	                   bgColCornerRadius,
@@ -885,8 +887,8 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 	                   &borderColor,
 	                   bgColBorderOpacity,
 	                   &borderOpacity,
-					   bgColGradientId,
-					   &gradient_id,
+	                   bgColGradientId,
+	                   &gradient_id,
 	                   bgColFillColorOver,
 	                   &fillColorOver,
 	                   bgColFillOpacityOver,
@@ -895,8 +897,8 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 	                   &borderColorOver,
 	                   bgColBorderOpacityOver,
 	                   &borderOpacityOver,
-					   bgColGradientIdOver,
-					   &gradient_id_over,
+	                   bgColGradientIdOver,
+	                   &gradient_id_over,
 	                   bgColFillColorPress,
 	                   &fillColorPress,
 	                   bgColFillOpacityPress,
@@ -905,8 +907,8 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 	                   &borderColorPress,
 	                   bgColBorderOpacityPress,
 	                   &borderOpacityPress,
-					   bgColGradientIdPress,
-					   &gradient_id_press,
+	                   bgColGradientIdPress,
+	                   &gradient_id_press,
 	                   bgColBorderWidth,
 	                   &b,
 	                   bgColCornerRadius,
@@ -958,4 +960,62 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 
 	background_updates_disabled = FALSE;
 	background_update_image(index);
+}
+
+void background_update_for_gradient(int gradient_id_changed)
+{
+	gboolean deleted = gradient_id_changed >= get_model_length(GTK_TREE_MODEL(gradient_ids));
+	int current_bg_index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_background));
+	for (int index = 1;; index++) {
+		GtkTreePath *path;
+		GtkTreeIter iter;
+
+		path = gtk_tree_path_new_from_indices(index, -1);
+		gboolean found = gtk_tree_model_get_iter(GTK_TREE_MODEL(backgrounds), &iter, path);
+		gtk_tree_path_free(path);
+
+		if (!found) {
+			break;
+		}
+
+		int gradient_id, gradient_id_over, gradient_id_press;
+
+		gtk_tree_model_get(GTK_TREE_MODEL(backgrounds),
+		                   &iter,
+		                   bgColGradientId,
+		                   &gradient_id,
+		                   bgColGradientIdOver,
+		                   &gradient_id_over,
+		                   bgColGradientIdPress,
+		                   &gradient_id_press,
+		                   -1);
+		gboolean changed = FALSE;
+		if (gradient_id == gradient_id_changed && deleted)
+			gradient_id = -1, changed = TRUE;
+		if (gradient_id_over == gradient_id_changed && deleted)
+			gradient_id_over = -1, changed = TRUE;
+		if (gradient_id_press == gradient_id_changed && deleted)
+			gradient_id_press = -1, changed = TRUE;
+		if (changed) {
+			gtk_list_store_set(GTK_LIST_STORE(backgrounds),
+			                   &iter,
+			                   bgColGradientId,
+			                   gradient_id,
+			                   bgColGradientIdOver,
+			                   gradient_id_over,
+			                   bgColGradientIdPress,
+			                   gradient_id_press,
+			                   -1);
+			if (index == current_bg_index) {
+				gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient), gradient_id);
+				gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient_over), gradient_id_over);
+				gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient_press), gradient_id_press);
+				background_force_update();
+			} else {
+				background_update_image(index);
+			}
+		} else {
+			background_update_image(index);
+		}
+	}
 }
