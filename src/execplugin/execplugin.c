@@ -226,7 +226,7 @@ void execp_default_font_changed()
 			}
 		}
 	}
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void cleanup_execp()

@@ -640,7 +640,7 @@ void set_task_state(Task *task, TaskState state)
 					p->area.resize_needed = TRUE;
 				}
 			}
-			panel_refresh = TRUE;
+			schedule_panel_redraw();
 		}
 	}
 }
@@ -658,7 +658,7 @@ void blink_urgent(void *arg)
 		}
 		urgent_task = urgent_task->next;
 	}
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void add_urgent(Task *task)

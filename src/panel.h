@@ -90,6 +90,8 @@ extern Imlib_Image default_icon;
 extern char *default_font;
 extern XSettingsClient *xsettings_client;
 extern gboolean debug_geometry;
+extern gboolean debug_fps;
+extern gboolean debug_frames;
 
 typedef struct Panel {
 	Area area;
@@ -159,6 +161,8 @@ void init_panel_size_and_position(Panel *panel);
 gboolean resize_panel(void *obj);
 void render_panel(Panel *panel);
 void shrink_panel(Panel *panel);
+void _schedule_panel_redraw(const char *file, const char *function, const int line);
+#define schedule_panel_redraw() _schedule_panel_redraw(__FILE__, __FUNCTION__, __LINE__)
 
 void set_panel_items_order(Panel *p);
 void place_panel_all_desktops(Panel *p);

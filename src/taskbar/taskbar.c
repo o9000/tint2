@@ -366,7 +366,7 @@ void taskbar_default_font_changed()
 			}
 		}
 	}
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void taskbar_remove_task(Window *win)
@@ -536,7 +536,7 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 				schedule_redraw((Area *)l->data);
 		}
 	}
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 #define NONTRIVIAL 2
@@ -649,7 +649,7 @@ void sort_tasks(Taskbar *taskbar)
 
 	taskbar->area.children = g_list_sort_with_data(taskbar->area.children, (GCompareDataFunc)compare_tasks, taskbar);
 	taskbar->area.resize_needed = TRUE;
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 	((Panel *)taskbar->area.panel)->area.resize_needed = TRUE;
 }
 

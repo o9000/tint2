@@ -202,7 +202,7 @@ void battery_default_font_changed()
 		panels[i].battery.area.resize_needed = TRUE;
 		schedule_redraw(&panels[i].battery.area);
 	}
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void update_battery_tick(void *arg)
@@ -257,7 +257,7 @@ void update_battery_tick(void *arg)
 			if (old_found != battery_found || old_percentage != battery_state.percentage ||
 			    old_hours != battery_state.time.hours || old_minutes != battery_state.time.minutes) {
 				panels[i].battery.area.resize_needed = TRUE;
-				panel_refresh = TRUE;
+				schedule_panel_redraw();
 			}
 		}
 	}

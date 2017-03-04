@@ -80,7 +80,9 @@ timeout *detect_compositor_timer = NULL;
 int detect_compositor_timer_counter = 0;
 
 gboolean debug_fps = FALSE;
+gboolean debug_frames = FALSE;
 float *fps_distribution = NULL;
+int frame = 0;
 
 void create_fps_distribution()
 {
@@ -468,6 +470,7 @@ void init(int argc, char *argv[])
 	debug_geometry = getenv("DEBUG_GEOMETRY") != NULL;
 	debug_gradients = getenv("DEBUG_GRADIENTS") != NULL;
 	debug_fps = getenv("DEBUG_FPS") != NULL;
+	debug_frames = getenv("DEBUG_FRAMES") != NULL;
 	if (debug_fps)
 		create_fps_distribution();
 }
@@ -650,28 +653,17 @@ void cleanup()
 	cleanup_fps_distribution();
 }
 
-void get_snapshot(const char *path)
+void dump_panel_to_file(const Panel *panel, const char *path)
 {
-	Panel *panel = &panels[0];
-
-	if (panel->area.width > server.monitors[0].width)
-		panel->area.width = server.monitors[0].width;
-
-	panel->temp_pmap =
-	    XCreatePixmap(server.display, server.root_win, panel->area.width, panel->area.height, server.depth);
-	render_panel(panel);
-
-	XSync(server.display, False);
-
 	imlib_context_set_drawable(panel->temp_pmap);
 	Imlib_Image img = imlib_create_image_from_drawable(0, 0, 0, panel->area.width, panel->area.height, 1);
 
 	if (!img) {
 		XImage *ximg =
-		    XGetImage(server.display, panel->temp_pmap, 0, 0, panel->area.width, panel->area.height, AllPlanes, ZPixmap);
+			XGetImage(server.display, panel->temp_pmap, 0, 0, panel->area.width, panel->area.height, AllPlanes, ZPixmap);
 
 		if (ximg) {
-			DATA32 *pixels = calloc(panel->area.width * panel->area.height, sizeof(DATA32));
+			DATA32 *pixels = (DATA32 *)calloc(panel->area.width * panel->area.height, sizeof(DATA32));
 			for (int x = 0; x < panel->area.width; x++) {
 				for (int y = 0; y < panel->area.height; y++) {
 					DATA32 xpixel = XGetPixel(ximg, x, y);
@@ -700,6 +692,22 @@ void get_snapshot(const char *path)
 		imlib_save_image(path);
 		imlib_free_image();
 	}
+}
+
+void get_snapshot(const char *path)
+{
+	Panel *panel = &panels[0];
+
+	if (panel->area.width > server.monitors[0].width)
+		panel->area.width = server.monitors[0].width;
+
+	panel->temp_pmap =
+	    XCreatePixmap(server.display, server.root_win, panel->area.width, panel->area.height, server.depth);
+	render_panel(panel);
+
+	XSync(server.display, False);
+
+	dump_panel_to_file(panel, path);
 }
 
 void window_action(Task *task, MouseAction action)
@@ -869,7 +877,7 @@ void event_button_motion_notify(XEvent *e)
 					task_iter->data = drag_iter->data;
 					drag_iter->data = temp;
 					event_taskbar->area.resize_needed = 1;
-					panel_refresh = TRUE;
+					schedule_panel_redraw();
 					task_dragged = 1;
 				}
 			}
@@ -900,7 +908,7 @@ void event_button_motion_notify(XEvent *e)
 		event_taskbar->area.resize_needed = 1;
 		drag_taskbar->area.resize_needed = 1;
 		task_dragged = 1;
-		panel_refresh = TRUE;
+		schedule_panel_redraw();
 		panel->area.resize_needed = 1;
 	}
 }
@@ -1055,7 +1063,7 @@ void update_desktop_names()
 	for (GSList *l = list; l; l = l->next)
 		g_free(l->data);
 	g_slist_free(list);
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void update_task_desktop(Task *task)
@@ -1065,7 +1073,7 @@ void update_task_desktop(Task *task)
 	remove_task(task);
 	task = add_task(win);
 	reset_active_task();
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void event_property_notify(XEvent *e)
@@ -1125,7 +1133,7 @@ void event_property_notify(XEvent *e)
 				update_all_taskbars_visibility();
 				if (old_desktop != server.desktop)
 					tooltip_trigger_hide();
-				panel_refresh = TRUE;
+				schedule_panel_redraw();
 			} else if (old_desktop != server.desktop) {
 				tooltip_trigger_hide();
 				for (int i = 0; i < num_panels; i++) {
@@ -1144,7 +1152,7 @@ void event_property_notify(XEvent *e)
 							if (task->desktop == ALL_DESKTOPS) {
 								task->area.on_screen = always_show_all_desktop_tasks;
 								taskbar->area.resize_needed = 1;
-								panel_refresh = TRUE;
+								schedule_panel_redraw();
 								if (taskbar_mode == MULTI_DESKTOP)
 									panel->area.resize_needed = 1;
 							}
@@ -1195,14 +1203,14 @@ void event_property_notify(XEvent *e)
 				fprintf(stderr, "%s %d: win = root, atom = _NET_CLIENT_LIST\n", __FUNCTION__, __LINE__);
 			taskbar_refresh_tasklist();
 			update_all_taskbars_visibility();
-			panel_refresh = TRUE;
+			schedule_panel_redraw();
 		}
 		// Change active
 		else if (at == server.atom._NET_ACTIVE_WINDOW) {
 			if (debug)
 				fprintf(stderr, "%s %d: win = root, atom = _NET_ACTIVE_WINDOW\n", __FUNCTION__, __LINE__);
 			reset_active_task();
-			panel_refresh = TRUE;
+			schedule_panel_redraw();
 		} else if (at == server.atom._XROOTPMAP_ID || at == server.atom._XROOTMAP_ID) {
 			if (debug)
 				fprintf(stderr, "%s %d: win = root, atom = _XROOTPMAP_ID\n", __FUNCTION__, __LINE__);
@@ -1210,7 +1218,7 @@ void event_property_notify(XEvent *e)
 			for (int i = 0; i < num_panels; i++) {
 				set_panel_background(&panels[i]);
 			}
-			panel_refresh = TRUE;
+			schedule_panel_redraw();
 		}
 	} else {
 		TrayWindow *traywin = systray_find_icon(win);
@@ -1241,7 +1249,7 @@ void event_property_notify(XEvent *e)
 				XGetWindowAttributes(server.display, win, &wa);
 				if (wa.map_state == IsViewable && !window_is_skip_taskbar(win)) {
 					if ((task = add_task(win)))
-						panel_refresh = TRUE;
+						schedule_panel_redraw();
 				}
 			}
 			return;
@@ -1257,7 +1265,7 @@ void event_property_notify(XEvent *e)
 				}
 				if (taskbar_sort_method == TASKBAR_SORT_TITLE)
 					sort_taskbar_for_win(win);
-				panel_refresh = TRUE;
+				schedule_panel_redraw();
 			}
 		}
 		// Demand attention
@@ -1277,7 +1285,7 @@ void event_property_notify(XEvent *e)
 			}
 			if (window_is_skip_taskbar(win)) {
 				remove_task(task);
-				panel_refresh = TRUE;
+				schedule_panel_redraw();
 			}
 		} else if (at == server.atom.WM_STATE) {
 			// Iconic state
@@ -1285,12 +1293,12 @@ void event_property_notify(XEvent *e)
 			if (window_is_iconified(win))
 				state = TASK_ICONIFIED;
 			set_task_state(task, state);
-			panel_refresh = TRUE;
+			schedule_panel_redraw();
 		}
 		// Window icon changed
 		else if (at == server.atom._NET_WM_ICON) {
 			task_update_icon(task);
-			panel_refresh = TRUE;
+			schedule_panel_redraw();
 		}
 		// Window desktop changed
 		else if (at == server.atom._NET_WM_DESKTOP) {
@@ -1307,7 +1315,7 @@ void event_property_notify(XEvent *e)
 			}
 			XFree(wmhints);
 			task_update_icon(task);
-			panel_refresh = TRUE;
+			schedule_panel_redraw();
 		}
 
 		if (!server.got_root_win)
@@ -1322,7 +1330,7 @@ void event_expose(XEvent *e)
 	if (!panel)
 		return;
 	// TODO : one panel_refresh per panel ?
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void event_configure_notify(XEvent *e)
@@ -1370,7 +1378,7 @@ void event_configure_notify(XEvent *e)
 					set_task_state(task, TASK_ACTIVE);
 					active_task = task;
 				}
-				panel_refresh = TRUE;
+				schedule_panel_redraw();
 			}
 		}
 	}
@@ -1748,7 +1756,7 @@ start:
 			if (first_render) {
 				first_render = FALSE;
 				if (panel_shrink)
-					panel_refresh = TRUE;
+					schedule_panel_redraw();
 			}
 			if (debug_fps)
 				ts_render_finished = get_time();
@@ -1764,9 +1772,10 @@ start:
 				double fps_low, fps_median, fps_high, fps_samples;
 				fps_compute_stats(&fps_low, &fps_median, &fps_high, &fps_samples);
 				fprintf(stderr,
-						BLUE "fps = %.0f (low %.0f, med %.0f, high %.0f, samples %.0f) : processing %.0f%%, rendering %.0f%%, "
+						BLUE "frame %d: fps = %.0f (low %.0f, med %.0f, high %.0f, samples %.0f) : processing %.0f%%, rendering %.0f%%, "
 				             "flushing %.0f%%" RESET "\n",
-				        fps,
+						frame,
+						fps,
 				        fps_low,
 				        fps_median,
 				        fps_high,
@@ -1775,6 +1784,14 @@ start:
 				        render_ratio * 100,
 				        flush_ratio * 100);
 			}
+			if (debug_frames) {
+				for (int i = 0; i < num_panels; i++) {
+					char path[256];
+					sprintf(path, "tint2-%d-panel-%d-frame-%d.png", getpid(), i, frame);
+					dump_panel_to_file(&panels[i], path);
+				}
+			}
+			frame++;
 		}
 
 		// Create a File Description Set containing x11_fd
@@ -1819,7 +1836,7 @@ start:
 					for (l_instance = execp->backend->instances; l_instance; l_instance = l_instance->next) {
 						Execp *instance = l_instance->data;
 						instance->area.resize_needed = TRUE;
-						panel_refresh = TRUE;
+						schedule_panel_redraw();
 					}
 				}
 			}

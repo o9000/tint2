@@ -118,7 +118,7 @@ void update_clocks_sec(void *arg)
 		for (int i = 0; i < num_panels; i++)
 			panels[i].clock.area.resize_needed = 1;
 	}
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void update_clocks_min(void *arg)
@@ -132,7 +132,7 @@ void update_clocks_min(void *arg)
 			for (int i = 0; i < num_panels; i++)
 				panels[i].clock.area.resize_needed = 1;
 		}
-		panel_refresh = TRUE;
+		schedule_panel_redraw();
 	}
 }
 
@@ -239,7 +239,7 @@ void clock_default_font_changed()
 		panels[i].clock.area.resize_needed = TRUE;
 		schedule_redraw(&panels[i].clock.area);
 	}
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void clock_compute_text_geometry(Panel *panel,

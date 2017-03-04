@@ -121,6 +121,6 @@ gboolean resize_freespace(void *obj)
 	}
 
 	schedule_redraw(&freespace->area);
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 	return TRUE;
 }

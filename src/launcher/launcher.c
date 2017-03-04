@@ -111,7 +111,7 @@ void init_launcher_panel(void *p)
 	launcher->icon_size = launcher_max_icon_size > 0 ? launcher_max_icon_size : 24;
 
 	launcher->area.on_screen = TRUE;
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 	instantiate_area_gradients(&launcher->area);
 
 	launcher_load_themes(launcher);
@@ -619,5 +619,5 @@ void launcher_default_icon_theme_changed()
 		launcher_load_icons(launcher);
 		launcher->area.resize_needed = 1;
 	}
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }

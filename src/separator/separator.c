@@ -135,7 +135,7 @@ gboolean resize_separator(void *obj)
 	}
 
 	schedule_redraw(&separator->area);
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 	return TRUE;
 }
 

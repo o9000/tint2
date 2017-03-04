@@ -1106,7 +1106,7 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 		        profiling_get_time(),
 		        __FUNCTION__,
 		        __LINE__);
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 	refresh_systray = TRUE;
 }
 
@@ -1185,7 +1185,7 @@ void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
 		        profiling_get_time(),
 		        __FUNCTION__,
 		        __LINE__);
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 	refresh_systray = TRUE;
 }
 
@@ -1393,7 +1393,7 @@ void systray_render_icon_composited(void *t)
 	if (error)
 		goto on_error;
 
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 
 	if (systray_profile)
 		fprintf(stderr,

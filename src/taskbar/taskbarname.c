@@ -113,7 +113,7 @@ void taskbarname_default_font_changed()
 			schedule_redraw(&taskbar->bar_name.area);
 		}
 	}
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void cleanup_taskbarname()

@@ -969,7 +969,7 @@ void autohide_show(void *p)
 	set_panel_window_geometry(panel);
 	set_panel_layer(panel, TOP_LAYER);
 	refresh_systray = TRUE; // ugly hack, because we actually only need to call XSetBackgroundPixmap
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void autohide_hide(void *p)
@@ -980,7 +980,7 @@ void autohide_hide(void *p)
 	panel->is_hidden = TRUE;
 	XUnmapSubwindows(server.display, panel->main_win); // systray windows
 	set_panel_window_geometry(panel);
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void autohide_trigger_show(Panel *p)
@@ -1064,4 +1064,12 @@ void default_font_changed()
 	taskbar_default_font_changed();
 	taskbarname_default_font_changed();
 	tooltip_default_font_changed();
+}
+
+void _schedule_panel_redraw(const char *file, const char *function, const int line)
+{
+	panel_refresh = TRUE;
+	if (debug_fps) {
+		fprintf(stderr, YELLOW "%s %s %d: triggering panel redraw" RESET "\n", file, function, line);
+	}
 }

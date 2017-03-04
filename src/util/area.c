@@ -17,6 +17,7 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
+#include <assert.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -359,7 +360,7 @@ void schedule_redraw(Area *a)
 
 	for (GList *l = a->children; l; l = l->next)
 		schedule_redraw((Area *)l->data);
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void draw_tree(Area *a)
@@ -413,7 +414,7 @@ void show(Area *a)
 	if (parent)
 		parent->resize_needed = TRUE;
 	a->resize_needed = TRUE;
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void update_dependent_gradients(Area *a)
@@ -424,6 +425,8 @@ void update_dependent_gradients(Area *a)
 		for (GList *l = a->dependent_gradients; l; l = l->next) {
 			GradientInstance *gi = (GradientInstance *)l->data;
 			update_gradient(gi);
+			if (gi->area != a)
+				schedule_redraw(gi->area);
 		}
 	}
 	for (GList *l = a->children; l; l = l->next)
@@ -575,7 +578,7 @@ void remove_area(Area *a)
 	if (parent) {
 		parent->children = g_list_remove(parent->children, area);
 		parent->resize_needed = TRUE;
-		panel_refresh = TRUE;
+		schedule_panel_redraw();
 		schedule_redraw(parent);
 	}
 
@@ -593,7 +596,6 @@ void add_area(Area *a, Area *parent)
 		parent->children = g_list_append(parent->children, a);
 		parent->resize_needed = TRUE;
 		schedule_redraw(parent);
-		panel_refresh = TRUE;
 	}
 }
 
@@ -652,7 +654,7 @@ void mouse_over(Area *area, int pressed)
 	mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->mouse_state];
 	if (!mouse_over_area->pix)
 		mouse_over_area->_redraw_needed = TRUE;
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 }
 
 void mouse_out()
@@ -663,7 +665,7 @@ void mouse_out()
 	mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->mouse_state];
 	if (!mouse_over_area->pix)
 		mouse_over_area->_redraw_needed = TRUE;
-	panel_refresh = TRUE;
+	schedule_panel_redraw();
 	mouse_over_area = NULL;
 }
 
@@ -1056,7 +1058,6 @@ void update_gradient(GradientInstance *gi)
 		cairo_pattern_destroy(gi->pattern);
 		gi->pattern = NULL;
 	}
-	schedule_redraw(gi->area);
 	double from_x, from_y, from_r;
 	compute_control_point(gi, &gi->gradient_class->from, &from_x, &from_y, &from_r);
 	double to_x, to_y, to_r;
@@ -1131,5 +1132,4 @@ void update_gradient(GradientInstance *gi)
 	                                  gi->gradient_class->end_color.rgb[1],
 	                                  gi->gradient_class->end_color.rgb[2],
 	                                  gi->gradient_class->end_color.alpha);
-	schedule_redraw(gi->area);
 }
