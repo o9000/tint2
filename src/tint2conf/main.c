@@ -34,6 +34,7 @@ void refresh_theme(const char *given_path);
 void remove_theme(const char *given_path);
 static void theme_selection_changed(GtkWidget *treeview, gpointer userdata);
 static gchar *find_theme_in_system_dirs(const gchar *given_name);
+static void load_specific_themes(char **paths, int count);
 
 // ====== Utilities ======
 
@@ -304,9 +305,15 @@ int main(int argc, char **argv)
 
 	// load themes
 	load_all_themes();
+	argc--, argv++;
+	if (argc > 0) {
+		load_specific_themes(argv, argc);
+		g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)edit_theme, NULL);
+	}
 
 	gtk_widget_show_all(g_window);
 	gtk_main();
+
 	return 0;
 }
 
@@ -815,6 +822,40 @@ static void load_all_themes()
 	if (found_themes) {
 		select_first_theme();
 
+		GtkTreeIter iter;
+		GtkTreeModel *model;
+		gboolean have_iter;
+
+		model = gtk_tree_view_get_model(GTK_TREE_VIEW(g_theme_view));
+		have_iter = gtk_tree_model_get_iter_first(model, &iter);
+		while (have_iter) {
+			gtk_list_store_set(theme_list_store, &iter, COL_SNAPSHOT, NULL, -1);
+			have_iter = gtk_tree_model_iter_next(model, &iter);
+		}
+
+		g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
+	}
+}
+
+static void load_specific_themes(char **paths, int count)
+{
+	ensure_default_theme_exists();
+
+	gboolean found_themes = FALSE;
+	while (count > 0) {
+		// Load configs
+		const char *file_name = paths[0];
+		paths++, count--;
+		if (g_file_test(file_name, G_FILE_TEST_IS_REGULAR) || g_file_test(file_name, G_FILE_TEST_IS_SYMLINK) ) {
+			theme_list_append(file_name);
+			if (!found_themes) {
+				select_theme(file_name);
+				found_themes = TRUE;
+			}
+		}
+	}
+
+	if (found_themes) {
 		GtkTreeIter iter;
 		GtkTreeModel *model;
 		gboolean have_iter;
