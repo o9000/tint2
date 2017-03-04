@@ -163,6 +163,13 @@ gboolean time_format_needs_sec_ticks(char *time_format)
 
 void init_clock()
 {
+}
+
+void init_clock_panel(void *p)
+{
+	Panel *panel = (Panel *)p;
+	Clock *clock = &panel->clock;
+
 	if (!clock_timeout) {
 		if (time_format_needs_sec_ticks(time1_format) || time_format_needs_sec_ticks(time2_format)) {
 			clock_timeout = add_timeout(10, 1000, update_clocks_sec, 0, &clock_timeout);
@@ -170,12 +177,6 @@ void init_clock()
 			clock_timeout = add_timeout(10, 1000, update_clocks_min, 0, &clock_timeout);
 		}
 	}
-}
-
-void init_clock_panel(void *p)
-{
-	Panel *panel = (Panel *)p;
-	Clock *clock = &panel->clock;
 
 	if (!clock->area.bg)
 		clock->area.bg = &g_array_index(backgrounds, Background, 0);
