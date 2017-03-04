@@ -87,27 +87,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 
 ## Demos
 
-***
-
-## 0.13: Compact panel, separator, color gradients
-
-![screenshot](https://gitlab.com/o9000/tint2/wikis/whats-new-0.13.0.gif)
-
-***
-
-## 0.12.4: Executor
-
-![screenshot](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.4.gif)
-
-***
-
-## 0.12.3: Mouse over effects
-
-![screenshot](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.3.gif)
-
-***
-
-## 0.12: Distribute size between taskbars, freespace
-
-![screenshot](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.gif)
-
+* 0.13: [Compact panel, separator, color gradients](https://gitlab.com/o9000/tint2/wikis/whats-new-0.13.0.gif)
+* 0.12.4: [Executor](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.4.gif)
+* 0.12.3: [Mouse over effects](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.3.gif)
+* 0.12: [Distribute size between taskbars, freespace](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.gif)
