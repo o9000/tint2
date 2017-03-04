@@ -28,6 +28,7 @@ Contributors:
   Justin Jacobs : tint2conf fixes
   Oskari Rauta : separator plugin, gradients
   Michael Messmore : Support for Path in .desktop files
+  Matthew Otnel : config option systray_name_filter
 
 Translations:
   Bosnian:

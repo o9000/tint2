@@ -1,3 +1,7 @@
+2017-03-04 master
+- Enhancements:
+  - New config option systray_name_filter to hide hide specific apps from the system tray (contributed by Matthew Otnel)
+
 2017-03-04 0.13
 - Fixes:
   - Ignore monitors with size 0, fixing crash (issue #618)
