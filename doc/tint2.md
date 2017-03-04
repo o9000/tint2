@@ -463,6 +463,8 @@ The action semantics:
 
   * `systray_monitor = integer (1, 2, ...)` :  On which monitor to draw the systray. The first monitor is `1`. *(since 0.12)*
 
+  * `systray_name_filter = string` :  Regular expression to identify icon names to be hidden. For example, `^audacious$` will hide icons with the exact name `audacious`, while `aud` will hide any icons having `aud` in the name. *(since 0.14)*
+
 ### Clock
 
   * `time1_format = %H:%M` : The format used by the first line of the clock.

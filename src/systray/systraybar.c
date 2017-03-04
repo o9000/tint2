@@ -20,6 +20,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,7 +55,8 @@ int systray_monitor;
 int chrono;
 int systray_composited;
 int systray_profile;
-char systray_hide_icons[100];
+char *systray_hide_name_filter;
+regex_t *systray_hide_name_regex;
 // background pixmap if we render ourselves the icons
 static Pixmap render_background;
 
@@ -82,6 +84,8 @@ void default_systray()
 	systray.area.size_mode = LAYOUT_FIXED;
 	systray.area._resize = resize_systray;
 	systray_profile = getenv("SYSTRAY_PROFILING") != NULL;
+	systray_hide_name_filter = NULL;
+	systray_hide_name_regex = NULL;
 }
 
 void cleanup_systray()
@@ -96,6 +100,12 @@ void cleanup_systray()
 		XFreePixmap(server.display, render_background);
 		render_background = 0;
 	}
+	if (systray_hide_name_regex) {
+		regfree(systray_hide_name_regex);
+		free_and_null(systray_hide_name_regex);
+	}
+	if (systray_hide_name_filter)
+		free_and_null(systray_hide_name_filter);
 }
 
 void init_systray()
@@ -574,6 +584,26 @@ void print_icons()
 	}
 }
 
+gboolean reject_icon(Window win)
+{
+	if (systray_hide_name_filter) {
+		if (!systray_hide_name_regex) {
+			systray_hide_name_regex = (regex_t *) calloc(1, sizeof(*systray_hide_name_regex));
+			if (regcomp(systray_hide_name_regex, systray_hide_name_filter, 0) != 0) {
+				fprintf(stderr, RED "Could not compile regex %s" RESET "\n", systray_hide_name_filter);
+				free_and_null(systray_hide_name_regex);
+				return FALSE;
+			}
+		}
+		char *name = get_window_name(win);
+		if (regexec(systray_hide_name_regex, name, 0, NULL, 0) == 0) {
+			fprintf(stderr, GREEN "Filtering out systray icon '%s'" RESET "\n", name);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 gboolean add_icon(Window win)
 {
 	// Avoid duplicates
@@ -584,21 +614,9 @@ gboolean add_icon(Window win)
 		}
 	}
 
-	char *name = get_window_name(win);
-	
 	// Filter out systray_hide_by_icon_name
-	char *token;
-	char *string;
-	string = strdup(systray_hide_icons);
-	if (string != NULL && string[0] != '0') {
-		while ((token = strsep(&string, ",")) != NULL) {
-			if (strcmp(token,name) == 0) {
-				if (strcmp(token,"") == 0) token = "empty name";
-				fprintf(stderr, GREEN "filtering out '%s'\n", token);
-				return FALSE;
-			}
-		}
-	}
+	if (reject_icon(win))
+		return FALSE;
 	
 	// Dangerous actions begin
 	XSync(server.display, False);
@@ -607,6 +625,7 @@ gboolean add_icon(Window win)
 
 	XSelectInput(server.display, win, StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask);
 
+	char *name = get_window_name(win);
 	if (systray_profile)
 		fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, win, name);
 	Panel *panel = systray.area.panel;

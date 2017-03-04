@@ -75,7 +75,7 @@ extern gboolean systray_enabled;
 extern int systray_max_icon_size;
 extern int systray_monitor;
 extern gboolean systray_profile;
-extern char systray_hide_icons[100];
+extern char *systray_hide_name_filter;
 
 // default global data
 void default_systray();

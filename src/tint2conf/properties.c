@@ -101,7 +101,7 @@ GtkWidget *ac_connected_cmd, *ac_disconnected_cmd;
 // systray
 GtkWidget *systray_icon_order, *systray_padding_x, *systray_padding_y, *systray_spacing;
 GtkWidget *systray_icon_size, *systray_icon_opacity, *systray_icon_saturation, *systray_icon_brightness;
-GtkWidget *systray_background, *systray_monitor;
+GtkWidget *systray_background, *systray_monitor, *systray_name_filter;
 
 // tooltip
 GtkWidget *tooltip_padding_x, *tooltip_padding_y, *tooltip_font, *tooltip_font_set, *tooltip_font_color;
@@ -4484,6 +4484,19 @@ void create_systemtray(GtkWidget *parent)
 	gtk_table_attach(GTK_TABLE(table), systray_icon_brightness, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 	gtk_tooltips_set_tip(tooltips, systray_icon_brightness, _("Specifies the brightness adjustment of the system tray icons, in percent."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Name filter"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	systray_name_filter = gtk_entry_new();
+	gtk_widget_show(systray_name_filter);
+	gtk_entry_set_width_chars(GTK_ENTRY(systray_name_filter), 50);
+	gtk_table_attach(GTK_TABLE(table), systray_name_filter, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
 }
 
 void create_battery(GtkWidget *parent)

@@ -622,6 +622,8 @@ void config_write_systray(FILE *fp)
 	fprintf(fp, "%d", MAX(1, 1 + gtk_combo_box_get_active(GTK_COMBO_BOX(systray_monitor))));
 	fprintf(fp, "\n");
 
+	fprintf(fp, "systray_name_filter = %s\n", gtk_entry_get_text(GTK_ENTRY(systray_name_filter)));
+
 	fprintf(fp, "\n");
 }
 
@@ -1705,6 +1707,8 @@ void add_entry(char *key, char *value)
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_opacity), atoi(value1));
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_saturation), atoi(value2));
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_brightness), atoi(value3));
+	} else if (strcmp(key, "systray_name_filter") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(systray_name_filter), value);
 	}
 
 	/* Launcher */

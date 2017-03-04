@@ -111,7 +111,7 @@ extern GtkWidget *ac_connected_cmd, *ac_disconnected_cmd;
 // systray
 extern GtkWidget *systray_icon_order, *systray_padding_x, *systray_padding_y, *systray_spacing;
 extern GtkWidget *systray_icon_size, *systray_icon_opacity, *systray_icon_saturation, *systray_icon_brightness;
-extern GtkWidget *systray_background, *systray_monitor;
+extern GtkWidget *systray_background, *systray_monitor, *systray_name_filter;
 
 // tooltip
 extern GtkWidget *tooltip_padding_x, *tooltip_padding_y, *tooltip_font, *tooltip_font_set, *tooltip_font_color;
