@@ -1,6 +1,6 @@
 #!/bin/sh
 
-MAJOR=0.12
+MAJOR=0.13
 DIRTY=""
 
 if git status 1>/dev/null 2>/dev/null
