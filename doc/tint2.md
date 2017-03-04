@@ -646,8 +646,8 @@ execp_continuous = 2
 
 ```
 execp = new
-execp_command = ping -i 1 -W 1 -O -D -n $(ip route | grep default | grep via | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*') | awk '/no/ { print "<span foreground=\"#faa\">timeout</span>"; fflush(); }; /time=/ { gsub(/time=/, "", $8); printf "<span foreground=\"#7af\">%3.0f %s</span>\n", $8, $9; fflush(); } '
-execp_continuous = 1
+execp_command = ping -i 1 -c 1 -W 1 -O -D -n $(ip route | grep default | grep via | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*') | awk '/no/ { print "<span foreground=\"#faa\">timeout</span>"; fflush(); }; /time=/ { gsub(/time=/, "", $8); printf "<span foreground=\"#7af\">%3.0f %s</span>\n", $8, $9; fflush(); } '
+execp_continuous = 0
 execp_interval = 1
 execp_markup = 1
 ```
