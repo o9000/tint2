@@ -656,9 +656,9 @@ execp_markup = 1
 
 ```
 execp = new
-execp_command = free -s 2 | awk '/^-/ { printf "Mem: '$(free -h | awk '/^Mem:/ { print $2 }')' %.0f%\n", 100*$3/($3+$4); fflush(stdout) }'
-execp_interval = 1
-execp_continuous = 1
+execp_command = free | awk '/^-/ { printf "Mem: '$(free -h | awk '/^Mem:/ { print $2 }')' %.0f%\n", 100*$3/($3+$4); fflush(stdout) }'
+execp_interval = 5
+execp_continuous = 0
 ```
 
 ##### Network load
