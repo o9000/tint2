@@ -1,4 +1,4 @@
-2017-02-19 master
+2017-03-04 0.13
 - Fixes:
   - Ignore monitors with size 0, fixing crash (issue #618)
   - Battery: support Asus Chromebook Flip C100PA (issue #616)
@@ -10,6 +10,7 @@
   - Gradient backgrounds (contributed by Oskari Rauta)
   - New option: panel_shrink (fixes issue #333)
   - Support for Path in .desktop files (contributed by Michael Messmore)
+  - Tint2conf start up is much faster
 - New plugin: separator (contributed by Oskari Rauta)
 
 2016-08-02 0.12.12
