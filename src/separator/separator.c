@@ -38,6 +38,14 @@ void destroy_separator(void *obj)
 	free_and_null(separator);
 }
 
+gpointer copy_separator(gconstpointer arg, gpointer data)
+{
+	Separator *old = (Separator *)arg;
+	Separator *copy = (Separator *)calloc(1, sizeof(Separator));
+	memcpy(copy, old, sizeof(Separator));
+	return copy;
+}
+
 void init_separator()
 {
 	GList *to_remove = panel_config.separator_list;
@@ -72,7 +80,7 @@ void init_separator_panel(void *p)
 
 	// panel->separator_list is now a copy of the pointer panel_config.separator_list
 	// We make it a deep copy
-	panel->separator_list = g_list_copy_deep(panel_config.separator_list, NULL, NULL);
+	panel->separator_list = g_list_copy_deep(panel_config.separator_list, copy_separator, NULL);
 
 	for (GList *l = panel->separator_list; l; l = l->next) {
 		Separator *separator = (Separator *)l->data;
