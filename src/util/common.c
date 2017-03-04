@@ -618,7 +618,7 @@ void get_text_size2(PangoFontDescription *font,
 	XFreePixmap(server.display, pmap);
 }
 
-#if !GLIB_CHECK_VERSION(2, 33, 4)
+#if !GLIB_CHECK_VERSION(2, 34, 0)
 GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data)
 {
 	list = g_list_copy(list);
