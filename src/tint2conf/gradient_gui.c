@@ -208,7 +208,7 @@ void gradient_create_new(GradientConfigType t)
 	gtk_list_store_set(gradient_ids, &iter,
 					   grColPixbuf, NULL,
 					   grColId, &index,
-					   grColText, "",
+					   grColText, index == 0 ? _("None") : "",
 					   -1);
 
 	gradient_update_image(index);
@@ -239,6 +239,8 @@ void gradient_duplicate(GtkWidget *widget, gpointer data)
 
 	GradientConfig *g = (GradientConfig *)calloc(1, sizeof(GradientConfig));
 	g->type = g_old->type;
+	g->start_color = g_old->start_color;
+	g->end_color = g_old->end_color;
 	g->extra_color_stops = g_list_copy_deep(g->extra_color_stops, copy_GradientConfigColorStop, NULL);
 	gradients = g_list_append(gradients, g);
 	GtkTreeIter iter;
@@ -352,7 +354,7 @@ void gradient_update(GtkWidget *widget, gpointer data)
 	if (gradient_updates_disabled)
 		return;
 	int index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_gradient));
-	if (index < 0)
+	if (index <= 0)
 		return;
 
 	GtkTreePath *path;
@@ -393,6 +395,13 @@ void current_gradient_changed(GtkWidget *widget, gpointer data)
 	int index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_gradient));
 	if (index < 0)
 		return;
+
+	gtk_widget_set_sensitive(gradient_combo_type, index > 0);
+	gtk_widget_set_sensitive(gradient_start_color, index > 0);
+	gtk_widget_set_sensitive(gradient_end_color, index > 0);
+	gtk_widget_set_sensitive(current_gradient_stop, index > 0);
+	gtk_widget_set_sensitive(gradient_stop_color, index > 0);
+	gtk_widget_set_sensitive(gradient_stop_offset, index > 0);
 
 	gradient_updates_disabled = TRUE;
 

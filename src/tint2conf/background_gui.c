@@ -846,6 +846,23 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 	if (index < 0)
 		return;
 
+	gtk_widget_set_sensitive(gradient_combo_type, index > 0);
+	gtk_widget_set_sensitive(background_fill_color, index > 0);
+	gtk_widget_set_sensitive(background_border_color, index > 0);
+	gtk_widget_set_sensitive(background_gradient, index > 0);
+	gtk_widget_set_sensitive(background_fill_color_over, index > 0);
+	gtk_widget_set_sensitive(background_border_color_over, index > 0);
+	gtk_widget_set_sensitive(background_gradient_over, index > 0);
+	gtk_widget_set_sensitive(background_fill_color_press, index > 0);
+	gtk_widget_set_sensitive(background_border_color_press, index > 0);
+	gtk_widget_set_sensitive(background_gradient_press, index > 0);
+	gtk_widget_set_sensitive(background_border_width, index > 0);
+	gtk_widget_set_sensitive(background_border_sides_top, index > 0);
+	gtk_widget_set_sensitive(background_border_sides_bottom, index > 0);
+	gtk_widget_set_sensitive(background_border_sides_left, index > 0);
+	gtk_widget_set_sensitive(background_border_sides_right, index > 0);
+	gtk_widget_set_sensitive(background_corner_radius, index > 0);
+
 	background_updates_disabled = TRUE;
 
 	GtkTreePath *path;
