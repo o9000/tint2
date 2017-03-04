@@ -14,6 +14,13 @@ void gradient_force_update();
 void current_gradient_changed(GtkWidget *widget, gpointer data);
 void background_update_for_gradient(int gradient_id);
 
+GtkWidget *create_gradient_stop_combo();
+void gradient_stop_duplicate(GtkWidget *widget, gpointer data);
+void gradient_stop_delete(GtkWidget *widget, gpointer data);
+void gradient_stop_update(GtkWidget *widget, gpointer data);
+void gradient_stop_update_image(int index);
+void current_gradient_stop_changed(GtkWidget *widget, gpointer data);
+
 typedef enum GradientConfigType {
 	GRADIENT_CONFIG_VERTICAL = 0,
 	GRADIENT_CONFIG_HORIZONTAL,

@@ -231,14 +231,22 @@ enum {
 	grColText,
 	grNumCols
 };
-extern GtkListStore *gradient_ids;
+
+// gradient color stops
+enum {
+	grStopColPixbuf = 0,
+	grStopNumCols
+};
+extern GtkListStore *gradient_ids, *gradient_stop_ids;
 extern GList *gradients;
 
 extern GtkWidget *current_gradient,
 	*gradient_combo_type,
 	*gradient_start_color,
 	*gradient_end_color,
-	*gradient_color_stops;
+	*current_gradient_stop,
+	*gradient_stop_color,
+	*gradient_stop_offset;
 
 void background_create_new();
 void background_force_update();
