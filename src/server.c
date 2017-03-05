@@ -256,7 +256,7 @@ void get_root_pixmap()
 		gcv.ts_x_origin = 0;
 		gcv.ts_y_origin = 0;
 		gcv.fill_style = FillTiled;
-		uint mask = GCTileStipXOrigin | GCTileStipYOrigin | GCFillStyle | GCTile;
+		unsigned mask = GCTileStipXOrigin | GCTileStipYOrigin | GCFillStyle | GCTile;
 
 		gcv.tile = server.root_pmap;
 		XChangeGC(server.display, server.gc, mask, &gcv);

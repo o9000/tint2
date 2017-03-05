@@ -301,8 +301,8 @@ void task_update_icon(Task *task)
 				// get width, height and depth for the pixmap
 				Window root;
 				int icon_x, icon_y;
-				uint border_width, bpp;
-				uint w, h;
+				unsigned border_width, bpp;
+				unsigned w, h;
 
 				XGetGeometry(server.display, hints->icon_pixmap, &root, &icon_x, &icon_y, &w, &h, &border_width, &bpp);
 				imlib_context_set_drawable(hints->icon_pixmap);

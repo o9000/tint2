@@ -449,9 +449,9 @@ Imlib_Image load_image(const char *path, int cached)
 	}
 	if (!image && g_str_has_suffix(path, ".svg")) {
 		char tmp_filename[128];
-		sprintf(tmp_filename, "/tmp/tint2-%d-XXXXXX.png", (int)getpid());
-		int fd = mkstemps(tmp_filename, 4);
-		if (fd) {
+		sprintf(tmp_filename, "/tmp/tint2-%d.png", (int)getpid());
+		int fd = open(tmp_filename, O_CREAT | O_EXCL, 0600);
+		if (fd >= 0) {
 			// We fork here because librsvg allocates memory like crazy
 			pid_t pid = fork();
 			if (pid == 0) {
@@ -469,6 +469,7 @@ Imlib_Image load_image(const char *path, int cached)
 				exit(0);
 			} else {
 				// Parent
+				close(fd);
 				waitpid(pid, 0, 0);
 				image = imlib_load_image_immediately_without_cache(tmp_filename);
 				unlink(tmp_filename);
@@ -639,7 +640,8 @@ GSList *load_locations_from_env(GSList *locations, const char *var, ...)
 	if (value) {
 		value = strdup(value);
 		char *p = value;
-		for (char *token = strsep(&value, ":"); token; token = strsep(&value, ":")) {
+		char *t;
+		for (char *token = strtok_r(value, ":", &t); token; token = strtok_r(NULL, ":", &t)) {
 			va_list ap;
 			va_start(ap, var);
 			for (const char *suffix = va_arg(ap, const char *); suffix; suffix = va_arg(ap, const char *)) {

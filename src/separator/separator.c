@@ -188,6 +188,7 @@ void draw_separator_line(void *obj, cairo_t *c)
 
 void draw_separator_dots(void *obj, cairo_t *c)
 {
+	const double PI = 3.14159265359;
 	Separator *separator = (Separator *)obj;
 	if (separator->thickness <= 0)
 		return;
@@ -214,14 +215,14 @@ void draw_separator_dots(void *obj, cairo_t *c)
 					  offset + separator->thickness / 2.0,
 					  separator->thickness / 2.0,
 					  0,
-					  2 * M_PI);
+					  2 * PI);
 		} else {
 			cairo_arc(c,
 					  offset + separator->thickness / 2.0,
 					  separator->area.height / 2.0,
 					  separator->thickness / 2.0,
 					  0,
-					  2 * M_PI);
+					  2 * PI);
 		}
 		cairo_stroke_preserve(c);
 		cairo_fill(c);
