@@ -124,6 +124,7 @@ set( SOURCES src/config.c
              src/execplugin/execplugin.c
              src/freespace/freespace.c
              src/separator/separator.c
+             src/tint2rc.c
              src/util/area.c
              src/util/common.c
              src/util/strnatcmp.c

@@ -38,6 +38,7 @@
 
 #ifndef TINT2CONF
 
+#include "tint2rc.h"
 #include "common.h"
 #include "server.h"
 #include "strnatcmp.h"
@@ -1271,7 +1272,7 @@ gboolean config_read_default_path()
 		return result;
 	}
 
-	// generate empty config file
+	// generate config file
 	fprintf(stderr, "tint2 warning: could not find a config file!\n");
 	gchar *dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
 	if (!g_file_test(dir, G_FILE_TEST_IS_DIR))
@@ -1279,7 +1280,11 @@ gboolean config_read_default_path()
 	g_free(dir);
 
 	path1 = g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
-	copy_file("/dev/null", path1);
+	FILE *f = fopen(path1, "w");
+	if (f) {
+		fwrite(themes_tint2rc, 1, themes_tint2rc_len, f);
+		fclose(f);
+	}
 
 	gboolean result = config_read_file(path1);
 	config_path = strdup(path1);
