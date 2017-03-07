@@ -440,8 +440,6 @@ gboolean resize_panel(void *obj)
 			Taskbar *taskbar = &panel->taskbar[i];
 			if (!taskbar->area.on_screen)
 				continue;
-			if (!taskbar->area.children)
-				continue;
 			if (panel_horizontal)
 				taskbar->area.width = 2 * taskbar->area.paddingxlr;
 			else
