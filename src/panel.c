@@ -516,6 +516,7 @@ gboolean resize_panel(void *obj)
 					taskbar->area.width += total_size;
 				else
 					taskbar->area.height += total_size;
+				break;
 			}
 		}
 		for (int i = 0; i < panel->num_desktops; i++) {
