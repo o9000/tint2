@@ -389,7 +389,7 @@ panel_size = 94% 30
 
 The following options configure the task buttons in the taskbar:
 
-  * `task_icon = boolean (0 or 1)` : Whether to display the task icon.
+  * `task_icon = boolean (0 or 1)` : Whether to display the task icon. There is no explicit option to control the task icon size; it depends on the vertical padding set with `task_padding`.
 
   * `task_text = boolean (0 or 1)` : Whether to display the task text.
 
