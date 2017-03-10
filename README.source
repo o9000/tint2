@@ -1,3 +1,0 @@
-DEPENDENCIES:
-cairo (with X support), pango, glib2, libX11, libXinerama, libXrandr, libXrender, libXcomposite, libXdamage, imlib2 (with X support)
-you might need -dev packages on Debian
