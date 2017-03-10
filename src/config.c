@@ -1244,6 +1244,13 @@ gboolean config_read_default_path()
 	g_free(path1);
 
 	// copy tint2rc from system directory to user directory
+
+	fprintf(stderr, "tint2 warning: could not find a config file! Creating a default one.\n");
+	// According to the XDG Base Directory Specification (https://specifications.freedesktop.org/basedir-spec/basedir-spec-0.6.html)
+	// if the user's config directory does not exist, we should create it with permissions set to 0700.
+	if (!g_file_test(g_get_user_config_dir(), G_FILE_TEST_IS_DIR))
+		g_mkdir(g_get_user_config_dir(), 0700);
+
 	gchar *path2 = 0;
 	system_dirs = g_get_system_config_dirs();
 	for (int i = 0; system_dirs[i]; i++) {
@@ -1273,12 +1280,6 @@ gboolean config_read_default_path()
 	}
 
 	// generate config file
-	fprintf(stderr, "tint2 warning: could not find a config file!\n");
-	// According to the XDG Base Directory Specification (https://specifications.freedesktop.org/basedir-spec/basedir-spec-0.6.html)
-	// if the user's config directory does not exist, we should create it with permissions set to 0700.
-	if (!g_file_test(g_get_user_config_dir(), G_FILE_TEST_IS_DIR))
-		g_mkdir(g_get_user_config_dir(), 0700);
-
 	gchar *dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
 	if (!g_file_test(dir, G_FILE_TEST_IS_DIR))
 		g_mkdir(dir, 0700);
