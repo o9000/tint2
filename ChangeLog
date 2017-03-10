@@ -1,6 +1,11 @@
 2017-03-04 master
+- Fixes:
+  - Fixed compilation with new glibc (issue #625)
+  - Fixed regression in distributing size between taskbars (issue #628)
+  - Create ~/.config dir if it does not exist (issue #629)
 - Enhancements:
   - New config option systray_name_filter to hide hide specific apps from the system tray (contributed by Matthew Otnel)
+  - Tint2conf: minor improvements
 
 2017-03-04 0.13
 - Fixes:
