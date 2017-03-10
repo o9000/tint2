@@ -488,7 +488,7 @@ You can switch between virtual desktops.
 The following options configure the task buttons in the taskbar:
 .RS
 .IP \(bu 2
-\fB\fCtask_icon = boolean (0 or 1)\fR : Whether to display the task icon.
+\fB\fCtask_icon = boolean (0 or 1)\fR : Whether to display the task icon. There is no explicit option to control the task icon size; it depends on the vertical padding set with \fB\fCtask_padding\fR\&.
 .IP \(bu 2
 \fB\fCtask_text = boolean (0 or 1)\fR : Whether to display the task text.
 .IP \(bu 2
@@ -569,6 +569,8 @@ The action semantics:
 \fB\fCsystray_icon_asb = alpha (0 to 100) saturation (\-100 to 100) brightness (\-100 to 100)\fR : Adjust the systray icons color and transparency.
 .IP \(bu 2
 \fB\fCsystray_monitor = integer (1, 2, ...)\fR :  On which monitor to draw the systray. The first monitor is \fB\fC1\fR\&. \fI(since 0.12)\fP
+.IP \(bu 2
+\fB\fCsystray_name_filter = string\fR :  Regular expression to identify icon names to be hidden. For example, \fB\fC^audacious$\fR will hide icons with the exact name \fB\fCaudacious\fR, while \fB\fCaud\fR will hide any icons having \fB\fCaud\fR in the name. \fI(since 0.14)\fP
 .RE
 .SS Clock
 .RS
@@ -771,8 +773,8 @@ execp_continuous = 2
 .RS
 .nf
 execp = new
-execp_command = ping \-i 1 \-W 1 \-O \-D \-n $(ip route | grep default | grep via | grep \-o '[0\-9]*\\.[0\-9]*\\.[0\-9]*\\.[0\-9]*') | awk '/no/ { print "<span foreground=\\"#faa\\">timeout</span>"; fflush(); }; /time=/ { gsub(/time=/, "", $8); printf "<span foreground=\\"#7af\\">%3.0f %s</span>\\n", $8, $9; fflush(); } '
-execp_continuous = 1
+execp_command = ping \-i 1 \-c 1 \-W 1 \-O \-D \-n $(ip route | grep default | grep via | grep \-o '[0\-9]*\\.[0\-9]*\\.[0\-9]*\\.[0\-9]*') | awk '/no/ { print "<span foreground=\\"#faa\\">timeout</span>"; fflush(); }; /time=/ { gsub(/time=/, "", $8); printf "<span foreground=\\"#7af\\">%3.0f %s</span>\\n", $8, $9; fflush(); } '
+execp_continuous = 0
 execp_interval = 1
 execp_markup = 1
 .fi
@@ -782,9 +784,9 @@ execp_markup = 1
 .RS
 .nf
 execp = new
-execp_command = free \-s 2 | awk '/^\-/ { printf "Mem: '$(free \-h | awk '/^Mem:/ { print $2 }')' %.0f%\\n", 100*$3/($3+$4); fflush(stdout) }'
-execp_interval = 1
-execp_continuous = 1
+execp_command = free | awk '/^\-/ { printf "Mem: '$(free \-h | awk '/^Mem:/ { print $2 }')' %.0f%%\\n", 100*$3/($3+$4); fflush(stdout) }'
+execp_interval = 5
+execp_continuous = 0
 .fi
 .RE
 .SS Network load
@@ -874,7 +876,7 @@ task_font = sans 7
 task_font_color = #ffffff 70
 task_background_id = 3
 task_icon_asb = 100 0 0
-## replace STATUS by 'urgent', 'active' or 'iconfied'
+## replace STATUS by 'urgent', 'active' or 'iconified'
 #task_STATUS_background_id = 2
 #task_STATUS_font_color = #ffffff 85
 #task_STATUS_icon_asb = 100 0 0

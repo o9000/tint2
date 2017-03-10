@@ -474,7 +474,7 @@ panel_size = 94% 30
 </ul>
 <h1 id="taskbar-buttons">Taskbar buttons<a name="taskbar-buttons" href="#taskbar-buttons" class="md2man-permalink" title="permalink"></a></h1><p>The following options configure the task buttons in the taskbar:</p>
 <ul>
-<li><p><code>task_icon = boolean (0 or 1)</code> : Whether to display the task icon.</p></li>
+<li><p><code>task_icon = boolean (0 or 1)</code> : Whether to display the task icon. There is no explicit option to control the task icon size; it depends on the vertical padding set with <code>task_padding</code>.</p></li>
 <li><p><code>task_text = boolean (0 or 1)</code> : Whether to display the task text.</p></li>
 <li><p><code>task_centered = boolean (0 or 1)</code> : Whether the task text is centered.</p></li>
 <li><p><code>task_tooltip = boolean (0 or 1)</code> : Whether to show tooltips for tasks.</p></li>
@@ -522,6 +522,7 @@ panel_size = 94% 30
 <li><p><code>systray_icon_size = max_icon_size</code> : Set the maximum system tray icon size to <code>number</code>. Set to <code>0</code> for automatic icon sizing.</p></li>
 <li><p><code>systray_icon_asb = alpha (0 to 100) saturation (-100 to 100) brightness (-100 to 100)</code> : Adjust the systray icons color and transparency.</p></li>
 <li><p><code>systray_monitor = integer (1, 2, ...)</code> :  On which monitor to draw the systray. The first monitor is <code>1</code>. <em>(since 0.12)</em></p></li>
+<li><p><code>systray_name_filter = string</code> :  Regular expression to identify icon names to be hidden. For example, <code>^audacious$</code> will hide icons with the exact name <code>audacious</code>, while <code>aud</code> will hide any icons having <code>aud</code> in the name. <em>(since 0.14)</em></p></li>
 </ul>
 <h3 id="clock">Clock<a name="clock" href="#clock" class="md2man-permalink" title="permalink"></a></h3>
 <ul>
@@ -633,15 +634,15 @@ execp_cache_icon = 1
 execp_continuous = 2
 </code></pre>
 <h5 id="round-trip-time-to-the-gateway-refreshed-every-second">Round-trip time to the gateway, refreshed every second<a name="round-trip-time-to-the-gateway-refreshed-every-second" href="#round-trip-time-to-the-gateway-refreshed-every-second" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>execp = new
-execp_command = ping -i 1 -W 1 -O -D -n $(ip route | grep default | grep via | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*') | awk '/no/ { print "&lt;span foreground=\"#faa\"&gt;timeout&lt;/span&gt;"; fflush(); }; /time=/ { gsub(/time=/, "", $8); printf "&lt;span foreground=\"#7af\"&gt;%3.0f %s&lt;/span&gt;\n", $8, $9; fflush(); } '
-execp_continuous = 1
+execp_command = ping -i 1 -c 1 -W 1 -O -D -n $(ip route | grep default | grep via | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*') | awk '/no/ { print "&lt;span foreground=\"#faa\"&gt;timeout&lt;/span&gt;"; fflush(); }; /time=/ { gsub(/time=/, "", $8); printf "&lt;span foreground=\"#7af\"&gt;%3.0f %s&lt;/span&gt;\n", $8, $9; fflush(); } '
+execp_continuous = 0
 execp_interval = 1
 execp_markup = 1
 </code></pre>
 <h5 id="memory-usage">Memory usage<a name="memory-usage" href="#memory-usage" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>execp = new
-execp_command = free -s 2 | awk '/^-/ { printf "Mem: '$(free -h | awk '/^Mem:/ { print $2 }')' %.0f%\n", 100*$3/($3+$4); fflush(stdout) }'
-execp_interval = 1
-execp_continuous = 1
+execp_command = free | awk '/^-/ { printf "Mem: '$(free -h | awk '/^Mem:/ { print $2 }')' %.0f%%\n", 100*$3/($3+$4); fflush(stdout) }'
+execp_interval = 5
+execp_continuous = 0
 </code></pre>
 <h5 id="network-load">Network load<a name="network-load" href="#network-load" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code># Note the use of "stdbuf -oL" to force the program to flush the output line by line.
 execp = new
@@ -715,7 +716,7 @@ task_font = sans 7
 task_font_color = #ffffff 70
 task_background_id = 3
 task_icon_asb = 100 0 0
-## replace STATUS by 'urgent', 'active' or 'iconfied'
+## replace STATUS by 'urgent', 'active' or 'iconified'
 #task_STATUS_background_id = 2
 #task_STATUS_font_color = #ffffff 85
 #task_STATUS_icon_asb = 100 0 0
