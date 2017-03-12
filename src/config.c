@@ -1178,20 +1178,21 @@ void add_entry(char *key, char *value)
 
 gboolean config_read_file(const char *path)
 {
-	FILE *fp;
-	char line[512];
-	char *key, *value;
-
-	if ((fp = fopen(path, "r")) == NULL)
+	FILE *fp = fopen(path, "r");
+	if (!fp)
 		return FALSE;
 
-	while (fgets(line, sizeof(line), fp) != NULL) {
+	char* line = NULL;
+	size_t line_size = 0;
+	while (getline(&line, &line_size, fp) >= 0) {
+		char *key, *value;
 		if (parse_line(line, &key, &value)) {
 			add_entry(key, value);
 			free(key);
 			free(value);
 		}
 	}
+	free(line);
 	fclose(fp);
 
 	if (!read_panel_position) {

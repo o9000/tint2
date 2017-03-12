@@ -38,13 +38,6 @@ void config_read_file(const char *path)
 	background_create_new();
 	gradient_create_new(GRADIENT_CONFIG_VERTICAL);
 
-	FILE *fp;
-	char line[512];
-	char *key, *value;
-
-	if ((fp = fopen(path, "r")) == NULL)
-		return;
-
 	config_has_panel_items = 0;
 	config_has_battery = 0;
 	config_battery_enabled = 0;
@@ -54,14 +47,21 @@ void config_read_file(const char *path)
 	no_items_systray_enabled = 0;
 	no_items_battery_enabled = 0;
 
-	while (fgets(line, sizeof(line), fp) != NULL) {
-		if (parse_line(line, &key, &value)) {
-			add_entry(key, value);
-			free(key);
-			free(value);
+	FILE *fp = fopen(path, "r");
+	if (fp) {
+		char* line = NULL;
+		size_t line_size = 0;
+		while (getline(&line, &line_size, fp) >= 0) {
+			char *key, *value;
+			if (parse_line(line, &key, &value)) {
+				add_entry(key, value);
+				free(key);
+				free(value);
+			}
 		}
+		free(line);
+		fclose(fp);
 	}
-	fclose(fp);
 
 	finalize_gradient();
 	finalize_bg();

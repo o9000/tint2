@@ -643,6 +643,7 @@ void execp_timer_callback(void *arg)
 		close(pipe_fd[0]);
 		return;
 	} else if (child == 0) {
+		fprintf(stderr, "Executing: %s\n", execp->backend->command);
 		// We are in the child
 		close(pipe_fd[0]);
 		dup2(pipe_fd[1], 1); // 1 is stdout
