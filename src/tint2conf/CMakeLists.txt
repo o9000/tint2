@@ -63,7 +63,7 @@ target_link_libraries( tint2conf ${X11_T2C_LIBRARIES}
 add_definitions( -DINSTALL_PREFIX=\"${CMAKE_INSTALL_PREFIX}\" )
 add_definitions( -DLOCALEDIR=\"${CMAKE_INSTALL_FULL_LOCALEDIR}\" )
 add_definitions( -DGETTEXT_PACKAGE=\"tint2conf\" )
-set_target_properties( tint2conf PROPERTIES COMPILE_FLAGS "-Wall -pthread -std=c99" )
+set_target_properties( tint2conf PROPERTIES COMPILE_FLAGS "-Wall -pthread -std=c11" )
 set_target_properties( tint2conf PROPERTIES LINK_FLAGS "-pthread" )
 
 add_subdirectory(po)

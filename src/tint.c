@@ -269,10 +269,6 @@ const char *signal_name(int sig)
 		return "SIGVTALRM: Virtual alarm clock (4.2 BSD).";
 	case SIGPROF:
 		return "SIGPROF: Profiling alarm clock (4.2 BSD).";
-	case SIGWINCH:
-		return "SIGWINCH: Window size change (4.3 BSD, Sun).";
-	case SIGIO:
-		return "SIGIO: Pollable event occurred (System V) / I/O now possible (4.2 BSD).";
 	// case SIGPWR: return "SIGPWR: Power failure restart (System V).";
 	case SIGSYS:
 		return "SIGSYS: Bad system call.";
