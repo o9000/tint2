@@ -1,4 +1,4 @@
-# TINT2 1 "2017-03-12"
+# TINT2 1 "2017-03-12" 0.13.2
 
 ## NAME
 tint2 - lightweight panel/taskbar

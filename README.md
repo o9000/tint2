@@ -1,5 +1,5 @@
-# Latest stable release: 0.13.1
-Changes: https://gitlab.com/o9000/tint2/blob/0.13.1/ChangeLog
+# Latest stable release: 0.13.2
+Changes: https://gitlab.com/o9000/tint2/blob/0.13.2/ChangeLog
 
 Documentation: [doc/tint2.md](doc/tint2.md)
 
@@ -8,7 +8,7 @@ Compile it with (after you install the [dependencies](https://gitlab.com/o9000/t
 ```
 git clone https://gitlab.com/o9000/tint2.git
 cd tint2
-git checkout 0.13.1
+git checkout 0.13.2
 mkdir build
 cd build
 cmake ..
@@ -87,7 +87,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 
 ## Demos
 
-* 0.13.1: [Compact panel, separator, color gradients](https://gitlab.com/o9000/tint2/wikis/whats-new-0.13.0.gif)
-* 0.12.4: [Executor](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.4.gif)
-* 0.12.3: [Mouse over effects](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.3.gif)
-* 0.12: [Distribute size between taskbars, freespace](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.gif)
+* [Compact panel, separator, color gradients](https://gitlab.com/o9000/tint2/wikis/whats-new-0.13.0.gif)
+* [Executor](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.4.gif)
+* [Mouse over effects](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.3.gif)
+* [Distribute size between taskbars, freespace](https://gitlab.com/o9000/tint2/wikis/whats-new-0.12.gif)
