@@ -82,9 +82,13 @@ if( NOT IMLIB_BUILD_WITH_X )
   message( FATAL_ERROR "Imlib is not built with X support" )
 endif( NOT IMLIB_BUILD_WITH_X )
 
-#add_definitions( -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700 -D_WITH_GETLINE )
 
-add_definitions( -D_WITH_GETLINE )
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  add_definitions( -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE )
+else(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  add_definitions( -D_WITH_GETLINE )
+endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
 
 include_directories( ${PROJECT_BINARY_DIR}
                      src
