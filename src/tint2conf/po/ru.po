@@ -2354,7 +2354,7 @@ msgstr "Конечный цвет"
 
 #: ../gradient_gui.c:132
 msgid "<b>Color stop</b>"
-msgstr "<b>Промежуточное значение</b>"
+msgstr "<b>Промежуточный цвет</b>"
 
 #: ../gradient_gui.c:163
 msgid "Color"
