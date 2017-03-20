@@ -51,7 +51,7 @@ void free_icon_theme(IconTheme *theme);
 
 // Returns the full path to an icon file (or NULL) given the list of icon themes to search and the icon name
 // Note: needs to be released with free().
-char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size);
+char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size, gboolean use_fallbacks);
 
 // Returns a list of the directories used to store icons.
 // Do not free the result, it is cached.

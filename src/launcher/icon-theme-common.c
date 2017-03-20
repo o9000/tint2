@@ -740,7 +740,7 @@ void add_icon_path_to_cache(IconThemeWrapper *wrapper, const char *icon_name, in
 	g_free(key);
 }
 
-char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size)
+char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size, gboolean use_fallbacks)
 {
 	if (!wrapper)
 		return NULL;
@@ -761,6 +761,8 @@ char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size)
 		return path;
 	}
 
+	if (!use_fallbacks)
+		goto notfound;
 	fprintf(stderr, YELLOW "Icon not found in default theme: %s" RESET "\n", icon_name);
 	load_fallbacks(wrapper);
 

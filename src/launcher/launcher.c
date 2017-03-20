@@ -565,13 +565,13 @@ void launcher_reload_icon_image(Launcher *launcher, LauncherIcon *launcherIcon)
 	free_icon(launcherIcon->image_pressed);
 	launcherIcon->image = NULL;
 
-	char *new_icon_path = get_icon_path(launcher->icon_theme_wrapper, launcherIcon->icon_name, launcherIcon->icon_size);
+	char *new_icon_path = get_icon_path(launcher->icon_theme_wrapper, launcherIcon->icon_name, launcherIcon->icon_size, TRUE);
 	if (new_icon_path)
 		launcherIcon->image = load_image(new_icon_path, 1);
 	// On loading error, fallback to default
 	if (!launcherIcon->image) {
 		free(new_icon_path);
-		new_icon_path = get_icon_path(launcher->icon_theme_wrapper, DEFAULT_ICON, launcherIcon->icon_size);
+		new_icon_path = get_icon_path(launcher->icon_theme_wrapper, DEFAULT_ICON, launcherIcon->icon_size, TRUE);
 		if (new_icon_path)
 			launcherIcon->image = imlib_load_image_immediately(new_icon_path);
 	}
