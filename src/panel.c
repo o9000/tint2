@@ -708,36 +708,68 @@ void set_panel_window_geometry(Panel *panel)
 
 	if (!panel->is_hidden) {
 		if (panel_horizontal) {
-			XMoveResizeWindow(server.display,
-			                  panel->main_win,
-			                  panel->posx,
-			                  panel->posy,
-			                  panel->area.width,
-			                  panel->area.height);
+			if (panel_position & TOP)
+				XMoveResizeWindow(server.display,
+				                  panel->main_win,
+				                  panel->posx,
+				                  panel->posy,
+				                  panel->area.width,
+				                  panel->area.height);
+			else
+				XMoveResizeWindow(server.display,
+				                  panel->main_win,
+				                  panel->posx,
+				                  panel->posy,
+				                  panel->area.width,
+				                  panel->area.height);
 		} else {
-			XMoveResizeWindow(server.display,
-			                  panel->main_win,
-			                  panel->posx,
-			                  panel->posy,
-			                  panel->area.width,
-			                  panel->area.height);
+			if (panel_position & LEFT)
+				XMoveResizeWindow(server.display,
+				                  panel->main_win,
+				                  panel->posx,
+				                  panel->posy,
+				                  panel->area.width,
+				                  panel->area.height);
+			else
+				XMoveResizeWindow(server.display,
+				                  panel->main_win,
+				                  panel->posx,
+				                  panel->posy,
+				                  panel->area.width,
+				                  panel->area.height);
 		}
 	} else {
 		int diff = (panel_horizontal ? panel->area.height : panel->area.width) - panel_autohide_height;
 		if (panel_horizontal) {
-			XMoveResizeWindow(server.display,
-			                  panel->main_win,
-			                  panel->posx,
-			                  panel->posy + diff,
-			                  panel->hidden_width,
-			                  panel->hidden_height);
+			if (panel_position & TOP)
+				XMoveResizeWindow(server.display,
+								  panel->main_win,
+				                  panel->posx,
+				                  panel->posy,
+				                  panel->hidden_width,
+				                  panel->hidden_height);
+			else
+				XMoveResizeWindow(server.display,
+				                  panel->main_win,
+				                  panel->posx,
+				                  panel->posy + diff,
+				                  panel->hidden_width,
+				                  panel->hidden_height);
 		} else {
-			XMoveResizeWindow(server.display,
-			                  panel->main_win,
-			                  panel->posx + diff,
-			                  panel->posy,
-			                  panel->hidden_width,
-			                  panel->hidden_height);
+			if (panel_position & LEFT)
+				XMoveResizeWindow(server.display,
+				                  panel->main_win,
+								  panel->posx,
+								  panel->posy,
+				                  panel->hidden_width,
+				                  panel->hidden_height);
+			else
+				XMoveResizeWindow(server.display,
+				                  panel->main_win,
+				                  panel->posx + diff,
+				                  panel->posy,
+				                  panel->hidden_width,
+				                  panel->hidden_height);
 		}
 	}
 }
