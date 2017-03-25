@@ -693,6 +693,7 @@ execp_interval = 1
   * `button_centered = boolean (0 or 1)` : Whether to center the text. *(since 0.14)*
 
   * `button_padding = horizontal_padding vertical_padding spacing_between_icon_and_text` *(since 0.14)*
+  * `button_max_icon_size = integer` : Sets a limit to the icon size. Otherwise, the icon will expand to the edges. *(since 0.14)*
 
   * `button_lclick_command = text` : Command to execute on left click. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.14)*
   * `button_mclick_command = text` : Command to execute on right click. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.14)*
