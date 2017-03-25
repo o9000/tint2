@@ -151,6 +151,21 @@ typedef struct Executor {
 
 extern GArray *executors;
 
+// Button
+typedef struct Button {
+	char name[256];
+	GtkWidget *container;
+	GtkWidget *page_button;
+	GtkWidget *page_label;
+	GtkWidget *button_icon, *button_text, *button_tooltip;
+	GtkWidget *button_left_command, *button_right_command;
+	GtkWidget *button_mclick_command, *button_rclick_command, *button_uwheel_command, *button_dwheel_command;
+	GtkWidget *button_font, *button_font_set, *button_font_color, *button_padding_x, *button_padding_y, *button_centered;
+	GtkWidget *button_background;
+} Button;
+
+extern GArray *buttons;
+
 // launcher
 
 enum {
@@ -263,6 +278,11 @@ void execp_create_new();
 Executor *execp_get_last();
 void execp_remove(int i);
 void execp_update_indices();
+
+void button_create_new();
+Button *button_get_last();
+void button_remove(int i);
+void button_update_indices();
 
 void create_please_wait(GtkWindow *parent);
 void process_events();

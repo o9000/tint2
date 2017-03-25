@@ -115,6 +115,9 @@ GArray *separators;
 // Executors
 GArray *executors;
 
+// Buttons
+GArray *buttons;
+
 // launcher
 
 GtkListStore *launcher_apps, *all_apps;
@@ -155,6 +158,7 @@ void create_task_status(GtkWidget *notebook,
 						GtkWidget **task_status_background_set);
 void create_separator(GtkWidget *parent, int i);
 void create_execp(GtkWidget *parent, int i);
+void create_button(GtkWidget *parent, int i);
 void create_clock(GtkWidget *parent);
 void create_systemtray(GtkWidget *parent);
 void create_battery(GtkWidget *parent);
@@ -227,6 +231,7 @@ GtkWidget *create_properties()
 
 	separators = g_array_new(FALSE, TRUE, sizeof(Separator));
 	executors = g_array_new(FALSE, TRUE, sizeof(Executor));
+	buttons = g_array_new(FALSE, TRUE, sizeof(Button));
 
 	// global layer
 	view = gtk_dialog_new();
@@ -1208,6 +1213,7 @@ void set_panel_items(const char *items)
 
 	int separator_index = -1;
 	int execp_index = -1;
+	int button_index = -1;
 
 	for (; items && *items; items++) {
 		const char *value = NULL;
@@ -1245,6 +1251,12 @@ void set_panel_items(const char *items)
 			sprintf(buffer, "%s %d", _("Executor"), execp_index + 1);
 			name = buffer;
 			value = "E";
+		} else if (v == 'P') {
+			button_index++;
+			buffer[0] = 0;
+			sprintf(buffer, "%s %d", _("Button"), button_index + 1);
+			name = buffer;
+			value = "P";
 		} else {
 			continue;
 		}
@@ -1283,11 +1295,14 @@ void panel_add_item(GtkWidget *widget, gpointer data)
 				separator_create_new();
 			} else if (g_str_equal(value, "E")) {
 				execp_create_new();
+			} else if (g_str_equal(value, "P")) {
+				button_create_new();
 			}
 		}
 	}
 	separator_update_indices();
 	execp_update_indices();
+	button_update_indices();
 }
 
 void panel_remove_item(GtkWidget *widget, gpointer data)
@@ -1320,6 +1335,14 @@ void panel_remove_item(GtkWidget *widget, gpointer data)
 					break;
 				}
 			}
+		} else if (g_str_equal(value, "P")) {
+			for (int i = 0; i < buttons->len; i++) {
+				Button *button = &g_array_index(buttons, Button, i);
+				if (g_str_equal(name, button->name)) {
+					button_remove(i);
+					break;
+				}
+			}
 		}
 
 		gtk_list_store_remove(panel_items, &iter);
@@ -1327,6 +1350,7 @@ void panel_remove_item(GtkWidget *widget, gpointer data)
 
 	separator_update_indices();
 	execp_update_indices();
+	button_update_indices();
 }
 
 void panel_move_item_down(GtkWidget *widget, gpointer data)
@@ -1380,6 +1404,21 @@ void panel_move_item_down(GtkWidget *widget, gpointer data)
 				Executor tmp = *executor1;
 				*executor1 = *executor2;
 				*executor2 = tmp;
+			} else if (g_str_equal(value1, "P") && g_str_equal(value2, "P")) {
+				Button *button1 = NULL;
+				Button *button2 = NULL;
+				for (int i = 0; i < buttons->len; i++) {
+					Button *button = &g_array_index(buttons, Button, i);
+					if (g_str_equal(name1, button->name)) {
+						button1 = button;
+					}
+					if (g_str_equal(name2, button->name)) {
+						button2 = button;
+					}
+				}
+				Button tmp = *button1;
+				*button1 = *button2;
+				*button2 = tmp;
 			}
 
 			gtk_list_store_swap(panel_items, &iter, &next);
@@ -1387,6 +1426,7 @@ void panel_move_item_down(GtkWidget *widget, gpointer data)
 	}
 	separator_update_indices();
 	execp_update_indices();
+	button_update_indices();
 }
 
 void panel_move_item_up(GtkWidget *widget, gpointer data)
@@ -1441,6 +1481,21 @@ void panel_move_item_up(GtkWidget *widget, gpointer data)
 					Executor tmp = *executor1;
 					*executor1 = *executor2;
 					*executor2 = tmp;
+				} else if (g_str_equal(value1, "P") && g_str_equal(value2, "P")) {
+					Button *button1 = NULL;
+					Button *button2 = NULL;
+					for (int i = 0; i < buttons->len; i++) {
+						Button *button = &g_array_index(buttons, Button, i);
+						if (g_str_equal(name1, button->name)) {
+							button1 = button;
+						}
+						if (g_str_equal(name2, button->name)) {
+							button2 = button;
+						}
+					}
+					Button tmp = *button1;
+					*button1 = *button2;
+					*button2 = tmp;
 				}
 
 				gtk_list_store_swap(panel_items, &iter, &prev);
@@ -1449,6 +1504,7 @@ void panel_move_item_up(GtkWidget *widget, gpointer data)
 	}
 	separator_update_indices();
 	execp_update_indices();
+	button_update_indices();
 }
 
 enum {
@@ -4160,6 +4216,278 @@ void create_execp(GtkWidget *notebook, int i)
 	change_paragraph(parent);
 }
 
+void create_button(GtkWidget *notebook, int i)
+{
+	GtkWidget *label;
+	GtkWidget *table;
+	int row, col;
+	GtkTooltips *tooltips = gtk_tooltips_new();
+
+	Button *button = &g_array_index(buttons, Button, i);
+
+	button->name[0] = 0;
+	sprintf(button->name, "%s %d", _("Button"), i + 1);
+	button->page_label = gtk_label_new(button->name);
+	gtk_widget_show(button->page_label);
+	button->page_button = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
+	button->container = addScrollBarToWidget(button->page_button);
+	gtk_container_set_border_width(GTK_CONTAINER(button->page_button), 10);
+	gtk_widget_show(button->page_button);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), button->container, button->page_label);
+
+	GtkWidget *parent = button->page_button;
+
+	table = gtk_table_new(1, 2, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
+
+	label = gtk_label_new(_("<b>Format</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
+
+	table = gtk_table_new(3, 10, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
+
+	label = gtk_label_new(_("Icon"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_icon = gtk_entry_new();
+	gtk_widget_show(button->button_icon);
+	gtk_entry_set_width_chars(GTK_ENTRY(button->button_icon), 50);
+	gtk_table_attach(GTK_TABLE(table), button->button_icon, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Text"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_text = gtk_entry_new();
+	gtk_widget_show(button->button_text);
+	gtk_entry_set_width_chars(GTK_ENTRY(button->button_text), 50);
+	gtk_table_attach(GTK_TABLE(table), button->button_text, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Tooltip"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_tooltip = gtk_entry_new();
+	gtk_widget_show(button->button_tooltip);
+	gtk_entry_set_width_chars(GTK_ENTRY(button->button_tooltip), 50);
+	gtk_table_attach(GTK_TABLE(table), button->button_tooltip, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	change_paragraph(parent);
+
+	label = gtk_label_new(_("<b>Mouse events</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
+
+	table = gtk_table_new(5, 10, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
+
+	label = gtk_label_new(_("Left click command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_left_command = gtk_entry_new();
+	gtk_widget_show(button->button_left_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(button->button_left_command), 50);
+	gtk_table_attach(GTK_TABLE(table), button->button_left_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, button->button_left_command,
+						 _("Specifies a command that will be executed when the button receives a left click."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Right click command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_right_command = gtk_entry_new();
+	gtk_widget_show(button->button_right_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(button->button_right_command), 50);
+	gtk_table_attach(GTK_TABLE(table), button->button_right_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, button->button_right_command,
+						 _("Specifies a command that will be executed when the button receives a right click."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Middle click command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_mclick_command = gtk_entry_new();
+	gtk_widget_show(button->button_mclick_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(button->button_mclick_command), 50);
+	gtk_table_attach(GTK_TABLE(table), button->button_mclick_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, button->button_mclick_command,
+						 _("Specifies a command that will be executed when the button receives a middle click."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Wheel scroll up command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_uwheel_command = gtk_entry_new();
+	gtk_widget_show(button->button_uwheel_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(button->button_uwheel_command), 50);
+	gtk_table_attach(GTK_TABLE(table), button->button_uwheel_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, button->button_uwheel_command,
+						 _("Specifies a command that will be executed when the button receives a mouse scroll up."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Wheel scroll down command"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_dwheel_command = gtk_entry_new();
+	gtk_widget_show(button->button_dwheel_command);
+	gtk_entry_set_width_chars(GTK_ENTRY(button->button_dwheel_command), 50);
+	gtk_table_attach(GTK_TABLE(table), button->button_dwheel_command, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, button->button_dwheel_command,
+						 _("Specifies a command that will be executed when the button receives a mouse scroll down."), NULL);
+
+	change_paragraph(parent);
+
+	label = gtk_label_new(_("<b>Appearance</b>"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(parent), label, FALSE, FALSE, 0);
+
+	table = gtk_table_new(3, 22, FALSE);
+	gtk_widget_show(table);
+	gtk_box_pack_start(GTK_BOX(parent), table, FALSE, FALSE, 0);
+	gtk_table_set_row_spacings(GTK_TABLE(table), ROW_SPACING);
+	gtk_table_set_col_spacings(GTK_TABLE(table), COL_SPACING);
+	row = 0, col = 2;
+
+	label = gtk_label_new(_("Background"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_background = create_background_combo(_("Button"));
+	gtk_widget_show(button->button_background);
+	gtk_table_attach(GTK_TABLE(table), button->button_background, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, button->button_background, _("Selects the background used to display the button. "
+													 "Backgrounds can be edited in the Backgrounds tab."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Horizontal padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(button->button_padding_x);
+	gtk_table_attach(GTK_TABLE(table), button->button_padding_x, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, button->button_padding_x, _("Specifies the horizontal padding of the button. "
+						 "This is the space between the border and the content inside."), NULL);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Vertical padding"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(button->button_padding_y);
+	gtk_table_attach(GTK_TABLE(table), button->button_padding_y, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_tooltips_set_tip(tooltips, button->button_padding_y, _("Specifies the vertical padding of the button. "
+						 "This is the space between the border and the content inside."), NULL);
+
+	row++, col = 1;
+	button->button_font_set = gtk_check_button_new();
+	gtk_widget_show(button->button_font_set);
+	gtk_table_attach(GTK_TABLE(table), button->button_font_set, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	gtk_tooltips_set_tip(tooltips, button->button_font_set, _("If not checked, the desktop theme font is used. If checked, the custom font specified here is used."), NULL);
+	col++;
+
+	label = gtk_label_new(_("Font"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_font = gtk_font_button_new_with_font(get_default_font());
+	gtk_widget_show(button->button_font);
+	gtk_table_attach(GTK_TABLE(table), button->button_font, col, col+3, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+	gtk_font_button_set_show_style(GTK_FONT_BUTTON(button->button_font), TRUE);
+	gtk_signal_connect(GTK_OBJECT(button->button_font_set), "toggled", GTK_SIGNAL_FUNC(font_set_callback), button->button_font);
+	font_set_callback(button->button_font_set, button->button_font);
+
+	row++, col = 2;
+	label = gtk_label_new(_("Font color"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_font_color = gtk_color_button_new();
+	gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(button->button_font_color), TRUE);
+	gtk_widget_show(button->button_font_color);
+	gtk_table_attach(GTK_TABLE(table), button->button_font_color, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	row++, col = 2;
+	label = gtk_label_new(_("Centered"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_centered = gtk_check_button_new();
+	gtk_widget_show(button->button_centered);
+	gtk_table_attach(GTK_TABLE(table), button->button_centered, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	change_paragraph(parent);
+}
+
 void separator_create_new()
 {
 	g_array_set_size(separators, separators->len + 1);
@@ -4170,6 +4498,12 @@ void execp_create_new()
 {
 	g_array_set_size(executors, executors->len + 1);
 	create_execp(notebook, executors->len - 1);
+}
+
+void button_create_new()
+{
+	g_array_set_size(buttons, buttons->len + 1);
+	create_button(notebook, buttons->len - 1);
 }
 
 Separator *separator_get_last()
@@ -4184,6 +4518,13 @@ Executor *execp_get_last()
 	if (executors->len <= 0)
 		execp_create_new();
 	return &g_array_index(executors, Executor, executors->len - 1);
+}
+
+Button *button_get_last()
+{
+	if (buttons->len <= 0)
+		button_create_new();
+	return &g_array_index(buttons, Button, buttons->len - 1);
 }
 
 void separator_remove(int i)
@@ -4214,6 +4555,21 @@ void execp_remove(int i)
 	}
 
 	executors = g_array_remove_index(executors, i);
+}
+
+void button_remove(int i)
+{
+	Button *button = &g_array_index(buttons, Button, i);
+
+	for (int i_page = 0; i_page < gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook)); i_page++) {
+		GtkWidget *page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), i_page);
+		if (page == button->container) {
+			gtk_widget_hide(page);
+			gtk_notebook_remove_page(GTK_NOTEBOOK(notebook), i_page);
+		}
+	}
+
+	buttons = g_array_remove_index(buttons, i);
 }
 
 void separator_update_indices()
@@ -4279,6 +4635,43 @@ void execp_update_indices()
 			char buffer[256];
 			buffer[0] = 0;
 			sprintf(buffer, "%s %d", _("Executor"), execp_index + 1);
+
+			gtk_list_store_set(panel_items, &iter,
+							   itemsColName, buffer,
+							   -1);
+		}
+
+		if (!gtk_tree_model_iter_next(model, &iter))
+			break;
+	}
+}
+
+void button_update_indices()
+{
+	for (int i = 0; i < executors->len; i++) {
+		Button *executor = &g_array_index(executors, Button, i);
+		sprintf(executor->name, "%s %d", _("Button"), i + 1);
+		gtk_label_set_text(GTK_LABEL(executor->page_label), executor->name);
+	}
+
+	GtkTreeModel *model = GTK_TREE_MODEL(panel_items);
+	GtkTreeIter iter;
+	if (!gtk_tree_model_get_iter_first(model, &iter))
+		return;
+	int button_index = -1;
+	while (1) {
+		gchar *name;
+		gchar *value;
+		gtk_tree_model_get(model, &iter,
+						   itemsColName, &name,
+						   itemsColValue, &value,
+						   -1);
+
+		if (g_str_equal(value, "E")) {
+			button_index++;
+			char buffer[256];
+			buffer[0] = 0;
+			sprintf(buffer, "%s %d", _("Button"), button_index + 1);
 
 			gtk_list_store_set(panel_items, &iter,
 							   itemsColName, buffer,

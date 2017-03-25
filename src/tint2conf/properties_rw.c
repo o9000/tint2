@@ -866,6 +866,46 @@ void config_write_execp(FILE *fp)
 	}
 }
 
+void config_write_button(FILE *fp)
+{
+	for (int i = 0; i < buttons->len; i++) {
+		fprintf(fp, "#-------------------------------------\n");
+		fprintf(fp, "# Button %d\n", i + 1);
+
+		Button *button = &g_array_index(buttons, Button, i);
+
+		fprintf(fp, "button = new\n");
+		fprintf(fp, "button_icon = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_icon)));
+		fprintf(fp, "button_text = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_text)));
+		fprintf(fp, "button_tooltip = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_tooltip)));
+
+		fprintf(fp, "button_lclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_left_command)));
+		fprintf(fp, "button_rclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_right_command)));
+		fprintf(fp, "button_mclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_mclick_command)));
+		fprintf(fp, "button_uwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_uwheel_command)));
+		fprintf(fp, "button_dwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_dwheel_command)));
+
+		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button->button_font_set)))
+			fprintf(fp, "button_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(button->button_font)));
+		GdkColor color;
+		gtk_color_button_get_color(GTK_COLOR_BUTTON(button->button_font_color), &color);
+		config_write_color(fp,
+						   "button_font_color",
+						   color,
+						   gtk_color_button_get_alpha(GTK_COLOR_BUTTON(button->button_font_color)) * 100 / 0xffff);
+		fprintf(fp,
+				"button_padding = %d %d\n",
+				(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->button_padding_x)),
+				(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->button_padding_y)));
+		fprintf(fp, "button_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(button->button_background)));
+		fprintf(fp,
+				"button_centered = %d\n",
+				gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button->button_centered)) ? 1 : 0);
+
+		fprintf(fp, "\n");
+	}
+}
+
 void config_write_tooltip(FILE *fp)
 {
 	fprintf(fp, "#-------------------------------------\n");
@@ -939,6 +979,7 @@ void config_save_file(const char *path)
 	config_write_battery(fp);
 	config_write_separator(fp);
 	config_write_execp(fp);
+	config_write_button(fp);
 	config_write_tooltip(fp);
 
 	checksum = checksum_txt(fp);
@@ -1886,6 +1927,49 @@ void add_entry(char *key, char *value)
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_icon_h), atoi(value));
 	} else if (strcmp(key, "execp_centered") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_centered), atoi(value));
+	}
+
+	/* Button */
+	else if (strcmp(key, "button") == 0) {
+		button_create_new();
+	} else if (strcmp(key, "button_icon") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_icon), value);
+	} else if (strcmp(key, "button_text") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_text), value);
+	} else if (strcmp(key, "button_tooltip") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_tooltip), value);
+	} else if (strcmp(key, "button_lclick_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_left_command), value);
+	} else if (strcmp(key, "button_rclick_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_right_command), value);
+	} else if (strcmp(key, "button_mclick_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_mclick_command), value);
+	} else if (strcmp(key, "button_uwheel_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_uwheel_command), value);
+	} else if (strcmp(key, "button_dwheel_command") == 0) {
+		gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_dwheel_command), value);
+	} else if (strcmp(key, "button_font") == 0) {
+		gtk_font_button_set_font_name(GTK_FONT_BUTTON(button_get_last()->button_font), value);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_get_last()->button_font_set), TRUE);
+	} else if (strcmp(key, "button_font_color") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		GdkColor col;
+		hex2gdk(value1, &col);
+		gtk_color_button_set_color(GTK_COLOR_BUTTON(button_get_last()->button_font_color), &col);
+		if (value2) {
+			int alpha = atoi(value2);
+			gtk_color_button_set_alpha(GTK_COLOR_BUTTON(button_get_last()->button_font_color), (alpha * 65535) / 100);
+		}
+	} else if (strcmp(key, "button_padding") == 0) {
+		extract_values(value, &value1, &value2, &value3);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->button_padding_x), atoi(value1));
+		if (value2)
+			gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->button_padding_y), atoi(value2));
+	} else if (strcmp(key, "button_background_id") == 0) {
+		int id = background_index_safe(atoi(value));
+		gtk_combo_box_set_active(GTK_COMBO_BOX(button_get_last()->button_background), id);
+	} else if (strcmp(key, "button_centered") == 0) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_get_last()->button_centered), atoi(value));
 	}
 
 	if (value1)
