@@ -1782,9 +1782,8 @@ msgstr  "Le texte de l'infobulle a afficher. Laissez ce champ vide pour "
         "commande a été exécutée la dernière fois."
 
 #: ../properties.c:4259
-#, fuzzy
 msgid   "Icon"
-msgstr  "Icônifier "
+msgstr  "Icône"
 
 #: ../properties.c:4272
 msgid   "Text"
@@ -1792,62 +1791,52 @@ msgstr  ""
 
 #
 #: ../properties.c:4324
-#, fuzzy
 msgid   "Specifies a command that will be executed when the button receives a "
         "left click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur la "
-        "batterie."
+msgstr  "Spécifie la commande à exécuter lors d'un clic gauche."
 
 #
 #: ../properties.c:4339
-#, fuzzy
 msgid   "Specifies a command that will be executed when the button receives a "
         "right click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic droit sur la batterie."
+msgstr  "Spécifie la commande à exécuter lors d'un clic droit."
 
 #
 #: ../properties.c:4354
-#, fuzzy
 msgid   "Specifies a command that will be executed when the button receives a "
         "middle click."
-msgstr  "Spécifie la commande à exécuter lors d'un clic du milieu sur la "
-        "batterie."
+msgstr  "Spécifie la commande à exécuter lors d'un clic du milieu."
 
 #
 #: ../properties.c:4369
-#, fuzzy
 msgid   "Specifies a command that will be executed when the button receives a "
         "mouse scroll up."
 msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
-        "sur la batterie vers le haut."
+        "vers le haut."
 
 #
 #: ../properties.c:4384
-#, fuzzy
 msgid   "Specifies a command that will be executed when the button receives a "
         "mouse scroll down."
 msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
-        "sur la batterie vers le bas."
+        "vers le bas."
 
 #: ../properties.c:4411
-#, fuzzy
 msgid   "Selects the background used to display the button. Backgrounds can "
         "be edited in the Backgrounds tab."
-msgstr  "Choisis l'arrière-plan utilisé pour afficher la batterie. Les "
+msgstr  "Choisis l'arrière-plan utilisé pour afficher le bouton. Les "
         "arrières-plans sont modifiables dans l'onglet Arrières-plans."
 
 #: ../properties.c:4425
-#, fuzzy
 msgid   "Specifies the horizontal padding of the button. This is the space "
         "between the border and the content inside."
-msgstr  "Spécifie l'espacement horizontal des boutons de tâches. C'est "
+msgstr  "Spécifie l'espacement horizontal des boutons. C'est "
         "l'espace entre la bordure et le contenu."
 
 #: ../properties.c:4439
-#, fuzzy
 msgid   "Specifies the vertical padding of the button. This is the space "
         "between the border and the content inside."
-msgstr  "Spécifie l'espacement vertical de l'horloge. C'est l'espace entre la "
+msgstr  "Spécifie l'espacement vertical des boutons. C'est l'espace entre la "
         "bordure et le contenu."
 
 #: ../properties.c:4707
