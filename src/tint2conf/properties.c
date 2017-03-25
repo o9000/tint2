@@ -1289,7 +1289,7 @@ void panel_add_item(GtkWidget *widget, gpointer data)
 						   itemsColValue, &value,
 						   -1);
 
-		if (!panel_contains(value) || g_str_equal(value, ":") || g_str_equal(value, "E") || g_str_equal(value, "F")) {
+		if (!panel_contains(value) || g_str_equal(value, ":") || g_str_equal(value, "E") || g_str_equal(value, "F")  || g_str_equal(value, "P")) {
 			GtkTreeIter iter;
 			gtk_list_store_append(panel_items, &iter);
 			gtk_list_store_set(panel_items, &iter,
@@ -4665,10 +4665,10 @@ void execp_update_indices()
 
 void button_update_indices()
 {
-	for (int i = 0; i < executors->len; i++) {
-		Button *executor = &g_array_index(executors, Button, i);
-		sprintf(executor->name, "%s %d", _("Button"), i + 1);
-		gtk_label_set_text(GTK_LABEL(executor->page_label), executor->name);
+	for (int i = 0; i < buttons->len; i++) {
+		Button *button = &g_array_index(buttons, Button, i);
+		sprintf(button->name, "%s %d", _("Button"), i + 1);
+		gtk_label_set_text(GTK_LABEL(button->page_label), button->name);
 	}
 
 	GtkTreeModel *model = GTK_TREE_MODEL(panel_items);
@@ -4684,7 +4684,7 @@ void button_update_indices()
 						   itemsColValue, &value,
 						   -1);
 
-		if (g_str_equal(value, "E")) {
+		if (g_str_equal(value, "P")) {
 			button_index++;
 			char buffer[256];
 			buffer[0] = 0;
