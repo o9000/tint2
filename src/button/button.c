@@ -207,8 +207,13 @@ void button_reload_icon(Button *button)
 	free_icon(button->frontend->icon_hover);
 	free_icon(button->frontend->icon_pressed);
 	button->frontend->icon = NULL;
+	button->frontend->icon_hover = NULL;
+	button->frontend->icon_pressed = NULL;
 
 	button->frontend->icon_load_size = button->frontend->iconw;
+
+	if (!button->backend->icon_name)
+		return;
 
 	char *new_icon_path = get_icon_path(icon_theme_wrapper, button->backend->icon_name, button->frontend->iconw, TRUE);
 	if (new_icon_path)
