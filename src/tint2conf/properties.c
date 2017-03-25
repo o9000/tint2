@@ -1053,6 +1053,11 @@ void create_panel_items(GtkWidget *parent)
 					   itemsColName, _("Executor"),
 					   itemsColValue, "E",
 					   -1);
+	gtk_list_store_append(all_items, &iter);
+	gtk_list_store_set(all_items, &iter,
+					   itemsColName, _("Button"),
+					   itemsColValue, "P",
+					   -1);
 
 	panel_items_view = gtk_tree_view_new();
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(panel_items_view),
