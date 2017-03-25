@@ -54,6 +54,8 @@ int startup_notifications;
 Background *launcher_icon_bg;
 GList *launcher_icon_gradients;
 
+IconThemeWrapper *icon_theme_wrapper;
+
 Imlib_Image scale_icon(Imlib_Image original, int icon_size);
 void free_icon(Imlib_Image icon);
 void launcher_icon_dump_geometry(void *obj, int indent);
@@ -114,8 +116,14 @@ void init_launcher_panel(void *p)
 	schedule_panel_redraw();
 	instantiate_area_gradients(&launcher->area);
 
-	launcher_load_themes(launcher);
+	load_icon_themes();
 	launcher_load_icons(launcher);
+}
+
+void free_icon_themes()
+{
+	free_themes(icon_theme_wrapper);
+	icon_theme_wrapper = NULL;
 }
 
 void cleanup_launcher()
@@ -160,9 +168,6 @@ void cleanup_launcher_theme(Launcher *launcher)
 	}
 	g_slist_free(launcher->list_icons);
 	launcher->list_icons = NULL;
-
-	free_themes(launcher->icon_theme_wrapper);
-	launcher->icon_theme_wrapper = NULL;
 }
 
 int launcher_compute_icon_size(Launcher *launcher)
@@ -246,7 +251,7 @@ gboolean resize_launcher(void *obj)
 			launcher_reload_icon_image(launcher, launcherIcon);
 		}
 	}
-	save_icon_cache(launcher->icon_theme_wrapper);
+	save_icon_cache(icon_theme_wrapper);
 
 	int count = 0;
 	gboolean needs_repositioning = FALSE;
@@ -565,13 +570,13 @@ void launcher_reload_icon_image(Launcher *launcher, LauncherIcon *launcherIcon)
 	free_icon(launcherIcon->image_pressed);
 	launcherIcon->image = NULL;
 
-	char *new_icon_path = get_icon_path(launcher->icon_theme_wrapper, launcherIcon->icon_name, launcherIcon->icon_size, TRUE);
+	char *new_icon_path = get_icon_path(icon_theme_wrapper, launcherIcon->icon_name, launcherIcon->icon_size, TRUE);
 	if (new_icon_path)
 		launcherIcon->image = load_image(new_icon_path, 1);
 	// On loading error, fallback to default
 	if (!launcherIcon->image) {
 		free(new_icon_path);
-		new_icon_path = get_icon_path(launcher->icon_theme_wrapper, DEFAULT_ICON, launcherIcon->icon_size, TRUE);
+		new_icon_path = get_icon_path(icon_theme_wrapper, DEFAULT_ICON, launcherIcon->icon_size, TRUE);
 		if (new_icon_path)
 			launcherIcon->image = imlib_load_image_immediately(new_icon_path);
 	}
@@ -595,10 +600,11 @@ void launcher_reload_icon_image(Launcher *launcher, LauncherIcon *launcherIcon)
 	schedule_redraw(&launcherIcon->area);
 }
 
-// Populates the icon_theme_wrapper list
-void launcher_load_themes(Launcher *launcher)
+void load_icon_themes()
 {
-	launcher->icon_theme_wrapper =
+	if (icon_theme_wrapper)
+		return;
+	icon_theme_wrapper =
 	    load_themes(launcher_icon_theme_override
 	                    ? (icon_theme_name_config ? icon_theme_name_config
 	                                              : icon_theme_name_xsettings ? icon_theme_name_xsettings : "hicolor")
@@ -608,14 +614,9 @@ void launcher_load_themes(Launcher *launcher)
 
 void launcher_default_icon_theme_changed()
 {
-	if (!launcher_enabled)
-		return;
-	if (launcher_icon_theme_override && icon_theme_name_config)
-		return;
 	for (int i = 0; i < num_panels; i++) {
 		Launcher *launcher = &panels[i].launcher;
 		cleanup_launcher_theme(launcher);
-		launcher_load_themes(launcher);
 		launcher_load_icons(launcher);
 		launcher->area.resize_needed = 1;
 	}

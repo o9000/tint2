@@ -221,6 +221,15 @@ Execp *get_or_create_last_execp()
 	return (Execp *)g_list_last(panel_config.execp_list)->data;
 }
 
+Button *get_or_create_last_button()
+{
+	if (!panel_config.button_list) {
+		fprintf(stderr, "Warning: button items should start with 'button = new'\n");
+		panel_config.button_list = g_list_append(panel_config.button_list, create_button());
+	}
+	return (Button *)g_list_last(panel_config.button_list)->data;
+}
+
 void add_entry(char *key, char *value)
 {
 	char *value1 = 0, *value2 = 0, *value3 = 0;
@@ -736,6 +745,78 @@ void add_entry(char *key, char *value)
 		free_and_null(execp->backend->dwheel_command);
 		if (strlen(value) > 0)
 			execp->backend->dwheel_command = strdup(value);
+	}
+
+	/* Button */
+	else if (strcmp(key, "button") == 0) {
+		panel_config.button_list = g_list_append(panel_config.button_list, create_button());
+	} else if (strcmp(key, "button_icon") == 0) {
+		Button *button = get_or_create_last_button();
+		button->backend->icon_name = strdup(value);
+	} else if (strcmp(key, "button_text") == 0) {
+		Button *button = get_or_create_last_button();
+		free_and_null(button->backend->text);
+		button->backend->text = strdup(value);
+	} else if (strcmp(key, "button_tooltip") == 0) {
+		Button *button = get_or_create_last_button();
+		free_and_null(button->backend->tooltip);
+		button->backend->tooltip = strdup(value);
+	} else if (strcmp(key, "button_font") == 0) {
+		Button *button = get_or_create_last_button();
+		pango_font_description_free(button->backend->font_desc);
+		button->backend->font_desc = pango_font_description_from_string(value);
+		button->backend->has_font = TRUE;
+	} else if (strcmp(key, "button_font_color") == 0) {
+		Button *button = get_or_create_last_button();
+		extract_values(value, &value1, &value2, &value3);
+		get_color(value1, button->backend->font_color.rgb);
+		if (value2)
+			button->backend->font_color.alpha = atoi(value2) / 100.0;
+		else
+			button->backend->font_color.alpha = 0.5;
+	} else if (strcmp(key, "button_padding") == 0) {
+		Button *button = get_or_create_last_button();
+		extract_values(value, &value1, &value2, &value3);
+		button->backend->paddingxlr = button->backend->paddingx = atoi(value1);
+		if (value2)
+			button->backend->paddingy = atoi(value2);
+		else
+			button->backend->paddingy = 0;
+		if (value3)
+			button->backend->paddingx = atoi(value3);
+	} else if (strcmp(key, "button_background_id") == 0) {
+		Button *button = get_or_create_last_button();
+		int id = atoi(value);
+		id = (id < backgrounds->len && id >= 0) ? id : 0;
+		button->backend->bg = &g_array_index(backgrounds, Background, id);
+	} else if (strcmp(key, "button_centered") == 0) {
+		Button *button = get_or_create_last_button();
+		button->backend->centered = atoi(value);
+	} else if (strcmp(key, "button_lclick_command") == 0) {
+		Button *button = get_or_create_last_button();
+		free_and_null(button->backend->lclick_command);
+		if (strlen(value) > 0)
+			button->backend->lclick_command = strdup(value);
+	} else if (strcmp(key, "button_mclick_command") == 0) {
+		Button *button = get_or_create_last_button();
+		free_and_null(button->backend->mclick_command);
+		if (strlen(value) > 0)
+			button->backend->mclick_command = strdup(value);
+	} else if (strcmp(key, "button_rclick_command") == 0) {
+		Button *button = get_or_create_last_button();
+		free_and_null(button->backend->rclick_command);
+		if (strlen(value) > 0)
+			button->backend->rclick_command = strdup(value);
+	} else if (strcmp(key, "button_uwheel_command") == 0) {
+		Button *button = get_or_create_last_button();
+		free_and_null(button->backend->uwheel_command);
+		if (strlen(value) > 0)
+			button->backend->uwheel_command = strdup(value);
+	} else if (strcmp(key, "button_dwheel_command") == 0) {
+		Button *button = get_or_create_last_button();
+		free_and_null(button->backend->dwheel_command);
+		if (strlen(value) > 0)
+			button->backend->dwheel_command = strdup(value);
 	}
 
 	/* Clock */

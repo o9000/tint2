@@ -223,3 +223,5 @@ src/tint2conf/md4.h
 src/tint2conf/md4.c
 src/tint2rc.c
 src/tint2rc.h
+src/button/button.c
+src/button/button.h

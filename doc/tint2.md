@@ -58,6 +58,8 @@ Goals:
 
   * [Executor](#executor)
 
+  * [Button](#button)
+
   * [Separator](#separator)
 
   * [Example configuration](#example-configuration)
@@ -244,6 +246,7 @@ gradient_id_pressed = 2
     * `C` shows the Clock
     * `F` adds an extensible spacer (freespace). You can specify more than one. Has no effect if `T` is also present. *(since 0.12)*
     * `E` adds an executor plugin. You can specify more than one. *(since 0.12.4)*
+    * `P` adds a push button. You can specify more than one. *(since 0.14)*
     * `:` adds a separator. You can specify more than one. *(since 0.13.0)*
 
     For example, `panel_items = STC` will show the systray, the taskbar and the clock (from left to right).
@@ -671,6 +674,32 @@ execp_continuous = 1
 execp_interval = 1
 ```
 
+### Button
+
+  * `button = new` : Begins the configuration of a new button. Multiple such plugins are supported; just use multiple `P`s in `panel_items`. *(since 0.14)*
+
+  * `button_icon = text` : Name or path of icon (or empty). *(since 0.14)*
+
+  * `button_text = text` : Text to display (or empty). *(since 0.14)*
+
+  * `button_tooltip = text` : The tooltip (or empty). *(since 0.14)*
+
+  * `button_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]` : The font used to draw the text.  *(since 0.14)*
+
+  * `button_font_color = color opacity` : The font color. *(since 0.14)*
+
+  * `button_background_id = integer` : Which background to use. *(since 0.14)*
+
+  * `button_centered = boolean (0 or 1)` : Whether to center the text. *(since 0.14)*
+
+  * `button_padding = horizontal_padding vertical_padding spacing_between_icon_and_text` *(since 0.14)*
+
+  * `button_lclick_command = text` : Command to execute on left click. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.14)*
+  * `button_mclick_command = text` : Command to execute on right click. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.14)*
+  * `button_rclick_command = text` : Command to execute on middle click. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.14)*
+  * `button_uwheel_command = text` : Command to execute on wheel scroll up. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.14)*
+  * `button_dwheel_command = text` : Command to execute on wheel scroll down. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.14)*
+
 ### Separator
 
   * `separator = new` : Begins the configuration of a new separator. Multiple such plugins are supported; just use multiple `:`s in `panel_items`. *(since 0.13.0)*
@@ -687,142 +716,7 @@ execp_interval = 1
 
 ### Example configuration
 
-```
-#---------------------------------------------
-## TINT2 CONFIG FILE
-#---------------------------------------------
-
-#---------------------------------------------
-## BACKGROUND AND BORDER
-#---------------------------------------------
-rounded = 7
-border_width = 2
-background_color = #000000 60
-border_color = #ffffff 18
-
-rounded = 5
-border_width = 0
-background_color = #ffffff 40
-border_color = #ffffff 50
-
-rounded = 5
-border_width = 0
-background_color = #ffffff 18
-border_color = #ffffff 70
-
-#---------------------------------------------
-## PANEL
-#---------------------------------------------
-panel_monitor = all
-panel_position = bottom center
-panel_size = 94% 30
-panel_margin = 0 0
-panel_padding = 7 0
-font_shadow = 0
-panel_background_id = 1
-wm_menu = 0
-panel_dock = 0
-panel_layer = bottom
-
-#---------------------------------------------
-## TASKBAR
-#---------------------------------------------
-#taskbar_mode = multi_desktop
-taskbar_mode = single_desktop
-taskbar_padding = 2 3 2
-taskbar_background_id = 0
-#taskbar_active_background_id = 0
-
-#---------------------------------------------
-## TASKS
-#---------------------------------------------
-task_icon = 1
-task_text = 1
-task_maximum_size = 140 35
-task_centered = 1
-task_padding = 6 3
-task_font = sans 7
-task_font_color = #ffffff 70
-task_background_id = 3
-task_icon_asb = 100 0 0
-## replace STATUS by 'urgent', 'active' or 'iconified'
-#task_STATUS_background_id = 2
-#task_STATUS_font_color = #ffffff 85
-#task_STATUS_icon_asb = 100 0 0
-## example:
-task_active_background_id = 2
-task_active_font_color = #ffffff 85
-task_active_icon_asb = 100 0 0
-urgent_nb_of_blink = 8
-
-#---------------------------------------------
-## SYSTRAYBAR
-#---------------------------------------------
-systray = 1
-systray_padding = 0 4 5
-systray_background_id = 0
-systray_sort = left2right
-systray_icon_size = 0
-systray_icon_asb = 100 0 0
-
-#---------------------------------------------
-## CLOCK
-#---------------------------------------------
-time1_format = %H:%M
-time1_font = sans 8
-time2_format = %A %d %B
-time2_font = sans 6
-clock_font_color = #ffffff 76
-clock_padding = 1 0
-clock_background_id = 0
-#clock_lclick_command = xclock
-clock_rclick_command = orage
-#clock_tooltip = %A %d %B
-#time1_timezone = :US/Hawaii
-#time2_timezone = :Europe/Berlin
-#clock_tooltip_timezone = :/usr/share/zoneinfo/Europe/Paris
-
-#---------------------------------------------
-## BATTERY
-#---------------------------------------------
-battery = 0
-battery_hide = 98
-battery_low_status = 10
-battery_low_cmd = notify-send "battery low"
-bat1_font = sans 8
-bat2_font = sans 6
-battery_font_color = #ffffff 76
-battery_padding = 1 0
-battery_background_id = 0
-
-#---------------------------------------------
-## TOOLTIP
-#---------------------------------------------
-tooltip = 0
-tooltip_padding = 2 2
-tooltip_show_timeout = 0.7
-tooltip_hide_timeout = 0.3
-tooltip_background_id = 1
-tooltip_font_color = #OOOOOO 80
-tooltip_font = sans 10
-
-#---------------------------------------------
-## MOUSE ACTION ON TASK
-#---------------------------------------------
-mouse_middle = none
-mouse_right = close
-mouse_scroll_up = toggle
-mouse_scroll_down = iconify
-
-#---------------------------------------------
-## AUTOHIDE OPTIONS
-#---------------------------------------------
-autohide = 0
-autohide_show_timeout = 0.3
-autohide_hide_timeout = 2
-autohide_height = 4
-strut_policy = minimum
-```
+See /etc/xdg/tint2/tint2rc.
 
 ## AUTHOR
 tint2 was written by Thierry Lorthiois <lorthiois@bbsoft.fr>.

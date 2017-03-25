@@ -393,6 +393,7 @@ void init(int argc, char *argv[])
 	default_taskbar();
 	default_tooltip();
 	default_execp();
+	default_button();
 	default_panel();
 
 	// Read command line arguments
@@ -612,6 +613,7 @@ void init_X11_post_config()
 
 void cleanup()
 {
+	cleanup_button();
 	cleanup_execp();
 	cleanup_systray();
 	cleanup_tooltip();
@@ -812,6 +814,8 @@ int tint2_handles_click(Panel *panel, XButtonEvent *e)
 #endif
 	if (click_execp(panel, e->x, e->y))
 		return 1;
+	if (click_button(panel, e->x, e->y))
+		return 1;
 	return 0;
 }
 
@@ -969,6 +973,15 @@ void event_button_release(XEvent *e)
 	Execp *execp = click_execp(panel, e->xbutton.x, e->xbutton.y);
 	if (execp) {
 		execp_action(execp, e->xbutton.button, e->xbutton.x - execp->area.posx, e->xbutton.y - execp->area.posy);
+		if (panel_layer == BOTTOM_LAYER)
+			XLowerWindow(server.display, panel->main_win);
+		task_drag = 0;
+		return;
+	}
+
+	Button *button = click_button(panel, e->xbutton.x, e->xbutton.y);
+	if (button) {
+		button_action(button, e->xbutton.button, e->xbutton.x - button->area.posx, e->xbutton.y - button->area.posy);
 		if (panel_layer == BOTTOM_LAYER)
 			XLowerWindow(server.display, panel->main_win);
 		task_drag = 0;

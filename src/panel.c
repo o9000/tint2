@@ -180,6 +180,8 @@ void init_panel()
 
 	fprintf(stderr, "panel items: %s\n", panel_items_order);
 
+	icon_theme_wrapper = NULL;
+
 	init_tooltip();
 	init_systray();
 	init_launcher();
@@ -190,6 +192,7 @@ void init_panel()
 	init_taskbar();
 	init_separator();
 	init_execp();
+	init_button();
 
 	// number of panels (one monitor or 'all' monitors)
 	if (panel_config.monitor >= 0)
@@ -247,6 +250,8 @@ void init_panel()
 				init_separator_panel(p);
 			if (panel_items_order[k] == 'E')
 				init_execp_panel(p);
+			if (panel_items_order[k] == 'P')
+				init_button_panel(p);
 		}
 		set_panel_items_order(p);
 
@@ -603,6 +608,7 @@ void set_panel_items_order(Panel *p)
 	int i_execp = 0;
 	int i_separator = 0;
 	int i_freespace = 0;
+	int i_button = 0;
 	for (int k = 0; k < strlen(panel_items_order); k++) {
 		if (panel_items_order[k] == 'L') {
 			p->area.children = g_list_append(p->area.children, &p->launcher);
@@ -637,6 +643,12 @@ void set_panel_items_order(Panel *p)
 		if (panel_items_order[k] == 'E') {
 			GList *item = g_list_nth(p->execp_list, i_execp);
 			i_execp++;
+			if (item)
+				p->area.children = g_list_append(p->area.children, (Area *)item->data);
+		}
+		if (panel_items_order[k] == 'P') {
+			GList *item = g_list_nth(p->button_list, i_button);
+			i_button++;
 			if (item)
 				p->area.children = g_list_append(p->area.children, (Area *)item->data);
 		}
@@ -986,6 +998,16 @@ Execp *click_execp(Panel *panel, int x, int y)
 	return NULL;
 }
 
+Button *click_button(Panel *panel, int x, int y)
+{
+	for (GList *l = panel->button_list; l; l = l->next) {
+		Button *button = (Button *)l->data;
+		if (area_is_under_mouse(button, x, y))
+			return button;
+	}
+	return NULL;
+}
+
 void stop_autohide_timeout(Panel *p)
 {
 	stop_timeout(p->autohide_timeout);
@@ -1082,7 +1104,16 @@ const char *get_default_font()
 
 void default_icon_theme_changed()
 {
+	if (!launcher_enabled && !panel_config.button_list)
+		return;
+	if (launcher_icon_theme_override && icon_theme_name_config)
+		return;
+
+	free_icon_themes();
+	load_icon_themes();
+
 	launcher_default_icon_theme_changed();
+	button_default_icon_theme_changed();
 }
 
 void default_font_changed()
@@ -1092,6 +1123,7 @@ void default_font_changed()
 #endif
 	clock_default_font_changed();
 	execp_default_font_changed();
+	button_default_font_changed();
 	taskbar_default_font_changed();
 	taskbarname_default_font_changed();
 	tooltip_default_font_changed();

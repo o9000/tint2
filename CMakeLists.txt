@@ -100,6 +100,7 @@ include_directories( ${PROJECT_BINARY_DIR}
                      src/tooltip
                      src/util
                      src/execplugin
+                     src/button
                      src/freespace
                      src/separator
                      ${X11_INCLUDE_DIRS}
@@ -128,6 +129,7 @@ set( SOURCES src/config.c
              src/taskbar/taskbarname.c
              src/tooltip/tooltip.c
              src/execplugin/execplugin.c
+             src/button/button.c
              src/freespace/freespace.c
              src/separator/separator.c
              src/tint2rc.c

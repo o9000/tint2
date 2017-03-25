@@ -23,6 +23,7 @@
 #include "freespace.h"
 #include "execplugin.h"
 #include "separator.h"
+#include "button.h"
 
 #ifdef ENABLE_BATTERY
 #include "battery.h"
@@ -135,6 +136,7 @@ typedef struct Panel {
 	GList *freespace_list;
 	GList *separator_list;
 	GList *execp_list;
+	GList *button_list;
 
 	// Autohide
 	gboolean is_hidden;
@@ -189,6 +191,7 @@ Battery *click_battery(Panel *panel, int x, int y);
 
 Area *click_area(Panel *panel, int x, int y);
 Execp *click_execp(Panel *panel, int x, int y);
+Button *click_button(Panel *panel, int x, int y);
 
 void autohide_show(void *p);
 void autohide_hide(void *p);
@@ -199,5 +202,8 @@ const char *get_default_font();
 
 void default_icon_theme_changed();
 void default_font_changed();
+
+void free_icon(Imlib_Image icon);
+Imlib_Image scale_icon(Imlib_Image original, int icon_size);
 
 #endif

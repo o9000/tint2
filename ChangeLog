@@ -1,3 +1,7 @@
+2017-03-25 master
+- Enhancements:
+  - New plugin: button.
+
 2017-03-25 0.13.3
 - Fixes:
   - Fixed autohide for non-bottom panels (issue #632)
