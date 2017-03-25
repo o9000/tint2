@@ -438,8 +438,20 @@ void draw_button(void *obj, cairo_t *c)
 	Button *button = obj;
 
 	if (button->frontend->icon) {
-		imlib_context_set_image(button->frontend->icon);
 		// Render icon
+		Imlib_Image image;
+		if (panel_config.mouse_effects) {
+			if (button->area.mouse_state == MOUSE_OVER)
+				image = button->frontend->icon_hover ? button->frontend->icon_hover : button->frontend->icon;
+			else if (button->area.mouse_state == MOUSE_DOWN)
+				image = button->frontend->icon_pressed ? button->frontend->icon_pressed : button->frontend->icon;
+			else
+				image = button->frontend->icon;
+		} else {
+			image = button->frontend->icon;
+		}
+
+		imlib_context_set_image(image);
 		render_image(button->area.pix, button->frontend->iconx, button->frontend->icony);
 	}
 
