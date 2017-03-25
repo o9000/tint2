@@ -1,3 +1,8 @@
+2017-03-25 0.13.3
+- Fixes:
+  - Fixed autohide for non-bottom panels (issue #632)
+  - Translations updated (contributed by Vladimir)
+
 2017-03-19 0.13.2
 - Fixes:
   - Fixed compilation under FreeBSD
