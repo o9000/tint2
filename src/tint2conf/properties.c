@@ -4485,6 +4485,18 @@ void create_button(GtkWidget *notebook, int i)
 	gtk_table_attach(GTK_TABLE(table), button->button_centered, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
 	col++;
 
+	row++, col = 2;
+	label = gtk_label_new(_("Maximum icon size"));
+	gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+	gtk_widget_show(label);
+	gtk_table_attach(GTK_TABLE(table), label, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
+	button->button_max_icon_size = gtk_spin_button_new_with_range(0, 500, 1);
+	gtk_widget_show(button->button_max_icon_size);
+	gtk_table_attach(GTK_TABLE(table), button->button_max_icon_size, col, col+1, row, row+1, GTK_FILL, 0, 0, 0);
+	col++;
+
 	change_paragraph(parent);
 }
 

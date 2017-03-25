@@ -161,7 +161,7 @@ typedef struct Button {
 	GtkWidget *button_left_command, *button_right_command;
 	GtkWidget *button_mclick_command, *button_rclick_command, *button_uwheel_command, *button_dwheel_command;
 	GtkWidget *button_font, *button_font_set, *button_font_color, *button_padding_x, *button_padding_y, *button_centered;
-	GtkWidget *button_background;
+	GtkWidget *button_background, *button_max_icon_size;
 } Button;
 
 extern GArray *buttons;

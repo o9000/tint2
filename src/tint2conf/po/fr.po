@@ -6,7 +6,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: tint2conf 0.12\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2017-03-25 14:37+0100\n"
+        "POT-Creation-Date: 2017-03-25 14:52+0100\n"
         "PO-Revision-Date: 2015-11-01 13:40+0100\n"
         "Last-Translator: Jocelyn <anechampenois@solydxk.com>\n"
         "Language-Team: Bento <meets@gmx.fr>\n"
@@ -59,12 +59,12 @@ msgid   "System tray"
 msgstr  "Zone de notification"
 
 #: ../properties.c:344 ../properties.c:1018 ../properties.c:1226
-#: ../properties.c:5140
+#: ../properties.c:5152
 msgid   "Battery"
 msgstr  "Batterie"
 
 #: ../properties.c:352 ../properties.c:4189 ../properties.c:4285
-#: ../properties.c:5320
+#: ../properties.c:5332
 msgid   "Tooltip"
 msgstr  "Infobulle"
 
@@ -124,7 +124,7 @@ msgstr  "Position sur l'écran: panel horizontal, en bas au centre"
 msgid   "Position on screen: bottom-right, horizontal panel"
 msgstr  "Position sur l'écran: panel horizontal, en bas à droite"
 
-#: ../properties.c:478 ../properties.c:4730
+#: ../properties.c:478 ../properties.c:4742
 msgid   "Monitor"
 msgstr  "Moniteur"
 
@@ -132,27 +132,27 @@ msgstr  "Moniteur"
 msgid   "All"
 msgstr  "Tous"
 
-#: ../properties.c:489 ../properties.c:4740
+#: ../properties.c:489 ../properties.c:4752
 msgid   "1"
 msgstr  "1"
 
-#: ../properties.c:490 ../properties.c:4741
+#: ../properties.c:490 ../properties.c:4753
 msgid   "2"
 msgstr  "2"
 
-#: ../properties.c:491 ../properties.c:4742
+#: ../properties.c:491 ../properties.c:4754
 msgid   "3"
 msgstr  "3"
 
-#: ../properties.c:492 ../properties.c:4743
+#: ../properties.c:492 ../properties.c:4755
 msgid   "4"
 msgstr  "4"
 
-#: ../properties.c:493 ../properties.c:4744
+#: ../properties.c:493 ../properties.c:4756
 msgid   "5"
 msgstr  "5"
 
-#: ../properties.c:494 ../properties.c:4745
+#: ../properties.c:494 ../properties.c:4757
 msgid   "6"
 msgstr  "6"
 
@@ -244,15 +244,15 @@ msgstr  "Crée un espace entre le panel et le bord du moniteur. Pour les "
 
 #: ../properties.c:607 ../properties.c:2150 ../properties.c:2543
 #: ../properties.c:2977 ../properties.c:3553 ../properties.c:3745
-#: ../properties.c:4062 ../properties.c:4388 ../properties.c:4752
-#: ../properties.c:5121 ../properties.c:5301
+#: ../properties.c:4062 ../properties.c:4388 ../properties.c:4764
+#: ../properties.c:5133 ../properties.c:5313
 msgid   "<b>Appearance</b>"
 msgstr  "<b>Apparence</b>"
 
 #: ../properties.c:621 ../properties.c:2163 ../properties.c:3345
 #: ../properties.c:3566 ../properties.c:3758 ../properties.c:4075
-#: ../properties.c:4401 ../properties.c:4765 ../properties.c:5134
-#: ../properties.c:5314
+#: ../properties.c:4401 ../properties.c:4777 ../properties.c:5146
+#: ../properties.c:5326
 msgid   "Background"
 msgstr  "Arrière-plan"
 
@@ -265,7 +265,7 @@ msgstr  "Sélectionne l'arrière-plan utilisé pour afficher le panel. Les "
 #: ../properties.c:636 ../properties.c:2191 ../properties.c:2557
 #: ../properties.c:2660 ../properties.c:3068 ../properties.c:3580
 #: ../properties.c:3816 ../properties.c:4089 ../properties.c:4415
-#: ../properties.c:4780 ../properties.c:5148 ../properties.c:5328
+#: ../properties.c:4792 ../properties.c:5160 ../properties.c:5340
 msgid   "Horizontal padding"
 msgstr  "Remplissage horizontal"
 
@@ -278,7 +278,7 @@ msgstr  "Spécifie le remplissage horizontal du panel. C'est l'espace entre la "
 #: ../properties.c:651 ../properties.c:2205 ../properties.c:2572
 #: ../properties.c:2675 ../properties.c:3082 ../properties.c:3594
 #: ../properties.c:3829 ../properties.c:4103 ../properties.c:4429
-#: ../properties.c:4795 ../properties.c:5162 ../properties.c:5342
+#: ../properties.c:4807 ../properties.c:5174 ../properties.c:5354
 msgid   "Vertical padding"
 msgstr  "Remplissage vertical"
 
@@ -289,7 +289,7 @@ msgstr  "Spécifie le remplissage vertical du panel. C'est l'espace entre la "
         "bordure du panel et les éléments qu'il contient."
 
 #: ../properties.c:666 ../properties.c:2219 ../properties.c:2587
-#: ../properties.c:3096 ../properties.c:4810
+#: ../properties.c:3096 ../properties.c:4822
 msgid   "Spacing"
 msgstr  "Espacement"
 
@@ -411,8 +411,8 @@ msgid   "Specifies a delay after which the panel is shown when the mouse "
 msgstr  "Spécifie un délai au bout duquel le panel apparaît quand le curseur "
         "y entre."
 
-#: ../properties.c:853 ../properties.c:887 ../properties.c:5274
-#: ../properties.c:5293
+#: ../properties.c:853 ../properties.c:887 ../properties.c:5286
+#: ../properties.c:5305
 msgid   "seconds"
 msgstr  "secondes"
 
@@ -560,12 +560,12 @@ msgid   "Free space"
 msgstr  "Espace libre"
 
 #: ../properties.c:1048 ../properties.c:1245 ../properties.c:3727
-#: ../properties.c:3764 ../properties.c:4579 ../properties.c:4600
+#: ../properties.c:3764 ../properties.c:4591 ../properties.c:4612
 msgid   "Separator"
 msgstr  "Separateur"
 
 #: ../properties.c:1053 ../properties.c:1251 ../properties.c:3853
-#: ../properties.c:4081 ../properties.c:4616 ../properties.c:4637
+#: ../properties.c:4081 ../properties.c:4628 ../properties.c:4649
 msgid   "Executor"
 msgstr  "Exécuteur"
 
@@ -616,7 +616,7 @@ msgid   "Removes the current element from the list of selected elements."
 msgstr  "Supprime l'élément actuel de la liste des éléments sélectionnés."
 
 #: ../properties.c:1257 ../properties.c:4229 ../properties.c:4407
-#: ../properties.c:4653 ../properties.c:4674
+#: ../properties.c:4665 ../properties.c:4686
 msgid   "Button"
 msgstr  ""
 
@@ -722,7 +722,7 @@ msgstr  "Spécifie l'espacement vertical de la barre des lanceurs. C'est "
 msgid   "Specifies the spacing between the elements inside the launcher."
 msgstr  "Spécifie l'espacement entre les éléments dans la zone des lanceurs. "
 
-#: ../properties.c:2232 ../properties.c:4824
+#: ../properties.c:2232 ../properties.c:4836
 msgid   "Icon size"
 msgstr  "Taille de l'icône"
 
@@ -730,7 +730,7 @@ msgstr  "Taille de l'icône"
 msgid   "Specifies the size of the launcher icons, in pixels."
 msgstr  "Spécifie la taille des icônes des lanceurs, en pixels."
 
-#: ../properties.c:2246 ../properties.c:3306 ../properties.c:4838
+#: ../properties.c:2246 ../properties.c:3306 ../properties.c:4850
 msgid   "Icon opacity"
 msgstr  "Opacité de l'icône"
 
@@ -738,7 +738,7 @@ msgstr  "Opacité de l'icône"
 msgid   "Specifies the opacity of the launcher icons, in percent."
 msgstr  "Spécifie l'opacité des icônes des lanceurs, en pourcents."
 
-#: ../properties.c:2261 ../properties.c:3317 ../properties.c:4853
+#: ../properties.c:2261 ../properties.c:3317 ../properties.c:4865
 msgid   "Icon saturation"
 msgstr  "Saturation de l'icône"
 
@@ -748,7 +748,7 @@ msgid   "Specifies the saturation adjustment of the launcher icons, in "
 msgstr  "Spécifie la saturation des couleurs des icônes des lanceurs, en "
         "pourcents."
 
-#: ../properties.c:2276 ../properties.c:3328 ../properties.c:4868
+#: ../properties.c:2276 ../properties.c:3328 ../properties.c:4880
 msgid   "Icon brightness"
 msgstr  "Luminosité de l'icône"
 
@@ -795,7 +795,7 @@ msgstr  "Si l'option est activée, les notifications au démarrage s'affichent "
         "généralement, un curseur d'occupation est affiché jusqu'à ce que "
         "l'application démarre."
 
-#: ../properties.c:2329 ../properties.c:5031
+#: ../properties.c:2329 ../properties.c:5043
 msgid   "Tooltips"
 msgstr  "Infobulles"
 
@@ -805,7 +805,7 @@ msgid   "If enabled, shows a tooltip with the application name when the mouse "
 msgstr  "Si l'option est activée, une infobulle contenant le nom du programme "
         "s'affiche lorsque la souris passe au dessus du lanceur."
 
-#: ../properties.c:2399 ../properties.c:4693
+#: ../properties.c:2399 ../properties.c:4705
 msgid   "<b>Options</b>"
 msgstr  "<b>Options</b>"
 
@@ -1033,14 +1033,14 @@ msgstr  "Spécifie la couleur de la police utilisée pour afficher le nom des "
 
 #: ../properties.c:2723 ../properties.c:3112 ../properties.c:3611
 #: ../properties.c:3637 ../properties.c:4120 ../properties.c:4446
-#: ../properties.c:5179 ../properties.c:5204 ../properties.c:5359
+#: ../properties.c:5191 ../properties.c:5216 ../properties.c:5371
 msgid   "If not checked, the desktop theme font is used. If checked, the "
         "custom font specified here is used."
 msgstr  "Si non coché, la police du thème de bureau est utilisée. Si oui, la "
         "police indiquée ici est utilisé."
 
 #: ../properties.c:2726 ../properties.c:3115 ../properties.c:4123
-#: ../properties.c:4449 ../properties.c:5362
+#: ../properties.c:4449 ../properties.c:5374
 msgid   "Font"
 msgstr  "Police "
 
@@ -1073,7 +1073,7 @@ msgstr  "Sélectionne l'arrière-plan utilisé pour afficher le nom des bureaux 
         "plans."
 
 #: ../properties.c:2783 ../properties.c:3464 ../properties.c:3973
-#: ../properties.c:4299 ../properties.c:5018
+#: ../properties.c:4299 ../properties.c:5030
 msgid   "<b>Mouse events</b>"
 msgstr  "<b>Événements souris</b>"
 
@@ -1391,7 +1391,7 @@ msgstr  "Si activée, la police de couleur personnalisée est utilisée pour "
         "afficher le texte des tâches. "
 
 #: ../properties.c:3289 ../properties.c:3659 ../properties.c:4138
-#: ../properties.c:4464 ../properties.c:5226 ../properties.c:5378
+#: ../properties.c:4464 ../properties.c:5238 ../properties.c:5390
 msgid   "Font color"
 msgstr  "Couleur de police"
 
@@ -1492,7 +1492,7 @@ msgstr  "Spécifie le fuseau horaire utilisé pour afficher la seconde ligne de 
         "(variable d'environnement TZ)."
 
 #: ../properties.c:3477 ../properties.c:3986 ../properties.c:4312
-#: ../properties.c:5045
+#: ../properties.c:5057
 msgid   "Left click command"
 msgstr  "Commande du clic gauche"
 
@@ -1502,7 +1502,7 @@ msgid   "Specifies a command that will be executed when the clock receives a "
 msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur l'horloge."
 
 #: ../properties.c:3492 ../properties.c:4001 ../properties.c:4327
-#: ../properties.c:5060
+#: ../properties.c:5072
 msgid   "Right click command"
 msgstr  "Commande du clic droit"
 
@@ -1513,7 +1513,7 @@ msgstr  "Spécifie la commande à exécuter lors d'un clic droit sur l'horloge."
 
 #
 #: ../properties.c:3507 ../properties.c:4016 ../properties.c:4342
-#: ../properties.c:5075
+#: ../properties.c:5087
 msgid   "Middle click command"
 msgstr  "Commande du clic du milieu"
 
@@ -1526,7 +1526,7 @@ msgstr  "Spécifie la commande à exécuter lors d'un clic du milieu sur "
 
 #
 #: ../properties.c:3522 ../properties.c:4031 ../properties.c:4357
-#: ../properties.c:5090
+#: ../properties.c:5102
 msgid   "Wheel scroll up command"
 msgstr  "Commande de la molette vers le haut"
 
@@ -1539,7 +1539,7 @@ msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
 
 #
 #: ../properties.c:3537 ../properties.c:4046 ../properties.c:4372
-#: ../properties.c:5105
+#: ../properties.c:5117
 msgid   "Wheel scroll down command"
 msgstr  "Commande de la molette du bas"
 
@@ -1568,7 +1568,7 @@ msgid   "Specifies the vertical padding of the clock. This is the space "
 msgstr  "Spécifie l'espacement vertical de l'horloge. C'est l'espace entre la "
         "bordure et le contenu."
 
-#: ../properties.c:3614 ../properties.c:5182
+#: ../properties.c:3614 ../properties.c:5194
 msgid   "Font first line"
 msgstr  "Police de la première ligne"
 
@@ -1577,7 +1577,7 @@ msgid   "Specifies the font used to display the first line of the clock."
 msgstr  "Spécifie la police utilisée pour afficher la première ligne de "
         "l'horloge."
 
-#: ../properties.c:3640 ../properties.c:5207
+#: ../properties.c:3640 ../properties.c:5219
 msgid   "Font second line"
 msgstr  "Police de la seconde ligne"
 
@@ -1824,14 +1824,14 @@ msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
 #: ../properties.c:4411
 msgid   "Selects the background used to display the button. Backgrounds can "
         "be edited in the Backgrounds tab."
-msgstr  "Choisis l'arrière-plan utilisé pour afficher le bouton. Les "
-        "arrières-plans sont modifiables dans l'onglet Arrières-plans."
+msgstr  "Choisis l'arrière-plan utilisé pour afficher le bouton. Les arrières-"
+        "plans sont modifiables dans l'onglet Arrières-plans."
 
 #: ../properties.c:4425
 msgid   "Specifies the horizontal padding of the button. This is the space "
         "between the border and the content inside."
-msgstr  "Spécifie l'espacement horizontal des boutons. C'est "
-        "l'espace entre la bordure et le contenu."
+msgstr  "Spécifie l'espacement horizontal des boutons. C'est l'espace entre "
+        "la bordure et le contenu."
 
 #: ../properties.c:4439
 msgid   "Specifies the vertical padding of the button. This is the space "
@@ -1839,27 +1839,31 @@ msgid   "Specifies the vertical padding of the button. This is the space "
 msgstr  "Spécifie l'espacement vertical des boutons. C'est l'espace entre la "
         "bordure et le contenu."
 
-#: ../properties.c:4707
+#: ../properties.c:4489
+msgid   "Maximum icon size"
+msgstr  "Taille maximale de l'icône"
+
+#: ../properties.c:4719
 msgid   "Icon ordering"
 msgstr  "Tri des icônes"
 
-#: ../properties.c:4717
+#: ../properties.c:4729
 msgid   "Ascending"
 msgstr  "Croissant"
 
-#: ../properties.c:4718
+#: ../properties.c:4730
 msgid   "Descending"
 msgstr  "Décroissant"
 
-#: ../properties.c:4719
+#: ../properties.c:4731
 msgid   "Left to right"
 msgstr  "De gauche à droite"
 
-#: ../properties.c:4720
+#: ../properties.c:4732
 msgid   "Right to left"
 msgstr  "De droite à gauche"
 
-#: ../properties.c:4722
+#: ../properties.c:4734
 msgid   "Specifies the order used to arrange the system tray icons. \n"
         "'Ascending' means that icons are sorted in ascending order of their "
         "window names. \n"
@@ -1878,7 +1882,7 @@ msgstr  "Spécifie la façon d'organiser les icônes de la zone de "
         "'De droite à gauche' signifie que les icônes sont toujours ajoutées "
         "à droite."
 
-#: ../properties.c:4747
+#: ../properties.c:4759
 msgid   "Specifies the monitor on which to place the system tray. Due to "
         "technical limitations, the system tray cannot be displayed on "
         "multiple monitors."
@@ -1887,254 +1891,254 @@ msgstr  "Spécifie le moniteur sur lequel placer la zone de notification. Pour "
         "sur plusieurs moniteurs."
 
 #
-#: ../properties.c:4771
+#: ../properties.c:4783
 msgid   "Systray"
 msgstr  "Zone de notification"
 
-#: ../properties.c:4775
+#: ../properties.c:4787
 msgid   "Selects the background used to display the system tray. Backgrounds "
         "can be edited in the Backgrounds tab."
 msgstr  "Choisis l'arrière-plan utilisé pour afficher la zone de "
         "notification. Les arrières-plans sont modifiables dans l'onglet "
         "Arrières-plans."
 
-#: ../properties.c:4790
+#: ../properties.c:4802
 msgid   "Specifies the horizontal padding of the system tray. This is the "
         "space between the border and the content inside."
 msgstr  "Spécifie l'espacement horizontal de la zone de notification. C'est "
         "l'espace entre la bordure et le contenu."
 
-#: ../properties.c:4805
+#: ../properties.c:4817
 msgid   "Specifies the vertical padding of the system tray. This is the space "
         "between the border and the content inside."
 msgstr  "Spécifie l'espacement vertical de la zone de notification. C'est "
         "l'espace entre la bordure et le contenu."
 
-#: ../properties.c:4820
+#: ../properties.c:4832
 msgid   "Specifies the spacing between system tray icons."
 msgstr  "Spécifie l'espacement entre les icones de la zone de notification "
         "système."
 
-#: ../properties.c:4834
+#: ../properties.c:4846
 msgid   "Specifies the size of the system tray icons, in pixels."
 msgstr  "Spécifie la taille des icones de la zone de notification système, en "
         "pourcents."
 
-#: ../properties.c:4849
+#: ../properties.c:4861
 msgid   "Specifies the opacity of the system tray icons, in percent."
 msgstr  "Spécifie l'opacité des icones de la zone de notification système, en "
         "pourcents."
 
-#: ../properties.c:4864
+#: ../properties.c:4876
 msgid   "Specifies the saturation adjustment of the system tray icons, in "
         "percent."
 msgstr  "Spécifie le réglage de la saturation des icones de la zone de "
         "notification système, en pourcents."
 
-#: ../properties.c:4879
+#: ../properties.c:4891
 msgid   "Specifies the brightness adjustment of the system tray icons, in "
         "percent."
 msgstr  "Spécifie le réglage de la luminosité des icones de la zone de "
         "notification système, en pourcents."
 
-#: ../properties.c:4882
+#: ../properties.c:4894
 msgid   "Name filter"
 msgstr  ""
 
-#: ../properties.c:4908
+#: ../properties.c:4920
 msgid   "<b>Thresholds</b>"
 msgstr  "<b>Limites</b>"
 
-#: ../properties.c:4921
+#: ../properties.c:4933
 msgid   "Hide if charge higher than"
 msgstr  "Cache si la charge est au dessus de"
 
-#: ../properties.c:4931
+#: ../properties.c:4943
 msgid   "Minimum battery level for which to hide the batter applet. Use 101 "
         "to always show the batter applet."
 msgstr  "Niveau minimum de la batterie pour lequel cacher l'applet batterie. "
         "Utilisez 101 pour la garder constamment visible."
 
-#: ../properties.c:4933 ../properties.c:4952
+#: ../properties.c:4945 ../properties.c:4964
 msgid   "%"
 msgstr  "%"
 
-#: ../properties.c:4940
+#: ../properties.c:4952
 msgid   "Alert if charge lower than"
 msgstr  "Alerte si la charge descend sous"
 
-#: ../properties.c:4950
+#: ../properties.c:4962
 msgid   "Battery level for which to display an alert."
 msgstr  "Niveau de batterie sous lequel afficher une alerte."
 
-#: ../properties.c:4959
+#: ../properties.c:4971
 msgid   "Alert command"
 msgstr  "Commande d'alerte"
 
-#: ../properties.c:4970
+#: ../properties.c:4982
 msgid   "Command to be executed when the alert threshold is reached."
 msgstr  "Commande à exécuter lorsque le niveau d'alerte est atteint."
 
 #
-#: ../properties.c:4974
+#: ../properties.c:4986
 msgid   "<b>AC connection events</b>"
 msgstr  "<b>Événements branchement/débranchement de l'alimentation secteur</b>"
 
 #
-#: ../properties.c:4987
+#: ../properties.c:4999
 msgid   "AC connected command"
 msgstr  "Commande alimentation secteur branchée"
 
 #
-#: ../properties.c:4999
+#: ../properties.c:5011
 msgid   "Specifies a command that will be executed when AC is connected to "
         "the system."
 msgstr  "Spécifie la commande à exécuter lorsque l'alimentation est branchée."
 
 #
-#: ../properties.c:5002
+#: ../properties.c:5014
 msgid   "AC disconnected command"
 msgstr  "Commande alimentation secteur débranchée"
 
 #
-#: ../properties.c:5014
+#: ../properties.c:5026
 msgid   "Specifies a command that will be executed when AC is disconnected to "
         "the system."
 msgstr  "Spécifie la commande à exécuter lorsque l'alimentation est "
         "débranchée."
 
 #
-#: ../properties.c:5042
+#: ../properties.c:5054
 msgid   "If enabled, shows a tooltip with detailed battery information when "
         "the mouse is moved over the battery widget."
 msgstr  "Si l'option est activée, une infobulle contenant informations sur la "
         "batterie s'affiche lorsque la souris passe au dessus la batterie."
 
 #
-#: ../properties.c:5057
+#: ../properties.c:5069
 msgid   "Specifies a command that will be executed when the battery receives "
         "a left click."
 msgstr  "Spécifie la commande à exécuter lors d'un clic gauche sur la "
         "batterie."
 
 #
-#: ../properties.c:5072
+#: ../properties.c:5084
 msgid   "Specifies a command that will be executed when the battery receives "
         "a right click."
 msgstr  "Spécifie la commande à exécuter lors d'un clic droit sur la batterie."
 
 #
-#: ../properties.c:5087
+#: ../properties.c:5099
 msgid   "Specifies a command that will be executed when the battery receives "
         "a middle click."
 msgstr  "Spécifie la commande à exécuter lors d'un clic du milieu sur la "
         "batterie."
 
 #
-#: ../properties.c:5102
+#: ../properties.c:5114
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll up."
 msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
         "sur la batterie vers le haut."
 
 #
-#: ../properties.c:5117
+#: ../properties.c:5129
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll down."
 msgstr  "Spécifie la commande à exécuter lorsqu'on fait tourner la molette "
         "sur la batterie vers le bas."
 
-#: ../properties.c:5144
+#: ../properties.c:5156
 msgid   "Selects the background used to display the battery. Backgrounds can "
         "be edited in the Backgrounds tab."
 msgstr  "Choisis l'arrière-plan utilisé pour afficher la batterie. Les "
         "arrières-plans sont modifiables dans l'onglet Arrières-plans."
 
-#: ../properties.c:5158
+#: ../properties.c:5170
 msgid   "Specifies the horizontal padding of the battery. This is the space "
         "between the border and the content inside."
 msgstr  "Spécifie l'espacement horizontal de l'icone batterie. C'est l'espace "
         "entre la bordure et le contenu."
 
-#: ../properties.c:5172
+#: ../properties.c:5184
 msgid   "Specifies the vertical padding of the battery. This is the space "
         "between the border and the content inside."
 msgstr  "Spécifie l'espacement vertical de l'icone batterie. C'est l'espace "
         "entre la bordure et le contenu."
 
-#: ../properties.c:5196
+#: ../properties.c:5208
 msgid   "Specifies the font used to display the first line of the battery "
         "text."
 msgstr  "Spécifie la police utilisée pour afficher la première ligne de la "
         "légende de la batterie."
 
-#: ../properties.c:5221
+#: ../properties.c:5233
 msgid   "Specifies the font used to display the second line of the battery "
         "text."
 msgstr  "Spécifie la police utilisée pour afficher la seconde ligne de la "
         "légende de la batterie."
 
-#: ../properties.c:5237
+#: ../properties.c:5249
 msgid   "Specifies the font clor used to display the battery text."
 msgstr  "Spécifie la couleur de la police utilisée pour afficher la légende "
         "de la batterie."
 
-#: ../properties.c:5249
+#: ../properties.c:5261
 msgid   "<b>Timing</b>"
 msgstr  "<b>Synchronisation</b>"
 
-#: ../properties.c:5262
+#: ../properties.c:5274
 msgid   "Show delay"
 msgstr  "Délai d'apparition"
 
-#: ../properties.c:5272
+#: ../properties.c:5284
 msgid   "Specifies a delay after which to show the tooltip when moving the "
         "mouse over an element."
 msgstr  "Spécifie un délai au bout duquel l'infobulle apparaît lorsque on "
         "place la souris sur un élément."
 
-#: ../properties.c:5281
+#: ../properties.c:5293
 msgid   "Hide delay"
 msgstr  "Délai de persistance"
 
-#: ../properties.c:5290
+#: ../properties.c:5302
 msgid   "Specifies a delay after which to hide the tooltip when moving the "
         "mouse outside an element."
 msgstr  "Spécifie un délai au bout duquel l'infobulle disparaît lorsque on "
         "éloigne la souris d'un élément."
 
-#: ../properties.c:5324
+#: ../properties.c:5336
 msgid   "Selects the background used to display the tooltip. Backgrounds can "
         "be edited in the Backgrounds tab."
 msgstr  "Spécifie l'arrière-plan utilisé pour afficher l'infobulle. Les "
         "arrières-plans sont modifiables dans l'onglet Arrières-plans."
 
-#: ../properties.c:5338
+#: ../properties.c:5350
 msgid   "Specifies the horizontal padding of the tooltip. This is the space "
         "between the border and the content inside."
 msgstr  "Spécifie le remplissage horizontal de l'infobulle. C'est l'espace "
         "situé entre la bordure et le contenu."
 
-#: ../properties.c:5352
+#: ../properties.c:5364
 msgid   "Specifies the vertical padding of the tooltip. This is the space "
         "between the border and the content inside."
 msgstr  "Spécifie le remplissage vertical de l'infobulle. C'est l'espace "
         "situé entre la bordure et le contenu."
 
-#: ../properties.c:5373
+#: ../properties.c:5385
 msgid   "Specifies the font used to display the text of the tooltip."
 msgstr  "Spécifie la police utlilisée pour afficher le texte de l'infobulle."
 
-#: ../properties.c:5389
+#: ../properties.c:5401
 msgid   "Specifies the font color used to display the text of the tooltip."
 msgstr  "Spécifie la couleur de police utilisée pour afficher le texte de "
         "l'infobulle."
 
-#: ../properties.c:5405
+#: ../properties.c:5417
 msgid   "Please wait..."
 msgstr  "Veuillez patienter s'il vous plaît..."
 
-#: ../properties.c:5408
+#: ../properties.c:5420
 msgid   "Loading..."
 msgstr  "Chargement en cours..."
 

@@ -276,6 +276,10 @@ int button_compute_desired_size(void *obj)
 			icon_h = icon_w = button->area.height - top_bottom_border_width(&button->area) - 2 * vert_padding;
 		else
 			icon_h = icon_w = button->area.width - left_right_border_width(&button->area) - 2 * horiz_padding;
+		if (button->backend->max_icon_size) {
+			icon_w = MIN(icon_w, button->backend->max_icon_size);
+			icon_h = MIN(icon_h, button->backend->max_icon_size);
+		}
 	} else {
 		icon_h = icon_w = 0;
 	}
@@ -338,6 +342,10 @@ gboolean resize_button(void *obj)
 			icon_h = icon_w = button->area.height - top_bottom_border_width(&button->area) - 2 * vert_padding;
 		else
 			icon_h = icon_w = button->area.width - left_right_border_width(&button->area) - 2 * horiz_padding;
+		if (button->backend->max_icon_size) {
+			icon_w = MIN(icon_w, button->backend->max_icon_size);
+			icon_h = MIN(icon_h, button->backend->max_icon_size);
+		}
 	} else {
 		icon_h = icon_w = 0;
 	}

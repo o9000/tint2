@@ -784,6 +784,10 @@ void add_entry(char *key, char *value)
 			button->backend->paddingy = 0;
 		if (value3)
 			button->backend->paddingx = atoi(value3);
+	} else if (strcmp(key, "button_max_icon_size") == 0) {
+		Button *button = get_or_create_last_button();
+		extract_values(value, &value1, &value2, &value3);
+		button->backend->max_icon_size = MAX(0, atoi(value));
 	} else if (strcmp(key, "button_background_id") == 0) {
 		Button *button = get_or_create_last_button();
 		int id = atoi(value);

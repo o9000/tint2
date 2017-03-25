@@ -901,6 +901,10 @@ void config_write_button(FILE *fp)
 		fprintf(fp,
 				"button_centered = %d\n",
 				gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button->button_centered)) ? 1 : 0);
+		fprintf(fp,
+				"button_max_icon_size = %d\n",
+				(int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->button_max_icon_size)));
+
 
 		fprintf(fp, "\n");
 	}
@@ -1970,6 +1974,8 @@ void add_entry(char *key, char *value)
 		gtk_combo_box_set_active(GTK_COMBO_BOX(button_get_last()->button_background), id);
 	} else if (strcmp(key, "button_centered") == 0) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_get_last()->button_centered), atoi(value));
+	} else if (strcmp(key, "button_max_icon_size") == 0) {
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->button_max_icon_size), atoi(value));
 	}
 
 	if (value1)

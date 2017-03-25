@@ -22,6 +22,7 @@ typedef struct ButtonBackend {
 	char *text;
 	char *tooltip;
 	gboolean centered;
+	int max_icon_size;
 	gboolean has_font;
 	PangoFontDescription *font_desc;
 	Color font_color;
