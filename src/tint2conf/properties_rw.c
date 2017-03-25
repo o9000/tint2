@@ -875,9 +875,12 @@ void config_write_button(FILE *fp)
 		Button *button = &g_array_index(buttons, Button, i);
 
 		fprintf(fp, "button = new\n");
-		fprintf(fp, "button_icon = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_icon)));
-		fprintf(fp, "button_text = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_text)));
-		fprintf(fp, "button_tooltip = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_tooltip)));
+		if (strlen(gtk_entry_get_text(GTK_ENTRY(button->button_icon))))
+			fprintf(fp, "button_icon = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_icon)));
+		if (gtk_entry_get_text(GTK_ENTRY(button->button_text)))
+			fprintf(fp, "button_text = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_text)));
+		if (strlen(gtk_entry_get_text(GTK_ENTRY(button->button_tooltip))))
+			fprintf(fp, "button_tooltip = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_tooltip)));
 
 		fprintf(fp, "button_lclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_left_command)));
 		fprintf(fp, "button_rclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_right_command)));
