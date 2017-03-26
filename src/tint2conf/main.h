@@ -15,7 +15,7 @@
 #endif
 
 #define SNAPSHOT_TICK 190
-gboolean update_snapshot();
+gboolean update_snapshot(gpointer ignored);
 void menuApply();
 void refresh_current_theme();
 extern GtkWidget *g_window;
