@@ -1,3 +1,7 @@
+2017-03-26 0.14.1
+- Fixes:
+  - Fixed tint2conf problem under FreeBSD (or generally any system using clang).
+
 2017-03-26 0.14
 - Enhancements:
   - New plugin: button.
