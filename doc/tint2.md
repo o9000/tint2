@@ -3,9 +3,6 @@
 ## NAME
 tint2 - lightweight panel/taskbar
 
-## SYNOPSIS
-`tint2 [-c path_to_config_file]`
-
 ## DESCRIPTION
 tint2 is a simple panel/taskbar made for modern X window managers.
 It was specifically made for Openbox but it should also work with other window managers (GNOME, KDE, XFCE etc.).
@@ -24,9 +21,19 @@ Goals:
   * Follow the freedesktop.org specifications;
   * Make certain workflows, such as multi-desktop and multi-monitor, easy to use.
 
+## SYNOPSIS
+`tint2 [OPTION...]`
+
 ## OPTIONS
 `-c path_to_config_file`
   Specifies which configuration file to use instead of the default.
+
+`-v, --version`
+  Prints version information and exits.
+
+`-h, --help`
+  Display this help and exits.
+
 
 ## CONFIGURATION
 

@@ -374,6 +374,20 @@ void x11_io_error(Display *display)
 	handle_crash("X11 I/O error");
 }
 
+void print_usage()
+{
+	printf("Usage: tint2 [OPTION...]\n"
+		   "\n"
+		   "Options:\n"
+		   "  -c path_to_config_file   Loads the configuration file from a\n"
+		   "                           custom location.\n"
+		   "  -v, --version            Prints version information and exits.\n"
+		   "  -h, --help               Display this help and exits.\n"
+		   "\n"
+		   "For more information, run `man tint2` or visit the project page\n"
+		   "<https://gitlab.com/o9000/tint2>.\n");
+}
+
 void init(int argc, char *argv[])
 {
 	// Make stdout/stderr flush after a newline (for some reason they don't even if tint2 is started from a terminal)
@@ -400,7 +414,7 @@ void init(int argc, char *argv[])
 	for (int i = 1; i < argc; ++i) {
 		int error = 0;
 		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-			printf("Usage: tint2 [[-c] <config_file>]\n");
+			print_usage();
 			exit(0);
 		} else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
 			printf("tint2 version %s\n", VERSION_STRING);
@@ -438,7 +452,7 @@ void init(int argc, char *argv[])
 			error = 1;
 		}
 		if (error) {
-			printf("Usage: tint2 [[-c] <config_file>]\n");
+			print_usage();
 			exit(1);
 		}
 	}
@@ -1641,8 +1655,8 @@ start:
 
 	if (!config_read()) {
 		fprintf(stderr,
-		        "Could not read config file.\n"
-		        "Usage: tint2 [[-c] <config_file>]\n");
+				"Could not read config file.\n");
+		print_usage();
 		cleanup();
 		exit(1);
 	}
