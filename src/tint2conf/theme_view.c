@@ -153,7 +153,7 @@ void theme_list_append(const gchar *path)
 	g_free(suffix);
 }
 
-gboolean update_snapshot()
+gboolean update_snapshot(gpointer ignored)
 {
 	{
 		gchar *tint2_cache_dir = g_build_filename(g_get_user_cache_dir(), "tint2", NULL);

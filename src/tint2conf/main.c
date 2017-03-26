@@ -119,7 +119,7 @@ gchar *import_no_overwrite(const char *filepath)
 	if (!g_file_test(newpath, G_FILE_TEST_EXISTS)) {
 		copy_file(filepath, newpath);
 		theme_list_append(newpath);
-		g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
+		g_timeout_add(SNAPSHOT_TICK, update_snapshot, NULL);
 	}
 
 	return newpath;
@@ -138,7 +138,7 @@ void import_with_overwrite(const char *filepath, const char *newpath)
 	if (theme_is_editable(newpath)) {
 		if (!theme_existed) {
 			theme_list_append(newpath);
-			g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
+			g_timeout_add(SNAPSHOT_TICK, update_snapshot, NULL);
 		} else {
 			int unused = system("killall -SIGUSR1 tint2 || pkill -SIGUSR1 -x tint2");
 			(void)unused;
@@ -158,7 +158,7 @@ static void menuImportFile();
 static void menuSaveAs();
 static void menuDelete();
 static void menuReset();
-static void edit_theme();
+static gboolean edit_theme(gpointer ignored);
 static void make_selected_theme_default();
 static void menuAbout();
 static gboolean view_onPopupMenu(GtkWidget *treeview, gpointer userdata);
@@ -309,7 +309,7 @@ int main(int argc, char **argv)
 	argc--, argv++;
 	if (argc > 0) {
 		load_specific_themes(argv, argc);
-		g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)edit_theme, NULL);
+		g_timeout_add(SNAPSHOT_TICK, edit_theme, NULL);
 	}
 
 	gtk_widget_show_all(g_window);
@@ -643,11 +643,11 @@ void select_theme(const char *given_path)
 }
 
 // Edits the selected theme. If it is read-only, it copies first to ~.
-static void edit_theme()
+static gboolean edit_theme(gpointer ignored)
 {
 	gchar *filepath = get_selected_theme_or_warn();
 	if (!filepath)
-		return;
+		return FALSE;
 
 	gboolean editable = theme_is_editable(filepath);
 	if (!editable) {
@@ -665,6 +665,8 @@ static void edit_theme()
 	g_free(filepath);
 
 	destroy_please_wait();
+
+	return FALSE;
 }
 
 static void make_selected_theme_default()
@@ -702,7 +704,7 @@ static void make_selected_theme_default()
 
 static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data)
 {
-	edit_theme();
+	edit_theme(NULL);
 }
 
 // ====== Theme load/reload ======
@@ -834,7 +836,7 @@ static void load_all_themes()
 			have_iter = gtk_tree_model_iter_next(model, &iter);
 		}
 
-		g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
+		g_timeout_add(SNAPSHOT_TICK, update_snapshot, NULL);
 	}
 }
 
@@ -865,7 +867,7 @@ static void reload_all_themes()
 			have_iter = gtk_tree_model_iter_next(model, &iter);
 		}
 
-		g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
+		g_timeout_add(SNAPSHOT_TICK, update_snapshot, NULL);
 	}
 }
 
@@ -899,7 +901,7 @@ static void load_specific_themes(char **paths, int count)
 			have_iter = gtk_tree_model_iter_next(model, &iter);
 		}
 
-		g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
+		g_timeout_add(SNAPSHOT_TICK, update_snapshot, NULL);
 	}
 }
 
@@ -910,7 +912,7 @@ void refresh_current_theme()
 	GtkTreeModel *model;
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(sel), &model, &iter)) {
 		gtk_list_store_set(theme_list_store, &iter, COL_SNAPSHOT, NULL, -1);
-		g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
+		g_timeout_add(SNAPSHOT_TICK, update_snapshot, NULL);
 	}
 }
 
@@ -925,7 +927,7 @@ void refresh_theme(const char *given_path)
 		gtk_tree_model_get(model, &iter, COL_THEME_FILE, &filepath, -1);
 		if (g_str_equal(filepath, given_path)) {
 			gtk_list_store_set(theme_list_store, &iter, COL_SNAPSHOT, NULL, -1);
-			g_timeout_add(SNAPSHOT_TICK, (GSourceFunc)update_snapshot, NULL);
+			g_timeout_add(SNAPSHOT_TICK, update_snapshot, NULL);
 			g_free(filepath);
 			break;
 		}
