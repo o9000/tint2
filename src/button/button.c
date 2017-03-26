@@ -217,13 +217,13 @@ void button_reload_icon(Button *button)
 
 	char *new_icon_path = get_icon_path(icon_theme_wrapper, button->backend->icon_name, button->frontend->iconw, TRUE);
 	if (new_icon_path)
-		button->frontend->icon = imlib_load_image_immediately(new_icon_path);
+		button->frontend->icon = load_image(new_icon_path, TRUE);
 	free(new_icon_path);
 	// On loading error, fallback to default
 	if (!button->frontend->icon) {
 		new_icon_path = get_icon_path(icon_theme_wrapper, DEFAULT_ICON, button->frontend->iconw, TRUE);
 		if (new_icon_path)
-			button->frontend->icon = imlib_load_image_immediately(new_icon_path);
+			button->frontend->icon = load_image(new_icon_path, TRUE);
 		free(new_icon_path);
 	}
 	Imlib_Image original = button->frontend->icon;
