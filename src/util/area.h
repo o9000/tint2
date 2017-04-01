@@ -330,4 +330,7 @@ void mouse_out();
 void update_gradient(GradientInstance *gi);
 void update_dependent_gradients(Area *a);
 
+gboolean area_is_first(void *obj);
+gboolean area_is_last(void *obj);
+
 #endif

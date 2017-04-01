@@ -514,7 +514,8 @@ void button_dump_geometry(void *obj, int indent)
 
 void button_action(void *obj, int mouse_button, int x, int y)
 {
-	Button *button = obj;
+	Button *button = (Button *)obj;
+	Panel *panel = (Panel *)button->area.panel;
 	char *command = NULL;
 	switch (mouse_button) {
 	case 1:
@@ -534,14 +535,50 @@ void button_action(void *obj, int mouse_button, int x, int y)
 		break;
 	}
 	if (command) {
+		int aligned_x, aligned_y;
+		if (panel_horizontal) {
+			if (area_is_first(button))
+				aligned_x = panel->posx;
+			else if (area_is_last(button))
+				aligned_x = panel->posx + panel->area.width;
+			else if (panel->posx + button->area.posx > 0.75 * panel->area.width)
+				aligned_x = panel->posx + button->area.posx + button->area.width;
+			else
+				aligned_x = panel->posx + button->area.posx;
+
+			if (panel_position & BOTTOM)
+				aligned_y = panel->posy;
+			else
+				aligned_y = panel->posy + panel->area.height;
+		} else {
+			if (area_is_first(button))
+				aligned_y = panel->posy;
+			else if (area_is_last(button))
+				aligned_y = panel->posy + panel->area.height;
+			else if (panel->posy + button->area.posy > 0.75 * panel->area.height)
+				aligned_y = panel->posy + button->area.posy + button->area.height;
+			else
+				aligned_y = panel->posy + button->area.posy;
+
+			if (panel_position & LEFT)
+				aligned_x = panel->posx + panel->area.width;
+			else
+				aligned_x = panel->posx;
+		}
+
 		char *full_cmd = g_strdup_printf("export BUTTON_X=%d;"
 		                                 "export BUTTON_Y=%d;"
 		                                 "export BUTTON_W=%d;"
-		                                 "export BUTTON_H=%d; %s",
+										 "export BUTTON_H=%d;"
+										 "export BUTTON_ALIGNED_X=%d;"
+										 "export BUTTON_ALIGNED_Y=%d;"
+										 "%s",
 		                                 x,
 		                                 y,
 		                                 button->area.width,
 		                                 button->area.height,
+										 aligned_x,
+										 aligned_y,
 		                                 command);
 		pid_t pid = fork();
 		if (pid < 0) {
