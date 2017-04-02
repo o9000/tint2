@@ -535,35 +535,54 @@ void button_action(void *obj, int mouse_button, int x, int y)
 		break;
 	}
 	if (command) {
-		int aligned_x, aligned_y;
+		int aligned_x, aligned_y, aligned_x1, aligned_y1, aligned_x2, aligned_y2;
 		if (panel_horizontal) {
 			if (area_is_first(button))
-				aligned_x = panel->posx;
-			else if (area_is_last(button))
-				aligned_x = panel->posx + panel->area.width;
-			else if (panel->posx + button->area.posx > 0.75 * panel->area.width)
-				aligned_x = panel->posx + button->area.posx + button->area.width;
+				aligned_x1 = panel->posx;
 			else
-				aligned_x = panel->posx + button->area.posx;
+				aligned_x1 = panel->posx + button->area.posx;
+
+			if (area_is_last(button))
+				aligned_x2 = panel->posx + panel->area.width;
+			else
+				aligned_x2 = panel->posx + button->area.posx + button->area.width;
+
+			if (area_is_first(button))
+				aligned_x = aligned_x1;
+			else if (area_is_last(button))
+				aligned_x = aligned_x2;
+			else
+				aligned_x = aligned_x1;
 
 			if (panel_position & BOTTOM)
 				aligned_y = panel->posy;
 			else
 				aligned_y = panel->posy + panel->area.height;
+
+			aligned_y1 = aligned_y2 = aligned_y;
 		} else {
 			if (area_is_first(button))
-				aligned_y = panel->posy;
-			else if (area_is_last(button))
-				aligned_y = panel->posy + panel->area.height;
-			else if (panel->posy + button->area.posy > 0.75 * panel->area.height)
-				aligned_y = panel->posy + button->area.posy + button->area.height;
+				aligned_y1 = panel->posy;
 			else
-				aligned_y = panel->posy + button->area.posy;
+				aligned_y1 = panel->posy + button->area.posy;
 
-			if (panel_position & LEFT)
-				aligned_x = panel->posx + panel->area.width;
+			if (area_is_last(button))
+				aligned_y2 = panel->posy + panel->area.height;
 			else
+				aligned_y2 = panel->posy + button->area.posy + button->area.height;
+
+			if (panel_position & RIGHT)
 				aligned_x = panel->posx;
+			else
+				aligned_x = panel->posx + panel->area.width;
+
+			aligned_x1 = aligned_x2 = aligned_x;
+			if (area_is_first(button))
+				aligned_y = aligned_y1;
+			else if (area_is_last(button))
+				aligned_y = aligned_y2;
+			else
+				aligned_y = aligned_y1;
 		}
 
 		char *full_cmd = g_strdup_printf("export BUTTON_X=%d;"
@@ -572,6 +591,10 @@ void button_action(void *obj, int mouse_button, int x, int y)
 										 "export BUTTON_H=%d;"
 										 "export BUTTON_ALIGNED_X=%d;"
 										 "export BUTTON_ALIGNED_Y=%d;"
+										 "export BUTTON_ALIGNED_X1=%d;"
+										 "export BUTTON_ALIGNED_Y1=%d;"
+										 "export BUTTON_ALIGNED_X2=%d;"
+										 "export BUTTON_ALIGNED_Y2=%d;"
 										 "%s",
 		                                 x,
 		                                 y,
@@ -579,6 +602,10 @@ void button_action(void *obj, int mouse_button, int x, int y)
 		                                 button->area.height,
 										 aligned_x,
 										 aligned_y,
+										 aligned_x1,
+										 aligned_y1,
+										 aligned_x2,
+										 aligned_y2,
 		                                 command);
 		pid_t pid = fork();
 		if (pid < 0) {
