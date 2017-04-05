@@ -595,20 +595,20 @@ void button_action(void *obj, int mouse_button, int x, int y)
 			panel_y2 = panel->posy + panel->area.height;
 		}
 
-		char *full_cmd = g_strdup_printf("export BUTTON_X=%d;"
-		                                 "export BUTTON_Y=%d;"
-		                                 "export BUTTON_W=%d;"
-										 "export BUTTON_H=%d;"
-										 "export BUTTON_ALIGNED_X=%d;"
-										 "export BUTTON_ALIGNED_Y=%d;"
-										 "export BUTTON_ALIGNED_X1=%d;"
-										 "export BUTTON_ALIGNED_Y1=%d;"
-										 "export BUTTON_ALIGNED_X2=%d;"
-										 "export BUTTON_ALIGNED_Y2=%d;"
-										 "export BUTTON_PANEL_X1=%d;"
-										 "export BUTTON_PANEL_Y1=%d;"
-										 "export BUTTON_PANEL_X2=%d;"
-										 "export BUTTON_PANEL_Y2=%d;"
+		char *full_cmd = g_strdup_printf("export TINT2_BUTTON_X=%d;"
+										 "export TINT2_BUTTON_Y=%d;"
+										 "export TINT2_BUTTON_W=%d;"
+										 "export TINT2_BUTTON_H=%d;"
+										 "export TINT2_BUTTON_ALIGNED_X=%d;"
+										 "export TINT2_BUTTON_ALIGNED_Y=%d;"
+										 "export TINT2_BUTTON_ALIGNED_X1=%d;"
+										 "export TINT2_BUTTON_ALIGNED_Y1=%d;"
+										 "export TINT2_BUTTON_ALIGNED_X2=%d;"
+										 "export TINT2_BUTTON_ALIGNED_Y2=%d;"
+										 "export TINT2_BUTTON_PANEL_X1=%d;"
+										 "export TINT2_BUTTON_PANEL_Y1=%d;"
+										 "export TINT2_BUTTON_PANEL_X2=%d;"
+										 "export TINT2_BUTTON_PANEL_Y2=%d;"
 										 "%s",
 		                                 x,
 		                                 y,
