@@ -289,7 +289,12 @@ void task_update_icon(Task *task)
 				icon_data[j] = tmp_data[j];
 			img = imlib_create_image_using_copied_data(w, h, icon_data);
 			if (img)
-				fprintf(stderr, "%s: Got %dx%d icon via _NET_WM_ICON for %s\n", __FUNCTION__, w, h, task->title ? task->title : "task");
+				fprintf(stderr,
+				        "%s: Got %dx%d icon via _NET_WM_ICON for %s\n",
+				        __FUNCTION__,
+				        w,
+				        h,
+				        task->title ? task->title : "task");
 			XFree(data);
 		}
 	}
@@ -308,7 +313,12 @@ void task_update_icon(Task *task)
 				imlib_context_set_drawable(hints->icon_pixmap);
 				img = imlib_create_image_from_drawable(hints->icon_mask, 0, 0, w, h, 0);
 				if (img)
-					fprintf(stderr, "%s: Got %dx%d pixmap icon via WM_HINTS for %s\n", __FUNCTION__, w, h, task->title ? task->title : "task");
+					fprintf(stderr,
+					        "%s: Got %dx%d pixmap icon via WM_HINTS for %s\n",
+					        __FUNCTION__,
+					        w,
+					        h,
+					        task->title ? task->title : "task");
 			}
 			XFree(hints);
 		}
@@ -454,22 +464,22 @@ void task_dump_geometry(void *obj, int indent)
 	Panel *panel = (Panel *)task->area.panel;
 
 	fprintf(stderr,
-			"%*sText: x = %d, y = %d, w = %d, h = %d, align = %s, text = %s\n",
-			indent,
-			"",
-			(int)panel->g_task.text_posx,
-			(int)task->_text_posy,
-			task->_text_width,
-			task->_text_height,
-			panel->g_task.centered ? "center" : "left",
-			task->title);
+	        "%*sText: x = %d, y = %d, w = %d, h = %d, align = %s, text = %s\n",
+	        indent,
+	        "",
+	        (int)panel->g_task.text_posx,
+	        (int)task->_text_posy,
+	        task->_text_width,
+	        task->_text_height,
+	        panel->g_task.centered ? "center" : "left",
+	        task->title);
 	fprintf(stderr,
-			"%*sIcon: x = %d, y = %d, w = h = %d\n",
-			indent,
-			"",
-			task->_icon_x,
-			task->_icon_y,
-			panel->g_task.icon_size1);
+	        "%*sIcon: x = %d, y = %d, w = h = %d\n",
+	        indent,
+	        "",
+	        task->_icon_x,
+	        task->_icon_y,
+	        panel->g_task.icon_size1);
 }
 
 int task_compute_desired_size(void *obj)
@@ -485,15 +495,24 @@ void on_change_task(void *obj)
 	Task *task = (Task *)obj;
 	Panel *panel = (Panel *)task->area.panel;
 
-	long value[] = {panel->posx + task->area.posx, panel->posy + task->area.posy, task->area.width, task->area.height};
-	XChangeProperty(server.display,
-	                task->win,
-	                server.atom._NET_WM_ICON_GEOMETRY,
-	                XA_CARDINAL,
-	                32,
-	                PropModeReplace,
-	                (unsigned char *)value,
-	                4);
+	if (task->area.on_screen) {
+		long value[] = {panel->posx + task->area.posx,
+						panel->posy + task->area.posy,
+						task->area.width,
+						task->area.height};
+		XChangeProperty(server.display,
+						task->win,
+						server.atom._NET_WM_ICON_GEOMETRY,
+						XA_CARDINAL,
+						32,
+						PropModeReplace,
+						(unsigned char *)value,
+						4);
+	} else {
+		XDeleteProperty(server.display,
+						task->win,
+						server.atom._NET_WM_ICON_GEOMETRY);
+	}
 }
 
 Task *find_active_task(Task *current_task)
