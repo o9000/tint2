@@ -288,7 +288,7 @@ void task_update_icon(Task *task)
 			for (int j = 0; j < w * h; ++j)
 				icon_data[j] = tmp_data[j];
 			img = imlib_create_image_using_copied_data(w, h, icon_data);
-			if (img)
+			if (0 && img)
 				fprintf(stderr,
 				        "%s: Got %dx%d icon via _NET_WM_ICON for %s\n",
 				        __FUNCTION__,
@@ -312,7 +312,7 @@ void task_update_icon(Task *task)
 				XGetGeometry(server.display, hints->icon_pixmap, &root, &icon_x, &icon_y, &w, &h, &border_width, &bpp);
 				imlib_context_set_drawable(hints->icon_pixmap);
 				img = imlib_create_image_from_drawable(hints->icon_mask, 0, 0, w, h, 0);
-				if (img)
+				if (0 && img)
 					fprintf(stderr,
 					        "%s: Got %dx%d pixmap icon via WM_HINTS for %s\n",
 					        __FUNCTION__,
@@ -327,7 +327,8 @@ void task_update_icon(Task *task)
 	if (img == NULL) {
 		imlib_context_set_image(default_icon);
 		img = imlib_clone_image();
-		fprintf(stderr, "%s: Using default icon for %s\n", __FUNCTION__, task->title ? task->title : "task");
+		if (0)
+			fprintf(stderr, "%s: Using default icon for %s\n", __FUNCTION__, task->title ? task->title : "task");
 	}
 
 	// transform icons
