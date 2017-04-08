@@ -674,3 +674,18 @@ void sort_taskbar_for_win(Window win)
 		}
 	}
 }
+
+void update_minimized_icon_positions(void *p)
+{
+	Panel *panel = (Panel *)p;
+	for (int i = 0; i < panel->num_desktops; i++) {
+		Taskbar *taskbar = &panel->taskbar[i];
+		if (!taskbar->area.on_screen)
+			continue;
+		for (GList *c = taskbar->area.children; c; c = c->next) {
+			Area *area = (Area *)c->data;
+			if (area->_on_change_layout)
+				area->_on_change_layout(area);
+		}
+	}
+}

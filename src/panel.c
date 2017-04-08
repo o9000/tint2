@@ -1083,6 +1083,7 @@ void shrink_panel(Panel *panel)
 		systray.area.resize_needed = TRUE;
 		schedule_redraw(&systray.area);
 		refresh_systray = TRUE;
+		update_minimized_icon_positions(panel);
 	}
 }
 

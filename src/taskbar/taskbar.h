@@ -88,6 +88,8 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state);
 // Updates the visibility of all taskbars
 void update_all_taskbars_visibility();
 
+void update_minimized_icon_positions(void *p);
+
 // Sorts the taskbar(s) on which the window is present.
 void sort_taskbar_for_win(Window win);
 
