@@ -527,11 +527,13 @@ static void sigchld_handler_async()
 	int status;
 	while ((pid = waitpid(-1, &status, WNOHANG)) != -1 && pid != 0) {
 #ifdef HAVE_SN
-		SnLauncherContext *ctx = (SnLauncherContext *)g_tree_lookup(server.pids, GINT_TO_POINTER(pid));
-		if (ctx) {
-			g_tree_remove(server.pids, GINT_TO_POINTER(pid));
-			sn_launcher_context_complete(ctx);
-			sn_launcher_context_unref(ctx);
+		if (startup_notifications) {
+			SnLauncherContext *ctx = (SnLauncherContext *)g_tree_lookup(server.pids, GINT_TO_POINTER(pid));
+			if (ctx) {
+				g_tree_remove(server.pids, GINT_TO_POINTER(pid));
+				sn_launcher_context_complete(ctx);
+				sn_launcher_context_unref(ctx);
+			}
 		}
 #endif
 		for (GList *l = panel_config.execp_list; l; l = l->next) {
