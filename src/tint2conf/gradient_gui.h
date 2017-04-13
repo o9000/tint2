@@ -22,23 +22,23 @@ void gradient_stop_update_image(int index);
 void current_gradient_stop_changed(GtkWidget *widget, gpointer data);
 
 typedef enum GradientConfigType {
-	GRADIENT_CONFIG_VERTICAL = 0,
-	GRADIENT_CONFIG_HORIZONTAL,
-	GRADIENT_CONFIG_RADIAL
+    GRADIENT_CONFIG_VERTICAL = 0,
+    GRADIENT_CONFIG_HORIZONTAL,
+    GRADIENT_CONFIG_RADIAL
 } GradientConfigType;
 
 typedef struct GradientConfigColorStop {
-	Color color;
-	// offset in 0-1
-	double offset;
+    Color color;
+    // offset in 0-1
+    double offset;
 } GradientConfigColorStop;
 
 typedef struct GradientConfig {
-	GradientConfigType type;
-	GradientConfigColorStop start_color;
-	GradientConfigColorStop end_color;
-	// Each element is a GradientConfigColorStop
-	GList *extra_color_stops;
+    GradientConfigType type;
+    GradientConfigColorStop start_color;
+    GradientConfigColorStop end_color;
+    // Each element is a GradientConfigColorStop
+    GList *extra_color_stops;
 } GradientConfig;
 
 void gradient_create_new(GradientConfigType t);

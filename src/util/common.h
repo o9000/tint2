@@ -24,19 +24,19 @@
 
 // mouse actions
 typedef enum MouseAction {
-	NONE = 0,
-	CLOSE,
-	TOGGLE,
-	ICONIFY,
-	SHADE,
-	TOGGLE_ICONIFY,
-	MAXIMIZE_RESTORE,
-	MAXIMIZE,
-	RESTORE,
-	DESKTOP_LEFT,
-	DESKTOP_RIGHT,
-	NEXT_TASK,
-	PREV_TASK
+    NONE = 0,
+    CLOSE,
+    TOGGLE,
+    ICONIFY,
+    SHADE,
+    TOGGLE_ICONIFY,
+    MAXIMIZE_RESTORE,
+    MAXIMIZE,
+    RESTORE,
+    DESKTOP_LEFT,
+    DESKTOP_RIGHT,
+    NEXT_TASK,
+    PREV_TASK
 } MouseAction;
 
 #define ALL_DESKTOPS 0xFFFFFFFF
@@ -94,16 +94,16 @@ void create_heuristic_mask(DATA32 *data, int w, int h);
 void render_image(Drawable d, int x, int y);
 
 void get_text_size2(PangoFontDescription *font,
-					int *height_ink,
-					int *height,
-					int *width,
-					int panel_height,
-					int panel_with,
-					char *text,
-					int len,
-					PangoWrapMode wrap,
-					PangoEllipsizeMode ellipsis,
-					gboolean markup);
+                    int *height_ink,
+                    int *height,
+                    int *width,
+                    int panel_height,
+                    int panel_with,
+                    char *text,
+                    int len,
+                    PangoWrapMode wrap,
+                    PangoEllipsizeMode ellipsis,
+                    gboolean markup);
 
 void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow);
 
@@ -125,10 +125,10 @@ GSList *slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr
 gint cmp_ptr(gconstpointer a, gconstpointer b);
 
 #define free_and_null(p) \
-	{                    \
-		free(p);         \
-		p = NULL;        \
-	}
+    {                    \
+        free(p);         \
+        p = NULL;        \
+    }
 
 #if !GLIB_CHECK_VERSION(2, 33, 4)
 GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data);

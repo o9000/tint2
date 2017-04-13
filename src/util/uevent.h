@@ -21,31 +21,31 @@
 #define UEVENT_H
 
 enum uevent_action {
-	UEVENT_UNKNOWN = 0x01,
-	UEVENT_ADD = 0x02,
-	UEVENT_REMOVE = 0x04,
-	UEVENT_CHANGE = 0x08,
+    UEVENT_UNKNOWN = 0x01,
+    UEVENT_ADD = 0x02,
+    UEVENT_REMOVE = 0x04,
+    UEVENT_CHANGE = 0x08,
 };
 
 struct uevent_parameter {
-	char *key;
-	char *val;
+    char *key;
+    char *val;
 };
 
 struct uevent {
-	char *path;
-	enum uevent_action action;
-	int sequence;
-	char *subsystem;
-	GList *params;
+    char *path;
+    enum uevent_action action;
+    int sequence;
+    char *subsystem;
+    GList *params;
 };
 
 struct uevent_notify {
-	int action;      /* bitfield */
-	char *subsystem; /* NULL => any */
-	void *userdata;
+    int action;      /* bitfield */
+    char *subsystem; /* NULL => any */
+    void *userdata;
 
-	void (*cb)(struct uevent *e, void *userdata);
+    void (*cb)(struct uevent *e, void *userdata);
 };
 
 #if ENABLE_UEVENT
@@ -58,7 +58,7 @@ void uevent_unregister_notifier(struct uevent_notify *nb);
 #else
 static inline int uevent_init()
 {
-	return -1;
+    return -1;
 }
 
 static inline void uevent_cleanup()

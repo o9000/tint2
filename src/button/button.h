@@ -17,55 +17,56 @@
 // backend's config and state variables.
 
 typedef struct ButtonBackend {
-	// Config:
-	char *icon_name;
-	char *text;
-	char *tooltip;
-	gboolean centered;
-	int max_icon_size;
-	gboolean has_font;
-	PangoFontDescription *font_desc;
-	Color font_color;
-	char *lclick_command;
-	char *mclick_command;
-	char *rclick_command;
-	char *uwheel_command;
-	char *dwheel_command;
-	// paddingxlr = horizontal padding left/right
-	// paddingx = horizontal padding between childs
-	int paddingxlr, paddingx, paddingy;
-	Background *bg;
+    // Config:
+    char *icon_name;
+    char *text;
+    char *tooltip;
+    gboolean centered;
+    int max_icon_size;
+    gboolean has_font;
+    PangoFontDescription *font_desc;
+    Color font_color;
+    char *lclick_command;
+    char *mclick_command;
+    char *rclick_command;
+    char *uwheel_command;
+    char *dwheel_command;
+    // paddingxlr = horizontal padding left/right
+    // paddingx = horizontal padding between childs
+    int paddingxlr, paddingx, paddingy;
+    Background *bg;
 
-	// List of Button which are frontends for this backend, one for each panel
-	GList *instances;
+    // List of Button which are frontends for this backend, one for each panel
+    GList *instances;
 } ButtonBackend;
 
 typedef struct ButtonFrontend {
-	// Frontend state:
-	Imlib_Image icon;
-	Imlib_Image icon_hover;
-	Imlib_Image icon_pressed;
-	int icon_load_size;
-	int iconx;
-	int icony;
-	int iconw;
-	int iconh;
-	int textx;
-	int texty;
-	int textw;
-	int texth;
+    // Frontend state:
+    Imlib_Image icon;
+    Imlib_Image icon_hover;
+    Imlib_Image icon_pressed;
+    int icon_load_size;
+    int iconx;
+    int icony;
+    int iconw;
+    int iconh;
+    int textx;
+    int texty;
+    int textw;
+    int texth;
 } ButtonFrontend;
 
 typedef struct Button {
-	Area area;
-	// All elements have the backend pointer set. However only backend elements have ownership.
-	ButtonBackend *backend;
-	// Set only for frontend Button items.
-	ButtonFrontend *frontend;
+    Area area;
+    // All elements have the backend pointer set. However only backend elements have ownership.
+    ButtonBackend *backend;
+    // Set only for frontend Button items.
+    ButtonFrontend *frontend;
 } Button;
 
 // Called before the config is read and panel_config/panels are created.
-// Afterwards, the config parsing code creates the array of Button in panel_config and populates the configuration fields
+// Afterwards, the config parsing code creates the array of Button in panel_config and populates the configuration
+// fields
 // in the backend.
 // Probably does nothing.
 void default_button();

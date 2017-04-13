@@ -42,29 +42,29 @@ extern MouseAction mouse_tilt_right;
 
 // panel mode
 typedef enum TaskbarMode {
-	SINGLE_DESKTOP = 0,
-	MULTI_DESKTOP,
+    SINGLE_DESKTOP = 0,
+    MULTI_DESKTOP,
 } TaskbarMode;
 
 typedef enum Layer {
-	BOTTOM_LAYER,
-	NORMAL_LAYER,
-	TOP_LAYER,
+    BOTTOM_LAYER,
+    NORMAL_LAYER,
+    TOP_LAYER,
 } Layer;
 
 // panel position
 typedef enum PanelPosition {
-	LEFT = 0x01,
-	RIGHT = 0x02,
-	CENTER = 0X04,
-	TOP = 0X08,
-	BOTTOM = 0x10,
+    LEFT = 0x01,
+    RIGHT = 0x02,
+    CENTER = 0X04,
+    TOP = 0X08,
+    BOTTOM = 0x10,
 } PanelPosition;
 
 typedef enum Strut {
-	STRUT_MINIMUM,
-	STRUT_FOLLOW_SIZE,
-	STRUT_NONE,
+    STRUT_MINIMUM,
+    STRUT_FOLLOW_SIZE,
+    STRUT_NONE,
 } Strut;
 
 extern TaskbarMode taskbar_mode;
@@ -95,54 +95,54 @@ extern gboolean debug_fps;
 extern gboolean debug_frames;
 
 typedef struct Panel {
-	Area area;
+    Area area;
 
-	Window main_win;
-	Pixmap temp_pmap;
+    Window main_win;
+    Pixmap temp_pmap;
 
-	// position relative to root window
-	int posx, posy;
-	int marginx, marginy;
-	gboolean fractional_width, fractional_height;
-	int max_size;
-	int monitor;
-	int font_shadow;
-	gboolean mouse_effects;
-	// Mouse effects for icons
-	int mouse_over_alpha;
-	int mouse_over_saturation;
-	int mouse_over_brightness;
-	int mouse_pressed_alpha;
-	int mouse_pressed_saturation;
-	int mouse_pressed_brightness;
+    // position relative to root window
+    int posx, posy;
+    int marginx, marginy;
+    gboolean fractional_width, fractional_height;
+    int max_size;
+    int monitor;
+    int font_shadow;
+    gboolean mouse_effects;
+    // Mouse effects for icons
+    int mouse_over_alpha;
+    int mouse_over_saturation;
+    int mouse_over_brightness;
+    int mouse_pressed_alpha;
+    int mouse_pressed_saturation;
+    int mouse_pressed_brightness;
 
-	// Per-panel parameters and states for Taskbar and Task
-	GlobalTaskbar g_taskbar;
-	GlobalTask g_task;
+    // Per-panel parameters and states for Taskbar and Task
+    GlobalTaskbar g_taskbar;
+    GlobalTask g_task;
 
-	// Array of Taskbar, with num_desktops items
-	Taskbar *taskbar;
-	int num_desktops;
-	gboolean taskbarname_has_font;
-	PangoFontDescription *taskbarname_font_desc;
+    // Array of Taskbar, with num_desktops items
+    Taskbar *taskbar;
+    int num_desktops;
+    gboolean taskbarname_has_font;
+    PangoFontDescription *taskbarname_font_desc;
 
-	Clock clock;
+    Clock clock;
 
 #ifdef ENABLE_BATTERY
-	Battery battery;
+    Battery battery;
 #endif
 
-	Launcher launcher;
-	GList *freespace_list;
-	GList *separator_list;
-	GList *execp_list;
-	GList *button_list;
+    Launcher launcher;
+    GList *freespace_list;
+    GList *separator_list;
+    GList *execp_list;
+    GList *button_list;
 
-	// Autohide
-	gboolean is_hidden;
-	int hidden_width, hidden_height;
-	Pixmap hidden_pixmap;
-	timeout *autohide_timeout;
+    // Autohide
+    gboolean is_hidden;
+    int hidden_width, hidden_height;
+    Pixmap hidden_pixmap;
+    timeout *autohide_timeout;
 } Panel;
 
 extern Panel panel_config;

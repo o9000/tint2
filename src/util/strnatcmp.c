@@ -43,110 +43,110 @@
 // remember it in BIAS.
 static int compare_right(char const *a, char const *b)
 {
-	int bias = 0;
+    int bias = 0;
 
-	for (;; a++, b++) {
-		if (!isdigit(*a) && !isdigit(*b))
-			return bias;
-		else if (!isdigit(*a))
-			return -1;
-		else if (!isdigit(*b))
-			return +1;
-		else if (*a < *b) {
-			if (!bias)
-				bias = -1;
-		} else if (*a > *b) {
-			if (!bias)
-				bias = +1;
-		} else if (!*a && !*b)
-			return bias;
-	}
+    for (;; a++, b++) {
+        if (!isdigit(*a) && !isdigit(*b))
+            return bias;
+        else if (!isdigit(*a))
+            return -1;
+        else if (!isdigit(*b))
+            return +1;
+        else if (*a < *b) {
+            if (!bias)
+                bias = -1;
+        } else if (*a > *b) {
+            if (!bias)
+                bias = +1;
+        } else if (!*a && !*b)
+            return bias;
+    }
 
-	return 0;
+    return 0;
 }
 
 // Compare two left-aligned numbers:
 // The first to have a different value wins.
 static int compare_left(char const *a, char const *b)
 {
-	for (;; a++, b++) {
-		if (!isdigit(*a) && !isdigit(*b))
-			return 0;
-		else if (!isdigit(*a))
-			return -1;
-		else if (!isdigit(*b))
-			return +1;
-		else if (*a < *b)
-			return -1;
-		else if (*a > *b)
-			return +1;
-	}
+    for (;; a++, b++) {
+        if (!isdigit(*a) && !isdigit(*b))
+            return 0;
+        else if (!isdigit(*a))
+            return -1;
+        else if (!isdigit(*b))
+            return +1;
+        else if (*a < *b)
+            return -1;
+        else if (*a > *b)
+            return +1;
+    }
 
-	return 0;
+    return 0;
 }
 
 static int strnatcmp0(char const *a, char const *b, int ignore_case)
 {
-	assert(a && b);
+    assert(a && b);
 
-	int ai, bi;
-	ai = bi = 0;
-	while (1) {
-		char ca = a[ai];
-		char cb = b[bi];
+    int ai, bi;
+    ai = bi = 0;
+    while (1) {
+        char ca = a[ai];
+        char cb = b[bi];
 
-		// Skip over leading spaces
-		while (isspace(ca)) {
-			ai++;
-			ca = a[ai];
-		}
+        // Skip over leading spaces
+        while (isspace(ca)) {
+            ai++;
+            ca = a[ai];
+        }
 
-		while (isspace(cb)) {
-			bi++;
-			cb = b[bi];
-		}
+        while (isspace(cb)) {
+            bi++;
+            cb = b[bi];
+        }
 
-		// Process run of digits
-		if (isdigit(ca) && isdigit(cb)) {
-			int fractional = (ca == '0' || cb == '0');
+        // Process run of digits
+        if (isdigit(ca) && isdigit(cb)) {
+            int fractional = (ca == '0' || cb == '0');
 
-			if (fractional) {
-				int result = compare_left(a + ai, b + bi);
-				if (result)
-					return result;
-			} else {
-				int result = compare_right(a + ai, b + bi);
-				if (result)
-					return result;
-			}
-		}
+            if (fractional) {
+                int result = compare_left(a + ai, b + bi);
+                if (result)
+                    return result;
+            } else {
+                int result = compare_right(a + ai, b + bi);
+                if (result)
+                    return result;
+            }
+        }
 
-		if (!ca && !cb) {
-			// The strings compare the same.  Perhaps the caller will want to call strcmp to break the tie.
-			return 0;
-		}
+        if (!ca && !cb) {
+            // The strings compare the same.  Perhaps the caller will want to call strcmp to break the tie.
+            return 0;
+        }
 
-		if (ignore_case) {
-			ca = toupper(ca);
-			cb = toupper(cb);
-		}
+        if (ignore_case) {
+            ca = toupper(ca);
+            cb = toupper(cb);
+        }
 
-		if (ca < cb)
-			return -1;
-		else if (ca > cb)
-			return +1;
+        if (ca < cb)
+            return -1;
+        else if (ca > cb)
+            return +1;
 
-		ai++;
-		bi++;
-	}
+        ai++;
+        bi++;
+    }
 }
 
 int strnatcmp(char const *a, char const *b)
 {
-	return strnatcmp0(a, b, 0);
+    return strnatcmp0(a, b, 0);
 }
 
 int strnatcasecmp(char const *a, char const *b)
 {
-	return strnatcmp0(a, b, 1);
+    return strnatcmp0(a, b, 1);
 }

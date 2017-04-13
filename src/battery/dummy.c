@@ -25,20 +25,20 @@
 
 gboolean battery_os_init()
 {
-	return FALSE;
+    return FALSE;
 }
 
 void battery_os_free()
 {
-	return;
+    return;
 }
 
 int battery_os_update(BatteryState *state)
 {
-	return -1;
+    return -1;
 }
 
 char *battery_os_tooltip()
 {
-	return strdup("Operating System not supported");
+    return strdup("Operating System not supported");
 }

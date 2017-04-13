@@ -38,10 +38,10 @@ typedef void (*XSettingsNotifyFunc)(const char *name, XSettingsAction action, XS
 typedef void (*XSettingsWatchFunc)(Window window, Bool is_start, long mask, void *cb_data);
 
 XSettingsClient *xsettings_client_new(Display *display,
-									  int screen,
-									  XSettingsNotifyFunc notify,
-									  XSettingsWatchFunc watch,
-									  void *cb_data);
+                                      int screen,
+                                      XSettingsNotifyFunc notify,
+                                      XSettingsWatchFunc watch,
+                                      void *cb_data);
 void xsettings_client_destroy(XSettingsClient *client);
 Bool xsettings_client_process_event(XSettingsClient *client, XEvent *xev);
 

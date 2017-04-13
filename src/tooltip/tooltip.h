@@ -23,20 +23,20 @@
 #include "timer.h"
 
 typedef struct {
-	Area *area; // never ever use the area attribut if you are not 100% sure that this area was not freed
-	char *tooltip_text;
-	Panel *panel;
-	Window window;
-	int show_timeout_msec;
-	int hide_timeout_msec;
-	Bool mapped;
-	int paddingx;
-	int paddingy;
-	gboolean has_font;
-	PangoFontDescription *font_desc;
-	Color font_color;
-	Background *bg;
-	timeout *timeout;
+    Area *area; // never ever use the area attribut if you are not 100% sure that this area was not freed
+    char *tooltip_text;
+    Panel *panel;
+    Window window;
+    int show_timeout_msec;
+    int hide_timeout_msec;
+    Bool mapped;
+    int paddingx;
+    int paddingy;
+    gboolean has_font;
+    PangoFontDescription *font_desc;
+    Color font_color;
+    Background *bg;
+    timeout *timeout;
 } Tooltip;
 
 extern Tooltip g_tooltip;

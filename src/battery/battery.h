@@ -17,30 +17,30 @@
 #include "area.h"
 
 typedef struct Battery {
-	Area area;
-	Color font_color;
-	int bat1_posy;
-	int bat2_posy;
+    Area area;
+    Color font_color;
+    int bat1_posy;
+    int bat2_posy;
 } Battery;
 
 typedef enum ChargeState {
-	BATTERY_UNKNOWN = 0,
-	BATTERY_CHARGING,
-	BATTERY_DISCHARGING,
-	BATTERY_FULL,
+    BATTERY_UNKNOWN = 0,
+    BATTERY_CHARGING,
+    BATTERY_DISCHARGING,
+    BATTERY_FULL,
 } ChargeState;
 
 typedef struct BatteryTime {
-	int16_t hours;
-	int8_t minutes;
-	int8_t seconds;
+    int16_t hours;
+    int8_t minutes;
+    int8_t seconds;
 } BatteryTime;
 
 typedef struct BatteryState {
-	int percentage;
-	BatteryTime time;
-	ChargeState state;
-	gboolean ac_connected;
+    int percentage;
+    BatteryTime time;
+    ChargeState state;
+    gboolean ac_connected;
 } BatteryState;
 
 extern struct BatteryState battery_state;
@@ -68,26 +68,26 @@ extern char *battery_sys_prefix;
 
 static inline gchar *chargestate2str(ChargeState state)
 {
-	switch (state) {
-	case BATTERY_CHARGING:
-		return "Charging";
-	case BATTERY_DISCHARGING:
-		return "Discharging";
-	case BATTERY_FULL:
-		return "Full";
-	case BATTERY_UNKNOWN:
-	default:
-		return "Unknown";
-	};
+    switch (state) {
+    case BATTERY_CHARGING:
+        return "Charging";
+    case BATTERY_DISCHARGING:
+        return "Discharging";
+    case BATTERY_FULL:
+        return "Full";
+    case BATTERY_UNKNOWN:
+    default:
+        return "Unknown";
+    };
 }
 
 static inline void battery_state_set_time(BatteryState *state, int seconds)
 {
-	state->time.hours = seconds / 3600;
-	seconds -= 3600 * state->time.hours;
-	state->time.minutes = seconds / 60;
-	seconds -= 60 * state->time.minutes;
-	state->time.seconds = seconds;
+    state->time.hours = seconds / 3600;
+    seconds -= 3600 * state->time.hours;
+    state->time.minutes = seconds / 60;
+    seconds -= 60 * state->time.minutes;
+    state->time.seconds = seconds;
 }
 
 // default global data

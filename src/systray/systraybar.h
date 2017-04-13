@@ -21,50 +21,50 @@
 #define XEMBED_MAPPED (1 << 0)
 
 typedef enum SystraySortMethod {
-	SYSTRAY_SORT_ASCENDING = 0,
-	SYSTRAY_SORT_DESCENDING,
-	SYSTRAY_SORT_LEFT2RIGHT,
-	SYSTRAY_SORT_RIGHT2LEFT,
+    SYSTRAY_SORT_ASCENDING = 0,
+    SYSTRAY_SORT_DESCENDING,
+    SYSTRAY_SORT_LEFT2RIGHT,
+    SYSTRAY_SORT_RIGHT2LEFT,
 } SystraySortMethod;
 
 typedef struct {
-	// always start with area
-	Area area;
+    // always start with area
+    Area area;
 
-	GSList *list_icons;
-	SystraySortMethod sort;
-	int alpha, saturation, brightness;
-	int icon_size, icons_per_column, icons_per_row, margin;
+    GSList *list_icons;
+    SystraySortMethod sort;
+    int alpha, saturation, brightness;
+    int icon_size, icons_per_column, icons_per_row, margin;
 } Systray;
 
 typedef struct {
-	// The actual tray icon window (created by the application)
-	Window win;
-	// The parent window created by tint2 to embed the icon
-	Window parent;
-	int x, y;
-	int width, height;
-	int depth;
-	gboolean reparented;
-	gboolean embedded;
-	// Process PID or zero.
-	int pid;
-	// A number that is incremented for each new icon, used to sort them by the order in which they were created.
-	int chrono;
-	// Name of the tray icon window.
-	char *name;
-	// Members used for rendering
-	struct timespec time_last_render;
-	int num_fast_renders;
-	timeout *render_timeout;
-	// Members used for resizing
-	int bad_size_counter;
-	struct timespec time_last_resize;
-	timeout *resize_timeout;
-	// Icon contents if we are compositing the icon, otherwise null
-	Imlib_Image image;
-	// XDamage
-	Damage damage;
+    // The actual tray icon window (created by the application)
+    Window win;
+    // The parent window created by tint2 to embed the icon
+    Window parent;
+    int x, y;
+    int width, height;
+    int depth;
+    gboolean reparented;
+    gboolean embedded;
+    // Process PID or zero.
+    int pid;
+    // A number that is incremented for each new icon, used to sort them by the order in which they were created.
+    int chrono;
+    // Name of the tray icon window.
+    char *name;
+    // Members used for rendering
+    struct timespec time_last_render;
+    int num_fast_renders;
+    timeout *render_timeout;
+    // Members used for resizing
+    int bad_size_counter;
+    struct timespec time_last_resize;
+    timeout *resize_timeout;
+    // Icon contents if we are compositing the icon, otherwise null
+    Imlib_Image image;
+    // XDamage
+    Damage damage;
 } TrayWindow;
 
 // net_sel_win != None when protocol started

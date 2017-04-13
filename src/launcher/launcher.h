@@ -17,27 +17,27 @@ void load_icon_themes();
 void free_icon_themes();
 
 typedef struct Launcher {
-	// always start with area
-	Area area;
-	GSList *list_apps;  // List of char*, each is a path to a app.desktop file
-	GSList *list_icons; // List of LauncherIcon*
-	int icon_size;
+    // always start with area
+    Area area;
+    GSList *list_apps;  // List of char*, each is a path to a app.desktop file
+    GSList *list_icons; // List of LauncherIcon*
+    int icon_size;
 } Launcher;
 
 typedef struct LauncherIcon {
-	// always start with area
-	Area area;
-	char *config_path;
-	Imlib_Image image;
-	Imlib_Image image_hover;
-	Imlib_Image image_pressed;
-	char *cmd;
-	char *cwd;
-	char *icon_name;
-	char *icon_path;
-	char *icon_tooltip;
-	int icon_size;
-	int x, y;
+    // always start with area
+    Area area;
+    char *config_path;
+    Imlib_Image image;
+    Imlib_Image image_hover;
+    Imlib_Image image_pressed;
+    char *cmd;
+    char *cwd;
+    char *icon_name;
+    char *icon_path;
+    char *icon_tooltip;
+    int icon_size;
+    int x, y;
 } LauncherIcon;
 
 extern gboolean launcher_enabled;

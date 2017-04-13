@@ -6,9 +6,9 @@
 // A cache with string keys and values, backed by a file.
 // The strings must not be NULL and are stripped of any whitespace at start and end.
 typedef struct Cache {
-	gboolean dirty;
-	gboolean loaded;
-	GHashTable *_table;
+    gboolean dirty;
+    gboolean loaded;
+    GHashTable *_table;
 } Cache;
 
 // Initializes the cache. You can also call load_cache directly if you set the memory contents to zero first.

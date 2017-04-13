@@ -9,7 +9,7 @@
 #include "area.h"
 
 typedef struct FreeSpace {
-	Area area;
+    Area area;
 } FreeSpace;
 
 struct Panel;

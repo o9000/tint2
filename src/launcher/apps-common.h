@@ -10,13 +10,13 @@
 #include <glib.h>
 
 typedef struct DesktopEntry {
-	char *name;
-	char *generic_name;
-	char *exec;
-	char *icon;
-	char *path;
-	char *cwd;
-	gboolean hidden_from_menus;
+    char *name;
+    char *generic_name;
+    char *exec;
+    char *icon;
+    char *path;
+    char *cwd;
+    gboolean hidden_from_menus;
 } DesktopEntry;
 
 // Parses a line of the form "key = value". Modifies the line.

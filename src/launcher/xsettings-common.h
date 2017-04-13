@@ -36,48 +36,48 @@ typedef struct _XSettingsSetting XSettingsSetting;
  * protocol values.
  */
 typedef enum {
-	XSETTINGS_TYPE_INT = 0,
-	XSETTINGS_TYPE_STRING = 1,
-	XSETTINGS_TYPE_COLOR = 2,
-	XSETTINGS_TYPE_NONE = 0xff
+    XSETTINGS_TYPE_INT = 0,
+    XSETTINGS_TYPE_STRING = 1,
+    XSETTINGS_TYPE_COLOR = 2,
+    XSETTINGS_TYPE_NONE = 0xff
 } XSettingsType;
 
 typedef enum {
-	XSETTINGS_SUCCESS,
-	XSETTINGS_NO_MEM,
-	XSETTINGS_ACCESS,
-	XSETTINGS_FAILED,
-	XSETTINGS_NO_ENTRY,
-	XSETTINGS_DUPLICATE_ENTRY
+    XSETTINGS_SUCCESS,
+    XSETTINGS_NO_MEM,
+    XSETTINGS_ACCESS,
+    XSETTINGS_FAILED,
+    XSETTINGS_NO_ENTRY,
+    XSETTINGS_DUPLICATE_ENTRY
 } XSettingsResult;
 
 struct _XSettingsBuffer {
-	char byte_order;
-	size_t len;
-	unsigned char *data;
-	unsigned char *pos;
+    char byte_order;
+    size_t len;
+    unsigned char *data;
+    unsigned char *pos;
 };
 
 struct _XSettingsColor {
-	unsigned short red, green, blue, alpha;
+    unsigned short red, green, blue, alpha;
 };
 
 struct _XSettingsList {
-	XSettingsSetting *setting;
-	XSettingsList *next;
+    XSettingsSetting *setting;
+    XSettingsList *next;
 };
 
 struct _XSettingsSetting {
-	char *name;
-	XSettingsType type;
+    char *name;
+    XSettingsType type;
 
-	union {
-		int v_int;
-		char *v_string;
-		XSettingsColor v_color;
-	} data;
+    union {
+        int v_int;
+        char *v_string;
+        XSettingsColor v_color;
+    } data;
 
-	unsigned long last_change_serial;
+    unsigned long last_change_serial;
 };
 
 XSettingsSetting *xsettings_setting_copy(XSettingsSetting *setting);
