@@ -57,6 +57,7 @@ gboolean task_dragged;
 char *panel_window_name = NULL;
 gboolean debug_geometry;
 gboolean debug_gradients;
+gboolean startup_notifications;
 
 gboolean panel_autohide;
 int panel_autohide_show_timeout;

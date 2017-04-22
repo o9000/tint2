@@ -103,7 +103,7 @@ void draw_button(void *obj, cairo_t *c);
 gboolean resize_button(void *obj);
 
 // Called on mouse click event.
-void button_action(void *obj, int button, int x, int y);
+void button_action(void *obj, int button, int x, int y, Time time);
 
 void button_default_font_changed();
 void button_default_icon_theme_changed();

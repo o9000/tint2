@@ -968,7 +968,7 @@ void event_button_release(XEvent *e)
     }
 
     if (click_clock(panel, e->xbutton.x, e->xbutton.y)) {
-        clock_action(e->xbutton.button);
+        clock_action(e->xbutton.button, e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
         task_drag = 0;
@@ -977,7 +977,7 @@ void event_button_release(XEvent *e)
 
 #ifdef ENABLE_BATTERY
     if (click_battery(panel, e->xbutton.x, e->xbutton.y)) {
-        battery_action(e->xbutton.button);
+        battery_action(e->xbutton.button, e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
         task_drag = 0;
@@ -987,7 +987,7 @@ void event_button_release(XEvent *e)
 
     Execp *execp = click_execp(panel, e->xbutton.x, e->xbutton.y);
     if (execp) {
-        execp_action(execp, e->xbutton.button, e->xbutton.x - execp->area.posx, e->xbutton.y - execp->area.posy);
+        execp_action(execp, e->xbutton.button, e->xbutton.x - execp->area.posx, e->xbutton.y - execp->area.posy, e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
         task_drag = 0;
@@ -996,7 +996,7 @@ void event_button_release(XEvent *e)
 
     Button *button = click_button(panel, e->xbutton.x, e->xbutton.y);
     if (button) {
-        button_action(button, e->xbutton.button, e->xbutton.x - button->area.posx, e->xbutton.y - button->area.posy);
+        button_action(button, e->xbutton.button, e->xbutton.x - button->area.posx, e->xbutton.y - button->area.posy, e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
         task_drag = 0;
@@ -2131,7 +2131,7 @@ start:
                             strcat(cmd, "\"");
                             strcat(cmd, "&)");
                             fprintf(stderr, "DnD %s:%d: Running command: %s\n", __FILE__, __LINE__, cmd);
-                            tint_exec(cmd);
+                            tint_exec(cmd, NULL, NULL, e.xselection.time);
                             free(cmd);
 
                             // Reply OK.

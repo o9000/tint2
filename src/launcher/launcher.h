@@ -49,7 +49,6 @@ extern int launcher_brightness;
 extern char *icon_theme_name_xsettings; // theme name
 extern char *icon_theme_name_config;
 extern int launcher_icon_theme_override;
-extern int startup_notifications;
 extern Background *launcher_icon_bg;
 extern GList *launcher_icon_gradients;
 

@@ -50,7 +50,6 @@ int launcher_brightness;
 char *icon_theme_name_config;
 char *icon_theme_name_xsettings;
 int launcher_icon_theme_override;
-int startup_notifications;
 Background *launcher_icon_bg;
 GList *launcher_icon_gradients;
 
@@ -420,60 +419,9 @@ void launcher_action(LauncherIcon *icon, XEvent *evt)
 {
     launcher_reload_icon((Launcher *)icon->area.parent, icon);
     launcher_reload_hidden_icons((Launcher *)icon->area.parent);
-    char *cmd = calloc(strlen(icon->cmd) + 10, 1);
-    sprintf(cmd, "(%s&)", icon->cmd);
-#if HAVE_SN
-    SnLauncherContext *ctx = 0;
-    Time time;
-    if (startup_notifications) {
-        ctx = sn_launcher_context_new(server.sn_display, server.screen);
-        sn_launcher_context_set_name(ctx, icon->icon_tooltip);
-        sn_launcher_context_set_description(ctx, "Application launched from tint2");
-        sn_launcher_context_set_binary_name(ctx, icon->cmd);
-        // Get a timestamp from the X event
-        if (evt->type == ButtonPress || evt->type == ButtonRelease) {
-            time = evt->xbutton.time;
-        } else {
-            fprintf(stderr, "Unknown X event: %d\n", evt->type);
-            free(cmd);
-            return;
-        }
-        sn_launcher_context_initiate(ctx, "tint2", icon->cmd, time);
-    }
-#endif /* HAVE_SN */
-    pid_t pid;
-    pid = fork();
-    if (pid < 0) {
-        fprintf(stderr, "Could not fork\n");
-    } else if (pid == 0) {
-// Child process
-#if HAVE_SN
-        if (startup_notifications) {
-            sn_launcher_context_setup_child_process(ctx);
-        }
-#endif // HAVE_SN
-        // Allow children to exist after parent destruction
-        setsid();
-        // Run the command
-        if (icon->cwd)
-            chdir(icon->cwd);
-        execl("/bin/sh", "/bin/sh", "-c", icon->cmd, NULL);
-        fprintf(stderr, "Failed to execlp %s\n", icon->cmd);
-#if HAVE_SN
-        if (startup_notifications) {
-            sn_launcher_context_unref(ctx);
-        }
-#endif // HAVE_SN
-        exit(1);
-    } else {
-// Parent process
-#if HAVE_SN
-        if (startup_notifications) {
-            g_tree_insert(server.pids, GINT_TO_POINTER(pid), ctx);
-        }
-#endif // HAVE_SN
-    }
-    free(cmd);
+
+    if (evt->type == ButtonPress || evt->type == ButtonRelease)
+        tint_exec(icon->cmd, icon->cwd, icon->icon_tooltip, evt->xbutton.time);
 }
 
 // Populates the list_icons list from the list_apps list

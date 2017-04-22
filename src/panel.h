@@ -90,6 +90,7 @@ extern Imlib_Image default_icon;
 #define DEFAULT_FONT "sans 10"
 extern char *default_font;
 extern XSettingsClient *xsettings_client;
+extern gboolean startup_notifications;
 extern gboolean debug_geometry;
 extern gboolean debug_fps;
 extern gboolean debug_frames;

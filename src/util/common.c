@@ -44,6 +44,8 @@
 #include <librsvg/rsvg.h>
 #endif
 
+#include "../panel.h"
+
 void copy_file(const char *path_src, const char *path_dest)
 {
     if (g_str_equal(path_src, path_dest))
@@ -99,18 +101,70 @@ gboolean parse_line(const char *line, char **key, char **value)
     return TRUE;
 }
 
-void tint_exec(const char *command)
+extern char *config_path;
+
+void tint_exec(const char *command, const char *dir, const char *tooltip, Time time)
 {
-    if (command) {
-        if (fork() == 0) {
-            // change for the fork the signal mask
-            //			sigset_t sigset;
-            //			sigprocmask(SIG_SETMASK, &sigset, 0);
-            //			sigprocmask(SIG_UNBLOCK, &sigset, 0);
-            execl("/bin/sh", "/bin/sh", "-c", command, NULL);
-            _exit(0);
-        }
+    if (!command || strlen(command) == 0)
+        return;
+
+    command = g_strdup_printf("export TINT2_CONFIG=%s;"
+                              "%s",
+                              config_path,
+                              command);
+    if (!command)
+        return;
+
+    if (!tooltip)
+        tooltip = command;
+
+#if HAVE_SN && !defined TINT2CONF
+    SnLauncherContext *ctx = 0;
+    if (startup_notifications && time) {
+        ctx = sn_launcher_context_new(server.sn_display, server.screen);
+        sn_launcher_context_set_name(ctx, tooltip);
+        sn_launcher_context_set_description(ctx, "Application launched from tint2");
+        sn_launcher_context_set_binary_name(ctx, command);
+        sn_launcher_context_initiate(ctx, "tint2", command, time);
     }
+#endif /* HAVE_SN */
+    pid_t pid;
+    pid = fork();
+    if (pid < 0) {
+        fprintf(stderr, "Could not fork\n");
+    } else if (pid == 0) {
+// Child process
+#if HAVE_SN && !defined TINT2CONF
+        if (startup_notifications && time) {
+            sn_launcher_context_setup_child_process(ctx);
+        }
+#endif // HAVE_SN
+        // Allow children to exist after parent destruction
+        setsid();
+        // Run the command
+        if (dir)
+            chdir(dir);
+        execl("/bin/sh", "/bin/sh", "-c", command, NULL);
+        fprintf(stderr, "Failed to execlp %s\n", command);
+#if HAVE_SN && !defined TINT2CONF
+        if (startup_notifications && time) {
+            sn_launcher_context_unref(ctx);
+        }
+#endif // HAVE_SN
+        _exit(1);
+    } else {
+// Parent process
+#if HAVE_SN && !defined TINT2CONF
+        if (startup_notifications && time) {
+            g_tree_insert(server.pids, GINT_TO_POINTER(pid), ctx);
+        }
+#endif // HAVE_SN
+    }
+}
+
+void tint_exec_no_sn(const char *command)
+{
+    tint_exec(command, NULL, NULL, 0);
 }
 
 char *expand_tilde(const char *s)

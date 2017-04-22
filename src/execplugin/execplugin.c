@@ -557,7 +557,7 @@ void execp_force_update(Execp *execp)
     }
 }
 
-void execp_action(void *obj, int button, int x, int y)
+void execp_action(void *obj, int button, int x, int y, Time time)
 {
     Execp *execp = obj;
     char *command = NULL;
@@ -588,20 +588,7 @@ void execp_action(void *obj, int button, int x, int y)
                                          execp->area.width,
                                          execp->area.height,
                                          command);
-        pid_t pid = fork();
-        if (pid < 0) {
-            fprintf(stderr, "Could not fork\n");
-        } else if (pid == 0) {
-            // Child process
-            // Allow children to exist after parent destruction
-            setsid();
-            // Run the command
-            execl("/bin/sh", "/bin/sh", "-c", full_cmd, NULL);
-            fprintf(stderr, "Failed to execlp %s\n", full_cmd);
-            exit(1);
-        }
-        // Parent process
-        g_tree_insert(execp->backend->cmd_pids, GINT_TO_POINTER(pid), GINT_TO_POINTER(1));
+        tint_exec(full_cmd, NULL, NULL, time);
         g_free(full_cmd);
     } else {
         execp_force_update(execp);

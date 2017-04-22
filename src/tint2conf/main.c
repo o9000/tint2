@@ -340,6 +340,10 @@ int main(int argc, char **argv)
     if (argc > 0) {
         load_specific_themes(argv, argc);
         g_timeout_add(SNAPSHOT_TICK, edit_theme, NULL);
+    } else if (getenv("TINT2_CONFIG")) {
+        char *themes[2] = {getenv("TINT2_CONFIG"), NULL};
+        load_specific_themes(themes, 1);
+        g_timeout_add(SNAPSHOT_TICK, edit_theme, NULL);
     }
 
     gtk_widget_show_all(g_window);

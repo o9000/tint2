@@ -62,8 +62,8 @@
 #endif
 
 // global path
-char *config_path;
-char *snapshot_path;
+char *config_path = NULL;
+char *snapshot_path = NULL;
 
 #ifndef TINT2CONF
 

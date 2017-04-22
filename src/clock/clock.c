@@ -393,7 +393,7 @@ char *clock_get_tooltip(void *obj)
     return strdup(buf_tooltip);
 }
 
-void clock_action(int button)
+void clock_action(int button, Time time)
 {
     char *command = NULL;
     switch (button) {
@@ -413,5 +413,5 @@ void clock_action(int button)
         command = clock_dwheel_command;
         break;
     }
-    tint_exec(command);
+    tint_exec(command, NULL, NULL, time);
 }

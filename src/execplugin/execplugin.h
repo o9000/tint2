@@ -129,7 +129,7 @@ void draw_execp(void *obj, cairo_t *c);
 gboolean resize_execp(void *obj);
 
 // Called on mouse click event.
-void execp_action(void *obj, int button, int x, int y);
+void execp_action(void *obj, int button, int x, int y, Time time);
 
 void execp_cmd_completed(Execp *obj, pid_t pid);
 

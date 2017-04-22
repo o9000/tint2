@@ -513,7 +513,7 @@ void button_dump_geometry(void *obj, int indent)
             button->backend->text);
 }
 
-void button_action(void *obj, int mouse_button, int x, int y)
+void button_action(void *obj, int mouse_button, int x, int y, Time time)
 {
     Button *button = (Button *)obj;
     Panel *panel = (Panel *)button->area.panel;
@@ -626,18 +626,8 @@ void button_action(void *obj, int mouse_button, int x, int y)
                                          panel_x2,
                                          panel_y2,
                                          command);
-        pid_t pid = fork();
-        if (pid < 0) {
-            fprintf(stderr, "Could not fork\n");
-        } else if (pid == 0) {
-            // Child process
-            // Allow children to exist after parent destruction
-            setsid();
-            // Run the command
-            execl("/bin/sh", "/bin/sh", "-c", full_cmd, NULL);
-            fprintf(stderr, "Failed to execlp %s\n", full_cmd);
-            exit(1);
-        }
+        tint_exec(full_cmd, NULL, NULL, time);
+        g_free(full_cmd);
     }
 }
 

@@ -227,14 +227,14 @@ void update_battery_tick(void *arg)
 
     if (old_ac_connected != battery_state.ac_connected) {
         if (battery_state.ac_connected)
-            tint_exec(ac_connected_cmd);
+            tint_exec_no_sn(ac_connected_cmd);
         else
-            tint_exec(ac_disconnected_cmd);
+            tint_exec_no_sn(ac_disconnected_cmd);
     }
 
     if (battery_state.percentage < battery_low_status && battery_state.state == BATTERY_DISCHARGING &&
         !battery_low_cmd_sent) {
-        tint_exec(battery_low_cmd);
+        tint_exec_no_sn(battery_low_cmd);
         battery_low_cmd_sent = TRUE;
     }
     if (battery_state.percentage > battery_low_status && battery_state.state == BATTERY_CHARGING &&
@@ -437,7 +437,7 @@ char *battery_get_tooltip(void *obj)
     return battery_os_tooltip();
 }
 
-void battery_action(int button)
+void battery_action(int button, Time time)
 {
     char *command = NULL;
     switch (button) {
@@ -457,5 +457,5 @@ void battery_action(int button)
         command = battery_dwheel_command;
         break;
     }
-    tint_exec(command);
+    tint_exec(command, NULL, NULL, time);
 }
