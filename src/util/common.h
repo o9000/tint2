@@ -139,4 +139,8 @@ GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data);
 #define g_assert_null(expr) g_assert((expr) == NULL)
 #endif
 
+#if !GLIB_CHECK_VERSION(2, 40, 0)
+#define g_assert_nonnull(expr) g_assert((expr) != NULL)
+#endif
+
 #endif
