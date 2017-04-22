@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-tint2-theme">
+    <comment xml:lang="en">tint2 theme file</comment>
+      <sub-class-of type="text/plain"/>
+      <glob pattern="*tint2rc"/>
+  </mime-type>
+</mime-info>

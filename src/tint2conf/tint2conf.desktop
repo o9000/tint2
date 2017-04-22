@@ -113,3 +113,4 @@ Exec=tint2conf
 Icon=tint2conf
 Terminal=false
 Categories=Settings;DesktopSettings;
+MimeType=application/x-tint2-theme

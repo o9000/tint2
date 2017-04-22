@@ -74,7 +74,7 @@ gboolean endswith(const char *str, const char *suffix)
 // Returns TRUE if the theme file is in ~/.config.
 gboolean theme_is_editable(const char *filepath)
 {
-    return startswith(filepath, g_get_user_config_dir());
+    return access(filepath, W_OK) == 0;
 }
 
 // Returns TRUE if the theme file is ~/.config/tint2/tint2rc.
