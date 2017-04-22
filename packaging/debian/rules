@@ -11,4 +11,3 @@ override_dh_auto_install:
 
 override_dh_installdocs:
 	dh_installdocs --link-doc=tint2
-	cp -r debian/wiki debian/tint2/usr/share/doc/tint2/html

@@ -1,3 +1,35 @@
+tint2 (0.12.12-3) unstable; urgency=medium
+
+  * Cherry pick upstream fix for use-after-free
+
+ -- Sebastian Reichel <sre@debian.org>  Sun, 29 Jan 2017 21:18:20 +0100
+
+tint2 (0.12.12-2) unstable; urgency=medium
+
+  * Cherry pick a few upstream fixes (Closes: #849228)
+
+ -- Sebastian Reichel <sre@debian.org>  Fri, 13 Jan 2017 22:01:29 +0100
+
+tint2 (0.12.12-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Sebastian Reichel <sre@debian.org>  Sun, 21 Aug 2016 22:39:16 +0200
+
+tint2 (0.12.11-1) unstable; urgency=low
+
+  * New upstream release (Closes: #824568)
+  * Update Debian Standards Version to 3.9.8
+
+ -- Sebastian Reichel <sre@debian.org>  Wed, 01 Jun 2016 00:48:54 +0200
+
+tint2 (0.12.7-2) unstable; urgency=medium
+
+  * Add upstream patch to fix build on ppc
+  * Use https:// vcs urls
+
+ -- Sebastian Reichel <sre@debian.org>  Mon, 22 Feb 2016 03:23:51 +0100
+
 tint2 (0.12.7-1) unstable; urgency=medium
 
   * New upstream release

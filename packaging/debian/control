@@ -1,7 +1,7 @@
 Source: tint2
 Section: x11
 Priority: optional
-Maintainer: o9000 <mrovi9000@gmail.com>
+Maintainer: Sebastian Reichel <sre@debian.org>
 Build-Depends: cmake,
                debhelper (>= 9),
                libcairo2-dev,
@@ -15,9 +15,9 @@ Build-Depends: cmake,
                libxdamage-dev,
                libxinerama-dev,
                libxrandr-dev
-Standards-Version: 3.9.7
-Vcs-Git: git://anonscm.debian.org/collab-maint/tint2.git
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/tint2.git
+Standards-Version: 3.9.8
+Vcs-Git: https://alioth.debian.org/anonscm/git/collab-maint/tint2.git
+Vcs-Browser: https://anonscm.debian.org/gitweb/?p=collab-maint/tint2.git
 Homepage: https://gitlab.com/o9000/tint2/
 
 Package: tint2

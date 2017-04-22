@@ -43,7 +43,7 @@ rm -f $DIR/make_release.sh
 echo "echo \"#define VERSION_STRING \\\"$VERSION\\\"\" > version.h" > $DIR/get_version.sh
 
 # Copy the debian files into the source directory
-cp -r ubuntu $DIR/debian
+cp -r debian $DIR/debian
 
 for DISTRO in precise trusty wily xenial
 do
