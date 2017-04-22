@@ -19,6 +19,8 @@ To install, run (as root):
 
 ```
 make install
+update-icon-caches /usr/local/share/icons/hicolor
+update-mime-database /usr/local/share/mime
 ```
 
 And then you can run the panel `tint2` and the configuration program `tint2conf`.
