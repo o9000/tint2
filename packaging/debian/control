@@ -15,7 +15,7 @@ Build-Depends: cmake,
                libxdamage-dev,
                libxinerama-dev,
                libxrandr-dev
-Standards-Version: 3.9.8
+Standards-Version: 3.9.7
 Vcs-Git: https://alioth.debian.org/anonscm/git/collab-maint/tint2.git
 Vcs-Browser: https://anonscm.debian.org/gitweb/?p=collab-maint/tint2.git
 Homepage: https://gitlab.com/o9000/tint2/
