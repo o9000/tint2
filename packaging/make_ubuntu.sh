@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 set -x
 
 rm -rf tint2* 2>/dev/null || true
@@ -29,6 +28,8 @@ else
     VERSION="$(git show -s --pretty=format:%cI.%ct.%h | tr -d ':' | tr -d '-' | tr '.' '-' | sed 's/T[0-9\+]*//g').$MINOR"
     REPO="tint2-git"
 fi
+
+set -e
 
 # Export repository contents to source directory
 DIR=tint2-$VERSION
