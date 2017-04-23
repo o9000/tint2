@@ -2,6 +2,9 @@
 
 # You can install md2man with gem install md2man. You need gem and ruby-dev.
 
+set -e
+set -x
+
 md2man-roff tint2.md > tint2.1
 
 cat header.html > manual.html
