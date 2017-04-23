@@ -1,4 +1,6 @@
 2017-04-22 master
+- Fixes:
+  - Make versioning more robust when building as package
 - Enhancements:
   - Tint2conf: Open current tint2 config automatically when started from tint2
 
