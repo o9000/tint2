@@ -226,7 +226,7 @@ if __name__ == '__main__':
   # Disallow uncommitted changes in the index
   run("git diff-index --cached --quiet HEAD --ignore-submodules --")
   # Update version string
-  replace_in_file("README.md", old_version, readable_version)
+  replace_in_file("README.md", old_version.replace("v", ""), readable_version)
   update_man("doc/tint2.md", readable_version, date)
   update_log("ChangeLog", readable_version, date)
   run("git commit -am 'Release %s'" % readable_version)
