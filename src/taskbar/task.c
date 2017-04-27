@@ -276,25 +276,25 @@ void task_update_icon(Task *task)
     Imlib_Image img = NULL;
 
     if (!img) {
-        int i;
-        gulong *data = server_get_property(task->win, server.atom._NET_WM_ICON, XA_CARDINAL, &i);
-        if (data) {
+        int len;
+        gulong *data = server_get_property(task->win, server.atom._NET_WM_ICON, XA_CARDINAL, &len);
+        if (data && len > 0) {
             // get ARGB icon
             int w, h;
-            gulong *tmp_data;
-
-            tmp_data = get_best_icon(data, get_icon_count(data, i), i, &w, &h, panel->g_task.icon_size1);
-            DATA32 icon_data[w * h];
-            for (int j = 0; j < w * h; ++j)
-                icon_data[j] = tmp_data[j];
-            img = imlib_create_image_using_copied_data(w, h, icon_data);
-            if (0 && img)
-                fprintf(stderr,
-                        "%s: Got %dx%d icon via _NET_WM_ICON for %s\n",
-                        __FUNCTION__,
-                        w,
-                        h,
-                        task->title ? task->title : "task");
+            gulong *tmp_data = get_best_icon(data, get_icon_count(data, len), len, &w, &h, panel->g_task.icon_size1);
+            if (tmp_data) {
+                DATA32 icon_data[w * h];
+                for (int j = 0; j < w * h; ++j)
+                    icon_data[j] = tmp_data[j];
+                img = imlib_create_image_using_copied_data(w, h, icon_data);
+                if (0 && img)
+                    fprintf(stderr,
+                            "%s: Got %dx%d icon via _NET_WM_ICON for %s\n",
+                            __FUNCTION__,
+                            w,
+                            h,
+                            task->title ? task->title : "task");
+            }
             XFree(data);
         }
     }
