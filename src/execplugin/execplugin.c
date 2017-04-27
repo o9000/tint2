@@ -588,8 +588,10 @@ void execp_action(void *obj, int button, int x, int y, Time time)
                                          execp->area.width,
                                          execp->area.height,
                                          command);
-        tint_exec(full_cmd, NULL, NULL, time);
+        pid_t pid = tint_exec(full_cmd, NULL, NULL, time);
         g_free(full_cmd);
+        if (pid > 0)
+            g_tree_insert(execp->backend->cmd_pids, GINT_TO_POINTER(pid), GINT_TO_POINTER(1));
     } else {
         execp_force_update(execp);
     }

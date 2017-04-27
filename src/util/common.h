@@ -54,7 +54,7 @@ void extract_values(const char *value, char **value1, char **value2, char **valu
 void extract_values_4(const char *value, char **value1, char **value2, char **value3, char **value4);
 
 // Executes a command in a shell.
-void tint_exec(const char *command, const char *dir, const char *tooltip, Time time);
+pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time time);
 void tint_exec_no_sn(const char *command);
 
 // Returns a copy of s in which "~" is expanded to the path to the user's home directory.

@@ -103,17 +103,17 @@ gboolean parse_line(const char *line, char **key, char **value)
 
 extern char *config_path;
 
-void tint_exec(const char *command, const char *dir, const char *tooltip, Time time)
+pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time time)
 {
     if (!command || strlen(command) == 0)
-        return;
+        return -1;
 
     command = g_strdup_printf("export TINT2_CONFIG=%s;"
                               "%s",
                               config_path,
                               command);
     if (!command)
-        return;
+        return -1;
 
     if (!tooltip)
         tooltip = command;
@@ -160,6 +160,7 @@ void tint_exec(const char *command, const char *dir, const char *tooltip, Time t
         }
 #endif // HAVE_SN
     }
+    return pid;
 }
 
 void tint_exec_no_sn(const char *command)
