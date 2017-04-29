@@ -415,13 +415,13 @@ void free_icon(Imlib_Image icon)
     }
 }
 
-void launcher_action(LauncherIcon *icon, XEvent *evt)
+void launcher_action(LauncherIcon *icon, XEvent *evt, int x, int y)
 {
     launcher_reload_icon((Launcher *)icon->area.parent, icon);
     launcher_reload_hidden_icons((Launcher *)icon->area.parent);
 
     if (evt->type == ButtonPress || evt->type == ButtonRelease)
-        tint_exec(icon->cmd, icon->cwd, icon->icon_tooltip, evt->xbutton.time);
+        tint_exec(icon->cmd, icon->cwd, icon->icon_tooltip, evt->xbutton.time, &icon->area, x, y);
 }
 
 // Populates the list_icons list from the list_apps list

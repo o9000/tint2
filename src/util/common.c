@@ -103,22 +103,121 @@ gboolean parse_line(const char *line, char **key, char **value)
 
 extern char *config_path;
 
-pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time time)
+#ifndef TINT2CONF
+pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time time, Area *area, int x, int y)
 {
     if (!command || strlen(command) == 0)
         return -1;
 
-    command = g_strdup_printf("export TINT2_CONFIG=%s;"
-                              "%s",
-                              config_path,
-                              command);
+    if (area) {
+        Panel *panel = (Panel *)area->panel;
+
+        int aligned_x, aligned_y, aligned_x1, aligned_y1, aligned_x2, aligned_y2;
+        int panel_x1, panel_x2, panel_y1, panel_y2;
+        if (panel_horizontal) {
+            if (area_is_first(area))
+                aligned_x1 = panel->posx;
+            else
+                aligned_x1 = panel->posx + area->posx;
+
+            if (area_is_last(area))
+                aligned_x2 = panel->posx + panel->area.width;
+            else
+                aligned_x2 = panel->posx + area->posx + area->width;
+
+            if (area_is_first(area))
+                aligned_x = aligned_x1;
+            else if (area_is_last(area))
+                aligned_x = aligned_x2;
+            else
+                aligned_x = aligned_x1;
+
+            if (panel_position & BOTTOM)
+                aligned_y = panel->posy;
+            else
+                aligned_y = panel->posy + panel->area.height;
+
+            aligned_y1 = aligned_y2 = aligned_y;
+
+            panel_x1 = panel->posx;
+            panel_x2 = panel->posx + panel->area.width;
+            panel_y1 = panel_y2 = aligned_y;
+        } else {
+            if (area_is_first(area))
+                aligned_y1 = panel->posy;
+            else
+                aligned_y1 = panel->posy + area->posy;
+
+            if (area_is_last(area))
+                aligned_y2 = panel->posy + panel->area.height;
+            else
+                aligned_y2 = panel->posy + area->posy + area->height;
+
+            if (area_is_first(area))
+                aligned_y = aligned_y1;
+            else if (area_is_last(area))
+                aligned_y = aligned_y2;
+            else
+                aligned_y = aligned_y1;
+
+            if (panel_position & RIGHT)
+                aligned_x = panel->posx;
+            else
+                aligned_x = panel->posx + panel->area.width;
+
+            aligned_x1 = aligned_x2 = aligned_x;
+
+            panel_x1 = panel_x2 = aligned_x;
+            panel_y1 = panel->posy;
+            panel_y2 = panel->posy + panel->area.height;
+        }
+
+        command = g_strdup_printf("export TINT2_CONFIG=%s;"
+                                  "export TINT2_BUTTON_X=%d;"
+                                  "export TINT2_BUTTON_Y=%d;"
+                                  "export TINT2_BUTTON_W=%d;"
+                                  "export TINT2_BUTTON_H=%d;"
+                                  "export TINT2_BUTTON_ALIGNED_X=%d;"
+                                  "export TINT2_BUTTON_ALIGNED_Y=%d;"
+                                  "export TINT2_BUTTON_ALIGNED_X1=%d;"
+                                  "export TINT2_BUTTON_ALIGNED_Y1=%d;"
+                                  "export TINT2_BUTTON_ALIGNED_X2=%d;"
+                                  "export TINT2_BUTTON_ALIGNED_Y2=%d;"
+                                  "export TINT2_BUTTON_PANEL_X1=%d;"
+                                  "export TINT2_BUTTON_PANEL_Y1=%d;"
+                                  "export TINT2_BUTTON_PANEL_X2=%d;"
+                                  "export TINT2_BUTTON_PANEL_Y2=%d;"
+                                  "%s",
+                                  config_path,
+                                  x,
+                                  y,
+                                  area->width,
+                                  area->height,
+                                  aligned_x,
+                                  aligned_y,
+                                  aligned_x1,
+                                  aligned_y1,
+                                  aligned_x2,
+                                  aligned_y2,
+                                  panel_x1,
+                                  panel_y1,
+                                  panel_x2,
+                                  panel_y2,
+                                  command);
+    } else {
+        command = g_strdup_printf("export TINT2_CONFIG=%s;"
+                                  "%s",
+                                  config_path,
+                                  command);
+    }
+
     if (!command)
         return -1;
 
     if (!tooltip)
         tooltip = command;
 
-#if HAVE_SN && !defined TINT2CONF
+#if HAVE_SN
     SnLauncherContext *ctx = 0;
     if (startup_notifications && time) {
         ctx = sn_launcher_context_new(server.sn_display, server.screen);
@@ -134,7 +233,7 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
         fprintf(stderr, "Could not fork\n");
     } else if (pid == 0) {
 // Child process
-#if HAVE_SN && !defined TINT2CONF
+#if HAVE_SN
         if (startup_notifications && time) {
             sn_launcher_context_setup_child_process(ctx);
         }
@@ -146,7 +245,7 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
             chdir(dir);
         execl("/bin/sh", "/bin/sh", "-c", command, NULL);
         fprintf(stderr, "Failed to execlp %s\n", command);
-#if HAVE_SN && !defined TINT2CONF
+#if HAVE_SN
         if (startup_notifications && time) {
             sn_launcher_context_unref(ctx);
         }
@@ -154,7 +253,7 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
         _exit(1);
     } else {
 // Parent process
-#if HAVE_SN && !defined TINT2CONF
+#if HAVE_SN
         if (startup_notifications && time) {
             g_tree_insert(server.pids, GINT_TO_POINTER(pid), ctx);
         }
@@ -165,8 +264,9 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
 
 void tint_exec_no_sn(const char *command)
 {
-    tint_exec(command, NULL, NULL, 0);
+    tint_exec(command, NULL, NULL, 0, NULL, 0, 0);
 }
+#endif
 
 char *expand_tilde(const char *s)
 {

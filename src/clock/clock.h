@@ -54,6 +54,6 @@ void draw_clock(void *obj, cairo_t *c);
 
 gboolean resize_clock(void *obj);
 
-void clock_action(int button, Time time);
+void clock_action(void *obj, int button, int x, int y, Time time);
 
 #endif

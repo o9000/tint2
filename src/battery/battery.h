@@ -108,7 +108,7 @@ void battery_default_font_changed();
 
 gboolean resize_battery(void *obj);
 
-void battery_action(int button, Time time);
+void battery_action(void *obj, int button, int x, int y, Time time);
 
 /* operating system specific functions */
 gboolean battery_os_init();

@@ -967,8 +967,9 @@ void event_button_release(XEvent *e)
         break;
     }
 
-    if (click_clock(panel, e->xbutton.x, e->xbutton.y)) {
-        clock_action(e->xbutton.button, e->xbutton.time);
+    Clock *clock = click_clock(panel, e->xbutton.x, e->xbutton.y);
+    if (clock) {
+        clock_action(clock, e->xbutton.button, e->xbutton.x - clock->area.posx, e->xbutton.y - clock->area.posy, e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
         task_drag = 0;
@@ -976,8 +977,9 @@ void event_button_release(XEvent *e)
     }
 
 #ifdef ENABLE_BATTERY
-    if (click_battery(panel, e->xbutton.x, e->xbutton.y)) {
-        battery_action(e->xbutton.button, e->xbutton.time);
+    Battery *battery = click_battery(panel, e->xbutton.x, e->xbutton.y);
+    if (battery) {
+        battery_action(battery, e->xbutton.button, e->xbutton.x - battery->area.posx, e->xbutton.y - battery->area.posy, e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
         task_drag = 0;
@@ -1006,7 +1008,7 @@ void event_button_release(XEvent *e)
     if (e->xbutton.button == 1 && click_launcher(panel, e->xbutton.x, e->xbutton.y)) {
         LauncherIcon *icon = click_launcher_icon(panel, e->xbutton.x, e->xbutton.y);
         if (icon) {
-            launcher_action(icon, e);
+            launcher_action(icon, e, e->xbutton.x - icon->area.posx, e->xbutton.y - icon->area.posy);
         }
         task_drag = 0;
         return;
@@ -2131,7 +2133,7 @@ start:
                             strcat(cmd, "\"");
                             strcat(cmd, "&)");
                             fprintf(stderr, "DnD %s:%d: Running command: %s\n", __FILE__, __LINE__, cmd);
-                            tint_exec(cmd, NULL, NULL, e.xselection.time);
+                            tint_exec(cmd, NULL, NULL, e.xselection.time, NULL, 0, 0);
                             free(cmd);
 
                             // Reply OK.

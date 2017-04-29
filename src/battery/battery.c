@@ -437,7 +437,7 @@ char *battery_get_tooltip(void *obj)
     return battery_os_tooltip();
 }
 
-void battery_action(int button, Time time)
+void battery_action(void *obj, int button, int x, int y, Time time)
 {
     char *command = NULL;
     switch (button) {
@@ -457,5 +457,5 @@ void battery_action(int button, Time time)
         command = battery_dwheel_command;
         break;
     }
-    tint_exec(command, NULL, NULL, time);
+    tint_exec(command, NULL, NULL, time, obj, x, y);
 }

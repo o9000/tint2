@@ -516,7 +516,6 @@ void button_dump_geometry(void *obj, int indent)
 void button_action(void *obj, int mouse_button, int x, int y, Time time)
 {
     Button *button = (Button *)obj;
-    Panel *panel = (Panel *)button->area.panel;
     char *command = NULL;
     switch (mouse_button) {
     case 1:
@@ -535,100 +534,7 @@ void button_action(void *obj, int mouse_button, int x, int y, Time time)
         command = button->backend->dwheel_command;
         break;
     }
-    if (command) {
-        int aligned_x, aligned_y, aligned_x1, aligned_y1, aligned_x2, aligned_y2;
-        int panel_x1, panel_x2, panel_y1, panel_y2;
-        if (panel_horizontal) {
-            if (area_is_first(button))
-                aligned_x1 = panel->posx;
-            else
-                aligned_x1 = panel->posx + button->area.posx;
-
-            if (area_is_last(button))
-                aligned_x2 = panel->posx + panel->area.width;
-            else
-                aligned_x2 = panel->posx + button->area.posx + button->area.width;
-
-            if (area_is_first(button))
-                aligned_x = aligned_x1;
-            else if (area_is_last(button))
-                aligned_x = aligned_x2;
-            else
-                aligned_x = aligned_x1;
-
-            if (panel_position & BOTTOM)
-                aligned_y = panel->posy;
-            else
-                aligned_y = panel->posy + panel->area.height;
-
-            aligned_y1 = aligned_y2 = aligned_y;
-
-            panel_x1 = panel->posx;
-            panel_x2 = panel->posx + panel->area.width;
-            panel_y1 = panel_y2 = aligned_y;
-        } else {
-            if (area_is_first(button))
-                aligned_y1 = panel->posy;
-            else
-                aligned_y1 = panel->posy + button->area.posy;
-
-            if (area_is_last(button))
-                aligned_y2 = panel->posy + panel->area.height;
-            else
-                aligned_y2 = panel->posy + button->area.posy + button->area.height;
-
-            if (area_is_first(button))
-                aligned_y = aligned_y1;
-            else if (area_is_last(button))
-                aligned_y = aligned_y2;
-            else
-                aligned_y = aligned_y1;
-
-            if (panel_position & RIGHT)
-                aligned_x = panel->posx;
-            else
-                aligned_x = panel->posx + panel->area.width;
-
-            aligned_x1 = aligned_x2 = aligned_x;
-
-            panel_x1 = panel_x2 = aligned_x;
-            panel_y1 = panel->posy;
-            panel_y2 = panel->posy + panel->area.height;
-        }
-
-        char *full_cmd = g_strdup_printf("export TINT2_BUTTON_X=%d;"
-                                         "export TINT2_BUTTON_Y=%d;"
-                                         "export TINT2_BUTTON_W=%d;"
-                                         "export TINT2_BUTTON_H=%d;"
-                                         "export TINT2_BUTTON_ALIGNED_X=%d;"
-                                         "export TINT2_BUTTON_ALIGNED_Y=%d;"
-                                         "export TINT2_BUTTON_ALIGNED_X1=%d;"
-                                         "export TINT2_BUTTON_ALIGNED_Y1=%d;"
-                                         "export TINT2_BUTTON_ALIGNED_X2=%d;"
-                                         "export TINT2_BUTTON_ALIGNED_Y2=%d;"
-                                         "export TINT2_BUTTON_PANEL_X1=%d;"
-                                         "export TINT2_BUTTON_PANEL_Y1=%d;"
-                                         "export TINT2_BUTTON_PANEL_X2=%d;"
-                                         "export TINT2_BUTTON_PANEL_Y2=%d;"
-                                         "%s",
-                                         x,
-                                         y,
-                                         button->area.width,
-                                         button->area.height,
-                                         aligned_x,
-                                         aligned_y,
-                                         aligned_x1,
-                                         aligned_y1,
-                                         aligned_x2,
-                                         aligned_y2,
-                                         panel_x1,
-                                         panel_y1,
-                                         panel_x2,
-                                         panel_y2,
-                                         command);
-        tint_exec(full_cmd, NULL, NULL, time);
-        g_free(full_cmd);
-    }
+    tint_exec(command, NULL, NULL, time, obj, x, y);
 }
 
 char *button_get_tooltip(void *obj)
