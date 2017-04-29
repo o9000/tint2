@@ -237,4 +237,4 @@ if __name__ == '__main__':
   run("tar -xzf tint2-%s.tar.gz" % readable_version)
   run("cd tint2-%s ; mkdir build ; cd build ; cmake .. ; make" % readable_version)
   assert_equal(run("./tint2-%s/build/tint2 -v" % readable_version).strip(), "tint2 version %s" % readable_version)
-  os.system("git log -p -1")
+  os.system("git log -p -1 --word-diff")
