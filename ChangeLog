@@ -1,4 +1,4 @@
-2017-04-29 master
+2017-04-29 0.14.4
 - Fixes:
   - Fix regression in executor (issue #639)
   - Fix crash when _NET_WM_ICON is set but empty (https://github.com/jmc-88/tint3/issues/21)
