@@ -158,6 +158,29 @@ Task *add_task(Window win)
     return (Task *)g_ptr_array_index(task_buttons, 0);
 }
 
+void task_remove_icon(Task *task)
+{
+    if (!task)
+        return;
+    for (int k = 0; k < TASK_STATE_COUNT; ++k) {
+        if (task->icon[k]) {
+            imlib_context_set_image(task->icon[k]);
+            imlib_free_image();
+            task->icon[k] = 0;
+        }
+        if (task->icon_hover[k]) {
+            imlib_context_set_image(task->icon_hover[k]);
+            imlib_free_image();
+            task->icon_hover[k] = 0;
+        }
+        if (task->icon_press[k]) {
+            imlib_context_set_image(task->icon_press[k]);
+            imlib_free_image();
+            task->icon_press[k] = 0;
+        }
+    }
+}
+
 void remove_task(Task *task)
 {
     if (!task)
@@ -178,23 +201,7 @@ void remove_task(Task *task)
     // printf("remove_task %s %d\n", task->title, task->desktop);
     if (task->title)
         free(task->title);
-    for (int k = 0; k < TASK_STATE_COUNT; ++k) {
-        if (task->icon[k]) {
-            imlib_context_set_image(task->icon[k]);
-            imlib_free_image();
-            task->icon[k] = 0;
-        }
-        if (task->icon_hover[k]) {
-            imlib_context_set_image(task->icon_hover[k]);
-            imlib_free_image();
-            task->icon_hover[k] = 0;
-        }
-        if (task->icon_press[k]) {
-            imlib_context_set_image(task->icon_press[k]);
-            imlib_free_image();
-            task->icon_press[k] = 0;
-        }
-    }
+    task_remove_icon(task);
 
     GPtrArray *task_buttons = g_hash_table_lookup(win_to_task, &win);
     for (int i = 0; i < task_buttons->len; ++i) {
@@ -265,35 +272,31 @@ void task_update_icon(Task *task)
     if (!panel->g_task.has_icon)
         return;
 
-    for (int k = 0; k < TASK_STATE_COUNT; ++k) {
-        if (task->icon[k]) {
-            imlib_context_set_image(task->icon[k]);
-            imlib_free_image();
-            task->icon[k] = 0;
-        }
-    }
+    task_remove_icon(task);
 
     Imlib_Image img = NULL;
 
     if (!img) {
         int len;
         gulong *data = server_get_property(task->win, server.atom._NET_WM_ICON, XA_CARDINAL, &len);
-        if (data && len > 0) {
-            // get ARGB icon
-            int w, h;
-            gulong *tmp_data = get_best_icon(data, get_icon_count(data, len), len, &w, &h, panel->g_task.icon_size1);
-            if (tmp_data) {
-                DATA32 icon_data[w * h];
-                for (int j = 0; j < w * h; ++j)
-                    icon_data[j] = tmp_data[j];
-                img = imlib_create_image_using_copied_data(w, h, icon_data);
-                if (0 && img)
-                    fprintf(stderr,
-                            "%s: Got %dx%d icon via _NET_WM_ICON for %s\n",
-                            __FUNCTION__,
-                            w,
-                            h,
-                            task->title ? task->title : "task");
+        if (data) {
+            if (len > 0) {
+                // get ARGB icon
+                int w, h;
+                gulong *tmp_data = get_best_icon(data, get_icon_count(data, len), len, &w, &h, panel->g_task.icon_size1);
+                if (tmp_data) {
+                    DATA32 icon_data[w * h];
+                    for (int j = 0; j < w * h; ++j)
+                        icon_data[j] = tmp_data[j];
+                    img = imlib_create_image_using_copied_data(w, h, icon_data);
+                    if (0 && img)
+                        fprintf(stderr,
+                                "%s: Got %dx%d icon via _NET_WM_ICON for %s\n",
+                                __FUNCTION__,
+                                w,
+                                h,
+                                task->title ? task->title : "task");
+                }
             }
             XFree(data);
         }

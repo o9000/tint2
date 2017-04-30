@@ -652,6 +652,7 @@ void cleanup()
 
     cleanup_server();
     cleanup_timeout();
+
     if (server.display)
         XCloseDisplay(server.display);
     server.display = NULL;
