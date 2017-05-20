@@ -103,6 +103,13 @@ gboolean parse_line(const char *line, char **key, char **value)
 
 extern char *config_path;
 
+int setenvd(const char *name, const int value)
+{
+    char buf[256];
+    sprintf(buf, "%d", value);
+    return setenv(name, buf, 1);
+}
+
 #ifndef TINT2CONF
 pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time time, Area *area, int x, int y)
 {
@@ -172,43 +179,23 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
             panel_y2 = panel->posy + panel->area.height;
         }
 
-        command = g_strdup_printf("export TINT2_CONFIG=%s;"
-                                  "export TINT2_BUTTON_X=%d;"
-                                  "export TINT2_BUTTON_Y=%d;"
-                                  "export TINT2_BUTTON_W=%d;"
-                                  "export TINT2_BUTTON_H=%d;"
-                                  "export TINT2_BUTTON_ALIGNED_X=%d;"
-                                  "export TINT2_BUTTON_ALIGNED_Y=%d;"
-                                  "export TINT2_BUTTON_ALIGNED_X1=%d;"
-                                  "export TINT2_BUTTON_ALIGNED_Y1=%d;"
-                                  "export TINT2_BUTTON_ALIGNED_X2=%d;"
-                                  "export TINT2_BUTTON_ALIGNED_Y2=%d;"
-                                  "export TINT2_BUTTON_PANEL_X1=%d;"
-                                  "export TINT2_BUTTON_PANEL_Y1=%d;"
-                                  "export TINT2_BUTTON_PANEL_X2=%d;"
-                                  "export TINT2_BUTTON_PANEL_Y2=%d;"
-                                  "%s",
-                                  config_path,
-                                  x,
-                                  y,
-                                  area->width,
-                                  area->height,
-                                  aligned_x,
-                                  aligned_y,
-                                  aligned_x1,
-                                  aligned_y1,
-                                  aligned_x2,
-                                  aligned_y2,
-                                  panel_x1,
-                                  panel_y1,
-                                  panel_x2,
-                                  panel_y2,
-                                  command);
+        setenv("TINT2_CONFIG", config_path, 1);
+        setenvd("TINT2_BUTTON_X", x);
+        setenvd("TINT2_BUTTON_Y", y);
+        setenvd("TINT2_BUTTON_W", area->width);
+        setenvd("TINT2_BUTTON_H", area->height);
+        setenvd("TINT2_BUTTON_ALIGNED_X", aligned_x);
+        setenvd("TINT2_BUTTON_ALIGNED_Y", aligned_y);
+        setenvd("TINT2_BUTTON_ALIGNED_X1", aligned_x1);
+        setenvd("TINT2_BUTTON_ALIGNED_Y1", aligned_y1);
+        setenvd("TINT2_BUTTON_ALIGNED_X2", aligned_x2);
+        setenvd("TINT2_BUTTON_ALIGNED_Y2", aligned_y2);
+        setenvd("TINT2_BUTTON_PANEL_X1", panel_x1);
+        setenvd("TINT2_BUTTON_PANEL_Y1", panel_y1);
+        setenvd("TINT2_BUTTON_PANEL_X2", panel_x2);
+        setenvd("TINT2_BUTTON_PANEL_Y2", panel_y2);
     } else {
-        command = g_strdup_printf("export TINT2_CONFIG=%s;"
-                                  "%s",
-                                  config_path,
-                                  command);
+        setenv("TINT2_CONFIG", config_path, 1);
     }
 
     if (!command)
@@ -259,6 +246,23 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
         }
 #endif // HAVE_SN
     }
+
+    unsetenv("TINT2_CONFIG");
+    unsetenv("TINT2_BUTTON_X");
+    unsetenv("TINT2_BUTTON_Y");
+    unsetenv("TINT2_BUTTON_W");
+    unsetenv("TINT2_BUTTON_H");
+    unsetenv("TINT2_BUTTON_ALIGNED_X");
+    unsetenv("TINT2_BUTTON_ALIGNED_Y");
+    unsetenv("TINT2_BUTTON_ALIGNED_X1");
+    unsetenv("TINT2_BUTTON_ALIGNED_Y1");
+    unsetenv("TINT2_BUTTON_ALIGNED_X2");
+    unsetenv("TINT2_BUTTON_ALIGNED_Y2");
+    unsetenv("TINT2_BUTTON_PANEL_X1");
+    unsetenv("TINT2_BUTTON_PANEL_Y1");
+    unsetenv("TINT2_BUTTON_PANEL_X2");
+    unsetenv("TINT2_BUTTON_PANEL_Y2");
+
     return pid;
 }
 

@@ -579,17 +579,15 @@ void execp_action(void *obj, int button, int x, int y, Time time)
         break;
     }
     if (command) {
-        char *full_cmd = g_strdup_printf("export EXECP_X=%d;"
-                                         "export EXECP_Y=%d;"
-                                         "export EXECP_W=%d;"
-                                         "export EXECP_H=%d; %s",
-                                         x,
-                                         y,
-                                         execp->area.width,
-                                         execp->area.height,
-                                         command);
-        pid_t pid = tint_exec(full_cmd, NULL, NULL, time, obj, x, y);
-        g_free(full_cmd);
+        setenvd("EXECP_X", x);
+        setenvd("EXECP_Y", y);
+        setenvd("EXECP_W", execp->area.width);
+        setenvd("EXECP_H", execp->area.height);
+        pid_t pid = tint_exec(command, NULL, NULL, time, obj, x, y);
+        unsetenv("EXECP_X");
+        unsetenv("EXECP_Y");
+        unsetenv("EXECP_W");
+        unsetenv("EXECP_H");
         if (pid > 0)
             g_tree_insert(execp->backend->cmd_pids, GINT_TO_POINTER(pid), GINT_TO_POINTER(1));
     } else {
