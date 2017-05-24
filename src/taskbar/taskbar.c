@@ -238,9 +238,9 @@ void init_taskbar_panel(void *p)
     if ((panel->g_task.config_background_mask & (1 << TASK_URGENT)) == 0)
         panel->g_task.background[TASK_URGENT] = panel->g_task.background[TASK_ACTIVE];
 
-    if (!panel->g_task.maximum_width)
+    if (!panel->g_task.maximum_width || !panel_horizontal)
         panel->g_task.maximum_width = server.monitors[panel->monitor].width;
-    if (!panel->g_task.maximum_height)
+    if (!panel->g_task.maximum_height || panel_horizontal)
         panel->g_task.maximum_height = server.monitors[panel->monitor].height;
 
     if (panel_horizontal) {
