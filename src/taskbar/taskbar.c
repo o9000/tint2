@@ -288,7 +288,8 @@ void init_taskbar_panel(void *p)
                    FALSE);
 
     panel->g_task.text_posx = left_bg_border_width(panel->g_task.background[0]) + panel->g_task.area.paddingxlr;
-    panel->g_task.text_height = panel->g_task.area.height - (2 * panel->g_task.area.paddingy);
+    panel->g_task.text_height =
+        panel->g_task.area.height - (2 * panel->g_task.area.paddingy) - top_bottom_border_width(&panel->g_task.area);
     if (panel->g_task.has_icon) {
         panel->g_task.icon_size1 = MIN(MIN(panel->g_task.maximum_width, panel->g_task.maximum_height),
                                        MIN(panel->g_task.area.width, panel->g_task.area.height)) -
