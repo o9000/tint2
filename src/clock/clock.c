@@ -243,7 +243,7 @@ void clock_default_font_changed()
     schedule_panel_redraw();
 }
 
-void clock_compute_text_geometry(Panel *panel,
+void clock_compute_text_geometry(Clock *clock,
                                  int *time_height_ink,
                                  int *time_height,
                                  int *time_width,
@@ -251,14 +251,24 @@ void clock_compute_text_geometry(Panel *panel,
                                  int *date_height,
                                  int *date_width)
 {
+    Panel *panel = (Panel *)clock->area.panel;
+    int available_w, available_h;
+    if (panel_horizontal) {
+        available_w = panel->area.width;
+        available_h = clock->area.height - 2 * clock->area.paddingy - left_right_border_width(&clock->area);
+    } else {
+        available_w = clock->area.width - 2 * clock->area.paddingxlr - left_right_border_width(&clock->area);
+        available_h = panel->area.height;
+    }
+
     *date_height = *date_width = 0;
     strftime(buf_time, sizeof(buf_time), time1_format, clock_gettime_for_tz(time1_timezone));
     get_text_size2(time1_font_desc,
                    time_height_ink,
                    time_height,
                    time_width,
-                   panel->area.height,
-                   panel->area.width,
+                   available_h,
+                   available_w,
                    buf_time,
                    strlen(buf_time),
                    PANGO_WRAP_WORD_CHAR,
@@ -270,8 +280,8 @@ void clock_compute_text_geometry(Panel *panel,
                        date_height_ink,
                        date_height,
                        date_width,
-                       panel->area.height,
-                       panel->area.width,
+                       available_h,
+                       available_w,
                        buf_date,
                        strlen(buf_date),
                        PANGO_WRAP_WORD_CHAR,
@@ -283,9 +293,8 @@ void clock_compute_text_geometry(Panel *panel,
 int clock_compute_desired_size(void *obj)
 {
     Clock *clock = (Clock *)obj;
-    Panel *panel = (Panel *)clock->area.panel;
     int time_height_ink, time_height, time_width, date_height_ink, date_height, date_width;
-    clock_compute_text_geometry(panel,
+    clock_compute_text_geometry(clock,
                                 &time_height_ink,
                                 &time_height,
                                 &time_width,
@@ -294,8 +303,7 @@ int clock_compute_desired_size(void *obj)
                                 &date_width);
 
     if (panel_horizontal) {
-        int new_size = (time_width > date_width) ? time_width : date_width;
-        new_size += 2 * clock->area.paddingxlr + left_right_border_width(&clock->area);
+        int new_size = MAX(time_width, date_width) + 2 * clock->area.paddingxlr + left_right_border_width(&clock->area);
         return new_size;
     } else {
         int new_size = time_height + date_height + 2 * clock->area.paddingxlr + top_bottom_border_width(&clock->area);
@@ -306,13 +314,12 @@ int clock_compute_desired_size(void *obj)
 gboolean resize_clock(void *obj)
 {
     Clock *clock = (Clock *)obj;
-    Panel *panel = (Panel *)clock->area.panel;
     gboolean result = FALSE;
 
     schedule_redraw(&clock->area);
 
     int time_height_ink, time_height, time_width, date_height_ink, date_height, date_width;
-    clock_compute_text_geometry(panel,
+    clock_compute_text_geometry(clock,
                                 &time_height_ink,
                                 &time_height,
                                 &time_width,
