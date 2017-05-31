@@ -652,8 +652,8 @@ void add_entry(char *key, char *value)
         Execp *execp = get_or_create_last_execp();
         execp->backend->interval = 0;
         int v = atoi(value);
-        if (v < 1) {
-            fprintf(stderr, "execp_interval must be an integer >= 1\n");
+        if (v < 0) {
+            fprintf(stderr, "execp_interval must be an integer >= 0\n");
         } else {
             execp->backend->interval = v;
         }
