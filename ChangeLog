@@ -1,3 +1,8 @@
+2017-05-31 master
+- Fixes:
+  - Take into account border width when computing text height for clock and task buttons (still needs to be done for other elements)
+  - Fix task icon size limits
+
 2017-05-21 0.14.5
 - Fixes:
   - Fixed a couple of memory leaks
