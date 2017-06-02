@@ -727,7 +727,6 @@ gboolean read_execp(void *obj)
     } else if (execp->backend->continuous > 0) {
         // Count lines in buffer
         int num_lines = 0;
-        char *last = execp->backend->buf_output;
         char *end = NULL;
         for (char *c = execp->backend->buf_output; *c; c++) {
             if (*c == '\n') {
@@ -735,10 +734,7 @@ gboolean read_execp(void *obj)
                 if (num_lines == execp->backend->continuous)
                     end = c;
             }
-            last = c;
         }
-        if (*last && *last != '\n')
-            num_lines++;
         if (num_lines >= execp->backend->continuous) {
             if (end)
                 *end = '\0';
