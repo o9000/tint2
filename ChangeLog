@@ -1,7 +1,9 @@
-2017-05-31 master
+2017-06-02 master
 - Fixes:
-  - Take into account border width when computing text height for clock and task buttons (still needs to be done for other elements)
+  - Take into account border width when computing text height for panel elements
   - Fix task icon size limits
+- Enhancements:
+  - Re-execute tint2 on SIGUSR2
 
 2017-05-21 0.14.5
 - Fixes:
