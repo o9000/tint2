@@ -337,6 +337,7 @@ gboolean resize_button(void *obj)
 {
     Button *button = (Button *)obj;
     Panel *panel = (Panel *)button->area.panel;
+    Area *area = &button->area;
     int horiz_padding = (panel_horizontal ? button->area.paddingxlr : button->area.paddingy);
     int vert_padding = (panel_horizontal ? button->area.paddingy : button->area.paddingxlr);
     int interior_padding = button->area.paddingx;
@@ -360,34 +361,29 @@ gboolean resize_button(void *obj)
     if (button->frontend->icon_load_size != button->frontend->iconw)
         button_reload_icon(button);
 
+    int available_w, available_h;
+    if (panel_horizontal) {
+        available_w = panel->area.width;
+        available_h = area->height - 2 * area->paddingy - left_right_border_width(area);
+    } else {
+        available_w =
+            area->width - icon_w - (icon_w ? interior_padding : 0) - 2 * horiz_padding - left_right_border_width(area);
+        available_h = panel->area.height;
+    }
+
     int txt_height_ink, txt_height, txt_width;
     if (button->backend->text) {
-        if (panel_horizontal) {
-            get_text_size2(button->backend->font_desc,
-                           &txt_height_ink,
-                           &txt_height,
-                           &txt_width,
-                           panel->area.height,
-                           panel->area.width,
-                           button->backend->text,
-                           strlen(button->backend->text),
-                           PANGO_WRAP_WORD_CHAR,
-                           PANGO_ELLIPSIZE_NONE,
-                           FALSE);
-        } else {
-            get_text_size2(button->backend->font_desc,
-                           &txt_height_ink,
-                           &txt_height,
-                           &txt_width,
-                           panel->area.height,
-                           button->area.width - icon_w - (icon_w ? interior_padding : 0) - 2 * horiz_padding -
-                               left_right_border_width(&button->area),
-                           button->backend->text,
-                           strlen(button->backend->text),
-                           PANGO_WRAP_WORD_CHAR,
-                           PANGO_ELLIPSIZE_NONE,
-                           FALSE);
-        }
+        get_text_size2(button->backend->font_desc,
+                       &txt_height_ink,
+                       &txt_height,
+                       &txt_width,
+                       available_h,
+                       available_w,
+                       button->backend->text,
+                       strlen(button->backend->text),
+                       PANGO_WRAP_WORD_CHAR,
+                       PANGO_ELLIPSIZE_NONE,
+                       FALSE);
     } else {
         txt_height_ink = txt_height = txt_width = 0;
     }
