@@ -95,14 +95,14 @@ void create_heuristic_mask(DATA32 *data, int w, int h);
 // Renders the current Imlib image to a drawable. Wrapper around imlib_render_image_on_drawable.
 void render_image(Drawable d, int x, int y);
 
-void get_text_size2(PangoFontDescription *font,
+void get_text_size2(const PangoFontDescription *font,
                     int *height_ink,
                     int *height,
                     int *width,
-                    int panel_height,
-                    int panel_with,
-                    char *text,
-                    int len,
+                    int available_height,
+                    int available_with,
+                    const char *text,
+                    int text_len,
                     PangoWrapMode wrap,
                     PangoEllipsizeMode ellipsis,
                     gboolean markup);

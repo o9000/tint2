@@ -736,35 +736,38 @@ void clear_pixmap(Pixmap p, int x, int y, int w, int h)
     XRenderFreePicture(server.display, pict);
 }
 
-void get_text_size2(PangoFontDescription *font,
+void get_text_size2(const PangoFontDescription *font,
                     int *height_ink,
                     int *height,
                     int *width,
-                    int panel_height,
-                    int panel_width,
-                    char *text,
-                    int len,
+                    int available_height,
+                    int available_width,
+                    const char *text,
+                    int text_len,
                     PangoWrapMode wrap,
                     PangoEllipsizeMode ellipsis,
                     gboolean markup)
 {
     PangoRectangle rect_ink, rect;
 
-    Pixmap pmap = XCreatePixmap(server.display, server.root_win, panel_height, panel_width, server.depth);
+    available_width = MAX(0, available_width);
+    available_height = MAX(0, available_height);
+    Pixmap pmap = XCreatePixmap(server.display, server.root_win, available_height, available_width, server.depth);
 
-    cairo_surface_t *cs = cairo_xlib_surface_create(server.display, pmap, server.visual, panel_height, panel_width);
+    cairo_surface_t *cs = cairo_xlib_surface_create(server.display, pmap, server.visual, available_height, available_width);
     cairo_t *c = cairo_create(cs);
 
     PangoLayout *layout = pango_cairo_create_layout(c);
-    pango_layout_set_width(layout, panel_width * PANGO_SCALE);
-    pango_layout_set_height(layout, panel_height * PANGO_SCALE);
+    pango_layout_set_width(layout, available_width * PANGO_SCALE);
+    pango_layout_set_height(layout, available_height * PANGO_SCALE);
     pango_layout_set_wrap(layout, wrap);
     pango_layout_set_ellipsize(layout, ellipsis);
     pango_layout_set_font_description(layout, font);
+    text_len = MAX(0, text_len);
     if (!markup)
-        pango_layout_set_text(layout, text, len);
+        pango_layout_set_text(layout, text, text_len);
     else
-        pango_layout_set_markup(layout, text, len);
+        pango_layout_set_markup(layout, text, text_len);
 
     pango_layout_get_pixel_extents(layout, &rect_ink, &rect);
     *height_ink = rect_ink.height;

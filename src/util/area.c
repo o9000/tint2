@@ -883,6 +883,180 @@ void area_dump_geometry(Area *area, int indent)
     }
 }
 
+void area_compute_text_geometry(Area *area,
+                                const char *line1,
+                                const char *line2,
+                                PangoFontDescription *line1_font_desc,
+                                PangoFontDescription *line2_font_desc,
+                                int *line1_height_ink,
+                                int *line1_height,
+                                int *line1_width,
+                                int *line2_height_ink,
+                                int *line2_height,
+                                int *line2_width)
+{
+    Panel *panel = (Panel *)area->panel;
+    int available_w, available_h;
+    if (panel_horizontal) {
+        available_w = panel->area.width;
+        available_h = area->height - 2 * area->paddingy - left_right_border_width(area);
+    } else {
+        available_w = area->width - 2 * area->paddingxlr - left_right_border_width(area);
+        available_h = panel->area.height;
+    }
+
+    if (line1 && line1[0])
+        get_text_size2(line1_font_desc,
+                       line1_height_ink,
+                       line1_height,
+                       line1_width,
+                       available_h,
+                       available_w,
+                       line1,
+                       strlen(line1),
+                       PANGO_WRAP_WORD_CHAR,
+                       PANGO_ELLIPSIZE_NONE,
+                       FALSE);
+    else
+        *line1_width = *line1_height_ink = *line1_height = 0;
+
+    if (line2 && line2[0])
+        get_text_size2(line2_font_desc,
+                       line2_height_ink,
+                       line2_height,
+                       line2_width,
+                       available_h,
+                       available_w,
+                       line2,
+                       strlen(line2),
+                       PANGO_WRAP_WORD_CHAR,
+                       PANGO_ELLIPSIZE_NONE,
+                       FALSE);
+    else
+        *line2_width = *line2_height_ink = *line2_height = 0;
+}
+
+int text_area_compute_desired_size(Area *area,
+                                   const char *line1,
+                                   const char *line2,
+                                   PangoFontDescription *line1_font_desc,
+                                   PangoFontDescription *line2_font_desc)
+{
+    int line1_height_ink, line1_height, line1_width, line2_height_ink, line2_height, line2_width;
+    area_compute_text_geometry(area,
+                               line1,
+                               line2,
+                               line1_font_desc,
+                               line2_font_desc,
+                               &line1_height_ink,
+                               &line1_height,
+                               &line1_width,
+                               &line2_height_ink,
+                               &line2_height,
+                               &line2_width);
+
+    if (panel_horizontal) {
+        int new_size = MAX(line1_width, line2_width) + 2 * area->paddingxlr + left_right_border_width(area);
+        return new_size;
+    } else {
+        int new_size = line1_height + line2_height + 2 * area->paddingxlr + top_bottom_border_width(area);
+        return new_size;
+    }
+}
+
+gboolean resize_text_area(Area *area,
+                          const char *line1,
+                          const char *line2,
+                          PangoFontDescription *line1_font_desc,
+                          PangoFontDescription *line2_font_desc,
+                          int *line1_posy,
+                          int *line2_posy)
+{
+    gboolean result = FALSE;
+
+    schedule_redraw(area);
+
+    int line1_height_ink, line1_height, line1_width;
+    int line2_height_ink, line2_height, line2_width;
+    area_compute_text_geometry(area,
+                               line1,
+                               line2,
+                               line1_font_desc,
+                               line2_font_desc,
+                               &line1_height_ink,
+                               &line1_height,
+                               &line1_width,
+                               &line2_height_ink,
+                               &line2_height,
+                               &line2_width);
+
+    int new_size = text_area_compute_desired_size(area,
+                                                  line1,
+                                                  line2,
+                                                  line1_font_desc,
+                                                  line2_font_desc);
+    if (panel_horizontal) {
+        if (new_size > area->width || new_size < (area->width - 6)) {
+            // we try to limit the number of resizes
+            area->width = new_size + 1;
+            *line1_posy = (area->height - line1_height) / 2;
+            if (line2) {
+                *line1_posy -= (line2_height) / 2;
+                *line2_posy = *line1_posy + line1_height;
+            }
+            result = TRUE;
+        }
+    } else {
+        if (new_size != area->height) {
+            // we try to limit the number of resizes
+            area->height = new_size;
+            *line1_posy = (area->height - line1_height) / 2;
+            if (line2) {
+                *line1_posy -= (line2_height) / 2;
+                *line2_posy = *line1_posy + line1_height;
+            }
+            result = TRUE;
+        }
+    }
+
+    return result;
+}
+
+void draw_text_area(Area *area,
+                    cairo_t *c,
+                    const char *line1,
+                    const char *line2,
+                    PangoFontDescription *line1_font_desc,
+                    PangoFontDescription *line2_font_desc,
+                    int line1_posy,
+                    int line2_posy,
+                    Color *color)
+{
+    PangoLayout *layout = pango_cairo_create_layout(c);
+    pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
+    pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
+    pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
+    pango_layout_set_width(layout, area->width * PANGO_SCALE);
+    cairo_set_source_rgba(c, color->rgb[0], color->rgb[1], color->rgb[2], color->alpha);
+
+    if (line1 && line1[0]) {
+        pango_layout_set_font_description(layout, line1_font_desc);
+        pango_layout_set_text(layout, line1, strlen(line1));
+        pango_cairo_update_layout(c, layout);
+        draw_text(layout, c, 0, line1_posy, color, ((Panel *)area->panel)->font_shadow);
+    }
+
+    if (line2 && line2[0]) {
+        pango_layout_set_font_description(layout, line2_font_desc);
+        pango_layout_set_indent(layout, 0);
+        pango_layout_set_text(layout, line2, strlen(line2));
+        pango_cairo_update_layout(c, layout);
+        draw_text(layout, c, 0, line2_posy, color, ((Panel *)area->panel)->font_shadow);
+    }
+
+    g_object_unref(layout);
+}
+
 Area *compute_element_area(Area *area, Element element)
 {
     if (element == ELEMENT_SELF)
