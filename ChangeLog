@@ -1,4 +1,4 @@
-2017-06-02 master
+2017-06-11 0.14.6
 - Fixes:
   - Take into account border width when computing text height
   - Taskbar: Fix task icon size limits
