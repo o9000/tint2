@@ -1,1 +1,2 @@
-pkill -SIGUSR2 tint2
+pkill -SIGUSR2 tint2 || true
+
