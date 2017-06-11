@@ -1,9 +1,11 @@
 2017-06-02 master
 - Fixes:
-  - Take into account border width when computing text height for panel elements
-  - Fix task icon size limits
+  - Take into account border width when computing text height
+  - Taskbar: Fix task icon size limits
+  - Executor: Do not output last line if it is not terminated by newline
 - Enhancements:
-  - Re-execute tint2 on SIGUSR2
+  - Re-execute tint2 on SIGUSR2.
+    This is useful for preserving config options and environment when updating tint2.
 
 2017-05-21 0.14.5
 - Fixes:
