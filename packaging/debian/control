@@ -23,7 +23,8 @@ Homepage: https://gitlab.com/o9000/tint2/
 Package: tint2
 Architecture: any
 Depends: ${shlibs:Depends},
-         ${misc:Depends}
+         ${misc:Depends},
+         procps
 Description: lightweight taskbar
  Tint is a simple panel/taskbar intentionally made for openbox3, but should
  also work with other window managers. The taskbar includes transparency and
