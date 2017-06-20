@@ -5,7 +5,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: tint2conf 0.12\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2017-06-20 20:22+0200\n"
+        "POT-Creation-Date: 2017-06-20 20:35+0200\n"
         "PO-Revision-Date: 2015-06-14 13:32+0200\n"
         "Last-Translator: Dino Duratović <dinomol@mail.com>\n"
         "Language-Team: \n"
@@ -59,12 +59,12 @@ msgid   "System tray"
 msgstr  "Системска трака"
 
 #: ../properties.c:336 ../properties.c:1100 ../properties.c:1313
-#: ../properties.c:5621
+#: ../properties.c:5634
 msgid   "Battery"
 msgstr  "Батерија"
 
 #: ../properties.c:344 ../properties.c:4591 ../properties.c:4691
-#: ../properties.c:5880
+#: ../properties.c:5893
 msgid   "Tooltip"
 msgstr  "Описи"
 
@@ -242,14 +242,14 @@ msgstr  "Прави простор између плоче и ивице мон�
 #: ../properties.c:621 ../properties.c:2269 ../properties.c:2745
 #: ../properties.c:3237 ../properties.c:3876 ../properties.c:4105
 #: ../properties.c:4448 ../properties.c:4804 ../properties.c:5187
-#: ../properties.c:5602 ../properties.c:5861
+#: ../properties.c:5615 ../properties.c:5874
 msgid   "<b>Appearance</b>"
 msgstr  "<b>Изглед</b>"
 
 #: ../properties.c:635 ../properties.c:2282 ../properties.c:3644
 #: ../properties.c:3889 ../properties.c:4118 ../properties.c:4461
-#: ../properties.c:4817 ../properties.c:5200 ../properties.c:5615
-#: ../properties.c:5874
+#: ../properties.c:4817 ../properties.c:5200 ../properties.c:5628
+#: ../properties.c:5887
 msgid   "Background"
 msgstr  "Позадина"
 
@@ -262,7 +262,7 @@ msgstr  "Одабир позадине за плочу. Позадине се м
 #: ../properties.c:653 ../properties.c:2316 ../properties.c:2759
 #: ../properties.c:2880 ../properties.c:3335 ../properties.c:3906
 #: ../properties.c:4176 ../properties.c:4478 ../properties.c:4834
-#: ../properties.c:5218 ../properties.c:5632 ../properties.c:5891
+#: ../properties.c:5218 ../properties.c:5645 ../properties.c:5904
 msgid   "Horizontal padding"
 msgstr  "Хоризонтална попуна"
 
@@ -275,7 +275,7 @@ msgstr  "Одређује хоризонтално попуњивање плоч
 #: ../properties.c:671 ../properties.c:2333 ../properties.c:2777
 #: ../properties.c:2898 ../properties.c:3352 ../properties.c:3923
 #: ../properties.c:4189 ../properties.c:4495 ../properties.c:4851
-#: ../properties.c:5236 ../properties.c:5649 ../properties.c:5908
+#: ../properties.c:5236 ../properties.c:5662 ../properties.c:5921
 msgid   "Vertical padding"
 msgstr  "Вертикална попуна"
 
@@ -413,8 +413,8 @@ msgid   "Specifies a delay after which the panel is shown when the mouse "
 msgstr  "Одређује време након којег се плоча приказује кад курсор миша пређе "
         "преко плоче."
 
-#: ../properties.c:909 ../properties.c:949 ../properties.c:5830
-#: ../properties.c:5853
+#: ../properties.c:909 ../properties.c:949 ../properties.c:5843
+#: ../properties.c:5866
 msgid   "seconds"
 msgstr  "секунде"
 
@@ -779,7 +779,7 @@ msgstr  "Ако је укључено, обавештење о покретањ�
         "током покретања. Изглед зависи од радног окружења; обично се користи "
         "заузети курсор миша док се апликација не покрене."
 
-#: ../properties.c:2482 ../properties.c:5498
+#: ../properties.c:2482 ../properties.c:5511
 msgid   "Tooltips"
 msgstr  "Описи"
 
@@ -1010,13 +1010,13 @@ msgstr  "Одређује боју фонта који се користи за 
 
 #: ../properties.c:2957 ../properties.c:3387 ../properties.c:3945
 #: ../properties.c:3981 ../properties.c:4517 ../properties.c:4873
-#: ../properties.c:5671 ../properties.c:5706 ../properties.c:5930
+#: ../properties.c:5684 ../properties.c:5719 ../properties.c:5943
 msgid   "If not checked, the desktop theme font is used. If checked, the "
         "custom font specified here is used."
 msgstr  ""
 
 #: ../properties.c:2962 ../properties.c:3392 ../properties.c:4522
-#: ../properties.c:4878 ../properties.c:5935
+#: ../properties.c:4878 ../properties.c:5948
 msgid   "Font"
 msgstr  "Фонт"
 
@@ -1047,7 +1047,7 @@ msgstr  "Одабир позадине за приказ имена неакти
         "се могу уређивати у картици за Позадине."
 
 #: ../properties.c:3028 ../properties.c:3777 ../properties.c:4349
-#: ../properties.c:4705 ../properties.c:5485
+#: ../properties.c:4705 ../properties.c:5498
 msgid   "<b>Mouse events</b>"
 msgstr  "<b>Радње миша</b>"
 
@@ -1360,7 +1360,7 @@ msgstr  "Ако је укључено, користи изабранu бојu ф
         "задатка."
 
 #: ../properties.c:3564 ../properties.c:4012 ../properties.c:4540
-#: ../properties.c:4896 ../properties.c:5736 ../properties.c:5951
+#: ../properties.c:4896 ../properties.c:5749 ../properties.c:5964
 msgid   "Font color"
 msgstr  "Боја фонта"
 
@@ -1410,7 +1410,7 @@ msgstr  "Одређује колико ће пута трепнути хитни
 msgid   "<b>Format</b>"
 msgstr  "<b>Формат</b>"
 
-#: ../properties.c:3702 ../properties.c:5753
+#: ../properties.c:3702 ../properties.c:5766
 msgid   "First line format"
 msgstr  "формат прве линије"
 
@@ -1420,7 +1420,7 @@ msgid   "Specifies the format used to display the first line of the clock "
 msgstr  "Одређује формат за приказ прве линије сата. Погледај 'man date' за "
         "све доступне могућности."
 
-#: ../properties.c:3720 ../properties.c:5776
+#: ../properties.c:3720 ../properties.c:5789
 msgid   "Second line format"
 msgstr  "Формат друге линије"
 
@@ -1457,7 +1457,7 @@ msgstr  "Одређује временску зони при приказу вр
         "(environment variable)."
 
 #: ../properties.c:3790 ../properties.c:4362 ../properties.c:4718
-#: ../properties.c:5516
+#: ../properties.c:5529
 msgid   "Left click command"
 msgstr  "Команда левог клика"
 
@@ -1467,7 +1467,7 @@ msgid   "Specifies a command that will be executed when the clock receives a "
 msgstr  "Одређује команду која ће бити извршена након левог клика на сат."
 
 #: ../properties.c:3807 ../properties.c:4379 ../properties.c:4735
-#: ../properties.c:5533
+#: ../properties.c:5546
 msgid   "Right click command"
 msgstr  "Команда десног клика"
 
@@ -1477,7 +1477,7 @@ msgid   "Specifies a command that will be executed when the clock receives a "
 msgstr  "Одређује команду која ће бити извршена након десног клика на сат."
 
 #: ../properties.c:3824 ../properties.c:4396 ../properties.c:4752
-#: ../properties.c:5550
+#: ../properties.c:5563
 #, fuzzy
 msgid   "Middle click command"
 msgstr  "Команда левог клика"
@@ -1489,7 +1489,7 @@ msgid   "Specifies a command that will be executed when the clock receives a "
 msgstr  "Одређује команду која ће бити извршена након левог клика на сат."
 
 #: ../properties.c:3841 ../properties.c:4413 ../properties.c:4769
-#: ../properties.c:5567
+#: ../properties.c:5580
 #, fuzzy
 msgid   "Wheel scroll up command"
 msgstr  "Колутић миша горе"
@@ -1501,7 +1501,7 @@ msgid   "Specifies a command that will be executed when the clock receives a "
 msgstr  "Одређује команду која ће бити извршена након левог клика на сат."
 
 #: ../properties.c:3858 ../properties.c:4430 ../properties.c:4786
-#: ../properties.c:5584
+#: ../properties.c:5597
 #, fuzzy
 msgid   "Wheel scroll down command"
 msgstr  "Колутић миша доле"
@@ -1530,7 +1530,7 @@ msgid   "Specifies the vertical padding of the clock. This is the space "
 msgstr  "Одређује вертикално попуњавање око сата. То је простор између ивица "
         "и унутрашњег садржаја."
 
-#: ../properties.c:3950 ../properties.c:5676
+#: ../properties.c:3950 ../properties.c:5689
 msgid   "Font first line"
 msgstr  "Фонт прве линије"
 
@@ -1538,7 +1538,7 @@ msgstr  "Фонт прве линије"
 msgid   "Specifies the font used to display the first line of the clock."
 msgstr  "Одређује фонт кориштен за приказ прве линије сата."
 
-#: ../properties.c:3986 ../properties.c:5711
+#: ../properties.c:3986 ../properties.c:5724
 msgid   "Font second line"
 msgstr  "Фонт друге линије"
 
@@ -1930,158 +1930,163 @@ msgstr  "Команда упозорења"
 msgid   "Command to be executed when the alert threshold is reached."
 msgstr  "Команда која се изводи кад се достигне праг."
 
-#: ../properties.c:5437
+#: ../properties.c:5436
+#, fuzzy
+msgid   "Battery full command"
+msgstr  "Команда упозорења"
+
+#: ../properties.c:5450
 #, fuzzy
 msgid   "<b>AC connection events</b>"
 msgstr  "<b>Радње миша</b>"
 
-#: ../properties.c:5450
+#: ../properties.c:5463
 #, fuzzy
 msgid   "AC connected command"
 msgstr  "Команда упозорења"
 
-#: ../properties.c:5463
+#: ../properties.c:5476
 #, fuzzy
 msgid   "Specifies a command that will be executed when AC is connected to "
         "the system."
 msgstr  "Одређује команду која ће бити извршена након левог клика на сат."
 
-#: ../properties.c:5467
+#: ../properties.c:5480
 #, fuzzy
 msgid   "AC disconnected command"
 msgstr  "Команда упозорења"
 
-#: ../properties.c:5480
+#: ../properties.c:5493
 #, fuzzy
 msgid   "Specifies a command that will be executed when AC is disconnected to "
         "the system."
 msgstr  "Одређује команду која ће бити извршена након левог клика на сат."
 
-#: ../properties.c:5511
+#: ../properties.c:5524
 #, fuzzy
 msgid   "If enabled, shows a tooltip with detailed battery information when "
         "the mouse is moved over the battery widget."
 msgstr  "Ако је укључено, приказује име апликације ако се мишом пређе преко "
         "покретача апликације."
 
-#: ../properties.c:5529
+#: ../properties.c:5542
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a left click."
 msgstr  "Одређује команду која ће бити извршена након левог клика на сат."
 
-#: ../properties.c:5546
+#: ../properties.c:5559
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a right click."
 msgstr  "Одређује команду која ће бити извршена након десног клика на сат."
 
-#: ../properties.c:5563
+#: ../properties.c:5576
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a middle click."
 msgstr  "Одређује команду која ће бити извршена након левог клика на сат."
 
-#: ../properties.c:5580
+#: ../properties.c:5593
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll up."
 msgstr  "Одређује команду која ће бити извршена након левог клика на сат."
 
-#: ../properties.c:5597
+#: ../properties.c:5610
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll down."
 msgstr  "Одређује команду која ће бити извршена након левог клика на сат."
 
-#: ../properties.c:5627
+#: ../properties.c:5640
 msgid   "Selects the background used to display the battery. Backgrounds can "
         "be edited in the Backgrounds tab."
 msgstr  "Одабир позадине за приказ нивоа батерије. Позадине се могу уређивати "
         "у картици за Позадине."
 
-#: ../properties.c:5644
+#: ../properties.c:5657
 msgid   "Specifies the horizontal padding of the battery. This is the space "
         "between the border and the content inside."
 msgstr  "Одређује хоризонтално попуњавање око батерије. То је простор између "
         "ивице и унутрашњег садржаја."
 
-#: ../properties.c:5661
+#: ../properties.c:5674
 msgid   "Specifies the vertical padding of the battery. This is the space "
         "between the border and the content inside."
 msgstr  "Одређује вертикално попуњавање око батерије. То је простор између "
         "ивице и унутрашњег садржаја."
 
-#: ../properties.c:5692
+#: ../properties.c:5705
 msgid   "Specifies the font used to display the first line of the battery "
         "text."
 msgstr  "Одређује фонт за приказ прве линије батеријског текста."
 
-#: ../properties.c:5727
+#: ../properties.c:5740
 msgid   "Specifies the font used to display the second line of the battery "
         "text."
 msgstr  "Одређује фонт за приказ друге линије батеријског текста."
 
-#: ../properties.c:5749
+#: ../properties.c:5762
 msgid   "Specifies the font clor used to display the battery text."
 msgstr  "Одређује боју фонта за приказ батеријског текста.."
 
-#: ../properties.c:5802
+#: ../properties.c:5815
 #, fuzzy
 msgid   "<b>Timing</b>"
 msgstr  "<b>Тајминг</b>"
 
-#: ../properties.c:5815
+#: ../properties.c:5828
 msgid   "Show delay"
 msgstr  "Закашњење приказа"
 
-#: ../properties.c:5827
+#: ../properties.c:5840
 msgid   "Specifies a delay after which to show the tooltip when moving the "
         "mouse over an element."
 msgstr  "Одређује закашњење након којег ће се приказати опис током померања "
         "курсора преко елемента."
 
-#: ../properties.c:5837
+#: ../properties.c:5850
 msgid   "Hide delay"
 msgstr  "Закашњење скривања"
 
-#: ../properties.c:5848
+#: ../properties.c:5861
 msgid   "Specifies a delay after which to hide the tooltip when moving the "
         "mouse outside an element."
 msgstr  "Одређује закашњење након којег да се сакрије опис након померања "
         "курсора ван неког елемента."
 
-#: ../properties.c:5886
+#: ../properties.c:5899
 msgid   "Selects the background used to display the tooltip. Backgrounds can "
         "be edited in the Backgrounds tab."
 msgstr  "Одабир позадине описа. Позадине се могу уређивати у картици за "
         "Позадине."
 
-#: ../properties.c:5903
+#: ../properties.c:5916
 msgid   "Specifies the horizontal padding of the tooltip. This is the space "
         "between the border and the content inside."
 msgstr  "Одређује хоризонтално попуњавање за опис. То је простор између ивице "
         "и унутрашњег садржаја."
 
-#: ../properties.c:5920
+#: ../properties.c:5933
 msgid   "Specifies the vertical padding of the tooltip. This is the space "
         "between the border and the content inside."
 msgstr  "Одређује вертикално попуњавање за опис. То је простор између ивице и "
         "унутрашњег садржаја."
 
-#: ../properties.c:5946
+#: ../properties.c:5959
 msgid   "Specifies the font used to display the text of the tooltip."
 msgstr  "Одређује фонт за приказ текста унутар описа."
 
-#: ../properties.c:5964
+#: ../properties.c:5977
 msgid   "Specifies the font color used to display the text of the tooltip."
 msgstr  "Одређује боју фонта за приказ текста унутар описа."
 
-#: ../properties.c:5981
+#: ../properties.c:5994
 msgid   "Please wait..."
 msgstr  ""
 
-#: ../properties.c:5984
+#: ../properties.c:5997
 msgid   "Loading..."
 msgstr  ""
 

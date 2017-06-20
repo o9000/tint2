@@ -56,6 +56,7 @@ extern int percentage_hide;
 
 extern int8_t battery_low_status;
 extern char *battery_low_cmd;
+extern char *battery_full_cmd;
 
 extern char *ac_connected_cmd;
 extern char *ac_disconnected_cmd;

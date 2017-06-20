@@ -545,6 +545,11 @@ void add_entry(char *key, char *value)
         if (strlen(value) > 0)
             battery_low_cmd = strdup(value);
 #endif
+    } else if (strcmp(key, "battery_full_cmd") == 0) {
+#ifdef ENABLE_BATTERY
+        if (strlen(value) > 0)
+            battery_full_cmd = strdup(value);
+#endif
     } else if (strcmp(key, "ac_connected_cmd") == 0) {
 #ifdef ENABLE_BATTERY
         if (strlen(value) > 0)

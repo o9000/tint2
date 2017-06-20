@@ -755,6 +755,7 @@ void config_write_battery(FILE *fp)
     fprintf(fp, "battery_tooltip = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(battery_tooltip)) ? 1 : 0);
     fprintf(fp, "battery_low_status = %g\n", gtk_spin_button_get_value(GTK_SPIN_BUTTON(battery_alert_if_lower)));
     fprintf(fp, "battery_low_cmd = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_alert_cmd)));
+    fprintf(fp, "battery_full_cmd = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_alert_full_cmd)));
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(battery_font_line1_set)))
         fprintf(fp, "bat1_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(battery_font_line1)));
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(battery_font_line2_set)))
@@ -1408,6 +1409,8 @@ void add_entry(char *key, char *value)
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_alert_if_lower), atof(value));
     } else if (strcmp(key, "battery_low_cmd") == 0) {
         gtk_entry_set_text(GTK_ENTRY(battery_alert_cmd), value);
+    } else if (strcmp(key, "battery_full_cmd") == 0) {
+        gtk_entry_set_text(GTK_ENTRY(battery_alert_full_cmd), value);
     } else if (strcmp(key, "bat1_font") == 0) {
         gtk_font_button_set_font_name(GTK_FONT_BUTTON(battery_font_line1), value);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(battery_font_line1_set), TRUE);

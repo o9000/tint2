@@ -6,7 +6,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: tint2conf 0.12\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2017-06-20 20:22+0200\n"
+        "POT-Creation-Date: 2017-06-20 20:35+0200\n"
         "PO-Revision-Date: 2016-11-16 16:36+0100\n"
         "Last-Translator: Daniel Napora <napcok@gmail.com>\n"
         "Language-Team: \n"
@@ -61,12 +61,12 @@ msgid   "System tray"
 msgstr  "Zasobnik systemowy"
 
 #: ../properties.c:336 ../properties.c:1100 ../properties.c:1313
-#: ../properties.c:5621
+#: ../properties.c:5634
 msgid   "Battery"
 msgstr  "Bateria"
 
 #: ../properties.c:344 ../properties.c:4591 ../properties.c:4691
-#: ../properties.c:5880
+#: ../properties.c:5893
 msgid   "Tooltip"
 msgstr  "Podpowiedzi"
 
@@ -247,14 +247,14 @@ msgstr  "Tworzy przestrzeń pomiędzy panelem a krawędzią monitora. Dla panelu
 #: ../properties.c:621 ../properties.c:2269 ../properties.c:2745
 #: ../properties.c:3237 ../properties.c:3876 ../properties.c:4105
 #: ../properties.c:4448 ../properties.c:4804 ../properties.c:5187
-#: ../properties.c:5602 ../properties.c:5861
+#: ../properties.c:5615 ../properties.c:5874
 msgid   "<b>Appearance</b>"
 msgstr  "<b>Wygląd</b>"
 
 #: ../properties.c:635 ../properties.c:2282 ../properties.c:3644
 #: ../properties.c:3889 ../properties.c:4118 ../properties.c:4461
-#: ../properties.c:4817 ../properties.c:5200 ../properties.c:5615
-#: ../properties.c:5874
+#: ../properties.c:4817 ../properties.c:5200 ../properties.c:5628
+#: ../properties.c:5887
 msgid   "Background"
 msgstr  "Tło"
 
@@ -266,7 +266,7 @@ msgstr  "Wybierz tło dla panelu. Tła mogą być edytowane na karcie \"Tła\"."
 #: ../properties.c:653 ../properties.c:2316 ../properties.c:2759
 #: ../properties.c:2880 ../properties.c:3335 ../properties.c:3906
 #: ../properties.c:4176 ../properties.c:4478 ../properties.c:4834
-#: ../properties.c:5218 ../properties.c:5632 ../properties.c:5891
+#: ../properties.c:5218 ../properties.c:5645 ../properties.c:5904
 msgid   "Horizontal padding"
 msgstr  "Poziomy margines wewnętrzny"
 
@@ -279,7 +279,7 @@ msgstr  "Wyznacza poziomy margines wewnętrzny dla panelu. Jest to odstęp "
 #: ../properties.c:671 ../properties.c:2333 ../properties.c:2777
 #: ../properties.c:2898 ../properties.c:3352 ../properties.c:3923
 #: ../properties.c:4189 ../properties.c:4495 ../properties.c:4851
-#: ../properties.c:5236 ../properties.c:5649 ../properties.c:5908
+#: ../properties.c:5236 ../properties.c:5662 ../properties.c:5921
 msgid   "Vertical padding"
 msgstr  "Pionowy margines wewnętrzny"
 
@@ -416,8 +416,8 @@ msgid   "Specifies a delay after which the panel is shown when the mouse "
         "cursor enters the panel."
 msgstr  "Opóźnienie pojawiania się panelu po najechaniu nań kursorem myszy"
 
-#: ../properties.c:909 ../properties.c:949 ../properties.c:5830
-#: ../properties.c:5853
+#: ../properties.c:909 ../properties.c:949 ../properties.c:5843
+#: ../properties.c:5866
 msgid   "seconds"
 msgstr  "sekundy"
 
@@ -783,7 +783,7 @@ msgstr  "Jeśli zaznaczone, powiadomienia startowe będą pokazywana podczas "
         "konfiguracji środowiska graficznego; zwykle, pokazywany jest \"zajęty"
         "\" kursor myszy dopóki aplikacja nie uruchomi się."
 
-#: ../properties.c:2482 ../properties.c:5498
+#: ../properties.c:2482 ../properties.c:5511
 msgid   "Tooltips"
 msgstr  "Podpowiedzi"
 
@@ -1014,13 +1014,13 @@ msgstr  "Określa kolor czcionki używany do wyświetlania nazwy nieaktywnego "
 
 #: ../properties.c:2957 ../properties.c:3387 ../properties.c:3945
 #: ../properties.c:3981 ../properties.c:4517 ../properties.c:4873
-#: ../properties.c:5671 ../properties.c:5706 ../properties.c:5930
+#: ../properties.c:5684 ../properties.c:5719 ../properties.c:5943
 msgid   "If not checked, the desktop theme font is used. If checked, the "
         "custom font specified here is used."
 msgstr  ""
 
 #: ../properties.c:2962 ../properties.c:3392 ../properties.c:4522
-#: ../properties.c:4878 ../properties.c:5935
+#: ../properties.c:4878 ../properties.c:5948
 msgid   "Font"
 msgstr  "Czcionka"
 
@@ -1049,7 +1049,7 @@ msgstr  "Wybiera tło, które zostanie użyte do wyświetlania nazw nieaktywnych
         "pulpitów. Tła mogą być edytowane na karcie Tła."
 
 #: ../properties.c:3028 ../properties.c:3777 ../properties.c:4349
-#: ../properties.c:4705 ../properties.c:5485
+#: ../properties.c:4705 ../properties.c:5498
 msgid   "<b>Mouse events</b>"
 msgstr  "<b>Zdarzenia myszy</b>"
 
@@ -1371,7 +1371,7 @@ msgid   "If enabled, a custom font color is used to display the task text."
 msgstr  "Jeśli zaznaczone, wybrany kolor jest użyty do wyświetlania tekstu."
 
 #: ../properties.c:3564 ../properties.c:4012 ../properties.c:4540
-#: ../properties.c:4896 ../properties.c:5736 ../properties.c:5951
+#: ../properties.c:4896 ../properties.c:5749 ../properties.c:5964
 msgid   "Font color"
 msgstr  "Kolor czcionki"
 
@@ -1421,7 +1421,7 @@ msgstr  "Określa ile razy pilne zadanie ma zamigać."
 msgid   "<b>Format</b>"
 msgstr  "<b>Format</b>"
 
-#: ../properties.c:3702 ../properties.c:5753
+#: ../properties.c:3702 ../properties.c:5766
 msgid   "First line format"
 msgstr  "Format pierwszej linii"
 
@@ -1431,7 +1431,7 @@ msgid   "Specifies the format used to display the first line of the clock "
 msgstr  "Określa format używany do wyświetlania pierwszej linii zegara. "
         "Zobacz 'man date', aby dowiedzieć się o opcjach."
 
-#: ../properties.c:3720 ../properties.c:5776
+#: ../properties.c:3720 ../properties.c:5789
 msgid   "Second line format"
 msgstr  "Format drugiej linii"
 
@@ -1464,7 +1464,7 @@ msgstr  "Określa strefę czasową używaną do wyświetlania pierwszej linii "
         "tekstu zegara. Jeśli puste, użyta będzie obecna strefa czasowa."
 
 #: ../properties.c:3790 ../properties.c:4362 ../properties.c:4718
-#: ../properties.c:5516
+#: ../properties.c:5529
 msgid   "Left click command"
 msgstr  "Komenda po lewym kliknięciu"
 
@@ -1475,7 +1475,7 @@ msgstr  "Określa komendę, która będzie uruchamiana po lewym kliknięciu w "
         "zegar."
 
 #: ../properties.c:3807 ../properties.c:4379 ../properties.c:4735
-#: ../properties.c:5533
+#: ../properties.c:5546
 msgid   "Right click command"
 msgstr  "Komenda po prawym kliknięciu"
 
@@ -1486,7 +1486,7 @@ msgstr  "Określa komendę, która będzie uruchamiana po prawym kliknięciu w "
         "zegar."
 
 #: ../properties.c:3824 ../properties.c:4396 ../properties.c:4752
-#: ../properties.c:5550
+#: ../properties.c:5563
 msgid   "Middle click command"
 msgstr  "Komenda po środkowym kliknięciu"
 
@@ -1498,7 +1498,7 @@ msgstr  "Określa komendę, która będzie uruchamiana po lewym kliknięciu w "
         "zegar."
 
 #: ../properties.c:3841 ../properties.c:4413 ../properties.c:4769
-#: ../properties.c:5567
+#: ../properties.c:5580
 msgid   "Wheel scroll up command"
 msgstr  "Komenda  kółko myszy w górę"
 
@@ -1510,7 +1510,7 @@ msgstr  "Określa komendę, która będzie uruchamiana po lewym kliknięciu w "
         "zegar."
 
 #: ../properties.c:3858 ../properties.c:4430 ../properties.c:4786
-#: ../properties.c:5584
+#: ../properties.c:5597
 msgid   "Wheel scroll down command"
 msgstr  "Komenda kółko myszy w dół"
 
@@ -1539,7 +1539,7 @@ msgid   "Specifies the vertical padding of the clock. This is the space "
 msgstr  "Określa pionowy margines wewnętrzny dla zegara. To odstęp pomiędzy "
         "krawędzią a zawartością."
 
-#: ../properties.c:3950 ../properties.c:5676
+#: ../properties.c:3950 ../properties.c:5689
 msgid   "Font first line"
 msgstr  "Czcionka pierwszej linii"
 
@@ -1547,7 +1547,7 @@ msgstr  "Czcionka pierwszej linii"
 msgid   "Specifies the font used to display the first line of the clock."
 msgstr  "Określa czcionkę używaną w pierwszej linii zegara."
 
-#: ../properties.c:3986 ../properties.c:5711
+#: ../properties.c:3986 ../properties.c:5724
 msgid   "Font second line"
 msgstr  "Czcionka drugiej linii"
 
@@ -1943,165 +1943,170 @@ msgstr  "Komenda alarmu"
 msgid   "Command to be executed when the alert threshold is reached."
 msgstr  "Komenda do wykonania, gdy zostanie osiągnięty próg dla alertu."
 
-#: ../properties.c:5437
+#: ../properties.c:5436
+#, fuzzy
+msgid   "Battery full command"
+msgstr  "Komenda alarmu"
+
+#: ../properties.c:5450
 #, fuzzy
 msgid   "<b>AC connection events</b>"
 msgstr  "<b>Zdarzenia myszy</b>"
 
-#: ../properties.c:5450
+#: ../properties.c:5463
 #, fuzzy
 msgid   "AC connected command"
 msgstr  "Komenda alarmu"
 
-#: ../properties.c:5463
+#: ../properties.c:5476
 #, fuzzy
 msgid   "Specifies a command that will be executed when AC is connected to "
         "the system."
 msgstr  "Określa komendę, która będzie uruchamiana po lewym kliknięciu w "
         "zegar."
 
-#: ../properties.c:5467
+#: ../properties.c:5480
 #, fuzzy
 msgid   "AC disconnected command"
 msgstr  "Komenda alarmu"
 
-#: ../properties.c:5480
+#: ../properties.c:5493
 #, fuzzy
 msgid   "Specifies a command that will be executed when AC is disconnected to "
         "the system."
 msgstr  "Określa komendę, która będzie uruchamiana po lewym kliknięciu w "
         "zegar."
 
-#: ../properties.c:5511
+#: ../properties.c:5524
 #, fuzzy
 msgid   "If enabled, shows a tooltip with detailed battery information when "
         "the mouse is moved over the battery widget."
 msgstr  "Jeśli zaznaczone, pokazywane będą podpowiedzi w momencie gdy kursor "
         "myszy znajdzie się nad ikoną aplikacji."
 
-#: ../properties.c:5529
+#: ../properties.c:5542
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a left click."
 msgstr  "Określa komendę, która będzie uruchamiana po lewym kliknięciu w "
         "zegar."
 
-#: ../properties.c:5546
+#: ../properties.c:5559
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a right click."
 msgstr  "Określa komendę, która będzie uruchamiana po prawym kliknięciu w "
         "zegar."
 
-#: ../properties.c:5563
+#: ../properties.c:5576
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a middle click."
 msgstr  "Określa komendę, która będzie uruchamiana po lewym kliknięciu w "
         "zegar."
 
-#: ../properties.c:5580
+#: ../properties.c:5593
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll up."
 msgstr  "Określa komendę, która będzie uruchamiana po lewym kliknięciu w "
         "zegar."
 
-#: ../properties.c:5597
+#: ../properties.c:5610
 #, fuzzy
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll down."
 msgstr  "Określa komendę, która będzie uruchamiana po lewym kliknięciu w "
         "zegar."
 
-#: ../properties.c:5627
+#: ../properties.c:5640
 msgid   "Selects the background used to display the battery. Backgrounds can "
         "be edited in the Backgrounds tab."
 msgstr  "Wybiera tło, które będzie użyte do wyświetlania apletu baterii. Tła "
         "mogą być edytowane na karcie Tła."
 
-#: ../properties.c:5644
+#: ../properties.c:5657
 msgid   "Specifies the horizontal padding of the battery. This is the space "
         "between the border and the content inside."
 msgstr  "Określa poziomy margines wewnętrzny dla apletu baterii. Jest to "
         "odstęp pomiędzy krawędzią a zawartością."
 
-#: ../properties.c:5661
+#: ../properties.c:5674
 msgid   "Specifies the vertical padding of the battery. This is the space "
         "between the border and the content inside."
 msgstr  "Określa pionowy margines wewnętrzny dla apletu baterii. Jest to "
         "odstęp pomiędzy krawędzią a zawartością."
 
-#: ../properties.c:5692
+#: ../properties.c:5705
 msgid   "Specifies the font used to display the first line of the battery "
         "text."
 msgstr  "Określa czcionkę użytą do wyświetlania pierwszej linii tekstu w "
         "aplecie baterii."
 
-#: ../properties.c:5727
+#: ../properties.c:5740
 msgid   "Specifies the font used to display the second line of the battery "
         "text."
 msgstr  "Określa czcionkę użytą do wyświetlania drugiej linii tekstu w "
         "aplecie baterii."
 
-#: ../properties.c:5749
+#: ../properties.c:5762
 msgid   "Specifies the font clor used to display the battery text."
 msgstr  "Określa kolor czcionki dla apletu baterii."
 
-#: ../properties.c:5802
+#: ../properties.c:5815
 msgid   "<b>Timing</b>"
 msgstr  "<b>Czasy</b>"
 
-#: ../properties.c:5815
+#: ../properties.c:5828
 msgid   "Show delay"
 msgstr  "Opóźnienie pokazywania"
 
-#: ../properties.c:5827
+#: ../properties.c:5840
 msgid   "Specifies a delay after which to show the tooltip when moving the "
         "mouse over an element."
 msgstr  "Określa czas po jakim pokazana zostanie podpowiedź, gdy kursor myszy "
         "znajduje się nad elementem."
 
-#: ../properties.c:5837
+#: ../properties.c:5850
 msgid   "Hide delay"
 msgstr  "Opóźnienie ukrywania"
 
-#: ../properties.c:5848
+#: ../properties.c:5861
 msgid   "Specifies a delay after which to hide the tooltip when moving the "
         "mouse outside an element."
 msgstr  "Określa czas po jakim ukryta zostanie podpowiedź, gdy kursor myszy "
         "znajdzie się poza elementem."
 
-#: ../properties.c:5886
+#: ../properties.c:5899
 msgid   "Selects the background used to display the tooltip. Backgrounds can "
         "be edited in the Backgrounds tab."
 msgstr  "Wybiera tło dla podpowiedzi. Tła mogą być edytowane na karcie tła."
 
-#: ../properties.c:5903
+#: ../properties.c:5916
 msgid   "Specifies the horizontal padding of the tooltip. This is the space "
         "between the border and the content inside."
 msgstr  "Określa poziomy margines wewnętrzny dla podpowiedzi. Jest to odstęp "
         "pomiędzy krawędzią a zawartością."
 
-#: ../properties.c:5920
+#: ../properties.c:5933
 msgid   "Specifies the vertical padding of the tooltip. This is the space "
         "between the border and the content inside."
 msgstr  "Określa pionowy margines wewnętrzny dla podpowiedzi. Jest to odstęp "
         "pomiędzy krawędzią a zawartością."
 
-#: ../properties.c:5946
+#: ../properties.c:5959
 msgid   "Specifies the font used to display the text of the tooltip."
 msgstr  "Określa czcionkę użytą do wyświetlania tekstu w podpowiedziach."
 
-#: ../properties.c:5964
+#: ../properties.c:5977
 msgid   "Specifies the font color used to display the text of the tooltip."
 msgstr  "Określa kolor czcionki użyty w podpowiedziach."
 
-#: ../properties.c:5981
+#: ../properties.c:5994
 msgid   "Please wait..."
 msgstr  "Proszę czekać..."
 
-#: ../properties.c:5984
+#: ../properties.c:5997
 msgid   "Loading..."
 msgstr  "Ładowanie..."
 

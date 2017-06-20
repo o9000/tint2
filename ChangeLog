@@ -1,6 +1,8 @@
 2017-06-20 master
 - Enhancements:
   - Taskbar: new config option taskbar_hide_different_desktop
+  - Battery: new config option bat1_format and bat2_format
+  - Battery: new config option battery_full_cmd
 
 2017-06-11 0.14.6
 - Fixes:

@@ -536,6 +536,8 @@ The action semantics:
 
   * `battery_low_cmd = notify-send "battery low"` : Command to execute when the battery is low.
 
+  * `battery_full_cmd = notify-send "battery full"` : Command to execute when the battery is full.
+
   * `bat1_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]`
 
   * `bat2_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]`

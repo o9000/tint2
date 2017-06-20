@@ -49,9 +49,11 @@ static char buf_bat_line2[BATTERY_BUF_SIZE];
 
 int8_t battery_low_status;
 gboolean battery_low_cmd_sent;
+gboolean battery_full_cmd_sent;
 char *ac_connected_cmd;
 char *ac_disconnected_cmd;
 char *battery_low_cmd;
+char *battery_full_cmd;
 char *battery_lclick_command;
 char *battery_mclick_command;
 char *battery_rclick_command;
@@ -73,6 +75,7 @@ void default_battery()
     battery_found = FALSE;
     percentage_hide = 101;
     battery_low_cmd_sent = FALSE;
+    battery_full_cmd_sent = FALSE;
     battery_timeout = NULL;
     bat1_has_font = FALSE;
     bat1_font_desc = NULL;
@@ -83,6 +86,7 @@ void default_battery()
     ac_connected_cmd = NULL;
     ac_disconnected_cmd = NULL;
     battery_low_cmd = NULL;
+    battery_full_cmd = NULL;
     battery_lclick_command = NULL;
     battery_mclick_command = NULL;
     battery_rclick_command = NULL;
@@ -103,6 +107,8 @@ void cleanup_battery()
     bat2_font_desc = NULL;
     free(battery_low_cmd);
     battery_low_cmd = NULL;
+    free(battery_full_cmd);
+    battery_full_cmd = NULL;
     free(bat1_format);
     bat1_format = NULL;
     free(bat2_format);
@@ -340,6 +346,16 @@ void update_battery_tick(void *arg)
     if (battery_state.percentage > battery_low_status && battery_state.state == BATTERY_CHARGING &&
         battery_low_cmd_sent) {
         battery_low_cmd_sent = FALSE;
+    }
+
+    if ((battery_state.percentage >= 100 || battery_state.state == BATTERY_FULL) &&
+        !battery_full_cmd_sent) {
+        tint_exec_no_sn(battery_full_cmd);
+        battery_full_cmd_sent = TRUE;
+    }
+    if (battery_state.percentage < 100 && battery_state.state != BATTERY_FULL &&
+        battery_full_cmd_sent) {
+        battery_full_cmd_sent = FALSE;
     }
 
     for (int i = 0; i < num_panels; i++) {

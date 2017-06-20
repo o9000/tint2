@@ -80,7 +80,7 @@ GtkWidget *clock_font_line1, *clock_font_line1_set, *clock_font_line2, *clock_fo
 GtkWidget *clock_background;
 
 // battery
-GtkWidget *battery_hide_if_higher, *battery_alert_if_lower, *battery_alert_cmd;
+GtkWidget *battery_hide_if_higher, *battery_alert_if_lower, *battery_alert_cmd, *battery_alert_full_cmd;
 GtkWidget *battery_padding_x, *battery_padding_y;
 GtkWidget *battery_font_line1, *battery_font_line1_set, *battery_font_line2, *battery_font_line2_set,
     *battery_font_color, *battery_format1, *battery_format2;
@@ -5431,6 +5431,19 @@ void create_battery(GtkWidget *parent)
                          battery_alert_cmd,
                          _("Command to be executed when the alert threshold is reached."),
                          NULL);
+
+    row++, col = 2;
+    label = gtk_label_new(_("Battery full command"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    battery_alert_full_cmd = gtk_entry_new();
+    gtk_widget_show(battery_alert_full_cmd);
+    gtk_entry_set_width_chars(GTK_ENTRY(battery_alert_full_cmd), 50);
+    gtk_table_attach(GTK_TABLE(table), battery_alert_full_cmd, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
 
     change_paragraph(parent);
 
