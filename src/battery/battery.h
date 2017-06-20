@@ -48,6 +48,8 @@ extern gboolean bat1_has_font;
 extern PangoFontDescription *bat1_font_desc;
 extern gboolean bat2_has_font;
 extern PangoFontDescription *bat2_font_desc;
+extern char *bat1_format;
+extern char *bat2_format;
 extern gboolean battery_enabled;
 extern gboolean battery_tooltip_enabled;
 extern int percentage_hide;

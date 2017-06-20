@@ -35,14 +35,17 @@ gboolean bat1_has_font;
 PangoFontDescription *bat1_font_desc;
 gboolean bat2_has_font;
 PangoFontDescription *bat2_font_desc;
+char *bat1_format;
+char *bat2_format;
 struct BatteryState battery_state;
 gboolean battery_enabled;
 gboolean battery_tooltip_enabled;
 int percentage_hide;
 static timeout *battery_timeout;
 
-static char buf_bat_percentage[10];
-static char buf_bat_time[20];
+#define BATTERY_BUF_SIZE 256
+static char buf_bat_line1[BATTERY_BUF_SIZE];
+static char buf_bat_line2[BATTERY_BUF_SIZE];
 
 int8_t battery_low_status;
 gboolean battery_low_cmd_sent;
@@ -73,8 +76,10 @@ void default_battery()
     battery_timeout = NULL;
     bat1_has_font = FALSE;
     bat1_font_desc = NULL;
+    bat1_format = strdup("%p");
     bat2_has_font = FALSE;
     bat2_font_desc = NULL;
+    bat2_format = strdup("%t");
     ac_connected_cmd = NULL;
     ac_disconnected_cmd = NULL;
     battery_low_cmd = NULL;
@@ -98,6 +103,10 @@ void cleanup_battery()
     bat2_font_desc = NULL;
     free(battery_low_cmd);
     battery_low_cmd = NULL;
+    free(bat1_format);
+    bat1_format = NULL;
+    free(bat2_format);
+    bat2_format = NULL;
     free(battery_lclick_command);
     battery_lclick_command = NULL;
     free(battery_mclick_command);
@@ -117,6 +126,88 @@ void cleanup_battery()
     battery_found = FALSE;
 
     battery_os_free();
+}
+
+char *strncat(char *dest, const char *addendum, size_t limit)
+{
+    char *tmp = strdup(dest);
+
+    // Actually concatenate them.
+    snprintf(dest, limit, "%s%s", tmp, addendum);
+
+    free(tmp);
+    return dest;
+}
+
+void battery_update_text(char *dest, char *format)
+{
+    if (!battery_enabled || !dest || !format)
+        return;
+    // We want to loop over the format specifier, replacing any known symbols with our battery data.
+    // First, erase anything already stored in the buffer.
+    // This ensures the string will always be null-terminated.
+    bzero(dest, BATTERY_BUF_SIZE);
+    char buf[BATTERY_BUF_SIZE];
+    bzero(buf, BATTERY_BUF_SIZE);
+
+    for (size_t o = 0; o < strlen(format); o++) {
+        char *c = &format[o];
+        // Format specification:
+        // %s :	State (charging, discharging, full, unknown)
+        // %m :	Minutes left (estimated).
+        // %h : Hours left (estimated).
+        // %t :	Time left. This is equivalent to the old behaviour; i.e. "(plugged in)" or "hrs:mins" otherwise.
+        // %p :	Percentage left. Includes the % sign.
+        if (*c == '%') {
+            c++;
+            o++; // Skip the format control character.
+            switch (*c) {
+            case 's':
+                // Append the appropriate status message to the string.
+                strncat(dest,
+                        (battery_state.state == BATTERY_CHARGING)
+                            ? "Charging"
+                            : (battery_state.state == BATTERY_DISCHARGING)
+                                  ? "Discharging"
+                                  : (battery_state.state == BATTERY_FULL) ? "Full" : "Unknown",
+                        BATTERY_BUF_SIZE);
+                break;
+            case 'm':
+                snprintf(buf, sizeof(buf), "%02d", battery_state.time.minutes);
+                strncat(dest, buf, BATTERY_BUF_SIZE);
+                break;
+            case 'h':
+                snprintf(buf, sizeof(buf), "%02d", battery_state.time.hours);
+                strncat(dest, buf, BATTERY_BUF_SIZE);
+                break;
+            case 'p':
+                snprintf(buf, sizeof(buf), "%d%%", battery_state.percentage);
+                strncat(dest, buf, BATTERY_BUF_SIZE);
+                break;
+            case 't':
+                if (battery_state.state == BATTERY_FULL) {
+                    snprintf(buf, sizeof(buf), "Full");
+                    strncat(dest, buf, BATTERY_BUF_SIZE);
+                } else {
+                    snprintf(buf, sizeof(buf), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
+                    strncat(dest, buf, BATTERY_BUF_SIZE);
+                }
+                break;
+
+            case '%':
+                buf[0] = *c;
+                strncat(dest, buf, BATTERY_BUF_SIZE);
+                break;
+            default:
+                fprintf(stderr, "Battery: unrecognised format specifier '%%%c'.\n", *c);
+                buf[0] = *c;
+                strncat(dest, buf, BATTERY_BUF_SIZE);
+            }
+        } else {
+            buf[0] = *c;
+            strncat(dest, buf, BATTERY_BUF_SIZE);
+        }
+    }
 }
 
 void init_battery()
@@ -278,11 +369,9 @@ int update_battery()
         battery_state.percentage = 100;
     }
 
-    snprintf(buf_bat_percentage, sizeof(buf_bat_percentage), "%d%%", battery_state.percentage);
-    if (battery_state.state == BATTERY_FULL) {
-        strcpy(buf_bat_time, "Full");
-    } else {
-        snprintf(buf_bat_time, sizeof(buf_bat_time), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
+    battery_update_text(buf_bat_line1, bat1_format);
+    if (bat2_format != 0) {
+        battery_update_text(buf_bat_line2, bat2_format);
     }
 
     return err;
@@ -292,8 +381,8 @@ int battery_compute_desired_size(void *obj)
 {
     Battery *battery = (Battery *)obj;
     return text_area_compute_desired_size(&battery->area,
-                                          buf_bat_percentage,
-                                          buf_bat_time,
+                                          buf_bat_line1,
+                                          buf_bat_line2,
                                           bat1_font_desc,
                                           bat2_font_desc);
 }
@@ -302,8 +391,8 @@ gboolean resize_battery(void *obj)
 {
     Battery *battery = (Battery *)obj;
     return resize_text_area(&battery->area,
-                            buf_bat_percentage,
-                            buf_bat_time,
+                            buf_bat_line1,
+                            buf_bat_line2,
                             bat1_font_desc,
                             bat2_font_desc,
                             &battery->bat1_posy,
@@ -315,8 +404,8 @@ void draw_battery(void *obj, cairo_t *c)
     Battery *battery = (Battery *)obj;
     draw_text_area(&battery->area,
                    c,
-                   buf_bat_percentage,
-                   buf_bat_time,
+                   buf_bat_line1,
+                   buf_bat_line2,
                    bat1_font_desc,
                    bat2_font_desc,
                    battery->bat1_posy,
@@ -327,8 +416,8 @@ void draw_battery(void *obj, cairo_t *c)
 void battery_dump_geometry(void *obj, int indent)
 {
     Battery *battery = (Battery *)obj;
-    fprintf(stderr, "%*sText 1: y = %d, text = %s\n", indent, "", battery->bat1_posy, buf_bat_percentage);
-    fprintf(stderr, "%*sText 2: y = %d, text = %s\n", indent, "", battery->bat2_posy, buf_bat_time);
+    fprintf(stderr, "%*sText 1: y = %d, text = %s\n", indent, "", battery->bat1_posy, buf_bat_line1);
+    fprintf(stderr, "%*sText 2: y = %d, text = %s\n", indent, "", battery->bat2_posy, buf_bat_line2);
 }
 
 char *battery_get_tooltip(void *obj)

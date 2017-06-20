@@ -83,7 +83,7 @@ GtkWidget *clock_background;
 GtkWidget *battery_hide_if_higher, *battery_alert_if_lower, *battery_alert_cmd;
 GtkWidget *battery_padding_x, *battery_padding_y;
 GtkWidget *battery_font_line1, *battery_font_line1_set, *battery_font_line2, *battery_font_line2_set,
-    *battery_font_color;
+    *battery_font_color, *battery_format1, *battery_format2;
 GtkWidget *battery_background;
 GtkWidget *battery_tooltip;
 GtkWidget *battery_left_command, *battery_mclick_command, *battery_right_command, *battery_uwheel_command,
@@ -5747,6 +5747,46 @@ void create_battery(GtkWidget *parent)
     gtk_tooltips_set_tip(tooltips,
                          battery_font_color,
                          _("Specifies the font clor used to display the battery text."),
+                         NULL);
+
+    row++, col = 2;
+    label = gtk_label_new(_("First line format"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    battery_format1 = gtk_entry_new();
+    gtk_widget_show(battery_format1);
+    gtk_entry_set_width_chars(GTK_ENTRY(battery_format1), 16);
+    gtk_table_attach(GTK_TABLE(table), battery_format1, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    char *bat_format_spec = "Format specification:\n"
+                            " %s: State (charging, discharging, full, unknown).\n"
+                            " %m: Minutes left until completely charged/discharged (estimated).\n"
+                            " %h: Hours left until completely charged/discharged (estimated).\n"
+                            " %t: Time left. Shows \"hrs:mins\" when charging/discharging, or \"Full\".\n"
+                            " %p: Percentage. Includes the % sign.";
+    gtk_tooltips_set_tip(tooltips,
+                         battery_format1,
+                         _(bat_format_spec),
+                         NULL);
+
+    row++, col = 2;
+    label = gtk_label_new(_("Second line format"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    battery_format2 = gtk_entry_new();
+    gtk_widget_show(battery_format2);
+    gtk_entry_set_width_chars(GTK_ENTRY(battery_format2), 16);
+    gtk_table_attach(GTK_TABLE(table), battery_format2, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_tooltips_set_tip(tooltips,
+                         battery_format2,
+                         _(bat_format_spec),
                          NULL);
 
     change_paragraph(parent);

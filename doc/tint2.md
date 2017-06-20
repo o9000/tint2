@@ -542,6 +542,15 @@ The action semantics:
 
   * `battery_font_color = color opacity (0 to 100)`
 
+  * `bat1_format = FORMAT_STRING` : Format for battery line 1. Default: %p. *(since 0.15)* Format specification:
+    * %s: State (charging, discharging, full, unknown).
+	* %m: Minutes left until completely charged/discharged (estimated).
+	* %h: Hours left until completely charged/discharged (estimated).
+	* %t: Time left. Shows "hrs:mins" when charging/discharging, or "Ful\" when full.
+	* %p: Percentage. Includes the % sign.
+
+  * `bat2_format = FORMAT_STRING` : Format for battery line 2. Default: %t. *(since 0.15)*
+
   * `battery_padding = horizontal_padding vertical_padding`
 
   * `battery_background_id = integer` : Which background to use for the battery.

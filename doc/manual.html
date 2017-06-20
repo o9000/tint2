@@ -456,6 +456,7 @@ panel_size = 94% 30
 <li><p><code>taskbar_active_background_id = integer</code> : Which background to use for the taskbar of the current virtual desktop.</p></li>
 <li><p><code>taskbar_hide_inactive_tasks = boolean (0 or 1)</code> :  If enabled, the taskbar shows only the active task. <em>(since 0.12)</em></p></li>
 <li><p><code>taskbar_hide_different_monitor = boolean (0 or 1)</code> :  If enabled, the taskbar shows only the tasks from the current monitor. Useful when running different tint2 instances on different monitors, each one having its own config. <em>(since 0.12)</em></p></li>
+<li><p><code>taskbar_hide_different_desktop = boolean (0 or 1)</code> :  If enabled, the taskbar shows only the tasks from the current desktop. Useful to make multi-desktop taskbars more compact, but still allow desktop switching with mouse click. <em>(since 0.15)</em></p></li>
 <li><p><code>taskbar_always_show_all_desktop_tasks = boolean (0 or 1)</code> :  Has effect only if <code>taskbar_mode = multi_desktop</code>. If enabled, tasks that appear on all desktops are shown on all taskbars. Otherwise, they are shown only on the taskbar of the current desktop. <em>(since 0.12.4)</em></p></li>
 <li><p><code>taskbar_sort_order = none/title/center</code> : Specifies the sort order of the tasks on the taskbar.  <em>(since 0.12)</em></p>
 <ul>
@@ -569,6 +570,15 @@ panel_size = 94% 30
 <li><p><code>bat1_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]</code></p></li>
 <li><p><code>bat2_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]</code></p></li>
 <li><p><code>battery_font_color = color opacity (0 to 100)</code></p></li>
+<li><p><code>bat1_format = FORMAT_STRING</code> : Format for battery line 1. Default: %p. <em>(since 0.15)</em> Format specification:</p>
+<ul>
+<li>%s: State (charging, discharging, full, unknown).</li>
+<li>%m: Minutes left until completely charged/discharged (estimated).</li>
+<li>%h: Hours left until completely charged/discharged (estimated).</li>
+<li>%t: Time left. Shows &quot;hrs:mins&quot; when charging/discharging, or &quot;Ful\&quot; when full.</li>
+<li>%p: Percentage. Includes the % sign.</li>
+</ul></li>
+<li><p><code>bat2_format = FORMAT_STRING</code> : Format for battery line 2. Default: %t. <em>(since 0.15)</em></p></li>
 <li><p><code>battery_padding = horizontal_padding vertical_padding</code></p></li>
 <li><p><code>battery_background_id = integer</code> : Which background to use for the battery.</p></li>
 <li><p><code>battery_tooltip_enabled = boolean (0 or 1)</code> : Enable/disable battery tooltips. <em>(since 0.12.3)</em></p></li>

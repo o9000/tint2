@@ -91,7 +91,7 @@ extern GtkWidget *clock_background;
 extern GtkWidget *battery_hide_if_higher, *battery_alert_if_lower, *battery_alert_cmd;
 extern GtkWidget *battery_padding_x, *battery_padding_y;
 extern GtkWidget *battery_font_line1, *battery_font_line1_set, *battery_font_line2, *battery_font_line2_set,
-    *battery_font_color;
+    *battery_font_color, *battery_format1, *battery_format2;
 extern GtkWidget *battery_background;
 extern GtkWidget *battery_tooltip;
 extern GtkWidget *battery_left_command, *battery_mclick_command, *battery_right_command, *battery_uwheel_command,

@@ -765,6 +765,8 @@ void config_write_battery(FILE *fp)
                        "battery_font_color",
                        color,
                        gtk_color_button_get_alpha(GTK_COLOR_BUTTON(battery_font_color)) * 100 / 0xffff);
+    fprintf(fp, "bat1_format = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_format1)));
+    fprintf(fp, "bat2_format = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_format2)));
     fprintf(fp,
             "battery_padding = %d %d\n",
             (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(battery_padding_x)),
@@ -1412,6 +1414,10 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "bat2_font") == 0) {
         gtk_font_button_set_font_name(GTK_FONT_BUTTON(battery_font_line2), value);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(battery_font_line2_set), TRUE);
+    } else if (strcmp(key, "bat1_format") == 0) {
+        gtk_entry_set_text(GTK_ENTRY(battery_format1), value);
+    } else if (strcmp(key, "bat2_format") == 0) {
+        gtk_entry_set_text(GTK_ENTRY(battery_format2), value);
     } else if (strcmp(key, "battery_font_color") == 0) {
         extract_values(value, &value1, &value2, &value3);
         GdkColor col;

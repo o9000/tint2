@@ -29,6 +29,7 @@ Contributors:
   Oskari Rauta : separator plugin, gradients
   Michael Messmore : Support for Path in .desktop files
   Matthew Otnel : config option systray_name_filter
+  Ryan Gray, Jeff Blake (https://gitlab.com/berkley4) : battery format
 
 Translations:
   Bosnian:

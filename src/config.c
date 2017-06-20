@@ -565,6 +565,21 @@ void add_entry(char *key, char *value)
         bat2_font_desc = pango_font_description_from_string(value);
         bat2_has_font = TRUE;
 #endif
+    } else if (strcmp (key, "bat1_format") == 0) {
+#ifdef ENABLE_BATTERY
+        if (strlen(value) > 0) {
+            free(bat1_format);
+            bat1_format = strdup(value);
+            battery_enabled = 1;
+        }
+#endif
+    } else if (strcmp (key, "bat2_format") == 0) {
+#ifdef ENABLE_BATTERY
+        if (strlen(value) > 0) {
+            free(bat2_format);
+            bat2_format = strdup(value);
+        }
+#endif
     } else if (strcmp(key, "battery_font_color") == 0) {
 #ifdef ENABLE_BATTERY
         extract_values(value, &value1, &value2, &value3);

@@ -461,6 +461,8 @@ You can switch between virtual desktops.
 .IP \(bu 2
 \fB\fCtaskbar_hide_different_monitor = boolean (0 or 1)\fR :  If enabled, the taskbar shows only the tasks from the current monitor. Useful when running different tint2 instances on different monitors, each one having its own config. \fI(since 0.12)\fP
 .IP \(bu 2
+\fB\fCtaskbar_hide_different_desktop = boolean (0 or 1)\fR :  If enabled, the taskbar shows only the tasks from the current desktop. Useful to make multi\-desktop taskbars more compact, but still allow desktop switching with mouse click. \fI(since 0.15)\fP
+.IP \(bu 2
 \fB\fCtaskbar_always_show_all_desktop_tasks = boolean (0 or 1)\fR :  Has effect only if \fB\fCtaskbar_mode = multi_desktop\fR\&. If enabled, tasks that appear on all desktops are shown on all taskbars. Otherwise, they are shown only on the taskbar of the current desktop. \fI(since 0.12.4)\fP
 .IP \(bu 2
 \fB\fCtaskbar_sort_order = none/title/center\fR : Specifies the sort order of the tasks on the taskbar.  \fI(since 0.12)\fP
@@ -656,6 +658,22 @@ To hide the clock, comment \fB\fCtime1_format\fR and \fB\fCtime2_format\fR\&.
 \fB\fCbat2_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR
 .IP \(bu 2
 \fB\fCbattery_font_color = color opacity (0 to 100)\fR
+.IP \(bu 2
+\fB\fCbat1_format = FORMAT_STRING\fR : Format for battery line 1. Default: %p. \fI(since 0.15)\fP Format specification:
+.RS
+.IP \(bu 2
+%s: State (charging, discharging, full, unknown).
+.IP \(bu 2
+%m: Minutes left until completely charged/discharged (estimated).
+.IP \(bu 2
+%h: Hours left until completely charged/discharged (estimated).
+.IP \(bu 2
+%t: Time left. Shows "hrs:mins" when charging/discharging, or "Ful\[rs]" when full.
+.IP \(bu 2
+%p: Percentage. Includes the % sign.
+.RE
+.IP \(bu 2
+\fB\fCbat2_format = FORMAT_STRING\fR : Format for battery line 2. Default: %t. \fI(since 0.15)\fP
 .IP \(bu 2
 \fB\fCbattery_padding = horizontal_padding vertical_padding\fR
 .IP \(bu 2
