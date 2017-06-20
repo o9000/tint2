@@ -140,7 +140,7 @@ void init_execp()
             execp->backend->bg = &g_array_index(backgrounds, Background, 0);
         execp->backend->buf_capacity = 1024;
         execp->backend->buf_output = calloc(execp->backend->buf_capacity, 1);
-        execp->backend->text = strdup(" ");
+        execp->backend->text = strdup("");
         execp->backend->icon_path = NULL;
     }
 }
@@ -319,6 +319,21 @@ void execp_compute_icon_text_geometry(Execp *execp,
         }
     } else {
         *icon_w = *icon_h = 0;
+    }
+
+    if ((*icon_h == 0 || *icon_w == 0) && execp->backend->text[0] == 0) {
+        *new_size = 0;
+        *txt_height_ink = 0;
+        *txt_height = 0;
+        *txt_width = 0;
+        if (panel_horizontal) {
+            if (area->width)
+                *resized = TRUE;
+        } else {
+            if (area->height)
+                *resized = TRUE;
+        }
+        return;
     }
 
     *text_next_line = !panel_horizontal && *icon_w > area->width / 2;
