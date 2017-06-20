@@ -188,6 +188,8 @@ void init_execp_panel(void *p)
 
         if (!execp->backend->timer)
             execp->backend->timer = add_timeout(10, 0, execp_timer_callback, execp, &execp->backend->timer);
+
+        execp_update_post_read(execp);
     }
 }
 
@@ -319,21 +321,6 @@ void execp_compute_icon_text_geometry(Execp *execp,
         }
     } else {
         *icon_w = *icon_h = 0;
-    }
-
-    if ((*icon_h == 0 || *icon_w == 0) && execp->backend->text[0] == 0) {
-        *new_size = 0;
-        *txt_height_ink = 0;
-        *txt_height = 0;
-        *txt_width = 0;
-        if (panel_horizontal) {
-            if (area->width)
-                *resized = TRUE;
-        } else {
-            if (area->height)
-                *resized = TRUE;
-        }
-        return;
     }
 
     *text_next_line = !panel_horizontal && *icon_w > area->width / 2;
@@ -849,4 +836,30 @@ char *execp_get_tooltip(void *obj)
         }
     }
     return strdup(execp->backend->tooltip_text);
+}
+
+void execp_update_post_read(Execp *execp)
+{
+    int icon_h, icon_w;
+    if (reload_icon(execp)) {
+        if (execp->backend->icon) {
+            imlib_context_set_image(execp->backend->icon);
+            icon_w = imlib_image_get_width();
+            icon_h = imlib_image_get_height();
+        } else {
+            icon_w = icon_h = 0;
+        }
+    } else {
+        icon_w = icon_h = 0;
+    }
+
+    if ((icon_h == 0 || icon_w == 0) && execp->backend->text[0] == 0) {
+        if (execp->area.on_screen)
+            hide(&execp->area);
+    } else {
+        if (!execp->area.on_screen)
+            show(&execp->area);
+        execp->area.resize_needed = TRUE;
+        schedule_panel_redraw();
+    }
 }

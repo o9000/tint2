@@ -138,6 +138,9 @@ void execp_cmd_completed(Execp *obj, pid_t pid);
 // Returns 1 if the output has been updated and a redraw is needed.
 gboolean read_execp(void *obj);
 
+// Called for Execp front elements when the command output has changed.
+void execp_update_post_read(Execp *execp);
+
 void execp_default_font_changed();
 
 #endif // EXECPLUGIN_H

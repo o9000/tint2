@@ -1865,8 +1865,7 @@ start:
                     GList *l_instance;
                     for (l_instance = execp->backend->instances; l_instance; l_instance = l_instance->next) {
                         Execp *instance = l_instance->data;
-                        instance->area.resize_needed = TRUE;
-                        schedule_panel_redraw();
+                        execp_update_post_read(instance);
                     }
                 }
             }
