@@ -854,6 +854,7 @@ void execp_update_post_read(Execp *execp)
     }
 
     if ((icon_h == 0 || icon_w == 0) && execp->backend->text[0] == 0) {
+        // Easy to test with bash -c 'R=$(( RANDOM % 2 )); [ $R -eq 0 ] && echo HELLO $R'
         if (execp->area.on_screen)
             hide(&execp->area);
     } else {
