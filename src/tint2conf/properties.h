@@ -49,7 +49,7 @@ extern GtkWidget *panel_background;
 
 // taskbar
 extern GtkWidget *taskbar_show_desktop, *taskbar_show_name, *taskbar_padding_x, *taskbar_padding_y, *taskbar_spacing;
-extern GtkWidget *taskbar_hide_inactive_tasks, *taskbar_hide_diff_monitor;
+extern GtkWidget *taskbar_hide_inactive_tasks, *taskbar_hide_diff_monitor, *taskbar_hide_diff_desktop;
 extern GtkWidget *taskbar_name_padding_x, *taskbar_name_padding_y, *taskbar_name_inactive_color,
     *taskbar_name_active_color;
 extern GtkWidget *taskbar_name_font, *taskbar_name_font_set;

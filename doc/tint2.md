@@ -370,6 +370,8 @@ panel_size = 94% 30
 
   * `taskbar_hide_different_monitor = boolean (0 or 1)` :  If enabled, the taskbar shows only the tasks from the current monitor. Useful when running different tint2 instances on different monitors, each one having its own config. *(since 0.12)*
 
+  * `taskbar_hide_different_desktop = boolean (0 or 1)` :  If enabled, the taskbar shows only the tasks from the current desktop. Useful to make multi-desktop taskbars more compact, but still allow desktop switching with mouse click. *(since 0.15)*
+
   * `taskbar_always_show_all_desktop_tasks = boolean (0 or 1)` :  Has effect only if `taskbar_mode = multi_desktop`. If enabled, tasks that appear on all desktops are shown on all taskbars. Otherwise, they are shown only on the taskbar of the current desktop. *(since 0.12.4)*
 
   * `taskbar_sort_order = none/title/center` : Specifies the sort order of the tasks on the taskbar.  *(since 0.12)*

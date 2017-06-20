@@ -39,6 +39,7 @@ Task *active_task;
 Task *task_drag;
 gboolean taskbar_enabled;
 gboolean taskbar_distribute_size;
+gboolean hide_task_diff_desktop;
 gboolean hide_inactive_tasks;
 gboolean hide_task_diff_monitor;
 gboolean hide_taskbar_if_empty;
@@ -74,6 +75,7 @@ void default_taskbar()
     urgent_list = NULL;
     taskbar_enabled = FALSE;
     taskbar_distribute_size = FALSE;
+    hide_task_diff_desktop = FALSE;
     hide_inactive_tasks = FALSE;
     hide_task_diff_monitor = FALSE;
     hide_taskbar_if_empty = FALSE;
@@ -534,6 +536,15 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
                 l = l->next;
             for (; l; l = l->next)
                 schedule_redraw((Area *)l->data);
+        }
+        if (taskbar_mode == MULTI_DESKTOP && hide_task_diff_desktop) {
+            GList *l = taskbar->area.children;
+            if (taskbarname_enabled)
+                l = l->next;
+            for (; l; l = l->next) {
+                Task *task = (Task *)l->data;
+                set_task_state(task, task->current_state);
+            }
         }
     }
     schedule_panel_redraw();

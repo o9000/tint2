@@ -917,6 +917,8 @@ void event_button_motion_notify(XEvent *e)
         task_drag->desktop = event_taskbar->desktop;
 
         change_window_desktop(task_drag->win, event_taskbar->desktop);
+        if (hide_task_diff_desktop)
+            change_desktop(event_taskbar->desktop);
 
         if (taskbar_sort_method != TASKBAR_NOSORT) {
             sort_tasks(event_taskbar);

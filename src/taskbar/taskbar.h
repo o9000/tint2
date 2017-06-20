@@ -49,6 +49,7 @@ typedef struct GlobalTaskbar {
 
 extern gboolean taskbar_enabled;
 extern gboolean taskbar_distribute_size;
+extern gboolean hide_task_diff_desktop;
 extern gboolean hide_inactive_tasks;
 extern gboolean hide_task_diff_monitor;
 extern gboolean hide_taskbar_if_empty;

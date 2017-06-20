@@ -624,7 +624,7 @@ void set_task_state(Task *task, TaskState state)
         }
     }
 
-    if (task->current_state != state || hide_task_diff_monitor) {
+    if (task->current_state != state || hide_task_diff_monitor || hide_task_diff_desktop) {
         GPtrArray *task_buttons = get_task_buttons(task->win);
         if (task_buttons) {
             for (int i = 0; i < task_buttons->len; ++i) {
@@ -647,6 +647,10 @@ void set_task_state(Task *task, TaskState state)
                     if (state != TASK_ACTIVE) {
                         hide = TRUE;
                     }
+                }
+                if (hide_task_diff_desktop) {
+                    if (taskbar->desktop != server.desktop)
+                        hide = TRUE;
                 }
                 if (get_window_monitor(task->win) != ((Panel *)task->area.panel)->monitor &&
                     (hide_task_diff_monitor || num_panels > 1)) {

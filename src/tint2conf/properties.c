@@ -44,7 +44,7 @@ GtkWidget *notebook;
 
 // taskbar
 GtkWidget *taskbar_show_desktop, *taskbar_show_name, *taskbar_padding_x, *taskbar_padding_y, *taskbar_spacing;
-GtkWidget *taskbar_hide_inactive_tasks, *taskbar_hide_diff_monitor;
+GtkWidget *taskbar_hide_inactive_tasks, *taskbar_hide_diff_monitor, *taskbar_hide_diff_desktop;
 GtkWidget *taskbar_name_padding_x, *taskbar_name_padding_y, *taskbar_name_inactive_color, *taskbar_name_active_color;
 GtkWidget *taskbar_name_font, *taskbar_name_font_set;
 GtkWidget *taskbar_active_background, *taskbar_inactive_background;
@@ -2650,6 +2650,19 @@ void create_taskbar(GtkWidget *parent)
                          _("If enabled, tasks that are not on the same monitor as the panel will not be displayed. "
                            "This behavior is enabled automatically if the panel monitor is set to 'All'."),
                          NULL);
+
+    col = 2;
+    row++;
+    label = gtk_label_new(_("Hide tasks from different desktops"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    taskbar_hide_diff_desktop = gtk_check_button_new();
+    gtk_widget_show(taskbar_hide_diff_desktop);
+    gtk_table_attach(GTK_TABLE(table), taskbar_hide_diff_desktop, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
 
     col = 2;
     row++;
