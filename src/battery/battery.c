@@ -76,10 +76,10 @@ void default_battery()
     battery_timeout = NULL;
     bat1_has_font = FALSE;
     bat1_font_desc = NULL;
-    bat1_format = strdup("%p");
+    bat1_format = NULL;
     bat2_has_font = FALSE;
     bat2_font_desc = NULL;
-    bat2_format = strdup("%t");
+    bat2_format = NULL;
     ac_connected_cmd = NULL;
     ac_disconnected_cmd = NULL;
     battery_low_cmd = NULL;
@@ -147,10 +147,10 @@ void battery_update_text(char *dest, char *format)
     // First, erase anything already stored in the buffer.
     // This ensures the string will always be null-terminated.
     bzero(dest, BATTERY_BUF_SIZE);
-    char buf[BATTERY_BUF_SIZE];
-    bzero(buf, BATTERY_BUF_SIZE);
 
     for (size_t o = 0; o < strlen(format); o++) {
+        char buf[BATTERY_BUF_SIZE];
+        bzero(buf, BATTERY_BUF_SIZE);
         char *c = &format[o];
         // Format specification:
         // %s :	State (charging, discharging, full, unknown)
@@ -195,8 +195,8 @@ void battery_update_text(char *dest, char *format)
                 break;
 
             case '%':
-                buf[0] = *c;
-                strncat(dest, buf, BATTERY_BUF_SIZE);
+            case '\0':
+                strncat(dest, "%", BATTERY_BUF_SIZE);
                 break;
             default:
                 fprintf(stderr, "Battery: unrecognised format specifier '%%%c'.\n", *c);
@@ -260,6 +260,11 @@ void init_battery_panel(void *p)
     if (battery_tooltip_enabled)
         battery->area._get_tooltip_text = battery_get_tooltip;
     instantiate_area_gradients(&battery->area);
+
+    if (!bat1_format && !bat2_format) {
+        bat1_format = strdup("%p");
+        bat2_format = strdup("%t");
+    }
 }
 
 void battery_init_fonts()
