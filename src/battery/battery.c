@@ -128,7 +128,8 @@ void cleanup_battery()
     battery_os_free();
 }
 
-char *strncat(char *dest, const char *addendum, size_t limit)
+// Appends addendum to dest, and does not allow dest to grow over limit (including NULL terminator).
+char *strnappend(char *dest, const char *addendum, size_t limit)
 {
     char *tmp = strdup(dest);
 
@@ -164,7 +165,7 @@ void battery_update_text(char *dest, char *format)
             switch (*c) {
             case 's':
                 // Append the appropriate status message to the string.
-                strncat(dest,
+                strnappend(dest,
                         (battery_state.state == BATTERY_CHARGING)
                             ? "Charging"
                             : (battery_state.state == BATTERY_DISCHARGING)
@@ -174,38 +175,38 @@ void battery_update_text(char *dest, char *format)
                 break;
             case 'm':
                 snprintf(buf, sizeof(buf), "%02d", battery_state.time.minutes);
-                strncat(dest, buf, BATTERY_BUF_SIZE);
+                strnappend(dest, buf, BATTERY_BUF_SIZE);
                 break;
             case 'h':
                 snprintf(buf, sizeof(buf), "%02d", battery_state.time.hours);
-                strncat(dest, buf, BATTERY_BUF_SIZE);
+                strnappend(dest, buf, BATTERY_BUF_SIZE);
                 break;
             case 'p':
                 snprintf(buf, sizeof(buf), "%d%%", battery_state.percentage);
-                strncat(dest, buf, BATTERY_BUF_SIZE);
+                strnappend(dest, buf, BATTERY_BUF_SIZE);
                 break;
             case 't':
                 if (battery_state.state == BATTERY_FULL) {
                     snprintf(buf, sizeof(buf), "Full");
-                    strncat(dest, buf, BATTERY_BUF_SIZE);
+                    strnappend(dest, buf, BATTERY_BUF_SIZE);
                 } else {
                     snprintf(buf, sizeof(buf), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
-                    strncat(dest, buf, BATTERY_BUF_SIZE);
+                    strnappend(dest, buf, BATTERY_BUF_SIZE);
                 }
                 break;
 
             case '%':
             case '\0':
-                strncat(dest, "%", BATTERY_BUF_SIZE);
+                strnappend(dest, "%", BATTERY_BUF_SIZE);
                 break;
             default:
                 fprintf(stderr, "Battery: unrecognised format specifier '%%%c'.\n", *c);
                 buf[0] = *c;
-                strncat(dest, buf, BATTERY_BUF_SIZE);
+                strnappend(dest, buf, BATTERY_BUF_SIZE);
             }
         } else {
             buf[0] = *c;
-            strncat(dest, buf, BATTERY_BUF_SIZE);
+            strnappend(dest, buf, BATTERY_BUF_SIZE);
         }
     }
 }
