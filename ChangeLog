@@ -1,8 +1,12 @@
 2017-06-20 master
 - Enhancements:
   - Taskbar: new config option taskbar_hide_different_desktop
-  - Battery: new config option bat1_format and bat2_format
-  - Battery: new config option battery_full_cmd
+  - Battery:
+    - New config option bat1_format and bat2_format
+	- New config option battery_full_cmd
+	- Better "Unknown" state handling
+  - Executor:
+    - Hide if output is empty
 - Configuration changes:
   - Removed primary_monitor_first as it was conflicting with taskbar behavior; use *_monitor = primary instead.
 
