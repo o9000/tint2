@@ -258,11 +258,11 @@ gradient_id_pressed = 2
 
     For example, `panel_items = STC` will show the systray, the taskbar and the clock (from left to right).
 
-  * `panel_monitor = monitor (all or 1 or 2 or ...)` : Which monitor tint2 draws the panel on
+  * `panel_monitor = monitor (all or primary or 1 or 2 or ...)` : Which monitor tint2 draws the panel on
     * The first monitor is `1`
     * Use `panel_monitor = all` to get a separate panel per monitor
 
-  * `primary_monitor_first = boolean (0 or 1)` : Place the primary monitor before all the other monitors in the list. *(since 0.12.4)*
+  * `primary_monitor_first = boolean (0 or 1)` : Place the primary monitor before all the other monitors in the list. *(since 0.12.4; removed in 0.15, use `primary` instead)*
 
 ![](images/panel_padding.jpg)
 
@@ -473,7 +473,7 @@ The action semantics:
 
   * `systray_icon_asb = alpha (0 to 100) saturation (-100 to 100) brightness (-100 to 100)` : Adjust the systray icons color and transparency.
 
-  * `systray_monitor = integer (1, 2, ...)` :  On which monitor to draw the systray. The first monitor is `1`. *(since 0.12)*
+  * `systray_monitor = integer (1, 2, ...) or primary` :  On which monitor to draw the systray. The first monitor is `1`. *(since 0.12)*
 
   * `systray_name_filter = string` :  Regular expression to identify icon names to be hidden. For example, `^audacious$` will hide icons with the exact name `audacious`, while `aud` will hide any icons having `aud` in the name. *(since 0.13.1)*
 

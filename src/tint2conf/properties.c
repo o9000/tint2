@@ -31,7 +31,7 @@ GtkWidget *panel_window_name, *disable_transparency;
 GtkWidget *panel_mouse_effects;
 GtkWidget *mouse_hover_icon_opacity, *mouse_hover_icon_saturation, *mouse_hover_icon_brightness;
 GtkWidget *mouse_pressed_icon_opacity, *mouse_pressed_icon_saturation, *mouse_pressed_icon_brightness;
-GtkWidget *panel_primary_monitor_first, *panel_shrink;
+GtkWidget *panel_shrink;
 
 GtkListStore *panel_items, *all_items;
 GtkWidget *panel_items_view, *all_items_view;
@@ -477,6 +477,7 @@ void create_panel(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), panel_combo_monitor, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
     gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("All"));
+    gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("Primary"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("1"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("2"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("3"));
@@ -485,24 +486,6 @@ void create_panel(GtkWidget *parent)
     gtk_combo_box_append_text(GTK_COMBO_BOX(panel_combo_monitor), _("6"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 0);
     gtk_tooltips_set_tip(tooltips, panel_combo_monitor, _("The monitor on which the panel is placed"), NULL);
-
-    row++;
-    col = 2;
-    label = gtk_label_new(_("Primary monitor first"));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-    gtk_widget_show(label);
-    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    col++;
-
-    panel_primary_monitor_first = gtk_check_button_new();
-    gtk_widget_show(panel_primary_monitor_first);
-    gtk_table_attach(GTK_TABLE(table), panel_primary_monitor_first, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    col++;
-    gtk_tooltips_set_tip(tooltips,
-                         panel_primary_monitor_first,
-                         _("If enabled, the primary monitor will have index 1 in the monitor list even if it is not "
-                           "top-left."),
-                         NULL);
 
     row++;
     col = 2;
@@ -5169,6 +5152,7 @@ void create_systemtray(GtkWidget *parent)
     gtk_widget_show(systray_monitor);
     gtk_table_attach(GTK_TABLE(table), systray_monitor, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
+    gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("Primary"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("1"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("2"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(systray_monitor), _("3"));

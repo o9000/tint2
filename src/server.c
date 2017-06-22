@@ -31,8 +31,6 @@
 
 Server server;
 
-gboolean primary_monitor_first = FALSE;
-
 void server_catch_error(Display *d, XErrorEvent *ev)
 {
 }
@@ -267,13 +265,6 @@ int compare_monitor_pos(const void *monitor1, const void *monitor2)
 {
     const Monitor *m1 = (const Monitor *)monitor1;
     const Monitor *m2 = (const Monitor *)monitor2;
-
-    if (primary_monitor_first) {
-        if (m1->primary && !m2->primary)
-            return -1;
-        if (!m1->primary && m2->primary)
-            return 1;
-    }
 
     if (m1->x < m2->x) {
         return -1;

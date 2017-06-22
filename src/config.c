@@ -135,27 +135,36 @@ int get_task_status(char *status)
 
 int config_get_monitor(char *monitor)
 {
-    if (strcmp(monitor, "all") != 0) {
-        char *endptr;
-        int ret_int = strtol(monitor, &endptr, 10);
-        if (*endptr == 0)
-            return ret_int - 1;
-        else {
-            // monitor specified by name, not by index
-            int i, j;
-            for (i = 0; i < server.num_monitors; ++i) {
-                if (server.monitors[i].names == 0)
-                    // xrandr can't identify monitors
-                    continue;
-                j = 0;
-                while (server.monitors[i].names[j] != 0) {
-                    if (strcmp(monitor, server.monitors[i].names[j++]) == 0)
-                        return i;
-                }
+    if (strcmp(monitor, "primary") == 0) {
+        for (int i = 0; i < server.num_monitors; ++i) {
+            if (server.monitors[i].primary)
+                return i;
+        }
+        return 0;
+    }
+    if (strcmp(monitor, "all") == 0) {
+        return -1;
+    }
+    char *endptr;
+    int ret_int = strtol(monitor, &endptr, 10);
+    if (*endptr == 0)
+        return ret_int - 1;
+    else {
+        // monitor specified by name, not by index
+        int i, j;
+        for (i = 0; i < server.num_monitors; ++i) {
+            if (server.monitors[i].names == 0)
+                // xrandr can't identify monitors
+                continue;
+            j = 0;
+            while (server.monitors[i].names[j] != 0) {
+                if (strcmp(monitor, server.monitors[i].names[j++]) == 0)
+                    return i;
             }
         }
     }
-    // monitor == "all" or monitor not found or xrandr can't identify monitors
+
+    // monitor not found or xrandr can't identify monitors => all
     return -1;
 }
 
@@ -381,8 +390,6 @@ void add_entry(char *key, char *value)
     /* Panel */
     else if (strcmp(key, "panel_monitor") == 0) {
         panel_config.monitor = config_get_monitor(value);
-    } else if (strcmp(key, "primary_monitor_first") == 0) {
-        primary_monitor_first = atoi(value);
     } else if (strcmp(key, "panel_shrink") == 0) {
         panel_shrink = atoi(value);
     } else if (strcmp(key, "panel_size") == 0) {
@@ -1116,7 +1123,7 @@ void add_entry(char *key, char *value)
         systray.saturation = atoi(value2);
         systray.brightness = atoi(value3);
     } else if (strcmp(key, "systray_monitor") == 0) {
-        systray_monitor = atoi(value) - 1;
+        systray_monitor = MAX(0, config_get_monitor(value));
     } else if (strcmp(key, "systray_name_filter") == 0) {
         if (systray_hide_name_filter)
             free(systray_hide_name_filter);
