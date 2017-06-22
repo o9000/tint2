@@ -446,6 +446,17 @@ int battery_os_update(BatteryState *state)
     /* AC state */
     state->ac_connected = ac_connected;
 
+    if (state->state == BATTERY_UNKNOWN) {
+        if (ac_connected) {
+            if (total_rate_now == 0 && state->percentage >= 90)
+                state->state = BATTERY_FULL;
+            else
+                state->state = BATTERY_CHARGING;
+        } else {
+            state->state = BATTERY_DISCHARGING;
+        }
+    }
+
     return 0;
 }
 

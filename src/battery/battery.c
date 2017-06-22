@@ -176,7 +176,7 @@ void battery_update_text(char *dest, char *format)
                             ? "Charging"
                             : (battery_state.state == BATTERY_DISCHARGING)
                                   ? "Discharging"
-                                  : (battery_state.state == BATTERY_FULL || battery_state.percentage >= 100)
+                                  : (battery_state.state == BATTERY_FULL)
                                         ? "Full"
                                         : "Unknown",
                         BATTERY_BUF_SIZE);
@@ -194,8 +194,7 @@ void battery_update_text(char *dest, char *format)
                 strnappend(dest, buf, BATTERY_BUF_SIZE);
                 break;
             case 't':
-                if (battery_state.state == BATTERY_FULL ||
-                    (battery_state.state == BATTERY_UNKNOWN && battery_state.percentage >= 100)) {
+                if (battery_state.state == BATTERY_FULL) {
                     snprintf(buf, sizeof(buf), "Full");
                     strnappend(dest, buf, BATTERY_BUF_SIZE);
                 } else {
