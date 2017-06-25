@@ -364,12 +364,12 @@ gradient_id_pressed = 2
 <li><code>:</code> adds a separator. You can specify more than one. <em>(since 0.13.0)</em></li>
 </ul>
 <p>For example, <code>panel_items = STC</code> will show the systray, the taskbar and the clock (from left to right).</p></li>
-<li><p><code>panel_monitor = monitor (all or 1 or 2 or ...)</code> : Which monitor tint2 draws the panel on</p>
+<li><p><code>panel_monitor = monitor (all or primary or 1 or 2 or ...)</code> : Which monitor tint2 draws the panel on</p>
 <ul>
 <li>The first monitor is <code>1</code></li>
 <li>Use <code>panel_monitor = all</code> to get a separate panel per monitor</li>
 </ul></li>
-<li><p><code>primary_monitor_first = boolean (0 or 1)</code> : Place the primary monitor before all the other monitors in the list. <em>(since 0.12.4)</em></p></li>
+<li><p><code>primary_monitor_first = boolean (0 or 1)</code> : Place the primary monitor before all the other monitors in the list. <em>(since 0.12.4; removed in 1.0, use <code>primary</code> instead)</em></p></li>
 </ul>
 <p><img src="images/panel_padding.jpg" alt=""></p>
 <ul>
@@ -456,7 +456,7 @@ panel_size = 94% 30
 <li><p><code>taskbar_active_background_id = integer</code> : Which background to use for the taskbar of the current virtual desktop.</p></li>
 <li><p><code>taskbar_hide_inactive_tasks = boolean (0 or 1)</code> :  If enabled, the taskbar shows only the active task. <em>(since 0.12)</em></p></li>
 <li><p><code>taskbar_hide_different_monitor = boolean (0 or 1)</code> :  If enabled, the taskbar shows only the tasks from the current monitor. Useful when running different tint2 instances on different monitors, each one having its own config. <em>(since 0.12)</em></p></li>
-<li><p><code>taskbar_hide_different_desktop = boolean (0 or 1)</code> :  If enabled, the taskbar shows only the tasks from the current desktop. Useful to make multi-desktop taskbars more compact, but still allow desktop switching with mouse click. <em>(since 0.15)</em></p></li>
+<li><p><code>taskbar_hide_different_desktop = boolean (0 or 1)</code> :  If enabled, the taskbar shows only the tasks from the current desktop. Useful to make multi-desktop taskbars more compact, but still allow desktop switching with mouse click. <em>(since 1.0)</em></p></li>
 <li><p><code>taskbar_always_show_all_desktop_tasks = boolean (0 or 1)</code> :  Has effect only if <code>taskbar_mode = multi_desktop</code>. If enabled, tasks that appear on all desktops are shown on all taskbars. Otherwise, they are shown only on the taskbar of the current desktop. <em>(since 0.12.4)</em></p></li>
 <li><p><code>taskbar_sort_order = none/title/center</code> : Specifies the sort order of the tasks on the taskbar.  <em>(since 0.12)</em></p>
 <ul>
@@ -524,7 +524,7 @@ panel_size = 94% 30
 <li><p><code>systray_sort = ascending/descending/left2right/right2left</code> : Specifies the sorting order for the icons in the systray: in ascending/descending alphabetical order of the icon title, or always add icons to the right/left (note that with <code>left2right</code> or <code>right2left</code> the order can be different on panel restart).</p></li>
 <li><p><code>systray_icon_size = max_icon_size</code> : Set the maximum system tray icon size to <code>number</code>. Set to <code>0</code> for automatic icon sizing.</p></li>
 <li><p><code>systray_icon_asb = alpha (0 to 100) saturation (-100 to 100) brightness (-100 to 100)</code> : Adjust the systray icons color and transparency.</p></li>
-<li><p><code>systray_monitor = integer (1, 2, ...)</code> :  On which monitor to draw the systray. The first monitor is <code>1</code>. <em>(since 0.12)</em></p></li>
+<li><p><code>systray_monitor = integer (1, 2, ...) or primary</code> :  On which monitor to draw the systray. The first monitor is <code>1</code>. <em>(since 0.12)</em></p></li>
 <li><p><code>systray_name_filter = string</code> :  Regular expression to identify icon names to be hidden. For example, <code>^audacious$</code> will hide icons with the exact name <code>audacious</code>, while <code>aud</code> will hide any icons having <code>aud</code> in the name. <em>(since 0.13.1)</em></p></li>
 </ul>
 <h3 id="clock">Clock<a name="clock" href="#clock" class="md2man-permalink" title="permalink"></a></h3>
@@ -567,10 +567,11 @@ panel_size = 94% 30
 <li><p><code>battery_hide = never/integer (0 to 100)</code> : At what battery percentage the battery item is hidden.</p></li>
 <li><p><code>battery_low_status = integer</code>: At what battery percentage the low command is executed.</p></li>
 <li><p><code>battery_low_cmd = notify-send &quot;battery low&quot;</code> : Command to execute when the battery is low.</p></li>
+<li><p><code>battery_full_cmd = notify-send &quot;battery full&quot;</code> : Command to execute when the battery is full.</p></li>
 <li><p><code>bat1_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]</code></p></li>
 <li><p><code>bat2_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]</code></p></li>
 <li><p><code>battery_font_color = color opacity (0 to 100)</code></p></li>
-<li><p><code>bat1_format = FORMAT_STRING</code> : Format for battery line 1. Default: %p. <em>(since 0.15)</em> Format specification:</p>
+<li><p><code>bat1_format = FORMAT_STRING</code> : Format for battery line 1. Default: %p. <em>(since 1.0)</em> Format specification:</p>
 <ul>
 <li>%s: State (charging, discharging, full, unknown).</li>
 <li>%m: Minutes left until completely charged/discharged (estimated).</li>
@@ -578,7 +579,7 @@ panel_size = 94% 30
 <li>%t: Time left. Shows &quot;hrs:mins&quot; when charging/discharging, or &quot;Ful\&quot; when full.</li>
 <li>%p: Percentage. Includes the % sign.</li>
 </ul></li>
-<li><p><code>bat2_format = FORMAT_STRING</code> : Format for battery line 2. Default: %t. <em>(since 0.15)</em></p></li>
+<li><p><code>bat2_format = FORMAT_STRING</code> : Format for battery line 2. Default: %t. <em>(since 1.0)</em></p></li>
 <li><p><code>battery_padding = horizontal_padding vertical_padding</code></p></li>
 <li><p><code>battery_background_id = integer</code> : Which background to use for the battery.</p></li>
 <li><p><code>battery_tooltip_enabled = boolean (0 or 1)</code> : Enable/disable battery tooltips. <em>(since 0.12.3)</em></p></li>

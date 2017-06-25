@@ -262,7 +262,7 @@ gradient_id_pressed = 2
     * The first monitor is `1`
     * Use `panel_monitor = all` to get a separate panel per monitor
 
-  * `primary_monitor_first = boolean (0 or 1)` : Place the primary monitor before all the other monitors in the list. *(since 0.12.4; removed in 0.15, use `primary` instead)*
+  * `primary_monitor_first = boolean (0 or 1)` : Place the primary monitor before all the other monitors in the list. *(since 0.12.4; removed in 1.0, use `primary` instead)*
 
 ![](images/panel_padding.jpg)
 
@@ -370,7 +370,7 @@ panel_size = 94% 30
 
   * `taskbar_hide_different_monitor = boolean (0 or 1)` :  If enabled, the taskbar shows only the tasks from the current monitor. Useful when running different tint2 instances on different monitors, each one having its own config. *(since 0.12)*
 
-  * `taskbar_hide_different_desktop = boolean (0 or 1)` :  If enabled, the taskbar shows only the tasks from the current desktop. Useful to make multi-desktop taskbars more compact, but still allow desktop switching with mouse click. *(since 0.15)*
+  * `taskbar_hide_different_desktop = boolean (0 or 1)` :  If enabled, the taskbar shows only the tasks from the current desktop. Useful to make multi-desktop taskbars more compact, but still allow desktop switching with mouse click. *(since 1.0)*
 
   * `taskbar_always_show_all_desktop_tasks = boolean (0 or 1)` :  Has effect only if `taskbar_mode = multi_desktop`. If enabled, tasks that appear on all desktops are shown on all taskbars. Otherwise, they are shown only on the taskbar of the current desktop. *(since 0.12.4)*
 
@@ -544,14 +544,14 @@ The action semantics:
 
   * `battery_font_color = color opacity (0 to 100)`
 
-  * `bat1_format = FORMAT_STRING` : Format for battery line 1. Default: %p. *(since 0.15)* Format specification:
+  * `bat1_format = FORMAT_STRING` : Format for battery line 1. Default: %p. *(since 1.0)* Format specification:
     * %s: State (charging, discharging, full, unknown).
-	* %m: Minutes left until completely charged/discharged (estimated).
-	* %h: Hours left until completely charged/discharged (estimated).
-	* %t: Time left. Shows "hrs:mins" when charging/discharging, or "Ful\" when full.
-	* %p: Percentage. Includes the % sign.
+    * %m: Minutes left until completely charged/discharged (estimated).
+    * %h: Hours left until completely charged/discharged (estimated).
+    * %t: Time left. Shows "hrs:mins" when charging/discharging, or "Ful\" when full.
+    * %p: Percentage. Includes the % sign.
 
-  * `bat2_format = FORMAT_STRING` : Format for battery line 2. Default: %t. *(since 0.15)*
+  * `bat2_format = FORMAT_STRING` : Format for battery line 2. Default: %t. *(since 1.0)*
 
   * `battery_padding = horizontal_padding vertical_padding`
 

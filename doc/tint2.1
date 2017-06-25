@@ -309,7 +309,7 @@ gradient_id_pressed = 2
 .PP
 For example, \fB\fCpanel_items = STC\fR will show the systray, the taskbar and the clock (from left to right).
 .IP \(bu 2
-\fB\fCpanel_monitor = monitor (all or 1 or 2 or ...)\fR : Which monitor tint2 draws the panel on
+\fB\fCpanel_monitor = monitor (all or primary or 1 or 2 or ...)\fR : Which monitor tint2 draws the panel on
 .RS
 .IP \(bu 2
 The first monitor is \fB\fC1\fR
@@ -317,7 +317,7 @@ The first monitor is \fB\fC1\fR
 Use \fB\fCpanel_monitor = all\fR to get a separate panel per monitor
 .RE
 .IP \(bu 2
-\fB\fCprimary_monitor_first = boolean (0 or 1)\fR : Place the primary monitor before all the other monitors in the list. \fI(since 0.12.4)\fP
+\fB\fCprimary_monitor_first = boolean (0 or 1)\fR : Place the primary monitor before all the other monitors in the list. \fI(since 0.12.4; removed in 1.0, use \fB\fCprimary\fR instead)\fP
 .RE
 .PP
 [](images/panel_padding.jpg)
@@ -461,7 +461,7 @@ You can switch between virtual desktops.
 .IP \(bu 2
 \fB\fCtaskbar_hide_different_monitor = boolean (0 or 1)\fR :  If enabled, the taskbar shows only the tasks from the current monitor. Useful when running different tint2 instances on different monitors, each one having its own config. \fI(since 0.12)\fP
 .IP \(bu 2
-\fB\fCtaskbar_hide_different_desktop = boolean (0 or 1)\fR :  If enabled, the taskbar shows only the tasks from the current desktop. Useful to make multi\-desktop taskbars more compact, but still allow desktop switching with mouse click. \fI(since 0.15)\fP
+\fB\fCtaskbar_hide_different_desktop = boolean (0 or 1)\fR :  If enabled, the taskbar shows only the tasks from the current desktop. Useful to make multi\-desktop taskbars more compact, but still allow desktop switching with mouse click. \fI(since 1.0)\fP
 .IP \(bu 2
 \fB\fCtaskbar_always_show_all_desktop_tasks = boolean (0 or 1)\fR :  Has effect only if \fB\fCtaskbar_mode = multi_desktop\fR\&. If enabled, tasks that appear on all desktops are shown on all taskbars. Otherwise, they are shown only on the taskbar of the current desktop. \fI(since 0.12.4)\fP
 .IP \(bu 2
@@ -580,7 +580,7 @@ The action semantics:
 .IP \(bu 2
 \fB\fCsystray_icon_asb = alpha (0 to 100) saturation (\-100 to 100) brightness (\-100 to 100)\fR : Adjust the systray icons color and transparency.
 .IP \(bu 2
-\fB\fCsystray_monitor = integer (1, 2, ...)\fR :  On which monitor to draw the systray. The first monitor is \fB\fC1\fR\&. \fI(since 0.12)\fP
+\fB\fCsystray_monitor = integer (1, 2, ...) or primary\fR :  On which monitor to draw the systray. The first monitor is \fB\fC1\fR\&. \fI(since 0.12)\fP
 .IP \(bu 2
 \fB\fCsystray_name_filter = string\fR :  Regular expression to identify icon names to be hidden. For example, \fB\fC^audacious$\fR will hide icons with the exact name \fB\fCaudacious\fR, while \fB\fCaud\fR will hide any icons having \fB\fCaud\fR in the name. \fI(since 0.13.1)\fP
 .RE
@@ -653,13 +653,15 @@ To hide the clock, comment \fB\fCtime1_format\fR and \fB\fCtime2_format\fR\&.
 .IP \(bu 2
 \fB\fCbattery_low_cmd = notify\-send "battery low"\fR : Command to execute when the battery is low.
 .IP \(bu 2
+\fB\fCbattery_full_cmd = notify\-send "battery full"\fR : Command to execute when the battery is full.
+.IP \(bu 2
 \fB\fCbat1_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR
 .IP \(bu 2
 \fB\fCbat2_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR
 .IP \(bu 2
 \fB\fCbattery_font_color = color opacity (0 to 100)\fR
 .IP \(bu 2
-\fB\fCbat1_format = FORMAT_STRING\fR : Format for battery line 1. Default: %p. \fI(since 0.15)\fP Format specification:
+\fB\fCbat1_format = FORMAT_STRING\fR : Format for battery line 1. Default: %p. \fI(since 1.0)\fP Format specification:
 .RS
 .IP \(bu 2
 %s: State (charging, discharging, full, unknown).
@@ -673,7 +675,7 @@ To hide the clock, comment \fB\fCtime1_format\fR and \fB\fCtime2_format\fR\&.
 %p: Percentage. Includes the % sign.
 .RE
 .IP \(bu 2
-\fB\fCbat2_format = FORMAT_STRING\fR : Format for battery line 2. Default: %t. \fI(since 0.15)\fP
+\fB\fCbat2_format = FORMAT_STRING\fR : Format for battery line 2. Default: %t. \fI(since 1.0)\fP
 .IP \(bu 2
 \fB\fCbattery_padding = horizontal_padding vertical_padding\fR
 .IP \(bu 2
