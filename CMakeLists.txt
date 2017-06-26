@@ -217,7 +217,7 @@ else()
   SET(ASAN_L_FLAGS "")
 endif()
 
-add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_version.sh" "\"${PROJECT_SOURCE_DIR}\"" )
+add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_version.sh" -- "\"${PROJECT_SOURCE_DIR}/\"" )
 
 link_directories( ${X11_LIBRARY_DIRS}
                   ${PANGOCAIRO_LIBRARY_DIRS}
