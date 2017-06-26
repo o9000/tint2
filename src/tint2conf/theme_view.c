@@ -145,10 +145,16 @@ void theme_list_append(const gchar *path)
     GtkTreeIter iter;
     gtk_list_store_append(theme_list_store, &iter);
 
-    gchar *name = strrchr(path, '/') + 1;
+    gchar *name, *dir;
 
-    gchar *dir = g_strdup(path);
-    strrchr(dir, '/')[0] = 0;
+    if (strchr(path, '/')) {
+        name = strrchr(path, '/') + 1;
+        dir = g_strdup(path);
+        strrchr(dir, '/')[0] = 0;
+    } else {
+        name = (gchar*)path;
+        dir = g_strdup(".");
+    }
     char *suffix = contract_tilde(dir);
     g_free(dir);
 
