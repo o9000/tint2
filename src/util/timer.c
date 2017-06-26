@@ -82,6 +82,16 @@ void cleanup_timeout()
     }
 }
 
+int gettime(struct timespec *tp)
+{
+    // CLOCK_BOOTTIME under Linux is the same as CLOCK_MONOTONIC under *BSD.
+#ifdef CLOCK_BOOTTIME
+    return clock_gettime(CLOCK_BOOTTIME, tp);
+#else
+    return clock_gettime(CLOCK_MONOTONIC, tp);
+#endif
+}
+
 // Implementation notes for timeouts
 //
 // The timeouts are kept in a GSList sorted by their expiration time.
@@ -124,7 +134,7 @@ void update_next_timeout()
         timeout *t = timeout_list->data;
         struct timespec cur_time;
         struct timespec next_timeout2 = {.tv_sec = next_timeout.tv_sec, .tv_nsec = next_timeout.tv_usec * 1000};
-        clock_gettime(CLOCK_MONOTONIC, &cur_time);
+        gettime(&cur_time);
         if (timespec_subtract(&next_timeout2, &t->timeout_expires, &cur_time)) {
             next_timeout.tv_sec = 0;
             next_timeout.tv_usec = 0;
@@ -141,7 +151,7 @@ void callback_timeout_expired()
     struct timespec cur_time;
     timeout *t;
     while (timeout_list) {
-        clock_gettime(CLOCK_MONOTONIC, &cur_time);
+        gettime(&cur_time);
         t = timeout_list->data;
         if (compare_timespecs(&t->timeout_expires, &cur_time) <= 0) {
             // it's time for the callback function
@@ -187,7 +197,7 @@ void add_timeout_intern(int value_msec, int interval_msec, void (*_callback)(), 
     t->_callback = _callback;
     t->arg = arg;
     struct timespec cur_time;
-    clock_gettime(CLOCK_MONOTONIC, &cur_time);
+    gettime(&cur_time);
     t->timeout_expires = add_msec_to_timespec(cur_time, value_msec);
 
     int can_align = 0;
@@ -343,7 +353,7 @@ void update_multi_timeout_values(multi_timeout_handler *mth)
     int next_timeout_msec = interval;
 
     struct timespec cur_time;
-    clock_gettime(CLOCK_MONOTONIC, &cur_time);
+    gettime(&cur_time);
 
     GSList *it = mth->timeout_list;
     struct timespec diff_time;
@@ -368,7 +378,7 @@ void callback_multi_timeout(void *arg)
 {
     multi_timeout_handler *mth = arg;
     struct timespec cur_time;
-    clock_gettime(CLOCK_MONOTONIC, &cur_time);
+    gettime(&cur_time);
     GSList *it = mth->timeout_list;
     while (it) {
         timeout *t = it->data;
@@ -407,7 +417,7 @@ void remove_from_multi_timeout(timeout *t)
         free(mth);
 
         struct timespec cur_time, diff_time;
-        clock_gettime(CLOCK_MONOTONIC, &cur_time);
+        gettime(&cur_time);
         timespec_subtract(&diff_time, &t->timeout_expires, &cur_time);
         int msec_to_expiration = diff_time.tv_sec * 1000 + diff_time.tv_nsec / 1000000;
         add_timeout_intern(msec_to_expiration,
@@ -438,7 +448,7 @@ double profiling_get_time_old_time = 0;
 double get_time()
 {
     struct timespec cur_time;
-    clock_gettime(CLOCK_MONOTONIC, &cur_time);
+    gettime(&cur_time);
     return cur_time.tv_sec + cur_time.tv_nsec * 1.0e-9;
 }
 
