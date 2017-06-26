@@ -14,7 +14,7 @@ else
 fi
 
 # Get version (and check that the repository is clean)
-VERSION=$(../get_version.sh --strict ../)
+VERSION=$(../get_version.sh --strict)
 if [ ! $? -eq 0 ]
 then
     echo >&2 "Error: get_version.sh failed!"
