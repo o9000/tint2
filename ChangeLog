@@ -1,4 +1,6 @@
-2017-06-20 master
+2017-06-27 master
+- Fixes:
+  - Clock, executors and other timers fire correctly after waking up from suspend
 - Enhancements:
   - Taskbar: new config option taskbar_hide_different_desktop
   - Battery:
@@ -7,6 +9,9 @@
 	- Better "Unknown" state handling
   - Executor:
     - Hide if output is empty
+    - If no user tooltip is set, displays the script standard error as tooltip.
+      Tooltip is multiline, can be cleared with the VT100 clear screen sequence, in shell: (>&2 echo -en "\033[2J").
+      Long tooltips are truncated to 4096 characters.
 - Configuration changes:
   - Removed primary_monitor_first as it was conflicting with taskbar behavior; use *_monitor = primary instead.
 
