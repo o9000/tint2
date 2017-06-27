@@ -18,6 +18,8 @@
 #include "timer.h"
 #include "common.h"
 
+#define MAX_TOOLTIP_LEN 4096
+
 void execp_timer_callback(void *arg);
 char *execp_get_tooltip(void *obj);
 void execp_init_fonts();
@@ -794,6 +796,8 @@ gboolean read_execp(void *obj)
                 start = execp->backend->buf_stderr;
             execp->backend->tooltip = strdup(start);
             rstrip(execp->backend->tooltip);
+            if (strlen(execp->backend->tooltip) > MAX_TOOLTIP_LEN)
+                execp->backend->tooltip[MAX_TOOLTIP_LEN] = '\0';
         }
         execp->backend->buf_stderr_length = 0;
         execp->backend->buf_stderr[execp->backend->buf_stderr_length] = '\0';
@@ -811,6 +815,10 @@ gboolean read_execp(void *obj)
                 start += strlen(ansi_clear_screen);
                 memmove(execp->backend->buf_stderr, start, strlen(start) + 1);
                 execp->backend->buf_stderr_length = (ssize_t)strlen(execp->backend->buf_stderr);
+            }
+            if (execp->backend->buf_stderr_length > MAX_TOOLTIP_LEN) {
+                execp->backend->buf_stderr_length = MAX_TOOLTIP_LEN;
+                execp->backend->buf_stderr[execp->backend->buf_stderr_length] = '\0';
             }
             execp->backend->tooltip = strdup(execp->backend->buf_stderr);
             rstrip(execp->backend->tooltip);
