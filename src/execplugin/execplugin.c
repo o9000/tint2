@@ -794,10 +794,12 @@ gboolean read_execp(void *obj)
                 start += strlen(ansi_clear_screen);
             else
                 start = execp->backend->buf_stderr;
-            execp->backend->tooltip = strdup(start);
-            rstrip(execp->backend->tooltip);
-            if (strlen(execp->backend->tooltip) > MAX_TOOLTIP_LEN)
-                execp->backend->tooltip[MAX_TOOLTIP_LEN] = '\0';
+            if (*start) {
+                execp->backend->tooltip = strdup(start);
+                rstrip(execp->backend->tooltip);
+                if (strlen(execp->backend->tooltip) > MAX_TOOLTIP_LEN)
+                    execp->backend->tooltip[MAX_TOOLTIP_LEN] = '\0';
+            }
         }
         execp->backend->buf_stderr_length = 0;
         execp->backend->buf_stderr[execp->backend->buf_stderr_length] = '\0';
