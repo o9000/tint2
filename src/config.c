@@ -700,6 +700,7 @@ void add_entry(char *key, char *value)
         Execp *execp = get_or_create_last_execp();
         free_and_null(execp->backend->tooltip);
         execp->backend->tooltip = strdup(value);
+        execp->backend->has_user_tooltip = TRUE;
     } else if (strcmp(key, "execp_font") == 0) {
         Execp *execp = get_or_create_last_execp();
         pango_font_description_free(execp->backend->font_desc);

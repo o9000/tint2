@@ -1832,7 +1832,12 @@ start:
         }
         for (GList *l = panel_config.execp_list; l; l = l->next) {
             Execp *execp = (Execp *)l->data;
-            int fd = execp->backend->child_pipe;
+            int fd = execp->backend->child_pipe_stdout;
+            if (fd > 0) {
+                FD_SET(fd, &fdset);
+                maxfd = maxfd < fd ? fd : maxfd;
+            }
+            fd = execp->backend->child_pipe_stderr;
             if (fd > 0) {
                 FD_SET(fd, &fdset);
                 maxfd = maxfd < fd ? fd : maxfd;
@@ -1861,7 +1866,7 @@ start:
                 if (read_execp(execp)) {
                     GList *l_instance;
                     for (l_instance = execp->backend->instances; l_instance; l_instance = l_instance->next) {
-                        Execp *instance = l_instance->data;
+                        Execp *instance = (Execp *)l_instance->data;
                         execp_update_post_read(instance);
                     }
                 }

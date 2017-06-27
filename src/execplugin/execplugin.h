@@ -27,6 +27,7 @@ typedef struct ExecpBackend {
     gboolean cache_icon;
     int icon_w;
     int icon_h;
+    gboolean has_user_tooltip;
     char *tooltip;
     gboolean centered;
     gboolean has_font;
@@ -46,20 +47,24 @@ typedef struct ExecpBackend {
 
     // Backend state:
     timeout *timer;
-    int child_pipe;
+    int child_pipe_stdout;
+    int child_pipe_stderr;
     pid_t child;
 
     // Command output buffer
-    char *buf_output;
-    int buf_length;
-    int buf_capacity;
+    char *buf_stdout;
+    ssize_t buf_stdout_length;
+    ssize_t buf_stdout_capacity;
+    char *buf_stderr;
+    ssize_t buf_stderr_length;
+    ssize_t buf_stderr_capacity;
 
     // Text extracted from the output buffer
     char *text;
     // Icon path extracted from the output buffer
     char *icon_path;
     Imlib_Image icon;
-    char tooltip_text[512];
+    gchar tooltip_text[512];
 
     // The time the last command was started
     time_t last_update_start_time;
