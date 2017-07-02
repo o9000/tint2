@@ -153,10 +153,11 @@ void update_clocks_min(void *arg)
 {
     // remember old_sec because after suspend/hibernate the clock should be updated directly, and not
     // on next minute change
+    static time_t old_sec = 0;
     gettimeofday(&time_clock, 0);
-    time_t old_sec = time_clock.tv_sec;
     if (time_clock.tv_sec % 60 == 0 || time_clock.tv_sec - old_sec > 60)
         update_clocks();
+    old_sec = time_clock.tv_sec;
 }
 
 gboolean time_format_needs_sec_ticks(char *time_format)
