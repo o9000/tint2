@@ -415,6 +415,7 @@ void add_entry(char *key, char *value)
         }
     } else if (strcmp(key, "panel_items") == 0) {
         new_config_file = TRUE;
+        free_and_null(panel_items_order);
         panel_items_order = strdup(value);
         systray_enabled = 0;
         launcher_enabled = 0;
