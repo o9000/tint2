@@ -76,6 +76,7 @@ void destroy_execp(void *obj)
             execp->backend->icon = NULL;
         }
         free_and_null(execp->backend->buf_stdout);
+        free_and_null(execp->backend->buf_stderr);
         free_and_null(execp->backend->text);
         free_and_null(execp->backend->icon_path);
         if (execp->backend->child) {
