@@ -230,6 +230,7 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
         // Run the command
         if (dir)
             chdir(dir);
+        close_all_fds();
         execl("/bin/sh", "/bin/sh", "-c", command, NULL);
         fprintf(stderr, "Failed to execlp %s\n", command);
 #if HAVE_SN
@@ -754,7 +755,8 @@ void get_text_size2(const PangoFontDescription *font,
     available_height = MAX(0, available_height);
     Pixmap pmap = XCreatePixmap(server.display, server.root_win, available_height, available_width, server.depth);
 
-    cairo_surface_t *cs = cairo_xlib_surface_create(server.display, pmap, server.visual, available_height, available_width);
+    cairo_surface_t *cs =
+        cairo_xlib_surface_create(server.display, pmap, server.visual, available_height, available_width);
     cairo_t *c = cairo_create(cs);
 
     PangoLayout *layout = pango_cairo_create_layout(c);
@@ -847,4 +849,12 @@ gint cmp_ptr(gconstpointer a, gconstpointer b)
         return 0;
     else
         return 1;
+}
+
+void close_all_fds()
+{
+    long maxfd = sysconf(_SC_OPEN_MAX);
+    for (int fd = 3; fd < maxfd; fd++) {
+        close(fd);
+    }
 }

@@ -644,6 +644,7 @@ void execp_timer_callback(void *arg)
         close(pipe_fd_stderr[0]);
         dup2(pipe_fd_stderr[1], 2); // 2 is stderr
         close(pipe_fd_stderr[1]);
+        close_all_fds();
         setpgid(0, 0);
         execl("/bin/sh", "/bin/sh", "-c", execp->backend->command, NULL);
         // This should never happen!

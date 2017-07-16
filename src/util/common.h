@@ -116,6 +116,8 @@ void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, doub
 // Clears the pixmap (with transparent color)
 void clear_pixmap(Pixmap p, int x, int y, int w, int h);
 
+void close_all_fds();
+
 // Appends to the list locations all the directories contained in the environment variable var (split by ":").
 // Optional suffixes are added to each directory. The suffix arguments MUST end with NULL.
 // Returns the new value of the list.
