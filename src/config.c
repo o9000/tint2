@@ -1367,7 +1367,7 @@ gboolean config_read_default_path()
     // (https://specifications.freedesktop.org/basedir-spec/basedir-spec-0.6.html)
     // if the user's config directory does not exist, we should create it with permissions set to 0700.
     if (!g_file_test(g_get_user_config_dir(), G_FILE_TEST_IS_DIR))
-        g_mkdir(g_get_user_config_dir(), 0700);
+        g_mkdir_with_parents(g_get_user_config_dir(), 0700);
 
     gchar *path2 = 0;
     system_dirs = g_get_system_config_dirs();
@@ -1384,7 +1384,7 @@ gboolean config_read_default_path()
         // copy file in user directory (path1)
         gchar *dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
         if (!g_file_test(dir, G_FILE_TEST_IS_DIR))
-            g_mkdir(dir, 0700);
+            g_mkdir_with_parents(dir, 0700);
         g_free(dir);
 
         path1 = g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
@@ -1400,7 +1400,7 @@ gboolean config_read_default_path()
     // generate config file
     gchar *dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
     if (!g_file_test(dir, G_FILE_TEST_IS_DIR))
-        g_mkdir(dir, 0700);
+        g_mkdir_with_parents(dir, 0700);
     g_free(dir);
 
     path1 = g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);

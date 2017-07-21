@@ -227,7 +227,7 @@ int main(int argc, char **argv)
     {
         gchar *tint2_config_dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
         if (!g_file_test(tint2_config_dir, G_FILE_TEST_IS_DIR))
-            g_mkdir(tint2_config_dir, 0700);
+            g_mkdir_with_parents(tint2_config_dir, 0700);
         g_free(tint2_config_dir);
     }
 
