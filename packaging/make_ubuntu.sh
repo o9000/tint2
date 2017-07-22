@@ -49,7 +49,7 @@ echo "echo \"#define VERSION_STRING \\\"$VERSION\\\"\" > version.h" > $DIR/get_v
 # Copy the debian files into the source directory
 cp -r debian $DIR/debian
 
-for DISTRO in precise trusty xenial yakkety zesty artful
+for DISTRO in trusty xenial yakkety zesty artful
 do
     # Cleanup from previous builds
     rm -rf tint2_$VERSION-*
