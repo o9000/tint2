@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -814,15 +816,24 @@ void set_panel_properties(Panel *p)
         g_free(name);
     }
 
+    long pid = getpid();
+    XChangeProperty(server.display,
+                    p->main_win,
+                    server.atom._NET_WM_PID,
+                    XA_CARDINAL,
+                    32,
+                    PropModeReplace,
+                    (unsigned char *)&pid,
+                    1);
+
     // Dock
-    long val = server.atom._NET_WM_WINDOW_TYPE_DOCK;
     XChangeProperty(server.display,
                     p->main_win,
                     server.atom._NET_WM_WINDOW_TYPE,
                     XA_ATOM,
                     32,
                     PropModeReplace,
-                    (unsigned char *)&val,
+                    (unsigned char *)&server.atom._NET_WM_WINDOW_TYPE_DOCK,
                     1);
 
     place_panel_all_desktops(p);
