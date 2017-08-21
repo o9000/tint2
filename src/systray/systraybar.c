@@ -1498,7 +1498,7 @@ void systray_render_icon(void *t)
         Window root;
         if (!XGetGeometry(server.display, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
             stop_timeout(traywin->render_timeout);
-            if (!traywin->resize_timeout)
+            if (!traywin->render_timeout)
                 traywin->render_timeout =
                     add_timeout(min_refresh_period, 0, systray_render_icon, traywin, &traywin->render_timeout);
             systray_render_icon_from_image(traywin);
@@ -1507,7 +1507,7 @@ void systray_render_icon(void *t)
         } else {
             if (xpos != 0 || ypos != 0 || width != traywin->width || height != traywin->height) {
                 stop_timeout(traywin->render_timeout);
-                if (!traywin->resize_timeout)
+                if (!traywin->render_timeout)
                     traywin->render_timeout =
                         add_timeout(min_refresh_period, 0, systray_render_icon, traywin, &traywin->render_timeout);
                 systray_render_icon_from_image(traywin);

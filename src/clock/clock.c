@@ -154,8 +154,8 @@ int ms_until_second_change(struct timeval* tm)
 void update_clocks_sec(void *arg)
 {
     gettimeofday(&time_clock, 0);
-    clock_timeout = add_timeout(ms_until_second_change(&time_clock), 0, update_clocks_sec, 0, NULL);
     update_clocks();
+    clock_timeout = add_timeout(ms_until_second_change(&time_clock), 0, update_clocks_sec, 0, &clock_timeout);
 }
 
 void update_clocks_min(void *arg)
@@ -164,10 +164,10 @@ void update_clocks_min(void *arg)
     // on next minute change
     static time_t old_sec = 0;
     gettimeofday(&time_clock, 0);
-    clock_timeout = add_timeout(ms_until_second_change(&time_clock), 0, update_clocks_min, 0, NULL);
     if (time_clock.tv_sec % 60 == 0 || time_clock.tv_sec - old_sec > 60)
         update_clocks();
     old_sec = time_clock.tv_sec;
+    clock_timeout = add_timeout(ms_until_second_change(&time_clock), 0, update_clocks_min, 0, &clock_timeout);
 }
 
 gboolean time_format_needs_sec_ticks(char *time_format)

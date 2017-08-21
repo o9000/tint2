@@ -44,6 +44,7 @@ struct _timeout {
     void *arg;
     multi_timeout *multi_timeout;
     timeout **self;
+    gboolean expired;
 };
 
 void add_timeout_intern(int value_msec, int interval_msec, void (*_callback)(void *), void *arg, timeout *t);
@@ -106,7 +107,7 @@ int gettime(struct timespec *tp)
 
 timeout *add_timeout(int value_msec, int interval_msec, void (*_callback)(void *), void *arg, timeout **self)
 {
-    if (self && *self)
+    if (self && *self && !(*self)->expired)
         return *self;
     timeout *t = calloc(1, sizeof(timeout));
     t->self = self;
@@ -155,6 +156,7 @@ void callback_timeout_expired()
         t = timeout_list->data;
         if (compare_timespecs(&t->timeout_expires, &cur_time) <= 0) {
             // it's time for the callback function
+            t->expired = t->interval_msec == 0;
             t->_callback(t->arg);
             // If _callback() calls stop_timeout(t) the timer 't' was freed and is not in the timeout_list
             if (g_slist_find(timeout_list, t)) {

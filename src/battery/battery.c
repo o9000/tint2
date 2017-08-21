@@ -226,8 +226,7 @@ void init_battery()
 
     battery_found = battery_os_init();
 
-    if (!battery_timeout)
-        battery_timeout = add_timeout(10, 30000, update_battery_tick, 0, &battery_timeout);
+    battery_timeout = add_timeout(10, 30000, update_battery_tick, 0, &battery_timeout);
 
     update_battery();
 }
