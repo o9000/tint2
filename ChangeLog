@@ -1,7 +1,11 @@
-2017-06-27 master
+2017-08-21 master
 - Fixes:
   - Clock, executors and other timers fire correctly after waking up from suspend
+  - One-shot timers are restarted correctly from their own callbacks
+  - Clock is refreshed with better accuracy (thanks @aaaz)
 - Enhancements:
+  - Panel:
+    - _NET_WM_PID is set correctly, so now tint2 can be interacted with more easily from wmctrl and similar apps
   - Taskbar: new config option taskbar_hide_different_desktop
   - Battery:
     - New config option bat1_format and bat2_format
