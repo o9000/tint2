@@ -30,6 +30,7 @@ Contributors:
   Michael Messmore : Support for Path in .desktop files
   Matthew Otnel : config option systray_name_filter
   Ryan Gray, Jeff Blake (https://gitlab.com/berkley4) : battery format
+  aaaz (https://gitlab.com/aaaz) : clock fixes
 
 Translations:
   Bosnian:
