@@ -363,10 +363,12 @@ void execp_compute_icon_text_geometry(Execp *execp,
         if (*icon_w)
             *new_size += *interior_padding + *icon_w;
         *new_size += 2 * *horiz_padding + left_right_border_width(area);
-        if (*new_size > area->width || *new_size < (area->width - 6)) {
-            // we try to limit the number of resize
-            *new_size += 1;
+        if (*new_size < area->width && abs(*new_size - area->width) < 6) {
+            // we try to limit the number of resizes
+            *new_size = area->width;
             *resized = TRUE;
+        } else {
+            *resized = *new_size != area->width;
         }
     } else {
         if (!*text_next_line) {

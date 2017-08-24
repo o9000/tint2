@@ -996,9 +996,13 @@ gboolean resize_text_area(Area *area,
                                                   line1_font_desc,
                                                   line2_font_desc);
     if (panel_horizontal) {
-        if (new_size > area->width || new_size < (area->width - 6)) {
-            // we try to limit the number of resizes
-            area->width = new_size + 1;
+        if (new_size != area->width) {
+            if (new_size < area->width && abs(new_size - area->width) < 6) {
+                // we try to limit the number of resizes
+                new_size = area->width;
+            } else {
+                area->width = new_size;
+            }
             *line1_posy = (area->height - line1_height) / 2;
             if (line2) {
                 *line1_posy -= (line2_height) / 2;
@@ -1008,7 +1012,6 @@ gboolean resize_text_area(Area *area,
         }
     } else {
         if (new_size != area->height) {
-            // we try to limit the number of resizes
             area->height = new_size;
             *line1_posy = (area->height - line1_height) / 2;
             if (line2) {
