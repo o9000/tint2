@@ -3,6 +3,10 @@
   - Clock, executors and other timers fire correctly after waking up from suspend
   - One-shot timers are restarted correctly from their own callbacks
   - Clock is refreshed with better accuracy (thanks @aaaz)
+  - Panel: by popular demand, the old struts behavior with autohide has been restored (issue #619);
+    if you encounter applications that interact poorly with it,
+	you might have better luck with strut_policy = minimum,
+	if that does not work, you will have to turn off autohide.
 - Enhancements:
   - Panel:
     - _NET_WM_PID is set correctly, so now tint2 can be interacted with more easily from wmctrl and similar apps
