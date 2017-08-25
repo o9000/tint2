@@ -164,7 +164,7 @@ void update_clocks_min(void *arg)
     // on next minute change
     static time_t old_sec = 0;
     gettimeofday(&time_clock, 0);
-    if (time_clock.tv_sec % 60 == 0 || time_clock.tv_sec - old_sec > 60)
+    if (time_clock.tv_sec % 60 == 0 || time_clock.tv_sec - old_sec > 60 || (time1_format && !buf_time[0]) || (time2_format && !buf_date[0]))
         update_clocks();
     old_sec = time_clock.tv_sec;
     clock_timeout = add_timeout(ms_until_second_change(&time_clock), 0, update_clocks_min, 0, &clock_timeout);
