@@ -555,7 +555,7 @@ void update_strut(Panel *p)
     long struts[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     if (panel_horizontal) {
         int height = p->area.height + p->marginy;
-        if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide))
+        if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide && p->is_hidden))
             height = p->hidden_height;
         if (panel_position & TOP) {
             struts[2] = height + monitor.y;
@@ -570,7 +570,7 @@ void update_strut(Panel *p)
         }
     } else {
         int width = p->area.width + p->marginx;
-        if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide))
+        if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide && p->is_hidden))
             width = p->hidden_width;
         if (panel_position & LEFT) {
             struts[0] = width + monitor.x;
