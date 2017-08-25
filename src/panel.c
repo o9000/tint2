@@ -150,6 +150,8 @@ void cleanup_panel()
         cleanup_freespace(p);
     }
 
+    free_icon_themes();
+
     free(panel_items_order);
     panel_items_order = NULL;
     free(panel_window_name);
