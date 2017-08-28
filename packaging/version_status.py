@@ -330,14 +330,14 @@ def main():
   latest = get_tint2_version()
   distros = []
   distros.append(get_debian_versions())
-  distros.append(get_ubuntu_versions())
   distros.append(get_bunsenlabs_versions())
-  distros.append(get_arch_versions())
+  distros.append(get_ubuntu_versions())
   distros.append(get_fedora_versions())
   distros.append(get_redhat_epel_versions())
   distros.append(get_suse_versions())
-  distros.append(get_gentoo_versions())
+  distros.append(get_arch_versions())
   distros.append(get_void_versions())
+  distros.append(get_gentoo_versions())
   distros.append(get_freebsd_versions())
   distros.append(get_openbsd_versions())
   print "| Distribution | Release | Version | Status |"
@@ -345,7 +345,7 @@ def main():
   for dist, dcode, releases in distros:
     icon = "![](numix-icons/distributor-logo-{0}.svg.png)".format(dcode)
     for r in releases:
-      if r[1] == latest:
+      if r[1].split("-", 1)[0] == latest:
         status = ":white_check_mark: Latest"
       else:
         status = ":warning: Out of date"
