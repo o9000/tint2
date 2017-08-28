@@ -320,6 +320,8 @@ def get_openbsd_versions():
   return "OpenBSD", "openbsd", versions
 
 
+# Upstream
+
 def get_tint2_version():
   readme = http_download_txt("https://gitlab.com/o9000/tint2/raw/master/README.md")
   version = readme.split("\n", 1)[0].split(":", 1)[-1].strip()
@@ -351,9 +353,8 @@ def main():
         status = ":warning: Out of date"
       print "| {0} {1} | {2} | {3} | {4} |".format(icon, dist, r[0], r[1], status)
   utc_datetime = datetime.datetime.utcnow()
-  utc_datetime.strftime("%Y-%m-%d %H:%M UTC")
   print ""
-  print "Last updated:", utc_datetime
+  print "Last updated:", utc_datetime.strftime("%Y-%m-%d %H:%M UTC")
 
 
 if __name__ == "__main__":
