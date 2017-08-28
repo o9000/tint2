@@ -86,6 +86,8 @@ def http_paths_from_listing(html):
   for link in http_links_from_listing(html):
     if link.startswith(".."):
       continue
+    if link == "./" or link == "/":
+      continue
     if "://" in link:
       continue
     paths.append(link)
@@ -95,11 +97,14 @@ def http_paths_from_listing(html):
 # Downloads a file as string from an URL. Decodes correctly.
 def http_download_txt(url):
   # type: (str) -> str
-  r = urllib2.urlopen(url)
-  encoding = r.headers.getparam("charset")
-  if not encoding:
-    encoding = "utf-8"
-  return r.read().decode(encoding)
+  try:
+    r = urllib2.urlopen(url)
+    encoding = r.headers.getparam("charset")
+    if not encoding:
+      encoding = "utf-8"
+    return r.read().decode(encoding)
+  except:
+    raise
 
 
 # Extracts the list of paths (relative links, except to ../*) from the HTML code
@@ -181,7 +186,7 @@ def get_bunsenlabs_versions():
   dirs = http_list_dir("https://eu.pkg.bunsenlabs.org/debian/dists/")
   versions = []
   for d in dirs:
-    if d.endswith("/") and "/" not in d[:-2]:
+    if d.endswith("/") and "/" not in d[:-1]:
       release = d.replace("/", "")
       packages = http_download_txt("https://eu.pkg.bunsenlabs.org/debian/dists/{0}/main/binary-amd64/Packages".format(release))
       version, maintainer = deb_packages_extract_version(packages, "tint2")
@@ -289,6 +294,46 @@ def get_void_versions():
   return "Void Linux", "void", versions
 
 
+# Alpine
+
+def get_alpine_versions():
+  apkbuild = http_download_txt("https://git.alpinelinux.org/cgit/aports/plain/community/tint2/APKBUILD")
+  versions = []
+  version = None
+  maintainer = None
+  for line in apkbuild.split("\n"):
+    if line.startswith("pkgver="):
+      version = line.split("=", 1)[-1].replace('"', "").strip()
+    elif line.startswith("# Maintainer:"):
+      maintainer = line.split(":", 1)[-1].replace('"', "").strip()
+  if version:
+    versions.append(("", version, maintainer))
+  return "Alpine Linux", "alpine", versions
+
+
+# Slackware
+
+def get_slack_versions():
+  dirs = http_list_dir("https://slackbuilds.org/slackbuilds/")
+  versions = []
+  for d in dirs:
+    if d.endswith("/") and "/" not in d[:-1]:
+      release = d.replace("/", "")
+      try:
+        info = http_download_txt("https://slackbuilds.org/slackbuilds/{0}/desktop/tint2/tint2.info".format(release))
+      except:
+        continue
+      version = None
+      maintainer = None
+      for line in info.split("\n"):
+        if line.startswith("VERSION="):
+          version = line.split("=", 1)[-1].replace('"', "").strip()
+        elif line.startswith("MAINTAINER="):
+          maintainer = line.split("=", 1)[-1].replace('"', "").strip()
+      if version:
+        versions.append((release, version, maintainer))
+  return "Slackware", "slackware", versions
+
 # FreeBSD
 
 def get_freebsd_versions():
@@ -337,6 +382,8 @@ def main():
   distros.append(get_fedora_versions())
   distros.append(get_redhat_epel_versions())
   distros.append(get_suse_versions())
+  distros.append(get_alpine_versions())
+  distros.append(get_slack_versions())
   distros.append(get_arch_versions())
   distros.append(get_void_versions())
   distros.append(get_gentoo_versions())
