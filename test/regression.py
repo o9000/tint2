@@ -275,9 +275,13 @@ def run_tests():
     run_test(config, index)
 
 
+def get_default_src_dir():
+  return os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/../")
+
+
 def main():
   parser = argparse.ArgumentParser()
-  parser.add_argument("--src_dir", default="../../")
+  parser.add_argument("--src_dir", default=get_default_src_dir())
   args = parser.parse_args()
   show_timestamp()
   show_git_info(args.src_dir)
