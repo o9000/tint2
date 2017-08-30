@@ -280,12 +280,17 @@ def get_default_src_dir():
 
 
 def check_busy():
-  out, _ = run("""top -bn5 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1"%"}' | tail -n +2""", True).communicate()
-  load = 0
+  out, _ = run("top -bn5 | grep 'Cpu(s)' | grep -o '[0-9\.]* id' | cut -d ' ' -f 1", True).communicate()
+  load_samples = []
   for line in out.split("\n"):
-    load = max(load, float(line.replace("%", "")))
+    print(line)
+    line = line.strip()
+    if line:
+      load_samples.append(100. - float(line))
+  load_samples.sort()
+  load = load_samples[len(load_samples)/2]
   if load > 10.0:
-    raise RuntimeError("The system appears busy.")
+    raise RuntimeError("The system appears busy. Load: %f.1%%." % (load,))
 
 
 def main():
