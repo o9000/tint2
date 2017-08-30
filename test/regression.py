@@ -201,7 +201,7 @@ def show_timestamp():
 
 
 def show_git_info(src_dir):
-  out, _ = run("cd {0}; git show -s '--format=%h %s %d'".format(src_dir), True).communicate()
+  out, _ = run("cd {0}; git show -s '--format=[%ci] %h %s %d'".format(src_dir), True).communicate()
   print("Last commit:", out.strip())
   diff, _ = run("cd {0}; git diff".format(src_dir), True).communicate()
   diff = diff.strip()
@@ -283,7 +283,6 @@ def check_busy():
   out, _ = run("top -bn5 | grep 'Cpu(s)' | grep -o '[0-9\.]* id' | cut -d ' ' -f 1", True).communicate()
   load_samples = []
   for line in out.split("\n"):
-    print(line)
     line = line.strip()
     if line:
       load_samples.append(100. - float(line))
