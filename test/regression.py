@@ -196,7 +196,7 @@ def test(tint2path, config):
 def main():
   utc_datetime = datetime.datetime.utcnow()
   print("Last updated:", utc_datetime.strftime("%Y-%m-%d %H:%M UTC"))
-  out, _ = run("git show -s '--format=%H %s'", True).communicate()
+  out, _ = run("git show -s '--format=%h %s'", True).communicate()
   print("Last commit:", out.strip())
   diff, _ = run("git diff", True).communicate()
   diff = diff.strip()
