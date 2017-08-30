@@ -7,6 +7,7 @@ import __builtin__
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
+import argparse
 import datetime
 import os
 import signal
@@ -193,14 +194,17 @@ def test(tint2path, config):
   stop_xvfb()
 
 
-def main():
+def show_timestamp():
   utc_datetime = datetime.datetime.utcnow()
   print("Last updated:", utc_datetime.strftime("%Y-%m-%d %H:%M UTC"))
-  out, _ = run("git show -s '--format=%h %s'", True).communicate()
+
+
+def show_git_info(src_dir):
+  out, _ = run("cd {0}; git show -s '--format=%h %s %d'".format(src_dir), True).communicate()
   print("Last commit:", out.strip())
-  diff, _ = run("git diff", True).communicate()
+  diff, _ = run("cd {0}; git diff".format(src_dir), True).communicate()
   diff = diff.strip()
-  diff_staged, _ = run("git diff --staged", True).communicate()
+  diff_staged, _ = run("cd {0}; git diff --staged".format(src_dir), True).communicate()
   diff_staged = diff_staged.strip()
   if diff or diff_staged:
     print("Repository not clean", warning)
@@ -214,18 +218,24 @@ def main():
       print("```")
       print(diff_staged)
       print("```")
+
+
+def show_system_info():
   out, _ = run("lsb_release -sd", True).communicate()
   out.strip()
   print("System:", out)
   out, _ = run("cat /proc/cpuinfo | grep 'model name' | head -n1 | cut -d ':' -f2", True).communicate()
   out.strip()
   print("Hardware:", out)
+
+
+def compile_and_report(src_dir):
   print("")
   print("# Compilation")
   cmake_flags = "-DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON"
   print("Flags:", cmake_flags)
   start = time.time()
-  c = run("rm -rf build; mkdir build; cd build; cmake {0} ../../ ; make -j7".format(cmake_flags), True)
+  c = run("rm -rf build; mkdir build; cd build; cmake {0} {1} ; make -j7".format(cmake_flags, src_dir), True)
   out, _ = c.communicate()
   duration = time.time() - start
   if c.returncode != 0:
@@ -245,16 +255,35 @@ def main():
     print("```")
   else:
     print("Status: Succeeded in %.1f seconds" % (duration,), ok)
+
+
+def run_test(config, index):
+  print("")
+  print("# Test", index)
+  print("Config: [{0}]({1})".format(config.split("/")[-1].replace(".tint2rc", ""), "https://gitlab.com/o9000/tint2/blob/master/test/" + config))
+  test("./build/tint2", config)
+
+
+def run_tests():
   configs = []
   configs += ["./configs/tint2/" +s for s in os.listdir("./configs/tint2") ]
   configs += ["../themes/" + s for s in os.listdir("../themes")]
   index = 0
   for config in configs:
     index += 1
-    print("")
-    print("# Test", index)
-    print("Config: [{0}]({1})".format(config.split("/")[-1].replace(".tint2rc", ""), "https://gitlab.com/o9000/tint2/blob/master/test/" + config))
-    test("./build/tint2", config)
+    run_test(config, index)
+
+
+def main():
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--src_dir", default="../../")
+  args = parser.parse_args()
+  show_timestamp()
+  show_git_info(args.src_dir)
+  show_system_info()
+  compile_and_report(args.src_dir)
+  run_tests()
+
 
 if __name__ == "__main__":
   main()
