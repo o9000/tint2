@@ -220,6 +220,9 @@ def show_system_info():
   out, _ = run("cat /proc/cpuinfo | grep 'model name' | head -n1 | cut -d ':' -f2", True).communicate()
   out.strip()
   print("Hardware:", out)
+  out, _ = run("cc --version | head -n1", True).communicate()
+  out.strip()
+  print("Compiler:", out)
 
 
 def compile_and_report(src_dir):
