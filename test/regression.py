@@ -91,7 +91,8 @@ def compute_min_med_fps(out):
   for line in out.split("\n"):
     if "fps = " in line:
       fps = float(line.split("fps = ", 1)[-1].split(" ")[0])
-      samples.append(fps)
+      if fps > 0:
+        samples.append(fps)
   samples.sort()
   return min(samples), samples[len(samples)/2]
 
