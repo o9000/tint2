@@ -21,11 +21,17 @@ ok = ":white_check_mark:"
 warning = ":warning:"
 error = ":negative_squared_cross_mark:"
 stress_duration = 10
+repeats = 10
 
 
 def print(*args, **kwargs):
-  r = __builtin__.print(*args, **kwargs)
-  __builtin__.print("\n", end="")
+  if "end" not in kwargs:
+    kwargs["end"] = ""
+    r = __builtin__.print(*args, **kwargs)
+    __builtin__.print("  ")
+  else:
+    r = __builtin__.print(*args, **kwargs)
+    __builtin__.print("\n", end="")
   return r
 
 
@@ -207,21 +213,21 @@ def show_git_info(src_dir):
     print("Repository not clean", warning)
     if diff:
       print("Diff:")
-      print("```" + diff + "```")
+      print("```\n" + diff + "\n```")
     if diff_staged:
       print("Diff staged:")
-      print("```" + diff_staged + "```")
+      print("```\n" + diff_staged + "\n```")
 
 
 def show_system_info():
   out, _ = run("lsb_release -sd", True).communicate()
-  out.strip()
+  out = out.strip()
   print("System:", out)
   out, _ = run("cat /proc/cpuinfo | grep 'model name' | head -n1 | cut -d ':' -f2", True).communicate()
-  out.strip()
+  out = out.strip()
   print("Hardware:", out)
   out, _ = run("cc --version | head -n1", True).communicate()
-  out.strip()
+  out = out.strip()
   print("Compiler:", out)
 
 
@@ -253,7 +259,8 @@ def compile_and_report(src_dir):
 def run_test(config, index):
   print("# Test", index)
   print("Config: [{0}]({1})".format(config.split("/")[-1].replace(".tint2rc", ""), "https://gitlab.com/o9000/tint2/blob/master/test/" + config))
-  test("./build/tint2", config)
+  for i in range(repeats):
+    test("./build/tint2", config)
 
 
 def run_tests():
@@ -264,6 +271,7 @@ def run_tests():
   for config in configs:
     index += 1
     run_test(config, index)
+    print("")
 
 
 def get_default_src_dir():
