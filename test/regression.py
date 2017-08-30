@@ -25,7 +25,7 @@ stress_duration = 10
 
 def print(*args, **kwargs):
   r = __builtin__.print(*args, **kwargs)
-  __builtin__.print("\n")
+  __builtin__.print("\n", end="")
   return r
 
 
@@ -170,9 +170,7 @@ def test(tint2path, config):
   if exitcode != 0:
     print("tint2 crashed with exit code {0}!".format(exitcode))
     print("Output:")
-    print("```")
-    print(out)
-    print("```")
+    print("```" + out + "```")
     return
   min_fps, med_fps = compute_min_med_fps(out)
   leaks = find_asan_leaks(out)
@@ -189,9 +187,7 @@ def test(tint2path, config):
   print("FPS:", "min:", min_fps, "median:", med_fps, fps_status)
   if mem_status != ok or leak_status != ok or fps_status != ok:
     print("Output:")
-    print("```")
-    print(out)
-    print("```")
+    print("```" + out + "```")
   stop_xvfb()
 
 
@@ -211,14 +207,10 @@ def show_git_info(src_dir):
     print("Repository not clean", warning)
     if diff:
       print("Diff:")
-      print("```")
-      print(diff)
-      print("```")
+      print("```" + diff + "```")
     if diff_staged:
       print("Diff staged:")
-      print("```")
-      print(diff_staged)
-      print("```")
+      print("```" + diff_staged + "```")
 
 
 def show_system_info():
@@ -231,9 +223,8 @@ def show_system_info():
 
 
 def compile_and_report(src_dir):
-  print("")
   print("# Compilation")
-  cmake_flags = "-DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON"
+  cmake_flags = "-DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold"
   print("Flags:", cmake_flags)
   start = time.time()
   c = run("rm -rf build; mkdir build; cd build; cmake {0} {1} ; make -j7".format(cmake_flags, src_dir), True)
@@ -242,24 +233,21 @@ def compile_and_report(src_dir):
   if c.returncode != 0:
     print("Status: Failed!", error)
     print("Output:")
-    print("```")
-    print(out)
-    print("```")
-    return
+    print("```" + out + "```")
+    raise RuntimeError("compilation failed")
   if "warning:" in out:
     print("Status: Succeeded with warnings!", warning)
     print("Warnings:")
-    print("```")
+    print("```", end="")
     for line in out.split("\n"):
       if "warning:" in line:
-        print(line)
-    print("```")
+        print(line, end="")
+    print("```", end="")
   else:
     print("Status: Succeeded in %.1f seconds" % (duration,), ok)
 
 
 def run_test(config, index):
-  print("")
   print("# Test", index)
   print("Config: [{0}]({1})".format(config.split("/")[-1].replace(".tint2rc", ""), "https://gitlab.com/o9000/tint2/blob/master/test/" + config))
   test("./build/tint2", config)
@@ -292,12 +280,25 @@ def check_busy():
     raise RuntimeError("The system appears busy. Load: %f.1%%." % (load,))
 
 
+def checkout(version):
+  p = run("rm -rf tmpclone; git clone https://gitlab.com/o9000/tint2.git tmpclone; cd tmpclone; git checkout {0}".format(version), True)
+  out, _ = p.communicate()
+  if p.returncode != 0:
+    sys.stderr.write(out)
+    raise RuntimeError("git clone failed!")
+
+
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--src_dir", default=get_default_src_dir())
+  parser.add_argument("--for_version", default="HEAD")
   args = parser.parse_args()
+  if args.for_version != "HEAD":
+    checkout(args.for_version)
+    args.src_dir = "./tmpclone"
+  args.src_dir = os.path.realpath(args.src_dir)
   stop_xvfb()
-  check_busy()
+  #check_busy()
   show_timestamp()
   show_git_info(args.src_dir)
   show_system_info()
