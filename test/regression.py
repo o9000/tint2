@@ -19,7 +19,7 @@ devnull = open(os.devnull, "r+")
 ok = ":white_check_mark:"
 warning = ":warning:"
 error = ":negative_squared_cross_mark:"
-stress_duration = 1
+stress_duration = 10
 
 
 def print(*args, **kwargs):
