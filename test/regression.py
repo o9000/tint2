@@ -214,6 +214,12 @@ def main():
       print("```")
       print(diff_staged)
       print("```")
+  out, _ = run("lsb_release -sd", True)
+  out.strip()
+  print("System:", out)
+  out, _ = run("cat /proc/cpuinfo | grep 'model name' | head -n1 | cut -d ':' -f2", True)
+  out.strip()
+  print("Hardware:", out)
   print("")
   print("# Compilation")
   cmake_flags = "-DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON"
