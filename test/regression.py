@@ -279,10 +279,21 @@ def get_default_src_dir():
   return os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/../")
 
 
+def check_busy():
+  out, _ = run("""top -bn5 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1"%"}' | tail -n +2""", True).communicate()
+  load = 0
+  for line in out.split("\n"):
+    load = max(load, float(line.replace("%", "")))
+  if load > 10.0:
+    raise RuntimeError("The system appears busy.")
+
+
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--src_dir", default=get_default_src_dir())
   args = parser.parse_args()
+  stop_xvfb()
+  check_busy()
   show_timestamp()
   show_git_info(args.src_dir)
   show_system_info()
