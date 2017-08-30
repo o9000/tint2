@@ -224,7 +224,7 @@ def show_system_info():
 
 def compile_and_report(src_dir):
   print("# Compilation")
-  cmake_flags = "-DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold"
+  cmake_flags = "-DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON '-DCMAKE_CXX_FLAGS_DEBUG=-O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -Wshadow' '-DCMAKE_EXE_LINKER_FLAGS=-O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -fuse-ld=gold'"
   print("Flags:", cmake_flags)
   start = time.time()
   c = run("rm -rf build; mkdir build; cd build; cmake {0} {1} ; make -j7".format(cmake_flags, src_dir), True)
@@ -298,7 +298,7 @@ def main():
     args.src_dir = "./tmpclone"
   args.src_dir = os.path.realpath(args.src_dir)
   stop_xvfb()
-  #check_busy()
+  check_busy()
   show_timestamp()
   show_git_info(args.src_dir)
   show_system_info()
@@ -307,4 +307,5 @@ def main():
 
 
 if __name__ == "__main__":
+  sys.stdout = os.fdopen(sys.stdout.fileno(), "w", 0)
   main()
