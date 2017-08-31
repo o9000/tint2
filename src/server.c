@@ -27,8 +27,10 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "server.h"
+#include "common.h"
 #include "config.h"
+#include "server.h"
+#include "signals.h"
 #include "window.h"
 
 Server server;
@@ -733,3 +735,43 @@ void forward_click(XEvent *e)
     // XSetInputFocus(server.display, e->xbutton.window, RevertToParent, e->xbutton.time);
     XSendEvent(server.display, e->xbutton.window, False, ButtonPressMask, e);
 }
+
+void handle_crash(const char *reason)
+{
+#ifndef DISABLE_BACKTRACE
+    char path[4096];
+    sprintf(path, "%s/.tint2-crash.log", get_home_dir());
+    int log_fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    log_string(log_fd, RED "tint2 crashed, reason: ");
+    log_string(log_fd, reason);
+    log_string(log_fd, RESET "\n");
+    dump_backtrace(log_fd);
+    log_string(log_fd, RED "Please create a bug report with this log output." RESET "\n");
+    close(log_fd);
+#endif
+}
+
+void x11_io_error(Display *display)
+{
+    handle_crash("X11 I/O error");
+}
+
+#ifdef HAVE_SN
+static int error_trap_depth = 0;
+
+void error_trap_push(SnDisplay *display, Display *xdisplay)
+{
+    ++error_trap_depth;
+}
+
+void error_trap_pop(SnDisplay *display, Display *xdisplay)
+{
+    if (error_trap_depth == 0) {
+        fprintf(stderr, "Error trap underflow!\n");
+        return;
+    }
+
+    XSync(xdisplay, False); /* get all errors out of the queue */
+    --error_trap_depth;
+}
+#endif // HAVE_SN

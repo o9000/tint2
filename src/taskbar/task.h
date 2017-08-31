@@ -86,6 +86,7 @@ void draw_task(void *obj, cairo_t *c);
 void on_change_task(void *obj);
 
 void task_update_icon(Task *task);
+void task_update_desktop(Task *task);
 gboolean task_update_title(Task *task);
 void reset_active_task();
 void set_task_state(Task *task, TaskState state);

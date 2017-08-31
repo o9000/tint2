@@ -68,7 +68,7 @@ src/panel.c
 src/panel.h
 src/server.c
 src/server.h
-src/tint.c
+src/main.c
 AUTHORS
 ChangeLog
 CMakeLists.txt
@@ -229,3 +229,9 @@ src/drag_and_drop.c
 src/drag_and_drop.h
 src/mouse_actions.c
 src/mouse_actions.h
+src/util/fps_distribution.c
+src/util/fps_distribution.h
+src/init.h
+src/init.c
+src/signals.c
+src/signals.h

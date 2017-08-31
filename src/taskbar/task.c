@@ -330,8 +330,6 @@ void task_update_icon(Task *task)
     if (img == NULL) {
         imlib_context_set_image(default_icon);
         img = imlib_clone_image();
-        if (0)
-            fprintf(stderr, "%s: Using default icon for %s\n", __FUNCTION__, task->title ? task->title : "task");
     }
 
     // transform icons
@@ -781,4 +779,14 @@ void task_handle_mouse_event(Task *task, MouseAction action)
         activate_window(task1->win);
     }
     }
+}
+
+void task_update_desktop(Task *task)
+{
+    // fprintf(stderr, "%s %d:\n", __FUNCTION__, __LINE__);
+    Window win = task->win;
+    remove_task(task);
+    task = add_task(win);
+    reset_active_task();
+    schedule_panel_redraw();
 }

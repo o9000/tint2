@@ -214,3 +214,35 @@ void draw_taskbarname(void *obj, cairo_t *c)
 
     g_object_unref(layout);
 }
+
+void update_desktop_names()
+{
+    if (!taskbarname_enabled)
+        return;
+    GSList *list = get_desktop_names();
+    for (int i = 0; i < num_panels; i++) {
+        int j;
+        GSList *l;
+        for (j = 0, l = list; j < panels[i].num_desktops; j++) {
+            gchar *name;
+            if (l) {
+                name = g_strdup(l->data);
+                l = l->next;
+            } else {
+                name = g_strdup_printf("%d", j + 1);
+            }
+            Taskbar *taskbar = &panels[i].taskbar[j];
+            if (strcmp(name, taskbar->bar_name.name) != 0) {
+                g_free(taskbar->bar_name.name);
+                taskbar->bar_name.name = name;
+                taskbar->bar_name.area.resize_needed = 1;
+            } else {
+                g_free(name);
+            }
+        }
+    }
+    for (GSList *l = list; l; l = l->next)
+        g_free(l->data);
+    g_slist_free(list);
+    schedule_panel_redraw();
+}

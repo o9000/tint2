@@ -38,8 +38,6 @@
 
 void panel_clear_background(void *obj);
 
-int signal_pending;
-
 MouseAction mouse_left;
 MouseAction mouse_middle;
 MouseAction mouse_right;

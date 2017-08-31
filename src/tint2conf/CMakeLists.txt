@@ -22,6 +22,7 @@ include_directories( ../util
 set(SOURCES ../util/common.c
             ../util/strnatcmp.c
             ../util/cache.c
+            ../util/timer.c
             ../config.c
             ../server.c
             ../launcher/apps-common.c

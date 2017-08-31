@@ -7,6 +7,9 @@
 #define DRAG_AND_DROP_H
 
 #include <X11/Xlib.h>
+#include <glib.h>
+
+extern gboolean hidden_panel_shown_for_dnd;
 
 void dnd_init();
 

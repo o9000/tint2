@@ -20,6 +20,8 @@
 #ifndef UEVENT_H
 #define UEVENT_H
 
+#include <glib.h>
+
 enum uevent_action {
     UEVENT_UNKNOWN = 0x01,
     UEVENT_ADD = 0x02,
@@ -47,6 +49,8 @@ struct uevent_notify {
 
     void (*cb)(struct uevent *e, void *userdata);
 };
+
+extern int uevent_fd;
 
 #if ENABLE_UEVENT
 int uevent_init();

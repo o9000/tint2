@@ -33,6 +33,8 @@ static int dnd_sent_request;
 static char *dnd_launcher_exec;
 static gboolean dnd_debug = FALSE;
 
+gboolean hidden_panel_shown_for_dnd;
+
 void dnd_init()
 {
     dnd_source_window = 0;
@@ -42,6 +44,7 @@ void dnd_init()
     dnd_atom = None;
     dnd_sent_request = 0;
     dnd_launcher_exec = 0;
+    hidden_panel_shown_for_dnd = FALSE;
 }
 
 void handle_dnd_enter(XClientMessageEvent *e)

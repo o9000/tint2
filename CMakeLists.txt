@@ -116,7 +116,9 @@ include_directories( ${PROJECT_BINARY_DIR}
 set( SOURCES src/config.c
              src/panel.c
              src/server.c
-             src/tint.c
+             src/main.c
+             src/init.c
+             src/signals.c
              src/mouse_actions.c
              src/drag_and_drop.c
              src/clock/clock.c
@@ -137,6 +139,7 @@ set( SOURCES src/config.c
              src/tint2rc.c
              src/util/area.c
              src/util/common.c
+             src/util/fps_distribution.c
              src/util/strnatcmp.c
              src/util/timer.c
              src/util/cache.c

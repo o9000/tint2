@@ -135,6 +135,7 @@ typedef struct Viewport {
 
 typedef struct Server {
     Display *display;
+    int x11_fd;
     Window root_win;
     Window composite_manager;
     gboolean real_transparency;
@@ -181,6 +182,9 @@ void server_init_atoms();
 void server_init_visual();
 void server_init_xdamage();
 
+void x11_io_error(Display *display);
+void handle_crash(const char *reason);
+
 // detect root background
 void get_root_pixmap();
 
@@ -196,5 +200,10 @@ void change_desktop(int desktop);
 
 // Forward mouse click to the desktop window
 void forward_click(XEvent *e);
+
+#ifdef HAVE_SN
+void error_trap_push(SnDisplay *display, Display *xdisplay);
+void error_trap_pop(SnDisplay *display, Display *xdisplay);
+#endif
 
 #endif

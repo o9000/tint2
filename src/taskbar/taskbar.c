@@ -299,16 +299,6 @@ void init_taskbar_panel(void *p)
                                                                          top_bottom_border_width(&panel->g_task.area));
         panel->g_task.text_posx += panel->g_task.icon_size1 + panel->g_task.area.paddingx;
         panel->g_task.icon_posy = (panel->g_task.area.height - panel->g_task.icon_size1) / 2;
-        if (0)
-            printf("task: icon_size = %d, textx = %f, texth = %f, icony = %d, w = %d, h = %d, maxw = %d, maxh = %d\n",
-                   panel->g_task.icon_size1,
-                   panel->g_task.text_posx,
-                   panel->g_task.text_height,
-                   panel->g_task.icon_posy,
-                   panel->g_task.area.width,
-                   panel->g_task.area.height,
-                   panel->g_task.maximum_width,
-                   panel->g_task.maximum_height);
     }
 
     Taskbar *taskbar;

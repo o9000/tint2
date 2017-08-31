@@ -17,6 +17,9 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
+#include "uevent.h"
+int uevent_fd = -1;
+
 #ifdef ENABLE_UEVENT
 
 #include <string.h>
@@ -30,9 +33,7 @@
 #include <linux/netlink.h>
 
 #include "common.h"
-#include "uevent.h"
 
-static int ueventfd = -1;
 static struct sockaddr_nl nls;
 static GList *notifiers = NULL;
 
@@ -146,11 +147,11 @@ void uevent_unregister_notifier(struct uevent_notify *nb)
 
 void uevent_handler()
 {
-    if (ueventfd < 0)
+    if (uevent_fd < 0)
         return;
 
     char buf[512];
-    int len = recv(ueventfd, buf, sizeof(buf), MSG_DONTWAIT);
+    int len = recv(uevent_fd, buf, sizeof(buf), MSG_DONTWAIT);
     if (len < 0)
         return;
 
@@ -181,27 +182,27 @@ int uevent_init()
     nls.nl_groups = -1;
 
     /* open socket */
-    ueventfd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
-    if (ueventfd < 0) {
+    uevent_fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
+    if (uevent_fd < 0) {
         fprintf(stderr, "Error: socket open failed\n");
         return -1;
     }
 
     /* Listen to netlink socket */
-    if (bind(ueventfd, (void *)&nls, sizeof(struct sockaddr_nl))) {
+    if (bind(uevent_fd, (void *)&nls, sizeof(struct sockaddr_nl))) {
         fprintf(stderr, "Bind failed\n");
         return -1;
     }
 
     printf("Kernel uevent interface initialized...\n");
 
-    return ueventfd;
+    return uevent_fd;
 }
 
 void uevent_cleanup()
 {
-    if (ueventfd >= 0)
-        close(ueventfd);
+    if (uevent_fd >= 0)
+        close(uevent_fd);
 }
 
 #endif

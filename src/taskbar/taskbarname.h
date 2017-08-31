@@ -23,4 +23,6 @@ gboolean resize_taskbarname(void *obj);
 
 void taskbarname_default_font_changed();
 
+void update_desktop_names();
+
 #endif

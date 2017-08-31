@@ -30,7 +30,6 @@
 // Periodic timeouts are aligned to each other whenever possible, i.e. one interval_msec is an
 // integral multiple of the other.
 
-extern struct timeval next_timeout;
 typedef struct _timeout timeout;
 
 // Initializes default global data.
@@ -54,11 +53,12 @@ void change_timeout(timeout **t, int value_msec, int interval_msec, void (*_call
 // Stops the timer 't'
 void stop_timeout(timeout *t);
 
-// Updates next_timeout to the value, when the next installed timeout will expire
-void update_next_timeout();
+// Get the time when the next installed timer will expire, or NULL if there is no timer.
+// Do not free the pointer; but it is safe to change its contents.
+struct timeval *get_next_timeout();
 
 // Callback of all expired timeouts
-void callback_timeout_expired();
+void handle_expired_timers();
 
 // Returns -1 if t1 < t2, 0 if t1 == t2, 1 if t1 > t2
 gint compare_timespecs(const struct timespec *t1, const struct timespec *t2);

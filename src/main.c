@@ -43,626 +43,32 @@
 #include <libsn/sn.h>
 #endif
 
-#include <version.h>
-#include "server.h"
-#include "window.h"
 #include "config.h"
 #include "drag_and_drop.h"
-#include "task.h"
-#include "taskbar.h"
-#include "systraybar.h"
+#include "fps_distribution.h"
+#include "init.h"
 #include "launcher.h"
 #include "mouse_actions.h"
 #include "panel.h"
+#include "server.h"
+#include "signals.h"
+#include "systraybar.h"
+#include "task.h"
+#include "taskbar.h"
 #include "tooltip.h"
 #include "timer.h"
-#include "xsettings-client.h"
 #include "uevent.h"
-
-#ifdef ENABLE_LIBUNWIND
-#define UNW_LOCAL_ONLY
-#include <libunwind.h>
-#else
-#ifdef ENABLE_EXECINFO
-#include <execinfo.h>
-#endif
-#endif
+#include "version.h"
+#include "window.h"
+#include "xsettings-client.h"
 
 // Global process state variables
 
-static gboolean hidden_dnd;
-
 XSettingsClient *xsettings_client = NULL;
-
-timeout *detect_compositor_timer = NULL;
-int detect_compositor_timer_counter = 0;
 
 gboolean debug_fps = FALSE;
 gboolean debug_frames = FALSE;
-float *fps_distribution = NULL;
 int frame = 0;
-
-void create_fps_distribution()
-{
-    // measure FPS with resolution:
-    // 0-59: 1		   (60 samples)
-    // 60-199: 10      (14)
-    // 200-1,999: 25   (72)
-    // 1k-19,999: 1000 (19)
-    // 20x+: inf       (1)
-    // => 166 samples
-    if (fps_distribution)
-        return;
-    fps_distribution = calloc(170, sizeof(float));
-}
-
-void cleanup_fps_distribution()
-{
-    free(fps_distribution);
-    fps_distribution = NULL;
-}
-
-void sample_fps(double fps)
-{
-    int fps_rounded = (int)(fps + 0.5);
-    int i = 1;
-    if (fps_rounded < 60) {
-        i += fps_rounded;
-    } else {
-        i += 60;
-        if (fps_rounded < 200) {
-            i += (fps_rounded - 60) / 10;
-        } else {
-            i += 14;
-            if (fps_rounded < 2000) {
-                i += (fps_rounded - 200) / 25;
-            } else {
-                i += 72;
-                if (fps_rounded < 20000) {
-                    i += (fps_rounded - 2000) / 1000;
-                } else {
-                    i += 20;
-                }
-            }
-        }
-    }
-    // fprintf(stderr, "fps = %.0f => i = %d\n", fps, i);
-    fps_distribution[i] += 1.;
-    fps_distribution[0] += 1.;
-}
-
-void fps_compute_stats(double *low, double *median, double *high, double *samples)
-{
-    *median = *low = *high = *samples = -1;
-    if (!fps_distribution || fps_distribution[0] < 1)
-        return;
-    float total = fps_distribution[0];
-    *samples = (double)fps_distribution[0];
-    float cum_low = 0.05f * total;
-    float cum_median = 0.5f * total;
-    float cum_high = 0.95f * total;
-    float cum = 0;
-    for (int i = 1; i <= 166; i++) {
-        double value =
-            (i < 60) ? i : (i < 74) ? (60 + (i - 60) * 10) : (i < 146) ? (200 + (i - 74) * 25)
-                                                                       : (i < 165) ? (2000 + (i - 146) * 1000) : 20000;
-        // fprintf(stderr, "%6.0f (i = %3d) : %.0f | ", value, i, (double)fps_distribution[i]);
-        cum += fps_distribution[i];
-        if (*low < 0 && cum >= cum_low)
-            *low = value;
-        if (*median < 0 && cum >= cum_median)
-            *median = value;
-        if (*high < 0 && cum >= cum_high)
-            *high = value;
-    }
-}
-
-void detect_compositor(void *arg)
-{
-    if (server.composite_manager) {
-        stop_timeout(detect_compositor_timer);
-        return;
-    }
-
-    detect_compositor_timer_counter--;
-    if (detect_compositor_timer_counter < 0) {
-        stop_timeout(detect_compositor_timer);
-        return;
-    }
-
-    // No compositor, check for one
-    if (XGetSelectionOwner(server.display, server.atom._NET_WM_CM_S0) != None) {
-        stop_timeout(detect_compositor_timer);
-        // Restart tint2
-        fprintf(stderr, "Detected compositor, restarting tint2...\n");
-        kill(getpid(), SIGUSR1);
-    }
-}
-
-void start_detect_compositor()
-{
-    // Already have a compositor, nothing to do
-    if (server.composite_manager)
-        return;
-
-    stop_timeout(detect_compositor_timer);
-    // Check every 0.5 seconds for up to 30 seconds
-    detect_compositor_timer_counter = 60;
-    detect_compositor_timer = add_timeout(500, 500, detect_compositor, 0, &detect_compositor_timer);
-}
-
-void signal_handler(int sig)
-{
-    // signal handler is light as it should be
-    signal_pending = sig;
-}
-
-void write_string(int fd, const char *s)
-{
-    int len = strlen(s);
-    while (len > 0) {
-        int count = write(fd, s, len);
-        if (count >= 0) {
-            s += count;
-            len -= count;
-        } else {
-            break;
-        }
-    }
-}
-
-const char *signal_name(int sig)
-{
-    switch (sig) {
-    case SIGHUP:
-        return "SIGHUP: Hangup (POSIX).";
-    case SIGINT:
-        return "SIGINT: Interrupt (ANSI).";
-    case SIGQUIT:
-        return "SIGQUIT: Quit (POSIX).";
-    case SIGILL:
-        return "SIGILL: Illegal instruction (ANSI).";
-    case SIGTRAP:
-        return "SIGTRAP: Trace trap (POSIX).";
-    case SIGABRT:
-        return "SIGABRT/SIGIOT: Abort (ANSI) / IOT trap (4.2 BSD).";
-    case SIGBUS:
-        return "SIGBUS: BUS error (4.2 BSD).";
-    case SIGFPE:
-        return "SIGFPE: Floating-point exception (ANSI).";
-    case SIGKILL:
-        return "SIGKILL: Kill, unblockable (POSIX).";
-    case SIGUSR1:
-        return "SIGUSR1: User-defined signal 1 (POSIX).";
-    case SIGSEGV:
-        return "SIGSEGV: Segmentation violation (ANSI).";
-    case SIGUSR2:
-        return "SIGUSR2: User-defined signal 2 (POSIX).";
-    case SIGPIPE:
-        return "SIGPIPE: Broken pipe (POSIX).";
-    case SIGALRM:
-        return "SIGALRM: Alarm clock (POSIX).";
-    case SIGTERM:
-        return "SIGTERM: Termination (ANSI).";
-    // case SIGSTKFLT: return "SIGSTKFLT: Stack fault.";
-    case SIGCHLD:
-        return "SIGCHLD: Child status has changed (POSIX).";
-    case SIGCONT:
-        return "SIGCONT: Continue (POSIX).";
-    case SIGSTOP:
-        return "SIGSTOP: Stop, unblockable (POSIX).";
-    case SIGTSTP:
-        return "SIGTSTP: Keyboard stop (POSIX).";
-    case SIGTTIN:
-        return "SIGTTIN: Background read from tty (POSIX).";
-    case SIGTTOU:
-        return "SIGTTOU: Background write to tty (POSIX).";
-    case SIGURG:
-        return "SIGURG: Urgent condition on socket (4.2 BSD).";
-    case SIGXCPU:
-        return "SIGXCPU: CPU limit exceeded (4.2 BSD).";
-    case SIGXFSZ:
-        return "SIGXFSZ: File size limit exceeded (4.2 BSD).";
-    case SIGVTALRM:
-        return "SIGVTALRM: Virtual alarm clock (4.2 BSD).";
-    case SIGPROF:
-        return "SIGPROF: Profiling alarm clock (4.2 BSD).";
-    // case SIGPWR: return "SIGPWR: Power failure restart (System V).";
-    case SIGSYS:
-        return "SIGSYS: Bad system call.";
-    }
-    static char s[64];
-    sprintf(s, "SIG=%d: Unknown", sig);
-    return s;
-}
-
-void log_string(int fd, const char *s)
-{
-    write_string(2, s);
-    write_string(fd, s);
-}
-
-const char *get_home_dir()
-{
-    const char *s = getenv("HOME");
-    if (s)
-        return s;
-    struct passwd *pw = getpwuid(getuid());
-    if (!pw)
-        return NULL;
-    return pw->pw_dir;
-}
-
-void dump_backtrace(int log_fd)
-{
-#ifndef DISABLE_BACKTRACE
-    log_string(log_fd, "\n" YELLOW "Backtrace:" RESET "\n");
-
-#ifdef ENABLE_LIBUNWIND
-    unw_cursor_t cursor;
-    unw_context_t context;
-    unw_getcontext(&context);
-    unw_init_local(&cursor, &context);
-
-    while (unw_step(&cursor) > 0) {
-        unw_word_t offset;
-        char fname[128];
-        fname[0] = '\0';
-        (void)unw_get_proc_name(&cursor, fname, sizeof(fname), &offset);
-        log_string(log_fd, fname);
-        log_string(log_fd, "\n");
-    }
-#else
-#ifdef ENABLE_EXECINFO
-#define MAX_TRACE_SIZE 128
-    void *array[MAX_TRACE_SIZE];
-    size_t size = backtrace(array, MAX_TRACE_SIZE);
-    char **strings = backtrace_symbols(array, size);
-
-    for (size_t i = 0; i < size; i++) {
-        log_string(log_fd, strings[i]);
-        log_string(log_fd, "\n");
-    }
-
-    free(strings);
-#endif // ENABLE_EXECINFO
-#endif // ENABLE_LIBUNWIND
-#endif // DISABLE_BACKTRACE
-}
-
-// sleep() returns early when signals arrive. This function does not.
-void safe_sleep(int seconds)
-{
-    double t0 = get_time();
-    while (1) {
-        double t = get_time();
-        if (t > t0 + seconds)
-            return;
-        sleep(1);
-    }
-}
-
-void handle_crash(const char *reason)
-{
-#ifndef DISABLE_BACKTRACE
-    char path[4096];
-    sprintf(path, "%s/.tint2-crash.log", get_home_dir());
-    int log_fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0600);
-    log_string(log_fd, RED "tint2 crashed, reason: ");
-    log_string(log_fd, reason);
-    log_string(log_fd, RESET "\n");
-    dump_backtrace(log_fd);
-    log_string(log_fd, RED "Please create a bug report with this log output." RESET "\n");
-    close(log_fd);
-#endif
-}
-
-#ifdef BACKTRACE_ON_SIGNAL
-void crash_handler(int sig)
-{
-    handle_crash(signal_name(sig));
-    struct sigaction sa = {.sa_handler = SIG_DFL};
-    sigaction(sig, &sa, 0);
-    raise(sig);
-}
-#endif
-
-void x11_io_error(Display *display)
-{
-    handle_crash("X11 I/O error");
-}
-
-void print_usage()
-{
-    printf("Usage: tint2 [OPTION...]\n"
-           "\n"
-           "Options:\n"
-           "  -c path_to_config_file   Loads the configuration file from a\n"
-           "                           custom location.\n"
-           "  -v, --version            Prints version information and exits.\n"
-           "  -h, --help               Display this help and exits.\n"
-           "\n"
-           "For more information, run `man tint2` or visit the project page\n"
-           "<https://gitlab.com/o9000/tint2>.\n");
-}
-
-void init(int argc, char *argv[])
-{
-    // Make stdout/stderr flush after a newline (for some reason they don't even if tint2 is started from a terminal)
-    setlinebuf(stdout);
-    setlinebuf(stderr);
-
-    // set global data
-    default_config();
-    default_timeout();
-    default_systray();
-    memset(&server, 0, sizeof(server));
-#ifdef ENABLE_BATTERY
-    default_battery();
-#endif
-    default_clock();
-    default_launcher();
-    default_taskbar();
-    default_tooltip();
-    default_execp();
-    default_button();
-    default_panel();
-
-    // Read command line arguments
-    for (int i = 1; i < argc; ++i) {
-        int error = 0;
-        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-            print_usage();
-            exit(0);
-        } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
-            printf("tint2 version %s\n", VERSION_STRING);
-            exit(0);
-        } else if (strcmp(argv[i], "-c") == 0) {
-            if (i + 1 < argc) {
-                i++;
-                config_path = strdup(argv[i]);
-            } else {
-                error = 1;
-            }
-        } else if (strcmp(argv[i], "-s") == 0) {
-            if (i + 1 < argc) {
-                i++;
-                snapshot_path = strdup(argv[i]);
-            } else {
-                error = 1;
-            }
-        } else if (i + 1 == argc) {
-            config_path = strdup(argv[i]);
-        }
-#ifdef ENABLE_BATTERY
-        else if (strcmp(argv[i], "--battery-sys-prefix") == 0) {
-            if (i + 1 < argc) {
-                i++;
-                battery_sys_prefix = strdup(argv[i]);
-            } else {
-                error = 1;
-            }
-        }
-#endif
-
-        else {
-            error = 1;
-        }
-        if (error) {
-            print_usage();
-            exit(1);
-        }
-    }
-    // Set signal handlers
-    signal_pending = 0;
-
-    struct sigaction sa_chld = {.sa_handler = SIG_DFL, .sa_flags = SA_NOCLDWAIT | SA_RESTART};
-    sigaction(SIGCHLD, &sa_chld, 0);
-
-    struct sigaction sa = {.sa_handler = signal_handler, .sa_flags = SA_RESTART};
-    sigaction(SIGUSR1, &sa, 0);
-    sigaction(SIGUSR2, &sa, 0);
-    sigaction(SIGINT, &sa, 0);
-    sigaction(SIGTERM, &sa, 0);
-    sigaction(SIGHUP, &sa, 0);
-
-#ifdef BACKTRACE_ON_SIGNAL
-    struct sigaction sa_crash = {.sa_handler = crash_handler};
-    sigaction(SIGSEGV, &sa_crash, 0);
-    sigaction(SIGFPE, &sa_crash, 0);
-    sigaction(SIGPIPE, &sa_crash, 0);
-    sigaction(SIGBUS, &sa_crash, 0);
-    sigaction(SIGABRT, &sa_crash, 0);
-    sigaction(SIGSYS, &sa_crash, 0);
-#endif
-
-    debug_geometry = getenv("DEBUG_GEOMETRY") != NULL;
-    debug_gradients = getenv("DEBUG_GRADIENTS") != NULL;
-    debug_fps = getenv("DEBUG_FPS") != NULL;
-    debug_frames = getenv("DEBUG_FRAMES") != NULL;
-    if (debug_fps)
-        create_fps_distribution();
-}
-
-static int sigchild_pipe_valid = FALSE;
-static int sigchild_pipe[2];
-
-#ifdef HAVE_SN
-static int error_trap_depth = 0;
-
-static void error_trap_push(SnDisplay *display, Display *xdisplay)
-{
-    ++error_trap_depth;
-}
-
-static void error_trap_pop(SnDisplay *display, Display *xdisplay)
-{
-    if (error_trap_depth == 0) {
-        fprintf(stderr, "Error trap underflow!\n");
-        return;
-    }
-
-    XSync(xdisplay, False); /* get all errors out of the queue */
-    --error_trap_depth;
-}
-#endif // HAVE_SN
-
-static void sigchld_handler(int sig)
-{
-    if (!sigchild_pipe_valid)
-        return;
-    int savedErrno = errno;
-    ssize_t unused = write(sigchild_pipe[1], "x", 1);
-    (void)unused;
-    fsync(sigchild_pipe[1]);
-    errno = savedErrno;
-}
-
-static void sigchld_handler_async()
-{
-    // Wait for all dead processes
-    pid_t pid;
-    int status;
-    while ((pid = waitpid(-1, &status, WNOHANG)) != -1 && pid != 0) {
-#ifdef HAVE_SN
-        if (startup_notifications) {
-            SnLauncherContext *ctx = (SnLauncherContext *)g_tree_lookup(server.pids, GINT_TO_POINTER(pid));
-            if (ctx) {
-                g_tree_remove(server.pids, GINT_TO_POINTER(pid));
-                sn_launcher_context_complete(ctx);
-                sn_launcher_context_unref(ctx);
-            }
-        }
-#endif
-        for (GList *l = panel_config.execp_list; l; l = l->next) {
-            Execp *execp = (Execp *)l->data;
-            if (g_tree_lookup(execp->backend->cmd_pids, GINT_TO_POINTER(pid)))
-                execp_cmd_completed(execp, pid);
-        }
-    }
-}
-
-void init_X11_pre_config()
-{
-    server.display = XOpenDisplay(NULL);
-    if (!server.display) {
-        fprintf(stderr, "tint2: could not open display.\n");
-        exit(1);
-    }
-    XSetErrorHandler((XErrorHandler)server_catch_error);
-    XSetIOErrorHandler((XIOErrorHandler)x11_io_error);
-    server_init_atoms();
-    server.screen = DefaultScreen(server.display);
-    server.root_win = RootWindow(server.display, server.screen);
-    server.desktop = get_current_desktop();
-
-    setlocale(LC_ALL, "");
-    // config file use '.' as decimal separator
-    setlocale(LC_NUMERIC, "POSIX");
-
-    /* Catch events */
-    XSelectInput(server.display, server.root_win, PropertyChangeMask | StructureNotifyMask);
-
-    // get monitor and desktop config
-    get_monitors();
-    get_desktops();
-
-    server.disable_transparency = 0;
-
-    xsettings_client = xsettings_client_new(server.display, server.screen, xsettings_notify_cb, NULL, NULL);
-}
-
-void init_X11_post_config()
-{
-    server_init_visual();
-    server_init_xdamage();
-
-    gboolean need_sigchld = FALSE;
-#ifdef HAVE_SN
-    // Initialize startup-notification
-    if (startup_notifications) {
-        server.sn_display = sn_display_new(server.display, error_trap_push, error_trap_pop);
-        server.pids = g_tree_new(cmp_ptr);
-        need_sigchld = TRUE;
-    }
-#endif // HAVE_SN
-    if (panel_config.execp_list)
-        need_sigchld = TRUE;
-
-    if (need_sigchld) {
-        // Setup a handler for child termination
-        if (pipe(sigchild_pipe) != 0) {
-            fprintf(stderr, "Creating pipe failed.\n");
-        } else {
-            fcntl(sigchild_pipe[0], F_SETFL, O_NONBLOCK | fcntl(sigchild_pipe[0], F_GETFL));
-            fcntl(sigchild_pipe[1], F_SETFL, O_NONBLOCK | fcntl(sigchild_pipe[1], F_GETFL));
-            sigchild_pipe_valid = 1;
-            struct sigaction act = {.sa_handler = sigchld_handler, .sa_flags = SA_RESTART};
-            if (sigaction(SIGCHLD, &act, 0)) {
-                perror("sigaction");
-            }
-        }
-    }
-
-    imlib_context_set_display(server.display);
-    imlib_context_set_visual(server.visual);
-    imlib_context_set_colormap(server.colormap);
-
-    // load default icon
-    const gchar *const *data_dirs = g_get_system_data_dirs();
-    for (int i = 0; data_dirs[i] != NULL; i++) {
-        gchar *path = g_build_filename(data_dirs[i], "tint2", "default_icon.png", NULL);
-        if (g_file_test(path, G_FILE_TEST_EXISTS))
-            default_icon = load_image(path, TRUE);
-        g_free(path);
-    }
-    if (!default_icon) {
-        fprintf(stderr,
-                RED "Could not load default_icon.png. Please check that tint2 has been installed correctly!" RESET
-                    "\n");
-    }
-}
-
-void cleanup()
-{
-    cleanup_button();
-    cleanup_execp();
-    cleanup_systray();
-    cleanup_tooltip();
-    cleanup_clock();
-    cleanup_launcher();
-#ifdef ENABLE_BATTERY
-    cleanup_battery();
-#endif
-    cleanup_panel();
-    cleanup_config();
-
-    if (default_icon) {
-        imlib_context_set_image(default_icon);
-        imlib_free_image();
-        default_icon = NULL;
-    }
-    imlib_context_disconnect_display();
-
-    xsettings_client_destroy(xsettings_client);
-    xsettings_client = NULL;
-
-    cleanup_server();
-    cleanup_timeout();
-
-    if (server.display)
-        XCloseDisplay(server.display);
-    server.display = NULL;
-
-    if (sigchild_pipe_valid) {
-        sigchild_pipe_valid = FALSE;
-        close(sigchild_pipe[1]);
-        close(sigchild_pipe[0]);
-    }
-
-    uevent_cleanup();
-    cleanup_fps_distribution();
-}
 
 void dump_panel_to_file(const Panel *panel, const char *path)
 {
@@ -705,7 +111,7 @@ void dump_panel_to_file(const Panel *panel, const char *path)
     }
 }
 
-void get_snapshot(const char *path)
+void save_screenshot(const char *path)
 {
     Panel *panel = &panels[0];
 
@@ -721,51 +127,7 @@ void get_snapshot(const char *path)
     dump_panel_to_file(panel, path);
 }
 
-
-
-void update_desktop_names()
-{
-    if (!taskbarname_enabled)
-        return;
-    GSList *list = get_desktop_names();
-    for (int i = 0; i < num_panels; i++) {
-        int j;
-        GSList *l;
-        for (j = 0, l = list; j < panels[i].num_desktops; j++) {
-            gchar *name;
-            if (l) {
-                name = g_strdup(l->data);
-                l = l->next;
-            } else {
-                name = g_strdup_printf("%d", j + 1);
-            }
-            Taskbar *taskbar = &panels[i].taskbar[j];
-            if (strcmp(name, taskbar->bar_name.name) != 0) {
-                g_free(taskbar->bar_name.name);
-                taskbar->bar_name.name = name;
-                taskbar->bar_name.area.resize_needed = 1;
-            } else {
-                g_free(name);
-            }
-        }
-    }
-    for (GSList *l = list; l; l = l->next)
-        g_free(l->data);
-    g_slist_free(list);
-    schedule_panel_redraw();
-}
-
-void update_task_desktop(Task *task)
-{
-    // fprintf(stderr, "%s %d:\n", __FUNCTION__, __LINE__);
-    Window win = task->win;
-    remove_task(task);
-    task = add_task(win);
-    reset_active_task();
-    schedule_panel_redraw();
-}
-
-void event_property_notify(XEvent *e)
+void handle_event_property_notify(XEvent *e)
 {
     gboolean debug = FALSE;
 
@@ -880,7 +242,7 @@ void event_property_notify(XEvent *e)
                         }
                         for (l = need_update; l; l = l->next) {
                             Task *task = l->data;
-                            update_task_desktop(task);
+                            task_update_desktop(task);
                         }
                     }
                 }
@@ -995,7 +357,7 @@ void event_property_notify(XEvent *e)
             // printf("  Window desktop changed %d, %d\n", task->desktop, desktop);
             // bug in windowmaker : send unecessary 'desktop changed' when focus changed
             if (desktop != task->desktop) {
-                update_task_desktop(task);
+                task_update_desktop(task);
             }
         } else if (at == server.atom.WM_HINTS) {
             XWMHints *wmhints = XGetWMHints(server.display, win);
@@ -1012,7 +374,7 @@ void event_property_notify(XEvent *e)
     }
 }
 
-void event_expose(XEvent *e)
+void handle_event_expose(XEvent *e)
 {
     Panel *panel;
     panel = get_panel(e->xany.window);
@@ -1022,27 +384,13 @@ void event_expose(XEvent *e)
     schedule_panel_redraw();
 }
 
-void event_configure_notify(XEvent *e)
+void handle_event_configure_notify(XEvent *e)
 {
     Window win = e->xconfigure.window;
 
-    if (0) {
-        Task *task = get_task(win);
-        fprintf(stderr,
-                "%s %d: win = %ld, task = %s\n",
-                __FUNCTION__,
-                __LINE__,
-                win,
-                task ? (task->title ? task->title : "??") : "null");
-    }
-
     // change in root window (xrandr)
     if (win == server.root_win) {
-        fprintf(stderr,
-                YELLOW "%s %d: triggering tint2 restart due to configuration change in the root window" RESET "\n",
-                __FILE__,
-                __LINE__);
-        signal_pending = SIGUSR1;
+        emit_self_restart("configuration change in the root window");
         return;
     }
 
@@ -1077,7 +425,7 @@ void event_configure_notify(XEvent *e)
         if (task) {
             int desktop = get_window_desktop(win);
             if (task->desktop != desktop) {
-                update_task_desktop(task);
+                task_update_desktop(task);
             }
         }
     }
@@ -1095,15 +443,15 @@ gboolean handle_x_event_autohide(XEvent *e)
             autohide_trigger_hide(panel);
         if (panel->is_hidden) {
             if (e->type == ClientMessage && e->xclient.message_type == server.atom.XdndPosition) {
-                hidden_dnd = TRUE;
+                hidden_panel_shown_for_dnd = TRUE;
                 autohide_show(panel);
             } else {
                 // discard further processing of this event because the panel is not visible yet
                 return TRUE;
             }
-        } else if (hidden_dnd && e->type == ClientMessage &&
+        } else if (hidden_panel_shown_for_dnd && e->type == ClientMessage &&
                    e->xclient.message_type == server.atom.XdndLeave) {
-            hidden_dnd = FALSE;
+            hidden_panel_shown_for_dnd = FALSE;
             autohide_hide(panel);
         }
     }
@@ -1162,15 +510,15 @@ void handle_x_event(XEvent *e)
     }
 
     case Expose:
-        event_expose(e);
+        handle_event_expose(e);
         break;
 
     case PropertyNotify:
-        event_property_notify(e);
+        handle_event_property_notify(e);
         break;
 
     case ConfigureNotify:
-        event_configure_notify(e);
+        handle_event_configure_notify(e);
         break;
 
     case ConfigureRequest: {
@@ -1213,11 +561,7 @@ void handle_x_event(XEvent *e)
     case DestroyNotify:
         if (e->xany.window == server.composite_manager) {
             // Stop real_transparency
-            fprintf(stderr,
-                    YELLOW "%s %d: triggering tint2 restart due to compositor shutdown" RESET "\n",
-                    __FILE__,
-                    __LINE__);
-            signal_pending = SIGUSR1;
+            emit_self_restart("compositor shutdown");
             break;
         }
         if (e->xany.window == g_tooltip.window || !systray_enabled)
@@ -1235,18 +579,10 @@ void handle_x_event(XEvent *e)
         if (ev->data.l[1] == server.atom._NET_WM_CM_S0) {
             if (ev->data.l[2] == None) {
                 // Stop real_transparency
-                fprintf(stderr,
-                        YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n",
-                        __FILE__,
-                        __LINE__);
-                signal_pending = SIGUSR1;
+                emit_self_restart("compositor changed");
             } else {
                 // Start real_transparency
-                fprintf(stderr,
-                        YELLOW "%s %d: triggering tint2 restart due to change in transparency" RESET "\n",
-                        __FILE__,
-                        __LINE__);
-                signal_pending = SIGUSR1;
+                emit_self_restart("compositor changed");
             }
         }
         if (systray_enabled && e->xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE &&
@@ -1277,45 +613,15 @@ void handle_x_event(XEvent *e)
     }
 }
 
-int main(int argc, char *argv[])
+void run_tint2_event_loop()
 {
-start:
-    init(argc, argv);
-
-    init_X11_pre_config();
-
-    if (!config_read()) {
-        fprintf(stderr, "Could not read config file.\n");
-        print_usage();
-        cleanup();
-        exit(1);
-    }
-
-    init_X11_post_config();
-    start_detect_compositor();
-
-    init_panel();
-
-    if (snapshot_path) {
-        get_snapshot(snapshot_path);
-        cleanup();
-        exit(0);
-    }
-
-
-    int x11_fd = ConnectionNumber(server.display);
-    XSync(server.display, False);
-
-    dnd_init();
-    int ufd = uevent_init();
-    hidden_dnd = FALSE;
-
     double ts_event_read = 0;
     double ts_event_processed = 0;
     double ts_render_finished = 0;
     double ts_flush_finished = 0;
     gboolean first_render = TRUE;
-    while (1) {
+
+    while (!get_signal_pending()) {
         if (panel_refresh) {
             if (debug_fps)
                 ts_event_processed = get_time();
@@ -1442,35 +748,33 @@ start:
         // Create a File Description Set containing x11_fd
         fd_set fdset;
         FD_ZERO(&fdset);
-        FD_SET(x11_fd, &fdset);
-        int maxfd = x11_fd;
+        FD_SET(server.x11_fd, &fdset);
+        int maxfd = server.x11_fd;
         if (sigchild_pipe_valid) {
             FD_SET(sigchild_pipe[0], &fdset);
-            maxfd = maxfd < sigchild_pipe[0] ? sigchild_pipe[0] : maxfd;
+            maxfd = MAX(maxfd, sigchild_pipe[0]);
         }
         for (GList *l = panel_config.execp_list; l; l = l->next) {
             Execp *execp = (Execp *)l->data;
             int fd = execp->backend->child_pipe_stdout;
             if (fd > 0) {
                 FD_SET(fd, &fdset);
-                maxfd = maxfd < fd ? fd : maxfd;
+                maxfd = MAX(maxfd, fd);
             }
             fd = execp->backend->child_pipe_stderr;
             if (fd > 0) {
                 FD_SET(fd, &fdset);
-                maxfd = maxfd < fd ? fd : maxfd;
+                maxfd = MAX(maxfd, fd);
             }
         }
-        if (ufd > 0) {
-            FD_SET(ufd, &fdset);
-            maxfd = maxfd < ufd ? ufd : maxfd;
+        if (uevent_fd > 0) {
+            FD_SET(uevent_fd, &fdset);
+            maxfd = MAX(maxfd, uevent_fd);
         }
-        update_next_timeout();
-        struct timeval *select_timeout = (next_timeout.tv_sec >= 0 && next_timeout.tv_usec >= 0) ? &next_timeout : NULL;
 
-        // Wait for X Event or a Timer
+        // Wait for an event and handle it
         ts_event_read = 0;
-        if (XPending(server.display) > 0 || select(maxfd + 1, &fdset, 0, 0, select_timeout) >= 0) {
+        if (XPending(server.display) > 0 || select(maxfd + 1, &fdset, 0, 0, get_next_timeout()) >= 0) {
             uevent_handler();
 
             if (sigchild_pipe_valid) {
@@ -1499,25 +803,53 @@ start:
             }
         }
 
-        callback_timeout_expired();
+        handle_expired_timers();
+    }
+}
 
-        if (signal_pending) {
-            cleanup();
-            if (signal_pending == SIGUSR1) {
-                fprintf(stderr, YELLOW "%s %d: restarting tint2..." RESET "\n", __FILE__, __LINE__);
-                // restart tint2
-                // SIGUSR1 used when : user's signal, composite manager stop/start or xrandr
-                goto start;
-            } else if (signal_pending == SIGUSR2) {
-                fprintf(stderr, YELLOW "%s %d: reexecuting tint2..." RESET "\n", __FILE__, __LINE__);
-                if (execvp(argv[0], argv) == -1) {
-                    fprintf(stderr, RED "%s %d: failed!" RESET "\n", __FILE__, __LINE__);
-                    return 1;
-                }
-            } else {
-                // SIGINT, SIGTERM, SIGHUP
-                exit(0);
+void tint2(int argc, char **argv, gboolean *restart)
+{
+    *restart = FALSE;
+
+    init(argc, argv);
+
+    if (snapshot_path) {
+        save_screenshot(snapshot_path);
+        cleanup();
+        return;
+    }
+
+    XSync(server.display, False);
+
+    dnd_init();
+
+    uevent_init();
+    run_tint2_event_loop();
+
+    if (get_signal_pending()) {
+        cleanup();
+        if (get_signal_pending() == SIGUSR1) {
+            fprintf(stderr, YELLOW "%s %d: restarting tint2..." RESET "\n", __FILE__, __LINE__);
+            *restart = TRUE;
+            return;
+        } else if (get_signal_pending() == SIGUSR2) {
+            fprintf(stderr, YELLOW "%s %d: reexecuting tint2..." RESET "\n", __FILE__, __LINE__);
+            if (execvp(argv[0], argv) == -1) {
+                fprintf(stderr, RED "%s %d: failed!" RESET "\n", __FILE__, __LINE__);
+                return;
             }
+        } else {
+            // SIGINT, SIGTERM, SIGHUP etc.
+            return;
         }
     }
+}
+
+int main(int argc, char **argv)
+{
+    gboolean run = TRUE;
+    while (run) {
+        tint2(argc, argv, &run);
+    }
+    return 0;
 }

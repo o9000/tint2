@@ -29,7 +29,6 @@
 #include "battery.h"
 #endif
 
-extern int signal_pending;
 // --------------------------------------------------
 // mouse events
 extern MouseAction mouse_left;

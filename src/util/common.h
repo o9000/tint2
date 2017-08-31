@@ -41,6 +41,18 @@ typedef enum MouseAction {
 
 #define ALL_DESKTOPS 0xFFFFFFFF
 
+void write_string(int fd, const char *s);
+void log_string(int fd, const char *s);
+
+void dump_backtrace(int log_fd);
+
+// sleep() returns early when signals arrive. This function does not.
+void safe_sleep(int seconds);
+
+const char *signal_name(int sig);
+
+const char *get_home_dir();
+
 // Copies a file to another path
 void copy_file(const char *path_src, const char *path_dest);
 

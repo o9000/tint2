@@ -129,7 +129,7 @@ void change_timeout(timeout **t, int value_msec, int interval_msec, void (*_call
     }
 }
 
-void update_next_timeout()
+struct timeval *get_next_timeout()
 {
     if (timeout_list) {
         timeout *t = timeout_list->data;
@@ -145,9 +145,10 @@ void update_next_timeout()
         }
     } else
         next_timeout.tv_sec = -1;
+    return (next_timeout.tv_sec >= 0 && next_timeout.tv_usec >= 0) ? &next_timeout : NULL;
 }
 
-void callback_timeout_expired()
+void handle_expired_timers()
 {
     struct timespec cur_time;
     timeout *t;
