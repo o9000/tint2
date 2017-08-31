@@ -6,6 +6,7 @@ option( ENABLE_TINT2CONF "Enable tint2conf build, a GTK+2 theme configurator for
 option( ENABLE_EXTRA_THEMES "Install additional tint2 themes" ON )
 option( ENABLE_RSVG "Rsvg support (launcher only)" ON )
 option( ENABLE_SN "Startup notification support" ON )
+option( ENABLE_TRACING "Build tint2 with tracing instrumentation" OFF )
 option( ENABLE_ASAN "Build tint2 with AddressSanitizer" OFF )
 option( ENABLE_BACKTRACE "Dump a backtrace in case of fatal errors (e.g. X11 I/O error)" OFF )
 option( ENABLE_BACKTRACE_ON_SIGNAL "Dump a backtrace also when receiving signals such as SIGSEGV" OFF )
@@ -119,6 +120,7 @@ set( SOURCES src/config.c
              src/main.c
              src/init.c
              src/signals.c
+             src/tracing.c
              src/mouse_actions.c
              src/drag_and_drop.c
              src/clock/clock.c
@@ -215,11 +217,20 @@ if( ENABLE_TINT2CONF )
 endif( ENABLE_TINT2CONF )
 
 if( ENABLE_ASAN )
-  SET(ASAN_C_FLAGS " -O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -Wshadow")
-  SET(ASAN_L_FLAGS " -O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -fuse-ld=gold ")
+  SET(ASAN_C_FLAGS " -O0 -g3 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -Wshadow")
+  SET(ASAN_L_FLAGS " -O0 -g3 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -fuse-ld=gold ")
 else()
   SET(ASAN_C_FLAGS "")
   SET(ASAN_L_FLAGS "")
+endif()
+
+if( ENABLE_TRACING )
+  add_definitions( -DHAVE_TRACING )
+  SET(TRACING_C_FLAGS " -finstrument-functions -finstrument-functions-exclude-file-list=tracing.c -finstrument-functions-exclude-function-list=get_time,gettime -O0 -g3 -fno-common -fno-omit-frame-pointer -rdynamic")
+  SET(TRACING_L_FLAGS " -O0 -g3 -fno-common -fno-omit-frame-pointer -rdynamic")
+else()
+  SET(TRACING_C_FLAGS "")
+  SET(TRACING_L_FLAGS "")
 endif()
 
 add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_version.sh" -- "\"${PROJECT_SOURCE_DIR}/\"" )
@@ -256,8 +267,8 @@ endif( RT_LIBRARY )
 target_link_libraries( tint2 m )
 
 add_dependencies( tint2 version )
-set_target_properties( tint2 PROPERTIES COMPILE_FLAGS "-Wall -Wpointer-arith -fno-strict-aliasing -pthread -std=c99 ${ASAN_C_FLAGS}" )
-set_target_properties( tint2 PROPERTIES LINK_FLAGS "-pthread -fno-strict-aliasing ${ASAN_L_FLAGS} ${BACKTRACE_L_FLAGS}" )
+set_target_properties( tint2 PROPERTIES COMPILE_FLAGS "-Wall -Wpointer-arith -fno-strict-aliasing -pthread -std=c99 ${ASAN_C_FLAGS} ${TRACING_C_FLAGS}" )
+set_target_properties( tint2 PROPERTIES LINK_FLAGS "-pthread -fno-strict-aliasing ${ASAN_L_FLAGS} ${BACKTRACE_L_FLAGS}  ${TRACING_L_FLAGS}" )
 
 install( TARGETS tint2 DESTINATION bin )
 install( FILES tint2.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps )

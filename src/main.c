@@ -57,6 +57,7 @@
 #include "taskbar.h"
 #include "tooltip.h"
 #include "timer.h"
+#include "tracing.h"
 #include "uevent.h"
 #include "version.h"
 #include "window.h"
@@ -69,6 +70,7 @@ XSettingsClient *xsettings_client = NULL;
 gboolean debug_fps = FALSE;
 gboolean debug_frames = FALSE;
 static int frame = 0;
+double tracing_fps_threshold = 60;
 static double ts_event_read;
 static double ts_event_processed;
 static double ts_render_finished;
@@ -711,6 +713,12 @@ void handle_panel_refresh()
                 proc_ratio * 100,
                 render_ratio * 100,
                 flush_ratio * 100);
+#ifdef HAVE_TRACING
+        stop_tracing();
+        if (fps <= tracing_fps_threshold) {
+            print_tracing_events();
+        }
+#endif
     }
     if (debug_frames) {
         for (int i = 0; i < num_panels; i++) {
@@ -741,6 +749,9 @@ void run_tint2_event_loop()
         // Wait for an event and handle it
         ts_event_read = 0;
         if (XPending(server.display) > 0 || select(max_fd + 1, &fd_set, 0, 0, get_next_timeout()) >= 0) {
+#ifdef HAVE_TRACING
+            start_tracing((void*)run_tint2_event_loop);
+#endif
             uevent_handler();
             handle_sigchld_events();
             handle_execp_events();

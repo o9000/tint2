@@ -235,3 +235,5 @@ src/init.h
 src/init.c
 src/signals.c
 src/signals.h
+src/tracing.c
+src/tracing.h

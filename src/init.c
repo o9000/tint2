@@ -12,6 +12,7 @@
 #include "server.h"
 #include "signals.h"
 #include "tooltip.h"
+#include "tracing.h"
 #include "uevent.h"
 #include "version.h"
 
@@ -83,8 +84,13 @@ void handle_env_vars()
     debug_gradients = getenv("DEBUG_GRADIENTS") != NULL;
     debug_fps = getenv("DEBUG_FPS") != NULL;
     debug_frames = getenv("DEBUG_FRAMES") != NULL;
-    if (debug_fps)
+    if (debug_fps) {
         init_fps_distribution();
+        char *s = getenv("TRACING_FPS_THRESHOLD");
+        if (!s || sscanf(s, "%lf", &tracing_fps_threshold) != 1) {
+            tracing_fps_threshold = 60;
+        }
+    }
 }
 
 static timeout *detect_compositor_timer = NULL;
@@ -269,4 +275,8 @@ void cleanup()
 
     uevent_cleanup();
     cleanup_fps_distribution();
+
+#ifdef HAVE_TRACING
+    cleanup_tracing();
+#endif
 }

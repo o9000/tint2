@@ -92,6 +92,7 @@ extern XSettingsClient *xsettings_client;
 extern gboolean startup_notifications;
 extern gboolean debug_geometry;
 extern gboolean debug_fps;
+extern double tracing_fps_threshold;
 extern gboolean debug_frames;
 
 typedef struct Panel {
