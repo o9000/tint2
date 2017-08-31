@@ -21,7 +21,7 @@ ok = ":white_check_mark:"
 warning = ":warning:"
 error = ":negative_squared_cross_mark:"
 stress_duration = 10
-repeats = 10
+repeats = 1
 
 
 def print(*args, **kwargs):
@@ -176,7 +176,7 @@ def test(tint2path, config):
   if exitcode != 0:
     print("tint2 crashed with exit code {0}!".format(exitcode))
     print("Output:")
-    print("```" + out + "```")
+    print("```\n" + out.strip() + "\n```")
     return
   min_fps, med_fps = compute_min_med_fps(out)
   leaks = find_asan_leaks(out)
@@ -193,7 +193,7 @@ def test(tint2path, config):
   print("FPS:", "min:", min_fps, "median:", med_fps, fps_status)
   if mem_status != ok or leak_status != ok or fps_status != ok:
     print("Output:")
-    print("```" + out + "```")
+    print("```\n" + out.strip() + "\n```")
   stop_xvfb()
 
 
@@ -242,7 +242,7 @@ def compile_and_report(src_dir):
   if c.returncode != 0:
     print("Status: Failed!", error)
     print("Output:")
-    print("```" + out + "```")
+    print("```\n" + out.strip() + "\n```")
     raise RuntimeError("compilation failed")
   if "warning:" in out:
     print("Status: Succeeded with warnings!", warning)
