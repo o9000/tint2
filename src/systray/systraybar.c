@@ -478,7 +478,7 @@ void start_net()
     XSendEvent(server.display, server.root_win, False, StructureNotifyMask, (XEvent *)&ev);
 }
 
-void net_message(XClientMessageEvent *e)
+void handle_systray_event(XClientMessageEvent *e)
 {
     if (systray_profile)
         fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);

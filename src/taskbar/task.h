@@ -10,6 +10,7 @@
 #include <X11/Xlib.h>
 #include <pango/pangocairo.h>
 #include <Imlib2.h>
+
 #include "common.h"
 #include "timer.h"
 
@@ -88,6 +89,7 @@ void task_update_icon(Task *task);
 gboolean task_update_title(Task *task);
 void reset_active_task();
 void set_task_state(Task *task, TaskState state);
+void task_handle_mouse_event(Task *task, MouseAction action);
 
 // Given a pointer to the task that is currently under the mouse (current_task),
 // returns a pointer to the Task for the active window on the same taskbar.

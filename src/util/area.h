@@ -357,7 +357,7 @@ void free_area_gradient_instances(Area *area);
 
 void area_dump_geometry(Area *area, int indent);
 
-void mouse_over(Area *area, int pressed);
+void mouse_over(Area *area, gboolean pressed);
 void mouse_out();
 
 void update_gradient(GradientInstance *gi);

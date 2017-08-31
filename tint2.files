@@ -225,3 +225,7 @@ src/tint2rc.c
 src/tint2rc.h
 src/button/button.c
 src/button/button.h
+src/drag_and_drop.c
+src/drag_and_drop.h
+src/mouse_actions.c
+src/mouse_actions.h

@@ -18,11 +18,13 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **************************************************************************/
 
+#include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xrender.h>
 #include <X11/extensions/Xrandr.h>
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "server.h"
@@ -116,6 +118,118 @@ void server_init_atoms()
     server.atom.XdndActionCopy = XInternAtom(server.display, "XdndActionCopy", False);
     server.atom.XdndFinished = XInternAtom(server.display, "XdndFinished", False);
     server.atom.TARGETS = XInternAtom(server.display, "TARGETS", False);
+}
+
+const char *GetAtomName(Display *disp, Atom a)
+{
+    if (a == None)
+        return "None";
+    else
+        return XGetAtomName(disp, a);
+}
+
+// This fetches all the data from a property
+struct Property read_property(Display *disp, Window w, Atom property)
+{
+    Atom actual_type;
+    int actual_format;
+    unsigned long nitems;
+    unsigned long bytes_after;
+    unsigned char *ret = 0;
+
+    int read_bytes = 1024;
+
+    // Keep trying to read the property until there are no
+    // bytes unread.
+    do {
+        if (ret != 0)
+            XFree(ret);
+        XGetWindowProperty(disp,
+                           w,
+                           property,
+                           0,
+                           read_bytes,
+                           False,
+                           AnyPropertyType,
+                           &actual_type,
+                           &actual_format,
+                           &nitems,
+                           &bytes_after,
+                           &ret);
+        read_bytes *= 2;
+    } while (bytes_after != 0);
+
+    fprintf(stderr, "DnD %s:%d: Property:\n", __FILE__, __LINE__);
+    fprintf(stderr, "DnD %s:%d: Actual type: %s\n", __FILE__, __LINE__, GetAtomName(disp, actual_type));
+    fprintf(stderr, "DnD %s:%d: Actual format: %d\n", __FILE__, __LINE__, actual_format);
+    fprintf(stderr, "DnD %s:%d: Number of items: %lu\n", __FILE__, __LINE__, nitems);
+
+    Property p;
+    p.data = ret;
+    p.format = actual_format;
+    p.nitems = nitems;
+    p.type = actual_type;
+
+    return p;
+}
+
+// This function takes a list of targets which can be converted to (atom_list, nitems)
+// and a list of acceptable targets with prioritees (datatypes). It returns the highest
+// entry in datatypes which is also in atom_list: ie it finds the best match.
+Atom pick_target_from_list(Display *disp, Atom *atom_list, int nitems)
+{
+    Atom to_be_requested = None;
+    int i;
+    for (i = 0; i < nitems; i++) {
+        const char *atom_name = GetAtomName(disp, atom_list[i]);
+        fprintf(stderr, "DnD %s:%d: Type %d = %s\n", __FILE__, __LINE__, i, atom_name);
+
+        // See if this data type is allowed and of higher priority (closer to zero)
+        // than the present one.
+        if (strcmp(atom_name, "STRING") == 0) {
+            to_be_requested = atom_list[i];
+        }
+    }
+
+    return to_be_requested;
+}
+
+// Finds the best target given up to three atoms provided (any can be None).
+// Useful for part of the Xdnd protocol.
+Atom pick_target_from_atoms(Display *disp, Atom t1, Atom t2, Atom t3)
+{
+    Atom atoms[3];
+    int n = 0;
+
+    if (t1 != None)
+        atoms[n++] = t1;
+
+    if (t2 != None)
+        atoms[n++] = t2;
+
+    if (t3 != None)
+        atoms[n++] = t3;
+
+    return pick_target_from_list(disp, atoms, n);
+}
+
+// Finds the best target given a local copy of a property.
+Atom pick_target_from_targets(Display *disp, Property p)
+{
+    // The list of targets is a list of atoms, so it should have type XA_ATOM
+    // but it may have the type TARGETS instead.
+
+    if ((p.type != XA_ATOM && p.type != server.atom.TARGETS) || p.format != 32) {
+        // This would be really broken. Targets have to be an atom list
+        // and applications should support this. Nevertheless, some
+        // seem broken (MATLAB 7, for instance), so ask for STRING
+        // next instead as the lowest common denominator
+        return XA_STRING;
+    } else {
+        Atom *atom_list = (Atom *)p.data;
+
+        return pick_target_from_list(disp, atom_list, p.nitems);
+    }
 }
 
 void cleanup_server()
@@ -596,4 +710,26 @@ void server_init_visual()
         server.colormap = DefaultColormap(server.display, server.screen);
         server.visual = DefaultVisual(server.display, server.screen);
     }
+}
+
+void server_init_xdamage()
+{
+    XDamageQueryExtension(server.display, &server.xdamage_event_type, &server.xdamage_event_error_type);
+    server.xdamage_event_type += XDamageNotify;
+    server.xdamage_event_error_type += XDamageNotify;
+}
+
+// Forward mouse click to the desktop window
+void forward_click(XEvent *e)
+{
+    // forward the click to the desktop window (thanks conky)
+    XUngrabPointer(server.display, e->xbutton.time);
+    e->xbutton.window = server.root_win;
+    // icewm doesn't open under the mouse.
+    // and xfce doesn't open at all.
+    e->xbutton.x = e->xbutton.x_root;
+    e->xbutton.y = e->xbutton.y_root;
+    // printf("**** %d, %d\n", e->xbutton.x, e->xbutton.y);
+    // XSetInputFocus(server.display, e->xbutton.window, RevertToParent, e->xbutton.time);
+    XSendEvent(server.display, e->xbutton.window, False, ButtonPressMask, e);
 }

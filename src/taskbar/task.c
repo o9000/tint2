@@ -719,3 +719,66 @@ void del_urgent(Task *task)
         urgent_timeout = NULL;
     }
 }
+
+void task_handle_mouse_event(Task *task, MouseAction action)
+{
+    if (!task)
+        return;
+    switch (action) {
+    case NONE:
+        break;
+    case CLOSE:
+        close_window(task->win);
+        break;
+    case TOGGLE:
+        activate_window(task->win);
+        break;
+    case ICONIFY:
+        XIconifyWindow(server.display, task->win, server.screen);
+        break;
+    case TOGGLE_ICONIFY:
+        if (active_task && task->win == active_task->win)
+            XIconifyWindow(server.display, task->win, server.screen);
+        else
+            activate_window(task->win);
+        break;
+    case SHADE:
+        toggle_window_shade(task->win);
+        break;
+    case MAXIMIZE_RESTORE:
+        toggle_window_maximized(task->win);
+        break;
+    case MAXIMIZE:
+        toggle_window_maximized(task->win);
+        break;
+    case RESTORE:
+        toggle_window_maximized(task->win);
+        break;
+    case DESKTOP_LEFT: {
+        if (task->desktop == 0)
+            break;
+        int desktop = task->desktop - 1;
+        change_window_desktop(task->win, desktop);
+        if (desktop == server.desktop)
+            activate_window(task->win);
+        break;
+    }
+    case DESKTOP_RIGHT: {
+        if (task->desktop == server.num_desktops)
+            break;
+        int desktop = task->desktop + 1;
+        change_window_desktop(task->win, desktop);
+        if (desktop == server.desktop)
+            activate_window(task->win);
+        break;
+    }
+    case NEXT_TASK: {
+        Task *task1 = next_task(find_active_task(task));
+        activate_window(task1->win);
+    } break;
+    case PREV_TASK: {
+        Task *task1 = prev_task(find_active_task(task));
+        activate_window(task1->win);
+    }
+    }
+}

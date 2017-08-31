@@ -117,6 +117,8 @@ set( SOURCES src/config.c
              src/panel.c
              src/server.c
              src/tint.c
+             src/mouse_actions.c
+             src/drag_and_drop.c
              src/clock/clock.c
              src/systray/systraybar.c
              src/launcher/launcher.c

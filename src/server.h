@@ -93,6 +93,30 @@ typedef struct Global_atom {
     Atom TARGETS;
 } Global_atom;
 
+typedef struct Property {
+    unsigned char *data;
+    int format, nitems;
+    Atom type;
+} Property;
+
+// Returns the name of an Atom as string. Do not free the string.
+const char *GetAtomName(Display *disp, Atom a);
+
+// This function takes a list of targets which can be converted to (atom_list, nitems)
+// and a list of acceptable targets with prioritees (datatypes). It returns the highest
+// entry in datatypes which is also in atom_list: ie it finds the best match.
+Atom pick_target_from_list(Display *disp, Atom *atom_list, int nitems);
+
+// Finds the best target given up to three atoms provided (any can be None).
+// Useful for part of the Xdnd protocol.
+Atom pick_target_from_atoms(Display *disp, Atom t1, Atom t2, Atom t3);
+
+// Finds the best target given a local copy of a property.
+Atom pick_target_from_targets(Display *disp, Property p);
+
+// This fetches all the data from a property
+struct Property read_property(Display *disp, Window w, Atom property);
+
 typedef struct Monitor {
     int x;
     int y;
@@ -135,6 +159,8 @@ typedef struct Server {
     Colormap colormap;
     Colormap colormap32;
     Global_atom atom;
+    int xdamage_event_type;
+    int xdamage_event_error_type;
 #ifdef HAVE_SN
     SnDisplay *sn_display;
     GTree *pids;
@@ -153,6 +179,7 @@ Atom server_get_atom(char *atom_name);
 void server_catch_error(Display *d, XErrorEvent *ev);
 void server_init_atoms();
 void server_init_visual();
+void server_init_xdamage();
 
 // detect root background
 void get_root_pixmap();
@@ -166,5 +193,8 @@ void server_get_number_of_desktops();
 GSList *get_desktop_names();
 int get_current_desktop();
 void change_desktop(int desktop);
+
+// Forward mouse click to the desktop window
+void forward_click(XEvent *e);
 
 #endif

@@ -96,7 +96,7 @@ gboolean systray_on_monitor(int i_monitor, int num_panels);
 // many tray icon doesn't manage stop/restart of the systray manager
 void start_net();
 void stop_net();
-void net_message(XClientMessageEvent *e);
+void handle_systray_event(XClientMessageEvent *e);
 
 gboolean add_icon(Window id);
 gboolean reparent_icon(TrayWindow *traywin);

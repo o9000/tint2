@@ -630,7 +630,7 @@ void free_area(Area *a)
     free_area_gradient_instances(a);
 }
 
-void mouse_over(Area *area, int pressed)
+void mouse_over(Area *area, gboolean pressed)
 {
     if (mouse_over_area == area && !area)
         return;
