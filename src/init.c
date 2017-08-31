@@ -166,6 +166,8 @@ void init_post_config()
                 RED "Could not load default_icon.png. Please check that tint2 has been installed correctly!" RESET
                     "\n");
     }
+
+    XSync(server.display, False);
 }
 
 void init_X11_pre_config()

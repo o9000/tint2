@@ -98,6 +98,16 @@ void sigchld_handler_async()
     }
 }
 
+void handle_sigchld_events()
+{
+    if (sigchild_pipe_valid) {
+        char buffer[1];
+        while (read(sigchild_pipe[0], buffer, sizeof(buffer)) > 0) {
+            sigchld_handler_async();
+        }
+    }
+}
+
 void init_signals_postconfig()
 {
     gboolean need_sigchld = FALSE;

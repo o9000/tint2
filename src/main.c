@@ -68,64 +68,13 @@ XSettingsClient *xsettings_client = NULL;
 
 gboolean debug_fps = FALSE;
 gboolean debug_frames = FALSE;
-int frame = 0;
+static int frame = 0;
+static double ts_event_read;
+static double ts_event_processed;
+static double ts_render_finished;
+static double ts_flush_finished;
 
-void dump_panel_to_file(const Panel *panel, const char *path)
-{
-    imlib_context_set_drawable(panel->temp_pmap);
-    Imlib_Image img = imlib_create_image_from_drawable(0, 0, 0, panel->area.width, panel->area.height, 1);
-
-    if (!img) {
-        XImage *ximg =
-            XGetImage(server.display, panel->temp_pmap, 0, 0, panel->area.width, panel->area.height, AllPlanes, ZPixmap);
-
-        if (ximg) {
-            DATA32 *pixels = (DATA32 *)calloc(panel->area.width * panel->area.height, sizeof(DATA32));
-            for (int x = 0; x < panel->area.width; x++) {
-                for (int y = 0; y < panel->area.height; y++) {
-                    DATA32 xpixel = XGetPixel(ximg, x, y);
-
-                    DATA32 r = (xpixel >> 16) & 0xff;
-                    DATA32 g = (xpixel >> 8) & 0xff;
-                    DATA32 b = (xpixel >> 0) & 0xff;
-                    DATA32 a = 0x0;
-
-                    DATA32 argb = (a << 24) | (r << 16) | (g << 8) | b;
-                    pixels[y * panel->area.width + x] = argb;
-                }
-            }
-            XDestroyImage(ximg);
-            img = imlib_create_image_using_data(panel->area.width, panel->area.height, pixels);
-        }
-    }
-
-    if (img) {
-        imlib_context_set_image(img);
-        if (!panel_horizontal) {
-            // rotate 90° vertical panel
-            imlib_image_flip_horizontal();
-            imlib_image_flip_diagonal();
-        }
-        imlib_save_image(path);
-        imlib_free_image();
-    }
-}
-
-void save_screenshot(const char *path)
-{
-    Panel *panel = &panels[0];
-
-    if (panel->area.width > server.monitors[0].width)
-        panel->area.width = server.monitors[0].width;
-
-    panel->temp_pmap =
-        XCreatePixmap(server.display, server.root_win, panel->area.width, panel->area.height, server.depth);
-    render_panel(panel);
-
-    XSync(server.display, False);
-
-    dump_panel_to_file(panel, path);
-}
+static gboolean first_render;
 
 void handle_event_property_notify(XEvent *e)
 {
@@ -613,194 +562,189 @@ void handle_x_event(XEvent *e)
     }
 }
 
+void handle_x_events()
+{
+    if (XPending(server.display) > 0) {
+        XEvent e;
+        XNextEvent(server.display, &e);
+        if (debug_fps)
+            ts_event_read = get_time();
+
+        handle_x_event(&e);
+    }
+}
+
+void prepare_fd_set(fd_set *fd_set, int *max_fd)
+{
+    FD_ZERO(fd_set);
+    FD_SET(server.x11_fd, fd_set);
+    *max_fd = server.x11_fd;
+    if (sigchild_pipe_valid) {
+        FD_SET(sigchild_pipe[0], fd_set);
+        *max_fd = MAX(*max_fd, sigchild_pipe[0]);
+    }
+    for (GList *l = panel_config.execp_list; l; l = l->next) {
+        Execp *execp = (Execp *)l->data;
+        int fd = execp->backend->child_pipe_stdout;
+        if (fd > 0) {
+            FD_SET(fd, fd_set);
+            *max_fd = MAX(*max_fd, fd);
+        }
+        fd = execp->backend->child_pipe_stderr;
+        if (fd > 0) {
+            FD_SET(fd, fd_set);
+            *max_fd = MAX(*max_fd, fd);
+        }
+    }
+    if (uevent_fd > 0) {
+        FD_SET(uevent_fd, fd_set);
+        *max_fd = MAX(*max_fd, uevent_fd);
+    }
+}
+
+void handle_panel_refresh()
+{
+    if (debug_fps)
+        ts_event_processed = get_time();
+    panel_refresh = FALSE;
+
+    for (int i = 0; i < num_panels; i++) {
+        Panel *panel = &panels[i];
+        if (!first_render)
+            shrink_panel(panel);
+
+        if (!panel->is_hidden || panel->area.resize_needed) {
+            if (panel->temp_pmap)
+                XFreePixmap(server.display, panel->temp_pmap);
+            panel->temp_pmap = XCreatePixmap(server.display,
+                                             server.root_win,
+                                             panel->area.width,
+                                             panel->area.height,
+                                             server.depth);
+            render_panel(panel);
+        }
+
+        if (panel->is_hidden) {
+            if (!panel->hidden_pixmap) {
+                panel->hidden_pixmap = XCreatePixmap(server.display,
+                                                     server.root_win,
+                                                     panel->hidden_width,
+                                                     panel->hidden_height,
+                                                     server.depth);
+                int xoff = 0, yoff = 0;
+                if (panel_horizontal && panel_position & BOTTOM)
+                    yoff = panel->area.height - panel->hidden_height;
+                else if (!panel_horizontal && panel_position & RIGHT)
+                    xoff = panel->area.width - panel->hidden_width;
+                XCopyArea(server.display,
+                          panel->area.pix,
+                          panel->hidden_pixmap,
+                          server.gc,
+                          xoff,
+                          yoff,
+                          panel->hidden_width,
+                          panel->hidden_height,
+                          0,
+                          0);
+            }
+            XCopyArea(server.display,
+                      panel->hidden_pixmap,
+                      panel->main_win,
+                      server.gc,
+                      0,
+                      0,
+                      panel->hidden_width,
+                      panel->hidden_height,
+                      0,
+                      0);
+            XSetWindowBackgroundPixmap(server.display, panel->main_win, panel->hidden_pixmap);
+        } else {
+            XCopyArea(server.display,
+                      panel->temp_pmap,
+                      panel->main_win,
+                      server.gc,
+                      0,
+                      0,
+                      panel->area.width,
+                      panel->area.height,
+                      0,
+                      0);
+            if (panel == (Panel *)systray.area.panel) {
+                if (refresh_systray && panel && !panel->is_hidden) {
+                    refresh_systray = FALSE;
+                    XSetWindowBackgroundPixmap(server.display, panel->main_win, panel->temp_pmap);
+                    refresh_systray_icons();
+                }
+            }
+        }
+    }
+    if (first_render) {
+        first_render = FALSE;
+        if (panel_shrink)
+            schedule_panel_redraw();
+    }
+
+    if (debug_fps)
+        ts_render_finished = get_time();
+    XFlush(server.display);
+
+    if (debug_fps && ts_event_read > 0) {
+        ts_flush_finished = get_time();
+        double period = ts_flush_finished - ts_event_read;
+        double fps = 1.0 / period;
+        sample_fps(fps);
+        double proc_ratio = (ts_event_processed - ts_event_read) / period;
+        double render_ratio = (ts_render_finished - ts_event_processed) / period;
+        double flush_ratio = (ts_flush_finished - ts_render_finished) / period;
+        double fps_low, fps_median, fps_high, fps_samples;
+        fps_compute_stats(&fps_low, &fps_median, &fps_high, &fps_samples);
+        fprintf(stderr,
+                BLUE "frame %d: fps = %.0f (low %.0f, med %.0f, high %.0f, samples %.0f) : processing %.0f%%, "
+                     "rendering %.0f%%, "
+                     "flushing %.0f%%" RESET "\n",
+                frame,
+                fps,
+                fps_low,
+                fps_median,
+                fps_high,
+                fps_samples,
+                proc_ratio * 100,
+                render_ratio * 100,
+                flush_ratio * 100);
+    }
+    if (debug_frames) {
+        for (int i = 0; i < num_panels; i++) {
+            char path[256];
+            sprintf(path, "tint2-%d-panel-%d-frame-%d.png", getpid(), i, frame);
+            save_panel_screenshot(&panels[i], path);
+        }
+    }
+    frame++;
+}
+
 void run_tint2_event_loop()
 {
-    double ts_event_read = 0;
-    double ts_event_processed = 0;
-    double ts_render_finished = 0;
-    double ts_flush_finished = 0;
-    gboolean first_render = TRUE;
+    ts_event_read = 0;
+    ts_event_processed = 0;
+    ts_render_finished = 0;
+    ts_flush_finished = 0;
+    first_render = TRUE;
 
     while (!get_signal_pending()) {
-        if (panel_refresh) {
-            if (debug_fps)
-                ts_event_processed = get_time();
-            if (systray_profile)
-                fprintf(stderr,
-                        BLUE "[%f] %s:%d redrawing panel" RESET "\n",
-                        profiling_get_time(),
-                        __FUNCTION__,
-                        __LINE__);
-            panel_refresh = FALSE;
+        if (panel_refresh)
+            handle_panel_refresh();
 
-            for (int i = 0; i < num_panels; i++) {
-                Panel *panel = &panels[i];
-                if (!first_render)
-                    shrink_panel(panel);
-
-                if (!panel->is_hidden || panel->area.resize_needed) {
-                    if (panel->temp_pmap)
-                        XFreePixmap(server.display, panel->temp_pmap);
-                    panel->temp_pmap = XCreatePixmap(server.display,
-                                                     server.root_win,
-                                                     panel->area.width,
-                                                     panel->area.height,
-                                                     server.depth);
-                    render_panel(panel);
-                }
-
-                if (panel->is_hidden) {
-                    if (!panel->hidden_pixmap) {
-                        panel->hidden_pixmap = XCreatePixmap(server.display,
-                                                             server.root_win,
-                                                             panel->hidden_width,
-                                                             panel->hidden_height,
-                                                             server.depth);
-                        int xoff = 0, yoff = 0;
-                        if (panel_horizontal && panel_position & BOTTOM)
-                            yoff = panel->area.height - panel->hidden_height;
-                        else if (!panel_horizontal && panel_position & RIGHT)
-                            xoff = panel->area.width - panel->hidden_width;
-                        XCopyArea(server.display,
-                                  panel->area.pix,
-                                  panel->hidden_pixmap,
-                                  server.gc,
-                                  xoff,
-                                  yoff,
-                                  panel->hidden_width,
-                                  panel->hidden_height,
-                                  0,
-                                  0);
-                    }
-                    XCopyArea(server.display,
-                              panel->hidden_pixmap,
-                              panel->main_win,
-                              server.gc,
-                              0,
-                              0,
-                              panel->hidden_width,
-                              panel->hidden_height,
-                              0,
-                              0);
-                    XSetWindowBackgroundPixmap(server.display, panel->main_win, panel->hidden_pixmap);
-                } else {
-                    XCopyArea(server.display,
-                              panel->temp_pmap,
-                              panel->main_win,
-                              server.gc,
-                              0,
-                              0,
-                              panel->area.width,
-                              panel->area.height,
-                              0,
-                              0);
-                    if (panel == (Panel *)systray.area.panel) {
-                        if (refresh_systray && panel && !panel->is_hidden) {
-                            refresh_systray = FALSE;
-                            XSetWindowBackgroundPixmap(server.display, panel->main_win, panel->temp_pmap);
-                            refresh_systray_icons();
-                        }
-                    }
-                }
-            }
-            if (first_render) {
-                first_render = FALSE;
-                if (panel_shrink)
-                    schedule_panel_redraw();
-            }
-            if (debug_fps)
-                ts_render_finished = get_time();
-            XFlush(server.display);
-            if (debug_fps && ts_event_read > 0) {
-                ts_flush_finished = get_time();
-                double period = ts_flush_finished - ts_event_read;
-                double fps = 1.0 / period;
-                sample_fps(fps);
-                double proc_ratio = (ts_event_processed - ts_event_read) / period;
-                double render_ratio = (ts_render_finished - ts_event_processed) / period;
-                double flush_ratio = (ts_flush_finished - ts_render_finished) / period;
-                double fps_low, fps_median, fps_high, fps_samples;
-                fps_compute_stats(&fps_low, &fps_median, &fps_high, &fps_samples);
-                fprintf(stderr,
-                        BLUE "frame %d: fps = %.0f (low %.0f, med %.0f, high %.0f, samples %.0f) : processing %.0f%%, "
-                             "rendering %.0f%%, "
-                             "flushing %.0f%%" RESET "\n",
-                        frame,
-                        fps,
-                        fps_low,
-                        fps_median,
-                        fps_high,
-                        fps_samples,
-                        proc_ratio * 100,
-                        render_ratio * 100,
-                        flush_ratio * 100);
-            }
-            if (debug_frames) {
-                for (int i = 0; i < num_panels; i++) {
-                    char path[256];
-                    sprintf(path, "tint2-%d-panel-%d-frame-%d.png", getpid(), i, frame);
-                    dump_panel_to_file(&panels[i], path);
-                }
-            }
-            frame++;
-        }
-
-        // Create a File Description Set containing x11_fd
-        fd_set fdset;
-        FD_ZERO(&fdset);
-        FD_SET(server.x11_fd, &fdset);
-        int maxfd = server.x11_fd;
-        if (sigchild_pipe_valid) {
-            FD_SET(sigchild_pipe[0], &fdset);
-            maxfd = MAX(maxfd, sigchild_pipe[0]);
-        }
-        for (GList *l = panel_config.execp_list; l; l = l->next) {
-            Execp *execp = (Execp *)l->data;
-            int fd = execp->backend->child_pipe_stdout;
-            if (fd > 0) {
-                FD_SET(fd, &fdset);
-                maxfd = MAX(maxfd, fd);
-            }
-            fd = execp->backend->child_pipe_stderr;
-            if (fd > 0) {
-                FD_SET(fd, &fdset);
-                maxfd = MAX(maxfd, fd);
-            }
-        }
-        if (uevent_fd > 0) {
-            FD_SET(uevent_fd, &fdset);
-            maxfd = MAX(maxfd, uevent_fd);
-        }
+        fd_set fd_set;
+        int max_fd;
+        prepare_fd_set(&fd_set, &max_fd);
 
         // Wait for an event and handle it
         ts_event_read = 0;
-        if (XPending(server.display) > 0 || select(maxfd + 1, &fdset, 0, 0, get_next_timeout()) >= 0) {
+        if (XPending(server.display) > 0 || select(max_fd + 1, &fd_set, 0, 0, get_next_timeout()) >= 0) {
             uevent_handler();
-
-            if (sigchild_pipe_valid) {
-                char buffer[1];
-                while (read(sigchild_pipe[0], buffer, sizeof(buffer)) > 0) {
-                    sigchld_handler_async();
-                }
-            }
-            for (GList *l = panel_config.execp_list; l; l = l->next) {
-                Execp *execp = (Execp *)l->data;
-                if (read_execp(execp)) {
-                    GList *l_instance;
-                    for (l_instance = execp->backend->instances; l_instance; l_instance = l_instance->next) {
-                        Execp *instance = (Execp *)l_instance->data;
-                        execp_update_post_read(instance);
-                    }
-                }
-            }
-            if (XPending(server.display) > 0) {
-                XEvent e;
-                XNextEvent(server.display, &e);
-                if (debug_fps)
-                    ts_event_read = get_time();
-
-                handle_x_event(&e);
-            }
+            handle_sigchld_events();
+            handle_execp_events();
+            handle_x_events();
         }
 
         handle_expired_timers();
@@ -809,8 +753,6 @@ void run_tint2_event_loop()
 
 void tint2(int argc, char **argv, gboolean *restart)
 {
-    *restart = FALSE;
-
     init(argc, argv);
 
     if (snapshot_path) {
@@ -819,10 +761,7 @@ void tint2(int argc, char **argv, gboolean *restart)
         return;
     }
 
-    XSync(server.display, False);
-
     dnd_init();
-
     uevent_init();
     run_tint2_event_loop();
 
@@ -847,9 +786,10 @@ void tint2(int argc, char **argv, gboolean *restart)
 
 int main(int argc, char **argv)
 {
-    gboolean run = TRUE;
-    while (run) {
-        tint2(argc, argv, &run);
-    }
+    gboolean restart;
+    do {
+        restart = FALSE;
+        tint2(argc, argv, &restart);
+    } while(restart);
     return 0;
 }

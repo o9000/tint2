@@ -988,3 +988,17 @@ void execp_update_post_read(Execp *execp)
         schedule_panel_redraw();
     }
 }
+
+void handle_execp_events()
+{
+    for (GList *l = panel_config.execp_list; l; l = l->next) {
+        Execp *execp = (Execp *)l->data;
+        if (read_execp(execp)) {
+            GList *l_instance;
+            for (l_instance = execp->backend->instances; l_instance; l_instance = l_instance->next) {
+                Execp *instance = (Execp *)l_instance->data;
+                execp_update_post_read(instance);
+            }
+        }
+    }
+}

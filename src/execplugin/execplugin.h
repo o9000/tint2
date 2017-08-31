@@ -148,4 +148,6 @@ void execp_update_post_read(Execp *execp);
 
 void execp_default_font_changed();
 
+void handle_execp_events();
+
 #endif // EXECPLUGIN_H

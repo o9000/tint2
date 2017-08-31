@@ -6,7 +6,7 @@ void init_signals_postconfig();
 void emit_self_restart(const char *reason);
 int get_signal_pending();
 
-void sigchld_handler_async();
+void handle_sigchld_events();
 
 extern int sigchild_pipe_valid;
 extern int sigchild_pipe[2];

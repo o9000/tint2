@@ -1149,3 +1149,60 @@ void _schedule_panel_redraw(const char *file, const char *function, const int li
         fprintf(stderr, YELLOW "%s %s %d: triggering panel redraw" RESET "\n", file, function, line);
     }
 }
+
+void save_panel_screenshot(const Panel *panel, const char *path)
+{
+    imlib_context_set_drawable(panel->temp_pmap);
+    Imlib_Image img = imlib_create_image_from_drawable(0, 0, 0, panel->area.width, panel->area.height, 1);
+
+    if (!img) {
+        XImage *ximg =
+            XGetImage(server.display, panel->temp_pmap, 0, 0, panel->area.width, panel->area.height, AllPlanes, ZPixmap);
+
+        if (ximg) {
+            DATA32 *pixels = (DATA32 *)calloc(panel->area.width * panel->area.height, sizeof(DATA32));
+            for (int x = 0; x < panel->area.width; x++) {
+                for (int y = 0; y < panel->area.height; y++) {
+                    DATA32 xpixel = XGetPixel(ximg, x, y);
+
+                    DATA32 r = (xpixel >> 16) & 0xff;
+                    DATA32 g = (xpixel >> 8) & 0xff;
+                    DATA32 b = (xpixel >> 0) & 0xff;
+                    DATA32 a = 0x0;
+
+                    DATA32 argb = (a << 24) | (r << 16) | (g << 8) | b;
+                    pixels[y * panel->area.width + x] = argb;
+                }
+            }
+            XDestroyImage(ximg);
+            img = imlib_create_image_using_data(panel->area.width, panel->area.height, pixels);
+        }
+    }
+
+    if (img) {
+        imlib_context_set_image(img);
+        if (!panel_horizontal) {
+            // rotate 90° vertical panel
+            imlib_image_flip_horizontal();
+            imlib_image_flip_diagonal();
+        }
+        imlib_save_image(path);
+        imlib_free_image();
+    }
+}
+
+void save_screenshot(const char *path)
+{
+    Panel *panel = &panels[0];
+
+    if (panel->area.width > server.monitors[0].width)
+        panel->area.width = server.monitors[0].width;
+
+    panel->temp_pmap =
+        XCreatePixmap(server.display, server.root_win, panel->area.width, panel->area.height, server.depth);
+    render_panel(panel);
+
+    XSync(server.display, False);
+
+    save_panel_screenshot(panel, path);
+}
