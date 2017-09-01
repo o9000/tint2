@@ -425,14 +425,14 @@ void get_monitors()
 
         if (res && res->ncrtc >= num_monitors) {
             // use xrandr to identify monitors (does not work with proprietery nvidia drivers)
-            printf("xRandr: Found crtc's: %d\n", res->ncrtc);
+            fprintf(stderr, "xRandr: Found crtc's: %d\n", res->ncrtc);
             server.monitors = calloc(res->ncrtc, sizeof(Monitor));
             num_monitors = 0;
             for (int i = 0; i < res->ncrtc; ++i) {
                 XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(server.display, res, res->crtcs[i]);
                 // Ignore empty crtc
                 if (!crtc_info->width || !crtc_info->height) {
-                    printf("xRandr: crtc %d seems disabled\n", i);
+                    fprintf(stderr, "xRandr: crtc %d seems disabled\n", i);
                     XRRFreeCrtcInfo(crtc_info);
                     continue;
                 }
@@ -445,7 +445,7 @@ void get_monitors()
                 server.monitors[i_monitor].names = calloc((crtc_info->noutput + 1), sizeof(gchar *));
                 for (int j = 0; j < crtc_info->noutput; ++j) {
                     XRROutputInfo *output_info = XRRGetOutputInfo(server.display, res, crtc_info->outputs[j]);
-                    printf("xRandr: Linking output %s with crtc %d\n", output_info->name, i);
+                    fprintf(stderr, "xRandr: Linking output %s with crtc %d\n", output_info->name, i);
                     server.monitors[i_monitor].names[j] = g_strdup(output_info->name);
                     XRRFreeOutputInfo(output_info);
                     server.monitors[i_monitor].primary = crtc_info->outputs[j] == primary_output;
@@ -702,14 +702,14 @@ void server_init_visual()
 
         server.real_transparency = TRUE;
         server.depth = 32;
-        printf("real transparency on... depth: %d\n", server.depth);
+        fprintf(stderr, "real transparency on... depth: %d\n", server.depth);
         server.colormap = XCreateColormap(server.display, server.root_win, visual, AllocNone);
         server.visual = visual;
     } else {
         // no composite manager or snapshot mode => fake transparency
         server.real_transparency = FALSE;
         server.depth = DefaultDepth(server.display, server.screen);
-        printf("real transparency off.... depth: %d\n", server.depth);
+        fprintf(stderr, "real transparency off.... depth: %d\n", server.depth);
         server.colormap = DefaultColormap(server.display, server.screen);
         server.visual = DefaultVisual(server.display, server.screen);
     }
@@ -732,7 +732,7 @@ void forward_click(XEvent *e)
     // and xfce doesn't open at all.
     e->xbutton.x = e->xbutton.x_root;
     e->xbutton.y = e->xbutton.y_root;
-    // printf("**** %d, %d\n", e->xbutton.x, e->xbutton.y);
+    // fprintf(stderr, "**** %d, %d\n", e->xbutton.x, e->xbutton.y);
     // XSetInputFocus(server.display, e->xbutton.window, RevertToParent, e->xbutton.time);
     XSendEvent(server.display, e->xbutton.window, False, ButtonPressMask, e);
 }

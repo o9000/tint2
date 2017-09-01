@@ -256,7 +256,7 @@ void handle_event_property_notify(XEvent *e)
             }
             return;
         }
-        // printf("atom root_win = %s, %s\n", XGetAtomName(server.display, at), task->title);
+        // fprintf(stderr, "atom root_win = %s, %s\n", XGetAtomName(server.display, at), task->title);
 
         // Window title changed
         if (at == server.atom._NET_WM_VISIBLE_NAME || at == server.atom._NET_WM_NAME || at == server.atom.WM_NAME) {
@@ -305,7 +305,7 @@ void handle_event_property_notify(XEvent *e)
         // Window desktop changed
         else if (at == server.atom._NET_WM_DESKTOP) {
             int desktop = get_window_desktop(win);
-            // printf("  Window desktop changed %d, %d\n", task->desktop, desktop);
+            // fprintf(stderr, "  Window desktop changed %d, %d\n", task->desktop, desktop);
             // bug in windowmaker : send unecessary 'desktop changed' when focus changed
             if (desktop != task->desktop) {
                 task_update_desktop(task);

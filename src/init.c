@@ -18,16 +18,17 @@
 
 void print_usage()
 {
-    printf("Usage: tint2 [OPTION...]\n"
-           "\n"
-           "Options:\n"
-           "  -c path_to_config_file   Loads the configuration file from a\n"
-           "                           custom location.\n"
-           "  -v, --version            Prints version information and exits.\n"
-           "  -h, --help               Display this help and exits.\n"
-           "\n"
-           "For more information, run `man tint2` or visit the project page\n"
-           "<https://gitlab.com/o9000/tint2>.\n");
+    fprintf(stdout,
+            "Usage: tint2 [OPTION...]\n"
+            "\n"
+            "Options:\n"
+            "  -c path_to_config_file   Loads the configuration file from a\n"
+            "                           custom location.\n"
+            "  -v, --version            Prints version information and exits.\n"
+            "  -h, --help               Display this help and exits.\n"
+            "\n"
+            "For more information, run `man tint2` or visit the project page\n"
+            "<https://gitlab.com/o9000/tint2>.\n");
 }
 
 void handle_cli_arguments(int argc, char **argv)
@@ -39,7 +40,7 @@ void handle_cli_arguments(int argc, char **argv)
             print_usage();
             exit(0);
         } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
-            printf("tint2 version %s\n", VERSION_STRING);
+            fprintf(stdout, "tint2 version %s\n", VERSION_STRING);
             exit(0);
         } else if (strcmp(argv[i], "-c") == 0) {
             if (i + 1 < argc) {

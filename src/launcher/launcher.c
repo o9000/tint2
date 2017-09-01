@@ -297,7 +297,7 @@ gboolean resize_launcher(void *obj)
         launcherIcon->y = posy;
         launcherIcon->x = posx;
         launcher_icon_on_change_layout(launcherIcon);
-        // printf("launcher %d : %d,%d\n", i, posx, posy);
+        // fprintf(stderr, "launcher %d : %d,%d\n", i, posx, posy);
         if (panel_horizontal) {
             if (i % icons_per_column) {
                 posy += launcher->icon_size + launcher->area.paddingx;

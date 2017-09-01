@@ -1839,7 +1839,7 @@ void load_desktop_file(const char *file, gboolean selected)
             if (pixbuf)
                 g_object_unref(pixbuf);
         } else {
-            printf("Could not load %s\n", file);
+            fprintf(stderr, "Could not load %s\n", file);
             GdkPixbuf *pixbuf = load_icon(DEFAULT_ICON);
             GtkTreeIter iter;
             gtk_list_store_append(store, &iter);
@@ -1897,7 +1897,7 @@ void load_desktop_entry(const char *file, GList **entries)
 
     DesktopEntry *entry = calloc(1, sizeof(DesktopEntry));
     if (!read_desktop_file(file, entry))
-        printf("Could not load %s\n", file);
+        fprintf(stderr, "Could not load %s\n", file);
     if (entry->hidden_from_menus) {
         free(entry);
         return;

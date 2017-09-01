@@ -126,14 +126,14 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
     int lang_index_default = 1;
 #define LANG_DBG 0
     if (LANG_DBG)
-        printf("Languages:");
+        fprintf(stderr, "Languages:");
     for (int i = 0; languages[i]; i++) {
         lang_index_default = i + 1;
         if (LANG_DBG)
-            printf(" %s", languages[i]);
+            fprintf(stderr, " %s", languages[i]);
     }
     if (LANG_DBG)
-        printf("\n");
+        fprintf(stderr, "\n");
     // we currently do not know about any Name key at all, so use an invalid index
     int lang_index_name = lang_index_default + 1;
     int lang_index_generic_name = lang_index_default + 1;
@@ -281,7 +281,7 @@ void test_read_desktop_file()
     fprintf(stdout, "\033[1;33m");
     DesktopEntry entry;
     read_desktop_file("/usr/share/applications/firefox.desktop", &entry);
-    printf("Name:%s GenericName:%s Icon:%s Exec:%s\n", entry.name, entry.generic_name, entry.icon, entry.exec);
+    fprintf(stderr, "Name:%s GenericName:%s Icon:%s Exec:%s\n", entry.name, entry.generic_name, entry.icon, entry.exec);
     fprintf(stdout, "\033[0m");
 }
 

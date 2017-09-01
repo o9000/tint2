@@ -198,7 +198,7 @@ void remove_task(Task *task)
 
     // free title and icon just for the first task
     // even with task_on_all_desktop and with task_on_all_panel
-    // printf("remove_task %s %d\n", task->title, task->desktop);
+    // fprintf(stderr, "remove_task %s %d\n", task->title, task->desktop);
     if (task->title)
         free(task->title);
     task_remove_icon(task);
@@ -591,7 +591,7 @@ void reset_active_task()
     }
 
     Window w1 = get_active_window();
-    // printf("Change active task %ld\n", w1);
+    // fprintf(stderr, "Change active task %ld\n", w1);
 
     if (w1) {
         if (!get_task_buttons(w1)) {

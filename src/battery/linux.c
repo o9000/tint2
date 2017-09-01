@@ -68,7 +68,7 @@ static struct uevent_notify psy_change = {UEVENT_CHANGE, "power_supply", NULL, u
 
 static void uevent_battery_plug()
 {
-    printf("reinitialize batteries after HW change\n");
+    fprintf(stderr, "reinitialize batteries after HW change\n");
     reinit_battery();
 }
 static struct uevent_notify psy_plug = {UEVENT_ADD | UEVENT_REMOVE, "power_supply", NULL, uevent_battery_plug};

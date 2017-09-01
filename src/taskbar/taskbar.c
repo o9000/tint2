@@ -267,7 +267,7 @@ void init_taskbar_panel(void *p)
         if (!panel->g_task.background[j])
             panel->g_task.background[j] = &g_array_index(backgrounds, Background, 0);
         if (panel->g_task.background[j]->border.radius > panel->g_task.area.height / 2) {
-            printf("task%sbackground_id has a too large rounded value. Please fix your tint2rc\n",
+            fprintf(stderr, "task%sbackground_id has a too large rounded value. Please fix your tint2rc\n",
                    j == 0 ? "_" : j == 1 ? "_active_" : j == 2 ? "_iconified_" : "_urgent_");
             g_array_append_val(backgrounds, *panel->g_task.background[j]);
             panel->g_task.background[j] = &g_array_index(backgrounds, Background, backgrounds->len - 1);
@@ -432,7 +432,7 @@ gboolean resize_taskbar(void *obj)
     Taskbar *taskbar = (Taskbar *)obj;
     Panel *panel = (Panel *)taskbar->area.panel;
 
-    // printf("resize_taskbar %d %d\n", taskbar->area.posx, taskbar->area.posy);
+    // fprintf(stderr, "resize_taskbar %d %d\n", taskbar->area.posx, taskbar->area.posy);
     if (panel_horizontal) {
         relayout_with_constraint(&taskbar->area, panel->g_task.maximum_width);
 

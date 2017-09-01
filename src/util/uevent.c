@@ -194,7 +194,7 @@ int uevent_init()
         return -1;
     }
 
-    printf("Kernel uevent interface initialized...\n");
+    fprintf(stderr, "Kernel uevent interface initialized...\n");
 
     return uevent_fd;
 }

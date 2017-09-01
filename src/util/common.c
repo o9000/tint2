@@ -223,7 +223,7 @@ void copy_file(const char *path_src, const char *path_dest)
 
     while ((nb = fread(buffer, 1, sizeof(buffer), file_src)) > 0) {
         if (nb != fwrite(buffer, 1, nb, file_dest)) {
-            printf("Error while copying file %s to %s\n", path_src, path_dest);
+            fprintf(stderr, "Error while copying file %s to %s\n", path_src, path_dest);
         }
     }
 
@@ -931,7 +931,7 @@ void get_text_size2(const PangoFontDescription *font,
     *height_ink = rect_ink.height;
     *height = rect.height;
     *width = rect.width;
-    // printf("dimension : %d - %d\n", rect_ink.height, rect.height);
+    // fprintf(stderr, "dimension : %d - %d\n", rect_ink.height, rect.height);
 
     g_object_unref(layout);
     cairo_destroy(c);

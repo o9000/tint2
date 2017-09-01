@@ -420,7 +420,7 @@ XSettingsClient *xsettings_client_new(Display *display,
     check_manager_window(client);
 
     if (client->manager_window == None) {
-        printf("No XSETTINGS manager, tint2 uses config option 'launcher_icon_theme'.\n");
+        fprintf(stderr, "No XSETTINGS manager, tint2 uses config option 'launcher_icon_theme'.\n");
         free(client);
         return NULL;
     } else {
