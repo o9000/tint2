@@ -64,6 +64,8 @@ void launcher_reload_hidden_icons(Launcher *launcher);
 void launcher_icon_on_change_layout(void *obj);
 int launcher_compute_desired_size(void *obj);
 
+void relayout_launcher();
+
 void default_launcher()
 {
     launcher_enabled = 0;
@@ -95,6 +97,7 @@ void init_launcher_panel(void *p)
     launcher->area._draw_foreground = NULL;
     launcher->area.size_mode = LAYOUT_FIXED;
     launcher->area._resize = resize_launcher;
+    launcher->area._on_change_layout = relayout_launcher;
     launcher->area._compute_desired_size = launcher_compute_desired_size;
     launcher->area.resize_needed = 1;
     schedule_redraw(&launcher->area);
@@ -323,6 +326,17 @@ gboolean resize_launcher(void *obj)
     }
 
     return TRUE;
+}
+
+void relayout_launcher(void *obj)
+{
+    Launcher *launcher = (Launcher *)obj;
+    for (GSList *l = launcher->list_icons; l; l = l->next) {
+        LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
+        if (!launcherIcon->area.on_screen)
+            continue;
+        launcher_icon_on_change_layout(launcherIcon);
+    }
 }
 
 // Here we override the default layout of the icons; normally Area layouts its children
