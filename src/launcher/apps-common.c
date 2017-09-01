@@ -116,7 +116,7 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 
     FILE *fp = fopen(path, "rt");
     if (fp == NULL) {
-        fprintf(stderr, "Could not open file %s\n", path);
+        fprintf(stderr, "tint2: Could not open file %s\n", path);
         return FALSE;
     }
 
@@ -126,14 +126,14 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
     int lang_index_default = 1;
 #define LANG_DBG 0
     if (LANG_DBG)
-        fprintf(stderr, "Languages:");
+        fprintf(stderr, "tint2: Languages:");
     for (int i = 0; languages[i]; i++) {
         lang_index_default = i + 1;
         if (LANG_DBG)
-            fprintf(stderr, " %s", languages[i]);
+            fprintf(stderr, "tint2:  %s", languages[i]);
     }
     if (LANG_DBG)
-        fprintf(stderr, "\n");
+        fprintf(stderr, "tint2: \n");
     // we currently do not know about any Name key at all, so use an invalid index
     int lang_index_name = lang_index_default + 1;
     int lang_index_generic_name = lang_index_default + 1;
@@ -278,11 +278,11 @@ void free_desktop_entry(DesktopEntry *entry)
 
 void test_read_desktop_file()
 {
-    fprintf(stdout, "\033[1;33m");
+    fprintf(stderr, YELLOW);
     DesktopEntry entry;
     read_desktop_file("/usr/share/applications/firefox.desktop", &entry);
-    fprintf(stderr, "Name:%s GenericName:%s Icon:%s Exec:%s\n", entry.name, entry.generic_name, entry.icon, entry.exec);
-    fprintf(stdout, "\033[0m");
+    fprintf(stderr, "tint2: Name:%s GenericName:%s Icon:%s Exec:%s\n", entry.name, entry.generic_name, entry.icon, entry.exec);
+    fprintf(stderr, RESET);
 }
 
 GSList *apps_locations = NULL;

@@ -104,7 +104,7 @@ void handle_event_property_notify(XEvent *e)
         // Change name of desktops
         else if (at == server.atom._NET_DESKTOP_NAMES) {
             if (debug)
-                fprintf(stderr, "%s %d: win = root, atom = _NET_DESKTOP_NAMES\n", __FUNCTION__, __LINE__);
+                fprintf(stderr, "tint2: %s %d: win = root, atom = _NET_DESKTOP_NAMES\n", __FUNCTION__, __LINE__);
             update_desktop_names();
         }
         // Change desktops
@@ -112,7 +112,7 @@ void handle_event_property_notify(XEvent *e)
                  at == server.atom._NET_DESKTOP_VIEWPORT || at == server.atom._NET_WORKAREA ||
                  at == server.atom._NET_CURRENT_DESKTOP) {
             if (debug)
-                fprintf(stderr, "%s %d: win = root, atom = ?? desktops changed\n", __FUNCTION__, __LINE__);
+                fprintf(stderr, "tint2: %s %d: win = root, atom = ?? desktops changed\n", __FUNCTION__, __LINE__);
             if (!taskbar_enabled)
                 return;
             int old_num_desktops = server.num_desktops;
@@ -202,7 +202,7 @@ void handle_event_property_notify(XEvent *e)
         // Window list
         else if (at == server.atom._NET_CLIENT_LIST) {
             if (debug)
-                fprintf(stderr, "%s %d: win = root, atom = _NET_CLIENT_LIST\n", __FUNCTION__, __LINE__);
+                fprintf(stderr, "tint2: %s %d: win = root, atom = _NET_CLIENT_LIST\n", __FUNCTION__, __LINE__);
             taskbar_refresh_tasklist();
             update_all_taskbars_visibility();
             schedule_panel_redraw();
@@ -210,12 +210,12 @@ void handle_event_property_notify(XEvent *e)
         // Change active
         else if (at == server.atom._NET_ACTIVE_WINDOW) {
             if (debug)
-                fprintf(stderr, "%s %d: win = root, atom = _NET_ACTIVE_WINDOW\n", __FUNCTION__, __LINE__);
+                fprintf(stderr, "tint2: %s %d: win = root, atom = _NET_ACTIVE_WINDOW\n", __FUNCTION__, __LINE__);
             reset_active_task();
             schedule_panel_redraw();
         } else if (at == server.atom._XROOTPMAP_ID || at == server.atom._XROOTMAP_ID) {
             if (debug)
-                fprintf(stderr, "%s %d: win = root, atom = _XROOTPMAP_ID\n", __FUNCTION__, __LINE__);
+                fprintf(stderr, "tint2: %s %d: win = root, atom = _XROOTPMAP_ID\n", __FUNCTION__, __LINE__);
             // change Wallpaper
             for (int i = 0; i < num_panels; i++) {
                 set_panel_background(&panels[i]);
@@ -243,7 +243,7 @@ void handle_event_property_notify(XEvent *e)
         }
         if (!task) {
             if (debug)
-                fprintf(stderr, "%s %d\n", __FUNCTION__, __LINE__);
+                fprintf(stderr, "tint2: %s %d\n", __FUNCTION__, __LINE__);
             if (at == server.atom._NET_WM_STATE) {
                 // xfce4 sends _NET_WM_STATE after minimized to tray, so we need to check if window is mapped
                 // if it is mapped and not set as skip_taskbar, we must add it to our task list
@@ -256,7 +256,7 @@ void handle_event_property_notify(XEvent *e)
             }
             return;
         }
-        // fprintf(stderr, "atom root_win = %s, %s\n", XGetAtomName(server.display, at), task->title);
+        // fprintf(stderr, "tint2: atom root_win = %s, %s\n", XGetAtomName(server.display, at), task->title);
 
         // Window title changed
         if (at == server.atom._NET_WM_VISIBLE_NAME || at == server.atom._NET_WM_NAME || at == server.atom.WM_NAME) {
@@ -277,7 +277,7 @@ void handle_event_property_notify(XEvent *e)
                 Atom *atom_state = server_get_property(win, server.atom._NET_WM_STATE, XA_ATOM, &count);
                 for (int j = 0; j < count; j++) {
                     char *atom_state_name = XGetAtomName(server.display, atom_state[j]);
-                    fprintf(stderr, "%s %d: _NET_WM_STATE = %s\n", __FUNCTION__, __LINE__, atom_state_name);
+                    fprintf(stderr, "tint2: %s %d: _NET_WM_STATE = %s\n", __FUNCTION__, __LINE__, atom_state_name);
                     XFree(atom_state_name);
                 }
                 XFree(atom_state);
@@ -305,7 +305,7 @@ void handle_event_property_notify(XEvent *e)
         // Window desktop changed
         else if (at == server.atom._NET_WM_DESKTOP) {
             int desktop = get_window_desktop(win);
-            // fprintf(stderr, "  Window desktop changed %d, %d\n", task->desktop, desktop);
+            // fprintf(stderr, "tint2:   Window desktop changed %d, %d\n", task->desktop, desktop);
             // bug in windowmaker : send unecessary 'desktop changed' when focus changed
             if (desktop != task->desktop) {
                 task_update_desktop(task);
@@ -779,13 +779,13 @@ void tint2(int argc, char **argv, gboolean *restart)
     if (get_signal_pending()) {
         cleanup();
         if (get_signal_pending() == SIGUSR1) {
-            fprintf(stderr, YELLOW "%s %d: restarting tint2..." RESET "\n", __FILE__, __LINE__);
+            fprintf(stderr, YELLOW "tint2: %s %d: restarting tint2..." RESET "\n", __FILE__, __LINE__);
             *restart = TRUE;
             return;
         } else if (get_signal_pending() == SIGUSR2) {
-            fprintf(stderr, YELLOW "%s %d: reexecuting tint2..." RESET "\n", __FILE__, __LINE__);
+            fprintf(stderr, YELLOW "tint2: %s %d: reexecuting tint2..." RESET "\n", __FILE__, __LINE__);
             if (execvp(argv[0], argv) == -1) {
-                fprintf(stderr, RED "%s %d: failed!" RESET "\n", __FILE__, __LINE__);
+                fprintf(stderr, RED "tint2: %s %d: failed!" RESET "\n", __FILE__, __LINE__);
                 return;
             }
         } else {

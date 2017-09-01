@@ -177,11 +177,11 @@ void init_panel()
 {
     if (panel_config.monitor > (server.num_monitors - 1)) {
         // server.num_monitors minimum value is 1 (see get_monitors())
-        fprintf(stderr, "warning : monitor not found. tint2 default to all monitors.\n");
+        fprintf(stderr, "tint2: warning : monitor not found. tint2 default to all monitors.\n");
         panel_config.monitor = 0;
     }
 
-    fprintf(stderr, "panel items: %s\n", panel_items_order);
+    fprintf(stderr, "tint2: panel items: %s\n", panel_items_order);
 
     icon_theme_wrapper = NULL;
 
@@ -209,7 +209,7 @@ void init_panel()
     }
 
     fprintf(stderr,
-            "tint2 : nb monitors %d, nb monitors used %d, nb desktops %d\n",
+            "tint2: nb monitors %d, nb monitors used %d, nb desktops %d\n",
             server.num_monitors,
             num_panels,
             server.num_desktops);
@@ -289,7 +289,7 @@ void init_panel()
             XGCValues gcv;
             server.gc = XCreateGC(server.display, p->main_win, 0, &gcv);
         }
-        // fprintf(stderr, "panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
+        // fprintf(stderr, "tint2: panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
         set_panel_properties(p);
         set_panel_background(p);
         if (!snapshot_path) {
@@ -322,7 +322,7 @@ void panel_compute_size(Panel *panel)
         if (panel->fractional_height)
             panel->area.height = (server.monitors[panel->monitor].height - panel->marginy) * panel->area.height / 100;
         if (panel->area.bg->border.radius > panel->area.height / 2) {
-            fprintf(stderr, "panel_background_id rounded is too big... please fix your tint2rc\n");
+            fprintf(stderr, "tint2: panel_background_id rounded is too big... please fix your tint2rc\n");
             g_array_append_val(backgrounds, *panel->area.bg);
             panel->area.bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
             panel->area.bg->border.radius = panel->area.height / 2;
@@ -348,7 +348,7 @@ void panel_compute_size(Panel *panel)
             panel->area.width = old_panel_height;
 
         if (panel->area.bg->border.radius > panel->area.width / 2) {
-            fprintf(stderr, "panel_background_id rounded is too big... please fix your tint2rc\n");
+            fprintf(stderr, "tint2: panel_background_id rounded is too big... please fix your tint2rc\n");
             g_array_append_val(backgrounds, *panel->area.bg);
             panel->area.bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
             panel->area.bg->border.radius = panel->area.width / 2;
@@ -401,7 +401,7 @@ void panel_compute_position(Panel *panel)
         panel->hidden_width = panel->area.width - diff;
         panel->hidden_height = panel->area.height;
     }
-    // fprintf(stderr, "panel : posx %d, posy %d, width %d, height %d\n", panel->posx, panel->posy, panel->area.width,
+    // fprintf(stderr, "tint2: panel : posx %d, posy %d, width %d, height %d\n", panel->posx, panel->posy, panel->area.width,
     // panel->area.height);
 }
 
@@ -416,7 +416,7 @@ gboolean resize_panel(void *obj)
     Panel *panel = (Panel *)obj;
     relayout_with_constraint(&panel->area, 0);
 
-    // fprintf(stderr, "resize_panel\n");
+    // fprintf(stderr, "tint2: resize_panel\n");
     if (taskbar_mode != MULTI_DESKTOP && taskbar_enabled) {
         // propagate width/height on hidden taskbar
         int width = panel->taskbar[server.desktop].area.width;
@@ -1146,7 +1146,7 @@ void _schedule_panel_redraw(const char *file, const char *function, const int li
 {
     panel_refresh = TRUE;
     if (debug_fps) {
-        fprintf(stderr, YELLOW "%s %s %d: triggering panel redraw" RESET "\n", file, function, line);
+        fprintf(stderr, YELLOW "tint2: %s %s %d: triggering panel redraw" RESET "\n", file, function, line);
     }
 }
 

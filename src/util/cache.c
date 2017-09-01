@@ -117,14 +117,14 @@ void save_cache(Cache *cache, const gchar *cache_path)
         fd = open(cache_path, O_RDONLY | O_CREAT, 0600);
     }
     if (fd == -1) {
-        fprintf(stderr, RED "Could not save icon theme cache!" RESET "\n");
+        fprintf(stderr, RED "tint2: Could not save icon theme cache!" RESET "\n");
         return;
     }
     flock(fd, LOCK_EX);
 
     FILE *f = fopen(cache_path, "w");
     if (!f) {
-        fprintf(stderr, RED "Could not save icon theme cache!" RESET "\n");
+        fprintf(stderr, RED "tint2: Could not save icon theme cache!" RESET "\n");
         goto unlock;
     }
     g_hash_table_foreach(cache->_table, write_cache_line, f);

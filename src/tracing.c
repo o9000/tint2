@@ -100,7 +100,7 @@ void print_tracing_events()
         if (e->enter) {
             // Push a new function on the stack
             for (int d = 0; d < depth; d++)
-                fprintf(stderr, " ");
+                fprintf(stderr, "tint2:  ");
             char *name = addr2name(e->address);
             char *caller = addr2name(e->caller);
             fprintf(stderr,
@@ -116,7 +116,7 @@ void print_tracing_events()
                 if (old->address == e->address) {
                     depth--;
                     for (int d = 0; d < depth; d++)
-                        fprintf(stderr, " ");
+                        fprintf(stderr, "tint2:  ");
                     char *name = addr2name(e->address);
                     double duration = (e->time - old->time) * 1.0e3;
                     fprintf(stderr,
@@ -124,13 +124,13 @@ void print_tracing_events()
                             name,
                             duration);
                     if (duration >= 1.0) {
-                        fprintf(stderr, YELLOW " ");
+                        fprintf(stderr, YELLOW "tint2:  ");
                         for (int d = 0; d < duration; d++) {
-                            fprintf(stderr, "#");
+                            fprintf(stderr, "tint2: #");
                         }
                         fprintf(stderr, RESET);
                     }
-                    fprintf(stderr, "\n");
+                    fprintf(stderr, "tint2: \n");
                     free(name);
                     stack = g_list_delete_link(stack, g_list_last(stack));
                 }
@@ -141,7 +141,7 @@ void print_tracing_events()
         TracingEvent *old = (TracingEvent *)g_list_last(stack)->data;
         depth--;
         for (int d = 0; d < depth; d++)
-            fprintf(stderr, " ");
+            fprintf(stderr, "tint2:  ");
         char *name = addr2name(old->address);
         double duration = (now - old->time) * 1.0e3;
         fprintf(stderr,
@@ -149,13 +149,13 @@ void print_tracing_events()
                 name,
                 duration);
         if (duration >= 1.0) {
-            fprintf(stderr, YELLOW " ");
+            fprintf(stderr, YELLOW "tint2:  ");
             for (int d = 0; d < duration; d++) {
-                fprintf(stderr, "#");
+                fprintf(stderr, "tint2: #");
             }
             fprintf(stderr, RESET);
         }
-        fprintf(stderr, "\n");
+        fprintf(stderr, "tint2: \n");
         free(name);
         stack = g_list_delete_link(stack, g_list_last(stack));
     }

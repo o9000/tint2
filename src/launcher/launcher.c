@@ -297,7 +297,7 @@ gboolean resize_launcher(void *obj)
         launcherIcon->y = posy;
         launcherIcon->x = posx;
         launcher_icon_on_change_layout(launcherIcon);
-        // fprintf(stderr, "launcher %d : %d,%d\n", i, posx, posy);
+        // fprintf(stderr, "tint2: launcher %d : %d,%d\n", i, posx, posy);
         if (panel_horizontal) {
             if (i % icons_per_column) {
                 posy += launcher->icon_size + launcher->area.paddingx;
@@ -385,7 +385,7 @@ void draw_launcher_icon(void *obj, cairo_t *c)
 void launcher_icon_dump_geometry(void *obj, int indent)
 {
     LauncherIcon *launcherIcon = (LauncherIcon *)obj;
-    fprintf(stderr, "%*sIcon: w = h = %d, name = %s\n", indent, "", launcherIcon->icon_size, launcherIcon->icon_name);
+    fprintf(stderr, "tint2: %*sIcon: w = h = %d, name = %s\n", indent, "", launcherIcon->icon_size, launcherIcon->icon_name);
 }
 
 Imlib_Image scale_icon(Imlib_Image original, int icon_size)
@@ -545,7 +545,7 @@ void launcher_reload_icon_image(Launcher *launcher, LauncherIcon *launcherIcon)
     free_icon(original);
     free(launcherIcon->icon_path);
     launcherIcon->icon_path = new_icon_path;
-    // fprintf(stderr, "launcher.c %d: Using icon %s\n", __LINE__, launcherIcon->icon_path);
+    // fprintf(stderr, "tint2: launcher.c %d: Using icon %s\n", __LINE__, launcherIcon->icon_path);
 
     if (panel_config.mouse_effects) {
         launcherIcon->image_hover = adjust_icon(launcherIcon->image,

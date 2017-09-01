@@ -115,7 +115,7 @@ void detect_compositor(void *arg)
     if (XGetSelectionOwner(server.display, server.atom._NET_WM_CM_S0) != None) {
         stop_timeout(detect_compositor_timer);
         // Restart tint2
-        fprintf(stderr, "Detected compositor, restarting tint2...\n");
+        fprintf(stderr, "tint2: Detected compositor, restarting tint2...\n");
         kill(getpid(), SIGUSR1);
     }
 }
@@ -181,7 +181,7 @@ void init_X11_pre_config()
 {
     server.display = XOpenDisplay(NULL);
     if (!server.display) {
-        fprintf(stderr, "tint2: could not open display.\n");
+        fprintf(stderr, "tint2: could not open display!\n");
         exit(1);
     }
     server.x11_fd = ConnectionNumber(server.display);
@@ -220,7 +220,7 @@ void init(int argc, char **argv)
 
     init_X11_pre_config();
     if (!config_read()) {
-        fprintf(stderr, "Could not read config file.\n");
+        fprintf(stderr, "tint2: Could not read config file.\n");
         print_usage();
         cleanup();
         return;

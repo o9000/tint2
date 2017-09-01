@@ -68,7 +68,7 @@ static struct uevent_notify psy_change = {UEVENT_CHANGE, "power_supply", NULL, u
 
 static void uevent_battery_plug()
 {
-    fprintf(stderr, "reinitialize batteries after HW change\n");
+    fprintf(stderr, "tint2: reinitialize batteries after HW change\n");
     reinit_battery();
 }
 static struct uevent_notify psy_plug = {UEVENT_ADD | UEVENT_REMOVE, "power_supply", NULL, uevent_battery_plug};
@@ -76,7 +76,7 @@ static struct uevent_notify psy_plug = {UEVENT_ADD | UEVENT_REMOVE, "power_suppl
 #define RETURN_ON_ERROR(err)                                                 \
     if (err) {                                                               \
         g_error_free(err);                                                   \
-        fprintf(stderr, RED "%s:%d: errror" RESET "\n", __FILE__, __LINE__); \
+        fprintf(stderr, RED "tint2: %s:%d: errror" RESET "\n", __FILE__, __LINE__); \
         return FALSE;                                                        \
     }
 
@@ -98,7 +98,7 @@ static enum psy_type power_supply_get_type(const gchar *entryname)
     g_file_get_contents(path_type, &type, &typelen, &error);
     g_free(path_type);
     if (error) {
-        fprintf(stderr, RED "%s:%d: read failed" RESET "\n", __FILE__, __LINE__);
+        fprintf(stderr, RED "tint2: %s:%d: read failed" RESET "\n", __FILE__, __LINE__);
         g_error_free(error);
         return PSY_UNKNOWN;
     }
@@ -124,7 +124,7 @@ static gboolean init_linux_battery(struct psy_battery *bat)
 
     bat->path_present = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "present", NULL);
     if (!g_file_test(bat->path_present, G_FILE_TEST_EXISTS)) {
-        fprintf(stderr, RED "%s:%d: read failed" RESET "\n", __FILE__, __LINE__);
+        fprintf(stderr, RED "tint2: %s:%d: read failed" RESET "\n", __FILE__, __LINE__);
         goto err0;
     }
 
@@ -152,13 +152,13 @@ static gboolean init_linux_battery(struct psy_battery *bat)
     if (!g_file_test(bat->path_level_now, G_FILE_TEST_EXISTS) ||
         !g_file_test(bat->path_level_full, G_FILE_TEST_EXISTS) ||
         !g_file_test(bat->path_rate_now, G_FILE_TEST_EXISTS)) {
-        fprintf(stderr, RED "%s:%d: read failed" RESET "\n", __FILE__, __LINE__);
+        fprintf(stderr, RED "tint2: %s:%d: read failed" RESET "\n", __FILE__, __LINE__);
         goto err1;
     }
 
     bat->path_status = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "status", NULL);
     if (!g_file_test(bat->path_status, G_FILE_TEST_EXISTS)) {
-        fprintf(stderr, RED "%s:%d: read failed" RESET "\n", __FILE__, __LINE__);
+        fprintf(stderr, RED "tint2: %s:%d: read failed" RESET "\n", __FILE__, __LINE__);
         goto err2;
     }
 
@@ -182,7 +182,7 @@ static gboolean init_linux_mains(struct psy_mains *ac)
 
     ac->path_online = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "online", NULL);
     if (!g_file_test(ac->path_online, G_FILE_TEST_EXISTS)) {
-        fprintf(stderr, RED "%s:%d: read failed" RESET "\n", __FILE__, __LINE__);
+        fprintf(stderr, RED "tint2: %s:%d: read failed" RESET "\n", __FILE__, __LINE__);
         g_free(ac->path_online);
         return FALSE;
     }
@@ -228,10 +228,10 @@ static void add_battery(const char *entryname)
 
     if (init_linux_battery(bat)) {
         batteries = g_list_append(batteries, bat);
-        fprintf(stdout, GREEN "Found battery \"%s\"" RESET "\n", bat->name);
+        fprintf(stderr, GREEN "Found battery \"%s\"" RESET "\n", bat->name);
     } else {
         g_free(bat);
-        fprintf(stderr, RED "Failed to initialize battery \"%s\"" RESET "\n", entryname);
+        fprintf(stderr, RED "tint2: Failed to initialize battery \"%s\"" RESET "\n", entryname);
     }
 }
 
@@ -242,10 +242,10 @@ static void add_mains(const char *entryname)
 
     if (init_linux_mains(ac)) {
         mains = g_list_append(mains, ac);
-        fprintf(stdout, GREEN "Found mains \"%s\"" RESET "\n", ac->name);
+        fprintf(stderr, GREEN "Found mains \"%s\"" RESET "\n", ac->name);
     } else {
         g_free(ac);
-        fprintf(stderr, RED "Failed to initialize mains \"%s\"" RESET "\n", entryname);
+        fprintf(stderr, RED "tint2: Failed to initialize mains \"%s\"" RESET "\n", entryname);
     }
 }
 
@@ -263,7 +263,7 @@ gboolean battery_os_init()
     RETURN_ON_ERROR(error);
 
     while ((entryname = g_dir_read_name(directory))) {
-        fprintf(stderr, GREEN "Found power device %s" RESET "\n", entryname);
+        fprintf(stderr, GREEN "tint2: Found power device %s" RESET "\n", entryname);
         enum psy_type type = power_supply_get_type(entryname);
 
         switch (type) {

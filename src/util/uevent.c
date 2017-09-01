@@ -184,17 +184,17 @@ int uevent_init()
     /* open socket */
     uevent_fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
     if (uevent_fd < 0) {
-        fprintf(stderr, "Error: socket open failed\n");
+        fprintf(stderr, "tint2: Error: socket open failed\n");
         return -1;
     }
 
     /* Listen to netlink socket */
     if (bind(uevent_fd, (void *)&nls, sizeof(struct sockaddr_nl))) {
-        fprintf(stderr, "Bind failed\n");
+        fprintf(stderr, "tint2: Bind failed\n");
         return -1;
     }
 
-    fprintf(stderr, "Kernel uevent interface initialized...\n");
+    fprintf(stderr, "tint2: Kernel uevent interface initialized...\n");
 
     return uevent_fd;
 }

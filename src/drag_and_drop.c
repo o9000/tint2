@@ -55,16 +55,16 @@ void handle_dnd_enter(XClientMessageEvent *e)
     dnd_version = (e->data.l[1] >> 24);
 
     if (dnd_debug) {
-        fprintf(stderr, "DnD %s:%d: DnDEnter\n", __FILE__, __LINE__);
+        fprintf(stderr, "tint2: DnD %s:%d: DnDEnter\n", __FILE__, __LINE__);
         fprintf(stderr,
                 "DnD %s:%d: DnDEnter. Supports > 3 types = %s\n",
                 __FILE__,
                 __LINE__,
                 more_than_3 ? "yes" : "no");
-        fprintf(stderr, "DnD %s:%d: Protocol version = %d\n", __FILE__, __LINE__, dnd_version);
-        fprintf(stderr, "DnD %s:%d: Type 1 = %s\n", __FILE__, __LINE__, GetAtomName(server.display, e->data.l[2]));
-        fprintf(stderr, "DnD %s:%d: Type 2 = %s\n", __FILE__, __LINE__, GetAtomName(server.display, e->data.l[3]));
-        fprintf(stderr, "DnD %s:%d: Type 3 = %s\n", __FILE__, __LINE__, GetAtomName(server.display, e->data.l[4]));
+        fprintf(stderr, "tint2: DnD %s:%d: Protocol version = %d\n", __FILE__, __LINE__, dnd_version);
+        fprintf(stderr, "tint2: DnD %s:%d: Type 1 = %s\n", __FILE__, __LINE__, GetAtomName(server.display, e->data.l[2]));
+        fprintf(stderr, "tint2: DnD %s:%d: Type 2 = %s\n", __FILE__, __LINE__, GetAtomName(server.display, e->data.l[3]));
+        fprintf(stderr, "tint2: DnD %s:%d: Type 3 = %s\n", __FILE__, __LINE__, GetAtomName(server.display, e->data.l[4]));
     }
 
     // Query which conversions are available and pick the best
@@ -80,7 +80,7 @@ void handle_dnd_enter(XClientMessageEvent *e)
     }
 
     if (dnd_debug)
-        fprintf(stderr, "DnD %s:%d: Requested type = %s\n", __FILE__, __LINE__, GetAtomName(server.display, dnd_atom));
+        fprintf(stderr, "tint2: DnD %s:%d: Requested type = %s\n", __FILE__, __LINE__, GetAtomName(server.display, dnd_atom));
 }
 
 void handle_dnd_position(XClientMessageEvent *e)
@@ -167,13 +167,13 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
     Atom target = e->target;
 
     if (dnd_debug) {
-        fprintf(stderr, "DnD %s:%d: A selection notify has arrived!\n", __FILE__, __LINE__);
+        fprintf(stderr, "tint2: DnD %s:%d: A selection notify has arrived!\n", __FILE__, __LINE__);
         fprintf(stderr,
                 "DnD %s:%d: Selection atom = %s\n",
                 __FILE__,
                 __LINE__,
                 GetAtomName(server.display, e->selection));
-        fprintf(stderr, "DnD %s:%d: Target atom    = %s\n", __FILE__, __LINE__, GetAtomName(server.display, target));
+        fprintf(stderr, "tint2: DnD %s:%d: Target atom    = %s\n", __FILE__, __LINE__, GetAtomName(server.display, target));
         fprintf(stderr,
                 "DnD %s:%d: Property atom  = %s\n",
                 __FILE__,
@@ -191,11 +191,11 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
 
             if (dnd_atom == None) {
                 if (dnd_debug)
-                    fprintf(stderr, "No matching datatypes.\n");
+                    fprintf(stderr, "tint2: No matching datatypes.\n");
             } else {
                 // Request the data type we are able to select
                 if (dnd_debug)
-                    fprintf(stderr, "Now requsting type %s", GetAtomName(server.display, dnd_atom));
+                    fprintf(stderr, "tint2: Now requsting type %s", GetAtomName(server.display, dnd_atom));
                 XConvertSelection(server.display,
                                   dnd_selection,
                                   dnd_atom,
@@ -206,11 +206,11 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
         } else if (target == dnd_atom) {
             // Dump the binary data
             if (dnd_debug) {
-                fprintf(stderr, "DnD %s:%d: Data begins:\n", __FILE__, __LINE__);
-                fprintf(stderr, "--------\n");
+                fprintf(stderr, "tint2: DnD %s:%d: Data begins:\n", __FILE__, __LINE__);
+                fprintf(stderr, "tint2: --------\n");
                 for (int i = 0; i < prop.nitems * prop.format / 8; i++)
-                    fprintf(stderr, "%c", ((char *)prop.data)[i]);
-                fprintf(stderr, "--------\n");
+                    fprintf(stderr, "tint2: %c", ((char *)prop.data)[i]);
+                fprintf(stderr, "tint2: --------\n");
             }
 
             int cmd_length = 0;
@@ -262,7 +262,7 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
             strcat(cmd, "\"");
             strcat(cmd, "&)");
             if (dnd_debug)
-                fprintf(stderr, "DnD %s:%d: Running command: %s\n", __FILE__, __LINE__, cmd);
+                fprintf(stderr, "tint2: DnD %s:%d: Running command: %s\n", __FILE__, __LINE__, cmd);
             tint_exec(cmd, NULL, NULL, e->time, NULL, 0, 0);
             free(cmd);
 

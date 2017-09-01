@@ -58,7 +58,7 @@ int battery_os_update(BatteryState *state)
             break;
         }
     } else {
-        fprintf(stderr, "power update: no such sysctl");
+        fprintf(stderr, "tint2: power update: no such sysctl");
         err = -1;
     }
 

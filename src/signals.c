@@ -125,7 +125,7 @@ void init_signals_postconfig()
     if (need_sigchld) {
         // Setup a handler for child termination
         if (pipe(sigchild_pipe) != 0) {
-            fprintf(stderr, "Creating pipe failed.\n");
+            fprintf(stderr, "tint2: Creating pipe failed.\n");
         } else {
             fcntl(sigchild_pipe[0], F_SETFL, O_NONBLOCK | fcntl(sigchild_pipe[0], F_GETFL));
             fcntl(sigchild_pipe[1], F_SETFL, O_NONBLOCK | fcntl(sigchild_pipe[1], F_GETFL));

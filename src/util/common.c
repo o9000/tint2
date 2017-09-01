@@ -223,7 +223,7 @@ void copy_file(const char *path_src, const char *path_dest)
 
     while ((nb = fread(buffer, 1, sizeof(buffer), file_src)) > 0) {
         if (nb != fwrite(buffer, 1, nb, file_dest)) {
-            fprintf(stderr, "Error while copying file %s to %s\n", path_src, path_dest);
+            fprintf(stderr, "tint2: Error while copying file %s to %s\n", path_src, path_dest);
         }
     }
 
@@ -373,7 +373,7 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
     pid_t pid;
     pid = fork();
     if (pid < 0) {
-        fprintf(stderr, "Could not fork\n");
+        fprintf(stderr, "tint2: Could not fork\n");
     } else if (pid == 0) {
 // Child process
 #if HAVE_SN
@@ -388,7 +388,7 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
             chdir(dir);
         close_all_fds();
         execl("/bin/sh", "/bin/sh", "-c", command, NULL);
-        fprintf(stderr, "Failed to execlp %s\n", command);
+        fprintf(stderr, "tint2: Failed to execlp %s\n", command);
 #if HAVE_SN
         if (startup_notifications && time) {
             sn_launcher_context_unref(ctx);
@@ -776,7 +776,7 @@ Imlib_Image load_image(const char *path, int cached)
                 RsvgHandle *svg = rsvg_handle_new_from_file(path, &err);
 
                 if (err != NULL) {
-                    fprintf(stderr, "Could not load svg image!: %s", err->message);
+                    fprintf(stderr, "tint2: Could not load svg image!: %s", err->message);
                     g_error_free(err);
                 } else {
                     GdkPixbuf *pixbuf = rsvg_handle_get_pixbuf(svg);
@@ -931,7 +931,7 @@ void get_text_size2(const PangoFontDescription *font,
     *height_ink = rect_ink.height;
     *height = rect.height;
     *width = rect.width;
-    // fprintf(stderr, "dimension : %d - %d\n", rect_ink.height, rect.height);
+    // fprintf(stderr, "tint2: dimension : %d - %d\n", rect_ink.height, rect.height);
 
     g_object_unref(layout);
     cairo_destroy(c);

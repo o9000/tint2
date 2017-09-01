@@ -321,9 +321,9 @@ void draw_clock(void *obj, cairo_t *c)
 void clock_dump_geometry(void *obj, int indent)
 {
     Clock *clock = (Clock *)obj;
-    fprintf(stderr, "%*sText 1: y = %d, text = %s\n", indent, "", clock->time1_posy, buf_time);
+    fprintf(stderr, "tint2: %*sText 1: y = %d, text = %s\n", indent, "", clock->time1_posy, buf_time);
     if (time2_format) {
-        fprintf(stderr, "%*sText 2: y = %d, text = %s\n", indent, "", clock->time2_posy, buf_date);
+        fprintf(stderr, "tint2: %*sText 2: y = %d, text = %s\n", indent, "", clock->time2_posy, buf_date);
     }
 }
 

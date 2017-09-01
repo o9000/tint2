@@ -162,10 +162,10 @@ struct Property read_property(Display *disp, Window w, Atom property)
         read_bytes *= 2;
     } while (bytes_after != 0);
 
-    fprintf(stderr, "DnD %s:%d: Property:\n", __FILE__, __LINE__);
-    fprintf(stderr, "DnD %s:%d: Actual type: %s\n", __FILE__, __LINE__, GetAtomName(disp, actual_type));
-    fprintf(stderr, "DnD %s:%d: Actual format: %d\n", __FILE__, __LINE__, actual_format);
-    fprintf(stderr, "DnD %s:%d: Number of items: %lu\n", __FILE__, __LINE__, nitems);
+    fprintf(stderr, "tint2: DnD %s:%d: Property:\n", __FILE__, __LINE__);
+    fprintf(stderr, "tint2: DnD %s:%d: Actual type: %s\n", __FILE__, __LINE__, GetAtomName(disp, actual_type));
+    fprintf(stderr, "tint2: DnD %s:%d: Actual format: %d\n", __FILE__, __LINE__, actual_format);
+    fprintf(stderr, "tint2: DnD %s:%d: Number of items: %lu\n", __FILE__, __LINE__, nitems);
 
     Property p;
     p.data = ret;
@@ -185,7 +185,7 @@ Atom pick_target_from_list(Display *disp, Atom *atom_list, int nitems)
     int i;
     for (i = 0; i < nitems; i++) {
         const char *atom_name = GetAtomName(disp, atom_list[i]);
-        fprintf(stderr, "DnD %s:%d: Type %d = %s\n", __FILE__, __LINE__, i, atom_name);
+        fprintf(stderr, "tint2: DnD %s:%d: Type %d = %s\n", __FILE__, __LINE__, i, atom_name);
 
         // See if this data type is allowed and of higher priority (closer to zero)
         // than the present one.
@@ -365,7 +365,7 @@ void get_root_pixmap()
     server.root_pmap = ret;
 
     if (server.root_pmap == None) {
-        fprintf(stderr, "tint2 : pixmap background detection failed\n");
+        fprintf(stderr, "tint2: pixmap background detection failed\n");
     } else {
         XGCValues gcv;
         gcv.ts_x_origin = 0;
@@ -425,14 +425,14 @@ void get_monitors()
 
         if (res && res->ncrtc >= num_monitors) {
             // use xrandr to identify monitors (does not work with proprietery nvidia drivers)
-            fprintf(stderr, "xRandr: Found crtc's: %d\n", res->ncrtc);
+            fprintf(stderr, "tint2: xRandr: Found crtc's: %d\n", res->ncrtc);
             server.monitors = calloc(res->ncrtc, sizeof(Monitor));
             num_monitors = 0;
             for (int i = 0; i < res->ncrtc; ++i) {
                 XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(server.display, res, res->crtcs[i]);
                 // Ignore empty crtc
                 if (!crtc_info->width || !crtc_info->height) {
-                    fprintf(stderr, "xRandr: crtc %d seems disabled\n", i);
+                    fprintf(stderr, "tint2: xRandr: crtc %d seems disabled\n", i);
                     XRRFreeCrtcInfo(crtc_info);
                     continue;
                 }
@@ -445,7 +445,7 @@ void get_monitors()
                 server.monitors[i_monitor].names = calloc((crtc_info->noutput + 1), sizeof(gchar *));
                 for (int j = 0; j < crtc_info->noutput; ++j) {
                     XRROutputInfo *output_info = XRRGetOutputInfo(server.display, res, crtc_info->outputs[j]);
-                    fprintf(stderr, "xRandr: Linking output %s with crtc %d\n", output_info->name, i);
+                    fprintf(stderr, "tint2: xRandr: Linking output %s with crtc %d\n", output_info->name, i);
                     server.monitors[i_monitor].names[j] = g_strdup(output_info->name);
                     XRRFreeOutputInfo(output_info);
                     server.monitors[i_monitor].primary = crtc_info->outputs[j] == primary_output;
@@ -502,7 +502,7 @@ void get_monitors()
 
 void print_monitors()
 {
-    fprintf(stderr, "Number of monitors: %d\n", server.num_monitors);
+    fprintf(stderr, "tint2: Number of monitors: %d\n", server.num_monitors);
     for (int i = 0; i < server.num_monitors; i++) {
         fprintf(stderr,
                 "Monitor %d: x = %d, y = %d, w = %d, h = %d\n",
@@ -624,10 +624,10 @@ int get_current_desktop()
 
     int ncols = x_screen_width / work_area_width;
 
-    //	fprintf(stderr, "\n");
-    //	fprintf(stderr, "Work area size: %d x %d\n", work_area_width, work_area_height);
-    //	fprintf(stderr, "Viewport pos: %d x %d\n", viewport_x, viewport_y);
-    //	fprintf(stderr, "Viewport i: %d\n", (viewport_y / work_area_height) * ncols + viewport_x / work_area_width);
+    //	fprintf(stderr, "tint2: \n");
+    //	fprintf(stderr, "tint2: Work area size: %d x %d\n", work_area_width, work_area_height);
+    //	fprintf(stderr, "tint2: Viewport pos: %d x %d\n", viewport_x, viewport_y);
+    //	fprintf(stderr, "tint2: Viewport i: %d\n", (viewport_y / work_area_height) * ncols + viewport_x / work_area_width);
 
     int result = (viewport_y / work_area_height) * ncols + viewport_x / work_area_width;
     return MAX(0, MIN(server.num_desktops - 1, result));
@@ -658,7 +658,7 @@ void get_desktops()
     }
     if (server.num_desktops == 0) {
         server.num_desktops = 1;
-        fprintf(stderr, "warning : WM doesn't respect NETWM specs. tint2 default to 1 desktop.\n");
+        fprintf(stderr, "tint2: warning : WM doesn't respect NETWM specs. tint2 default to 1 desktop.\n");
     }
 }
 
@@ -702,14 +702,14 @@ void server_init_visual()
 
         server.real_transparency = TRUE;
         server.depth = 32;
-        fprintf(stderr, "real transparency on... depth: %d\n", server.depth);
+        fprintf(stderr, "tint2: real transparency on... depth: %d\n", server.depth);
         server.colormap = XCreateColormap(server.display, server.root_win, visual, AllocNone);
         server.visual = visual;
     } else {
         // no composite manager or snapshot mode => fake transparency
         server.real_transparency = FALSE;
         server.depth = DefaultDepth(server.display, server.screen);
-        fprintf(stderr, "real transparency off.... depth: %d\n", server.depth);
+        fprintf(stderr, "tint2: real transparency off.... depth: %d\n", server.depth);
         server.colormap = DefaultColormap(server.display, server.screen);
         server.visual = DefaultVisual(server.display, server.screen);
     }
@@ -732,7 +732,7 @@ void forward_click(XEvent *e)
     // and xfce doesn't open at all.
     e->xbutton.x = e->xbutton.x_root;
     e->xbutton.y = e->xbutton.y_root;
-    // fprintf(stderr, "**** %d, %d\n", e->xbutton.x, e->xbutton.y);
+    // fprintf(stderr, "tint2: **** %d, %d\n", e->xbutton.x, e->xbutton.y);
     // XSetInputFocus(server.display, e->xbutton.window, RevertToParent, e->xbutton.time);
     XSendEvent(server.display, e->xbutton.window, False, ButtonPressMask, e);
 }
@@ -743,7 +743,7 @@ void handle_crash(const char *reason)
     char path[4096];
     sprintf(path, "%s/.tint2-crash.log", get_home_dir());
     int log_fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0600);
-    log_string(log_fd, RED "tint2 crashed, reason: ");
+    log_string(log_fd, RED "tint2: crashed, reason: ");
     log_string(log_fd, reason);
     log_string(log_fd, RESET "\n");
     dump_backtrace(log_fd);
@@ -768,7 +768,7 @@ void error_trap_push(SnDisplay *display, Display *xdisplay)
 void error_trap_pop(SnDisplay *display, Display *xdisplay)
 {
     if (error_trap_depth == 0) {
-        fprintf(stderr, "Error trap underflow!\n");
+        fprintf(stderr, "tint2: Error trap underflow!\n");
         return;
     }
 

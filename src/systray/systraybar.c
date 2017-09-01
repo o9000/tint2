@@ -114,10 +114,10 @@ void init_systray()
         return;
 
     systray_composited = !server.disable_transparency && server.visual32 && server.colormap32;
-    fprintf(stderr, "Systray composited rendering %s\n", systray_composited ? "on" : "off");
+    fprintf(stderr, "tint2: Systray composited rendering %s\n", systray_composited ? "on" : "off");
 
     if (!systray_composited) {
-        fprintf(stderr, "systray_asb forced to 100 0 0\n");
+        fprintf(stderr, "tint2: systray_asb forced to 100 0 0\n");
         systray.alpha = 100;
         systray.brightness = systray.saturation = 0;
     }
@@ -184,7 +184,7 @@ int systray_compute_desired_size(void *obj)
 gboolean resize_systray(void *obj)
 {
     if (systray_profile)
-        fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 
     int size;
     systray_compute_geometry(&size);
@@ -227,7 +227,7 @@ gboolean resize_systray(void *obj)
 void draw_systray(void *obj, cairo_t *c)
 {
     if (systray_profile)
-        fprintf(stderr, BLUE "[%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, BLUE "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
     if (systray_composited) {
         if (render_background)
             XFreePixmap(server.display, render_background);
@@ -252,7 +252,7 @@ void systray_dump_geometry(void *obj, int indent)
 {
     Systray *tray = (Systray *)obj;
 
-    fprintf(stderr, "%*sIcons:\n", indent, "");
+    fprintf(stderr, "tint2: %*sIcons:\n", indent, "");
     indent += 2;
     for (GSList *l = tray->list_icons; l; l = l->next) {
         TrayWindow *traywin = (TrayWindow *)l->data;
@@ -271,7 +271,7 @@ void systray_dump_geometry(void *obj, int indent)
 void on_change_systray(void *obj)
 {
     if (systray_profile)
-        fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
     if (systray.icons_per_column == 0 || systray.icons_per_row == 0)
         return;
 
@@ -332,7 +332,7 @@ void on_change_systray(void *obj)
         unsigned int width, height, depth;
         Window root;
         if (!XGetGeometry(server.display, traywin->parent, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
-            fprintf(stderr, RED "Couldn't get geometry of window!" RESET "\n");
+            fprintf(stderr, RED "tint2: Couldn't get geometry of window!" RESET "\n");
         }
         if (width != traywin->width || height != traywin->height || xpos != traywin->x || ypos != traywin->y) {
             if (systray_profile)
@@ -358,7 +358,7 @@ void on_change_systray(void *obj)
 void start_net()
 {
     if (systray_profile)
-        fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
     if (net_sel_win) {
         // protocol already started
         if (!systray_enabled)
@@ -395,11 +395,11 @@ void start_net()
                                      &bytes_after,
                                      &prop);
 
-        fprintf(stderr, RED "tint2 : another systray is running" RESET);
+        fprintf(stderr, RED "tint2: another systray is running, cannot use systray" RESET);
         if (ret == Success && prop) {
             pid = prop[1] * 256;
             pid += prop[0];
-            fprintf(stderr, " pid=%d", pid);
+            fprintf(stderr, "tint2:  pid=%d", pid);
         }
         fprintf(stderr, RESET "\n");
         return;
@@ -407,7 +407,7 @@ void start_net()
 
     // init systray protocol
     net_sel_win = XCreateSimpleWindow(server.display, server.root_win, -1, -1, 1, 1, 0, 0, 0);
-    fprintf(stderr, "systray window %ld\n", net_sel_win);
+    fprintf(stderr, "tint2: systray window %ld\n", net_sel_win);
 
     // v0.3 trayer specification. tint2 always horizontal.
     // Vertical panel will draw the systray horizontal.
@@ -458,13 +458,13 @@ void start_net()
     XSetSelectionOwner(server.display, server.atom._NET_SYSTEM_TRAY_SCREEN, net_sel_win, CurrentTime);
     if (XGetSelectionOwner(server.display, server.atom._NET_SYSTEM_TRAY_SCREEN) != net_sel_win) {
         stop_net();
-        fprintf(stderr, RED "tint2 : can't get systray manager" RESET "\n");
+        fprintf(stderr, RED "tint2: cannot find systray manager" RESET "\n");
         return;
     }
 
-    fprintf(stderr, GREEN "tint2 : systray started" RESET "\n");
+    fprintf(stderr, GREEN "tint2: systray started" RESET "\n");
     if (systray_profile)
-        fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
     XClientMessageEvent ev;
     ev.type = ClientMessage;
     ev.window = server.root_win;
@@ -481,7 +481,7 @@ void start_net()
 void handle_systray_event(XClientMessageEvent *e)
 {
     if (systray_profile)
-        fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 
     Window win;
     unsigned long opcode = e->data.l[1];
@@ -499,9 +499,9 @@ void handle_systray_event(XClientMessageEvent *e)
 
     default:
         if (opcode == server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA)
-            fprintf(stderr, "message from dockapp: %s\n", e->data.b);
+            fprintf(stderr, "tint2: message from dockapp: %s\n", e->data.b);
         else
-            fprintf(stderr, RED "SYSTEM_TRAY : unknown message type" RESET "\n");
+            fprintf(stderr, RED "tint2: SYSTEM_TRAY : unknown message type" RESET "\n");
         break;
     }
 }
@@ -509,7 +509,7 @@ void handle_systray_event(XClientMessageEvent *e)
 void stop_net()
 {
     if (systray_profile)
-        fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
     if (systray.list_icons) {
         // remove_icon change systray.list_icons
         while (systray.list_icons)
@@ -529,10 +529,10 @@ gboolean error;
 int window_error_handler(Display *d, XErrorEvent *e)
 {
     if (systray_profile)
-        fprintf(stderr, RED "[%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, RED "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
     error = TRUE;
     if (e->error_code != BadWindow) {
-        fprintf(stderr, RED "systray: error code %d" RESET "\n", e->error_code);
+        fprintf(stderr, RED "tint2: systray: error code %d" RESET "\n", e->error_code);
     }
     return 0;
 }
@@ -564,18 +564,18 @@ static gint compare_traywindows(gconstpointer a, gconstpointer b)
 
 void print_icons()
 {
-    fprintf(stderr, "systray.list_icons: \n");
+    fprintf(stderr, "tint2: systray.list_icons: \n");
     for (GSList *l = systray.list_icons; l; l = l->next) {
         TrayWindow *t = l->data;
-        fprintf(stderr, "%s\n", t->name);
+        fprintf(stderr, "tint2: %s\n", t->name);
     }
-    fprintf(stderr, "systray.list_icons order: \n");
+    fprintf(stderr, "tint2: systray.list_icons order: \n");
     for (GSList *l = systray.list_icons; l; l = l->next) {
         if (l->next) {
             TrayWindow *t = l->data;
             TrayWindow *u = l->next->data;
             int cmp = compare_traywindows(t, u);
-            fprintf(stderr, "%s %s %s\n", t->name, cmp < 0 ? "<" : cmp == 0 ? "=" : ">", u->name);
+            fprintf(stderr, "tint2: %s %s %s\n", t->name, cmp < 0 ? "<" : cmp == 0 ? "=" : ">", u->name);
         }
     }
 }
@@ -586,14 +586,14 @@ gboolean reject_icon(Window win)
         if (!systray_hide_name_regex) {
             systray_hide_name_regex = (regex_t *)calloc(1, sizeof(*systray_hide_name_regex));
             if (regcomp(systray_hide_name_regex, systray_hide_name_filter, 0) != 0) {
-                fprintf(stderr, RED "Could not compile regex %s" RESET "\n", systray_hide_name_filter);
+                fprintf(stderr, RED "tint2: Could not compile regex %s" RESET "\n", systray_hide_name_filter);
                 free_and_null(systray_hide_name_regex);
                 return FALSE;
             }
         }
         char *name = get_window_name(win);
         if (regexec(systray_hide_name_regex, name, 0, NULL, 0) == 0) {
-            fprintf(stderr, GREEN "Filtering out systray icon '%s'" RESET "\n", name);
+            fprintf(stderr, GREEN "tint2: Filtering out systray icon '%s'" RESET "\n", name);
             return TRUE;
         }
     }
@@ -623,7 +623,7 @@ gboolean add_icon(Window win)
 
     char *name = get_window_name(win);
     if (systray_profile)
-        fprintf(stderr, "[%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, win, name);
+        fprintf(stderr, "tint2: [%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, win, name);
     Panel *panel = systray.area.panel;
 
     // Get the process ID of the application that created the window
@@ -655,7 +655,7 @@ gboolean add_icon(Window win)
     // Create the parent window that will embed the icon
     XWindowAttributes attr;
     if (systray_profile)
-        fprintf(stderr, "XGetWindowAttributes(server.display, win = %ld, &attr)\n", win);
+        fprintf(stderr, "tint2: XGetWindowAttributes(server.display, win = %ld, &attr)\n", win);
     if (XGetWindowAttributes(server.display, win, &attr) == False) {
         free(name);
         XSelectInput(server.display, win, NoEventMask);
@@ -706,7 +706,7 @@ gboolean add_icon(Window win)
     }
 
     if (systray_profile)
-        fprintf(stderr, "XCreateWindow(...)\n");
+        fprintf(stderr, "tint2: XCreateWindow(...)\n");
     Window parent = XCreateWindow(server.display,
                                   panel->main_win,
                                   0,
@@ -743,12 +743,12 @@ gboolean add_icon(Window win)
 
     if (!panel->is_hidden) {
         if (systray_profile)
-            fprintf(stderr, "XMapRaised(server.display, traywin->parent)\n");
+            fprintf(stderr, "tint2: XMapRaised(server.display, traywin->parent)\n");
         XMapRaised(server.display, traywin->parent);
     }
 
     if (systray_profile)
-        fprintf(stderr, "[%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
 
     // Resize and redraw the systray
     if (systray_profile)
@@ -808,7 +808,7 @@ gboolean reparent_icon(TrayWindow *traywin)
         e.xclient.data.l[3] = traywin->parent;
         e.xclient.data.l[4] = 0;
         if (systray_profile)
-            fprintf(stderr, "XSendEvent(server.display, traywin->win, False, NoEventMask, &e)\n");
+            fprintf(stderr, "tint2: XSendEvent(server.display, traywin->win, False, NoEventMask, &e)\n");
         XSendEvent(server.display, traywin->win, False, NoEventMask, &e);
     }
 
@@ -862,10 +862,10 @@ gboolean embed_icon(TrayWindow *traywin)
     // Redirect rendering when using compositing
     if (systray_composited) {
         if (systray_profile)
-            fprintf(stderr, "XDamageCreate(server.display, traywin->parent, XDamageReportRawRectangles)\n");
+            fprintf(stderr, "tint2: XDamageCreate(server.display, traywin->parent, XDamageReportRawRectangles)\n");
         traywin->damage = XDamageCreate(server.display, traywin->parent, XDamageReportRawRectangles);
         if (systray_profile)
-            fprintf(stderr, "XCompositeRedirectWindow(server.display, traywin->parent, CompositeRedirectManual)\n");
+            fprintf(stderr, "tint2: XCompositeRedirectWindow(server.display, traywin->parent, CompositeRedirectManual)\n");
         XCompositeRedirectWindow(server.display, traywin->parent, CompositeRedirectManual);
     }
 
@@ -873,16 +873,16 @@ gboolean embed_icon(TrayWindow *traywin)
 
     // Make the icon visible
     if (systray_profile)
-        fprintf(stderr, "XMapWindow(server.display, traywin->win)\n");
+        fprintf(stderr, "tint2: XMapWindow(server.display, traywin->win)\n");
     XMapWindow(server.display, traywin->win);
     if (!panel->is_hidden) {
         if (systray_profile)
-            fprintf(stderr, "XMapRaised(server.display, traywin->parent)\n");
+            fprintf(stderr, "tint2: XMapRaised(server.display, traywin->parent)\n");
         XMapRaised(server.display, traywin->parent);
     }
 
     if (systray_profile)
-        fprintf(stderr, "XSync(server.display, False)\n");
+        fprintf(stderr, "tint2: XSync(server.display, False)\n");
     XSync(server.display, False);
     XSetErrorHandler(old);
     if (error != FALSE) {
@@ -925,7 +925,7 @@ void remove_icon(TrayWindow *traywin)
 
     // remove from our list
     systray.list_icons = g_slist_remove(systray.list_icons, traywin);
-    fprintf(stderr, YELLOW "remove_icon: %lu (%s)" RESET "\n", traywin->win, traywin->name);
+    fprintf(stderr, YELLOW "tint2: remove_icon: %lu (%s)" RESET "\n", traywin->win, traywin->name);
 
     XSelectInput(server.display, traywin->win, NoEventMask);
     if (traywin->damage)
@@ -1279,7 +1279,7 @@ void systray_render_icon_composited(void *t)
     } else if (traywin->depth == 32) {
         f = XRenderFindStandardFormat(server.display, PictStandardARGB32);
     } else {
-        fprintf(stderr, RED "Strange tray icon found with depth: %d" RESET "\n", traywin->depth);
+        fprintf(stderr, RED "tint2: Strange tray icon found with depth: %d" RESET "\n", traywin->depth);
         XFreePixmap(server.display, tmp_pmap);
         return;
     }
@@ -1478,7 +1478,7 @@ void systray_render_icon(void *t)
     }
 
     if (systray_profile)
-        fprintf(stderr, "rendering tray icon\n");
+        fprintf(stderr, "tint2: rendering tray icon\n");
 
     if (systray_composited) {
         systray_render_icon_composited(traywin);
@@ -1500,7 +1500,7 @@ void systray_render_icon(void *t)
 void refresh_systray_icons()
 {
     if (systray_profile)
-        fprintf(stderr, BLUE "[%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, BLUE "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
     TrayWindow *traywin;
     GSList *l;
     for (l = systray.list_icons; l; l = l->next) {

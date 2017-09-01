@@ -65,7 +65,7 @@ void sample_fps(double fps)
             }
         }
     }
-    // fprintf(stderr, "fps = %.0f => i = %d\n", fps, i);
+    // fprintf(stderr, "tint2: fps = %.0f => i = %d\n", fps, i);
     fps_distribution[i] += 1.;
     fps_distribution[0] += 1.;
 }
@@ -85,7 +85,7 @@ void fps_compute_stats(double *low, double *median, double *high, double *sample
         double value =
             (i < 60) ? i : (i < 74) ? (60 + (i - 60) * 10) : (i < 146) ? (200 + (i - 74) * 25)
                                                                        : (i < 165) ? (2000 + (i - 146) * 1000) : 20000;
-        // fprintf(stderr, "%6.0f (i = %3d) : %.0f | ", value, i, (double)fps_distribution[i]);
+        // fprintf(stderr, "tint2: %6.0f (i = %3d) : %.0f | ", value, i, (double)fps_distribution[i]);
         cum += fps_distribution[i];
         if (*low < 0 && cum >= cum_low)
             *low = value;

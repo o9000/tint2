@@ -108,7 +108,7 @@ void destroy_execp(void *obj)
         free_and_null(execp->backend->uwheel_command);
 
         if (execp->backend->instances) {
-            fprintf(stderr, "Error: Attempt to destroy backend while there are still frontend instances!\n");
+            fprintf(stderr, "tint2: Error: Attempt to destroy backend while there are still frontend instances!\n");
             exit(-1);
         }
         free(execp->backend);
@@ -609,7 +609,7 @@ void execp_timer_callback(void *arg)
     int pipe_fd_stdout[2];
     if (pipe(pipe_fd_stdout)) {
         // TODO maybe write this in tooltip, but if this happens we're screwed anyways
-        fprintf(stderr, "Execp: Creating pipe failed!\n");
+        fprintf(stderr, "tint2: Execp: Creating pipe failed!\n");
         return;
     }
 
@@ -620,7 +620,7 @@ void execp_timer_callback(void *arg)
         close(pipe_fd_stdout[1]);
         close(pipe_fd_stdout[0]);
         // TODO maybe write this in tooltip, but if this happens we're screwed anyways
-        fprintf(stderr, "Execp: Creating pipe failed!\n");
+        fprintf(stderr, "tint2: Execp: Creating pipe failed!\n");
         return;
     }
 
@@ -630,14 +630,14 @@ void execp_timer_callback(void *arg)
     pid_t child = fork();
     if (child == -1) {
         // TODO maybe write this in tooltip, but if this happens we're screwed anyways
-        fprintf(stderr, "Fork failed.\n");
+        fprintf(stderr, "tint2: Fork failed.\n");
         close(pipe_fd_stdout[1]);
         close(pipe_fd_stdout[0]);
         close(pipe_fd_stderr[1]);
         close(pipe_fd_stderr[0]);
         return;
     } else if (child == 0) {
-        fprintf(stderr, "Executing: %s\n", execp->backend->command);
+        fprintf(stderr, "tint2: Executing: %s\n", execp->backend->command);
         // We are in the child
         close(pipe_fd_stdout[0]);
         dup2(pipe_fd_stdout[1], 1); // 1 is stdout
@@ -649,8 +649,7 @@ void execp_timer_callback(void *arg)
         setpgid(0, 0);
         execl("/bin/sh", "/bin/sh", "-c", execp->backend->command, NULL);
         // This should never happen!
-        fprintf(stdout, "execl() failed\nexecl() failed\n");
-        fflush(stdout);
+        fprintf(stderr, "execl() failed\nexecl() failed\n");
         exit(0);
     }
     close(pipe_fd_stdout[1]);

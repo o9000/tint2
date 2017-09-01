@@ -40,7 +40,7 @@ GradientType gradient_type_from_string(const char *str)
         return GRADIENT_VERTICAL;
     if (g_str_equal(str, "radial"))
         return GRADIENT_CENTERED;
-    fprintf(stderr, RED "Invalid gradient type: %s" RESET "\n", str);
+    fprintf(stderr, RED "tint2: Invalid gradient type: %s" RESET "\n", str);
     return GRADIENT_VERTICAL;
 }
 

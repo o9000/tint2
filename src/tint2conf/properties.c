@@ -1839,7 +1839,7 @@ void load_desktop_file(const char *file, gboolean selected)
             if (pixbuf)
                 g_object_unref(pixbuf);
         } else {
-            fprintf(stderr, "Could not load %s\n", file);
+            fprintf(stderr, "tint2: Could not load %s\n", file);
             GdkPixbuf *pixbuf = load_icon(DEFAULT_ICON);
             GtkTreeIter iter;
             gtk_list_store_append(store, &iter);
@@ -1897,7 +1897,7 @@ void load_desktop_entry(const char *file, GList **entries)
 
     DesktopEntry *entry = calloc(1, sizeof(DesktopEntry));
     if (!read_desktop_file(file, entry))
-        fprintf(stderr, "Could not load %s\n", file);
+        fprintf(stderr, "tint2: Could not load %s\n", file);
     if (entry->hidden_from_menus) {
         free(entry);
         return;
@@ -2480,7 +2480,7 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
 
     change_paragraph(parent);
 
-    fprintf(stderr, "Loading icon themes\n");
+    fprintf(stderr, "tint2: Loading icon themes\n");
     GList *themes = NULL;
     const GSList *location;
     for (location = get_icon_locations(); location; location = g_slist_next(location)) {
@@ -2509,9 +2509,9 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
         free_icon_theme((IconTheme *)l->data);
     }
     g_list_free(themes);
-    fprintf(stderr, "Icon themes loaded\n");
+    fprintf(stderr, "tint2: Icon themes loaded\n");
 
-    fprintf(stderr, "Loading .desktop files\n");
+    fprintf(stderr, "tint2: Loading .desktop files\n");
     GList *entries = NULL;
     for (location = get_apps_locations(); location; location = g_slist_next(location)) {
         const gchar *path = (gchar *)location->data;
@@ -2528,7 +2528,7 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     icon_theme_changed(window);
     load_icons(launcher_apps);
     load_icons(all_apps);
-    fprintf(stderr, "Desktop files loaded\n");
+    fprintf(stderr, "tint2: Desktop files loaded\n");
 }
 
 void create_taskbar(GtkWidget *parent)

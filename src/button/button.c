@@ -78,7 +78,7 @@ void destroy_button(void *obj)
         free_and_null(button->backend->uwheel_command);
 
         if (button->backend->instances) {
-            fprintf(stderr, "Error: Attempt to destroy backend while there are still frontend instances!\n");
+            fprintf(stderr, "tint2: Error: Attempt to destroy backend while there are still frontend instances!\n");
             exit(-1);
         }
         free(button->backend);

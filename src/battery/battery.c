@@ -208,7 +208,7 @@ void battery_update_text(char *dest, char *format)
                 strnappend(dest, "%", BATTERY_BUF_SIZE);
                 break;
             default:
-                fprintf(stderr, "Battery: unrecognised format specifier '%%%c'.\n", *c);
+                fprintf(stderr, "tint2: Battery: unrecognised format specifier '%%%c'.\n", *c);
                 buf[0] = *c;
                 strnappend(dest, buf, BATTERY_BUF_SIZE);
             }
@@ -435,8 +435,8 @@ void draw_battery(void *obj, cairo_t *c)
 void battery_dump_geometry(void *obj, int indent)
 {
     Battery *battery = (Battery *)obj;
-    fprintf(stderr, "%*sText 1: y = %d, text = %s\n", indent, "", battery->bat1_posy, buf_bat_line1);
-    fprintf(stderr, "%*sText 2: y = %d, text = %s\n", indent, "", battery->bat2_posy, buf_bat_line2);
+    fprintf(stderr, "tint2: %*sText 1: y = %d, text = %s\n", indent, "", battery->bat1_posy, buf_bat_line1);
+    fprintf(stderr, "tint2: %*sText 2: y = %d, text = %s\n", indent, "", battery->bat2_posy, buf_bat_line2);
 }
 
 char *battery_get_tooltip(void *obj)

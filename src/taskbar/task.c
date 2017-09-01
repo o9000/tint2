@@ -93,9 +93,9 @@ Task *add_task(Window win)
              (int)win,
              task_template.title ? task_template.title : "null");
 
-    // fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task_template.title ?
+    // fprintf(stderr, "tint2: %s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task_template.title ?
     // task_template.title : "??");
-    // fprintf(stderr, "new task %s win %u: desktop %d, monitor %d\n", new_task.title, win, new_task.desktop, monitor);
+    // fprintf(stderr, "tint2: new task %s win %u: desktop %d, monitor %d\n", new_task.title, win, new_task.desktop, monitor);
 
     GPtrArray *task_buttons = g_ptr_array_new();
     for (int j = 0; j < panels[monitor].num_desktops; j++) {
@@ -118,7 +118,7 @@ Task *add_task(Window win)
         task_instance->win_h = task_template.win_h;
         task_instance->current_state = TASK_UNDEFINED; // to update the current state later in set_task_state...
         if (task_instance->desktop == ALL_DESKTOPS && server.desktop != j) {
-            // fprintf(stderr, "%s %d: win = %ld hiding task: another desktop\n", __FUNCTION__, __LINE__, win);
+            // fprintf(stderr, "tint2: %s %d: win = %ld hiding task: another desktop\n", __FUNCTION__, __LINE__, win);
             task_instance->area.on_screen = always_show_all_desktop_tasks;
         }
         task_instance->title = task_template.title;
@@ -186,7 +186,7 @@ void remove_task(Task *task)
     if (!task)
         return;
 
-    // fprintf(stderr, "%s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, task->win, task->title ? task->title :
+    // fprintf(stderr, "tint2: %s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, task->win, task->title ? task->title :
     // "??");
 
     if (taskbar_mode == MULTI_DESKTOP) {
@@ -198,7 +198,7 @@ void remove_task(Task *task)
 
     // free title and icon just for the first task
     // even with task_on_all_desktop and with task_on_all_panel
-    // fprintf(stderr, "remove_task %s %d\n", task->title, task->desktop);
+    // fprintf(stderr, "tint2: remove_task %s %d\n", task->title, task->desktop);
     if (task->title)
         free(task->title);
     task_remove_icon(task);
@@ -591,7 +591,7 @@ void reset_active_task()
     }
 
     Window w1 = get_active_window();
-    // fprintf(stderr, "Change active task %ld\n", w1);
+    // fprintf(stderr, "tint2: Change active task %ld\n", w1);
 
     if (w1) {
         if (!get_task_buttons(w1)) {
@@ -783,7 +783,7 @@ void task_handle_mouse_event(Task *task, MouseAction action)
 
 void task_update_desktop(Task *task)
 {
-    // fprintf(stderr, "%s %d:\n", __FUNCTION__, __LINE__);
+    // fprintf(stderr, "tint2: %s %d:\n", __FUNCTION__, __LINE__);
     Window win = task->win;
     remove_task(task);
     task = add_task(win);

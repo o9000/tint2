@@ -981,7 +981,7 @@ unsigned short checksum_txt(FILE *f)
 
 void config_save_file(const char *path)
 {
-    fprintf(stderr, "config_save_file : %s\n", path);
+    fprintf(stderr, "tint2: config_save_file : %s\n", path);
 
     FILE *fp;
     if ((fp = fopen(path, "w+t")) == NULL)

@@ -157,7 +157,7 @@ int get_window_desktop(Window win)
 
     if (best_match < 0)
         best_match = 0;
-    // fprintf(stderr, "window %lx %s : viewport %d, (%d, %d)\n", win, get_task(win) ? get_task(win)->title : "??",
+    // fprintf(stderr, "tint2: window %lx %s : viewport %d, (%d, %d)\n", win, get_task(win) ? get_task(win)->title : "??",
     // best_match+1, x, y);
     return best_match;
 }
@@ -185,7 +185,7 @@ int get_window_monitor(Window win)
 
     if (best_match < 0)
         best_match = 0;
-    // fprintf(stderr, "desktop %d, window %lx %s : monitor %d, (%d, %d)\n", 1 + get_current_desktop(), win,
+    // fprintf(stderr, "tint2: desktop %d, window %lx %s : monitor %d, (%d, %d)\n", 1 + get_current_desktop(), win,
     // get_task(win) ? get_task(win)->title : "??", best_match+1, x, y);
     return best_match;
 }
