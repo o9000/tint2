@@ -57,4 +57,6 @@ char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size, 
 // Do not free the result, it is cached.
 const GSList *get_icon_locations();
 
+extern gboolean debug_icons;
+
 #endif

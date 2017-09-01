@@ -82,6 +82,7 @@ void handle_env_vars()
 {
     debug_geometry = getenv("DEBUG_GEOMETRY") != NULL;
     debug_gradients = getenv("DEBUG_GRADIENTS") != NULL;
+    debug_icons = getenv("DEBUG_ICONS") != NULL;
     debug_fps = getenv("DEBUG_FPS") != NULL;
     debug_frames = getenv("DEBUG_FRAMES") != NULL;
     if (debug_fps) {
