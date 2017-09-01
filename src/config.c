@@ -779,17 +779,23 @@ void add_entry(char *key, char *value)
     /* Button */
     else if (strcmp(key, "button") == 0) {
         panel_config.button_list = g_list_append(panel_config.button_list, create_button());
-    } else if (strcmp(key, "button_icon") == 0 && strlen(value)) {
-        Button *button = get_or_create_last_button();
-        button->backend->icon_name = strdup(value);
-    } else if (strcmp(key, "button_text") == 0 && strlen(value)) {
-        Button *button = get_or_create_last_button();
-        free_and_null(button->backend->text);
-        button->backend->text = strdup(value);
-    } else if (strcmp(key, "button_tooltip") == 0 && strlen(value)) {
-        Button *button = get_or_create_last_button();
-        free_and_null(button->backend->tooltip);
-        button->backend->tooltip = strdup(value);
+    } else if (strcmp(key, "button_icon") == 0) {
+        if (strlen(value)) {
+            Button *button = get_or_create_last_button();
+            button->backend->icon_name = strdup(value);
+        }
+    } else if (strcmp(key, "button_text") == 0) {
+        if (strlen(value)) {
+            Button *button = get_or_create_last_button();
+            free_and_null(button->backend->text);
+            button->backend->text = strdup(value);
+        }
+    } else if (strcmp(key, "button_tooltip") == 0) {
+        if (strlen(value)) {
+            Button *button = get_or_create_last_button();
+            free_and_null(button->backend->tooltip);
+            button->backend->tooltip = strdup(value);
+        }
     } else if (strcmp(key, "button_font") == 0) {
         Button *button = get_or_create_last_button();
         pango_font_description_free(button->backend->font_desc);
