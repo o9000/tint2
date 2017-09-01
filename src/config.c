@@ -578,7 +578,7 @@ void add_entry(char *key, char *value)
         bat2_font_desc = pango_font_description_from_string(value);
         bat2_has_font = TRUE;
 #endif
-    } else if (strcmp (key, "bat1_format") == 0) {
+    } else if (strcmp(key, "bat1_format") == 0) {
 #ifdef ENABLE_BATTERY
         if (strlen(value) > 0) {
             free(bat1_format);
@@ -586,7 +586,7 @@ void add_entry(char *key, char *value)
             battery_enabled = 1;
         }
 #endif
-    } else if (strcmp (key, "bat2_format") == 0) {
+    } else if (strcmp(key, "bat2_format") == 0) {
 #ifdef ENABLE_BATTERY
         if (strlen(value) > 0) {
             free(bat2_format);
@@ -1287,8 +1287,13 @@ void add_entry(char *key, char *value)
         }
     }
 #endif
-    else
-        fprintf(stderr, "tint2 : invalid option \"%s\",\n  upgrade tint2 or correct your config file\n", key);
+    else if (strcmp(key, "primary_monitor_first") == 0) {
+        fprintf(stderr,
+                "tint2: deprecated config option \"%s\"\n"
+                "  Please see the documentation regarding the alternatives.\n",
+                key);
+    } else
+        fprintf(stderr, "tint2: invalid option \"%s\",\n  upgrade tint2 or correct your config file\n", key);
 
     if (value1)
         free(value1);
