@@ -1300,6 +1300,8 @@ void add_entry(char *key, char *value)
 
 gboolean config_read_file(const char *path)
 {
+    fprintf(stderr, "Loading config file: %s\n", path);
+
     FILE *fp = fopen(path, "r");
     if (!fp)
         return FALSE;

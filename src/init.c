@@ -133,7 +133,6 @@ void start_detect_compositor()
 
 void create_default_elements()
 {
-    default_config();
     default_timeout();
     default_systray();
     memset(&server, 0, sizeof(server));
@@ -212,6 +211,7 @@ void init(int argc, char **argv)
 {
     setlinebuf(stdout);
     setlinebuf(stderr);
+    default_config();
     handle_cli_arguments(argc, argv);
     create_default_elements();
     init_signals();
