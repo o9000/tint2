@@ -79,7 +79,7 @@ def get_last_version():
 def inc_version(v, feature=False):
   if v.startswith("v0."):
     assert v == "v0.14.6"
-    return "15.0"
+    return "v15.0"
   # v4.11 -> v4.12 or v5.0
   parts = v.split(".")
   while len(parts) < 2:
