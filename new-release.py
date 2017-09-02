@@ -76,37 +76,20 @@ def get_last_version():
   return tags[-1]
 
 
-def inc_version(v, major=False, minor=False, rc=False):
-  if "-rc" in v:
-    # v4.0-rc7 -> v4.0-rc8 or v4.0
-    if minor:
-      return v.split("-rc")[0]
-    else:
-      parts = v.split("-rc")
-      parts[-1] = str(int(parts[-1]) + 1)
-      return "-rc".join(parts)
+def inc_version(v, feature=False):
+  if v == "0.":
+    return "15.0"
+  # v4.11 -> v4.12 or v5.0
+  parts = v.split(".")
+  while len(parts) < 2:
+    parts.append("0")
+  assert len(parts) == 2
+  if feature:
+    parts[-2] = "v" + str(int(parts[-2].replace("v", "")) + 1)
+    parts[-1] = "0"
   else:
-    # v4.11 = v4, 11, 0 -> v4.11.1 or v4.12 or v.4.12-rc1 or v5.0 or v5.0-rc1
-    # v4.11.7 = v4, 11, 7 -> ...
-    parts = v.split(".")
-    while len(parts) < 3:
-      parts.append("0")
-    assert len(parts) == 3
-    if major:
-      parts[-3] = "v" + str(int(parts[-3].replace("v", "")) + 1)
-      parts[-2] = "0"
-      if rc:
-        parts[-2] += "-rc1"
-      parts[-1] = ""
-    elif minor or rc:
-      parts[-2] = str(int(parts[-2]) + 1)
-      if rc:
-        parts[-2] += "-rc1"
-      parts[-1] = ""
-    else:
-      parts[-1] = str(int(parts[-1]) + 1)
-      assert not rc
-    return ".".join([s for s in parts if s])
+    parts[-1] = str(int(parts[-1]) + 1)
+  return ".".join([s for s in parts if s])
 
 
 def assert_equal(a, b):
@@ -117,53 +100,23 @@ def assert_equal(a, b):
 
 def test_inc_version():
   # auto
-  assert_equal(inc_version("v1.0"), "v1.0.1")
-  assert_equal(inc_version("v1.0.1"), "v1.0.2")
-  assert_equal(inc_version("v1.0.2"), "v1.0.3")
-  assert_equal(inc_version("v1.0.10"), "v1.0.11")
-  assert_equal(inc_version("v1.1.10"), "v1.1.11")
-  assert_equal(inc_version("v1.1.10"), "v1.1.11")
-  # rc
-  assert_equal(inc_version("v1.0", False, False, True), "v1.1-rc1")
-  assert_equal(inc_version("v1.0.1", False, False, True), "v1.1-rc1")
-  assert_equal(inc_version("v1.0.2", False, False, True), "v1.1-rc1")
-  assert_equal(inc_version("v1.0.10", False, False, True), "v1.1-rc1")
-  assert_equal(inc_version("v1.1.10", False, False, True), "v1.2-rc1")
-  assert_equal(inc_version("v1.1.10", False, False, True), "v1.2-rc1")
-  # minor
-  assert_equal(inc_version("v1.0", False, True, False), "v1.1")
-  assert_equal(inc_version("v1.0.1", False, True, False), "v1.1")
-  assert_equal(inc_version("v1.0.2", False, True, False), "v1.1")
-  assert_equal(inc_version("v1.0.10", False, True, False), "v1.1")
-  assert_equal(inc_version("v1.1.10", False, True, False), "v1.2")
-  assert_equal(inc_version("v1.1.10", False, True, False), "v1.2")
-  # minor rc
-  assert_equal(inc_version("v1.0", False, True, True), "v1.1-rc1")
-  assert_equal(inc_version("v1.0.1", False, True, True), "v1.1-rc1")
-  assert_equal(inc_version("v1.0.2", False, True, True), "v1.1-rc1")
-  assert_equal(inc_version("v1.0.10", False, True, True), "v1.1-rc1")
-  assert_equal(inc_version("v1.1.10", False, True, True), "v1.2-rc1")
-  assert_equal(inc_version("v1.1.10", False, True, True), "v1.2-rc1")
-  # major rc
-  assert_equal(inc_version("v1.0", True, False, True), "v2.0-rc1")
-  assert_equal(inc_version("v1.0.1", True, False, True), "v2.0-rc1")
-  assert_equal(inc_version("v1.0.2", True, False, True), "v2.0-rc1")
-  assert_equal(inc_version("v1.0.10", True, False, True), "v2.0-rc1")
-  assert_equal(inc_version("v1.1.10", True, False, True), "v2.0-rc1")
-  assert_equal(inc_version("v1.1.10", True, False, True), "v2.0-rc1")
-  # major
-  assert_equal(inc_version("v1.0", True), "v2.0")
-  assert_equal(inc_version("v1.0.1", True), "v2.0")
-  assert_equal(inc_version("v1.0.2", True), "v2.0")
-  assert_equal(inc_version("v1.0.10", True), "v2.0")
-  assert_equal(inc_version("v1.1.10", True), "v2.0")
-  assert_equal(inc_version("v1.1.10", True), "v2.0")
-  # rc auto
-  assert_equal(inc_version("v1.0-rc1"), "v1.0-rc2")
-  assert_equal(inc_version("v1.1-rc2"), "v1.1-rc3")
-  # rc minor
-  assert_equal(inc_version("v1.0-rc1", False, True), "v1.0")
-  assert_equal(inc_version("v1.1-rc2", False, True), "v1.1")
+  assert_equal(inc_version("v0.14.6"), "v15.0")
+  assert_equal(inc_version("v15"), "v15.1")
+  assert_equal(inc_version("v15.0"), "v15.1")
+  assert_equal(inc_version("v16.1"), "v16.2")
+  assert_equal(inc_version("v16.10"), "v16.11")
+  # fix
+  assert_equal(inc_version("v0.14.6", False), "v15.0")
+  assert_equal(inc_version("v15", False), "v15.1")
+  assert_equal(inc_version("v15.0", False), "v15.1")
+  assert_equal(inc_version("v16.1", False), "v16.2")
+  assert_equal(inc_version("v16.10", False), "v16.11")
+  # feature
+  assert_equal(inc_version("v15", True), "v16.0")
+  assert_equal(inc_version("v15.0", True), "v16.0")
+  assert_equal(inc_version("v15.1", True), "v16.0")
+  assert_equal(inc_version("v15.2", True), "v16.0")
+  assert_equal(inc_version("v15.10", True), "v16.0")
 
 
 def replace_in_file(path, before, after):
@@ -198,9 +151,7 @@ def update_log(path, version, date):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument("--major", action="store_true")
-  parser.add_argument("--minor", action="store_true")
-  parser.add_argument("--rc", action="store_true")
+  parser.add_argument("--feature", action="store_true")
   parser.add_argument("--undo", action="store_true")
   args = parser.parse_args()
   logging.basicConfig(format=ansi_lblue + "%(asctime)s %(pathname)s %(levelname)s" + ansi_reset + " %(message)s", level=logging.DEBUG)
@@ -217,7 +168,7 @@ if __name__ == '__main__':
     os.system("git log -1")
     sys.exit(0)
   info("Old version:", old_version)
-  version = inc_version(old_version, args.major, args.minor, args.rc)
+  version = inc_version(old_version, args.feature)
   readable_version = version.replace("v", "")
   date = datetime.datetime.now().strftime("%Y-%m-%d")
   info("New version:", readable_version, version, date)
