@@ -28,6 +28,19 @@
   - Removed primary_monitor_first as it was conflicting with taskbar behavior; use *_monitor = primary instead.
 - Other:
   - Major code refactoring
+- Dropping "0." from the version number and no longer using semver ("Breaking.Feature.Fix").
+  - Tint2 will always strive to be backwards compatible with respect to the configuration format.
+  - Very few configurations changes have been broken between 2010 (0.10) - 2017 (0.14);
+    in all cases they were minor options that caused incorrect behavior,
+    and the changes were described better by "Feature" or "Fix".
+  - Practically all releases starting from 0.10 have been very stable,
+    so there is no point in staying in "0." anymore.
+  - But I don't want the project to get stuck in "1." forever.
+  - The new versioning scheme is the following:
+    - Version numbers will have the format "Feature.Fix", where:
+      - "Feature" is increased when significant new features are added.
+      - "Fix" is increased for bugfixes or minor changes.
+    - 0.14.6 will be followed by 15.0.
 
 2017-06-11 0.14.6
 - Fixes:
