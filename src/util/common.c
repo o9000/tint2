@@ -40,6 +40,7 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <dirent.h>
+#include <wordexp.h>
 
 #ifdef HAVE_RSVG
 #include <librsvg/rsvg.h>
@@ -267,7 +268,15 @@ int setenvd(const char *name, const int value)
 }
 
 #ifndef TINT2CONF
-pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time time, Area *area, int x, int y)
+pid_t tint_exec(const char *command,
+                const char *dir,
+                const char *tooltip,
+                Time time,
+                Area *area,
+                int x,
+                int y,
+                gboolean terminal,
+                gboolean startup_notification)
 {
     if (!command || strlen(command) == 0)
         return -1;
@@ -362,7 +371,7 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
 
 #if HAVE_SN
     SnLauncherContext *ctx = 0;
-    if (startup_notifications && time) {
+    if (startup_notifications && startup_notification && time) {
         ctx = sn_launcher_context_new(server.sn_display, server.screen);
         sn_launcher_context_set_name(ctx, tooltip);
         sn_launcher_context_set_description(ctx, "Application launched from tint2");
@@ -377,7 +386,7 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
     } else if (pid == 0) {
 // Child process
 #if HAVE_SN
-        if (startup_notifications && time) {
+        if (startup_notifications && startup_notification && time) {
             sn_launcher_context_setup_child_process(ctx);
         }
 #endif // HAVE_SN
@@ -387,10 +396,25 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
         if (dir)
             chdir(dir);
         close_all_fds();
-        execl("/bin/sh", "/bin/sh", "-c", command, NULL);
-        fprintf(stderr, "tint2: Failed to execlp %s\n", command);
+        if (terminal) {
+            fprintf(stderr, "tint2: executing in x-terminal-emulator: %s\n", command);
+            wordexp_t words;
+            words.we_offs = 2;
+            wordexp(command, &words, WRDE_DOOFFS | WRDE_SHOWERR);
+            words.we_wordv[0] = (char*)"x-terminal-emulator";
+            words.we_wordv[1] = (char*)"-e";
+            execvp("x-terminal-emulator", words.we_wordv);
+        }
+        fprintf(stderr, "tint2: could not execute command in x-terminal-emulator: %s, executting in shell\n", command);
+        wordexp_t words;
+        words.we_offs = 2;
+        wordexp(command, &words, WRDE_DOOFFS | WRDE_SHOWERR);
+        words.we_wordv[0] = (char*)"sh";
+        words.we_wordv[1] = (char*)"-c";
+        execvp("sh", words.we_wordv);
+        fprintf(stderr, "tint2: Failed to execute %s\n", command);
 #if HAVE_SN
-        if (startup_notifications && time) {
+        if (startup_notifications && startup_notification && time) {
             sn_launcher_context_unref(ctx);
         }
 #endif // HAVE_SN
@@ -398,7 +422,7 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
     } else {
 // Parent process
 #if HAVE_SN
-        if (startup_notifications && time) {
+        if (startup_notifications && startup_notification && time) {
             g_tree_insert(server.pids, GINT_TO_POINTER(pid), ctx);
         }
 #endif // HAVE_SN
@@ -425,7 +449,7 @@ pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time 
 
 void tint_exec_no_sn(const char *command)
 {
-    tint_exec(command, NULL, NULL, 0, NULL, 0, 0);
+    tint_exec(command, NULL, NULL, 0, NULL, 0, 0, FALSE, FALSE);
 }
 #endif
 

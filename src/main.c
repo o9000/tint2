@@ -536,6 +536,7 @@ void handle_x_event(XEvent *e)
                 emit_self_restart("compositor changed");
             }
         }
+        fprintf(stderr, "tint2: ClientMessage %s\n", GetAtomName(server.display, ev->message_type));
         if (systray_enabled && e->xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE &&
             e->xclient.format == 32 && e->xclient.window == net_sel_win) {
             handle_systray_event(&e->xclient);

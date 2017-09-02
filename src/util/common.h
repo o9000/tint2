@@ -66,7 +66,15 @@ void extract_values(const char *value, char **value1, char **value2, char **valu
 void extract_values_4(const char *value, char **value1, char **value2, char **value3, char **value4);
 
 // Executes a command in a shell.
-pid_t tint_exec(const char *command, const char *dir, const char *tooltip, Time time, Area *area, int x, int y);
+pid_t tint_exec(const char *command,
+                const char *dir,
+                const char *tooltip,
+                Time time,
+                Area *area,
+                int x,
+                int y,
+                gboolean terminal,
+                gboolean startup_notification);
 void tint_exec_no_sn(const char *command);
 int setenvd(const char *name, const int value);
 

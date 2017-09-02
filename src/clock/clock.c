@@ -353,5 +353,5 @@ void clock_action(void *obj, int button, int x, int y, Time time)
         command = clock_dwheel_command;
         break;
     }
-    tint_exec(command, NULL, NULL, time, obj, x, y);
+    tint_exec(command, NULL, NULL, time, obj, x, y, FALSE, TRUE);
 }

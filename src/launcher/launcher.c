@@ -435,7 +435,7 @@ void launcher_action(LauncherIcon *icon, XEvent *evt, int x, int y)
     launcher_reload_hidden_icons((Launcher *)icon->area.parent);
 
     if (evt->type == ButtonPress || evt->type == ButtonRelease)
-        tint_exec(icon->cmd, icon->cwd, icon->icon_tooltip, evt->xbutton.time, &icon->area, x, y);
+        tint_exec(icon->cmd, icon->cwd, icon->icon_tooltip, evt->xbutton.time, &icon->area, x, y, icon->start_in_terminal, icon->startup_notification);
 }
 
 // Populates the list_icons list from the list_apps list
@@ -490,6 +490,8 @@ void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon)
             launcherIcon->cwd = strdup(entry.cwd);
         else
             launcherIcon->cwd = NULL;
+        launcherIcon->start_in_terminal = entry.start_in_terminal;
+        launcherIcon->startup_notification = entry.startup_notification;
         if (launcherIcon->icon_name)
             free(launcherIcon->icon_name);
         launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(DEFAULT_ICON);

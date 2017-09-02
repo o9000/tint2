@@ -530,7 +530,7 @@ void button_action(void *obj, int mouse_button, int x, int y, Time time)
         command = button->backend->dwheel_command;
         break;
     }
-    tint_exec(command, NULL, NULL, time, obj, x, y);
+    tint_exec(command, NULL, NULL, time, obj, x, y, FALSE, TRUE);
 }
 
 char *button_get_tooltip(void *obj)

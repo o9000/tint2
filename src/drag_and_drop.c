@@ -30,7 +30,7 @@ static int dnd_version;
 static Atom dnd_selection;
 static Atom dnd_atom;
 static int dnd_sent_request;
-static char *dnd_launcher_exec;
+static LauncherIcon *dnd_launcher_icon;
 static gboolean dnd_debug = FALSE;
 
 gboolean hidden_panel_shown_for_dnd;
@@ -43,7 +43,7 @@ void dnd_init()
     dnd_selection = XInternAtom(server.display, "PRIMARY", 0);
     dnd_atom = None;
     dnd_sent_request = 0;
-    dnd_launcher_exec = 0;
+    dnd_launcher_icon = NULL;
     hidden_panel_shown_for_dnd = FALSE;
 }
 
@@ -62,9 +62,21 @@ void handle_dnd_enter(XClientMessageEvent *e)
                 __LINE__,
                 more_than_3 ? "yes" : "no");
         fprintf(stderr, "tint2: DnD %s:%d: Protocol version = %d\n", __FILE__, __LINE__, dnd_version);
-        fprintf(stderr, "tint2: DnD %s:%d: Type 1 = %s\n", __FILE__, __LINE__, GetAtomName(server.display, e->data.l[2]));
-        fprintf(stderr, "tint2: DnD %s:%d: Type 2 = %s\n", __FILE__, __LINE__, GetAtomName(server.display, e->data.l[3]));
-        fprintf(stderr, "tint2: DnD %s:%d: Type 3 = %s\n", __FILE__, __LINE__, GetAtomName(server.display, e->data.l[4]));
+        fprintf(stderr,
+                "tint2: DnD %s:%d: Type 1 = %s\n",
+                __FILE__,
+                __LINE__,
+                GetAtomName(server.display, e->data.l[2]));
+        fprintf(stderr,
+                "tint2: DnD %s:%d: Type 2 = %s\n",
+                __FILE__,
+                __LINE__,
+                GetAtomName(server.display, e->data.l[3]));
+        fprintf(stderr,
+                "tint2: DnD %s:%d: Type 3 = %s\n",
+                __FILE__,
+                __LINE__,
+                GetAtomName(server.display, e->data.l[4]));
     }
 
     // Query which conversions are available and pick the best
@@ -80,7 +92,11 @@ void handle_dnd_enter(XClientMessageEvent *e)
     }
 
     if (dnd_debug)
-        fprintf(stderr, "tint2: DnD %s:%d: Requested type = %s\n", __FILE__, __LINE__, GetAtomName(server.display, dnd_atom));
+        fprintf(stderr,
+                "tint2: DnD %s:%d: Requested type = %s\n",
+                __FILE__,
+                __LINE__,
+                GetAtomName(server.display, dnd_atom));
 }
 
 void handle_dnd_position(XClientMessageEvent *e)
@@ -102,9 +118,9 @@ void handle_dnd_position(XClientMessageEvent *e)
         LauncherIcon *icon = click_launcher_icon(panel, mapX, mapY);
         if (icon) {
             accept = 1;
-            dnd_launcher_exec = icon->cmd;
+            dnd_launcher_icon = icon;
         } else {
-            dnd_launcher_exec = 0;
+            dnd_launcher_icon = NULL;
         }
     }
 
@@ -129,7 +145,7 @@ void handle_dnd_position(XClientMessageEvent *e)
 
 void handle_dnd_drop(XClientMessageEvent *e)
 {
-    if (dnd_target_window && dnd_launcher_exec) {
+    if (dnd_target_window && dnd_launcher_icon) {
         if (dnd_version >= 1) {
             XConvertSelection(server.display,
                               server.atom.XdndSelection,
@@ -173,7 +189,11 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                 __FILE__,
                 __LINE__,
                 GetAtomName(server.display, e->selection));
-        fprintf(stderr, "tint2: DnD %s:%d: Target atom    = %s\n", __FILE__, __LINE__, GetAtomName(server.display, target));
+        fprintf(stderr,
+                "tint2: DnD %s:%d: Target atom    = %s\n",
+                __FILE__,
+                __LINE__,
+                GetAtomName(server.display, target));
         fprintf(stderr,
                 "DnD %s:%d: Property atom  = %s\n",
                 __FILE__,
@@ -181,7 +201,7 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                 GetAtomName(server.display, e->property));
     }
 
-    if (e->property != None && dnd_launcher_exec) {
+    if (e->property != None && dnd_launcher_icon) {
         Property prop = read_property(server.display, dnd_target_window, dnd_selection);
 
         // If we're being given a list of targets (possible conversions)
@@ -213,10 +233,12 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                 fprintf(stderr, "tint2: --------\n");
             }
 
+            // TODO replace this with exec*(...)
+
             int cmd_length = 0;
-            cmd_length += 1;                             // (
-            cmd_length += strlen(dnd_launcher_exec) + 1; // exec + space
-            cmd_length += 1;                             // open double quotes
+            cmd_length += 1;                                  // (
+            cmd_length += strlen(dnd_launcher_icon->cmd) + 1; // exec + space
+            cmd_length += 1;                                  // open double quotes
             for (int i = 0; i < prop.nitems * prop.format / 8; i++) {
                 char c = ((char *)prop.data)[i];
                 if (c == '\n') {
@@ -239,7 +261,7 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
             char *cmd = (char *)calloc(cmd_length, 1);
             cmd[0] = '\0';
             strcat(cmd, "(");
-            strcat(cmd, dnd_launcher_exec);
+            strcat(cmd, dnd_launcher_icon->cmd);
             strcat(cmd, " \"");
             for (int i = 0; i < prop.nitems * prop.format / 8; i++) {
                 char c = ((char *)prop.data)[i];
@@ -263,7 +285,15 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
             strcat(cmd, "&)");
             if (dnd_debug)
                 fprintf(stderr, "tint2: DnD %s:%d: Running command: %s\n", __FILE__, __LINE__, cmd);
-            tint_exec(cmd, NULL, NULL, e->time, NULL, 0, 0);
+            tint_exec(cmd,
+                      NULL,
+                      NULL,
+                      e->time,
+                      NULL,
+                      0,
+                      0,
+                      dnd_launcher_icon->start_in_terminal,
+                      dnd_launcher_icon->startup_notification);
             free(cmd);
 
             // Reply OK.

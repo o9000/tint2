@@ -577,7 +577,7 @@ void execp_action(void *obj, int button, int x, int y, Time time)
         setenvd("EXECP_Y", y);
         setenvd("EXECP_W", execp->area.width);
         setenvd("EXECP_H", execp->area.height);
-        pid_t pid = tint_exec(command, NULL, NULL, time, obj, x, y);
+        pid_t pid = tint_exec(command, NULL, NULL, time, obj, x, y, FALSE, TRUE);
         unsetenv("EXECP_X");
         unsetenv("EXECP_Y");
         unsetenv("EXECP_W");

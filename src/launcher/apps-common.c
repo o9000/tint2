@@ -113,6 +113,8 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 {
     entry->name = entry->generic_name = entry->icon = entry->exec = entry->cwd = NULL;
     entry->hidden_from_menus = FALSE;
+    entry->start_in_terminal = FALSE;
+    entry->startup_notification = TRUE;
 
     FILE *fp = fopen(path, "rt");
     if (fp == NULL) {
@@ -192,6 +194,10 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
                 entry->icon = strdup(value);
             } else if (strcmp(key, "NoDisplay") == 0) {
                 entry->hidden_from_menus = strcasecmp(value, "true") == 0;
+            } else if (strcmp(key, "Terminal") == 0) {
+                entry->start_in_terminal = strcasecmp(value, "true") == 0;
+            } else if (strcmp(key, "StartupNotify") == 0) {
+                entry->startup_notification = strcasecmp(value, "true") == 0;
             }
         }
     }

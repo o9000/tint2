@@ -33,6 +33,8 @@ typedef struct LauncherIcon {
     Imlib_Image image_pressed;
     char *cmd;
     char *cwd;
+    gboolean start_in_terminal;
+    gboolean startup_notification;
     char *icon_name;
     char *icon_path;
     char *icon_tooltip;
