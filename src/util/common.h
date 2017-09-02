@@ -148,6 +148,8 @@ GSList *slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr
 // A trivial pointer comparator.
 gint cmp_ptr(gconstpointer a, gconstpointer b);
 
+GString *tint2_g_string_replace(GString *s, const char *from, const char *to);
+
 #define free_and_null(p) \
     {                    \
         free(p);         \

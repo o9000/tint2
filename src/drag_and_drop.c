@@ -298,23 +298,6 @@ void handle_dnd_drop(XClientMessageEvent *e)
     }
 }
 
-GString *tint2_g_string_replace(GString *s, const char *from, const char *to)
-{
-    GString *result = g_string_new("");
-    for (char *p = s->str; *p;) {
-        if (strstr(p, from) == p) {
-            g_string_append(result, to);
-            p += strlen(from);
-        } else {
-            g_string_append_c(result, *p);
-            p += 1;
-        }
-    }
-    g_string_assign(s, result->str);
-    g_string_free(result, TRUE);
-    return s;
-}
-
 void handle_dnd_selection_notify(XSelectionEvent *e)
 {
     Atom target = e->target;
@@ -326,11 +309,7 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                 __FILE__,
                 __LINE__,
                 GetAtomName(server.display, e->selection));
-        fprintf(stderr,
-                "tint2: DnD %s:%d: Target atom = %s\n",
-                __FILE__,
-                __LINE__,
-                GetAtomName(server.display, target));
+        fprintf(stderr, "tint2: DnD %s:%d: Target atom = %s\n", __FILE__, __LINE__, GetAtomName(server.display, target));
         fprintf(stderr,
                 "DnD %s:%d: Property atom  = %s\n",
                 __FILE__,
@@ -371,25 +350,49 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                     fprintf(stderr, "tint2: --------\n");
                 }
 
-                // TODO: support %r nd %F
                 // https://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#exec-variables
                 GString *cmd = g_string_new(dnd_launcher_icon->cmd);
 
                 const char *atom_name = GetAtomName(server.display, prop.type);
-                if (strcasecmp(atom_name, "STRING") == 0 ||
-                        strcasecmp(atom_name, "text/uri-list") == 0) {
+                if (strcasecmp(atom_name, "STRING") == 0 || strcasecmp(atom_name, "text/uri-list") == 0) {
                     GString *url = g_string_new("");
                     GString *prev_url = g_string_new("");
+                    gboolean must_unescape = strcasecmp(atom_name, "text/uri-list") == 0;
                     for (int i = 0; i < prop.nitems * prop.format / 8; i++) {
                         char c = ((char *)prop.data)[i];
                         if (c == '\n') {
+                            if (must_unescape) {
+                                char *raw = g_uri_unescape_string(url->str, NULL);
+                                if (raw) {
+                                    g_string_assign(url, raw);
+                                }
+                                free(raw);
+                            }
                             // Many programs cannot handle this prefix
                             tint2_g_string_replace(url, "file://", "");
                             // Some programs put duplicates in the list, we remove them
                             if (strcmp(url->str, prev_url->str) != 0) {
-                                g_string_append(cmd, " \"");
-                                g_string_append(cmd, url->str);
-                                g_string_append(cmd, "\"");
+                                if (strstr(cmd->str, "%F")) {
+                                    GString *piece = g_string_new("");
+                                    g_string_append(piece, " \"");
+                                    g_string_append(piece, url->str);
+                                    g_string_append(piece, "\"");
+                                    g_string_append(piece, " %F");
+                                    tint2_g_string_replace(cmd, "%F", piece->str);
+                                    g_string_free(piece, TRUE);
+                                } else if (strstr(cmd->str, "%f")) {
+                                    GString *piece = g_string_new("");
+                                    g_string_append(piece, " \"");
+                                    g_string_append(piece, url->str);
+                                    g_string_append(piece, "\"");
+                                    tint2_g_string_replace(cmd, "%f", piece->str);
+                                    g_string_free(piece, TRUE);
+                                    break;
+                                } else {
+                                    g_string_append(cmd, " \"");
+                                    g_string_append(cmd, url->str);
+                                    g_string_append(cmd, "\"");
+                                }
                             }
                             g_string_assign(prev_url, url->str);
                             g_string_assign(url, "");
@@ -405,6 +408,8 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                     g_string_free(url, TRUE);
                     g_string_free(prev_url, TRUE);
                 }
+                tint2_g_string_replace(cmd, "%F", "");
+                tint2_g_string_replace(cmd, "%f", "");
                 if (debug_dnd)
                     fprintf(stderr, "tint2: DnD %s:%d: Running command: %s\n", __FILE__, __LINE__, cmd->str);
                 tint_exec(cmd->str,

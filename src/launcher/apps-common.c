@@ -96,6 +96,10 @@ void expand_exec(DesktopEntry *entry, const char *path)
                     q += strlen("''");
                     q += strlen(path);
                     q--; // To balance the q++ in the for
+                } else if (*p == 'f' || *p == 'F') {
+                    sprintf(q, "%c%c", '%', *p);
+                    q += 2;
+                    q--; // To balance the q++ in the for
                 } else {
                     // We don't care about other expansions
                     q--; // Delete the last % from q

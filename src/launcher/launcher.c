@@ -385,7 +385,12 @@ void draw_launcher_icon(void *obj, cairo_t *c)
 void launcher_icon_dump_geometry(void *obj, int indent)
 {
     LauncherIcon *launcherIcon = (LauncherIcon *)obj;
-    fprintf(stderr, "tint2: %*sIcon: w = h = %d, name = %s\n", indent, "", launcherIcon->icon_size, launcherIcon->icon_name);
+    fprintf(stderr,
+            "tint2: %*sIcon: w = h = %d, name = %s\n",
+            indent,
+            "",
+            launcherIcon->icon_size,
+            launcherIcon->icon_name);
 }
 
 Imlib_Image scale_icon(Imlib_Image original, int icon_size)
@@ -434,8 +439,21 @@ void launcher_action(LauncherIcon *icon, XEvent *evt, int x, int y)
     launcher_reload_icon((Launcher *)icon->area.parent, icon);
     launcher_reload_hidden_icons((Launcher *)icon->area.parent);
 
-    if (evt->type == ButtonPress || evt->type == ButtonRelease)
-        tint_exec(icon->cmd, icon->cwd, icon->icon_tooltip, evt->xbutton.time, &icon->area, x, y, icon->start_in_terminal, icon->startup_notification);
+    if (evt->type == ButtonPress || evt->type == ButtonRelease) {
+        GString *cmd = g_string_new(icon->cmd);
+        tint2_g_string_replace(cmd, "%f", "");
+        tint2_g_string_replace(cmd, "%F", "");
+        tint_exec(cmd->str,
+                  icon->cwd,
+                  icon->icon_tooltip,
+                  evt->xbutton.time,
+                  &icon->area,
+                  x,
+                  y,
+                  icon->start_in_terminal,
+                  icon->startup_notification);
+        g_string_free(cmd, TRUE);
+    }
 }
 
 // Populates the list_icons list from the list_apps list

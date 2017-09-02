@@ -400,10 +400,11 @@ pid_t tint_exec(const char *command,
             fprintf(stderr, "tint2: executing in x-terminal-emulator: %s\n", command);
             wordexp_t words;
             words.we_offs = 2;
-            wordexp(command, &words, WRDE_DOOFFS | WRDE_SHOWERR);
-            words.we_wordv[0] = (char*)"x-terminal-emulator";
-            words.we_wordv[1] = (char*)"-e";
-            execvp("x-terminal-emulator", words.we_wordv);
+            if (wordexp(command, &words, WRDE_DOOFFS | WRDE_SHOWERR) == 0) {
+                words.we_wordv[0] = (char*)"x-terminal-emulator";
+                words.we_wordv[1] = (char*)"-e";
+                execvp("x-terminal-emulator", words.we_wordv);
+            }
             fprintf(stderr, "tint2: could not execute command in x-terminal-emulator: %s, executting in shell\n", command);
         }
         execlp("sh", "sh", "-c", command, NULL);
@@ -1032,4 +1033,21 @@ void close_all_fds()
     for (int fd = 3; fd < maxfd; fd++) {
         close(fd);
     }
+}
+
+GString *tint2_g_string_replace(GString *s, const char *from, const char *to)
+{
+    GString *result = g_string_new("");
+    for (char *p = s->str; *p;) {
+        if (strstr(p, from) == p) {
+            g_string_append(result, to);
+            p += strlen(from);
+        } else {
+            g_string_append_c(result, *p);
+            p += 1;
+        }
+    }
+    g_string_assign(s, result->str);
+    g_string_free(result, TRUE);
+    return s;
 }
