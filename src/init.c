@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "config.h"
+#include "drag_and_drop.h"
 #include "fps_distribution.h"
 #include "panel.h"
 #include "server.h"
@@ -86,6 +87,7 @@ void handle_env_vars()
     debug_icons = getenv("DEBUG_ICONS") != NULL;
     debug_fps = getenv("DEBUG_FPS") != NULL;
     debug_frames = getenv("DEBUG_FRAMES") != NULL;
+    debug_dnd = getenv("DEBUG_DND") != NULL;
     if (debug_fps) {
         init_fps_distribution();
         char *s = getenv("TRACING_FPS_THRESHOLD");

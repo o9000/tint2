@@ -102,21 +102,6 @@ typedef struct Property {
 // Returns the name of an Atom as string. Do not free the string.
 const char *GetAtomName(Display *disp, Atom a);
 
-// This function takes a list of targets which can be converted to (atom_list, nitems)
-// and a list of acceptable targets with prioritees (datatypes). It returns the highest
-// entry in datatypes which is also in atom_list: ie it finds the best match.
-Atom pick_target_from_list(Display *disp, Atom *atom_list, int nitems);
-
-// Finds the best target given up to three atoms provided (any can be None).
-// Useful for part of the Xdnd protocol.
-Atom pick_target_from_atoms(Display *disp, Atom t1, Atom t2, Atom t3);
-
-// Finds the best target given a local copy of a property.
-Atom pick_target_from_targets(Display *disp, Property p);
-
-// This fetches all the data from a property
-struct Property read_property(Display *disp, Window w, Atom property);
-
 typedef struct Monitor {
     int x;
     int y;

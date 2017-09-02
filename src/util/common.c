@@ -404,14 +404,9 @@ pid_t tint_exec(const char *command,
             words.we_wordv[0] = (char*)"x-terminal-emulator";
             words.we_wordv[1] = (char*)"-e";
             execvp("x-terminal-emulator", words.we_wordv);
+            fprintf(stderr, "tint2: could not execute command in x-terminal-emulator: %s, executting in shell\n", command);
         }
-        fprintf(stderr, "tint2: could not execute command in x-terminal-emulator: %s, executting in shell\n", command);
-        wordexp_t words;
-        words.we_offs = 2;
-        wordexp(command, &words, WRDE_DOOFFS | WRDE_SHOWERR);
-        words.we_wordv[0] = (char*)"sh";
-        words.we_wordv[1] = (char*)"-c";
-        execvp("sh", words.we_wordv);
+        execlp("sh", "sh", "-c", command, NULL);
         fprintf(stderr, "tint2: Failed to execute %s\n", command);
 #if HAVE_SN
         if (startup_notifications && startup_notification && time) {

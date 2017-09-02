@@ -10,6 +10,7 @@
 #include <glib.h>
 
 extern gboolean hidden_panel_shown_for_dnd;
+extern gboolean debug_dnd;
 
 void dnd_init();
 
