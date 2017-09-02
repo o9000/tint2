@@ -1,4 +1,4 @@
-2017-08-21 master
+2017-09-02 master
 - Fixes:
   - Clock, executors and other timers fire correctly after waking up from suspend
   - One-shot timers are restarted correctly from their own callbacks
@@ -20,8 +20,14 @@
     - If no user tooltip is set, displays the script standard error as tooltip.
       Tooltip is multiline, can be cleared with the VT100 clear screen sequence, in shell: (>&2 echo -en "\033[2J").
       Long tooltips are truncated to 4096 characters.
+  - Launcher:
+    - Drag and drop now handles correctly text/uri-list
+    - Support for Terminal=true
+    - Support for %f and %F
 - Configuration changes:
   - Removed primary_monitor_first as it was conflicting with taskbar behavior; use *_monitor = primary instead.
+- Other:
+  - Major code refactoring
 
 2017-06-11 0.14.6
 - Fixes:
