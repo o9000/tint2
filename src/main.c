@@ -576,30 +576,30 @@ void handle_x_events()
     }
 }
 
-void prepare_fd_set(fd_set *fd_set, int *max_fd)
+void prepare_fd_set(fd_set *set, int *max_fd)
 {
-    FD_ZERO(fd_set);
-    FD_SET(server.x11_fd, fd_set);
+    FD_ZERO(set);
+    FD_SET(server.x11_fd, set);
     *max_fd = server.x11_fd;
     if (sigchild_pipe_valid) {
-        FD_SET(sigchild_pipe[0], fd_set);
+        FD_SET(sigchild_pipe[0], set);
         *max_fd = MAX(*max_fd, sigchild_pipe[0]);
     }
     for (GList *l = panel_config.execp_list; l; l = l->next) {
         Execp *execp = (Execp *)l->data;
         int fd = execp->backend->child_pipe_stdout;
         if (fd > 0) {
-            FD_SET(fd, fd_set);
+            FD_SET(fd, set);
             *max_fd = MAX(*max_fd, fd);
         }
         fd = execp->backend->child_pipe_stderr;
         if (fd > 0) {
-            FD_SET(fd, fd_set);
+            FD_SET(fd, set);
             *max_fd = MAX(*max_fd, fd);
         }
     }
     if (uevent_fd > 0) {
-        FD_SET(uevent_fd, fd_set);
+        FD_SET(uevent_fd, set);
         *max_fd = MAX(*max_fd, uevent_fd);
     }
 }
@@ -742,13 +742,13 @@ void run_tint2_event_loop()
         if (panel_refresh)
             handle_panel_refresh();
 
-        fd_set fd_set;
+        fd_set fds;
         int max_fd;
-        prepare_fd_set(&fd_set, &max_fd);
+        prepare_fd_set(&fds, &max_fd);
 
         // Wait for an event and handle it
         ts_event_read = 0;
-        if (XPending(server.display) > 0 || select(max_fd + 1, &fd_set, 0, 0, get_next_timeout()) >= 0) {
+        if (XPending(server.display) > 0 || select(max_fd + 1, &fds, 0, 0, get_next_timeout()) >= 0) {
 #ifdef HAVE_TRACING
             start_tracing((void*)run_tint2_event_loop);
 #endif
