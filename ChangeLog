@@ -1,3 +1,7 @@
+2017-09-09 master
+- Fixes:
+  - Fixed build on non-Linux and non-x86 systems
+
 2017-09-02 15.0
 - Fixes:
   - Clock, executors and other timers fire correctly after waking up from suspend
