@@ -1173,7 +1173,7 @@ double compute_control_point_offset(Area *area, Offset *offset)
     double height = element_area->height;
     double radius = sqrt(element_area->width * element_area->width + element_area->height * element_area->height) / 2.0;
 
-    double left, top;
+    double left = 0, top = 0;
     if (offset->element == ELEMENT_SELF) {
         left = 0;
         top = 0;

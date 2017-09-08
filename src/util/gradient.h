@@ -67,11 +67,10 @@ void cleanup_gradient(GradientClass *g);
 // Gradient instances associated to Areas
 
 struct Area;
-typedef struct Area Area;
 
 typedef struct GradientInstance {
     GradientClass *gradient_class;
-    Area *area;
+    struct Area *area;
     cairo_pattern_t *pattern;
 } GradientInstance;
 
