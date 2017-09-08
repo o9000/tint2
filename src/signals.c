@@ -29,7 +29,7 @@ void init_signals()
     // Set signal handlers
     signal_pending = 0;
 
-    struct sigaction sa_chld = {.sa_handler = SIG_DFL, .sa_flags = SA_NOCLDWAIT | SA_RESTART};
+    struct sigaction sa_chld = {.sa_handler = SIG_IGN};
     sigaction(SIGCHLD, &sa_chld, 0);
 
     struct sigaction sa = {.sa_handler = signal_handler, .sa_flags = SA_RESTART};

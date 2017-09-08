@@ -84,11 +84,7 @@ if( NOT IMLIB_BUILD_WITH_X )
 endif( NOT IMLIB_BUILD_WITH_X )
 
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  add_definitions( -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE )
-else(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  add_definitions( -D_WITH_GETLINE )
-endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+add_definitions( -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_WITH_GETLINE )
 
 
 include_directories( ${PROJECT_BINARY_DIR}
@@ -147,6 +143,7 @@ set( SOURCES src/config.c
              src/util/cache.c
              src/util/color.c
              src/util/gradient.c
+             src/util/uevent.c
              src/util/window.c )
 
 if( ENABLE_BATTERY )
