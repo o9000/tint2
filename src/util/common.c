@@ -40,7 +40,9 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <dirent.h>
+#if !defined(__OpenBSD__)
 #include <wordexp.h>
+#endif
 
 #ifdef HAVE_RSVG
 #include <librsvg/rsvg.h>
