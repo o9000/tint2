@@ -3,8 +3,6 @@
 set -e
 set -x
 
-flock -w 0 ~/tint2.runner-version.log
-
 exec > ~/tint2.runner-version.log
 exec 2>&1
 
