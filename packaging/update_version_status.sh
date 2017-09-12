@@ -12,8 +12,9 @@ git reset --hard
 git pull
 
 
-./version_status.py > ./tint2.wiki/packaging.md
-
+./version_status.py > packaging.tmp.md
+cat packaging.tmp.md > packaging.md
+rm packaging.tmp.md
 
 git commit -am 'Update packaging info'
 git push
