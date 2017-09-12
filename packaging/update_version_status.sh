@@ -12,7 +12,7 @@ git reset --hard
 git pull
 
 
-./version_status.py > packaging.tmp.md
+~/tint2/packaging/version_status.py > packaging.tmp.md
 cat packaging.tmp.md > packaging.md
 rm packaging.tmp.md
 
