@@ -395,7 +395,7 @@ def main():
   distros.append(get_ubuntu_versions())
   distros.append(get_fedora_versions())
   distros.append(get_redhat_epel_versions())
-  distros.append(get_suse_versions())
+  #distros.append(get_suse_versions())
   distros.append(get_alpine_versions())
   distros.append(get_slack_versions())
   distros.append(get_arch_versions())
