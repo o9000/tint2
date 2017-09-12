@@ -1,5 +1,8 @@
 #!/bin/bash
 
+exec > ~/tint2.runner-version.log
+exec 2>&1
+
 set -e
 set -x
 
