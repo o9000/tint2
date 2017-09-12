@@ -161,12 +161,14 @@ def get_debian_release_version(release):
 
 
 def get_debian_versions():
+  print >> sys.stderr, "Debian ..."
   return "Debian", "debian", [get_debian_release_version(release) for release in ["stable", "testing", "unstable", "experimental"]]
 
 
 # Ubuntu
 
 def get_ubuntu_versions():
+  print >> sys.stderr, "Ubuntu ..."
   data = http_download_txt("https://api.launchpad.net/1.0/ubuntu/+archive/primary?ws.op=getPublishedSources&source_name=tint2&exact_match=true")
   data = json.loads(data)["entries"]
   data.reverse()
@@ -183,6 +185,7 @@ def get_ubuntu_versions():
 # BunsenLabs
 
 def get_bunsenlabs_versions():
+  print >> sys.stderr, "BunsenLabs ..."
   dirs = http_list_dir("https://eu.pkg.bunsenlabs.org/debian/dists/")
   versions = []
   for d in dirs:
@@ -198,6 +201,7 @@ def get_bunsenlabs_versions():
 # Arch
 
 def get_arch_versions():
+  print >> sys.stderr, "Arch ..."
   pkgbuild = http_download_txt("https://git.archlinux.org/svntogit/community.git/plain/trunk/PKGBUILD?h=packages/tint2")
   version, maintainer = arch_pkgbuild_extract_version(pkgbuild)
   return "Arch Linux", "archlinux", [("Community", version, maintainer)]
@@ -206,6 +210,7 @@ def get_arch_versions():
 # Fedora
 
 def get_fedora_versions():
+  print >> sys.stderr, "Fedora ..."
   dirs = http_list_dir("http://mirror.switch.ch/ftp/mirror/fedora/linux/development/")
   versions = []
   for d in dirs:
@@ -224,6 +229,7 @@ def get_fedora_versions():
 # Red Hat (EPEL)
 
 def get_redhat_epel_versions():
+  print >> sys.stderr, "RedHat ..."
   dirs = http_list_dir("http://mirror.switch.ch/ftp/mirror/epel/")
   versions = []
   for d in dirs:
@@ -242,6 +248,7 @@ def get_redhat_epel_versions():
 # SUSE
 
 def get_suse_versions():
+  print >> sys.stderr, "Suse ..."
   ftp = ftplib.FTP("mirror.switch.ch")
   ftp.login()
   releases, _ = ftp_list_dir(ftp, "/mirror/opensuse/opensuse/distribution/leap/")
@@ -266,6 +273,7 @@ def get_suse_versions():
 # Gentoo
 
 def get_gentoo_versions():
+  print >> sys.stderr, "Gentoo ..."
   files = http_list_dir("https://gitweb.gentoo.org/repo/gentoo.git/tree/x11-misc/tint2")
   versions = []
   for f in files:
@@ -280,6 +288,7 @@ def get_gentoo_versions():
 # Void
 
 def get_void_versions():
+  print >> sys.stderr, "Void ..."
   template = http_download_txt("https://raw.githubusercontent.com/voidlinux/void-packages/master/srcpkgs/tint2/template")
   versions = []
   version = None
@@ -297,6 +306,7 @@ def get_void_versions():
 # Alpine
 
 def get_alpine_versions():
+  print >> sys.stderr, "Alpine ..."
   apkbuild = http_download_txt("https://git.alpinelinux.org/cgit/aports/plain/community/tint2/APKBUILD")
   versions = []
   version = None
@@ -314,6 +324,7 @@ def get_alpine_versions():
 # Slackware
 
 def get_slack_versions():
+  print >> sys.stderr, "Slackware ..."
   dirs = http_list_dir("https://slackbuilds.org/slackbuilds/")
   versions = []
   for d in dirs:
@@ -337,6 +348,7 @@ def get_slack_versions():
 # FreeBSD
 
 def get_freebsd_versions():
+  print >> sys.stderr, "FreeBSD ..."
   makefile = http_download_txt("https://svnweb.freebsd.org/ports/head/x11/tint/Makefile?view=co")
   versions = []
   version = None
@@ -354,6 +366,7 @@ def get_freebsd_versions():
 # OpenBSD
 
 def get_openbsd_versions():
+  print >> sys.stderr, "OpenBSD ..."
   makefile = http_download_txt("http://cvsweb.openbsd.org/cgi-bin/cvsweb/~checkout~/ports/x11/tint2/Makefile?rev=1.5&content-type=text/plain")
   versions = []
   version = None
@@ -368,6 +381,7 @@ def get_openbsd_versions():
 # Upstream
 
 def get_tint2_version():
+  print >> sys.stderr, "Upstream ..."
   readme = http_download_txt("https://gitlab.com/o9000/tint2/raw/master/README.md")
   version = readme.split("\n", 1)[0].split(":", 1)[-1].strip()
   return version
