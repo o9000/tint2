@@ -1,11 +1,12 @@
 #!/bin/bash
 
-exec > ~/tint2.runner-version.log
-exec 2>&1
-
 set -e
 set -x
 
+flock -w 0 ~/tint2.runner-version.log
+
+exec > ~/tint2.runner-version.log
+exec 2>&1
 
 cd ~/tint2.wiki
 git reset --hard
@@ -17,4 +18,4 @@ cat packaging.tmp.md > packaging.md
 rm packaging.tmp.md
 
 git commit -am 'Update packaging info'
-git push
+git push origin master
