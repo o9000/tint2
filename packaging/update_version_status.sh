@@ -3,6 +3,8 @@
 set -e
 set -x
 
+[ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock -en "$0" "$0" "$@" || :
+
 exec > ~/tint2.runner-version.log
 exec 2>&1
 
