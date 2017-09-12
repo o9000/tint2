@@ -188,7 +188,6 @@ endif( ENABLE_SN)
 
 if( ENABLE_UEVENT )
   add_definitions( -DENABLE_UEVENT )
-  set( SOURCES ${SOURCES} src/util/uevent.c)
 endif( ENABLE_UEVENT )
 
 if(ENABLE_BACKTRACE)
