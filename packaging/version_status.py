@@ -251,10 +251,10 @@ def get_suse_versions():
   print >> sys.stderr, "Suse ..."
   ftp = ftplib.FTP("mirror.switch.ch")
   ftp.login()
-  releases, _ = ftp_list_dir(ftp, "/mirror/opensuse/opensuse/distribution/leap/")
+  releases, _ = ftp_list_dir(ftp, "/mirror/opensuse/opensuse/ports/update/leap/")
   versions = []
   for release in releases:
-    root = "/mirror/opensuse/opensuse/distribution/leap/{0}/repo/oss/suse/repodata/".format(release)
+    root = "/mirror/opensuse/opensuse/ports/update/leap/{0}/oss/repodata/".format(release)
     _, files = ftp_list_dir(ftp, root)
     for fname in files:
       if fname.endswith("-primary.xml.gz"):
