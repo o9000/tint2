@@ -197,7 +197,7 @@ void battery_update_text(char *dest, char *format)
                 if (battery_state.state == BATTERY_FULL) {
                     snprintf(buf, sizeof(buf), "Full");
                     strnappend(dest, buf, BATTERY_BUF_SIZE);
-                } else {
+                } else if (battery_state.time.hours > 0 && battery_state.time.minutes > 0) {
                     snprintf(buf, sizeof(buf), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
                     strnappend(dest, buf, BATTERY_BUF_SIZE);
                 }
