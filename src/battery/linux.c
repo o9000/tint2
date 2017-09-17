@@ -60,6 +60,20 @@ struct psy_mains {
     gboolean online;
 };
 
+static gboolean is_file_non_empty(const char *path)
+{
+    FILE *f = fopen(path, "r");
+    if (!f)
+        return FALSE;
+    char buffer[1024];
+    size_t count = fread(buffer, 1, sizeof(buffer), f);
+    fclose(f);
+    if (count > 0)
+        return TRUE;
+    else
+        return FALSE;
+}
+
 static void uevent_battery_update()
 {
     update_battery_tick(NULL);
@@ -124,7 +138,7 @@ static gboolean init_linux_battery(struct psy_battery *bat)
     const gchar *entryname = bat->name;
 
     bat->path_present = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "present", NULL);
-    if (!g_file_test(bat->path_present, G_FILE_TEST_EXISTS)) {
+    if (!is_file_non_empty(bat->path_present)) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_present);
         goto err0;
     }
@@ -136,8 +150,8 @@ static gboolean init_linux_battery(struct psy_battery *bat)
     bat->path_rate_now = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "power_now", NULL);
     bat->unit = 'W';
 
-    if (!g_file_test(bat->path_level_now, G_FILE_TEST_EXISTS) ||
-        !g_file_test(bat->path_level_full, G_FILE_TEST_EXISTS)) {
+    if (!is_file_non_empty(bat->path_level_now) ||
+        !is_file_non_empty(bat->path_level_full)) {
         g_free(bat->path_level_now);
         g_free(bat->path_level_full);
         g_free(bat->path_rate_now);
@@ -149,17 +163,17 @@ static gboolean init_linux_battery(struct psy_battery *bat)
             g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "current_now", NULL);
         bat->unit = 'A';
     }
-    if (!g_file_test(bat->path_level_now, G_FILE_TEST_EXISTS)) {
+    if (!is_file_non_empty(bat->path_level_now)) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_level_now);
         goto err1;
     }
-    if (!g_file_test(bat->path_level_full, G_FILE_TEST_EXISTS)) {
+    if (!is_file_non_empty(bat->path_level_full)) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_level_full);
         goto err1;
     }
 
     bat->path_status = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "status", NULL);
-    if (!g_file_test(bat->path_status, G_FILE_TEST_EXISTS)) {
+    if (!is_file_non_empty(bat->path_status)) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_status);
         goto err2;
     }
@@ -183,7 +197,7 @@ static gboolean init_linux_mains(struct psy_mains *ac)
     const gchar *entryname = ac->name;
 
     ac->path_online = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "online", NULL);
-    if (!g_file_test(ac->path_online, G_FILE_TEST_EXISTS)) {
+    if (!is_file_non_empty(ac->path_online)) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, ac->path_online);
         g_free(ac->path_online);
         return FALSE;
