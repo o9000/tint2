@@ -157,7 +157,7 @@ def test(tint2path, config):
   sleep(1)
   os.environ["DEBUG_FPS"] = "1"
   os.environ["ASAN_OPTIONS"] = "detect_leaks=1"
-  tint2 = run(["tint2", "-c", config], True)
+  tint2 = run([tint2path, "-c", config], True)
   if tint2.poll() != None:
     raise RuntimeError("tint2 failed to start")
   sleep(1)
