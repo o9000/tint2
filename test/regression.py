@@ -241,7 +241,7 @@ def show_system_info():
   out, _ = run("lsb_release -sd", True).communicate()
   out = out.strip()
   print("System:", out)
-  out, _ = run("cat /proc/cpuinfo | grep 'model name' | head -n1 | cut -d ':' -f2", True).communicate()
+  out, _ = run("echo \"$(cat /proc/cpuinfo | grep 'model name' | head -n1 | cut -d ':' -f2) with $(cat /proc/cpuinfo | grep processor | wc -l) cores\"", True).communicate()
   out = out.strip()
   print("Hardware:", out)
   out, _ = run("cc --version | head -n1", True).communicate()
