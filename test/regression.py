@@ -35,6 +35,10 @@ def print(*args, **kwargs):
   return r
 
 
+def print_err(*args, **kwargs):
+  print(*args, file=sys.stderr, **kwargs)
+
+
 def run(cmd, output=False):
   return subprocess.Popen(cmd,
                           stdin=devnull,
@@ -55,6 +59,14 @@ def sleep(n):
     sys.stderr.flush()
     time.sleep(1)
     n -= 1
+
+
+def install_deps_ubuntu():
+  p = run(["sudo", "apt-get update; apt-get build-dep tint2; apt-get install -y git Xvfb xsettingsd openbox compton x11-utils gnome-calculator"])
+  out, _ = p.communicate()
+  if p.returncode != 0:
+    print_err("Process exited with code:", p.returncode, "and output:", out)
+    raise RuntimeError("install_deps() failed!")
 
 
 def start_xvfb():
@@ -295,7 +307,7 @@ def checkout(version):
   p = run("rm -rf tmpclone; git clone https://gitlab.com/o9000/tint2.git tmpclone; cd tmpclone; git checkout {0}".format(version), True)
   out, _ = p.communicate()
   if p.returncode != 0:
-    sys.stderr.write(out)
+    print_err(out)
     raise RuntimeError("git clone failed!")
 
 
@@ -303,7 +315,11 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--src_dir", default=get_default_src_dir())
   parser.add_argument("--for_version", default="HEAD")
+  parser.add_argument("--install_deps", dest="install_deps", action="store_true")
+  parser.set_defaults(install_deps=False)
   args = parser.parse_args()
+  if args.install_deps:
+    install_deps_ubuntu()
   if args.for_version != "HEAD":
     checkout(args.for_version)
     args.src_dir = "./tmpclone"
