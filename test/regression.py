@@ -62,7 +62,7 @@ def sleep(n):
 
 
 def install_deps_ubuntu():
-  p = run(["sudo", "bash", "-c", "apt-get update; apt-get build-dep tint2; apt-get install -y git Xvfb xsettingsd openbox compton x11-utils gnome-calculator"])
+  p = run(["sudo", "bash", "-c", "apt-get update; apt-get -y build-dep tint2; apt-get install -y git Xvfb xsettingsd openbox compton x11-utils gnome-calculator"])
   out, _ = p.communicate()
   if p.returncode != 0:
     print_err("Process exited with code:", p.returncode, "and output:", out)
