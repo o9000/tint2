@@ -8,6 +8,11 @@ set -x
 exec > ~/tint2.runner-test.log
 exec 2>&1
 
+cd ~/tint2
+git reset --hard
+git pull
+
+
 cd ~/tint2.wiki
 git reset --hard
 git pull
