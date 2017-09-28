@@ -883,6 +883,33 @@ void area_dump_geometry(Area *area, int indent)
     }
 }
 
+void area_compute_available_size(Area *area,
+                             int *available_w,
+                             int *available_h)
+{
+    Panel *panel = (Panel *)area->panel;
+    if (panel_horizontal) {
+        *available_w = panel->area.width;
+        *available_h = area->height - 2 * area->paddingy - left_right_border_width(area);
+    } else {
+        *available_w = area->width - 2 * area->paddingxlr - left_right_border_width(area);
+        *available_h = panel->area.height;
+    }
+}
+
+void area_compute_inner_size(Area *area,
+                             int *inner_w,
+                             int *inner_h)
+{
+    if (panel_horizontal) {
+        *inner_w = area->width - 2 * area->paddingxlr - left_right_border_width(area);
+        *inner_h = area->height - 2 * area->paddingy - top_bottom_border_width(area);
+    } else {
+        *inner_w = area->width - 2 * area->paddingxlr - left_right_border_width(area);
+        *inner_h = area->height - 2 * area->paddingy - top_bottom_border_width(area);
+    }
+}
+
 void area_compute_text_geometry(Area *area,
                                 const char *line1,
                                 const char *line2,
@@ -895,15 +922,8 @@ void area_compute_text_geometry(Area *area,
                                 int *line2_height,
                                 int *line2_width)
 {
-    Panel *panel = (Panel *)area->panel;
     int available_w, available_h;
-    if (panel_horizontal) {
-        available_w = panel->area.width;
-        available_h = area->height - 2 * area->paddingy - left_right_border_width(area);
-    } else {
-        available_w = area->width - 2 * area->paddingxlr - left_right_border_width(area);
-        available_h = panel->area.height;
-    }
+    area_compute_available_size(area, &available_w, &available_h);
 
     if (line1 && line1[0])
         get_text_size2(line1_font_desc,
@@ -959,7 +979,7 @@ int text_area_compute_desired_size(Area *area,
         int new_size = MAX(line1_width, line2_width) + 2 * area->paddingxlr + left_right_border_width(area);
         return new_size;
     } else {
-        int new_size = line1_height + line2_height + 2 * area->paddingxlr + top_bottom_border_width(area);
+        int new_size = line1_height + line2_height + 2 * area->paddingy + top_bottom_border_width(area);
         return new_size;
     }
 }
@@ -1035,18 +1055,22 @@ void draw_text_area(Area *area,
                     int line2_posy,
                     Color *color)
 {
+    int inner_w, inner_h;
+    area_compute_inner_size(area, &inner_w, &inner_h);
+
     PangoLayout *layout = pango_cairo_create_layout(c);
     pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
     pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
-    pango_layout_set_width(layout, area->width * PANGO_SCALE);
+    pango_layout_set_width(layout, inner_w * PANGO_SCALE);
+    pango_layout_set_height(layout, inner_h * PANGO_SCALE);
     cairo_set_source_rgba(c, color->rgb[0], color->rgb[1], color->rgb[2], color->alpha);
 
     if (line1 && line1[0]) {
         pango_layout_set_font_description(layout, line1_font_desc);
         pango_layout_set_text(layout, line1, strlen(line1));
         pango_cairo_update_layout(c, layout);
-        draw_text(layout, c, 0, line1_posy, color, ((Panel *)area->panel)->font_shadow);
+        draw_text(layout, c, (area->width - inner_w) / 2, line1_posy, color, ((Panel *)area->panel)->font_shadow);
     }
 
     if (line2 && line2[0]) {
@@ -1054,7 +1078,7 @@ void draw_text_area(Area *area,
         pango_layout_set_indent(layout, 0);
         pango_layout_set_text(layout, line2, strlen(line2));
         pango_cairo_update_layout(c, layout);
-        draw_text(layout, c, 0, line2_posy, color, ((Panel *)area->panel)->font_shadow);
+        draw_text(layout, c, (area->width - inner_w) / 2, line2_posy, color, ((Panel *)area->panel)->font_shadow);
     }
 
     g_object_unref(layout);
