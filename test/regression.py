@@ -130,7 +130,10 @@ def get_mem_usage(pid):
           raise RuntimeError("Could not parse /proc/[pid]/status")
   if not value:
     raise RuntimeError("Could not parse /proc/[pid]/status")
-  return value * 1.0e-6
+  result = value * 1.0e-6
+  p = run("./meminfo.py --detailed --private $(pidof tint2)", output=True)
+  detailed, _ = p.communicate()
+  return result, detailed
 
 
 def find_asan_leaks(out):
@@ -182,7 +185,7 @@ def test(tint2path, config):
   sleep(stress_duration)
   stop_stressors(stressors)
   # Collect info
-  mem = get_mem_usage(tint2.pid)
+  mem, mem_detail = get_mem_usage(tint2.pid)
   stop(tint2)
   out, _ = tint2.communicate()
   exitcode = tint2.returncode
@@ -202,6 +205,8 @@ def test(tint2path, config):
     print("Memory leak:")
     for line in leak:
       print(line)
+  print("Memory usage details:")
+  print("```\n" + mem_detail.strip() + "\n```")
   fps_status = ok if min_fps > 60 else warning if min_fps > 40 else error
   print("FPS:", "min:", min_fps, "median:", med_fps, fps_status)
   if mem_status != ok or leak_status != ok or fps_status != ok:
