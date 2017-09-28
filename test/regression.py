@@ -129,7 +129,7 @@ def get_mem_usage(pid):
         else:
           raise RuntimeError("Could not parse /proc/[pid]/status")
   if not value:
-    raise RuntimeError("Could not parse /proc/[pid]/status")
+    value = 0
   result = value * 1.0e-6
   p = run("./meminfo.py --detailed --private $(pidof tint2)", output=True)
   detailed, _ = p.communicate()
