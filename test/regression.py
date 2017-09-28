@@ -62,6 +62,7 @@ def sleep(n):
 
 
 def install_deps_ubuntu():
+  print_err("Installing dependencies...")
   p = run(["sudo", "bash", "-c", "apt-get update; apt-get -y build-dep tint2; apt-get install -y git xvfb xsettingsd openbox compton x11-utils gnome-calculator"])
   out, _ = p.communicate()
   if p.returncode != 0:
@@ -244,6 +245,7 @@ def show_system_info():
 
 
 def compile_and_report(src_dir):
+  print_err("Compiling...")
   print("# Compilation")
   cmake_flags = "-DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON '-DCMAKE_CXX_FLAGS_DEBUG=-O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -Wshadow' '-DCMAKE_EXE_LINKER_FLAGS=-O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -fuse-ld=gold'"
   print("Flags:", cmake_flags)
@@ -269,6 +271,7 @@ def compile_and_report(src_dir):
 
 
 def run_test(config, index):
+  print_err("Running test", index, "for config", config)
   print("# Test", index)
   print("Config: [{0}]({1})".format(config.split("/")[-1].replace(".tint2rc", ""), "https://gitlab.com/o9000/tint2/blob/master/test/" + config))
   for i in range(repeats):
@@ -276,6 +279,7 @@ def run_test(config, index):
 
 
 def run_tests():
+  print_err("Running tests...")
   configs = []
   configs += ["./configs/tint2/" +s for s in os.listdir("./configs/tint2") ]
   configs += ["../themes/" + s for s in os.listdir("../themes")]
@@ -291,6 +295,7 @@ def get_default_src_dir():
 
 
 def check_busy():
+  print_err("Checking if system is busy...")
   out, _ = run("top -bn5 | grep 'Cpu(s)' | grep -o '[0-9\.]* id' | cut -d ' ' -f 1", True).communicate()
   load_samples = []
   for line in out.split("\n"):
@@ -304,6 +309,7 @@ def check_busy():
 
 
 def checkout(version):
+  print_err("Checking out tint2 version", version, "...")
   p = run("rm -rf tmpclone; git clone https://gitlab.com/o9000/tint2.git tmpclone; cd tmpclone; git checkout {0}".format(version), True)
   out, _ = p.communicate()
   if p.returncode != 0:
