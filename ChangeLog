@@ -2,6 +2,7 @@
 - Fixes:
   - Battery info is now again displayed even when current sensor is missing (https://github.com/jmc-88/tint3/issues/34)
   - Text elements compute their size correctly (issue #671)
+  - Window order persists on panel restart (issue #615)
 
 2017-09-08 15.1
 - Fixes:
