@@ -185,7 +185,7 @@ def test(tint2path, config):
   stop(tint2)
   out, _ = tint2.communicate()
   exitcode = tint2.returncode
-  if exitcode != 0:
+  if exitcode != 0 and exitcode != 23:
     print("tint2 crashed with exit code {0}!".format(exitcode))
     print("Output:")
     print("```\n" + out.strip() + "\n```")
@@ -320,6 +320,7 @@ def main():
   args = parser.parse_args()
   if args.install_deps:
     install_deps_ubuntu()
+    return
   if args.for_version != "HEAD":
     checkout(args.for_version)
     args.src_dir = "./tmpclone"
