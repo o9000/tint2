@@ -153,7 +153,7 @@ def find_asan_leaks(out):
   return traces
 
 
-def test(tint2path, config):
+def test(tint2path, config, use_asan):
   start_xvfb()
   sleep(1)
   start_xsettings()
@@ -197,7 +197,10 @@ def test(tint2path, config):
   min_fps, med_fps = compute_min_med_fps(out)
   leaks = find_asan_leaks(out)
   sys.stderr.write("\n")
-  mem_status = ok if mem < 20 else warning if mem < 40 else error
+  if use_asan:
+    mem_status = ok + " (ASAN on)"
+  else:
+    mem_status = ok if mem < 20 else warning if mem < 40 else error
   print("Memory usage: %.1f %s %s" % (mem, "MB", mem_status))
   leak_status = ok if not leaks else error
   print("Memory leak count:", len(leaks), leak_status)
@@ -205,9 +208,13 @@ def test(tint2path, config):
     print("Memory leak:")
     for line in leak:
       print(line)
-  print("Memory usage details:")
-  print("```\n" + mem_detail.strip() + "\n```")
-  fps_status = ok if min_fps > 60 else warning if min_fps > 40 else error
+  if mem_status != ok:
+    print("Memory usage details:")
+    print("```\n" + mem_detail.strip() + "\n```")
+  if use_asan:
+    fps_status = ok + " (ASAN on)"
+  else:
+    fps_status = ok if min_fps > 60 else warning if min_fps > 40 else error
   print("FPS:", "min:", min_fps, "median:", med_fps, fps_status)
   if mem_status != ok or leak_status != ok or fps_status != ok:
     print("Output:")
@@ -249,11 +256,14 @@ def show_system_info():
   print("Compiler:", out)
 
 
-def compile_and_report(src_dir):
+def compile_and_report(src_dir, use_asan):
   print_err("Compiling...")
   print("# Compilation")
-  cmake_flags = "-DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON '-DCMAKE_CXX_FLAGS_DEBUG=-O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -Wshadow' '-DCMAKE_EXE_LINKER_FLAGS=-O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -fuse-ld=gold'"
-  print("Flags:", cmake_flags)
+  if use_asan:
+    cmake_flags = "-DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON '-DCMAKE_CXX_FLAGS_DEBUG=-O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -Wshadow' '-DCMAKE_EXE_LINKER_FLAGS=-O0 -g3 -gdwarf-2 -fsanitize=address -fno-common -fno-omit-frame-pointer -rdynamic -fuse-ld=gold'"
+  else:
+    cmake_flags = ""
+  print("Flags:", "`" + cmake_flags + "`")
   start = time.time()
   c = run("rm -rf build; mkdir build; cd build; cmake {0} {1} ; make -j7".format(cmake_flags, src_dir), True)
   out, _ = c.communicate()
@@ -275,22 +285,22 @@ def compile_and_report(src_dir):
     print("Status: Succeeded in %.1f seconds" % (duration,), ok)
 
 
-def run_test(config, index):
+def run_test(config, index, use_asan):
   print_err("Running test", index, "for config", config)
-  print("# Test", index)
+  print("# Test", index, "(ASAN on)" if use_asan else "")
   print("Config: [{0}]({1})".format(config.split("/")[-1].replace(".tint2rc", ""), "https://gitlab.com/o9000/tint2/blob/master/test/" + config))
   for i in range(repeats):
-    test("./build/tint2", config)
+    test("./build/tint2", config, use_asan)
 
 
-def run_tests():
+def run_tests(use_asan):
   print_err("Running tests...")
   configs = []
   configs += ["../themes/" + s for s in os.listdir("../themes")]
   index = 0
   for config in configs:
     index += 1
-    run_test(config, index)
+    run_test(config, index, use_asan)
     print("")
 
 
@@ -340,8 +350,9 @@ def main():
   show_timestamp()
   show_git_info(args.src_dir)
   show_system_info()
-  compile_and_report(args.src_dir)
-  run_tests()
+  for use_asan in [True, False]:
+    compile_and_report(args.src_dir, use_asan)
+    run_tests(use_asan)
 
 
 if __name__ == "__main__":
