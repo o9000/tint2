@@ -47,6 +47,8 @@ gboolean always_show_all_desktop_tasks;
 TaskbarSortMethod taskbar_sort_method;
 Alignment taskbar_alignment;
 
+static GList *taskbar_task_orderings = NULL;
+
 void taskbar_init_fonts();
 int taskbar_compute_desired_size(void *obj);
 
@@ -85,8 +87,40 @@ void default_taskbar()
     default_taskbarname();
 }
 
+void taskbar_clear_orderings()
+{
+    if (!taskbar_task_orderings)
+        return;
+    for (GList *order = taskbar_task_orderings; order; order = order->next) {
+        g_list_free_full((GList *)order->data, free);
+    }
+    g_list_free(taskbar_task_orderings);
+    taskbar_task_orderings = NULL;
+}
+
+void taskbar_save_orderings()
+{
+    taskbar_clear_orderings();
+    taskbar_task_orderings = NULL;
+    for (int i = 0; i < num_panels; i++) {
+        Panel *panel = &panels[i];
+        for (int j = 0; j < panel->num_desktops; j++) {
+            Taskbar *taskbar = &panel->taskbar[j];
+            GList *task_order = NULL;
+            for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next : taskbar->area.children; c; c = c->next) {
+                Task *t = (Task *)c->data;
+                Window *window = calloc(1, sizeof(Window));
+                *window = t->win;
+                task_order = g_list_append(task_order, window);
+            }
+            taskbar_task_orderings = g_list_append(taskbar_task_orderings, task_order);
+        }
+    }
+}
+
 void cleanup_taskbar()
 {
+    taskbar_save_orderings();
     if (win_to_task) {
         while (g_hash_table_size(win_to_task)) {
             GHashTableIter iter;
@@ -381,6 +415,54 @@ GPtrArray *get_task_buttons(Window win)
     return NULL;
 }
 
+static Window *sort_windows = NULL;
+
+int compare_windows(const void *a, const void *b)
+{
+    if (!sort_windows)
+        return 0;
+
+    int ia = *(int*)a;
+    int ib = *(int*)b;
+
+    Window wina = sort_windows[ia];
+    Window winb = sort_windows[ib];
+
+    for (GList *order = taskbar_task_orderings; order; order = order->next) {
+        int posa = -1;
+        int posb = -1;
+        int pos = 0;
+        for (GList *item = (GList *)order->data; item; item = item->next, pos++) {
+            Window win = *(Window*)item->data;
+            if (win == wina)
+                posa = pos;
+            if (win == winb)
+                posb = pos;
+        }
+        if (posa >= 0 && posb >= 0) {
+            return posa - posb;
+        }
+    }
+
+    return ia - ib;
+}
+
+void sort_win_list(Window *windows, int count)
+{
+    int *indices = (int *)calloc(count, sizeof(int));
+    for (int i = 0; i < count; i++)
+        indices[i] = i;
+    sort_windows = windows;
+    qsort(indices, count, sizeof(int), compare_windows);
+    Window *result = (Window *)calloc(count, sizeof(Window));
+    for (int i = 0; i < count; i++)
+        result[i] = windows[indices[i]];
+    memcpy(windows, result, count * sizeof(Window));
+    free(result);
+    free(indices);
+    sort_windows = NULL;
+}
+
 void taskbar_refresh_tasklist()
 {
     if (!taskbar_enabled)
@@ -389,6 +471,12 @@ void taskbar_refresh_tasklist()
 
     int num_results;
     Window *win = server_get_property(server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
+    Window *sorted = (Window *)calloc(num_results, sizeof(Window));
+    memcpy(sorted, win, num_results * sizeof(Window));
+    if (taskbar_task_orderings) {
+        sort_win_list(sorted, num_results);
+        taskbar_clear_orderings();
+    }
     if (!win)
         return;
 
@@ -396,7 +484,7 @@ void taskbar_refresh_tasklist()
     for (GList *it = win_list; it; it = it->next) {
         int i;
         for (i = 0; i < num_results; i++)
-            if (*((Window *)it->data) == win[i])
+            if (*((Window *)it->data) == sorted[i])
                 break;
         if (i == num_results)
             taskbar_remove_task(it->data);
@@ -405,10 +493,11 @@ void taskbar_refresh_tasklist()
 
     // Add any new
     for (int i = 0; i < num_results; i++)
-        if (!get_task(win[i]))
-            add_task(win[i]);
+        if (!get_task(sorted[i]))
+            add_task(sorted[i]);
 
     XFree(win);
+    free(sorted);
 }
 
 int taskbar_compute_desired_size(void *obj)
