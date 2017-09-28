@@ -286,7 +286,6 @@ def run_test(config, index):
 def run_tests():
   print_err("Running tests...")
   configs = []
-  configs += ["./configs/tint2/" +s for s in os.listdir("./configs/tint2") ]
   configs += ["../themes/" + s for s in os.listdir("../themes")]
   index = 0
   for config in configs:
