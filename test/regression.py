@@ -198,7 +198,7 @@ def test(tint2path, config, use_asan):
   leaks = find_asan_leaks(out)
   sys.stderr.write("\n")
   if use_asan:
-    mem_status = ok + " (ASAN on)"
+    mem_status = ok
   else:
     mem_status = ok if mem < 20 else warning if mem < 40 else error
   print("Memory usage: %.1f %s %s" % (mem, "MB", mem_status))
@@ -212,7 +212,7 @@ def test(tint2path, config, use_asan):
     print("Memory usage details:")
     print("```\n" + mem_detail.strip() + "\n```")
   if use_asan:
-    fps_status = ok + " (ASAN on)"
+    fps_status = ok
   else:
     fps_status = ok if min_fps > 60 else warning if min_fps > 40 else error
   print("FPS:", "min:", min_fps, "median:", med_fps, fps_status)
