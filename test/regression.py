@@ -296,7 +296,7 @@ def run_test(config, index, use_asan):
 def run_tests(use_asan):
   print_err("Running tests...")
   configs = []
-  configs += ["../themes/" + s for s in os.listdir("../themes")]
+  configs += ["../themes/" + s for s in os.listdir("../themes") if s.endswith("tint2rc")]
   index = 0
   for config in configs:
     index += 1
