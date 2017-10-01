@@ -1,4 +1,4 @@
-2017-09-28 master
+2017-10-01 15.2
 - Fixes:
   - Battery info is now again displayed even when current sensor is missing (https://github.com/jmc-88/tint3/issues/34)
   - Text elements compute their size correctly (issue #671)
@@ -956,5 +956,6 @@ released tint-0.2
 2008-04-22
 - fork ttm projet from p://code.google.com/p/ttm/ (by Pål Staurland staura@gmail.com)
   while the projet is no longer in developpement, have not changed the name of 'tint'.
+.
 .
 .
