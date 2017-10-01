@@ -257,7 +257,7 @@ void systray_dump_geometry(void *obj, int indent)
     for (GSList *l = tray->list_icons; l; l = l->next) {
         TrayWindow *traywin = (TrayWindow *)l->data;
         fprintf(stderr,
-                "%*sIcon: x = %d, y = %d, w = %d, h = %d, name = %s\n",
+                "tint2: %*sIcon: x = %d, y = %d, w = %d, h = %d, name = %s\n",
                 indent,
                 "",
                 traywin->x,

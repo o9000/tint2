@@ -518,7 +518,7 @@ void execp_dump_geometry(void *obj, int indent)
         Imlib_Image tmp = imlib_context_get_image();
         imlib_context_set_image(execp->backend->icon);
         fprintf(stderr,
-                "%*sIcon: x = %d, y = %d, w = %d, h = %d\n",
+                "tint2: %*sIcon: x = %d, y = %d, w = %d, h = %d\n",
                 indent,
                 "",
                 execp->frontend->iconx,
@@ -529,7 +529,7 @@ void execp_dump_geometry(void *obj, int indent)
             imlib_context_set_image(tmp);
     }
     fprintf(stderr,
-            "%*sText: x = %d, y = %d, w = %d, align = %s, text = %s\n",
+            "tint2: %*sText: x = %d, y = %d, w = %d, align = %s, text = %s\n",
             indent,
             "",
             execp->frontend->textx,

@@ -466,7 +466,7 @@ void task_dump_geometry(void *obj, int indent)
     Panel *panel = (Panel *)task->area.panel;
 
     fprintf(stderr,
-            "%*sText: x = %d, y = %d, w = %d, h = %d, align = %s, text = %s\n",
+            "tint2: %*sText: x = %d, y = %d, w = %d, h = %d, align = %s, text = %s\n",
             indent,
             "",
             (int)panel->g_task.text_posx,
@@ -476,7 +476,7 @@ void task_dump_geometry(void *obj, int indent)
             panel->g_task.centered ? "center" : "left",
             task->title);
     fprintf(stderr,
-            "%*sIcon: x = %d, y = %d, w = h = %d\n",
+            "tint2: %*sIcon: x = %d, y = %d, w = h = %d\n",
             indent,
             "",
             task->_icon_x,

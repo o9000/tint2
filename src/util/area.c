@@ -850,7 +850,7 @@ void area_dump_geometry(Area *area, int indent)
         return;
     }
     fprintf(stderr,
-            "%*sBox: x = %d, y = %d, w = %d, h = %d, desired size = %d\n",
+            "tint2: %*sBox: x = %d, y = %d, w = %d, h = %d, desired size = %d\n",
             indent,
             "",
             area->posx,
@@ -859,7 +859,7 @@ void area_dump_geometry(Area *area, int indent)
             area->height,
             compute_desired_size(area));
     fprintf(stderr,
-            "%*sBorder: left = %d, right = %d, top = %d, bottom = %d\n",
+            "tint2: %*sBorder: left = %d, right = %d, top = %d, bottom = %d\n",
             indent,
             "",
             left_border_width(area),
@@ -867,7 +867,7 @@ void area_dump_geometry(Area *area, int indent)
             top_border_width(area),
             bottom_border_width(area));
     fprintf(stderr,
-            "%*sPadding: left = right = %d, top = bottom = %d, spacing = %d\n",
+            "tint2: %*sPadding: left = right = %d, top = bottom = %d, spacing = %d\n",
             indent,
             "",
             area->paddingxlr,
