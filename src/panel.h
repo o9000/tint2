@@ -165,7 +165,7 @@ gboolean resize_panel(void *obj);
 void render_panel(Panel *panel);
 void shrink_panel(Panel *panel);
 void _schedule_panel_redraw(const char *file, const char *function, const int line);
-#define schedule_panel_redraw() _schedule_panel_redraw(__FILE__, __FUNCTION__, __LINE__)
+#define schedule_panel_redraw() _schedule_panel_redraw(__FILE__, __func__, __LINE__)
 
 void set_panel_items_order(Panel *p);
 void place_panel_all_desktops(Panel *p);

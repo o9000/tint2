@@ -184,7 +184,7 @@ int systray_compute_desired_size(void *obj)
 gboolean resize_systray(void *obj)
 {
     if (systray_profile)
-        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __func__, __LINE__);
 
     int size;
     systray_compute_geometry(&size);
@@ -227,7 +227,7 @@ gboolean resize_systray(void *obj)
 void draw_systray(void *obj, cairo_t *c)
 {
     if (systray_profile)
-        fprintf(stderr, BLUE "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, BLUE "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __func__, __LINE__);
     if (systray_composited) {
         if (render_background)
             XFreePixmap(server.display, render_background);
@@ -271,7 +271,7 @@ void systray_dump_geometry(void *obj, int indent)
 void on_change_systray(void *obj)
 {
     if (systray_profile)
-        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __func__, __LINE__);
     if (systray.icons_per_column == 0 || systray.icons_per_row == 0)
         return;
 
@@ -301,7 +301,7 @@ void on_change_systray(void *obj)
         if (systray_profile)
             fprintf(stderr,
                     "%s:%d win = %lu (%s), parent = %lu, x = %d, y = %d\n",
-                    __FUNCTION__,
+                    __func__,
                     __LINE__,
                     traywin->win,
                     traywin->name,
@@ -358,7 +358,7 @@ void on_change_systray(void *obj)
 void start_net()
 {
     if (systray_profile)
-        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __func__, __LINE__);
     if (net_sel_win) {
         // protocol already started
         if (!systray_enabled)
@@ -464,7 +464,7 @@ void start_net()
 
     fprintf(stderr, GREEN "tint2: systray started" RESET "\n");
     if (systray_profile)
-        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __func__, __LINE__);
     XClientMessageEvent ev;
     ev.type = ClientMessage;
     ev.window = server.root_win;
@@ -481,7 +481,7 @@ void start_net()
 void handle_systray_event(XClientMessageEvent *e)
 {
     if (systray_profile)
-        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __func__, __LINE__);
 
     Window win;
     unsigned long opcode = e->data.l[1];
@@ -509,7 +509,7 @@ void handle_systray_event(XClientMessageEvent *e)
 void stop_net()
 {
     if (systray_profile)
-        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __func__, __LINE__);
     if (systray.list_icons) {
         // remove_icon change systray.list_icons
         while (systray.list_icons)
@@ -529,7 +529,7 @@ gboolean error;
 int window_error_handler(Display *d, XErrorEvent *e)
 {
     if (systray_profile)
-        fprintf(stderr, RED "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, RED "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __func__, __LINE__);
     error = TRUE;
     if (e->error_code != BadWindow) {
         fprintf(stderr, RED "tint2: systray: error code %d" RESET "\n", e->error_code);
@@ -623,7 +623,7 @@ gboolean add_icon(Window win)
 
     char *name = get_window_name(win);
     if (systray_profile)
-        fprintf(stderr, "tint2: [%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __FUNCTION__, __LINE__, win, name);
+        fprintf(stderr, "tint2: [%f] %s:%d win = %lu (%s)\n", profiling_get_time(), __func__, __LINE__, win, name);
     Panel *panel = systray.area.panel;
 
     // Get the process ID of the application that created the window
@@ -748,14 +748,14 @@ gboolean add_icon(Window win)
     }
 
     if (systray_profile)
-        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __func__, __LINE__);
 
     // Resize and redraw the systray
     if (systray_profile)
         fprintf(stderr,
                 BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__);
     systray.area.resize_needed = TRUE;
     panel->area.resize_needed = TRUE;
@@ -770,7 +770,7 @@ gboolean reparent_icon(TrayWindow *traywin)
         fprintf(stderr,
                 "[%f] %s:%d win = %lu (%s)\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__,
                 traywin->win,
                 traywin->name);
@@ -832,7 +832,7 @@ gboolean reparent_icon(TrayWindow *traywin)
         fprintf(stderr,
                 "[%f] %s:%d win = %lu (%s)\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__,
                 traywin->win,
                 traywin->name);
@@ -846,7 +846,7 @@ gboolean embed_icon(TrayWindow *traywin)
         fprintf(stderr,
                 "[%f] %s:%d win = %lu (%s)\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__,
                 traywin->win,
                 traywin->name);
@@ -903,7 +903,7 @@ gboolean embed_icon(TrayWindow *traywin)
         fprintf(stderr,
                 "[%f] %s:%d win = %lu (%s)\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__,
                 traywin->win,
                 traywin->name);
@@ -917,7 +917,7 @@ void remove_icon(TrayWindow *traywin)
         fprintf(stderr,
                 "[%f] %s:%d win = %lu (%s)\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__,
                 traywin->win,
                 traywin->name);
@@ -963,7 +963,7 @@ void remove_icon(TrayWindow *traywin)
         fprintf(stderr,
                 BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__);
     systray.area.resize_needed = TRUE;
     panel->area.resize_needed = TRUE;
@@ -1086,7 +1086,7 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
         fprintf(stderr,
                 BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__);
     schedule_panel_redraw();
     refresh_systray = TRUE;
@@ -1165,7 +1165,7 @@ void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
         fprintf(stderr,
                 BLUE "[%f] %s:%d trigger resize & redraw" RESET "\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__);
     schedule_panel_redraw();
     refresh_systray = TRUE;
@@ -1177,7 +1177,7 @@ void systray_destroy_event(TrayWindow *traywin)
         fprintf(stderr,
                 "[%f] %s:%d win = %lu (%s)\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__,
                 traywin->win,
                 traywin->name);
@@ -1212,7 +1212,7 @@ void systray_render_icon_composited(void *t)
         fprintf(stderr,
                 "[%f] %s:%d win = %lu (%s)\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__,
                 traywin->win,
                 traywin->name);
@@ -1230,7 +1230,7 @@ void systray_render_icon_composited(void *t)
                 fprintf(stderr,
                         YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
                         profiling_get_time(),
-                        __FUNCTION__,
+                        __func__,
                         __LINE__,
                         traywin->win,
                         traywin->name);
@@ -1250,7 +1250,7 @@ void systray_render_icon_composited(void *t)
             fprintf(stderr,
                     YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
                     profiling_get_time(),
-                    __FUNCTION__,
+                    __func__,
                     __LINE__,
                     traywin->win,
                     traywin->name);
@@ -1381,7 +1381,7 @@ void systray_render_icon_composited(void *t)
         fprintf(stderr,
                 "[%f] %s:%d win = %lu (%s)\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__,
                 traywin->win,
                 traywin->name);
@@ -1419,7 +1419,7 @@ void systray_render_icon(void *t)
         //			fprintf(stderr,
         //			        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
         //			        profiling_get_time(),
-        //			        __FUNCTION__,
+        //			        __func__,
         //			        __LINE__,
         //			        traywin->win,
         //			        traywin->name);
@@ -1433,7 +1433,7 @@ void systray_render_icon(void *t)
         fprintf(stderr,
                 "[%f] %s:%d win = %lu (%s)\n",
                 profiling_get_time(),
-                __FUNCTION__,
+                __func__,
                 __LINE__,
                 traywin->win,
                 traywin->name);
@@ -1466,7 +1466,7 @@ void systray_render_icon(void *t)
                     fprintf(stderr,
                             YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
                             profiling_get_time(),
-                            __FUNCTION__,
+                            __func__,
                             __LINE__,
                             traywin->win,
                             traywin->name);
@@ -1500,7 +1500,7 @@ void systray_render_icon(void *t)
 void refresh_systray_icons()
 {
     if (systray_profile)
-        fprintf(stderr, BLUE "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __FUNCTION__, __LINE__);
+        fprintf(stderr, BLUE "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __func__, __LINE__);
     TrayWindow *traywin;
     GSList *l;
     for (l = systray.list_icons; l; l = l->next) {

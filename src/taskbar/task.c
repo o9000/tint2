@@ -93,7 +93,7 @@ Task *add_task(Window win)
              (int)win,
              task_template.title ? task_template.title : "null");
 
-    // fprintf(stderr, "tint2: %s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, win, task_template.title ?
+    // fprintf(stderr, "tint2: %s %d: win = %ld, task = %s\n", __func__, __LINE__, win, task_template.title ?
     // task_template.title : "??");
     // fprintf(stderr, "tint2: new task %s win %u: desktop %d, monitor %d\n", new_task.title, win, new_task.desktop, monitor);
 
@@ -118,7 +118,7 @@ Task *add_task(Window win)
         task_instance->win_h = task_template.win_h;
         task_instance->current_state = TASK_UNDEFINED; // to update the current state later in set_task_state...
         if (task_instance->desktop == ALL_DESKTOPS && server.desktop != j) {
-            // fprintf(stderr, "tint2: %s %d: win = %ld hiding task: another desktop\n", __FUNCTION__, __LINE__, win);
+            // fprintf(stderr, "tint2: %s %d: win = %ld hiding task: another desktop\n", __func__, __LINE__, win);
             task_instance->area.on_screen = always_show_all_desktop_tasks;
         }
         task_instance->title = task_template.title;
@@ -186,7 +186,7 @@ void remove_task(Task *task)
     if (!task)
         return;
 
-    // fprintf(stderr, "tint2: %s %d: win = %ld, task = %s\n", __FUNCTION__, __LINE__, task->win, task->title ? task->title :
+    // fprintf(stderr, "tint2: %s %d: win = %ld, task = %s\n", __func__, __LINE__, task->win, task->title ? task->title :
     // "??");
 
     if (taskbar_mode == MULTI_DESKTOP) {
@@ -292,7 +292,7 @@ void task_update_icon(Task *task)
                     if (0 && img)
                         fprintf(stderr,
                                 "%s: Got %dx%d icon via _NET_WM_ICON for %s\n",
-                                __FUNCTION__,
+                                __func__,
                                 w,
                                 h,
                                 task->title ? task->title : "task");
@@ -318,7 +318,7 @@ void task_update_icon(Task *task)
                 if (0 && img)
                     fprintf(stderr,
                             "%s: Got %dx%d pixmap icon via WM_HINTS for %s\n",
-                            __FUNCTION__,
+                            __func__,
                             w,
                             h,
                             task->title ? task->title : "task");
@@ -783,7 +783,7 @@ void task_handle_mouse_event(Task *task, MouseAction action)
 
 void task_update_desktop(Task *task)
 {
-    // fprintf(stderr, "tint2: %s %d:\n", __FUNCTION__, __LINE__);
+    // fprintf(stderr, "tint2: %s %d:\n", __func__, __LINE__);
     Window win = task->win;
     remove_task(task);
     task = add_task(win);
