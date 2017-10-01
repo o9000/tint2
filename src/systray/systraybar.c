@@ -679,7 +679,7 @@ gboolean add_icon(Window win)
             win,
             name,
             pid,
-            attr.visual,
+            (void*)attr.visual,
             attr.colormap,
             attr.depth,
             attr.width,
