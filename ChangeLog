@@ -1,3 +1,7 @@
+2017-10-04 master
+- Fixes:
+  - cmake: Do not hardcode path to /etc
+
 2017-10-01 15.2
 - Fixes:
   - Battery info is now again displayed even when current sensor is missing (https://github.com/jmc-88/tint3/issues/34)
