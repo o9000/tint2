@@ -24,6 +24,16 @@ void signal_handler(int sig)
     signal_pending = sig;
 }
 
+void reset_signals()
+{
+    for (int sig = 1; sig < 32; sig++) {
+        signal(sig, SIG_DFL);
+    }
+    sigset_t signal_set;
+    sigemptyset(&signal_set);
+    sigprocmask(SIG_SETMASK, &signal_set, NULL);
+}
+
 void init_signals()
 {
     // Set signal handlers

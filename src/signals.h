@@ -5,6 +5,7 @@ void init_signals();
 void init_signals_postconfig();
 void emit_self_restart(const char *reason);
 int get_signal_pending();
+void reset_signals();
 
 void handle_sigchld_events();
 

@@ -59,6 +59,7 @@
 
 #include "../panel.h"
 #include "timer.h"
+#include "signals.h"
 
 void write_string(int fd, const char *s)
 {
@@ -398,6 +399,7 @@ pid_t tint_exec(const char *command,
         if (dir)
             chdir(dir);
         close_all_fds();
+        reset_signals();
         if (terminal) {
 #if !defined(__OpenBSD__)
             fprintf(stderr, "tint2: executing in x-terminal-emulator: %s\n", command);
