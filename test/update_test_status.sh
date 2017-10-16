@@ -11,7 +11,9 @@ exec 2>&1
 cd ~/tint2
 git reset --hard
 git pull
-
+last=$(cat .last-reg-test)
+curr=$(git rev-parse --verify HEAD)
+[ "$last" == "$curr" ] && exit 0
 
 cd ~/tint2.wiki
 git reset --hard
@@ -27,3 +29,6 @@ cd ~/tint2.wiki
 git add tests.md
 git commit -am 'Update test results'
 git push origin master
+
+cd ~/tint2
+echo "$curr" > .last-reg-test
