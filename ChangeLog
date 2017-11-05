@@ -1,4 +1,4 @@
-2017-10-04 master
+2017-11-05 15.3
 - Fixes:
   - Launcher: Reset signal mask before executing commands (issue #674)
   - cmake: Do not hardcode path to /etc
@@ -961,6 +961,7 @@ released tint-0.2
 2008-04-22
 - fork ttm projet from p://code.google.com/p/ttm/ (by Pål Staurland staura@gmail.com)
   while the projet is no longer in developpement, have not changed the name of 'tint'.
+.
 .
 .
 .
