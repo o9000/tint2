@@ -1,5 +1,6 @@
 2017-10-04 master
 - Fixes:
+  - Launcher: Reset signal mask before executing commands (issue #674)
   - cmake: Do not hardcode path to /etc
 
 2017-10-01 15.2
