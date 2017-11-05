@@ -214,7 +214,7 @@ def test(tint2path, config, use_asan):
   if use_asan:
     fps_status = ok
   else:
-    fps_status = ok if min_fps > 60 else warning if min_fps > 40 else error
+    fps_status = ok if min_fps > 30 else warning if min_fps > 20 else error
   print("FPS:", "min:", min_fps, "median:", med_fps, fps_status)
   if mem_status != ok or leak_status != ok or fps_status != ok:
     print("Output:")
