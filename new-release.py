@@ -193,4 +193,4 @@ if __name__ == '__main__':
   print "Does this look correct? [y/n]"
   choice = raw_input().lower()
   if choice != "y":
-    run("git reset --hard HEAD~ ; git tag -d %s ; git tag -d v%s" % (version, version))
+    run("git reset --hard HEAD~ ; git tag -d %s ; git tag -d v%s" % (version, readable_version))
