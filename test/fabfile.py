@@ -87,6 +87,8 @@ def pull_code():
     sudo('cd; git clone https://gitlab.com/o9000/tint2.git', user='runner')
   if not exists('/home/runner/tint2.wiki'):
     sudo('cd; git clone git@gitlab.com:o9000/tint2.wiki.git', user='runner')
+  sudo('cd; git config --global user.name "tint2.runner"', user='runner')
+  sudo('cd; git config --global user.email "tint2.runner@netperf.tools"', user='runner')
 
 
 @task
@@ -96,7 +98,7 @@ def add_cron_jobs():
   fabtools.cron.add_task('packaging_check', '10 */2 * * *', 'runner', '/home/runner/tint2/packaging/update_version_status.sh')
 
 
-@task
+@task(default=True)
 @roles('runner')
 def full_runner():
   create_users()
