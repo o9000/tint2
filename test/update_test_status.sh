@@ -11,7 +11,7 @@ exec 2>&1
 cd ~/tint2
 git reset --hard
 git pull
-last=$(cat .last-reg-test)
+last=$(cat .last-reg-test || true)
 curr=$(git rev-parse --verify HEAD)
 [ "$last" == "$curr" ] && exit 0
 
