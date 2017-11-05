@@ -1,5 +1,8 @@
 #!/usr/bin/env python2
 
+# Setup: add tint2-runner, tint2-freebsd and tint2-openbsd in /etc/hosts.
+# Run: pip install fabric; pip install fabtools.
+
 # TODO: setup bsd workers
 # TODO: prin ssh public key to be added on gitlab
 
