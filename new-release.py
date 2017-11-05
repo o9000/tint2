@@ -190,3 +190,7 @@ if __name__ == '__main__':
   run("cd tint2-%s ; mkdir build ; cd build ; cmake .. ; make" % readable_version)
   assert_equal(run("./tint2-%s/build/tint2 -v" % readable_version).strip(), "tint2 version %s" % readable_version)
   os.system("git log -p -1 --word-diff")
+  print "Does this look correct? [y/n]"
+  choice = raw_input().lower()
+  if choice != "y":
+    run("git reset HEAD~")
