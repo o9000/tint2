@@ -109,7 +109,7 @@ void destroy_execp(void *obj)
 
         if (execp->backend->instances) {
             fprintf(stderr, "tint2: Error: Attempt to destroy backend while there are still frontend instances!\n");
-            exit(-1);
+            exit(EXIT_FAILURE);
         }
         free(execp->backend);
         free(execp);

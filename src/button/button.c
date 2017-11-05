@@ -79,7 +79,7 @@ void destroy_button(void *obj)
 
         if (button->backend->instances) {
             fprintf(stderr, "tint2: Error: Attempt to destroy backend while there are still frontend instances!\n");
-            exit(-1);
+            exit(EXIT_FAILURE);
         }
         free(button->backend);
         free(button);

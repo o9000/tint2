@@ -808,7 +808,7 @@ Imlib_Image load_image(const char *path, int cached)
                     GdkPixbuf *pixbuf = rsvg_handle_get_pixbuf(svg);
                     gdk_pixbuf_save(pixbuf, tmp_filename, "png", NULL, NULL);
                 }
-                exit(0);
+                _exit(0);
             } else {
                 // Parent
                 close(fd);

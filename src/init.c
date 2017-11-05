@@ -75,7 +75,7 @@ void handle_cli_arguments(int argc, char **argv)
         }
         if (error) {
             print_usage();
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     }
 }
@@ -184,7 +184,7 @@ void init_X11_pre_config()
     server.display = XOpenDisplay(NULL);
     if (!server.display) {
         fprintf(stderr, "tint2: could not open display!\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     server.x11_fd = ConnectionNumber(server.display);
     XSetErrorHandler((XErrorHandler)server_catch_error);
