@@ -591,7 +591,7 @@ The action semantics:
 
   * `execp_icon_h = integer` : See `execp_icon_w`. *(since 0.12.4)*
 
-  * `execp_tooltip = text` : The tooltip. Leave it empty to not display a tooltip. Not specifying this option leads to showing an automatically generated tooltip with information about when the command was last executed. *(since 0.12.4)*
+  * `execp_tooltip = text` : The tooltip. If left empty, no tooltip is displayed. If missing, the standard error of the command is shown as a tooltip (an ANSI clear screen sequence can reset the contents, bash: `printf '\e[2J'`, C: `printf("\x1b[2J");`). If the standard error is empty, the tooltip will show information about the time when the command was last executed. *(since 0.12.4)*
 
   * `execp_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]` : The font used to draw the text.  *(since 0.12.4)*
 

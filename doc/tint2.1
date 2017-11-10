@@ -716,7 +716,7 @@ To hide the clock, comment \fB\fCtime1_format\fR and \fB\fCtime2_format\fR\&.
 .IP \(bu 2
 \fB\fCexecp_icon_h = integer\fR : See \fB\fCexecp_icon_w\fR\&. \fI(since 0.12.4)\fP
 .IP \(bu 2
-\fB\fCexecp_tooltip = text\fR : The tooltip. Leave it empty to not display a tooltip. Not specifying this option leads to showing an automatically generated tooltip with information about when the command was last executed. \fI(since 0.12.4)\fP
+\fB\fCexecp_tooltip = text\fR : The tooltip. If left empty, no tooltip is displayed. If missing, the standard error of the command is shown as a tooltip (an ANSI clear screen sequence can reset the contents, bash: \fB\fCprintf '\\e[2J'\fR, C: \fB\fCprintf("\\x1b[2J");\fR). If the standard error is empty, the tooltip will show information about the time when the command was last executed. \fI(since 0.12.4)\fP
 .IP \(bu 2
 \fB\fCexecp_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR : The font used to draw the text.  \fI(since 0.12.4)\fP
 .IP \(bu 2
