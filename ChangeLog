@@ -1,3 +1,9 @@
+2017-11-10 master
+- Enhancements:
+  - Added Spanish translation (contributed by Vicmz)
+  - Executor: updated tooltip documentation (issue #676)
+  - Systray: warn on duplicate config option systray_name_filter (issue #652)
+
 2017-11-05 15.3
 - Fixes:
   - Launcher: Reset signal mask before executing commands (issue #674)
