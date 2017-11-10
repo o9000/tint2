@@ -1133,8 +1133,10 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "systray_monitor") == 0) {
         systray_monitor = MAX(0, config_get_monitor(value));
     } else if (strcmp(key, "systray_name_filter") == 0) {
-        if (systray_hide_name_filter)
+        if (systray_hide_name_filter) {
+            fprintf(stderr, "tint2: Error: duplicate option 'systray_name_filter'. Please use it only once. See https://gitlab.com/o9000/tint2/issues/652\n");
             free(systray_hide_name_filter);
+        }
         systray_hide_name_filter = strdup(value);
     }
 
