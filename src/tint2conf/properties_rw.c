@@ -1740,7 +1740,7 @@ void add_entry(char *key, char *value)
     else if (strcmp(key, "task_thumbnail") == 0)
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tooltip_task_thumbnail), atoi(value));
     else if (strcmp(key, "task_thumbnail_size") == 0)
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_task_thumbnail_size), MAX(8, atoi(value1)));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_task_thumbnail_size), MAX(8, atoi(value)));
 
     /* Systray */
     else if (strcmp(key, "systray") == 0) {
