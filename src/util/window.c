@@ -367,8 +367,12 @@ cairo_surface_t *get_window_thumbnail(Window win)
     th = 128;
     tw = w * th / h;
 
+    XWindowAttributes wa;
+    if (!XGetWindowAttributes(server.display, win, &wa))
+        return NULL;
+
     cairo_surface_t *x11_surface =
-        cairo_xlib_surface_create(server.display, win, DefaultVisual(server.display, server.screen), w, h);
+        cairo_xlib_surface_create(server.display, win, wa.visual, w, h);
     cairo_surface_t *image_surface = cairo_surface_create_similar_image(x11_surface, CAIRO_FORMAT_ARGB32, tw, th);
 
     cairo_t *cr = cairo_create(image_surface);
