@@ -393,7 +393,7 @@ cairo_surface_t *get_window_thumbnail(Window win)
     cairo_translate(cr, ox, oy);
     cairo_scale(cr, sx, sy);
     cairo_set_source_surface(cr, x11_surface, 0, 0);
-    cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_BEST);
+    cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_GAUSSIAN);
     cairo_paint(cr);
     cairo_destroy(cr);
     cairo_surface_destroy(x11_surface);
