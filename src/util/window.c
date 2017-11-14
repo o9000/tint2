@@ -359,9 +359,12 @@ char *get_window_name(Window win)
 
 cairo_surface_t *get_window_thumbnail(Window win)
 {
-    int x, y, w, h;
-    if (!get_window_coordinates(win, &x, &y, &w, &h) || !w || !h)
+    XWindowAttributes wa;
+    if (!XGetWindowAttributes(server.display, win, &wa))
         return NULL;
+    int w, h;
+    w = wa.width;
+    h = wa.height;
 
     int tw, th;
     double sx, sy;
@@ -380,10 +383,6 @@ cairo_surface_t *get_window_thumbnail(Window win)
         sy = th/(double)h;
         ox = oy = 0;
     }
-
-    XWindowAttributes wa;
-    if (!XGetWindowAttributes(server.display, win, &wa))
-        return NULL;
 
     cairo_surface_t *x11_surface =
         cairo_xlib_surface_create(server.display, win, wa.visual, w, h);
