@@ -335,21 +335,16 @@ void stop_tooltip_timeout()
 
 void tooltip_update_contents_for(Area *area)
 {
-    free(g_tooltip.tooltip_text);
+    free_and_null(g_tooltip.tooltip_text);
+    if (g_tooltip.image)
+        cairo_surface_destroy(g_tooltip.image);
+    g_tooltip.image = NULL;
     if (area && area->_get_tooltip_text)
         g_tooltip.tooltip_text = area->_get_tooltip_text(area);
-    else
-        g_tooltip.tooltip_text = NULL;
     if (area && area->_get_tooltip_image) {
-        if (g_tooltip.image)
-            cairo_surface_destroy(g_tooltip.image);
         g_tooltip.image = area->_get_tooltip_image(area);
         if (g_tooltip.image)
             cairo_surface_reference(g_tooltip.image);
-    } else {
-        if (g_tooltip.image)
-            cairo_surface_destroy(g_tooltip.image);
-        g_tooltip.image = NULL;
     }
     g_tooltip.area = area;
 }
