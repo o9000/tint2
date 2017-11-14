@@ -37,6 +37,7 @@ typedef struct {
     Color font_color;
     Background *bg;
     timeout *timeout;
+    cairo_surface_t *image;
 } Tooltip;
 
 extern Tooltip g_tooltip;
@@ -53,7 +54,7 @@ void tooltip_show(void * /*arg*/);
 void tooltip_update();
 void tooltip_trigger_hide();
 void tooltip_hide(void * /*arg*/);
-void tooltip_copy_text(Area *area);
+void tooltip_update_contents_for(Area *area);
 void tooltip_default_font_changed();
 
 #endif // TOOLTIP_H

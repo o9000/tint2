@@ -55,7 +55,7 @@ void cleanup_tooltip()
 {
     stop_tooltip_timeout();
     tooltip_hide(NULL);
-    tooltip_copy_text(NULL);
+    tooltip_update_contents_for(NULL);
     if (g_tooltip.window)
         XDestroyWindow(server.display, g_tooltip.window);
     g_tooltip.window = 0;
@@ -118,7 +118,7 @@ void tooltip_trigger_show(Area *area, Panel *p, XEvent *e)
     just_shown = TRUE;
     g_tooltip.panel = p;
     if (g_tooltip.mapped && g_tooltip.area != area) {
-        tooltip_copy_text(area);
+        tooltip_update_contents_for(area);
         tooltip_update();
         stop_tooltip_timeout();
     } else if (!g_tooltip.mapped) {
@@ -133,7 +133,7 @@ void tooltip_show(void *arg)
     XTranslateCoordinates(server.display, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
     Area *area = find_area_under_mouse(g_tooltip.panel, mx, my);
     if (!g_tooltip.mapped && area->_get_tooltip_text) {
-        tooltip_copy_text(area);
+        tooltip_update_contents_for(area);
         g_tooltip.mapped = True;
         XMapWindow(server.display, g_tooltip.window);
         tooltip_update();
@@ -162,6 +162,12 @@ void tooltip_update_geometry()
     pango_layout_get_pixel_extents(layout, &r1, &r2);
     width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx + r2.width;
     height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy + r2.height;
+    if (g_tooltip.image) {
+        width = MAX(width,
+                    left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx +
+                        cairo_image_surface_get_width(g_tooltip.image));
+        height += g_tooltip.paddingy + cairo_image_surface_get_height(g_tooltip.image);
+    }
 
     if (panel_horizontal && panel_position & BOTTOM)
         y = panel->posy - height;
@@ -278,8 +284,16 @@ void tooltip_update()
                   -r1.x / 2 + left_bg_border_width(g_tooltip.bg) + g_tooltip.paddingx,
                   -r1.y / 2 + 1 + top_bg_border_width(g_tooltip.bg) + g_tooltip.paddingy);
     pango_cairo_show_layout(c, layout);
-
     g_object_unref(layout);
+
+    if (g_tooltip.image) {
+        cairo_translate(c,
+                        g_tooltip.paddingx,
+                        height - g_tooltip.paddingy - cairo_image_surface_get_height(g_tooltip.image));
+        cairo_set_source_surface(c, g_tooltip.image, 0, 0);
+        cairo_paint(c);
+    }
+
     cairo_destroy(c);
     cairo_surface_destroy(cs);
 }
@@ -287,7 +301,7 @@ void tooltip_update()
 void tooltip_trigger_hide()
 {
     if (g_tooltip.mapped) {
-        tooltip_copy_text(0);
+        tooltip_update_contents_for(NULL);
         start_hide_timeout();
     } else {
         // tooltip not visible yet, but maybe a timeout is still pending
@@ -319,12 +333,23 @@ void stop_tooltip_timeout()
     stop_timeout(g_tooltip.timeout);
 }
 
-void tooltip_copy_text(Area *area)
+void tooltip_update_contents_for(Area *area)
 {
     free(g_tooltip.tooltip_text);
     if (area && area->_get_tooltip_text)
         g_tooltip.tooltip_text = area->_get_tooltip_text(area);
     else
         g_tooltip.tooltip_text = NULL;
+    if (area && area->_get_tooltip_image) {
+        if (g_tooltip.image)
+            cairo_surface_destroy(g_tooltip.image);
+        g_tooltip.image = area->_get_tooltip_image(area);
+        if (g_tooltip.image)
+            cairo_surface_reference(g_tooltip.image);
+    } else {
+        if (g_tooltip.image)
+            cairo_surface_destroy(g_tooltip.image);
+        g_tooltip.image = NULL;
+    }
     g_tooltip.area = area;
 }

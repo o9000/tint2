@@ -47,6 +47,12 @@ char *task_get_tooltip(void *obj)
     return strdup(t->title);
 }
 
+cairo_surface_t *task_get_thumbnail(void *obj)
+{
+    Task *t = (Task *)obj;
+    return t->thumbnail;
+}
+
 Task *add_task(Window win)
 {
     if (!win)
@@ -122,8 +128,10 @@ Task *add_task(Window win)
             task_instance->area.on_screen = always_show_all_desktop_tasks;
         }
         task_instance->title = task_template.title;
-        if (panels[monitor].g_task.tooltip_enabled)
+        if (panels[monitor].g_task.tooltip_enabled) {
             task_instance->area._get_tooltip_text = task_get_tooltip;
+            task_instance->area._get_tooltip_image = task_get_thumbnail;
+        }
         for (int k = 0; k < TASK_STATE_COUNT; ++k) {
             task_instance->icon[k] = task_template.icon[k];
             task_instance->icon_hover[k] = task_template.icon_hover[k];
@@ -201,6 +209,8 @@ void remove_task(Task *task)
     // fprintf(stderr, "tint2: remove_task %s %d\n", task->title, task->desktop);
     if (task->title)
         free(task->title);
+    if (task->thumbnail)
+        cairo_surface_destroy(task->thumbnail);
     task_remove_icon(task);
 
     GPtrArray *task_buttons = g_hash_table_lookup(win_to_task, &win);
@@ -212,6 +222,8 @@ void remove_task(Task *task)
             task_drag = 0;
         if (g_slist_find(urgent_list, task2))
             del_urgent(task2);
+        if (g_tooltip.area == &task2->area)
+            tooltip_hide(NULL);
         remove_area((Area *)task2);
         free(task2);
     }
@@ -603,10 +615,24 @@ void reset_active_task()
     }
 }
 
+void task_refresh_thumbnail(Task *task)
+{
+    cairo_surface_t *thumbnail = get_window_thumbnail(task->win);
+    if (!thumbnail)
+        return;
+    if (task->thumbnail)
+        cairo_surface_destroy(task->thumbnail);
+    task->thumbnail = thumbnail;
+}
+
 void set_task_state(Task *task, TaskState state)
 {
     if (!task || state == TASK_UNDEFINED || state >= TASK_STATE_COUNT)
         return;
+
+    if (state != TASK_ICONIFIED) {
+        task_refresh_thumbnail(task);
+    }
 
     if (state == TASK_ACTIVE && task->current_state != state) {
         clock_gettime(CLOCK_MONOTONIC, &task->last_activation_time);

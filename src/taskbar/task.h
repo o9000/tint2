@@ -74,6 +74,7 @@ typedef struct Task {
     double _text_posy;
     int _icon_x;
     int _icon_y;
+    cairo_surface_t *thumbnail;
 } Task;
 
 extern timeout *urgent_timeout;

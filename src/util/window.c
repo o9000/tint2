@@ -157,7 +157,8 @@ int get_window_desktop(Window win)
 
     if (best_match < 0)
         best_match = 0;
-    // fprintf(stderr, "tint2: window %lx %s : viewport %d, (%d, %d)\n", win, get_task(win) ? get_task(win)->title : "??",
+    // fprintf(stderr, "tint2: window %lx %s : viewport %d, (%d, %d)\n", win, get_task(win) ? get_task(win)->title :
+    // "??",
     // best_match+1, x, y);
     return best_match;
 }
@@ -190,15 +191,18 @@ int get_window_monitor(Window win)
     return best_match;
 }
 
-void get_window_coordinates(Window win, int *x, int *y, int *w, int *h)
+gboolean get_window_coordinates(Window win, int *x, int *y, int *w, int *h)
 {
     int dummy_int;
     unsigned ww, wh, bw, bh;
     Window src;
-    XTranslateCoordinates(server.display, win, server.root_win, 0, 0, x, y, &src);
-    XGetGeometry(server.display, win, &src, &dummy_int, &dummy_int, &ww, &wh, &bw, &bh);
+    if (!XTranslateCoordinates(server.display, win, server.root_win, 0, 0, x, y, &src))
+        return FALSE;
+    if (!XGetGeometry(server.display, win, &src, &dummy_int, &dummy_int, &ww, &wh, &bw, &bh))
+        return FALSE;
     *w = ww + bw;
     *h = wh + bh;
+    return TRUE;
 }
 
 gboolean window_is_iconified(Window win)
@@ -351,4 +355,40 @@ char *get_window_name(Window win)
     XFreeStringList(name_list);
     XFree(text_property.value);
     return result;
+}
+
+cairo_surface_t *get_window_thumbnail(Window win)
+{
+    int x, y, w, h;
+    if (!get_window_coordinates(win, &x, &y, &w, &h))
+        return NULL;
+
+    int tw, th;
+    th = 128;
+    tw = w * th / h;
+
+    cairo_surface_t *x11_surface =
+        cairo_xlib_surface_create(server.display, win, DefaultVisual(server.display, server.screen), w, h);
+    cairo_surface_t *image_surface = cairo_surface_create_similar_image(x11_surface, CAIRO_FORMAT_ARGB32, tw, th);
+
+    cairo_t *cr = cairo_create(image_surface);
+    cairo_scale(cr, tw/(double)w, th/(double)h);
+    cairo_set_source_surface(cr, x11_surface, 0, 0);
+    cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_BEST);
+    cairo_paint(cr);
+    cairo_destroy(cr);
+    cairo_surface_destroy(x11_surface);
+
+    uint32_t *pixels = (uint32_t *)cairo_image_surface_get_data(image_surface);
+    gboolean empty = TRUE;
+    for (int i = 0; empty && i < tw * th; i += 4) {
+        if (pixels[i] & 0xffFFff)
+            empty = FALSE;
+    }
+    if (empty) {
+        cairo_surface_destroy(image_surface);
+        return NULL;
+    }
+
+    return image_surface;
 }

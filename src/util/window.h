@@ -25,7 +25,7 @@ int get_window_monitor(Window win);
 
 void activate_window(Window win);
 void close_window(Window win);
-void get_window_coordinates(Window win, int *x, int *y, int *w, int *h);
+gboolean get_window_coordinates(Window win, int *x, int *y, int *w, int *h);
 void toggle_window_maximized(Window win);
 void toggle_window_shade(Window win);
 void change_window_desktop(Window win, int desktop);
@@ -34,5 +34,6 @@ int get_icon_count(gulong *data, int num);
 gulong *get_best_icon(gulong *data, int icon_count, int num, int *iw, int *ih, int best_icon_size);
 
 char *get_window_name(Window win);
+cairo_surface_t *get_window_thumbnail(Window win);
 
 #endif

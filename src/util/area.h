@@ -233,6 +233,7 @@ typedef struct Area {
     // Returns a copy of the tooltip to be displayed for this widget.
     // The caller takes ownership of the pointer.
     char *(*_get_tooltip_text)(void *obj);
+    cairo_surface_t *(*_get_tooltip_image)(void *obj);
 
     // Returns true if the Area handles a mouse event at the given x, y coordinates relative to the window.
     // Leave this to NULL to use a default implementation.
