@@ -409,6 +409,10 @@ The following options configure the task buttons in the taskbar:
 
   * `task_tooltip = boolean (0 or 1)` : Whether to show tooltips for tasks.
 
+  * `task_thumbnail = boolean (0 or 1)` : Whether to show thumbnail tooltips for tasks.
+
+  * `task_thumbnail_size = width` : Thumbnail size.
+
   * `task_maximum_size = width height`
     * `width` is used with horizontal panels to limit the size of the tasks. Use `width = 0` to get full taskbar width.
     * `height` is used with vertical panels.

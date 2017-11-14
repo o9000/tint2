@@ -105,7 +105,7 @@ extern GtkWidget *systray_background, *systray_monitor, *systray_name_filter;
 
 // tooltip
 extern GtkWidget *tooltip_padding_x, *tooltip_padding_y, *tooltip_font, *tooltip_font_set, *tooltip_font_color;
-extern GtkWidget *tooltip_task_show, *tooltip_show_after, *tooltip_hide_after;
+extern GtkWidget *tooltip_task_show, *tooltip_show_after, *tooltip_hide_after, *tooltip_task_thumbnail, *tooltip_task_thumbnail_size;
 extern GtkWidget *clock_format_tooltip, *clock_tmz_tooltip;
 extern GtkWidget *tooltip_background;
 

@@ -50,6 +50,8 @@ char *task_get_tooltip(void *obj)
 
 cairo_surface_t *task_get_thumbnail(void *obj)
 {
+    if (!panel_config.g_task.thumbnail_enabled)
+        return NULL;
     Task *t = (Task *)obj;
     if (!t->thumbnail)
         task_refresh_thumbnail(t);
@@ -620,12 +622,14 @@ void reset_active_task()
 
 void task_refresh_thumbnail(Task *task)
 {
+    if (!panel_config.g_task.thumbnail_enabled)
+        return;
     if (task->current_state == TASK_ICONIFIED)
         return;
     double now = get_time();
     if (now - task->thumbnail_last_update < 0.1)
         return;
-    cairo_surface_t *thumbnail = get_window_thumbnail(task->win);
+    cairo_surface_t *thumbnail = get_window_thumbnail(task->win, panel_config.g_task.thumbnail_width);
     if (!thumbnail)
         return;
     if (task->thumbnail)

@@ -1091,6 +1091,10 @@ void add_entry(char *key, char *value)
     // "tooltip" is deprecated but here for backwards compatibility
     else if (strcmp(key, "task_tooltip") == 0 || strcmp(key, "tooltip") == 0)
         panel_config.g_task.tooltip_enabled = atoi(value);
+    else if (strcmp(key, "task_thumbnail") == 0)
+        panel_config.g_task.thumbnail_enabled = atoi(value);
+    else if (strcmp(key, "task_thumbnail_size") == 0)
+        panel_config.g_task.thumbnail_width = MAX(8, atoi(value));
 
     /* Systray */
     else if (strcmp(key, "systray_padding") == 0) {

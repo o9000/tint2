@@ -97,7 +97,7 @@ GtkWidget *systray_background, *systray_monitor, *systray_name_filter;
 
 // tooltip
 GtkWidget *tooltip_padding_x, *tooltip_padding_y, *tooltip_font, *tooltip_font_set, *tooltip_font_color;
-GtkWidget *tooltip_task_show, *tooltip_show_after, *tooltip_hide_after;
+GtkWidget *tooltip_task_show, *tooltip_show_after, *tooltip_hide_after, *tooltip_task_thumbnail, *tooltip_task_thumbnail_size;
 GtkWidget *clock_format_tooltip, *clock_tmz_tooltip;
 GtkWidget *tooltip_background;
 
@@ -3287,6 +3287,36 @@ void create_task(GtkWidget *parent)
                          _("If enabled, a tooltip showing the window title is displayed when the mouse cursor moves "
                            "over task buttons."),
                          NULL);
+
+    row++, col = 2;
+    label = gtk_label_new(_("Thumbnails"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    tooltip_task_thumbnail = gtk_check_button_new();
+    gtk_widget_show(tooltip_task_thumbnail);
+    gtk_table_attach(GTK_TABLE(table), tooltip_task_thumbnail, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_tooltips_set_tip(tooltips,
+                         tooltip_task_thumbnail,
+                         _("If enabled, a tooltip showing the window thumbnail is displayed when the mouse cursor moves "
+                           "over task buttons."),
+                         NULL);
+
+    row++, col = 2;
+    label = gtk_label_new(_("Thumbnail size"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    tooltip_task_thumbnail_size = gtk_spin_button_new_with_range(8, 9000, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_task_thumbnail_size), 210);
+    gtk_widget_show(tooltip_task_thumbnail_size);
+    gtk_table_attach(GTK_TABLE(table), tooltip_task_thumbnail_size, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
 
     row++, col = 2;
     label = gtk_label_new(_("Maximum width"));

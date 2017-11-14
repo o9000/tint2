@@ -46,7 +46,7 @@ gboolean hide_taskbar_if_empty;
 gboolean always_show_all_desktop_tasks;
 TaskbarSortMethod taskbar_sort_method;
 Alignment taskbar_alignment;
-static timeout *thumbnail_update_timer = NULL;
+static timeout *thumbnail_update_timer;
 
 static GList *taskbar_task_orderings = NULL;
 
@@ -85,6 +85,7 @@ void default_taskbar()
     hide_task_diff_monitor = FALSE;
     hide_taskbar_if_empty = FALSE;
     always_show_all_desktop_tasks = FALSE;
+    thumbnail_update_timer = NULL;
     taskbar_sort_method = TASKBAR_NOSORT;
     taskbar_alignment = ALIGN_LEFT;
     default_taskbarname();
@@ -362,6 +363,8 @@ void init_taskbar_panel(void *p)
 
 void taskbar_start_thumbnail_timer()
 {
+    if (!panel_config.g_task.thumbnail_enabled)
+        return;
     change_timeout(&thumbnail_update_timer, 100, 10 * 1000, taskbar_update_thumbnails, NULL);
 }
 
@@ -792,6 +795,8 @@ void update_minimized_icon_positions(void *p)
 
 void taskbar_update_thumbnails(void *arg)
 {
+    if (!panel_config.g_task.thumbnail_enabled)
+        return;
     for (int i = 0; i < num_panels; i++) {
         Panel *panel = &panels[i];
         for (int j = 0; j < panel->num_desktops; j++) {

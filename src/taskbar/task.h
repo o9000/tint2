@@ -46,6 +46,8 @@ typedef struct GlobalTask {
     Color font[TASK_STATE_COUNT];
     int config_font_mask;
     gboolean tooltip_enabled;
+    gboolean thumbnail_enabled;
+    int thumbnail_width;
 } GlobalTask;
 
 // Stores information about a task.

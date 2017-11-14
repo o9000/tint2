@@ -517,6 +517,11 @@ void config_write_task(FILE *fp)
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(task_font_set)))
         fprintf(fp, "task_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(task_font)));
     fprintf(fp, "task_tooltip = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tooltip_task_show)) ? 1 : 0);
+    fprintf(fp, "task_thumbnail = %d\n", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tooltip_task_thumbnail)) ? 1 : 0);
+    fprintf(fp,
+            "task_thumbnail_size = %d\n",
+            (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(tooltip_task_thumbnail_size)));
+
 
     // same for: "" _normal _active _urgent _iconified
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(task_default_color_set))) {
@@ -1732,6 +1737,10 @@ void add_entry(char *key, char *value)
     else if (strcmp(key, "task_tooltip") == 0 || strcmp(key, "tooltip") == 0) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tooltip_task_show), atoi(value));
     }
+    else if (strcmp(key, "task_thumbnail") == 0)
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tooltip_task_thumbnail), atoi(value));
+    else if (strcmp(key, "task_thumbnail_size") == 0)
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_task_thumbnail_size), MAX(8, atoi(value1)));
 
     /* Systray */
     else if (strcmp(key, "systray") == 0) {

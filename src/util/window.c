@@ -357,7 +357,7 @@ char *get_window_name(Window win)
     return result;
 }
 
-cairo_surface_t *get_window_thumbnail(Window win)
+cairo_surface_t *get_window_thumbnail(Window win, int size)
 {
     XWindowAttributes wa;
     if (!XGetWindowAttributes(server.display, win, &wa))
@@ -369,7 +369,7 @@ cairo_surface_t *get_window_thumbnail(Window win)
     int tw, th;
     double sx, sy;
     double ox, oy;
-    tw = 210;
+    tw = size;
     th = h * tw / w;
     if (th > tw * 0.618) {
         th = (int)(tw * 0.618);
