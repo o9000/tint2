@@ -145,7 +145,7 @@ void tooltip_show(void *arg)
 void tooltip_update_geometry()
 {
     Panel *panel = g_tooltip.panel;
-    int screen_width = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width;
+    int screen_width = server.monitors[panel->monitor].width;
 
     cairo_surface_t *cs = cairo_xlib_surface_create(server.display, g_tooltip.window, server.visual, width, height);
     cairo_t *c = cairo_create(cs);
@@ -153,20 +153,23 @@ void tooltip_update_geometry()
 
     pango_layout_set_font_description(layout, g_tooltip.font_desc);
     PangoRectangle r1, r2;
-    pango_layout_set_text(layout, "1234567890", -1);
+    pango_layout_set_text(layout, "1234567890abcdef", -1);
     pango_layout_get_pixel_extents(layout, &r1, &r2);
-    int max_width = MIN(r2.width * 7, screen_width * 2 / 3);
+    int max_width = MIN(r2.width * 5, screen_width * 2 / 3);
+    if (g_tooltip.image && cairo_image_surface_get_width(g_tooltip.image) > 0) {
+        max_width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx +
+                                cairo_image_surface_get_width(g_tooltip.image);
+    }
     pango_layout_set_width(layout, max_width * PANGO_SCALE);
 
-    pango_layout_set_text(layout, g_tooltip.tooltip_text, -1);
+    pango_layout_set_text(layout, g_tooltip.tooltip_text ? g_tooltip.tooltip_text : "1234567890abcdef", -1);
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
     pango_layout_get_pixel_extents(layout, &r1, &r2);
     width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx + r2.width;
     height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy + r2.height;
-    if (g_tooltip.image) {
-        width = MAX(width,
-                    left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx +
-                        cairo_image_surface_get_width(g_tooltip.image));
+    if (g_tooltip.image && cairo_image_surface_get_width(g_tooltip.image) > 0) {
+        width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx +
+                                        cairo_image_surface_get_width(g_tooltip.image);
         height += g_tooltip.paddingy + cairo_image_surface_get_height(g_tooltip.image);
     }
 
@@ -289,8 +292,8 @@ void tooltip_update()
 
     if (g_tooltip.image) {
         cairo_translate(c,
-                        g_tooltip.paddingx,
-                        height - g_tooltip.paddingy - cairo_image_surface_get_height(g_tooltip.image));
+                        left_bg_border_width(g_tooltip.bg) + g_tooltip.paddingx,
+                        height - bottom_bg_border_width(g_tooltip.bg) - g_tooltip.paddingy - cairo_image_surface_get_height(g_tooltip.image));
         cairo_set_source_surface(c, g_tooltip.image, 0, 0);
         cairo_paint(c);
     }

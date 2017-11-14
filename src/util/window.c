@@ -360,12 +360,26 @@ char *get_window_name(Window win)
 cairo_surface_t *get_window_thumbnail(Window win)
 {
     int x, y, w, h;
-    if (!get_window_coordinates(win, &x, &y, &w, &h))
+    if (!get_window_coordinates(win, &x, &y, &w, &h) || !w || !h)
         return NULL;
 
     int tw, th;
-    th = 128;
-    tw = w * th / h;
+    double sx, sy;
+    double ox, oy;
+    tw = 210;
+    th = h * tw / w;
+    if (th > tw * 0.618) {
+        th = (int)(tw * 0.618);
+        sy = th/(double)h;
+        double fw = w * th / h;
+        sx = fw / w;
+        ox = (tw - fw) / 2;
+        oy = 0;
+    } else {
+        sx = tw/(double)w;
+        sy = th/(double)h;
+        ox = oy = 0;
+    }
 
     XWindowAttributes wa;
     if (!XGetWindowAttributes(server.display, win, &wa))
@@ -376,7 +390,8 @@ cairo_surface_t *get_window_thumbnail(Window win)
     cairo_surface_t *image_surface = cairo_surface_create_similar_image(x11_surface, CAIRO_FORMAT_ARGB32, tw, th);
 
     cairo_t *cr = cairo_create(image_surface);
-    cairo_scale(cr, tw/(double)w, th/(double)h);
+    cairo_translate(cr, ox, oy);
+    cairo_scale(cr, sx, sy);
     cairo_set_source_surface(cr, x11_surface, 0, 0);
     cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_BEST);
     cairo_paint(cr);
