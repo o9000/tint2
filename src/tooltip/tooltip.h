@@ -37,6 +37,7 @@ typedef struct {
     Color font_color;
     Background *bg;
     timeout *timeout;
+    timeout *update_timeout;
     cairo_surface_t *image;
 } Tooltip;
 

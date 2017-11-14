@@ -72,6 +72,7 @@ void init_taskbar_panel(void *p);
 
 gboolean resize_taskbar(void *obj);
 void taskbar_default_font_changed();
+void taskbar_start_thumbnail_timer();
 
 // Reloads the entire list of tasks from the window manager and recreates the task buttons.
 void taskbar_refresh_tasklist();

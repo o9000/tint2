@@ -54,6 +54,7 @@ void default_tooltip()
 void cleanup_tooltip()
 {
     stop_tooltip_timeout();
+    stop_timeout(g_tooltip.update_timeout);
     tooltip_hide(NULL);
     tooltip_update_contents_for(NULL);
     if (g_tooltip.window)
@@ -333,6 +334,11 @@ void stop_tooltip_timeout()
     stop_timeout(g_tooltip.timeout);
 }
 
+void tooltip_update_contents_timeout(void *arg)
+{
+    tooltip_update_contents_for(g_tooltip.area);
+}
+
 void tooltip_update_contents_for(Area *area)
 {
     free_and_null(g_tooltip.tooltip_text);
@@ -345,6 +351,8 @@ void tooltip_update_contents_for(Area *area)
         g_tooltip.image = area->_get_tooltip_image(area);
         if (g_tooltip.image)
             cairo_surface_reference(g_tooltip.image);
+        else
+            change_timeout(&g_tooltip.update_timeout, 300, 0, tooltip_update_contents_timeout, NULL);
     }
     g_tooltip.area = area;
 }

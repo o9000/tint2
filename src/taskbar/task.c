@@ -40,6 +40,7 @@ GSList *urgent_list;
 
 void task_dump_geometry(void *obj, int indent);
 int task_compute_desired_size(void *obj);
+void task_refresh_thumbnail(Task *task);
 
 char *task_get_tooltip(void *obj)
 {
@@ -50,6 +51,8 @@ char *task_get_tooltip(void *obj)
 cairo_surface_t *task_get_thumbnail(void *obj)
 {
     Task *t = (Task *)obj;
+    if (!t->thumbnail)
+        task_refresh_thumbnail(t);
     return t->thumbnail;
 }
 
@@ -617,12 +620,22 @@ void reset_active_task()
 
 void task_refresh_thumbnail(Task *task)
 {
+    if (task->current_state == TASK_ICONIFIED)
+        return;
+    double now = get_time();
+    if (now - task->thumbnail_last_update < 0.1)
+        return;
     cairo_surface_t *thumbnail = get_window_thumbnail(task->win);
     if (!thumbnail)
         return;
     if (task->thumbnail)
         cairo_surface_destroy(task->thumbnail);
     task->thumbnail = thumbnail;
+    task->thumbnail_last_update = get_time();
+    if (g_tooltip.mapped && (g_tooltip.area == &task->area)) {
+        tooltip_update_contents_for(&task->area);
+        tooltip_update();
+    }
 }
 
 void set_task_state(Task *task, TaskState state)
@@ -630,9 +643,8 @@ void set_task_state(Task *task, TaskState state)
     if (!task || state == TASK_UNDEFINED || state >= TASK_STATE_COUNT)
         return;
 
-    if (state != TASK_ICONIFIED) {
-        task_refresh_thumbnail(task);
-    }
+    task_refresh_thumbnail(task);
+    taskbar_start_thumbnail_timer();
 
     if (state == TASK_ACTIVE && task->current_state != state) {
         clock_gettime(CLOCK_MONOTONIC, &task->last_activation_time);

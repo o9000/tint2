@@ -75,6 +75,7 @@ typedef struct Task {
     int _icon_x;
     int _icon_y;
     cairo_surface_t *thumbnail;
+    double thumbnail_last_update;
 } Task;
 
 extern timeout *urgent_timeout;
@@ -92,6 +93,7 @@ gboolean task_update_title(Task *task);
 void reset_active_task();
 void set_task_state(Task *task, TaskState state);
 void task_handle_mouse_event(Task *task, MouseAction action);
+void task_refresh_thumbnail(Task *task);
 
 // Given a pointer to the task that is currently under the mouse (current_task),
 // returns a pointer to the Task for the active window on the same taskbar.

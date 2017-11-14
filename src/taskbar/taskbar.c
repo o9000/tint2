@@ -46,6 +46,7 @@ gboolean hide_taskbar_if_empty;
 gboolean always_show_all_desktop_tasks;
 TaskbarSortMethod taskbar_sort_method;
 Alignment taskbar_alignment;
+static timeout *thumbnail_update_timer = NULL;
 
 static GList *taskbar_task_orderings = NULL;
 
@@ -54,6 +55,8 @@ int taskbar_compute_desired_size(void *obj);
 
 // Removes the task with &win = key. The other args are ignored.
 void taskbar_remove_task(Window *win);
+
+void taskbar_update_thumbnails(void *arg);
 
 guint win_hash(gconstpointer key)
 {
@@ -120,6 +123,7 @@ void taskbar_save_orderings()
 
 void cleanup_taskbar()
 {
+    stop_timeout(thumbnail_update_timer);
     taskbar_save_orderings();
     if (win_to_task) {
         while (g_hash_table_size(win_to_task)) {
@@ -353,6 +357,12 @@ void init_taskbar_panel(void *p)
         }
     }
     init_taskbarname_panel(panel);
+    taskbar_start_thumbnail_timer();
+}
+
+void taskbar_start_thumbnail_timer()
+{
+    change_timeout(&thumbnail_update_timer, 100, 10 * 1000, taskbar_update_thumbnails, NULL);
 }
 
 void taskbar_init_fonts()
@@ -776,6 +786,20 @@ void update_minimized_icon_positions(void *p)
             Area *area = (Area *)c->data;
             if (area->_on_change_layout)
                 area->_on_change_layout(area);
+        }
+    }
+}
+
+void taskbar_update_thumbnails(void *arg)
+{
+    for (int i = 0; i < num_panels; i++) {
+        Panel *panel = &panels[i];
+        for (int j = 0; j < panel->num_desktops; j++) {
+            Taskbar *taskbar = &panel->taskbar[j];
+            for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next : taskbar->area.children; c; c = c->next) {
+                Task *t = (Task *)c->data;
+                task_refresh_thumbnail(t);
+            }
         }
     }
 }
