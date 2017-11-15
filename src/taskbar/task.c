@@ -649,7 +649,8 @@ void set_task_state(Task *task, TaskState state)
     if (!task || state == TASK_UNDEFINED || state >= TASK_STATE_COUNT)
         return;
 
-    task_refresh_thumbnail(task);
+    if (!task->thumbnail)
+        task_refresh_thumbnail(task);
     taskbar_start_thumbnail_timer(TRUE);
 
     if (state == TASK_ACTIVE && task->current_state != state) {

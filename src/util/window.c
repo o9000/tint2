@@ -388,7 +388,7 @@ cairo_surface_t *screenshot(Window win, size_t size)
 {
     cairo_surface_t *result = NULL;
     XWindowAttributes wa;
-    if (!XGetWindowAttributes(server.display, win, &wa) || wa.width <= 0 || wa.height <= 0)
+    if (!XGetWindowAttributes(server.display, win, &wa) || wa.width <= 0 || wa.height <= 0 || wa.map_state != IsViewable)
         goto err0;
 
     if (window_is_iconified(win))
@@ -448,7 +448,8 @@ cairo_surface_t *screenshot(Window win, size_t size)
         goto err4;
     }
 
-    if (window_is_iconified(win))
+    XGetWindowAttributes(server.display, win, &wa);
+    if (wa.map_state != IsViewable)
         goto err4;
 
     result = cairo_image_surface_create(CAIRO_FORMAT_RGB24, (int)tw, (int)th);
@@ -544,9 +545,7 @@ cairo_surface_t *get_window_thumbnail_cairo(Window win, int size)
 {
     static cairo_filter_t filter = CAIRO_FILTER_BEST;
     XWindowAttributes wa;
-    if (!XGetWindowAttributes(server.display, win, &wa))
-        return NULL;
-    if (window_is_iconified(win))
+    if (!XGetWindowAttributes(server.display, win, &wa) || wa.width <= 0 || wa.height <= 0 || wa.map_state != IsViewable)
         return NULL;
     int w, h;
     w = wa.width;
@@ -616,7 +615,7 @@ gboolean cairo_surface_is_blank(cairo_surface_t *image_surface)
 cairo_surface_t *get_window_thumbnail(Window win, int size)
 {
     cairo_surface_t *image_surface = NULL;
-    if (server.has_shm && server.composite_manager) {
+    if (0 && server.has_shm && server.composite_manager) {
         image_surface = screenshot(win, (size_t)size);
         if (image_surface && cairo_surface_is_blank(image_surface)) {
             cairo_surface_destroy(image_surface);

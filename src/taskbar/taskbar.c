@@ -365,7 +365,7 @@ void taskbar_start_thumbnail_timer(gboolean fast)
 {
     if (!panel_config.g_task.thumbnail_enabled)
         return;
-    change_timeout(&thumbnail_update_timer, 100, 10 * 1000, taskbar_update_thumbnails, (void*)(long)fast);
+    change_timeout(&thumbnail_update_timer, 500, 10 * 1000, taskbar_update_thumbnails, (void*)(long)fast);
 }
 
 void taskbar_init_fonts()
