@@ -387,6 +387,9 @@ cairo_surface_t *screenshot(Window win, size_t size)
     if (!XGetWindowAttributes(server.display, win, &wa) || wa.width <= 0 || wa.height <= 0)
         goto err0;
 
+    if (window_is_iconified(win))
+        goto err0;
+
     size_t w, h;
     w = (size_t)wa.width;
     h = (size_t)wa.height;
@@ -436,6 +439,9 @@ cairo_surface_t *screenshot(Window win, size_t size)
         fprintf(stderr, RED "tint2: !xshmgetimage" RESET "\n");
         goto err4;
     }
+
+    if (window_is_iconified(win))
+        goto err4;
 
     result = cairo_image_surface_create(CAIRO_FORMAT_RGB24, (int)tw, (int)th);
     u_int32_t *data = (u_int32_t *)cairo_image_surface_get_data(result);
@@ -503,6 +509,8 @@ cairo_surface_t *get_window_thumbnail_cairo(Window win, int size)
     static cairo_filter_t filter = CAIRO_FILTER_BEST;
     XWindowAttributes wa;
     if (!XGetWindowAttributes(server.display, win, &wa))
+        return NULL;
+    if (window_is_iconified(win))
         return NULL;
     int w, h;
     w = wa.width;
