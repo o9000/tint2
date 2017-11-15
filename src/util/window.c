@@ -424,6 +424,10 @@ cairo_surface_t *screenshot(Window win, size_t size)
         fprintf(stderr, RED "tint2: !ximg" RESET "\n");
         goto err0;
     }
+    if (ximg->bits_per_pixel != 24 && ximg->bits_per_pixel != 32) {
+        fprintf(stderr, RED "tint2: unusual bits_per_pixel" RESET "\n");
+        goto err1;
+    }
     shminfo.shmid = shmget(IPC_PRIVATE, (size_t)(ximg->bytes_per_line * ximg->height), IPC_CREAT | 0777);
     if (shminfo.shmid < 0) {
         fprintf(stderr, RED "tint2: !shmget" RESET "\n");
@@ -475,9 +479,9 @@ cairo_surface_t *screenshot(Window win, size_t size)
     const size_t offset_y7 = 5 * ystep / 8;
     const size_t offset_x7 = 3 * xstep / 16;
 
-    const size_t rmask = ximg->red_mask;
-    const size_t gmask = ximg->green_mask;
-    const size_t bmask = ximg->blue_mask;
+    const u_int32_t rmask = (u_int32_t)ximg->red_mask;
+    const u_int32_t gmask = (u_int32_t)ximg->green_mask;
+    const u_int32_t bmask = (u_int32_t)ximg->blue_mask;
     for (size_t yt = 0, y = 0; yt < th; yt++, y += ystep) {
         for (size_t xt = 0, x = 0; xt < fw; xt++, x += xstep) {
             size_t j = yt * tw + ox + xt;
@@ -498,6 +502,26 @@ cairo_surface_t *screenshot(Window win, size_t size)
                            (c7 & rmask)) /
                           8;
             data[j] = (r & rmask) | (g & gmask) | (b & bmask);
+        }
+    }
+    // Convert to argb32
+    if (rmask & 0xff0000) {
+        // argb32 or rgb24 => Nothing to do
+    } else if (rmask & 0xff) {
+        // bgr24
+        for (size_t i = 0; i < tw * th; i++) {
+            u_int32_t r = (data[i] & rmask) << 16;
+            u_int32_t g = (data[i] & gmask);
+            u_int32_t b = (data[i] & bmask) >> 16;
+            data[i] = (r & 0xff0000) | (g & 0x00ff00) | (b & 0x0000ff);
+        }
+    } else if (rmask & 0xff00) {
+        // bgra32
+        for (size_t i = 0; i < tw * th; i++) {
+            u_int32_t r = (data[i] & rmask) << 8;
+            u_int32_t g = (data[i] & gmask) >> 8;
+            u_int32_t b = (data[i] & bmask) >> 24;
+            data[i] = (r & 0xff0000) | (g & 0x00ff00) | (b & 0x0000ff);
         }
     }
 
