@@ -34,6 +34,6 @@ int get_icon_count(gulong *data, int num);
 gulong *get_best_icon(gulong *data, int icon_count, int num, int *iw, int *ih, int best_icon_size);
 
 char *get_window_name(Window win);
-cairo_surface_t *get_window_thumbnail(Window win, int size);
+cairo_surface_t *get_window_thumbnail(Window win, int size, gboolean active);
 
 #endif

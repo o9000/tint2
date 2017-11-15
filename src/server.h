@@ -147,6 +147,7 @@ typedef struct Server {
     Global_atom atom;
     int xdamage_event_type;
     int xdamage_event_error_type;
+    gboolean has_shm;
 #ifdef HAVE_SN
     SnDisplay *sn_display;
     GTree *pids;

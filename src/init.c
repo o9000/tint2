@@ -6,6 +6,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/XShm.h>
+
 #include "config.h"
 #include "drag_and_drop.h"
 #include "fps_distribution.h"
@@ -193,6 +198,7 @@ void init_X11_pre_config()
     server.screen = DefaultScreen(server.display);
     server.root_win = RootWindow(server.display, server.screen);
     server.desktop = get_current_desktop();
+    server.has_shm = XShmQueryExtension(server.display);
 
     // Needed since the config file uses '.' as decimal separator
     setlocale(LC_ALL, "");

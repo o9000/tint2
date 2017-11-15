@@ -629,16 +629,15 @@ void task_refresh_thumbnail(Task *task)
     double now = get_time();
     if (now - task->thumbnail_last_update < 0.1)
         return;
-    cairo_surface_t *thumbnail = get_window_thumbnail(task->win, panel_config.g_task.thumbnail_width);
+    fprintf(stderr, "tint2: thumbnail for window: %s" RESET "\n", task->title ? task->title : "");
+    cairo_surface_t *thumbnail = get_window_thumbnail(task->win, panel_config.g_task.thumbnail_width, task->current_state == TASK_ACTIVE);
     if (!thumbnail)
         return;
     if (task->thumbnail)
         cairo_surface_destroy(task->thumbnail);
     task->thumbnail = thumbnail;
     task->thumbnail_last_update = get_time();
-    if (task->thumbnail_last_update - now > 0.01) {
-        fprintf(stderr, YELLOW "tint2: %s took %f ms (window: %s)" RESET "\n", __func__, 1000 * (task->thumbnail_last_update - now), task->title ? task->title : "");
-    }
+    fprintf(stderr, YELLOW "tint2: %s took %f ms (window: %s)" RESET "\n", __func__, 1000 * (task->thumbnail_last_update - now), task->title ? task->title : "");
     if (g_tooltip.mapped && (g_tooltip.area == &task->area)) {
         tooltip_update_contents_for(&task->area);
         tooltip_update();
