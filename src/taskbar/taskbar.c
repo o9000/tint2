@@ -358,14 +358,14 @@ void init_taskbar_panel(void *p)
         }
     }
     init_taskbarname_panel(panel);
-    taskbar_start_thumbnail_timer();
+    taskbar_start_thumbnail_timer(FALSE);
 }
 
-void taskbar_start_thumbnail_timer()
+void taskbar_start_thumbnail_timer(gboolean fast)
 {
     if (!panel_config.g_task.thumbnail_enabled)
         return;
-    change_timeout(&thumbnail_update_timer, 100, 10 * 1000, taskbar_update_thumbnails, NULL);
+    change_timeout(&thumbnail_update_timer, 100, 10 * 1000, taskbar_update_thumbnails, (void*)(long)fast);
 }
 
 void taskbar_init_fonts()
@@ -793,17 +793,19 @@ void update_minimized_icon_positions(void *p)
     }
 }
 
-void taskbar_update_thumbnails(void *arg)
+void taskbar_update_thumbnails(void *fast)
 {
     if (!panel_config.g_task.thumbnail_enabled)
         return;
+    change_timeout(&thumbnail_update_timer, 10 * 1000, 10 * 1000, taskbar_update_thumbnails, NULL);
     for (int i = 0; i < num_panels; i++) {
         Panel *panel = &panels[i];
         for (int j = 0; j < panel->num_desktops; j++) {
             Taskbar *taskbar = &panel->taskbar[j];
             for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next : taskbar->area.children; c; c = c->next) {
                 Task *t = (Task *)c->data;
-                task_refresh_thumbnail(t);
+                if (!fast || t->current_state == TASK_ACTIVE)
+                    task_refresh_thumbnail(t);
             }
         }
     }
