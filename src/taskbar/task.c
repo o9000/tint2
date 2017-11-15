@@ -630,7 +630,7 @@ void task_refresh_thumbnail(Task *task)
     if (now - task->thumbnail_last_update < 0.1)
         return;
     fprintf(stderr, "tint2: thumbnail for window: %s" RESET "\n", task->title ? task->title : "");
-    cairo_surface_t *thumbnail = get_window_thumbnail(task->win, panel_config.g_task.thumbnail_width, task->current_state == TASK_ACTIVE);
+    cairo_surface_t *thumbnail = get_window_thumbnail(task->win, panel_config.g_task.thumbnail_width);
     if (!thumbnail)
         return;
     if (task->thumbnail)

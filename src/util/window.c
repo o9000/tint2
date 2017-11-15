@@ -414,26 +414,26 @@ cairo_surface_t *screenshot(Window win, size_t size)
                                    (unsigned)wa.width,
                                    (unsigned)wa.height);
     if (!ximg) {
-        fprintf(stderr, "tint2: !ximg\n");
+        fprintf(stderr, RED "tint2: !ximg" RESET "\n");
         goto err0;
     }
     shminfo.shmid = shmget(IPC_PRIVATE, (size_t)(ximg->bytes_per_line * ximg->height), IPC_CREAT | 0777);
     if (shminfo.shmid < 0) {
-        fprintf(stderr, "tint2: !shmget\n");
+        fprintf(stderr, RED "tint2: !shmget" RESET "\n");
         goto err1;
     }
     shminfo.shmaddr = ximg->data = (char *)shmat(shminfo.shmid, 0, 0);
     if (!shminfo.shmaddr) {
-        fprintf(stderr, "tint2: !shmat\n");
+        fprintf(stderr, RED "tint2: !shmat" RESET "\n");
         goto err2;
     }
     shminfo.readOnly = False;
     if (!XShmAttach(server.display, &shminfo)) {
-        fprintf(stderr, "tint2: !xshmattach\n");
+        fprintf(stderr, RED "tint2: !xshmattach" RESET "\n");
         goto err3;
     }
     if (!XShmGetImage(server.display, win, ximg, 0, 0, AllPlanes)) {
-        fprintf(stderr, "tint2: !xshmgetimage\n");
+        fprintf(stderr, RED "tint2: !xshmgetimage" RESET "\n");
         goto err4;
     }
 
@@ -569,24 +569,29 @@ gboolean cairo_surface_is_blank(cairo_surface_t *image_surface)
     return empty;
 }
 
-cairo_surface_t *get_window_thumbnail(Window win, int size, gboolean active)
+cairo_surface_t *get_window_thumbnail(Window win, int size)
 {
     cairo_surface_t *image_surface = NULL;
     if (server.has_shm && server.composite_manager) {
         image_surface = screenshot(win, (size_t)size);
-        if (cairo_surface_is_blank(image_surface)) {
+        if (image_surface && cairo_surface_is_blank(image_surface)) {
             cairo_surface_destroy(image_surface);
             image_surface = NULL;
         }
+        if (!image_surface)
+            fprintf(stderr, YELLOW "tint2: thumbnail fast path failed, trying slow path" RESET "\n");
     }
 
     if (!image_surface) {
         image_surface = get_window_thumbnail_cairo(win, size);
-        if (cairo_surface_is_blank(image_surface)) {
+        if (image_surface && cairo_surface_is_blank(image_surface)) {
             cairo_surface_destroy(image_surface);
             image_surface = NULL;
         }
+        if (!image_surface)
+            fprintf(stderr, YELLOW "tint2: thumbnail slow path failed" RESET "\n");
     }
+
 
     if (!image_surface)
         return NULL;
