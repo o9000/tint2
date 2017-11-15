@@ -549,7 +549,7 @@ cairo_surface_t *get_window_thumbnail_cairo(Window win, int size)
         smooth_thumbnail(image_surface);
     double end_time = get_time();
 
-    if (end_time - start_time > 0.030)
+    if (end_time - start_time > 0.020)
         filter = CAIRO_FILTER_FAST;
     else if (end_time - start_time < 0.010)
         filter = CAIRO_FILTER_BEST;
