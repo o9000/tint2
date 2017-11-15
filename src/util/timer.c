@@ -384,6 +384,7 @@ void callback_multi_timeout(void *arg)
     gettime(&cur_time);
     GSList *it = mth->timeout_list;
     while (it) {
+        GSList *next = it->next;
         timeout *t = it->data;
         if (++t->multi_timeout->current_count >= t->multi_timeout->count_to_expiration) {
             t->_callback(t->arg);
@@ -395,7 +396,7 @@ void callback_multi_timeout(void *arg)
                 return;
             }
         }
-        it = it->next;
+        it = next;
     }
 }
 
