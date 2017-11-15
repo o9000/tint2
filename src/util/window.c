@@ -380,6 +380,10 @@ void smooth_thumbnail(cairo_surface_t *image_surface)
     }
 }
 
+// This is measured to be slightly faster.
+#define GetPixel(ximg, x, y) ((u_int32_t*)&(ximg->data[y * ximg->bytes_per_line]))[x]
+//#define GetPixel XGetPixel
+
 cairo_surface_t *screenshot(Window win, size_t size)
 {
     cairo_surface_t *result = NULL;
@@ -449,33 +453,41 @@ cairo_surface_t *screenshot(Window win, size_t size)
 
     const size_t xstep = w / fw;
     const size_t ystep = h / th;
-    const size_t offset_x1 = xstep / 4;
+
+    const size_t offset_y6 = 3 * ystep / 16;
+    const size_t offset_x6 = 5 * xstep / 8;
+
     const size_t offset_y1 = ystep / 4;
-    const size_t offset_x2 = 3 * xstep / 4;
+    const size_t offset_x1 = xstep / 4;
+
     const size_t offset_y2 = ystep / 4;
-    const size_t offset_x3 = xstep / 4;
-    const size_t offset_y3 = 3 * ystep / 4;
-    const size_t offset_x4 = 3 * xstep / 4;
-    const size_t offset_y4 = ystep / 4;
+    const size_t offset_x2 = 3 * xstep / 4;
+
     const size_t offset_x5 = xstep / 2;
     const size_t offset_y5 = ystep / 2;
-    const size_t offset_x6 = 5 * xstep / 8;
-    const size_t offset_y6 = 3 * ystep / 16;
-    const size_t offset_x7 = 3 * xstep / 16;
+
+    const size_t offset_y3 = 3 * ystep / 4;
+    const size_t offset_x3 = xstep / 4;
+
+    const size_t offset_y4 = 3 * ystep / 4;
+    const size_t offset_x4 = 3 * xstep / 4;
+
     const size_t offset_y7 = 5 * ystep / 8;
-    const size_t rmask = 0xff0000;
-    const size_t gmask = 0xff00;
-    const size_t bmask = 0xff;
+    const size_t offset_x7 = 3 * xstep / 16;
+
+    const size_t rmask = ximg->red_mask;
+    const size_t gmask = ximg->green_mask;
+    const size_t bmask = ximg->blue_mask;
     for (size_t yt = 0, y = 0; yt < th; yt++, y += ystep) {
         for (size_t xt = 0, x = 0; xt < fw; xt++, x += xstep) {
             size_t j = yt * tw + ox + xt;
-            u_int32_t c1 = (u_int32_t)XGetPixel(ximg, (int)(x + offset_x1), (int)(y + offset_y1));
-            u_int32_t c2 = (u_int32_t)XGetPixel(ximg, (int)(x + offset_x2), (int)(y + offset_y2));
-            u_int32_t c3 = (u_int32_t)XGetPixel(ximg, (int)(x + offset_x3), (int)(y + offset_y3));
-            u_int32_t c4 = (u_int32_t)XGetPixel(ximg, (int)(x + offset_x4), (int)(y + offset_y4));
-            u_int32_t c5 = (u_int32_t)XGetPixel(ximg, (int)(x + offset_x5), (int)(y + offset_y5));
-            u_int32_t c6 = (u_int32_t)XGetPixel(ximg, (int)(x + offset_x6), (int)(y + offset_y6));
-            u_int32_t c7 = (u_int32_t)XGetPixel(ximg, (int)(x + offset_x7), (int)(y + offset_y7));
+            u_int32_t c6 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x6), (int)(y + offset_y6));
+            u_int32_t c1 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x1), (int)(y + offset_y1));
+            u_int32_t c2 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x2), (int)(y + offset_y2));
+            u_int32_t c5 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x5), (int)(y + offset_y5));
+            u_int32_t c3 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x3), (int)(y + offset_y3));
+            u_int32_t c4 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x4), (int)(y + offset_y4));
+            u_int32_t c7 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x7), (int)(y + offset_y7));
             u_int32_t b = ((c1 & bmask) + (c2 & bmask) + (c3 & bmask) + (c4 & bmask) + (c5 & bmask) * 2 + (c6 & bmask) +
                            (c7 & bmask)) /
                           8;
