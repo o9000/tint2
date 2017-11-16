@@ -536,6 +536,10 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
     // 2nd pass
     smooth_thumbnail(result);
 
+    if (ximg) {
+        XDestroyImage(ximg);
+        ximg = NULL;
+    }
 err4:
     if (use_shm)
         XShmDetach(server.display, &shminfo);
@@ -546,7 +550,8 @@ err2:
     if (use_shm)
         shmctl(shminfo.shmid, IPC_RMID, NULL);
 err1:
-    XDestroyImage(ximg);
+    if (ximg)
+        XDestroyImage(ximg);
 err0:
     return result;
 }
