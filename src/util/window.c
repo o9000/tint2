@@ -371,8 +371,8 @@ void smooth_thumbnail(cairo_surface_t *image_surface)
     const size_t bmask = 0xff;
     for (size_t i = 0; i < tw * (th - 1) - 1; i++) {
         u_int32_t c1 = data[i];
-        u_int32_t c2 = data[i+1];
-        u_int32_t c3 = data[i+tw];
+        u_int32_t c2 = data[i + 1];
+        u_int32_t c3 = data[i + tw];
         u_int32_t b = (6 * (c1 & bmask) + (c2 & bmask) + (c3 & bmask)) / 8;
         u_int32_t g = (6 * (c1 & gmask) + (c2 & gmask) + (c3 & gmask)) / 8;
         u_int32_t r = (6 * (c1 & rmask) + (c2 & rmask) + (c3 & rmask)) / 8;
@@ -381,14 +381,15 @@ void smooth_thumbnail(cairo_surface_t *image_surface)
 }
 
 // This is measured to be slightly faster.
-#define GetPixel(ximg, x, y) ((u_int32_t*)&(ximg->data[y * ximg->bytes_per_line]))[x]
+#define GetPixel(ximg, x, y) ((u_int32_t *)&(ximg->data[y * ximg->bytes_per_line]))[x]
 //#define GetPixel XGetPixel
 
-cairo_surface_t *screenshot(Window win, size_t size)
+cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean use_shm)
 {
     cairo_surface_t *result = NULL;
     XWindowAttributes wa;
-    if (!XGetWindowAttributes(server.display, win, &wa) || wa.width <= 0 || wa.height <= 0 || wa.map_state != IsViewable)
+    if (!XGetWindowAttributes(server.display, win, &wa) || wa.width <= 0 || wa.height <= 0 ||
+        wa.map_state != IsViewable)
         goto err0;
 
     if (window_is_iconified(win))
@@ -412,14 +413,18 @@ cairo_surface_t *screenshot(Window win, size_t size)
     }
 
     XShmSegmentInfo shminfo;
-    XImage *ximg = XShmCreateImage(server.display,
-                                   wa.visual,
-                                   (unsigned)wa.depth,
-                                   ZPixmap,
-                                   NULL,
-                                   &shminfo,
-                                   (unsigned)wa.width,
-                                   (unsigned)wa.height);
+    XImage *ximg;
+    if (use_shm)
+        ximg = XShmCreateImage(server.display,
+                               wa.visual,
+                               (unsigned)wa.depth,
+                               ZPixmap,
+                               NULL,
+                               &shminfo,
+                               (unsigned)wa.width,
+                               (unsigned)wa.height);
+    else
+        ximg = XGetImage(server.display, win, 0, 0, (unsigned)wa.width, (unsigned)wa.height, AllPlanes, ZPixmap);
     if (!ximg) {
         fprintf(stderr, RED "tint2: !ximg" RESET "\n");
         goto err0;
@@ -428,24 +433,26 @@ cairo_surface_t *screenshot(Window win, size_t size)
         fprintf(stderr, RED "tint2: unusual bits_per_pixel" RESET "\n");
         goto err1;
     }
-    shminfo.shmid = shmget(IPC_PRIVATE, (size_t)(ximg->bytes_per_line * ximg->height), IPC_CREAT | 0777);
-    if (shminfo.shmid < 0) {
-        fprintf(stderr, RED "tint2: !shmget" RESET "\n");
-        goto err1;
-    }
-    shminfo.shmaddr = ximg->data = (char *)shmat(shminfo.shmid, 0, 0);
-    if (!shminfo.shmaddr) {
-        fprintf(stderr, RED "tint2: !shmat" RESET "\n");
-        goto err2;
-    }
-    shminfo.readOnly = False;
-    if (!XShmAttach(server.display, &shminfo)) {
-        fprintf(stderr, RED "tint2: !xshmattach" RESET "\n");
-        goto err3;
-    }
-    if (!XShmGetImage(server.display, win, ximg, 0, 0, AllPlanes)) {
-        fprintf(stderr, RED "tint2: !xshmgetimage" RESET "\n");
-        goto err4;
+    if (use_shm) {
+        shminfo.shmid = shmget(IPC_PRIVATE, (size_t)(ximg->bytes_per_line * ximg->height), IPC_CREAT | 0777);
+        if (shminfo.shmid < 0) {
+            fprintf(stderr, RED "tint2: !shmget" RESET "\n");
+            goto err1;
+        }
+        shminfo.shmaddr = ximg->data = (char *)shmat(shminfo.shmid, 0, 0);
+        if (!shminfo.shmaddr) {
+            fprintf(stderr, RED "tint2: !shmat" RESET "\n");
+            goto err2;
+        }
+        shminfo.readOnly = False;
+        if (!XShmAttach(server.display, &shminfo)) {
+            fprintf(stderr, RED "tint2: !xshmattach" RESET "\n");
+            goto err3;
+        }
+        if (!XShmGetImage(server.display, win, ximg, 0, 0, AllPlanes)) {
+            fprintf(stderr, RED "tint2: !xshmgetimage" RESET "\n");
+            goto err4;
+        }
     }
 
     XGetWindowAttributes(server.display, win, &wa);
@@ -530,11 +537,14 @@ cairo_surface_t *screenshot(Window win, size_t size)
     smooth_thumbnail(result);
 
 err4:
-    XShmDetach(server.display, &shminfo);
+    if (use_shm)
+        XShmDetach(server.display, &shminfo);
 err3:
-    shmdt(shminfo.shmaddr);
+    if (use_shm)
+        shmdt(shminfo.shmaddr);
 err2:
-    shmctl(shminfo.shmid, IPC_RMID, NULL);
+    if (use_shm)
+        shmctl(shminfo.shmid, IPC_RMID, NULL);
 err1:
     XDestroyImage(ximg);
 err0:
@@ -545,7 +555,8 @@ cairo_surface_t *get_window_thumbnail_cairo(Window win, int size)
 {
     static cairo_filter_t filter = CAIRO_FILTER_BEST;
     XWindowAttributes wa;
-    if (!XGetWindowAttributes(server.display, win, &wa) || wa.width <= 0 || wa.height <= 0 || wa.map_state != IsViewable)
+    if (!XGetWindowAttributes(server.display, win, &wa) || wa.width <= 0 || wa.height <= 0 ||
+        wa.map_state != IsViewable)
         return NULL;
     int w, h;
     w = wa.width;
@@ -616,13 +627,27 @@ cairo_surface_t *get_window_thumbnail(Window win, int size)
 {
     cairo_surface_t *image_surface = NULL;
     if (0 && server.has_shm && server.composite_manager) {
-        image_surface = screenshot(win, (size_t)size);
+        image_surface = get_window_thumbnail_ximage(win, (size_t)size, TRUE);
         if (image_surface && cairo_surface_is_blank(image_surface)) {
             cairo_surface_destroy(image_surface);
             image_surface = NULL;
         }
         if (!image_surface)
-            fprintf(stderr, YELLOW "tint2: thumbnail fast path failed, trying slow path" RESET "\n");
+            fprintf(stderr, YELLOW "tint2: XShmGetImage failed, trying slower method" RESET "\n");
+        else
+            fprintf(stderr, "tint2: captured window using XShmGetImage\n");
+    }
+
+    if (!image_surface) {
+        image_surface = get_window_thumbnail_ximage(win, (size_t)size, FALSE);
+        if (image_surface && cairo_surface_is_blank(image_surface)) {
+            cairo_surface_destroy(image_surface);
+            image_surface = NULL;
+        }
+        if (!image_surface)
+            fprintf(stderr, YELLOW "tint2: XGetImage failed, trying slower method" RESET "\n");
+        else
+            fprintf(stderr, "tint2: captured window using XGetImage\n");
     }
 
     if (!image_surface) {
@@ -632,9 +657,10 @@ cairo_surface_t *get_window_thumbnail(Window win, int size)
             image_surface = NULL;
         }
         if (!image_surface)
-            fprintf(stderr, YELLOW "tint2: thumbnail slow path failed" RESET "\n");
+            fprintf(stderr, YELLOW "tint2: capturing window failed" RESET "\n");
+        else
+            fprintf(stderr, "tint2: captured window using cairo\n");
     }
-
 
     if (!image_surface)
         return NULL;
