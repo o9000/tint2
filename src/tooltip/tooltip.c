@@ -320,6 +320,7 @@ void tooltip_hide(void *arg)
         XUnmapWindow(server.display, g_tooltip.window);
         XFlush(server.display);
     }
+    g_tooltip.area = NULL;
 }
 
 void start_show_timeout()
