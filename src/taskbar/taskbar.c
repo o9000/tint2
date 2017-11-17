@@ -47,7 +47,9 @@ gboolean hide_taskbar_if_empty;
 gboolean always_show_all_desktop_tasks;
 TaskbarSortMethod taskbar_sort_method;
 Alignment taskbar_alignment;
-static timeout *thumbnail_update_timer;
+static timeout *thumbnail_update_timer_all;
+static timeout *thumbnail_update_timer_active;
+static timeout *thumbnail_update_timer_tooltip;
 
 static GList *taskbar_task_orderings = NULL;
 
@@ -86,7 +88,9 @@ void default_taskbar()
     hide_task_diff_monitor = FALSE;
     hide_taskbar_if_empty = FALSE;
     always_show_all_desktop_tasks = FALSE;
-    thumbnail_update_timer = NULL;
+    thumbnail_update_timer_all = NULL;
+    thumbnail_update_timer_active = NULL;
+    thumbnail_update_timer_tooltip = NULL;
     taskbar_sort_method = TASKBAR_NOSORT;
     taskbar_alignment = ALIGN_LEFT;
     default_taskbarname();
@@ -128,7 +132,9 @@ void taskbar_save_orderings()
 
 void cleanup_taskbar()
 {
-    stop_timeout(thumbnail_update_timer);
+    stop_timeout(thumbnail_update_timer_all);
+    stop_timeout(thumbnail_update_timer_active);
+    stop_timeout(thumbnail_update_timer_tooltip);
     taskbar_save_orderings();
     if (win_to_task) {
         while (g_hash_table_size(win_to_task)) {
@@ -370,9 +376,11 @@ void taskbar_start_thumbnail_timer(ThumbnailUpdateMode mode)
 {
     if (!panel_config.g_task.thumbnail_enabled)
         return;
-    change_timeout(&thumbnail_update_timer,
+    fprintf(stderr, BLUE "tint2: taskbar_start_thumbnail_timer %s" RESET "\n", mode == THUMB_MODE_ACTIVE_WINDOW ? "active" : mode == THUMB_MODE_TOOLTIP_WINDOW ? "tooltip" : "all");
+    change_timeout(mode == THUMB_MODE_ALL ? &thumbnail_update_timer_all :
+                                            mode == THUMB_MODE_ACTIVE_WINDOW ? &thumbnail_update_timer_active : &thumbnail_update_timer_tooltip,
                    mode == THUMB_MODE_TOOLTIP_WINDOW ? 1000 : 500,
-                   10 * 1000,
+                   mode == THUMB_MODE_ALL ? 10 * 1000 : 0,
                    taskbar_update_thumbnails,
                    (void *)(long)mode);
 }
@@ -806,9 +814,9 @@ void taskbar_update_thumbnails(void *arg)
 {
     if (!panel_config.g_task.thumbnail_enabled)
         return;
-    ThumbnailUpdateMode mode = (ThumbnailUpdateMode)arg;
+    ThumbnailUpdateMode mode = (ThumbnailUpdateMode)(long)arg;
+    fprintf(stderr, BLUE "tint2: taskbar_update_thumbnails %s" RESET "\n", mode == THUMB_MODE_ACTIVE_WINDOW ? "active" : mode == THUMB_MODE_TOOLTIP_WINDOW ? "tooltip" : "all");
     double start_time = get_time();
-    change_timeout(&thumbnail_update_timer, 10 * 1000, 10 * 1000, taskbar_update_thumbnails, NULL);
     for (int i = 0; i < num_panels; i++) {
         Panel *panel = &panels[i];
         for (int j = 0; j < panel->num_desktops; j++) {
@@ -828,7 +836,7 @@ void taskbar_update_thumbnails(void *arg)
                 if (mode == THUMB_MODE_ALL) {
                     double now = get_time();
                     if (now - start_time > 0.030) {
-                        change_timeout(&thumbnail_update_timer, 10, 10 * 1000, taskbar_update_thumbnails, arg);
+                        change_timeout(&thumbnail_update_timer_all, 10, 10 * 1000, taskbar_update_thumbnails, arg);
                         return;
                     }
                 }
