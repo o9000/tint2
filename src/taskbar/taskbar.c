@@ -797,6 +797,7 @@ void taskbar_update_thumbnails(void *fast)
 {
     if (!panel_config.g_task.thumbnail_enabled)
         return;
+    double start_time = get_time();
     change_timeout(&thumbnail_update_timer, 10 * 1000, 10 * 1000, taskbar_update_thumbnails, NULL);
     for (int i = 0; i < num_panels; i++) {
         Panel *panel = &panels[i];
@@ -806,6 +807,13 @@ void taskbar_update_thumbnails(void *fast)
                 Task *t = (Task *)c->data;
                 if (!fast || t->current_state == TASK_ACTIVE)
                     task_refresh_thumbnail(t);
+                if (!fast) {
+                    double now = get_time();
+                    if (now - start_time > 0.030) {
+                        change_timeout(&thumbnail_update_timer, 10, 10 * 1000, taskbar_update_thumbnails, fast);
+                        return;
+                    }
+                }
             }
         }
     }
