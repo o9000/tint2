@@ -841,7 +841,7 @@ void taskbar_update_thumbnails(void *arg)
                 if (mode == THUMB_MODE_ALL) {
                     double now = get_time();
                     if (now - start_time > 0.030) {
-                        change_timeout(&thumbnail_update_timer_all, 10, 10 * 1000, taskbar_update_thumbnails, arg);
+                        change_timeout(&thumbnail_update_timer_all, 50, 10 * 1000, taskbar_update_thumbnails, arg);
                         return;
                     }
                 }
