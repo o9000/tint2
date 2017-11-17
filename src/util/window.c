@@ -637,10 +637,12 @@ cairo_surface_t *get_window_thumbnail(Window win, int size)
             cairo_surface_destroy(image_surface);
             image_surface = NULL;
         }
-        if (!image_surface)
-            fprintf(stderr, YELLOW "tint2: XShmGetImage failed, trying slower method" RESET "\n");
-        else
-            fprintf(stderr, "tint2: captured window using XShmGetImage\n");
+        if (debug_thumbnails) {
+            if (!image_surface)
+                fprintf(stderr, YELLOW "tint2: XShmGetImage failed, trying slower method" RESET "\n");
+            else
+                fprintf(stderr, "tint2: captured window using XShmGetImage\n");
+        }
     }
 
     if (!image_surface) {
@@ -649,10 +651,12 @@ cairo_surface_t *get_window_thumbnail(Window win, int size)
             cairo_surface_destroy(image_surface);
             image_surface = NULL;
         }
-        if (!image_surface)
-            fprintf(stderr, YELLOW "tint2: XGetImage failed, trying slower method" RESET "\n");
-        else
-            fprintf(stderr, "tint2: captured window using XGetImage\n");
+        if (debug_thumbnails) {
+            if (!image_surface)
+                fprintf(stderr, YELLOW "tint2: XGetImage failed, trying slower method" RESET "\n");
+            else
+                fprintf(stderr, "tint2: captured window using XGetImage\n");
+        }
     }
 
     if (!image_surface) {
@@ -661,10 +665,12 @@ cairo_surface_t *get_window_thumbnail(Window win, int size)
             cairo_surface_destroy(image_surface);
             image_surface = NULL;
         }
-        if (!image_surface)
-            fprintf(stderr, YELLOW "tint2: capturing window failed" RESET "\n");
-        else
-            fprintf(stderr, "tint2: captured window using cairo\n");
+        if (debug_thumbnails) {
+            if (!image_surface)
+                fprintf(stderr, YELLOW "tint2: capturing window failed" RESET "\n");
+            else
+                fprintf(stderr, "tint2: captured window using cairo\n");
+        }
     }
 
     if (!image_surface)

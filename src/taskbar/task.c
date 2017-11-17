@@ -105,10 +105,6 @@ Task *add_task(Window win)
              (int)win,
              task_template.title ? task_template.title : "null");
 
-    // fprintf(stderr, "tint2: %s %d: win = %ld, task = %s\n", __func__, __LINE__, win, task_template.title ?
-    // task_template.title : "??");
-    // fprintf(stderr, "tint2: new task %s win %u: desktop %d, monitor %d\n", new_task.title, win, new_task.desktop, monitor);
-
     GPtrArray *task_buttons = g_ptr_array_new();
     for (int j = 0; j < panels[monitor].num_desktops; j++) {
         if (task_template.desktop != ALL_DESKTOPS && task_template.desktop != j)
@@ -130,7 +126,6 @@ Task *add_task(Window win)
         task_instance->win_h = task_template.win_h;
         task_instance->current_state = TASK_UNDEFINED; // to update the current state later in set_task_state...
         if (task_instance->desktop == ALL_DESKTOPS && server.desktop != j) {
-            // fprintf(stderr, "tint2: %s %d: win = %ld hiding task: another desktop\n", __func__, __LINE__, win);
             task_instance->area.on_screen = always_show_all_desktop_tasks;
         }
         task_instance->title = task_template.title;
@@ -200,9 +195,6 @@ void remove_task(Task *task)
     if (!task)
         return;
 
-    // fprintf(stderr, "tint2: %s %d: win = %ld, task = %s\n", __func__, __LINE__, task->win, task->title ? task->title :
-    // "??");
-
     if (taskbar_mode == MULTI_DESKTOP) {
         Panel *panel = task->area.panel;
         panel->area.resize_needed = 1;
@@ -212,7 +204,6 @@ void remove_task(Task *task)
 
     // free title and icon just for the first task
     // even with task_on_all_desktop and with task_on_all_panel
-    // fprintf(stderr, "tint2: remove_task %s %d\n", task->title, task->desktop);
     if (task->title)
         free(task->title);
     if (task->thumbnail)
@@ -307,13 +298,6 @@ void task_update_icon(Task *task)
                     for (int j = 0; j < w * h; ++j)
                         icon_data[j] = tmp_data[j];
                     img = imlib_create_image_using_copied_data(w, h, icon_data);
-                    if (0 && img)
-                        fprintf(stderr,
-                                "%s: Got %dx%d icon via _NET_WM_ICON for %s\n",
-                                __func__,
-                                w,
-                                h,
-                                task->title ? task->title : "task");
                 }
             }
             XFree(data);
@@ -333,13 +317,6 @@ void task_update_icon(Task *task)
                 XGetGeometry(server.display, hints->icon_pixmap, &root, &icon_x, &icon_y, &w, &h, &border_width, &bpp);
                 imlib_context_set_drawable(hints->icon_pixmap);
                 img = imlib_create_image_from_drawable(hints->icon_mask, 0, 0, w, h, 0);
-                if (0 && img)
-                    fprintf(stderr,
-                            "%s: Got %dx%d pixmap icon via WM_HINTS for %s\n",
-                            __func__,
-                            w,
-                            h,
-                            task->title ? task->title : "task");
             }
             XFree(hints);
         }
@@ -609,7 +586,6 @@ void reset_active_task()
     }
 
     Window w1 = get_active_window();
-    // fprintf(stderr, "tint2: Change active task %ld\n", w1);
 
     if (w1) {
         if (!get_task_buttons(w1)) {
@@ -630,7 +606,8 @@ void task_refresh_thumbnail(Task *task)
     double now = get_time();
     if (now - task->thumbnail_last_update < 0.1)
         return;
-    fprintf(stderr, "tint2: thumbnail for window: %s" RESET "\n", task->title ? task->title : "");
+    if (debug_thumbnails)
+        fprintf(stderr, "tint2: thumbnail for window: %s" RESET "\n", task->title ? task->title : "");
     cairo_surface_t *thumbnail = get_window_thumbnail(task->win, panel_config.g_task.thumbnail_width);
     if (!thumbnail)
         return;
@@ -638,7 +615,8 @@ void task_refresh_thumbnail(Task *task)
         cairo_surface_destroy(task->thumbnail);
     task->thumbnail = thumbnail;
     task->thumbnail_last_update = get_time();
-    fprintf(stderr, YELLOW "tint2: %s took %f ms (window: %s)" RESET "\n", __func__, 1000 * (task->thumbnail_last_update - now), task->title ? task->title : "");
+    if (debug_thumbnails)
+        fprintf(stderr, YELLOW "tint2: %s took %f ms (window: %s)" RESET "\n", __func__, 1000 * (task->thumbnail_last_update - now), task->title ? task->title : "");
     if (g_tooltip.mapped && (g_tooltip.area == &task->area)) {
         tooltip_update_contents_for(&task->area);
         tooltip_update();
@@ -833,7 +811,6 @@ void task_handle_mouse_event(Task *task, MouseAction action)
 
 void task_update_desktop(Task *task)
 {
-    // fprintf(stderr, "tint2: %s %d:\n", __func__, __LINE__);
     Window win = task->win;
     remove_task(task);
     task = add_task(win);

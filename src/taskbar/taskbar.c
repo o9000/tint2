@@ -376,7 +376,8 @@ void taskbar_start_thumbnail_timer(ThumbnailUpdateMode mode)
 {
     if (!panel_config.g_task.thumbnail_enabled)
         return;
-    fprintf(stderr, BLUE "tint2: taskbar_start_thumbnail_timer %s" RESET "\n", mode == THUMB_MODE_ACTIVE_WINDOW ? "active" : mode == THUMB_MODE_TOOLTIP_WINDOW ? "tooltip" : "all");
+    if (debug_thumbnails)
+        fprintf(stderr, BLUE "tint2: taskbar_start_thumbnail_timer %s" RESET "\n", mode == THUMB_MODE_ACTIVE_WINDOW ? "active" : mode == THUMB_MODE_TOOLTIP_WINDOW ? "tooltip" : "all");
     change_timeout(mode == THUMB_MODE_ALL ? &thumbnail_update_timer_all :
                                             mode == THUMB_MODE_ACTIVE_WINDOW ? &thumbnail_update_timer_active : &thumbnail_update_timer_tooltip,
                    mode == THUMB_MODE_TOOLTIP_WINDOW ? 1000 : 500,
@@ -497,7 +498,6 @@ void taskbar_refresh_tasklist()
 {
     if (!taskbar_enabled)
         return;
-    // fprintf(stderr, "tint2: %s %d:\n", __func__, __LINE__);
 
     int num_results;
     Window *win = server_get_property(server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
@@ -551,7 +551,6 @@ gboolean resize_taskbar(void *obj)
     Taskbar *taskbar = (Taskbar *)obj;
     Panel *panel = (Panel *)taskbar->area.panel;
 
-    // fprintf(stderr, "tint2: resize_taskbar %d %d\n", taskbar->area.posx, taskbar->area.posy);
     if (panel_horizontal) {
         relayout_with_constraint(&taskbar->area, panel->g_task.maximum_width);
 
@@ -815,7 +814,8 @@ void taskbar_update_thumbnails(void *arg)
     if (!panel_config.g_task.thumbnail_enabled)
         return;
     ThumbnailUpdateMode mode = (ThumbnailUpdateMode)(long)arg;
-    fprintf(stderr, BLUE "tint2: taskbar_update_thumbnails %s" RESET "\n", mode == THUMB_MODE_ACTIVE_WINDOW ? "active" : mode == THUMB_MODE_TOOLTIP_WINDOW ? "tooltip" : "all");
+    if (debug_thumbnails)
+        fprintf(stderr, BLUE "tint2: taskbar_update_thumbnails %s" RESET "\n", mode == THUMB_MODE_ACTIVE_WINDOW ? "active" : mode == THUMB_MODE_TOOLTIP_WINDOW ? "tooltip" : "all");
     double start_time = get_time();
     for (int i = 0; i < num_panels; i++) {
         Panel *panel = &panels[i];

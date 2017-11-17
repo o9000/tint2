@@ -94,6 +94,7 @@ extern gboolean debug_geometry;
 extern gboolean debug_fps;
 extern double tracing_fps_threshold;
 extern gboolean debug_frames;
+extern gboolean debug_thumbnails;
 
 typedef struct Panel {
     Area area;
