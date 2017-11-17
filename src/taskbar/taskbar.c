@@ -829,7 +829,7 @@ void taskbar_update_thumbnails(void *arg)
                  c;
                  c = c->next) {
                 Task *t = (Task *)c->data;
-                if ((mode == THUMB_MODE_ALL && !g_list_find(taskbar_thumbnail_jobs_done, t)) || (mode == THUMB_MODE_ACTIVE_WINDOW && t->current_state == TASK_ACTIVE) ||
+                if ((mode == THUMB_MODE_ALL && t->current_state == TASK_ACTIVE && !g_list_find(taskbar_thumbnail_jobs_done, t)) || (mode == THUMB_MODE_ACTIVE_WINDOW && t->current_state == TASK_ACTIVE) ||
                     (mode == THUMB_MODE_TOOLTIP_WINDOW && g_tooltip.mapped && g_tooltip.area == &t->area)) {
                     task_refresh_thumbnail(t);
                     if (mode == THUMB_MODE_ALL)
