@@ -45,6 +45,8 @@ struct _timeout {
     multi_timeout *multi_timeout;
     timeout **self;
     gboolean expired;
+    // timer has been restarted from its own callback function
+    gboolean reactivated;
 };
 
 void add_timeout_intern(int value_msec, int interval_msec, void (*_callback)(void *), void *arg, timeout *t);
@@ -158,18 +160,21 @@ void handle_expired_timers()
         if (compare_timespecs(&t->timeout_expires, &cur_time) <= 0) {
             // it's time for the callback function
             t->expired = t->interval_msec == 0;
+            t->reactivated = FALSE;
             t->_callback(t->arg);
-            // If _callback() calls stop_timeout(t) the timer 't' was freed and is not in the timeout_list
-            if (g_slist_find(timeout_list, t)) {
-                // Timer still exists
-                timeout_list = g_slist_remove(timeout_list, t);
-                if (t->interval_msec > 0) {
-                    add_timeout_intern(t->interval_msec, t->interval_msec, t->_callback, t->arg, t);
-                } else {
-                    // Destroy single-shot timer
-                    if (t->self)
-                        *t->self = NULL;
-                    free(t);
+            if (!t->reactivated) {
+                // If _callback() calls stop_timeout(t) the timer 't' was freed and is not in the timeout_list
+                if (g_slist_find(timeout_list, t)) {
+                    // Timer still exists
+                    timeout_list = g_slist_remove(timeout_list, t);
+                    if (t->interval_msec > 0) {
+                        add_timeout_intern(t->interval_msec, t->interval_msec, t->_callback, t->arg, t);
+                    } else {
+                        // Destroy single-shot timer
+                        if (t->self)
+                            *t->self = NULL;
+                        free(t);
+                    }
                 }
             }
         } else {
@@ -208,6 +213,7 @@ void add_timeout_intern(int value_msec, int interval_msec, void (*_callback)(), 
         can_align = align_with_existing_timeouts(t);
     if (!can_align)
         timeout_list = g_slist_insert_sorted(timeout_list, t, compare_timeouts);
+    t->reactivated = TRUE;
 }
 
 gint compare_timeouts(gconstpointer t1, gconstpointer t2)
