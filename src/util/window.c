@@ -205,7 +205,7 @@ gboolean get_window_coordinates(Window win, int *x, int *y, int *w, int *h)
     if (!XGetGeometry(server.display, win, &src, &dummy_int, &dummy_int, &ww, &wh, &bw, &bh))
         return FALSE;
     *w = ww + bw;
-    *h = wh + bh;
+    *h = wh + bw;
     return TRUE;
 }
 
@@ -421,10 +421,10 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
                                ZPixmap,
                                NULL,
                                &shminfo,
-                               (unsigned)wa.width,
-                               (unsigned)wa.height);
+                               (unsigned)w,
+                               (unsigned)h);
     else
-        ximg = XGetImage(server.display, win, 0, 0, (unsigned)wa.width, (unsigned)wa.height, AllPlanes, ZPixmap);
+        ximg = XGetImage(server.display, win, 0, 0, (unsigned)w, (unsigned)h, AllPlanes, ZPixmap);
     if (!ximg) {
         fprintf(stderr, RED "tint2: !ximg" RESET "\n");
         goto err0;
@@ -463,8 +463,10 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
     u_int32_t *data = (u_int32_t *)cairo_image_surface_get_data(result);
     memset(data, 0, tw * th);
 
-    const size_t xstep = w / fw;
-    const size_t ystep = h / th;
+    // Fixed-point precision
+    const size_t prec = 1 << 16;
+    const size_t xstep = w * prec / fw;
+    const size_t ystep = h * prec / th;
 
     const size_t offset_y6 = 3 * ystep / 16;
     const size_t offset_x6 = 5 * xstep / 8;
@@ -493,13 +495,13 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
     for (size_t yt = 0, y = 0; yt < th; yt++, y += ystep) {
         for (size_t xt = 0, x = 0; xt < fw; xt++, x += xstep) {
             size_t j = yt * tw + ox + xt;
-            u_int32_t c6 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x6), (int)(y + offset_y6));
-            u_int32_t c1 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x1), (int)(y + offset_y1));
-            u_int32_t c2 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x2), (int)(y + offset_y2));
-            u_int32_t c5 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x5), (int)(y + offset_y5));
-            u_int32_t c3 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x3), (int)(y + offset_y3));
-            u_int32_t c4 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x4), (int)(y + offset_y4));
-            u_int32_t c7 = (u_int32_t)GetPixel(ximg, (int)(x + offset_x7), (int)(y + offset_y7));
+            u_int32_t c6 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x6) / prec), (int)((y + offset_y6) / prec));
+            u_int32_t c1 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x1) / prec), (int)((y + offset_y1) / prec));
+            u_int32_t c2 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x2) / prec), (int)((y + offset_y2) / prec));
+            u_int32_t c5 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x5) / prec), (int)((y + offset_y5) / prec));
+            u_int32_t c3 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x3) / prec), (int)((y + offset_y3) / prec));
+            u_int32_t c4 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x4) / prec), (int)((y + offset_y4) / prec));
+            u_int32_t c7 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x7) / prec), (int)((y + offset_y7) / prec));
             u_int32_t b = ((c1 & bmask) + (c2 & bmask) + (c3 & bmask) + (c4 & bmask) + (c5 & bmask) * 2 + (c6 & bmask) +
                            (c7 & bmask)) /
                           8;
