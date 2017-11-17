@@ -55,6 +55,7 @@ cairo_surface_t *task_get_thumbnail(void *obj)
     Task *t = (Task *)obj;
     if (!t->thumbnail)
         task_refresh_thumbnail(t);
+    taskbar_start_thumbnail_timer(THUMB_MODE_TOOLTIP_WINDOW);
     return t->thumbnail;
 }
 
@@ -651,7 +652,11 @@ void set_task_state(Task *task, TaskState state)
 
     if (!task->thumbnail)
         task_refresh_thumbnail(task);
-    taskbar_start_thumbnail_timer(TRUE);
+    if (state == TASK_ACTIVE) {
+        // For active windows, we get the thumbnail twice with a small delay in between.
+        // This is because they sometimes redraw their windows slowly.
+        taskbar_start_thumbnail_timer(THUMB_MODE_ACTIVE_WINDOW);
+    }
 
     if (state == TASK_ACTIVE && task->current_state != state) {
         clock_gettime(CLOCK_MONOTONIC, &task->last_activation_time);

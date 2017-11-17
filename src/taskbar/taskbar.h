@@ -25,6 +25,12 @@ typedef enum TaskbarSortMethod {
     TASKBAR_SORT_MRU,
 } TaskbarSortMethod;
 
+typedef enum ThumbnailUpdateMode {
+    THUMB_MODE_ACTIVE_WINDOW = 0,
+    THUMB_MODE_TOOLTIP_WINDOW,
+    THUMB_MODE_ALL
+} ThumbnailUpdateMode;
+
 typedef struct {
     Area area;
     gchar *name;
@@ -72,7 +78,7 @@ void init_taskbar_panel(void *p);
 
 gboolean resize_taskbar(void *obj);
 void taskbar_default_font_changed();
-void taskbar_start_thumbnail_timer(gboolean fast);
+void taskbar_start_thumbnail_timer(ThumbnailUpdateMode mode);
 
 // Reloads the entire list of tasks from the window manager and recreates the task buttons.
 void taskbar_refresh_tasklist();

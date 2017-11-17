@@ -32,6 +32,7 @@
 #include "window.h"
 #include "panel.h"
 #include "strnatcmp.h"
+#include "tooltip.h"
 
 GHashTable *win_to_task;
 
@@ -111,7 +112,10 @@ void taskbar_save_orderings()
         for (int j = 0; j < panel->num_desktops; j++) {
             Taskbar *taskbar = &panel->taskbar[j];
             GList *task_order = NULL;
-            for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next : taskbar->area.children; c; c = c->next) {
+            for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next
+                                                                            : taskbar->area.children;
+                 c;
+                 c = c->next) {
                 Task *t = (Task *)c->data;
                 Window *window = calloc(1, sizeof(Window));
                 *window = t->win;
@@ -306,8 +310,9 @@ void init_taskbar_panel(void *p)
         if (!panel->g_task.background[j])
             panel->g_task.background[j] = &g_array_index(backgrounds, Background, 0);
         if (panel->g_task.background[j]->border.radius > panel->g_task.area.height / 2) {
-            fprintf(stderr, "tint2: task%sbackground_id has a too large rounded value. Please fix your tint2rc\n",
-                   j == 0 ? "_" : j == 1 ? "_active_" : j == 2 ? "_iconified_" : "_urgent_");
+            fprintf(stderr,
+                    "tint2: task%sbackground_id has a too large rounded value. Please fix your tint2rc\n",
+                    j == 0 ? "_" : j == 1 ? "_active_" : j == 2 ? "_iconified_" : "_urgent_");
             g_array_append_val(backgrounds, *panel->g_task.background[j]);
             panel->g_task.background[j] = &g_array_index(backgrounds, Background, backgrounds->len - 1);
             panel->g_task.background[j]->border.radius = panel->g_task.area.height / 2;
@@ -358,14 +363,18 @@ void init_taskbar_panel(void *p)
         }
     }
     init_taskbarname_panel(panel);
-    taskbar_start_thumbnail_timer(FALSE);
+    taskbar_start_thumbnail_timer(THUMB_MODE_ALL);
 }
 
-void taskbar_start_thumbnail_timer(gboolean fast)
+void taskbar_start_thumbnail_timer(ThumbnailUpdateMode mode)
 {
     if (!panel_config.g_task.thumbnail_enabled)
         return;
-    change_timeout(&thumbnail_update_timer, 500, 10 * 1000, taskbar_update_thumbnails, (void*)(long)fast);
+    change_timeout(&thumbnail_update_timer,
+                   mode == THUMB_MODE_TOOLTIP_WINDOW ? 1000 : 500,
+                   10 * 1000,
+                   taskbar_update_thumbnails,
+                   (void *)(long)mode);
 }
 
 void taskbar_init_fonts()
@@ -435,8 +444,8 @@ int compare_windows(const void *a, const void *b)
     if (!sort_windows)
         return 0;
 
-    int ia = *(int*)a;
-    int ib = *(int*)b;
+    int ia = *(int *)a;
+    int ib = *(int *)b;
 
     Window wina = sort_windows[ia];
     Window winb = sort_windows[ib];
@@ -446,7 +455,7 @@ int compare_windows(const void *a, const void *b)
         int posb = -1;
         int pos = 0;
         for (GList *item = (GList *)order->data; item; item = item->next, pos++) {
-            Window win = *(Window*)item->data;
+            Window win = *(Window *)item->data;
             if (win == wina)
                 posa = pos;
             if (win == winb)
@@ -793,24 +802,33 @@ void update_minimized_icon_positions(void *p)
     }
 }
 
-void taskbar_update_thumbnails(void *fast)
+void taskbar_update_thumbnails(void *arg)
 {
     if (!panel_config.g_task.thumbnail_enabled)
         return;
+    ThumbnailUpdateMode mode = (ThumbnailUpdateMode)arg;
     double start_time = get_time();
     change_timeout(&thumbnail_update_timer, 10 * 1000, 10 * 1000, taskbar_update_thumbnails, NULL);
     for (int i = 0; i < num_panels; i++) {
         Panel *panel = &panels[i];
         for (int j = 0; j < panel->num_desktops; j++) {
             Taskbar *taskbar = &panel->taskbar[j];
-            for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next : taskbar->area.children; c; c = c->next) {
+            for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next
+                                                                            : taskbar->area.children;
+                 c;
+                 c = c->next) {
                 Task *t = (Task *)c->data;
-                if (!fast || t->current_state == TASK_ACTIVE)
+                if (mode == THUMB_MODE_ALL || (mode == THUMB_MODE_ACTIVE_WINDOW && t->current_state == TASK_ACTIVE) ||
+                    (mode == THUMB_MODE_TOOLTIP_WINDOW && g_tooltip.mapped && g_tooltip.area == &t->area)) {
                     task_refresh_thumbnail(t);
-                if (!fast) {
+                    if (t->thumbnail && mode == THUMB_MODE_TOOLTIP_WINDOW) {
+                        taskbar_start_thumbnail_timer(THUMB_MODE_TOOLTIP_WINDOW);
+                    }
+                }
+                if (mode == THUMB_MODE_ALL) {
                     double now = get_time();
                     if (now - start_time > 0.030) {
-                        change_timeout(&thumbnail_update_timer, 10, 10 * 1000, taskbar_update_thumbnails, fast);
+                        change_timeout(&thumbnail_update_timer, 10, 10 * 1000, taskbar_update_thumbnails, arg);
                         return;
                     }
                 }
