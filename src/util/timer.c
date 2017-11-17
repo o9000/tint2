@@ -162,10 +162,10 @@ void handle_expired_timers()
             t->expired = t->interval_msec == 0;
             t->reactivated = FALSE;
             t->_callback(t->arg);
-            if (!t->reactivated) {
-                // If _callback() calls stop_timeout(t) the timer 't' was freed and is not in the timeout_list
-                if (g_slist_find(timeout_list, t)) {
-                    // Timer still exists
+            // If _callback() calls stop_timeout(t) the timer 't' was freed and is not in the timeout_list
+            if (g_slist_find(timeout_list, t)) {
+                // Timer still exists
+                if (!t->reactivated) {
                     timeout_list = g_slist_remove(timeout_list, t);
                     if (t->interval_msec > 0) {
                         add_timeout_intern(t->interval_msec, t->interval_msec, t->_callback, t->arg, t);
