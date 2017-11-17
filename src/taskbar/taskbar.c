@@ -52,6 +52,7 @@ static timeout *thumbnail_update_timer_active;
 static timeout *thumbnail_update_timer_tooltip;
 
 static GList *taskbar_task_orderings = NULL;
+static GList *taskbar_thumbnail_jobs_done = NULL;
 
 void taskbar_init_fonts();
 int taskbar_compute_desired_size(void *obj);
@@ -91,6 +92,7 @@ void default_taskbar()
     thumbnail_update_timer_all = NULL;
     thumbnail_update_timer_active = NULL;
     thumbnail_update_timer_tooltip = NULL;
+    taskbar_thumbnail_jobs_done = NULL;
     taskbar_sort_method = TASKBAR_NOSORT;
     taskbar_alignment = ALIGN_LEFT;
     default_taskbarname();
@@ -135,6 +137,7 @@ void cleanup_taskbar()
     stop_timeout(thumbnail_update_timer_all);
     stop_timeout(thumbnail_update_timer_active);
     stop_timeout(thumbnail_update_timer_tooltip);
+    g_list_free(taskbar_thumbnail_jobs_done);
     taskbar_save_orderings();
     if (win_to_task) {
         while (g_hash_table_size(win_to_task)) {
@@ -826,9 +829,11 @@ void taskbar_update_thumbnails(void *arg)
                  c;
                  c = c->next) {
                 Task *t = (Task *)c->data;
-                if (mode == THUMB_MODE_ALL || (mode == THUMB_MODE_ACTIVE_WINDOW && t->current_state == TASK_ACTIVE) ||
+                if ((mode == THUMB_MODE_ALL && !g_list_find(taskbar_thumbnail_jobs_done, t)) || (mode == THUMB_MODE_ACTIVE_WINDOW && t->current_state == TASK_ACTIVE) ||
                     (mode == THUMB_MODE_TOOLTIP_WINDOW && g_tooltip.mapped && g_tooltip.area == &t->area)) {
                     task_refresh_thumbnail(t);
+                    if (mode == THUMB_MODE_ALL)
+                        taskbar_thumbnail_jobs_done = g_list_append(taskbar_thumbnail_jobs_done, t);
                     if (t->thumbnail && mode == THUMB_MODE_TOOLTIP_WINDOW) {
                         taskbar_start_thumbnail_timer(THUMB_MODE_TOOLTIP_WINDOW);
                     }
@@ -841,6 +846,13 @@ void taskbar_update_thumbnails(void *arg)
                     }
                 }
             }
+        }
+    }
+    if (mode == THUMB_MODE_ALL) {
+        if (taskbar_thumbnail_jobs_done) {
+            g_list_free(taskbar_thumbnail_jobs_done);
+            taskbar_thumbnail_jobs_done = NULL;
+            change_timeout(&thumbnail_update_timer_all, 10 * 1000, 10 * 1000, taskbar_update_thumbnails, arg);
         }
     }
 }
