@@ -63,6 +63,9 @@ typedef struct Task {
     Imlib_Image icon_press[TASK_STATE_COUNT];
     unsigned int icon_width;
     unsigned int icon_height;
+    Color icon_color[TASK_STATE_COUNT];
+    Color icon_color_hover[TASK_STATE_COUNT];
+    Color icon_color_press[TASK_STATE_COUNT];
     char *title;
     int urgent_tick;
     // These may not be up-to-date

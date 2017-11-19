@@ -6,7 +6,7 @@ GtkWidget *current_background, *background_fill_color, *background_border_color,
     *background_fill_color_over, *background_border_color_over, *background_gradient_over, *background_fill_color_press,
     *background_border_color_press, *background_gradient_press, *background_border_width, *background_corner_radius,
     *background_border_sides_top, *background_border_sides_bottom, *background_border_sides_left,
-    *background_border_sides_right;
+    *background_border_sides_right, *background_border_content_tint_weight, *background_fill_content_tint_weight;
 
 GtkWidget *create_background_combo(const char *label)
 {
@@ -115,7 +115,9 @@ void create_background(GtkWidget *parent)
                                      GTK_TYPE_BOOL,
                                      GTK_TYPE_BOOL,
                                      GTK_TYPE_BOOL,
-                                     GTK_TYPE_BOOL);
+                                     GTK_TYPE_BOOL,
+                                     GTK_TYPE_DOUBLE,
+                                     GTK_TYPE_DOUBLE);
 
     GtkWidget *table, *label, *button;
     int row, col;
@@ -176,6 +178,19 @@ void create_background(GtkWidget *parent)
     gtk_tooltips_set_tip(tooltips, background_fill_color, _("The fill color of the current background"), NULL);
 
     row++, col = 2;
+    label = gtk_label_new(_("Fill tint"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    background_fill_content_tint_weight = gtk_spin_button_new_with_range(0, 1, 0.01);
+    gtk_widget_show(background_fill_content_tint_weight);
+    gtk_table_attach(GTK_TABLE(table), background_fill_content_tint_weight, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_tooltips_set_tip(tooltips, background_fill_content_tint_weight, _("How much the border color should be tinted with the content color"), NULL);
+
+    row++, col = 2;
     label = gtk_label_new(_("Border color"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
     gtk_widget_show(label);
@@ -188,6 +203,19 @@ void create_background(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), background_border_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
     gtk_tooltips_set_tip(tooltips, background_border_color, _("The border color of the current background"), NULL);
+
+    row++, col = 2;
+    label = gtk_label_new(_("Border tint"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    background_border_content_tint_weight = gtk_spin_button_new_with_range(0, 1, 0.01);
+    gtk_widget_show(background_border_content_tint_weight);
+    gtk_table_attach(GTK_TABLE(table), background_border_content_tint_weight, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_tooltips_set_tip(tooltips, background_border_content_tint_weight, _("How much the border color should be tinted with the content color"), NULL);
 
     row++, col = 2;
     label = gtk_label_new(_("Gradient"));
@@ -366,6 +394,8 @@ void create_background(GtkWidget *parent)
     g_signal_connect(G_OBJECT(background_border_sides_bottom), "toggled", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_border_sides_left), "toggled", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_border_sides_right), "toggled", G_CALLBACK(background_update), NULL);
+    g_signal_connect(G_OBJECT(background_border_content_tint_weight), "value-changed", G_CALLBACK(background_update), NULL);
+    g_signal_connect(G_OBJECT(background_fill_content_tint_weight), "value-changed", G_CALLBACK(background_update), NULL);
 
     change_paragraph(parent);
 }
@@ -750,6 +780,9 @@ void background_update(GtkWidget *widget, gpointer data)
     r = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_corner_radius));
     b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_border_width));
 
+    double fill_weight = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_fill_content_tint_weight));
+    double border_weight = gtk_spin_button_get_value(GTK_SPIN_BUTTON(background_border_content_tint_weight));
+
     gboolean sideTop = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_top));
     gboolean sideBottom = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_bottom));
     gboolean sideLeft = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_left));
@@ -836,6 +869,10 @@ void background_update(GtkWidget *widget, gpointer data)
                        sideLeft,
                        bgColBorderSidesRight,
                        sideRight,
+                       bgColFillWeight,
+                       fill_weight,
+                       bgColBorderWeight,
+                       border_weight,
                        -1);
     background_update_image(index);
 }
@@ -862,6 +899,8 @@ void current_background_changed(GtkWidget *widget, gpointer data)
     gtk_widget_set_sensitive(background_border_sides_left, index > 0);
     gtk_widget_set_sensitive(background_border_sides_right, index > 0);
     gtk_widget_set_sensitive(background_corner_radius, index > 0);
+    gtk_widget_set_sensitive(background_border_content_tint_weight, index > 0);
+    gtk_widget_set_sensitive(background_fill_content_tint_weight, index > 0);
 
     background_updates_disabled = TRUE;
 
@@ -874,6 +913,9 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 
     int r;
     int b;
+
+    double fill_weight;
+    double border_weight;
 
     gboolean sideTop;
     gboolean sideBottom;
@@ -938,6 +980,10 @@ void current_background_changed(GtkWidget *widget, gpointer data)
                        &sideLeft,
                        bgColBorderSidesRight,
                        &sideRight,
+                       bgColFillWeight,
+                       &fill_weight,
+                       bgColBorderWeight,
+                       &border_weight,
                        -1);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_top), sideTop);
@@ -967,6 +1013,9 @@ void current_background_changed(GtkWidget *widget, gpointer data)
 
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_width), b);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_corner_radius), r);
+
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_fill_content_tint_weight), fill_weight);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_content_tint_weight), border_weight);
 
     g_boxed_free(GDK_TYPE_COLOR, fillColor);
     g_boxed_free(GDK_TYPE_COLOR, borderColor);

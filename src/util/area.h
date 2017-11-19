@@ -154,6 +154,8 @@ typedef struct Background {
     Color border_color_pressed;
     // Pointer to a GradientClass or NULL, no ownership
     GradientClass *gradients[MOUSE_STATE_COUNT];
+    double fill_content_tint_weight;
+    double border_content_tint_weight;
 } Background;
 
 typedef enum Layout {
@@ -241,6 +243,8 @@ typedef struct Area {
 
     // Prints the geometry of the object on stderr, with left indentation of indent spaces.
     void (*_dump_geometry)(void *obj, int indent);
+
+    void (*_get_content_color)(void *obj, Color *color);
 } Area;
 
 // Initializes the Background member to default values.

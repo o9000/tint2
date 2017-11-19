@@ -350,6 +350,12 @@ void add_entry(char *key, char *value)
         id = (id < gradients->len && id >= 0) ? id : -1;
         if (id >= 0)
             bg->gradients[MOUSE_DOWN] = &g_array_index(gradients, GradientClass, id);
+    } else if (strcmp(key, "border_content_tint_weight") == 0) {
+        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
+        bg->border_content_tint_weight = MAX(0.0, MIN(1.0, atoi(value) / 100.));
+    } else if (strcmp(key, "fill_content_tint_weight") == 0) {
+        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
+        bg->fill_content_tint_weight = MAX(0.0, MIN(1.0, atoi(value) / 100.));
     }
 
     /* Gradients */

@@ -161,6 +161,8 @@ void config_write_backgrounds(FILE *fp)
 
         int r;
         int b;
+        double fill_weight;
+        double border_weight;
         gboolean sideTop;
         gboolean sideBottom;
         gboolean sideLeft;
@@ -228,6 +230,10 @@ void config_write_backgrounds(FILE *fp)
                            &sideLeft,
                            bgColBorderSidesRight,
                            &sideRight,
+                           bgColFillWeight,
+                           &fill_weight,
+                           bgColBorderWeight,
+                           &border_weight,
                            -1);
         fprintf(fp, "# Background %d: %s\n", index, text ? text : "");
         fprintf(fp, "rounded = %d\n", r);
@@ -244,6 +250,9 @@ void config_write_backgrounds(FILE *fp)
         if (sideRight)
             strcat(sides, "R");
         fprintf(fp, "border_sides = %s\n", sides);
+
+        fprintf(fp, "border_content_tint_weight = %d\n", (int)(100 * border_weight));
+        fprintf(fp, "fill_content_tint_weight = %d\n", (int)(100 * fill_weight));
 
         config_write_color(fp, "background_color", *fillColor, fillOpacity);
         config_write_color(fp, "border_color", *borderColor, borderOpacity);
@@ -1229,6 +1238,12 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "gradient_id_pressed") == 0 || strcmp(key, "pressed_gradient_id") == 0) {
         int id = gradient_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient_press), id);
+        background_force_update();
+    } else if (strcmp(key, "border_content_tint_weight") == 0) {
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_content_tint_weight), atoi(value) / 100.);
+        background_force_update();
+    } else if (strcmp(key, "fill_content_tint_weight") == 0) {
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_fill_content_tint_weight), atoi(value) / 100.);
         background_force_update();
     }
 

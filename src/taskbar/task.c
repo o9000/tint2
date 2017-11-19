@@ -41,6 +41,7 @@ GSList *urgent_list;
 void task_dump_geometry(void *obj, int indent);
 int task_compute_desired_size(void *obj);
 void task_refresh_thumbnail(Task *task);
+void task_get_content_color(void *obj, Color *color);
 
 char *task_get_tooltip(void *obj)
 {
@@ -85,6 +86,7 @@ Task *add_task(Window win)
     task_template.area.has_mouse_press_effect = panel_config.mouse_effects;
     task_template.area._dump_geometry = task_dump_geometry;
     task_template.area._is_under_mouse = full_width_area_is_under_mouse;
+    task_template.area._get_content_color = task_get_content_color;
     task_template.win = win;
     task_template.desktop = get_window_desktop(win);
     task_template.area.panel = &panels[monitor];
@@ -118,6 +120,7 @@ Task *add_task(Window win)
         task_instance->area._dump_geometry = task_dump_geometry;
         task_instance->area._is_under_mouse = full_width_area_is_under_mouse;
         task_instance->area._compute_desired_size = task_compute_desired_size;
+        task_instance->area._get_content_color = task_get_content_color;
         task_instance->win = task_template.win;
         task_instance->desktop = task_template.desktop;
         task_instance->win_x = task_template.win_x;
@@ -135,8 +138,11 @@ Task *add_task(Window win)
         }
         for (int k = 0; k < TASK_STATE_COUNT; ++k) {
             task_instance->icon[k] = task_template.icon[k];
+            task_instance->icon_color[k] = task_template.icon_color[k];
             task_instance->icon_hover[k] = task_template.icon_hover[k];
+            task_instance->icon_color_hover[k] = task_template.icon_color_hover[k];
             task_instance->icon_press[k] = task_template.icon_press[k];
+            task_instance->icon_color_press[k] = task_template.icon_color_press[k];
         }
         task_instance->icon_width = task_template.icon_width;
         task_instance->icon_height = task_template.icon_height;
@@ -342,6 +348,7 @@ void task_update_icon(Task *task)
     for (int k = 0; k < TASK_STATE_COUNT; ++k) {
         imlib_context_set_image(orig_image);
         task->icon[k] = imlib_clone_image();
+        get_image_mean_color(task->icon[k], &task->icon_color[k]);
         imlib_context_set_image(task->icon[k]);
         DATA32 *data32;
         if (panel->g_task.alpha[k] != 100 || panel->g_task.saturation[k] != 0 || panel->g_task.brightness[k] != 0) {
@@ -353,16 +360,19 @@ void task_update_icon(Task *task)
                        panel->g_task.saturation[k] / 100.0,
                        panel->g_task.brightness[k] / 100.0);
             imlib_image_put_back_data(data32);
+            get_image_mean_color(task->icon[k], &task->icon_color[k]);
         }
         if (panel_config.mouse_effects) {
             task->icon_hover[k] = adjust_icon(task->icon[k],
                                               panel_config.mouse_over_alpha,
                                               panel_config.mouse_over_saturation,
                                               panel_config.mouse_over_brightness);
+            get_image_mean_color(task->icon_hover[k], &task->icon_color_hover[k]);
             task->icon_press[k] = adjust_icon(task->icon[k],
                                               panel_config.mouse_pressed_alpha,
                                               panel_config.mouse_pressed_saturation,
                                               panel_config.mouse_pressed_brightness);
+            get_image_mean_color(task->icon_press[k], &task->icon_color_press[k]);
         }
     }
     imlib_context_set_image(orig_image);
@@ -371,13 +381,16 @@ void task_update_icon(Task *task)
     GPtrArray *task_buttons = get_task_buttons(task->win);
     if (task_buttons) {
         for (int i = 0; i < task_buttons->len; ++i) {
-            Task *task2 = g_ptr_array_index(task_buttons, i);
+            Task *task2 = (Task *)g_ptr_array_index(task_buttons, i);
             task2->icon_width = task->icon_width;
             task2->icon_height = task->icon_height;
             for (int k = 0; k < TASK_STATE_COUNT; ++k) {
                 task2->icon[k] = task->icon[k];
+                task2->icon_color[k] = task->icon_color[k];
                 task2->icon_hover[k] = task->icon_hover[k];
+                task2->icon_color_hover[k] = task->icon_color_hover[k];
                 task2->icon_press[k] = task->icon_press[k];
+                task2->icon_color_press[k] = task->icon_color_press[k];
             }
             schedule_redraw(&task2->area);
         }
@@ -477,6 +490,24 @@ void task_dump_geometry(void *obj, int indent)
             task->_icon_x,
             task->_icon_y,
             panel->g_task.icon_size1);
+}
+
+void task_get_content_color(void *obj, Color *color)
+{
+    Task *task = (Task *)obj;
+    Color *content_color = NULL;
+    if (panel_config.mouse_effects) {
+        if (task->area.mouse_state == MOUSE_OVER)
+            content_color = &task->icon_color_hover[task->current_state];
+        else if (task->area.mouse_state == MOUSE_DOWN)
+            content_color = &task->icon_color_press[task->current_state];
+        else
+            content_color = &task->icon_color[task->current_state];
+    } else {
+        content_color = &task->icon_color[task->current_state];
+    }
+    if (content_color)
+        memcpy(color, content_color, sizeof(*content_color));
 }
 
 int task_compute_desired_size(void *obj)

@@ -406,12 +406,14 @@ pid_t tint_exec(const char *command,
             wordexp_t words;
             words.we_offs = 2;
             if (wordexp(command, &words, WRDE_DOOFFS | WRDE_SHOWERR) == 0) {
-                words.we_wordv[0] = (char*)"x-terminal-emulator";
-                words.we_wordv[1] = (char*)"-e";
+                words.we_wordv[0] = (char *)"x-terminal-emulator";
+                words.we_wordv[1] = (char *)"-e";
                 execvp("x-terminal-emulator", words.we_wordv);
             }
 #endif
-            fprintf(stderr, "tint2: could not execute command in x-terminal-emulator: %s, executting in shell\n", command);
+            fprintf(stderr,
+                    "tint2: could not execute command in x-terminal-emulator: %s, executting in shell\n",
+                    command);
         }
         execlp("sh", "sh", "-c", command, NULL);
         fprintf(stderr, "tint2: Failed to execute %s\n", command);
@@ -1056,4 +1058,37 @@ GString *tint2_g_string_replace(GString *s, const char *from, const char *to)
     g_string_assign(s, result->str);
     g_string_free(result, TRUE);
     return s;
+}
+
+void get_image_mean_color(const Imlib_Image image, Color *mean_color)
+{
+    bzero(mean_color, sizeof(*mean_color));
+
+    if (!image)
+        return;
+    imlib_context_set_image(image);
+    imlib_image_set_has_alpha(1);
+    size_t size = (size_t)imlib_image_get_width() * (size_t)imlib_image_get_height();
+    DATA32 *data = imlib_image_get_data_for_reading_only();
+    DATA32 sum_r, sum_g, sum_b, count;
+    sum_r = sum_g = sum_b = count = 0;
+    for (size_t i = 0; i < size; i++) {
+        DATA32 argb, a, r, g, b;
+        argb = data[i];
+        a = (argb >> 24) & 0xff;
+        r = (argb >> 16) & 0xff;
+        g = (argb >> 8) & 0xff;
+        b = (argb) & 0xff;
+        if (a) {
+            sum_r += r;
+            sum_g += g;
+            sum_b += b;
+            count++;
+        }
+    }
+
+    mean_color->alpha = 1.0;
+    mean_color->rgb[0] = sum_r / 255.0 / count;
+    mean_color->rgb[1] = sum_g / 255.0 / count;
+    mean_color->rgb[2] = sum_b / 255.0 / count;
 }
