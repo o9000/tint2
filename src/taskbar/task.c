@@ -281,24 +281,18 @@ gboolean task_update_title(Task *task)
     return TRUE;
 }
 
-void task_update_icon(Task *task)
+Imlib_Image task_get_icon(Window win, int icon_size)
 {
-    Panel *panel = task->area.panel;
-    if (!panel->g_task.has_icon)
-        return;
-
-    task_remove_icon(task);
-
     Imlib_Image img = NULL;
 
     if (!img) {
         int len;
-        gulong *data = server_get_property(task->win, server.atom._NET_WM_ICON, XA_CARDINAL, &len);
+        gulong *data = server_get_property(win, server.atom._NET_WM_ICON, XA_CARDINAL, &len);
         if (data) {
             if (len > 0) {
                 // get ARGB icon
                 int w, h;
-                gulong *tmp_data = get_best_icon(data, get_icon_count(data, len), len, &w, &h, panel->g_task.icon_size1);
+                gulong *tmp_data = get_best_icon(data, get_icon_count(data, len), len, &w, &h, icon_size);
                 if (tmp_data) {
                     DATA32 icon_data[w * h];
                     for (int j = 0; j < w * h; ++j)
@@ -311,7 +305,7 @@ void task_update_icon(Task *task)
     }
 
     if (!img) {
-        XWMHints *hints = XGetWMHints(server.display, task->win);
+        XWMHints *hints = XGetWMHints(server.display, win);
         if (hints) {
             if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
                 // get width, height and depth for the pixmap
@@ -332,6 +326,46 @@ void task_update_icon(Task *task)
         imlib_context_set_image(default_icon);
         img = imlib_clone_image();
     }
+
+    return img;
+}
+
+void task_update_icon(Task *task)
+{
+    Panel *panel = task->area.panel;
+    if (!panel->g_task.has_icon) {
+        if (panel_config.g_task.has_content_tint) {
+            Imlib_Image img = task_get_icon(task->win, panel->g_task.icon_size1);
+            Color icon_color;
+            get_image_mean_color(img, &icon_color);
+            for (int k = 0; k < TASK_STATE_COUNT; ++k) {
+                task->icon_color[k] = icon_color;
+                adjust_color(&task->icon_color[k],
+                             panel->g_task.alpha[k],
+                             panel->g_task.saturation[k],
+                             panel->g_task.brightness[k]);
+                if (panel_config.mouse_effects) {
+                    task->icon_color_hover[k] = icon_color;
+                    adjust_color(&task->icon_color_hover[k],
+                                 panel_config.mouse_over_alpha,
+                                 panel_config.mouse_over_saturation,
+                                 panel_config.mouse_over_brightness);
+                    task->icon_color_press[k] = icon_color;
+                    adjust_color(&task->icon_color_press[k],
+                                 panel_config.mouse_pressed_alpha,
+                                 panel_config.mouse_pressed_saturation,
+                                 panel_config.mouse_pressed_brightness);
+                }
+            }
+            imlib_context_set_image(img);
+            imlib_free_image();
+        }
+        return;
+    }
+
+    task_remove_icon(task);
+
+    Imlib_Image img = task_get_icon(task->win, panel->g_task.icon_size1);
 
     // transform icons
     imlib_context_set_image(img);
@@ -647,7 +681,11 @@ void task_refresh_thumbnail(Task *task)
     task->thumbnail = thumbnail;
     task->thumbnail_last_update = get_time();
     if (debug_thumbnails)
-        fprintf(stderr, YELLOW "tint2: %s took %f ms (window: %s)" RESET "\n", __func__, 1000 * (task->thumbnail_last_update - now), task->title ? task->title : "");
+        fprintf(stderr,
+                YELLOW "tint2: %s took %f ms (window: %s)" RESET "\n",
+                __func__,
+                1000 * (task->thumbnail_last_update - now),
+                task->title ? task->title : "");
     if (g_tooltip.mapped && (g_tooltip.area == &task->area)) {
         tooltip_update_contents_for(&task->area);
         tooltip_update();

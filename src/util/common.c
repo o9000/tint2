@@ -1087,8 +1087,29 @@ void get_image_mean_color(const Imlib_Image image, Color *mean_color)
         }
     }
 
+    if (!count)
+        count = 1;
     mean_color->alpha = 1.0;
     mean_color->rgb[0] = sum_r / 255.0 / count;
     mean_color->rgb[1] = sum_g / 255.0 / count;
     mean_color->rgb[2] = sum_b / 255.0 / count;
+}
+
+void adjust_color(Color *color, int alpha, int saturation, int brightness)
+{
+    if (alpha == 100 && saturation == 0 && brightness == 0)
+        return;
+    DATA32 argb = (((DATA32)(color->alpha * 255) & 0xff) << 24) |
+            (((DATA32)(color->rgb[0] * 255) & 0xff) << 16) |
+            (((DATA32)(color->rgb[1] * 255) & 0xff) << 8) |
+            (((DATA32)(color->rgb[2] * 255) & 0xff) << 0);
+    adjust_asb(&argb, 1, 1, alpha / 100.0, saturation / 100.0, brightness / 100.0);
+    DATA32 a = (argb >> 24) & 0xff;
+    DATA32 r = (argb >> 16) & 0xff;
+    DATA32 g = (argb >> 8) & 0xff;
+    DATA32 b = (argb) & 0xff;
+    color->alpha = a / 255.;
+    color->rgb[0] = r / 255.;
+    color->rgb[1] = g / 255.;
+    color->rgb[2] = b / 255.;
 }

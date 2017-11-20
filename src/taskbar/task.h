@@ -42,6 +42,7 @@ typedef struct GlobalTask {
     // starting position for text ~ task_padding + task_border + icon_size
     double text_posx, text_height;
     gboolean has_font;
+    gboolean has_content_tint;
     PangoFontDescription *font_desc;
     Color font[TASK_STATE_COUNT];
     int config_font_mask;

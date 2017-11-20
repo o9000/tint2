@@ -251,8 +251,8 @@ void config_write_backgrounds(FILE *fp)
             strcat(sides, "R");
         fprintf(fp, "border_sides = %s\n", sides);
 
-        fprintf(fp, "border_content_tint_weight = %d\n", (int)(100 * border_weight));
-        fprintf(fp, "fill_content_tint_weight = %d\n", (int)(100 * fill_weight));
+        fprintf(fp, "border_content_tint_weight = %d\n", (int)(border_weight));
+        fprintf(fp, "fill_content_tint_weight = %d\n", (int)(fill_weight));
 
         config_write_color(fp, "background_color", *fillColor, fillOpacity);
         config_write_color(fp, "border_color", *borderColor, borderOpacity);
@@ -1240,10 +1240,10 @@ void add_entry(char *key, char *value)
         gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient_press), id);
         background_force_update();
     } else if (strcmp(key, "border_content_tint_weight") == 0) {
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_content_tint_weight), atoi(value) / 100.);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_content_tint_weight), atoi(value));
         background_force_update();
     } else if (strcmp(key, "fill_content_tint_weight") == 0) {
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_fill_content_tint_weight), atoi(value) / 100.);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_fill_content_tint_weight), atoi(value));
         background_force_update();
     }
 

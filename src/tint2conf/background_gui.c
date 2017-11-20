@@ -184,7 +184,7 @@ void create_background(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    background_fill_content_tint_weight = gtk_spin_button_new_with_range(0, 1, 0.01);
+    background_fill_content_tint_weight = gtk_spin_button_new_with_range(0, 100, 1);
     gtk_widget_show(background_fill_content_tint_weight);
     gtk_table_attach(GTK_TABLE(table), background_fill_content_tint_weight, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -211,7 +211,7 @@ void create_background(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    background_border_content_tint_weight = gtk_spin_button_new_with_range(0, 1, 0.01);
+    background_border_content_tint_weight = gtk_spin_button_new_with_range(0, 100, 1);
     gtk_widget_show(background_border_content_tint_weight);
     gtk_table_attach(GTK_TABLE(table), background_border_content_tint_weight, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;

@@ -109,6 +109,7 @@ Imlib_Image load_image(const char *path, int cached);
 //   *  1 = white
 void adjust_asb(DATA32 *data, int w, int h, float alpha_adjust, float satur_adjust, float bright_adjust);
 Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int brightness);
+void adjust_color(Color *color, int alpha, int saturation, int brightness);
 
 void create_heuristic_mask(DATA32 *data, int w, int h);
 

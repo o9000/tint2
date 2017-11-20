@@ -1092,6 +1092,9 @@ void add_entry(char *key, char *value)
             panel_config.g_task.config_background_mask |= (1 << status);
             if (status == TASK_NORMAL)
                 panel_config.g_task.area.bg = panel_config.g_task.background[TASK_NORMAL];
+            if (panel_config.g_task.background[status]->border_content_tint_weight > 0 ||
+                panel_config.g_task.background[status]->fill_content_tint_weight > 0)
+                panel_config.g_task.has_content_tint = TRUE;
         }
     }
     // "tooltip" is deprecated but here for backwards compatibility
@@ -1144,7 +1147,8 @@ void add_entry(char *key, char *value)
         systray_monitor = MAX(0, config_get_monitor(value));
     } else if (strcmp(key, "systray_name_filter") == 0) {
         if (systray_hide_name_filter) {
-            fprintf(stderr, "tint2: Error: duplicate option 'systray_name_filter'. Please use it only once. See https://gitlab.com/o9000/tint2/issues/652\n");
+            fprintf(stderr, "tint2: Error: duplicate option 'systray_name_filter'. Please use it only once. See "
+                            "https://gitlab.com/o9000/tint2/issues/652\n");
             free(systray_hide_name_filter);
         }
         systray_hide_name_filter = strdup(value);
