@@ -375,8 +375,8 @@ void smooth_thumbnail(cairo_surface_t *image_surface)
         u_int32_t c3 = data[i + tw];
         u_int32_t c4 = data[i + tw + 1];
         u_int32_t b = (5 * (c1 & bmask) + 1 * (c2 & bmask) + 1 * (c3 & bmask) + 1 * (c4 & bmask)) / 8;
-        u_int32_t g = (5 * (c1 & gmask) + 1 * (c2 & gmask) + 1 * (c3 & gmask) + 1 * (c4 & bmask)) / 8;
-        u_int32_t r = (5 * (c1 & rmask) + 1 * (c2 & rmask) + 1 * (c3 & rmask) + 1 * (c4 & bmask)) / 8;
+        u_int32_t g = (5 * (c1 & gmask) + 1 * (c2 & gmask) + 1 * (c3 & gmask) + 1 * (c4 & gmask)) / 8;
+        u_int32_t r = (5 * (c1 & rmask) + 1 * (c2 & rmask) + 1 * (c3 & rmask) + 1 * (c4 & rmask)) / 8;
         data[i] = (r & rmask) | (g & gmask) | (b & bmask);
     }
 }
