@@ -188,6 +188,9 @@ void init_taskbar()
         panel_config.g_task.has_text = panel_config.g_task.has_icon = 1;
     }
 
+    if (panel_config.g_task.thumbnail_width < 8)
+        panel_config.g_task.thumbnail_width = 210;
+
     if (!win_to_task)
         win_to_task = g_hash_table_new_full(win_hash, win_compare, free, free_ptr_array);
 
