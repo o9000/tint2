@@ -270,6 +270,8 @@ Try to respect as much as possible the order of the options as given below.</p><
 <li><code>color</code> is specified in hex RGB, e.g. #ff0000 is red</li>
 <li><code>opacity</code> varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque</li>
 </ul></li>
+<li><p><code>border_content_tint_weight = integer</code> : Mixes the border color with the content color (for tasks, this is the average color of the window icon). Values must be between 0 (no mixing) and 100 (fully replaces the color). <em>(since 16.0)</em></p></li>
+<li><p><code>background_content_tint_weight = integer</code> : Mixes the background color with the content color (for tasks, this is the average color of the window icon). Values must be between 0 (no mixing) and 100 (fully replaces the color). <em>(since 16.0)</em></p></li>
 </ul>
 <p>You can define as many backgrounds as you want. For example, the following config defines two backgrounds:</p><pre class="highlight plaintext"><code>rounded = 1
 border_width = 0
@@ -481,8 +483,8 @@ panel_size = 94% 30
 <li><p><code>task_text = boolean (0 or 1)</code> : Whether to display the task text.</p></li>
 <li><p><code>task_centered = boolean (0 or 1)</code> : Whether the task text is centered.</p></li>
 <li><p><code>task_tooltip = boolean (0 or 1)</code> : Whether to show tooltips for tasks.</p></li>
-<li><p><code>task_thumbnail = boolean (0 or 1)</code> : Whether to show thumbnail tooltips for tasks.</p></li>
-<li><p><code>task_thumbnail_size = width</code> : Thumbnail size.</p></li>
+<li><p><code>task_thumbnail = boolean (0 or 1)</code> : Whether to show thumbnail tooltips for tasks. <em>(since 16.0)</em></p></li>
+<li><p><code>task_thumbnail_size = width</code> : Thumbnail size. <em>(since 16.0)</em></p></li>
 <li><p><code>task_maximum_size = width height</code></p>
 <ul>
 <li><code>width</code> is used with horizontal panels to limit the size of the tasks. Use <code>width = 0</code> to get full taskbar width.</li>

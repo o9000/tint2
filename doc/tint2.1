@@ -150,6 +150,10 @@ The tint2 config file starts with the options defining background elements with 
 .IP \(bu 2
 \fB\fCopacity\fR varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque
 .RE
+.IP \(bu 2
+\fB\fCborder_content_tint_weight = integer\fR : Mixes the border color with the content color (for tasks, this is the average color of the window icon). Values must be between 0 (no mixing) and 100 (fully replaces the color). \fI(since 16.0)\fP
+.IP \(bu 2
+\fB\fCbackground_content_tint_weight = integer\fR : Mixes the background color with the content color (for tasks, this is the average color of the window icon). Values must be between 0 (no mixing) and 100 (fully replaces the color). \fI(since 16.0)\fP
 .RE
 .PP
 You can define as many backgrounds as you want. For example, the following config defines two backgrounds:
@@ -508,9 +512,9 @@ The following options configure the task buttons in the taskbar:
 .IP \(bu 2
 \fB\fCtask_tooltip = boolean (0 or 1)\fR : Whether to show tooltips for tasks.
 .IP \(bu 2
-\fB\fCtask_thumbnail = boolean (0 or 1)\fR : Whether to show thumbnail tooltips for tasks.
+\fB\fCtask_thumbnail = boolean (0 or 1)\fR : Whether to show thumbnail tooltips for tasks. \fI(since 16.0)\fP
 .IP \(bu 2
-\fB\fCtask_thumbnail_size = width\fR : Thumbnail size.
+\fB\fCtask_thumbnail_size = width\fR : Thumbnail size. \fI(since 16.0)\fP
 .IP \(bu 2
 \fB\fCtask_maximum_size = width height\fR
 .RS
