@@ -6,7 +6,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: tint2conf 0.13\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2017-06-22 22:09+0200\n"
+        "POT-Creation-Date: 2017-11-21 12:31+0100\n"
         "PO-Revision-Date: 2017-03-20 17:49+0300\n"
         "Last-Translator: Vladimir Kudrya <vladimir-csp@yandex.ru>\n"
         "Language-Team: \n"
@@ -52,7 +52,7 @@ msgid   "Launcher"
 msgstr  "Панель запуска"
 
 #: ../properties.c:320 ../properties.c:1085 ../properties.c:1299
-#: ../properties.c:3878
+#: ../properties.c:3908
 msgid   "Clock"
 msgstr  "Часы"
 
@@ -61,12 +61,12 @@ msgid   "System tray"
 msgstr  "Системный лоток"
 
 #: ../properties.c:336 ../properties.c:1083 ../properties.c:1296
-#: ../properties.c:5618
+#: ../properties.c:5648
 msgid   "Battery"
 msgstr  "Батарея"
 
-#: ../properties.c:344 ../properties.c:4574 ../properties.c:4674
-#: ../properties.c:5877
+#: ../properties.c:344 ../properties.c:4604 ../properties.c:4704
+#: ../properties.c:5907
 msgid   "Tooltip"
 msgstr  "Всплывающий текст"
 
@@ -126,7 +126,7 @@ msgstr  "Положение на экране: внизу по центру, г�
 msgid   "Position on screen: bottom-right, horizontal panel"
 msgstr  "Положение на экране: внизу справа, горизонтально"
 
-#: ../properties.c:469 ../properties.c:5145
+#: ../properties.c:469 ../properties.c:5175
 msgid   "Monitor"
 msgstr  "Монитор"
 
@@ -134,31 +134,31 @@ msgstr  "Монитор"
 msgid   "All"
 msgstr  "Все"
 
-#: ../properties.c:480 ../properties.c:5155
+#: ../properties.c:480 ../properties.c:5185
 msgid   "Primary"
 msgstr  ""
 
-#: ../properties.c:481 ../properties.c:5156
+#: ../properties.c:481 ../properties.c:5186
 msgid   "1"
 msgstr  "1"
 
-#: ../properties.c:482 ../properties.c:5157
+#: ../properties.c:482 ../properties.c:5187
 msgid   "2"
 msgstr  "2"
 
-#: ../properties.c:483 ../properties.c:5158
+#: ../properties.c:483 ../properties.c:5188
 msgid   "3"
 msgstr  "3"
 
-#: ../properties.c:484 ../properties.c:5159
+#: ../properties.c:484 ../properties.c:5189
 msgid   "4"
 msgstr  "4"
 
-#: ../properties.c:485 ../properties.c:5160
+#: ../properties.c:485 ../properties.c:5190
 msgid   "5"
 msgstr  "5"
 
-#: ../properties.c:486 ../properties.c:5161
+#: ../properties.c:486 ../properties.c:5191
 msgid   "6"
 msgstr  "6"
 
@@ -192,7 +192,7 @@ msgstr  "Единицы для длины панели: пиксели или п
 msgid   "Compact"
 msgstr  "Компактный"
 
-#: ../properties.c:535 ../properties.c:4146
+#: ../properties.c:535 ../properties.c:4176
 msgid   "Size"
 msgstr  "Размер"
 
@@ -233,16 +233,16 @@ msgstr  "Задает отступ между краем экрана и пан�
         "центру отступ задается равно с двух сторон панели."
 
 #: ../properties.c:604 ../properties.c:2252 ../properties.c:2728
-#: ../properties.c:3220 ../properties.c:3859 ../properties.c:4088
-#: ../properties.c:4431 ../properties.c:4787 ../properties.c:5171
-#: ../properties.c:5599 ../properties.c:5858
+#: ../properties.c:3220 ../properties.c:3889 ../properties.c:4118
+#: ../properties.c:4461 ../properties.c:4817 ../properties.c:5201
+#: ../properties.c:5629 ../properties.c:5888
 msgid   "<b>Appearance</b>"
 msgstr  "<b>Внешний вид</b>"
 
-#: ../properties.c:618 ../properties.c:2265 ../properties.c:3627
-#: ../properties.c:3872 ../properties.c:4101 ../properties.c:4444
-#: ../properties.c:4800 ../properties.c:5184 ../properties.c:5612
-#: ../properties.c:5871
+#: ../properties.c:618 ../properties.c:2265 ../properties.c:3657
+#: ../properties.c:3902 ../properties.c:4131 ../properties.c:4474
+#: ../properties.c:4830 ../properties.c:5214 ../properties.c:5642
+#: ../properties.c:5901
 msgid   "Background"
 msgstr  "Фон"
 
@@ -253,9 +253,9 @@ msgstr  "Выбор фона для панели в целом. Фоны мож�
         "\"Фоны\"."
 
 #: ../properties.c:636 ../properties.c:2299 ../properties.c:2742
-#: ../properties.c:2863 ../properties.c:3318 ../properties.c:3889
-#: ../properties.c:4159 ../properties.c:4461 ../properties.c:4817
-#: ../properties.c:5202 ../properties.c:5629 ../properties.c:5888
+#: ../properties.c:2863 ../properties.c:3348 ../properties.c:3919
+#: ../properties.c:4189 ../properties.c:4491 ../properties.c:4847
+#: ../properties.c:5232 ../properties.c:5659 ../properties.c:5918
 msgid   "Horizontal padding"
 msgstr  "Горизонтальная отбивка"
 
@@ -266,9 +266,9 @@ msgstr  "Задает горизонтальную отбивку в панел�
         "границей панели и содержащимися в ней элементами."
 
 #: ../properties.c:654 ../properties.c:2316 ../properties.c:2760
-#: ../properties.c:2881 ../properties.c:3335 ../properties.c:3906
-#: ../properties.c:4172 ../properties.c:4478 ../properties.c:4834
-#: ../properties.c:5220 ../properties.c:5646 ../properties.c:5905
+#: ../properties.c:2881 ../properties.c:3365 ../properties.c:3936
+#: ../properties.c:4202 ../properties.c:4508 ../properties.c:4864
+#: ../properties.c:5250 ../properties.c:5676 ../properties.c:5935
 msgid   "Vertical padding"
 msgstr  "Вертикальная отбивка"
 
@@ -279,7 +279,7 @@ msgstr  "Задает вертикальную отбивку в панели. �
         "границей панели и содержащимися в ней элементами."
 
 #: ../properties.c:672 ../properties.c:2333 ../properties.c:2778
-#: ../properties.c:3352 ../properties.c:5238
+#: ../properties.c:3382 ../properties.c:5268
 msgid   "Spacing"
 msgstr  "Расстояние"
 
@@ -395,8 +395,8 @@ msgid   "Specifies a delay after which the panel is shown when the mouse "
         "cursor enters the panel."
 msgstr  "Задает задержку показа панели после наведения мышью."
 
-#: ../properties.c:892 ../properties.c:932 ../properties.c:5827
-#: ../properties.c:5850
+#: ../properties.c:892 ../properties.c:932 ../properties.c:5857
+#: ../properties.c:5880
 msgid   "seconds"
 msgstr  "секунд"
 
@@ -454,7 +454,7 @@ msgstr  "Если включено, панель будет размещена �
 msgid   "Panel layer"
 msgstr  "Слой панели"
 
-#: ../properties.c:1002 ../background_gui.c:333
+#: ../properties.c:1002 ../background_gui.c:361
 msgid   "Top"
 msgstr  "Сверху"
 
@@ -462,7 +462,7 @@ msgstr  "Сверху"
 msgid   "Normal"
 msgstr  "Нормальный"
 
-#: ../properties.c:1004 ../background_gui.c:338
+#: ../properties.c:1004 ../background_gui.c:366
 msgid   "Bottom"
 msgstr  "Снизу"
 
@@ -538,18 +538,18 @@ msgstr  "Задает имя окна панели. Полезно для нас
 msgid   "Free space"
 msgstr  "Свободное пространство"
 
-#: ../properties.c:1095 ../properties.c:1315 ../properties.c:4070
-#: ../properties.c:4107 ../properties.c:5006 ../properties.c:5024
+#: ../properties.c:1095 ../properties.c:1315 ../properties.c:4100
+#: ../properties.c:4137 ../properties.c:5036 ../properties.c:5054
 msgid   "Separator"
 msgstr  "Разделитель"
 
-#: ../properties.c:1097 ../properties.c:1321 ../properties.c:4196
-#: ../properties.c:4450 ../properties.c:5038 ../properties.c:5056
+#: ../properties.c:1097 ../properties.c:1321 ../properties.c:4226
+#: ../properties.c:4480 ../properties.c:5068 ../properties.c:5086
 msgid   "Executor"
 msgstr  "Исполнитель"
 
-#: ../properties.c:1099 ../properties.c:1327 ../properties.c:4617
-#: ../properties.c:4806 ../properties.c:5070 ../properties.c:5088
+#: ../properties.c:1099 ../properties.c:1327 ../properties.c:4647
+#: ../properties.c:4836 ../properties.c:5100 ../properties.c:5118
 msgid   "Button"
 msgstr  ""
 
@@ -692,7 +692,7 @@ msgstr  "Задает вертикальную отбивку панели за�
 msgid   "Specifies the spacing between the elements inside the launcher."
 msgstr  "Задает расстояние между элементами панели запуска."
 
-#: ../properties.c:2349 ../properties.c:5252
+#: ../properties.c:2349 ../properties.c:5282
 msgid   "Icon size"
 msgstr  "Размер значков"
 
@@ -700,7 +700,7 @@ msgstr  "Размер значков"
 msgid   "Specifies the size of the launcher icons, in pixels."
 msgstr  "Задает размер значков запуска"
 
-#: ../properties.c:2363 ../properties.c:3573 ../properties.c:5269
+#: ../properties.c:2363 ../properties.c:3603 ../properties.c:5299
 msgid   "Icon opacity"
 msgstr  "Непрозрачность значков"
 
@@ -708,7 +708,7 @@ msgstr  "Непрозрачность значков"
 msgid   "Specifies the opacity of the launcher icons, in percent."
 msgstr  "Задает непрозрачность значков запуска, в процентах."
 
-#: ../properties.c:2381 ../properties.c:3587 ../properties.c:5287
+#: ../properties.c:2381 ../properties.c:3617 ../properties.c:5317
 msgid   "Icon saturation"
 msgstr  "Насыщенность значков"
 
@@ -717,7 +717,7 @@ msgid   "Specifies the saturation adjustment of the launcher icons, in "
         "percent."
 msgstr  "Задает цветовую насыщенность значков запуска, в процентах."
 
-#: ../properties.c:2399 ../properties.c:3601 ../properties.c:5305
+#: ../properties.c:2399 ../properties.c:3631 ../properties.c:5335
 msgid   "Icon brightness"
 msgstr  "Яркость значков"
 
@@ -762,7 +762,7 @@ msgstr  "Если включено, уведомления запуска буд
         "рабочего окружения. Обычно это переключение курсора мыши в состояние "
         "\"занято\" до запуска приложения."
 
-#: ../properties.c:2465 ../properties.c:5495
+#: ../properties.c:2465 ../properties.c:5525
 msgid   "Tooltips"
 msgstr  "Всплывающий текст"
 
@@ -772,7 +772,7 @@ msgid   "If enabled, shows a tooltip with the application name when the mouse "
 msgstr  "Если включено, будет показан всплывающий текст с именем приложения "
         "при наведении мышью на значок запуска."
 
-#: ../properties.c:2540 ../properties.c:5105
+#: ../properties.c:2540 ../properties.c:5135
 msgid   "<b>Options</b>"
 msgstr  "<b>Параметры</b>"
 
@@ -886,7 +886,7 @@ msgstr  "Задает сортировку задач в панели\n"
 msgid   "Task alignment"
 msgstr  "Выравнивание задач"
 
-#: ../properties.c:2717 ../background_gui.c:343
+#: ../properties.c:2717 ../background_gui.c:371
 msgid   "Left"
 msgstr  "Слева"
 
@@ -894,7 +894,7 @@ msgstr  "Слева"
 msgid   "Center"
 msgstr  "По центру"
 
-#: ../properties.c:2719 ../background_gui.c:348
+#: ../properties.c:2719 ../background_gui.c:376
 msgid   "Right"
 msgstr  "Справа"
 
@@ -991,16 +991,16 @@ msgid   "Specifies the font color used to display the name of inactive "
         "desktops."
 msgstr  "Задает цвет шрифта для "
 
-#: ../properties.c:2940 ../properties.c:3370 ../properties.c:3928
-#: ../properties.c:3964 ../properties.c:4500 ../properties.c:4856
-#: ../properties.c:5668 ../properties.c:5703 ../properties.c:5927
+#: ../properties.c:2940 ../properties.c:3400 ../properties.c:3958
+#: ../properties.c:3994 ../properties.c:4530 ../properties.c:4886
+#: ../properties.c:5698 ../properties.c:5733 ../properties.c:5957
 msgid   "If not checked, the desktop theme font is used. If checked, the "
         "custom font specified here is used."
 msgstr  "Если не включено, шрифт будет выбран из темы рабочего окружения. "
         "Если включено, будет выбран шрифт, указанный здесь."
 
-#: ../properties.c:2945 ../properties.c:3375 ../properties.c:4505
-#: ../properties.c:4861 ../properties.c:5932
+#: ../properties.c:2945 ../properties.c:3405 ../properties.c:4535
+#: ../properties.c:4891 ../properties.c:5962
 msgid   "Font"
 msgstr  "Шрифт"
 
@@ -1028,8 +1028,8 @@ msgid   "Selects the background used to display the name of inactive "
 msgstr  "Задает фон имен прочих неактивных рабочих столов. Фоны можно "
         "редактировать на вкладке \"Фоны\"."
 
-#: ../properties.c:3011 ../properties.c:3760 ../properties.c:4332
-#: ../properties.c:4688 ../properties.c:5482
+#: ../properties.c:3011 ../properties.c:3790 ../properties.c:4362
+#: ../properties.c:4718 ../properties.c:5512
 msgid   "<b>Mouse events</b>"
 msgstr  "<b>События мыши</b>"
 
@@ -1268,7 +1268,7 @@ msgstr  "Задает действие, выполняемое когда кно
         "\"Следующая задача\" - переключает фокус на окно следующей задачи.\n"
         "\"Предыдущая задача\" - переключает фокус на окно предыдущей задачи."
 
-#: ../properties.c:3233 ../properties.c:4258
+#: ../properties.c:3233 ../properties.c:4288
 msgid   "Show icon"
 msgstr  "Показывать значки"
 
@@ -1305,147 +1305,162 @@ msgstr  "Если включено, при наведении мышью на к
         "всплывающий текст с заголовком окна"
 
 #: ../properties.c:3292
+msgid   "Thumbnails"
+msgstr  ""
+
+#: ../properties.c:3304
+#, fuzzy
+msgid   "If enabled, a tooltip showing the window thumbnail is displayed when "
+        "the mouse cursor moves over task buttons."
+msgstr  "Если включено, при наведении мышью на кнопку задачи, будет показан "
+        "всплывающий текст с заголовком окна"
+
+#: ../properties.c:3309
+msgid   "Thumbnail size"
+msgstr  ""
+
+#: ../properties.c:3322
 msgid   "Maximum width"
 msgstr  "Максимальная ширина"
 
-#: ../properties.c:3302
+#: ../properties.c:3332
 msgid   "Specifies the maximum width of the task buttons."
 msgstr  "Задает максимальную ширину кнопок задач."
 
-#: ../properties.c:3305
+#: ../properties.c:3335
 msgid   "Maximum height"
 msgstr  "Максимальная высота"
 
-#: ../properties.c:3315
+#: ../properties.c:3345
 msgid   "Specifies the maximum height of the task buttons."
 msgstr  "Задает максимальную высоту кнопок задач."
 
-#: ../properties.c:3330
+#: ../properties.c:3360
 msgid   "Specifies the horizontal padding of the task buttons. This is the "
         "space between the border and the content inside."
 msgstr  "Задает горизонтальную отбивку кнопок задач. Это пространство между "
         "рамкой и содержимым кнопки."
 
-#: ../properties.c:3347
+#: ../properties.c:3377
 msgid   "Specifies the vertical padding of the task buttons. This is the "
         "space between the border and the content inside."
 msgstr  "Задает вертикальную отбивку кнопок задач. Это пространство между "
         "рамкой и содержимым кнопки."
 
-#: ../properties.c:3362
+#: ../properties.c:3392
 msgid   "Specifies the spacing between the icon and the text."
 msgstr  "Задает расстояние между значком и заголовком задачи."
 
-#: ../properties.c:3386
+#: ../properties.c:3416
 msgid   "Specifies the font used to display the task button text."
 msgstr  "Задает шрифт для заголовка задачи."
 
-#: ../properties.c:3398
+#: ../properties.c:3428
 msgid   "Default style"
 msgstr  "Стиль по умолчанию"
 
-#: ../properties.c:3399
+#: ../properties.c:3429
 msgid   "Default task"
 msgstr  "Задача по умолчанию"
 
-#: ../properties.c:3409 ../properties.c:3410
+#: ../properties.c:3439 ../properties.c:3440
 msgid   "Normal task"
 msgstr  "Нормальная задача"
 
-#: ../properties.c:3420 ../properties.c:3421
+#: ../properties.c:3450 ../properties.c:3451
 msgid   "Active task"
 msgstr  "Активная задача"
 
-#: ../properties.c:3431 ../properties.c:3432
+#: ../properties.c:3461 ../properties.c:3462
 msgid   "Urgent task"
 msgstr  "Неотложная задача"
 
-#: ../properties.c:3442 ../properties.c:3443
+#: ../properties.c:3472 ../properties.c:3473
 msgid   "Iconified task"
 msgstr  "Свернутая задача"
 
-#: ../properties.c:3544
+#: ../properties.c:3574
 msgid   "If enabled, a custom font color is used to display the task text."
 msgstr  "Если включено, использовать выбранный цвет шрифта для заголовка "
         "задачи."
 
-#: ../properties.c:3547 ../properties.c:3995 ../properties.c:4523
-#: ../properties.c:4879 ../properties.c:5733 ../properties.c:5948
+#: ../properties.c:3577 ../properties.c:4025 ../properties.c:4553
+#: ../properties.c:4909 ../properties.c:5763 ../properties.c:5978
 msgid   "Font color"
 msgstr  "Цвет шрифта"
 
-#: ../properties.c:3558
+#: ../properties.c:3588
 msgid   "Specifies the font color used to display the task text."
 msgstr  "Задает цвет шрифта для заголовка задачи."
 
-#: ../properties.c:3570
+#: ../properties.c:3600
 msgid   "If enabled, a custom opacity/saturation/brightness is used to "
         "display the task icon."
 msgstr  "Если включено, для значка задачи будут применены выбранные "
         "непрозрачность/насыщенность/яркость."
 
-#: ../properties.c:3584
+#: ../properties.c:3614
 msgid   "Specifies the opacity (in %) used to display the task icon."
 msgstr  "Задает непрозрачность (в процентах) для отображения значка задачи."
 
-#: ../properties.c:3598
+#: ../properties.c:3628
 msgid   "Specifies the saturation adjustment (in %) used to display the task "
         "icon."
 msgstr  "Задает цветовую насыщенность (в процентах) для отображения значка "
         "задачи."
 
-#: ../properties.c:3612
+#: ../properties.c:3642
 msgid   "Specifies the brightness adjustment (in %) used to display the task "
         "icon."
 msgstr  "Задает яркость (в процентах) для отображения значка задачи."
 
-#: ../properties.c:3624
+#: ../properties.c:3654
 msgid   "If enabled, a custom background is used to display the task."
 msgstr  "Если включено, задает фон для кнопки задачи."
 
-#: ../properties.c:3637
+#: ../properties.c:3667
 msgid   "Selects the background used to display the task. Backgrounds can be "
         "edited in the Backgrounds tab."
 msgstr  "Выбирает фон для кнопки задачи. Фоны можно редактировать на вкладке "
         "\"Фоны\"."
 
-#: ../properties.c:3642
+#: ../properties.c:3672
 msgid   "Blinks"
 msgstr  "Количество миганий"
 
-#: ../properties.c:3650
+#: ../properties.c:3680
 msgid   "Specifies how many times urgent tasks blink."
 msgstr  "Задает количество миганий неотложной задачи."
 
-#: ../properties.c:3672 ../properties.c:4214 ../properties.c:4635
+#: ../properties.c:3702 ../properties.c:4244 ../properties.c:4665
 msgid   "<b>Format</b>"
 msgstr  "<b>Формат</b>"
 
-#: ../properties.c:3685 ../properties.c:5750
+#: ../properties.c:3715 ../properties.c:5780
 msgid   "First line format"
 msgstr  "Формат первой строки"
 
-#: ../properties.c:3698
+#: ../properties.c:3728
 msgid   "Specifies the format used to display the first line of the clock "
         "text. See 'man date' for all the available options."
 msgstr  "Задает формат текста первой строки часов. См. секцию FORMAT в \"man "
         "date\" на предмет возможных полей."
 
-#: ../properties.c:3703 ../properties.c:5773
+#: ../properties.c:3733 ../properties.c:5803
 msgid   "Second line format"
 msgstr  "Формат второй строки"
 
-#: ../properties.c:3716
+#: ../properties.c:3746
 msgid   "Specifies the format used to display the second line of the clock "
         "text. See 'man date' for all the available options."
 msgstr  "Задает формат текста второй строки часов. См. секцию FORMAT в \"man "
         "date\" на предмет возможных полей."
 
-#: ../properties.c:3721
+#: ../properties.c:3751
 msgid   "First line timezone"
 msgstr  "Временная зона первой строки"
 
-#: ../properties.c:3734
+#: ../properties.c:3764
 msgid   "Specifies the timezone used to display the first line of the clock "
         "text. If empty, the current timezone is used. Otherwise, it must be "
         "set to a valid value of the TZ environment variable."
@@ -1453,11 +1468,11 @@ msgstr  "Задает временную зону для первой строк
         "использована текущая временная зона, иначе нужно задать корректное "
         "имя временной зоны (как в переменной окружения)."
 
-#: ../properties.c:3740
+#: ../properties.c:3770
 msgid   "Second line timezone"
 msgstr  "Временная зона второй строки"
 
-#: ../properties.c:3753
+#: ../properties.c:3783
 msgid   "Specifies the timezone used to display the second line of the clock "
         "text. If empty, the current timezone is used. Otherwise, it must be "
         "set to a valid value of the TZ environment variable."
@@ -1465,117 +1480,117 @@ msgstr  "Задает временную зону для второй строк
         "использована текущая временная зона, иначе нужно задать корректное "
         "имя временной зоны (как в переменной окружения)."
 
-#: ../properties.c:3773 ../properties.c:4345 ../properties.c:4701
-#: ../properties.c:5513
+#: ../properties.c:3803 ../properties.c:4375 ../properties.c:4731
+#: ../properties.c:5543
 msgid   "Left click command"
 msgstr  "Команда для левого щелчка"
 
-#: ../properties.c:3786
+#: ../properties.c:3816
 msgid   "Specifies a command that will be executed when the clock receives a "
         "left click."
 msgstr  "Задает команду, которая будет запущена когда часы получают событие "
         "левого щелчка мыши."
 
-#: ../properties.c:3790 ../properties.c:4362 ../properties.c:4718
-#: ../properties.c:5530
+#: ../properties.c:3820 ../properties.c:4392 ../properties.c:4748
+#: ../properties.c:5560
 msgid   "Right click command"
 msgstr  "Команда правого щелчка"
 
-#: ../properties.c:3803
+#: ../properties.c:3833
 msgid   "Specifies a command that will be executed when the clock receives a "
         "right click."
 msgstr  "Задает команду, которая будет запущена когда часы получают событие "
         "правого щелчка мыши."
 
-#: ../properties.c:3807 ../properties.c:4379 ../properties.c:4735
-#: ../properties.c:5547
+#: ../properties.c:3837 ../properties.c:4409 ../properties.c:4765
+#: ../properties.c:5577
 msgid   "Middle click command"
 msgstr  "Команда среднего щелчка"
 
-#: ../properties.c:3820
+#: ../properties.c:3850
 msgid   "Specifies a command that will be executed when the clock receives a "
         "middle click."
 msgstr  "Задает команду, которая будет запущена когда часы получают событие "
         "среднего щелчка мыши."
 
-#: ../properties.c:3824 ../properties.c:4396 ../properties.c:4752
-#: ../properties.c:5564
+#: ../properties.c:3854 ../properties.c:4426 ../properties.c:4782
+#: ../properties.c:5594
 msgid   "Wheel scroll up command"
 msgstr  "Команда прокрутки вверх"
 
-#: ../properties.c:3837
+#: ../properties.c:3867
 msgid   "Specifies a command that will be executed when the clock receives a "
         "mouse scroll up."
 msgstr  "Задает команду, которая будет запущена когда часы получают событие "
         "прокрутки колесом вверх."
 
-#: ../properties.c:3841 ../properties.c:4413 ../properties.c:4769
-#: ../properties.c:5581
+#: ../properties.c:3871 ../properties.c:4443 ../properties.c:4799
+#: ../properties.c:5611
 msgid   "Wheel scroll down command"
 msgstr  "Команада прокрутки вниз"
 
-#: ../properties.c:3854
+#: ../properties.c:3884
 msgid   "Specifies a command that will be executed when the clock receives a "
         "mouse scroll down."
 msgstr  "Задает команду, которая будет запущена когда часы получают событие "
         "прокрутки колесом вниз."
 
-#: ../properties.c:3884
+#: ../properties.c:3914
 msgid   "Selects the background used to display the clock. Backgrounds can be "
         "edited in the Backgrounds tab."
 msgstr  "Задает фон для часов. Фоны можно редактировать на вкладке \"Фоны\"."
 
-#: ../properties.c:3901
+#: ../properties.c:3931
 msgid   "Specifies the horizontal padding of the clock. This is the space "
         "between the border and the content inside."
 msgstr  "Задает горизонтальную отбивку часов. Это расстояние от рамки до "
         "содержимого часов."
 
-#: ../properties.c:3918
+#: ../properties.c:3948
 msgid   "Specifies the vertical padding of the clock. This is the space "
         "between the border and the content inside."
 msgstr  "Задает вертикальную отбивку часов. Это расстояние от рамки до "
         "содержимого часов."
 
-#: ../properties.c:3933 ../properties.c:5673
+#: ../properties.c:3963 ../properties.c:5703
 msgid   "Font first line"
 msgstr  "Шрифт первой строки"
 
-#: ../properties.c:3950
+#: ../properties.c:3980
 msgid   "Specifies the font used to display the first line of the clock."
 msgstr  "Задает шрифт для отображения первой строки часов."
 
-#: ../properties.c:3969 ../properties.c:5708
+#: ../properties.c:3999 ../properties.c:5738
 msgid   "Font second line"
 msgstr  "Шрифт второй строки"
 
-#: ../properties.c:3986
+#: ../properties.c:4016
 msgid   "Specifies the font used to display the second line of the clock."
 msgstr  "Задает шрифт для отображения второй строки часов."
 
-#: ../properties.c:4006
+#: ../properties.c:4036
 msgid   "Specifies the font color used to display the clock."
 msgstr  "Задает шрифт для отображения часов."
 
-#: ../properties.c:4010
+#: ../properties.c:4040
 msgid   "<b>Tooltip</b>"
 msgstr  "<b>Всплывающий текст</b>"
 
-#: ../properties.c:4023
+#: ../properties.c:4053
 msgid   "Format"
 msgstr  "Формат"
 
-#: ../properties.c:4036
+#: ../properties.c:4066
 msgid   "Specifies the format used to display the clock tooltip. See 'man "
         "date' for the available options."
 msgstr  "Задает формат всплывающего текста часов. См. секцию FORMAT в \"man "
         "date\" на предмет возможных полей."
 
-#: ../properties.c:4041
+#: ../properties.c:4071
 msgid   "Timezone"
 msgstr  "Временная зона"
 
-#: ../properties.c:4054
+#: ../properties.c:4084
 msgid   "Specifies the timezone used to display the clock tooltip. If empty, "
         "the current timezone is used. Otherwise, it must be set to a valid "
         "value of the TZ environment variable."
@@ -1583,55 +1598,55 @@ msgstr  "Задает временную зону всплывающего те�
         "использована текущая временная зона, иначе нужно задать корректное "
         "имя временной зоны (как в переменной окружения)."
 
-#: ../properties.c:4113
+#: ../properties.c:4143
 msgid   "Foreground color"
 msgstr  "Цвет"
 
-#: ../properties.c:4130
+#: ../properties.c:4160
 msgid   "Style"
 msgstr  "Стиль"
 
-#: ../properties.c:4140
+#: ../properties.c:4170
 msgid   "Empty"
 msgstr  "Пустой"
 
-#: ../properties.c:4141
+#: ../properties.c:4171
 msgid   "Line"
 msgstr  "Линия"
 
-#: ../properties.c:4142
+#: ../properties.c:4172
 msgid   "Dots"
 msgstr  "Точки"
 
-#: ../properties.c:4227
+#: ../properties.c:4257
 msgid   "Command"
 msgstr  "Команда"
 
-#: ../properties.c:4238
+#: ../properties.c:4268
 msgid   "Specifies the command to execute."
 msgstr  "Задает команду для выполнения."
 
-#: ../properties.c:4241
+#: ../properties.c:4271
 msgid   "Interval"
 msgstr  "Интервал"
 
-#: ../properties.c:4253
+#: ../properties.c:4283
 msgid   "Specifies the interval at which the command is executed, in seconds. "
         "If zero, the command is executed only once."
 msgstr  "Задает интервал выполнения команды в секундах. Если 0, команда будет "
         "выполнена только один раз."
 
-#: ../properties.c:4270
+#: ../properties.c:4300
 msgid   "If enabled, the first line printed by the command is interpreted as "
         "a path to an image file."
 msgstr  "Если включено, первая строка вывода команды считается путем к файлу "
         "изображения."
 
-#: ../properties.c:4275
+#: ../properties.c:4305
 msgid   "Cache icon"
 msgstr  "Кешировать значок"
 
-#: ../properties.c:4288
+#: ../properties.c:4318
 msgid   "If enabled, the image is not reloaded from disk every time the "
         "command is executed if the path remains unchanged. Enabling this is "
         "recommended."
@@ -1639,11 +1654,11 @@ msgstr  "Если включено, значок не будет перечит�
         "команды если путь остается неизменным. Рекомендуется держать этот "
         "параметр включенным."
 
-#: ../properties.c:4293
+#: ../properties.c:4323
 msgid   "Continuous output"
 msgstr  "Непрерывный вывод"
 
-#: ../properties.c:4305
+#: ../properties.c:4335
 msgid   "If non-zero, the last execp_continuous lines from the output of the "
         "command are displayed, every execp_continuous lines; this is useful "
         "for showing the output of commands that run indefinitely, such as "
@@ -1654,11 +1669,11 @@ msgstr  "Если не равно нулю, столько последних с
         "бесконечно, например \"ping 127.0.0.1\". Если равно нулю, вывод "
         "будет отображен по завершению команды."
 
-#: ../properties.c:4312
+#: ../properties.c:4342
 msgid   "Display markup"
 msgstr  "Отображать разметку"
 
-#: ../properties.c:4325
+#: ../properties.c:4355
 msgid   "If enabled, the output of the command is treated as Pango markup, "
         "which allows rich text formatting. Note that using this with "
         "commands that print data downloaded from the Internet is a potential "
@@ -1668,175 +1683,175 @@ msgstr  "Если включено, вывод команды будет ото�
         "текста. Внимание, использование этого параметра с выводом данных "
         "полученных из сети потенциально небезопасно!"
 
-#: ../properties.c:4358
+#: ../properties.c:4388
 msgid   "Specifies a command that will be executed when the executor receives "
         "a left click."
 msgstr  "Задает команду, которая будет выполнена когда Исполнитель получает "
         "событие левого щелчка мышью."
 
-#: ../properties.c:4375
+#: ../properties.c:4405
 msgid   "Specifies a command that will be executed when the executor receives "
         "a right click."
 msgstr  "Задает команду, которая будет выполнена когда Исполнитель получает "
         "событие правого щелчка мышью."
 
-#: ../properties.c:4392
+#: ../properties.c:4422
 msgid   "Specifies a command that will be executed when the executor receives "
         "a middle click."
 msgstr  "Задает команду, которая будет выполнена когда Исполнитель получает "
         "событие среднего щелчка мышью."
 
-#: ../properties.c:4409
+#: ../properties.c:4439
 msgid   "Specifies a command that will be executed when the executor receives "
         "a mouse scroll up."
 msgstr  "Задает команду, которая будет выполнена когда Исполнитель получает "
         "событие прокрутки колесом вверх."
 
-#: ../properties.c:4426
+#: ../properties.c:4456
 msgid   "Specifies a command that will be executed when the executor receives "
         "a mouse scroll down."
 msgstr  "Задает команду, которая будет выполнена когда Исполнитель получает "
         "событие прокрутки колесом вниз."
 
-#: ../properties.c:4456
+#: ../properties.c:4486
 msgid   "Selects the background used to display the executor. Backgrounds can "
         "be edited in the Backgrounds tab."
 msgstr  "Выбирает фон для Исполнителя. Фоны можно редактировать на вкладке "
         "\"Фоны\""
 
-#: ../properties.c:4473
+#: ../properties.c:4503
 msgid   "Specifies the horizontal padding of the executor. This is the space "
         "between the border and the content inside."
 msgstr  "Задает горизонтальную отбивку для Исполнителя. Это пространство "
         "между рамкой и содержимым Исполнителя."
 
-#: ../properties.c:4490
+#: ../properties.c:4520
 msgid   "Specifies the vertical padding of the executor. This is the space "
         "between the border and the content inside."
 msgstr  "Задает вертикальную отбивку для Исполнителя. Это пространство между "
         "рамкой и содержимым Исполнителя."
 
-#: ../properties.c:4536 ../properties.c:4892
+#: ../properties.c:4566 ../properties.c:4922
 msgid   "Centered"
 msgstr  "По центру"
 
-#: ../properties.c:4548
+#: ../properties.c:4578
 msgid   "Icon width"
 msgstr  "Ширина значка"
 
-#: ../properties.c:4558
+#: ../properties.c:4588
 msgid   "If non-zero, the image is resized to this width."
 msgstr  "Если не равно нулю, изображение масштабируется под эту ширину."
 
-#: ../properties.c:4561
+#: ../properties.c:4591
 msgid   "Icon height"
 msgstr  "Высота значка"
 
-#: ../properties.c:4571
+#: ../properties.c:4601
 msgid   "If non-zero, the image is resized to this height."
 msgstr  "Если не равно нулю, изображение масштабируется под эту высоту."
 
-#: ../properties.c:4587
+#: ../properties.c:4617
 msgid   "Tooltip text"
 msgstr  "Всплывающий текст"
 
-#: ../properties.c:4600
+#: ../properties.c:4630
 msgid   "The tooltip text to display. Leave this empty to display an "
         "automatically generated tooltip with information about when the "
         "command was last executed."
 msgstr  "Если пусто, будет отображено время последнего выполнения команды."
 
-#: ../properties.c:4648
+#: ../properties.c:4678
 #, fuzzy
 msgid   "Icon"
 msgstr  "Свернуть"
 
-#: ../properties.c:4661
+#: ../properties.c:4691
 msgid   "Text"
 msgstr  ""
 
-#: ../properties.c:4714
+#: ../properties.c:4744
 #, fuzzy
 msgid   "Specifies a command that will be executed when the button receives a "
         "left click."
 msgstr  "Задает команду, выполняемую когда Апплет батареи получает событие "
         "левого щелчка мышью."
 
-#: ../properties.c:4731
+#: ../properties.c:4761
 #, fuzzy
 msgid   "Specifies a command that will be executed when the button receives a "
         "right click."
 msgstr  "Задает команду, выполняемую когда Апплет батареи получает событие "
         "правого щелчка мышью."
 
-#: ../properties.c:4748
+#: ../properties.c:4778
 #, fuzzy
 msgid   "Specifies a command that will be executed when the button receives a "
         "middle click."
 msgstr  "Задает команду, выполняемую когда Апплет батареи получает событие "
         "среднего щелчка мышью."
 
-#: ../properties.c:4765
+#: ../properties.c:4795
 #, fuzzy
 msgid   "Specifies a command that will be executed when the button receives a "
         "mouse scroll up."
 msgstr  "Задает команду, выполняемую когда Апплет батареи получает событие "
         "прокрутки колесом вверх."
 
-#: ../properties.c:4782
+#: ../properties.c:4812
 #, fuzzy
 msgid   "Specifies a command that will be executed when the button receives a "
         "mouse scroll down."
 msgstr  "Задает команду, выполняемую когда Апплет батареи получает событие "
         "прокрутки колесом вниз."
 
-#: ../properties.c:4812
+#: ../properties.c:4842
 #, fuzzy
 msgid   "Selects the background used to display the button. Backgrounds can "
         "be edited in the Backgrounds tab."
 msgstr  "Задает фон для апплета батареи. Фоны можно редактировать на вкладке "
         "\"Фоны\"."
 
-#: ../properties.c:4829
+#: ../properties.c:4859
 #, fuzzy
 msgid   "Specifies the horizontal padding of the button. This is the space "
         "between the border and the content inside."
 msgstr  "Задает горизонтальную отбивку кнопок задач. Это пространство между "
         "рамкой и содержимым кнопки."
 
-#: ../properties.c:4846
+#: ../properties.c:4876
 #, fuzzy
 msgid   "Specifies the vertical padding of the button. This is the space "
         "between the border and the content inside."
 msgstr  "Задает вертикальную отбивку кнопок задач. Это пространство между "
         "рамкой и содержимым кнопки."
 
-#: ../properties.c:4904
+#: ../properties.c:4934
 #, fuzzy
 msgid   "Maximum icon size"
 msgstr  "Размер значков"
 
-#: ../properties.c:5119
+#: ../properties.c:5149
 msgid   "Icon ordering"
 msgstr  "Сортировка значков"
 
-#: ../properties.c:5129
+#: ../properties.c:5159
 msgid   "Ascending"
 msgstr  "Восходящая"
 
-#: ../properties.c:5130
+#: ../properties.c:5160
 msgid   "Descending"
 msgstr  "Нисходящая"
 
-#: ../properties.c:5131
+#: ../properties.c:5161
 msgid   "Left to right"
 msgstr  "Слева направо"
 
-#: ../properties.c:5132
+#: ../properties.c:5162
 msgid   "Right to left"
 msgstr  "Справа налево"
 
-#: ../properties.c:5136
+#: ../properties.c:5166
 msgid   "Specifies the order used to arrange the system tray icons. \n"
         "'Ascending' means that icons are sorted in ascending order of their "
         "window names. \n"
@@ -1850,7 +1865,7 @@ msgstr  "Задает порядок сортировки значков сис�
         "\"Слева направо\" - новые значки добавляются слева.\n"
         "\"Справа налево\" - новые значки добавляются справа."
 
-#: ../properties.c:5165
+#: ../properties.c:5195
 msgid   "Specifies the monitor on which to place the system tray. Due to "
         "technical limitations, the system tray cannot be displayed on "
         "multiple monitors."
@@ -1858,240 +1873,240 @@ msgstr  "Задает монитор, на котором отображаетс
         "протокола системного лотка не позволяют отображать его в нескольких "
         "местах одновременно."
 
-#: ../properties.c:5190
+#: ../properties.c:5220
 msgid   "Systray"
 msgstr  "Системный лоток"
 
-#: ../properties.c:5196
+#: ../properties.c:5226
 msgid   "Selects the background used to display the system tray. Backgrounds "
         "can be edited in the Backgrounds tab."
 msgstr  "Задает фон для системного лотка. Фоны можно редактировать на вкладке "
         "\"Фоны\"."
 
-#: ../properties.c:5214
+#: ../properties.c:5244
 msgid   "Specifies the horizontal padding of the system tray. This is the "
         "space between the border and the content inside."
 msgstr  "Задает горизонтальную отбивку для Системного лотка. Это пространство "
         "между рамкой Лотка и его содержимым."
 
-#: ../properties.c:5232
+#: ../properties.c:5262
 msgid   "Specifies the vertical padding of the system tray. This is the space "
         "between the border and the content inside."
 msgstr  "Задает вертикальную отбивку для Системного лотка. Это пространство "
         "между рамкой Лотка и его содержимым."
 
-#: ../properties.c:5248
+#: ../properties.c:5278
 msgid   "Specifies the spacing between system tray icons."
 msgstr  "Задает расстояние между значками в Системном лотке."
 
-#: ../properties.c:5264
+#: ../properties.c:5294
 msgid   "Specifies the size of the system tray icons, in pixels."
 msgstr  "Задает размер значков Системного лотка в пикселях."
 
-#: ../properties.c:5282
+#: ../properties.c:5312
 msgid   "Specifies the opacity of the system tray icons, in percent."
 msgstr  "Задает непрозрачность значков Системного лотка в процентах."
 
-#: ../properties.c:5300
+#: ../properties.c:5330
 msgid   "Specifies the saturation adjustment of the system tray icons, in "
         "percent."
 msgstr  "Задает цветовую насыщенность значков Системного лотка в процентах."
 
-#: ../properties.c:5318
+#: ../properties.c:5348
 msgid   "Specifies the brightness adjustment of the system tray icons, in "
         "percent."
 msgstr  "Задает яркость значков Системного лотка в процентах"
 
-#: ../properties.c:5322
+#: ../properties.c:5352
 msgid   "Name filter"
 msgstr  ""
 
-#: ../properties.c:5348
+#: ../properties.c:5378
 msgid   "<b>Thresholds</b>"
 msgstr  "<b>Пороги</b>"
 
-#: ../properties.c:5361
+#: ../properties.c:5391
 msgid   "Hide if charge higher than"
 msgstr  "Скрыть если заряд более"
 
-#: ../properties.c:5373
+#: ../properties.c:5403
 msgid   "Minimum battery level for which to hide the batter applet. Use 101 "
         "to always show the batter applet."
 msgstr  "Минимальны заряд батареи при котором Апплет батареи будет скрыт. "
         "Используйте 101 чтобы показывать всегда."
 
-#: ../properties.c:5377 ../properties.c:5396
+#: ../properties.c:5407 ../properties.c:5426
 msgid   "%"
 msgstr  "%"
 
-#: ../properties.c:5384
+#: ../properties.c:5414
 msgid   "Alert if charge lower than"
 msgstr  "Оповещать если заряд менее"
 
-#: ../properties.c:5394
+#: ../properties.c:5424
 msgid   "Battery level for which to display an alert."
 msgstr  "Уровень заряда, при котором запускать оповещение."
 
-#: ../properties.c:5403
+#: ../properties.c:5433
 msgid   "Alert command"
 msgstr  "Комадна оповещения"
 
-#: ../properties.c:5416
+#: ../properties.c:5446
 msgid   "Command to be executed when the alert threshold is reached."
 msgstr  "Комадна, которая будет запущена если достигнут заданный порог заряда."
 
-#: ../properties.c:5420
+#: ../properties.c:5450
 #, fuzzy
 msgid   "Battery full command"
 msgstr  "Комадна оповещения"
 
-#: ../properties.c:5434
+#: ../properties.c:5464
 msgid   "<b>AC connection events</b>"
 msgstr  "<b>События адаптера питания</b>"
 
-#: ../properties.c:5447
+#: ../properties.c:5477
 msgid   "AC connected command"
 msgstr  "Комада при подключении адаптера"
 
-#: ../properties.c:5460
+#: ../properties.c:5490
 msgid   "Specifies a command that will be executed when AC is connected to "
         "the system."
 msgstr  "Задает команду, выполняемую при подключении адаптера питания к "
         "компьютеру"
 
-#: ../properties.c:5464
+#: ../properties.c:5494
 msgid   "AC disconnected command"
 msgstr  "Команда при отключении адаптера"
 
-#: ../properties.c:5477
+#: ../properties.c:5507
 msgid   "Specifies a command that will be executed when AC is disconnected to "
         "the system."
 msgstr  "Задает команду, выполняемую при отключении адаптера питания от "
         "компьютера"
 
-#: ../properties.c:5508
+#: ../properties.c:5538
 msgid   "If enabled, shows a tooltip with detailed battery information when "
         "the mouse is moved over the battery widget."
 msgstr  "Если включено, будет показан всплывающий текст с расширенной "
         "информацией о батарее при наведении мышью."
 
-#: ../properties.c:5526
+#: ../properties.c:5556
 msgid   "Specifies a command that will be executed when the battery receives "
         "a left click."
 msgstr  "Задает команду, выполняемую когда Апплет батареи получает событие "
         "левого щелчка мышью."
 
-#: ../properties.c:5543
+#: ../properties.c:5573
 msgid   "Specifies a command that will be executed when the battery receives "
         "a right click."
 msgstr  "Задает команду, выполняемую когда Апплет батареи получает событие "
         "правого щелчка мышью."
 
-#: ../properties.c:5560
+#: ../properties.c:5590
 msgid   "Specifies a command that will be executed when the battery receives "
         "a middle click."
 msgstr  "Задает команду, выполняемую когда Апплет батареи получает событие "
         "среднего щелчка мышью."
 
-#: ../properties.c:5577
+#: ../properties.c:5607
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll up."
 msgstr  "Задает команду, выполняемую когда Апплет батареи получает событие "
         "прокрутки колесом вверх."
 
-#: ../properties.c:5594
+#: ../properties.c:5624
 msgid   "Specifies a command that will be executed when the battery receives "
         "a mouse scroll down."
 msgstr  "Задает команду, выполняемую когда Апплет батареи получает событие "
         "прокрутки колесом вниз."
 
-#: ../properties.c:5624
+#: ../properties.c:5654
 msgid   "Selects the background used to display the battery. Backgrounds can "
         "be edited in the Backgrounds tab."
 msgstr  "Задает фон для апплета батареи. Фоны можно редактировать на вкладке "
         "\"Фоны\"."
 
-#: ../properties.c:5641
+#: ../properties.c:5671
 msgid   "Specifies the horizontal padding of the battery. This is the space "
         "between the border and the content inside."
 msgstr  "Задает горизонтальную отбивку для Апплета батареи. Это пространство "
         "между рамкой и содержимым Апплета."
 
-#: ../properties.c:5658
+#: ../properties.c:5688
 msgid   "Specifies the vertical padding of the battery. This is the space "
         "between the border and the content inside."
 msgstr  "Задает вертикальную отбивку для Апплета батареи. Это пространство "
         "между рамкой и содержимым Апплета."
 
-#: ../properties.c:5689
+#: ../properties.c:5719
 msgid   "Specifies the font used to display the first line of the battery "
         "text."
 msgstr  "Задает шрифт для первой строки Апплета батареи."
 
-#: ../properties.c:5724
+#: ../properties.c:5754
 msgid   "Specifies the font used to display the second line of the battery "
         "text."
 msgstr  "Задает шрифт для второй строки Апплета батареи."
 
-#: ../properties.c:5746
+#: ../properties.c:5776
 msgid   "Specifies the font clor used to display the battery text."
 msgstr  "Задает цвет шрифта для Апплета батареи."
 
-#: ../properties.c:5799
+#: ../properties.c:5829
 msgid   "<b>Timing</b>"
 msgstr  "<b>Временный задержки</b>"
 
-#: ../properties.c:5812
+#: ../properties.c:5842
 msgid   "Show delay"
 msgstr  "Задержка при показе"
 
-#: ../properties.c:5824
+#: ../properties.c:5854
 msgid   "Specifies a delay after which to show the tooltip when moving the "
         "mouse over an element."
 msgstr  "Задает задержку при показе Всплывающего текста после наведения мышью "
         "на элемент."
 
-#: ../properties.c:5834
+#: ../properties.c:5864
 msgid   "Hide delay"
 msgstr  "Задержка скрытия"
 
-#: ../properties.c:5845
+#: ../properties.c:5875
 msgid   "Specifies a delay after which to hide the tooltip when moving the "
         "mouse outside an element."
 msgstr  "Задает задержку при скрытии Всплывающего текста после того как "
         "указатель мыши покинул элемент."
 
-#: ../properties.c:5883
+#: ../properties.c:5913
 msgid   "Selects the background used to display the tooltip. Backgrounds can "
         "be edited in the Backgrounds tab."
 msgstr  "Задает фон для Всплывающего текста. Фоны можно редактировать на "
         "вкладке \"Фоны\"."
 
-#: ../properties.c:5900
+#: ../properties.c:5930
 msgid   "Specifies the horizontal padding of the tooltip. This is the space "
         "between the border and the content inside."
 msgstr  "Задает горизонтальную отбивку для Всплывающего текста. Это "
         "пространство между рамкой и текстом."
 
-#: ../properties.c:5917
+#: ../properties.c:5947
 msgid   "Specifies the vertical padding of the tooltip. This is the space "
         "between the border and the content inside."
 msgstr  "Задает вертикальную отбивку для Всплывающего текста. Это "
         "пространство между рамкой и текстом."
 
-#: ../properties.c:5943
+#: ../properties.c:5973
 msgid   "Specifies the font used to display the text of the tooltip."
 msgstr  "Задает шрифт для всплывающего текста."
 
-#: ../properties.c:5961
+#: ../properties.c:5991
 msgid   "Specifies the font color used to display the text of the tooltip."
 msgstr  "Задает цвет шрифта для всплывающего текста."
 
-#: ../properties.c:5978
+#: ../properties.c:6008
 msgid   "Please wait..."
 msgstr  "Пожалуйста, подождите..."
 
-#: ../properties.c:5981
+#: ../properties.c:6011
 msgid   "Loading..."
 msgstr  "Загрузка..."
 
@@ -2278,99 +2293,112 @@ msgstr  "<b>Промежуточный цвет</b>"
 msgid   "Color"
 msgstr  "Цвет"
 
-#: ../background_gui.c:131
+#: ../background_gui.c:133
 msgid   "<b>Background</b>"
 msgstr  "<b>Фон</b>"
 
-#: ../background_gui.c:142
+#: ../background_gui.c:144
 msgid   "Selects the background you would like to modify"
 msgstr  "Выбрать фон для изменения"
 
-#: ../background_gui.c:149
+#: ../background_gui.c:151
 msgid   "Creates a copy of the current background"
 msgstr  "Создать копию текущего фона"
 
-#: ../background_gui.c:156
+#: ../background_gui.c:158
 msgid   "Deletes the current background"
 msgstr  "Удалить текущий фон"
 
-#: ../background_gui.c:165
+#: ../background_gui.c:167
 msgid   "Fill color"
 msgstr  "Цвет заполнения"
 
-#: ../background_gui.c:176
+#: ../background_gui.c:178
 msgid   "The fill color of the current background"
 msgstr  "Цвет заполнения текущего фона"
 
-#: ../background_gui.c:179
+#: ../background_gui.c:181
+msgid   "Fill tint"
+msgstr  ""
+
+#: ../background_gui.c:191 ../background_gui.c:218
+msgid   "How much the border color should be tinted with the content color"
+msgstr  ""
+
+#: ../background_gui.c:194
 msgid   "Border color"
 msgstr  "Цвет рамки"
 
-#: ../background_gui.c:190
+#: ../background_gui.c:205
 msgid   "The border color of the current background"
 msgstr  "Цвет рамки текущего фона"
 
-#: ../background_gui.c:193
+#: ../background_gui.c:208
+#, fuzzy
+msgid   "Border tint"
+msgstr  "Толщина рамки"
+
+#: ../background_gui.c:221
 msgid   "Gradient"
 msgstr  "Градиент"
 
-#: ../background_gui.c:205
+#: ../background_gui.c:233
 msgid   "Fill color (mouse over)"
 msgstr  "Цвет заполнения (при наведении мышью)"
 
-#: ../background_gui.c:218
+#: ../background_gui.c:246
 msgid   "The fill color of the current background on mouse over"
 msgstr  "Цвет заполнения текущего фона при наведении мышью"
 
-#: ../background_gui.c:222
+#: ../background_gui.c:250
 msgid   "Border color (mouse over)"
 msgstr  "Цвет рамки (при наведении мышью)"
 
-#: ../background_gui.c:235
+#: ../background_gui.c:263
 msgid   "The border color of the current background on mouse over"
 msgstr  "Цвет рамки текущего фона при наведении мышью"
 
-#: ../background_gui.c:239
+#: ../background_gui.c:267
 msgid   "Gradient (mouse over)"
 msgstr  "Градиент (при наведении мышью)"
 
-#: ../background_gui.c:251
+#: ../background_gui.c:279
 msgid   "Fill color (pressed)"
 msgstr  "Цвет заполнения (при нажатии)"
 
-#: ../background_gui.c:264
+#: ../background_gui.c:292
 msgid   "The fill color of the current background on mouse button press"
 msgstr  "Цвет заполнения текущего фона при нажатии мышью"
 
-#: ../background_gui.c:268
+#: ../background_gui.c:296
 msgid   "Border color (pressed)"
 msgstr  "Цвет рамки (при нажатии мышью)"
 
-#: ../background_gui.c:281
+#: ../background_gui.c:309
 msgid   "The border color of the current background on mouse button press"
 msgstr  "Цвет рамки текущего фона при нажатии мышью"
 
-#: ../background_gui.c:285
+#: ../background_gui.c:313
 msgid   "Gradient (pressed)"
 msgstr  "Градиент (при нажатии)"
 
-#: ../background_gui.c:297
+#: ../background_gui.c:325
 msgid   "Border width"
 msgstr  "Толщина рамки"
 
-#: ../background_gui.c:309
+#: ../background_gui.c:337
 msgid   "The width of the border of the current background, in pixels"
 msgstr  "Толщина рамки текущего фона в пикселях"
 
-#: ../background_gui.c:313
+#: ../background_gui.c:341
 msgid   "Corner radius"
 msgstr  "Радиус угла"
 
-#: ../background_gui.c:323
+#: ../background_gui.c:351
 msgid   "The corner radius of the current background"
 msgstr  "Радиус угла текущего фона"
 
-#: ../background_gui.c:327
+#: ../background_gui.c:355
 msgid   "Border sides"
 msgstr  "Стороны рамки"
 

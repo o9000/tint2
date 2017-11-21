@@ -15,3 +15,22 @@ do
   cat ${lang}.pox > ${lang}.po
   rm ${lang}.pox
 done
+
+set +e
+set +x
+echo "Status:"
+for f in *.po
+do
+  lang=$(basename $f .po)
+  fuzzy=$(cat ${lang}.po | grep -A2 "#, fuzzy")
+  missing=$(cat ${lang}.po | grep -B1 'msgstr  ""')
+  if [ -z "$fuzzy" ] && [ -z "$missing" ]
+  then
+    echo $lang ": Up to date"
+  else
+    count=$(echo -e "$fuzzy" "\n" "$missing" | grep "^--$" | wc -l)
+    echo "${lang}: Translation incomplete: ${count} strings to be updated. See ${lang}.todo"
+    echo "$fuzzy" > ${lang}.todo
+    echo "$missing" >> ${lang}.todo
+  fi
+done
