@@ -252,7 +252,7 @@ void config_write_backgrounds(FILE *fp)
         fprintf(fp, "border_sides = %s\n", sides);
 
         fprintf(fp, "border_content_tint_weight = %d\n", (int)(border_weight));
-        fprintf(fp, "fill_content_tint_weight = %d\n", (int)(fill_weight));
+        fprintf(fp, "background_content_tint_weight = %d\n", (int)(fill_weight));
 
         config_write_color(fp, "background_color", *fillColor, fillOpacity);
         config_write_color(fp, "border_color", *borderColor, borderOpacity);
@@ -1242,7 +1242,7 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "border_content_tint_weight") == 0) {
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_content_tint_weight), atoi(value));
         background_force_update();
-    } else if (strcmp(key, "fill_content_tint_weight") == 0) {
+    } else if (strcmp(key, "background_content_tint_weight") == 0) {
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_fill_content_tint_weight), atoi(value));
         background_force_update();
     }

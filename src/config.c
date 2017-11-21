@@ -353,7 +353,7 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "border_content_tint_weight") == 0) {
         Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
         bg->border_content_tint_weight = MAX(0.0, MIN(1.0, atoi(value) / 100.));
-    } else if (strcmp(key, "fill_content_tint_weight") == 0) {
+    } else if (strcmp(key, "background_content_tint_weight") == 0) {
         Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
         bg->fill_content_tint_weight = MAX(0.0, MIN(1.0, atoi(value) / 100.));
     }

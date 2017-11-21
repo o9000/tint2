@@ -119,6 +119,10 @@ The tint2 config file starts with the options defining background elements with 
     * `color` is specified in hex RGB, e.g. #ff0000 is red
     * `opacity` varies from (0 to 100), where 0 is fully transparent, 100 is fully opaque
 
+  * `border_content_tint_weight = integer` : Mixes the border color with the content color (for tasks, this is the average color of the window icon). Values must be between 0 (no mixing) and 100 (fully replaces the color). *(since 16.0)*
+
+  * `background_content_tint_weight = integer` : Mixes the background color with the content color (for tasks, this is the average color of the window icon). Values must be between 0 (no mixing) and 100 (fully replaces the color). *(since 16.0)*
+
 You can define as many backgrounds as you want. For example, the following config defines two backgrounds:
 
 ```
