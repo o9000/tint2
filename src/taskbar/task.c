@@ -136,13 +136,13 @@ Task *add_task(Window win)
             task_instance->area._get_tooltip_text = task_get_tooltip;
             task_instance->area._get_tooltip_image = task_get_thumbnail;
         }
+        task_instance->icon_color = task_template.icon_color;
+        task_instance->icon_color_hover = task_template.icon_color_hover;
+        task_instance->icon_color_press = task_template.icon_color_press;
         for (int k = 0; k < TASK_STATE_COUNT; ++k) {
             task_instance->icon[k] = task_template.icon[k];
-            task_instance->icon_color[k] = task_template.icon_color[k];
             task_instance->icon_hover[k] = task_template.icon_hover[k];
-            task_instance->icon_color_hover[k] = task_template.icon_color_hover[k];
             task_instance->icon_press[k] = task_template.icon_press[k];
-            task_instance->icon_color_press[k] = task_template.icon_color_press[k];
         }
         task_instance->icon_width = task_template.icon_width;
         task_instance->icon_height = task_template.icon_height;
@@ -330,33 +330,30 @@ Imlib_Image task_get_icon(Window win, int icon_size)
     return img;
 }
 
+void task_set_icon_color(Task *task, Imlib_Image icon)
+{
+    get_image_mean_color(icon, &task->icon_color);
+    if (panel_config.mouse_effects) {
+        task->icon_color_hover = task->icon_color;
+        adjust_color(&task->icon_color_hover,
+                     panel_config.mouse_over_alpha,
+                     panel_config.mouse_over_saturation,
+                     panel_config.mouse_over_brightness);
+        task->icon_color_press = task->icon_color;
+        adjust_color(&task->icon_color_press,
+                     panel_config.mouse_pressed_alpha,
+                     panel_config.mouse_pressed_saturation,
+                     panel_config.mouse_pressed_brightness);
+    }
+}
+
 void task_update_icon(Task *task)
 {
     Panel *panel = task->area.panel;
     if (!panel->g_task.has_icon) {
         if (panel_config.g_task.has_content_tint) {
             Imlib_Image img = task_get_icon(task->win, panel->g_task.icon_size1);
-            Color icon_color;
-            get_image_mean_color(img, &icon_color);
-            for (int k = 0; k < TASK_STATE_COUNT; ++k) {
-                task->icon_color[k] = icon_color;
-                adjust_color(&task->icon_color[k],
-                             panel->g_task.alpha[k],
-                             panel->g_task.saturation[k],
-                             panel->g_task.brightness[k]);
-                if (panel_config.mouse_effects) {
-                    task->icon_color_hover[k] = icon_color;
-                    adjust_color(&task->icon_color_hover[k],
-                                 panel_config.mouse_over_alpha,
-                                 panel_config.mouse_over_saturation,
-                                 panel_config.mouse_over_brightness);
-                    task->icon_color_press[k] = icon_color;
-                    adjust_color(&task->icon_color_press[k],
-                                 panel_config.mouse_pressed_alpha,
-                                 panel_config.mouse_pressed_saturation,
-                                 panel_config.mouse_pressed_brightness);
-                }
-            }
+            task_set_icon_color(task, img);
             imlib_context_set_image(img);
             imlib_free_image();
         }
@@ -366,6 +363,7 @@ void task_update_icon(Task *task)
     task_remove_icon(task);
 
     Imlib_Image img = task_get_icon(task->win, panel->g_task.icon_size1);
+    task_set_icon_color(task, img);
 
     // transform icons
     imlib_context_set_image(img);
@@ -382,7 +380,6 @@ void task_update_icon(Task *task)
     for (int k = 0; k < TASK_STATE_COUNT; ++k) {
         imlib_context_set_image(orig_image);
         task->icon[k] = imlib_clone_image();
-        get_image_mean_color(task->icon[k], &task->icon_color[k]);
         imlib_context_set_image(task->icon[k]);
         DATA32 *data32;
         if (panel->g_task.alpha[k] != 100 || panel->g_task.saturation[k] != 0 || panel->g_task.brightness[k] != 0) {
@@ -394,19 +391,16 @@ void task_update_icon(Task *task)
                        panel->g_task.saturation[k] / 100.0,
                        panel->g_task.brightness[k] / 100.0);
             imlib_image_put_back_data(data32);
-            get_image_mean_color(task->icon[k], &task->icon_color[k]);
         }
         if (panel_config.mouse_effects) {
             task->icon_hover[k] = adjust_icon(task->icon[k],
                                               panel_config.mouse_over_alpha,
                                               panel_config.mouse_over_saturation,
                                               panel_config.mouse_over_brightness);
-            get_image_mean_color(task->icon_hover[k], &task->icon_color_hover[k]);
             task->icon_press[k] = adjust_icon(task->icon[k],
                                               panel_config.mouse_pressed_alpha,
                                               panel_config.mouse_pressed_saturation,
                                               panel_config.mouse_pressed_brightness);
-            get_image_mean_color(task->icon_press[k], &task->icon_color_press[k]);
         }
     }
     imlib_context_set_image(orig_image);
@@ -418,13 +412,13 @@ void task_update_icon(Task *task)
             Task *task2 = (Task *)g_ptr_array_index(task_buttons, i);
             task2->icon_width = task->icon_width;
             task2->icon_height = task->icon_height;
+            task2->icon_color = task->icon_color;
+            task2->icon_color_hover = task->icon_color_hover;
+            task2->icon_color_press = task->icon_color_press;
             for (int k = 0; k < TASK_STATE_COUNT; ++k) {
                 task2->icon[k] = task->icon[k];
-                task2->icon_color[k] = task->icon_color[k];
                 task2->icon_hover[k] = task->icon_hover[k];
-                task2->icon_color_hover[k] = task->icon_color_hover[k];
                 task2->icon_press[k] = task->icon_press[k];
-                task2->icon_color_press[k] = task->icon_color_press[k];
             }
             schedule_redraw(&task2->area);
         }
@@ -532,16 +526,16 @@ void task_get_content_color(void *obj, Color *color)
     Color *content_color = NULL;
     if (panel_config.mouse_effects) {
         if (task->area.mouse_state == MOUSE_OVER)
-            content_color = &task->icon_color_hover[task->current_state];
+            content_color = &task->icon_color_hover;
         else if (task->area.mouse_state == MOUSE_DOWN)
-            content_color = &task->icon_color_press[task->current_state];
+            content_color = &task->icon_color_press;
         else
-            content_color = &task->icon_color[task->current_state];
+            content_color = &task->icon_color;
     } else {
-        content_color = &task->icon_color[task->current_state];
+        content_color = &task->icon_color;
     }
     if (content_color)
-        memcpy(color, content_color, sizeof(*content_color));
+        *color = *content_color;
 }
 
 int task_compute_desired_size(void *obj)
