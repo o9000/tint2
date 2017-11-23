@@ -70,11 +70,7 @@ void destroy_execp(void *obj)
         stop_timeout(execp->backend->timer);
         execp->backend->timer = NULL;
 
-        if (execp->backend->icon) {
-            imlib_context_set_image(execp->backend->icon);
-            imlib_free_image();
-            execp->backend->icon = NULL;
-        }
+        free_icon(execp->backend->icon);
         free_and_null(execp->backend->buf_stdout);
         free_and_null(execp->backend->buf_stderr);
         free_and_null(execp->backend->text);
