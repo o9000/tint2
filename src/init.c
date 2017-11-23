@@ -258,6 +258,7 @@ void cleanup()
 #ifdef ENABLE_BATTERY
     cleanup_battery();
 #endif
+    cleanup_separator();
     cleanup_panel();
     cleanup_config();
 
