@@ -52,11 +52,9 @@ void destroy_button(void *obj)
     Button *button = (Button *)obj;
     if (button->frontend) {
         // This is a frontend element
-        if (button->frontend->icon) {
-            imlib_context_set_image(button->frontend->icon);
-            imlib_free_image();
-            button->frontend->icon = NULL;
-        }
+        free_icon(button->frontend->icon);
+        free_icon(button->frontend->icon_hover);
+        free_icon(button->frontend->icon_pressed);
         button->backend->instances = g_list_remove_all(button->backend->instances, button);
         free_and_null(button->frontend);
         remove_area(&button->area);
