@@ -378,20 +378,10 @@ void task_update_icon(Task *task)
     task->icon_width = imlib_image_get_width();
     task->icon_height = imlib_image_get_height();
     for (int k = 0; k < TASK_STATE_COUNT; ++k) {
-        imlib_context_set_image(orig_image);
-        task->icon[k] = imlib_clone_image();
-        imlib_context_set_image(task->icon[k]);
-        DATA32 *data32;
-        if (panel->g_task.alpha[k] != 100 || panel->g_task.saturation[k] != 0 || panel->g_task.brightness[k] != 0) {
-            data32 = imlib_image_get_data();
-            adjust_asb(data32,
-                       task->icon_width,
-                       task->icon_height,
-                       panel->g_task.alpha[k] / 100.0,
-                       panel->g_task.saturation[k] / 100.0,
-                       panel->g_task.brightness[k] / 100.0);
-            imlib_image_put_back_data(data32);
-        }
+        task->icon[k] = adjust_icon(orig_image,
+                                    panel->g_task.alpha[k],
+                                    panel->g_task.saturation[k],
+                                    panel->g_task.brightness[k] != 0);
         if (panel_config.mouse_effects) {
             task->icon_hover[k] = adjust_icon(task->icon[k],
                                               panel_config.mouse_over_alpha,
