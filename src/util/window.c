@@ -662,7 +662,7 @@ cairo_surface_t *get_window_thumbnail(Window win, int size)
         }
     }
 
-    if (!image_surface) {
+    if (0 && !image_surface) {
         image_surface = get_window_thumbnail_cairo(win, size);
         if (image_surface && cairo_surface_is_blank(image_surface)) {
             cairo_surface_destroy(image_surface);
