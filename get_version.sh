@@ -42,7 +42,7 @@ then
         then
             PREVIOUS=$(grep '^2' "${SCRIPT_DIR}/ChangeLog" | head -n 2 | tail -n 1 | cut -d ' ' -f 2)
             HASH=$(git log -n 1 --pretty=format:"%h" 2>/dev/null)
-            VERSION=$PREVIOUS-$HASH
+            VERSION=$PREVIOUS-next-g$HASH
         fi
     fi
 fi
