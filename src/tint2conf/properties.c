@@ -5166,8 +5166,8 @@ void create_systemtray(GtkWidget *parent)
                          _("Specifies the order used to arrange the system tray icons. \n"
                            "'Ascending' means that icons are sorted in ascending order of their window names. \n"
                            "'Descending' means that icons are sorted in descending order of their window names. \n"
-                           "'Left to right' means that icons are always added to the left. \n"
-                           "'Right to left' means that icons are always added to the right."),
+                           "'Left to right' means that icons are always added to the right. \n"
+                           "'Right to left' means that icons are always added to the left."),
                          NULL);
 
     row++;
