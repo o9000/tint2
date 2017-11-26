@@ -1,7 +1,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: tint2conf 0.12\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2017-11-21 12:31+0100\n"
+        "POT-Creation-Date: 2017-11-26 21:44+0100\n"
         "PO-Revision-Date: 2017-10-29 12:49-0300\n"
         "Last-Translator: Vic <vicmz@yandex.com>\n"
         "Language-Team: Spanish <lang@llc>\n"
@@ -1310,8 +1310,8 @@ msgstr  "Miniaturas"
 #: ../properties.c:3304
 msgid   "If enabled, a tooltip showing the window thumbnail is displayed when "
         "the mouse cursor moves over task buttons."
-msgstr  "Si se activa, se muestra la miniatura de la ventana al "
-        "poner el cursor sobre los botones de tareas."
+msgstr  "Si se activa, se muestra la miniatura de la ventana al poner el "
+        "cursor sobre los botones de tareas."
 
 #: ../properties.c:3309
 msgid   "Thumbnail size"
@@ -1852,8 +1852,8 @@ msgid   "Specifies the order used to arrange the system tray icons. \n"
         "window names. \n"
         "'Descending' means that icons are sorted in descending order of "
         "their window names. \n"
-        "'Left to right' means that icons are always added to the left. \n"
-        "'Right to left' means that icons are always added to the right."
+        "'Left to right' means that icons are always added to the right. \n"
+        "'Right to left' means that icons are always added to the left."
 msgstr  "Especifica el orden para organizar los iconos de la bandeja del "
         "sistema. \n"
         "'Ascendente' significa que los iconos se organizan en orden "
@@ -1861,9 +1861,9 @@ msgstr  "Especifica el orden para organizar los iconos de la bandeja del "
         "'Descendente' significa que los iconos se organizan en orden "
         "descendente por los nombres de las ventanas. \n"
         "'Izquierda a derecha' significa que los iconos siempre se agregan a "
-        "la izquierda. \n"
+        "la derecha. \n"
         "'Derecha a izquierda' significa que los iconos siempre se agregan a "
-        "la derecha."
+        "la izquierda."
 
 #: ../properties.c:5195
 msgid   "Specifies the monitor on which to place the system tray. Due to "
@@ -2342,9 +2342,8 @@ msgid   "The border color of the current background"
 msgstr  "El color del borde del fondo actual"
 
 #: ../background_gui.c:208
-#, fuzzy
 msgid   "Border tint"
-msgstr  "Ancho de borde"
+msgstr  ""
 
 #: ../background_gui.c:221
 msgid   "Gradient"

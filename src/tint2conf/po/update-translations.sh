@@ -28,7 +28,7 @@ do
   then
     echo $lang ": Up to date"
   else
-    count=$(echo -e "$fuzzy" "\n" "$missing" | grep "^--$" | wc -l)
+    count=$(( $(echo -e "$fuzzy" "\n" "$missing" | grep "^--$" | wc -l) + 1))
     echo "${lang}: Translation incomplete: ${count} strings to be updated. See ${lang}.todo"
     echo "$fuzzy" > ${lang}.todo
     echo "$missing" >> ${lang}.todo

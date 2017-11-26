@@ -6,7 +6,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: tint2conf 0.12\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2017-11-21 12:31+0100\n"
+        "POT-Creation-Date: 2017-11-26 21:44+0100\n"
         "PO-Revision-Date: 2015-11-01 13:40+0100\n"
         "Last-Translator: Jocelyn <anechampenois@solydxk.com>\n"
         "Language-Team: Bento <meets@gmx.fr>\n"
@@ -1881,8 +1881,8 @@ msgid   "Specifies the order used to arrange the system tray icons. \n"
         "window names. \n"
         "'Descending' means that icons are sorted in descending order of "
         "their window names. \n"
-        "'Left to right' means that icons are always added to the left. \n"
-        "'Right to left' means that icons are always added to the right."
+        "'Left to right' means that icons are always added to the right. \n"
+        "'Right to left' means that icons are always added to the left."
 msgstr  "Spécifie la façon d'organiser les icônes de la zone de "
         "notification. \n"
         "'Croissant' signifie que les icônes sont triés par ordre "
@@ -1890,9 +1890,9 @@ msgstr  "Spécifie la façon d'organiser les icônes de la zone de "
         "'Décroissant' signifie que les icônes sont triés par ordre "
         "alphabétique inverse. \n"
         "'De gauche à droite' signifie que les icônes sont toujours ajoutées "
-        "à gauche. \n"
+        "à droite. \n"
         "'De droite à gauche' signifie que les icônes sont toujours ajoutées "
-        "à droite."
+        "à gauche."
 
 #: ../properties.c:5195
 msgid   "Specifies the monitor on which to place the system tray. Due to "
@@ -2453,19 +2453,3 @@ msgstr  "Rayon d'angle de l'actuel arrière-plan"
 #: ../background_gui.c:355
 msgid   "Border sides"
 msgstr  "Côtés de la bordure"
-
-#~ msgid        "Primary monitor first"
-#~ msgstr       "Moniteur principal en premier"
-
-#~ msgid        "If enabled, the primary monitor will have index 1 in the "
-#~      "monitor list even if it is not top-left."
-#~ msgstr       "Si cette option est activée, le moniteur principal est le "
-#~      "premier dans la liste des moniteurs, même s'il est pas au top-gauche."
-
-#, fuzzy
-#~ msgid        "Secondary fill color"
-#~ msgstr       "Couleur de remplissage"
-
-#, fuzzy
-#~ msgid        "Color to fade into when using gradient background."
-#~ msgstr       "Couleur de remplissage de l'actuel arrière-plan"
