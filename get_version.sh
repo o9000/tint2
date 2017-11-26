@@ -41,8 +41,8 @@ then
         if [ "$VERSION" = "master" ]
         then
             PREVIOUS=$(grep '^2' "${SCRIPT_DIR}/ChangeLog" | head -n 2 | tail -n 1 | cut -d ' ' -f 2)
-            HASH=$(git log -n 1 --pretty=format:"%h" 2>/dev/null)
-            VERSION=$PREVIOUS-next-g$HASH
+            HASH=$(git log -n 1 --pretty=format:%cI.%ct.%h | tr -d ':' | tr -d '-' | tr '.' '-' | sed 's/T[0-9\+]*//g' 2>/dev/null)
+            VERSION=$PREVIOUS-next-$HASH
         fi
     fi
 fi
