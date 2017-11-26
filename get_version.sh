@@ -1,6 +1,5 @@
 #!/bin/sh
 
-MAJOR=0.14
 DIRTY=""
 
 if git status 1>/dev/null 2>/dev/null
@@ -31,7 +30,7 @@ then
             DIRTY="-dirty"
         fi
     fi
-    VERSION=$(git describe --exact-match 2>/dev/null || echo "$MAJOR-git$(git show -s --pretty=format:%ci | cut -d ' ' -f 1 | tr -d '-').$(git show -s --pretty=format:%h)")$DIRTY
+    VERSION=$(git describe 2>/dev/null)$DIRTY
 else
     SCRIPT_DIR=$(dirname "$0")
     VERSION=$(head -n 1 "${SCRIPT_DIR}/ChangeLog" | cut -d ' ' -f 2)
