@@ -559,66 +559,6 @@ err0:
     return result;
 }
 
-cairo_surface_t *get_window_thumbnail_cairo(Window win, int size)
-{
-    static cairo_filter_t filter = CAIRO_FILTER_BEST;
-    XWindowAttributes wa;
-    if (!XGetWindowAttributes(server.display, win, &wa) || wa.width <= 0 || wa.height <= 0 ||
-        wa.map_state != IsViewable)
-        return NULL;
-    int w, h;
-    w = wa.width;
-    h = wa.height;
-
-    int tw, th;
-    double sx, sy;
-    double ox, oy;
-    tw = size;
-    th = h * tw / w;
-    if (th > tw * 0.618) {
-        th = (int)(tw * 0.618);
-        sy = th / (double)h;
-        double fw = w * th / h;
-        sx = fw / w;
-        ox = (tw - fw) / 2;
-        oy = 0;
-    } else {
-        sx = tw / (double)w;
-        sy = th / (double)h;
-        ox = oy = 0;
-    }
-
-    cairo_surface_t *x11_surface = cairo_xlib_surface_create(server.display, win, wa.visual, w, h);
-
-    cairo_surface_t *full_surface = cairo_surface_create_similar_image(x11_surface, CAIRO_FORMAT_ARGB32, w, h);
-    cairo_t *cr0 = cairo_create(full_surface);
-    cairo_set_source_surface(cr0, x11_surface, 0, 0);
-    cairo_paint(cr0);
-    cairo_destroy(cr0);
-
-    cairo_surface_t *image_surface = cairo_surface_create_similar_image(full_surface, CAIRO_FORMAT_ARGB32, tw, th);
-
-    double start_time = get_time();
-    cairo_t *cr = cairo_create(image_surface);
-    cairo_translate(cr, ox, oy);
-    cairo_scale(cr, sx, sy);
-    cairo_set_source_surface(cr, full_surface, 0, 0);
-    cairo_pattern_set_filter(cairo_get_source(cr), filter);
-    cairo_paint(cr);
-    cairo_destroy(cr);
-    cairo_surface_destroy(x11_surface);
-    if (filter == CAIRO_FILTER_FAST)
-        smooth_thumbnail(image_surface);
-    double end_time = get_time();
-
-    if (end_time - start_time > 0.020)
-        filter = CAIRO_FILTER_FAST;
-    else if (end_time - start_time < 0.010)
-        filter = CAIRO_FILTER_BEST;
-
-    return image_surface;
-}
-
 gboolean cairo_surface_is_blank(cairo_surface_t *image_surface)
 {
     uint32_t *pixels = (uint32_t *)cairo_image_surface_get_data(image_surface);
@@ -634,7 +574,8 @@ gboolean cairo_surface_is_blank(cairo_surface_t *image_surface)
 cairo_surface_t *get_window_thumbnail(Window win, int size)
 {
     cairo_surface_t *image_surface = NULL;
-    if (0 && server.has_shm && server.composite_manager) {
+    const gboolean shm_allowed = FALSE;
+    if (shm_allowed && server.has_shm && server.composite_manager) {
         image_surface = get_window_thumbnail_ximage(win, (size_t)size, TRUE);
         if (image_surface && cairo_surface_is_blank(image_surface)) {
             cairo_surface_destroy(image_surface);
@@ -659,20 +600,6 @@ cairo_surface_t *get_window_thumbnail(Window win, int size)
                 fprintf(stderr, YELLOW "tint2: XGetImage failed, trying slower method" RESET "\n");
             else
                 fprintf(stderr, "tint2: captured window using XGetImage\n");
-        }
-    }
-
-    if (0 && !image_surface) {
-        image_surface = get_window_thumbnail_cairo(win, size);
-        if (image_surface && cairo_surface_is_blank(image_surface)) {
-            cairo_surface_destroy(image_surface);
-            image_surface = NULL;
-        }
-        if (debug_thumbnails) {
-            if (!image_surface)
-                fprintf(stderr, YELLOW "tint2: capturing window failed" RESET "\n");
-            else
-                fprintf(stderr, "tint2: captured window using cairo\n");
         }
     }
 
