@@ -2,6 +2,7 @@
 
 SCRIPT_DIR=$(dirname "$0")
 DIRTY=""
+VERSION=""
 
 if [ -d ${SCRIPT_DIR}/.git ] && git status 1>/dev/null 2>/dev/null
 then
@@ -31,24 +32,29 @@ then
             DIRTY="-dirty"
         fi
     fi
-    VERSION=$(git describe 2>/dev/null)$DIRTY
-elif [ -d ${SCRIPT_DIR}/.git ] && git log -n 1 1>/dev/null 2>/dev/null
-then
-    VERSION=$(head -n 1 "${SCRIPT_DIR}/ChangeLog" | cut -d ' ' -f 2)
-    if [ "$VERSION" = "master" ]
+    if git describe 1>/dev/null 2>/dev/null
     then
-        PREVIOUS=$(grep '^2' "${SCRIPT_DIR}/ChangeLog" | head -n 2 | tail -n 1 | cut -d ' ' -f 2)
-        HASH=$(git log -n 1 --pretty=format:"%h" 2>/dev/null)
-        VERSION=$PREVIOUS-$HASH
+        VERSION=$(git describe 2>/dev/null)$DIRTY
+    elif git log -n 1 1>/dev/null 2>/dev/null
+    then
+        VERSION=$(head -n 1 "${SCRIPT_DIR}/ChangeLog" | cut -d ' ' -f 2)
+        if [ "$VERSION" = "master" ]
+        then
+            PREVIOUS=$(grep '^2' "${SCRIPT_DIR}/ChangeLog" | head -n 2 | tail -n 1 | cut -d ' ' -f 2)
+            HASH=$(git log -n 1 --pretty=format:"%h" 2>/dev/null)
+            VERSION=$PREVIOUS-$HASH
+        fi
     fi
-else
+fi
+
+if [ -z "$VERSION" ]
+then
     VERSION=$(head -n 1 "${SCRIPT_DIR}/ChangeLog" | cut -d ' ' -f 2)
     if [ "$VERSION" = "master" ]
     then
         VERSION=$VERSION-$(head -n 1 "${SCRIPT_DIR}/ChangeLog" | cut -d ' ' -f 1)
     fi
 fi
-
 
 VERSION=$(echo "$VERSION" | sed 's/^v//')
 
