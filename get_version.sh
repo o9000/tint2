@@ -1,8 +1,9 @@
 #!/bin/sh
 
+SCRIPT_DIR=$(dirname "$0")
 DIRTY=""
 
-if git status 1>/dev/null 2>/dev/null
+if [ -d ${SCRIPT_DIR}/.git ] && git status 1>/dev/null 2>/dev/null
 then
     git update-index -q --ignore-submodules --refresh
     # Disallow unstaged changes in the working tree
@@ -31,8 +32,16 @@ then
         fi
     fi
     VERSION=$(git describe 2>/dev/null)$DIRTY
+elif [ -d ${SCRIPT_DIR}/.git ] && git log -n 1 1>/dev/null 2>/dev/null
+then
+    VERSION=$(head -n 1 "${SCRIPT_DIR}/ChangeLog" | cut -d ' ' -f 2)
+    if [ "$VERSION" = "master" ]
+    then
+        PREVIOUS=$(grep '^2' "${SCRIPT_DIR}/ChangeLog" | head -n 2 | tail -n 1 | cut -d ' ' -f 2)
+        HASH=$(git log -n 1 --pretty=format:"%h" 2>/dev/null)
+        VERSION=$PREVIOUS-$HASH
+    fi
 else
-    SCRIPT_DIR=$(dirname "$0")
     VERSION=$(head -n 1 "${SCRIPT_DIR}/ChangeLog" | cut -d ' ' -f 2)
     if [ "$VERSION" = "master" ]
     then
