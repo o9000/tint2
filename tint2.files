@@ -237,3 +237,11 @@ src/signals.c
 src/signals.h
 src/tracing.c
 src/tracing.h
+src/util/test.c
+src/util/test.h
+src/util/bool.h
+src/util/colors.h
+src/util/print.c
+src/util/print.h
+src/util/test.c
+src/util/test.h

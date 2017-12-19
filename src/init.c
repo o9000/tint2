@@ -17,6 +17,7 @@
 #include "panel.h"
 #include "server.h"
 #include "signals.h"
+#include "test.h"
 #include "tooltip.h"
 #include "tracing.h"
 #include "uevent.h"
@@ -47,6 +48,9 @@ void handle_cli_arguments(int argc, char **argv)
             exit(0);
         } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
             fprintf(stdout, "tint2 version %s\n", VERSION_STRING);
+            exit(0);
+        } else if (strcmp(argv[i], "--test") == 0) {
+            run_all_tests();
             exit(0);
         } else if (strcmp(argv[i], "-c") == 0) {
             if (i + 1 < argc) {
