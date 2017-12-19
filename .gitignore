@@ -1,3 +1,6 @@
 build
 *.user
 version.h
+*.pyc
+*.todo
+packaging/make_ubuntu2.sh
