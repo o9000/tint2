@@ -1,4 +1,4 @@
-2017-12-19 master
+2017-12-20 16.0
 - Fixes:
   - Taskbar: `taskbar_distribute_size = 1` now playes well with `task_align = center` and
     `task_align = right` (issue #688)
@@ -971,6 +971,7 @@ released tint-0.2
 2008-04-22
 - fork ttm projet from p://code.google.com/p/ttm/ (by Pål Staurland staura@gmail.com)
   while the projet is no longer in developpement, have not changed the name of 'tint'.
+.
 .
 .
 .
