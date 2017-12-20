@@ -62,6 +62,14 @@ else()
 	set(BACKTRACE_L_FLAGS "")
 endif()
 
+check_c_source_compiles(
+    "#define print(x) _Generic((x), default : print_unknown)(x) \n void print_unknown(){} \n int main () { print(0); }"
+    HAS_GENERIC)
+
+if(HAS_GENERIC)
+    add_definitions(-DHAS_GENERIC)
+endif(HAS_GENERIC)
+
 if( ENABLE_RSVG )
 pkg_check_modules( RSVG librsvg-2.0>=2.14.0 )
 endif( ENABLE_RSVG )

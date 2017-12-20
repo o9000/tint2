@@ -151,3 +151,9 @@ TEST(dummy) {
     int y = 2;
     ASSERT_EQUAL(x, y);
 }
+
+TEST(dummyBad) {
+    int x = 2;
+    int y = 3;
+    ASSERT_EQUAL(x, y);
+}

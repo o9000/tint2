@@ -1,6 +1,8 @@
 #ifndef PRINT_H
 #define PRINT_H
 
+#ifdef HAS_GENERIC
+
 int print_uchar(unsigned char v);
 
 int print_char(char v);
@@ -51,5 +53,9 @@ int print_unknown();
     char *: print_string, \
     void *: print_pointer, \
     default : print_unknown)(x)
+
+#else
+#define print(...) printf("Omitted, the compiler does not support C11 generics.\n")
+#endif
 
 #endif
