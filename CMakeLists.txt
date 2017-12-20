@@ -68,6 +68,9 @@ check_c_source_compiles(
 
 if(HAS_GENERIC)
     add_definitions(-DHAS_GENERIC)
+    set(CSTD "c11")
+else()
+    set(CSTD "c99")
 endif(HAS_GENERIC)
 
 if( ENABLE_RSVG )
@@ -277,7 +280,7 @@ endif( RT_LIBRARY )
 target_link_libraries( tint2 m )
 
 add_dependencies( tint2 version )
-set_target_properties( tint2 PROPERTIES COMPILE_FLAGS "-Wall -Wpointer-arith -fno-strict-aliasing -pthread -std=c11 ${ASAN_C_FLAGS} ${TRACING_C_FLAGS}" )
+set_target_properties( tint2 PROPERTIES COMPILE_FLAGS "-Wall -Wpointer-arith -fno-strict-aliasing -pthread -std=${CSTD} ${ASAN_C_FLAGS} ${TRACING_C_FLAGS}" )
 set_target_properties( tint2 PROPERTIES LINK_FLAGS "-pthread -fno-strict-aliasing ${ASAN_L_FLAGS} ${BACKTRACE_L_FLAGS}  ${TRACING_L_FLAGS}" )
 
 install( TARGETS tint2 DESTINATION bin )
