@@ -1,4 +1,7 @@
 2017-12-19 master
+- Fixes:
+  - Taskbar: `taskbar_distribute_size = 1` now playes well with `task_align = center` and
+    `task_align = right` (issue #688)
 - Enhancements:
   - Added Spanish translation (contributed by Vicmz)
   - Executor: updated tooltip documentation (issue #676)
