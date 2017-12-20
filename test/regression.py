@@ -287,6 +287,7 @@ def compile_and_report(src_dir, use_asan):
 
 def compile_remotely_and_report(host):
   print_err("Compiling on {0}...".format(host))
+  print("# Compilation on {0}".format(host))
   start = time.time()
   c = run("ssh worker@{0} 'cd tint2 && git pull && mkdir -p build && rm -rf build && mkdir -p build && cd build && cmake .. && make && ./tint2 --version'".format(host), True)
   out, _ = c.communicate()
