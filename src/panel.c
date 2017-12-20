@@ -494,9 +494,11 @@ gboolean resize_panel(void *obj)
             }
         }
 
-        // Distribute the remaining size between tasks
+        // Distribute the remaining size between taskbars
         if (num_tasks > 0) {
             int task_size = total_size / num_tasks;
+            if (taskbar_alignment != ALIGN_LEFT)
+                task_size = MIN(task_size, panel_horizontal ? panel_config.g_task.maximum_width : panel_config.g_task.maximum_height);
             for (int i = 0; i < panel->num_desktops; i++) {
                 Taskbar *taskbar = &panel->taskbar[i];
                 if (!taskbar->area.on_screen)
@@ -511,6 +513,43 @@ gboolean resize_panel(void *obj)
                         taskbar->area.width += task_size;
                     else
                         taskbar->area.height += task_size;
+                }
+            }
+            int slack = total_size - task_size * num_tasks;
+            if (taskbar_alignment == ALIGN_RIGHT) {
+                for (int i = 0; i < panel->num_desktops; i++) {
+                    Taskbar *taskbar = &panel->taskbar[i];
+                    if (!taskbar->area.on_screen)
+                        continue;
+                    if (panel_horizontal)
+                        taskbar->area.width += slack;
+                    else
+                        taskbar->area.height += slack;
+                    break;
+                }
+            } else if (taskbar_alignment == ALIGN_CENTER) {
+                slack /= 2;
+                for (int i = 0; i < panel->num_desktops; i++) {
+                    Taskbar *taskbar = &panel->taskbar[i];
+                    if (!taskbar->area.on_screen)
+                        continue;
+                    if (panel_horizontal)
+                        taskbar->area.width += slack;
+                    else
+                        taskbar->area.height += slack;
+                    taskbar->area.alignment = ALIGN_RIGHT;
+                    break;
+                }
+                for (int i = panel->num_desktops - 1; i >= 0; i--) {
+                    Taskbar *taskbar = &panel->taskbar[i];
+                    if (!taskbar->area.on_screen)
+                        continue;
+                    if (panel_horizontal)
+                        taskbar->area.width += slack;
+                    else
+                        taskbar->area.height += slack;
+                    taskbar->area.alignment = ALIGN_LEFT;
+                    break;
                 }
             }
         } else {
