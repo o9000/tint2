@@ -285,6 +285,28 @@ def compile_and_report(src_dir, use_asan):
     print("Status: Succeeded in %.1f seconds" % (duration,), ok)
 
 
+def compile_remotely_and_report(host):
+  print_err("Compiling on {0}...".format(host))
+  c = run("ssh worker@{0} 'cd tint2 && git pull && mkdir -p build && rm -rf build && mkdir -p build && cd build && cmake .. && make && ./tint2 --version'".format(host), True)
+  out, _ = c.communicate()
+  duration = time.time() - start
+  if c.returncode != 0:
+    print("Status: Failed!", error)
+    print("Output:")
+    print("```\n" + out.strip() + "\n```")
+    raise RuntimeError("compilation failed")
+  if "warning:" in out:
+    print("Status: Succeeded with warnings!", warning)
+    print("Warnings:")
+    print("```", end="")
+    for line in out.split("\n"):
+      if "warning:" in line:
+        print(line, end="")
+    print("```", end="")
+  else:
+    print("Status: Succeeded in %.1f seconds" % (duration,), ok)
+
+
 def run_test(config, index, use_asan):
   print_err("Running test", index, "for config", config)
   print("# Test", index, "(ASAN on)" if use_asan else "")
@@ -350,6 +372,8 @@ def main():
   show_timestamp()
   show_git_info(args.src_dir)
   show_system_info()
+  compile_remotely_and_report("freebsd")
+  compile_remotely_and_report("openbsd")
   for use_asan in [True, False]:
     compile_and_report(args.src_dir, use_asan)
     run_tests(use_asan)
