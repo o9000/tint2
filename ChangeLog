@@ -6,7 +6,8 @@
   - Added Spanish translation (contributed by Vicmz)
   - Executor: updated tooltip documentation (issue #676)
   - Systray: warn on duplicate config option systray_name_filter (issue #652)
-  - Changed standard from C99 to C11 to support generic printing for unit tests
+  - Taskbar: thumbnail support in tooltips
+  - Use C11 if possible to support generic printing for unit tests (should fall back to C99)
 
 2017-11-05 15.3
 - Fixes:
