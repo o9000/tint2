@@ -295,7 +295,6 @@ def compile_remotely_and_report(host):
     print("Status: Failed!", error)
     print("Output:")
     print("```\n" + out.strip() + "\n```")
-    raise RuntimeError("compilation failed")
   if "warning:" in out:
     print("Status: Succeeded with warnings!", warning)
     print("Warnings:")
