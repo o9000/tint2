@@ -24,7 +24,7 @@ set(SOURCES ../util/common.c
             ../util/cache.c
             ../util/timer.c
             ../config.c
-            ../server.c
+            ../util/server.c
             ../launcher/apps-common.c
             ../launcher/icon-theme-common.c
             md4.c

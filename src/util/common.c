@@ -31,7 +31,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include "common.h"
-#include "../server.h"
+#include "server.h"
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <pwd.h>

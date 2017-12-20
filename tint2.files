@@ -245,3 +245,7 @@ src/util/print.c
 src/util/print.h
 src/util/test.c
 src/util/test.h
+src/util/tracing.h
+src/util/tracing.c
+src/util/signals.h
+src/util/signals.c

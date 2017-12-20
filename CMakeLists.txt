@@ -116,11 +116,11 @@ include_directories( ${PROJECT_BINARY_DIR}
 
 set( SOURCES src/config.c
              src/panel.c
-             src/server.c
+             src/util/server.c
              src/main.c
              src/init.c
-             src/signals.c
-             src/tracing.c
+             src/util/signals.c
+             src/util/tracing.c
              src/mouse_actions.c
              src/drag_and_drop.c
              src/clock/clock.c
