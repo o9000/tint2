@@ -373,8 +373,8 @@ def main():
   show_timestamp()
   show_git_info(args.src_dir)
   show_system_info()
-  compile_remotely_and_report("freebsd")
-  compile_remotely_and_report("openbsd")
+  compile_remotely_and_report("FreeBSD")
+  compile_remotely_and_report("OpenBSD")
   for use_asan in [True, False]:
     compile_and_report(args.src_dir, use_asan)
     run_tests(use_asan)
