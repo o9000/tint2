@@ -483,10 +483,10 @@ char *contract_tilde(const char *s)
     strlcat(home_slash, "/", buf_size);
 
     if ((strcmp(s, home) == 0 || strstr(s, home_slash) == s)) {
-        size_t buf_size = strlen(s) - strlen(home) + 2;
-        char *result = calloc(buf_size, 1);
-        strlcat(result, "~", buf_size);
-        strlcat(result, s + strlen(home), buf_size);
+        size_t buf_size2 = strlen(s) - strlen(home) + 2;
+        char *result = calloc(buf_size2, 1);
+        strlcat(result, "~", buf_size2);
+        strlcat(result, s + strlen(home), buf_size2);
         free(home_slash);
         return result;
     } else {

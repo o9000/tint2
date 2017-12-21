@@ -535,18 +535,33 @@ gint compare_theme_directories(gconstpointer a, gconstpointer b, gpointer size_q
     return abs(da->size - size) - abs(db->size - size);
 }
 
+Bool is_full_path(const char *s)
+{
+    if (!s)
+        return FALSE;
+    return s[0] == '/';
+}
+
+Bool file_exists(const char *path)
+{
+    return g_file_test(path, G_FILE_TEST_EXISTS);
+}
+
+char *icon_path_from_full_path(const char *s)
+{
+    if (is_full_path(s) && file_exists(s))
+        return strdup(s);
+    return NULL;
+}
+
 char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 {
-    if (icon_name == NULL)
+    if (!icon_name)
         return NULL;
 
-    // If the icon_name is already a path and the file exists, return it
-    if (strstr(icon_name, "/") == icon_name) {
-        if (g_file_test(icon_name, G_FILE_TEST_EXISTS))
-            return strdup(icon_name);
-        else
-            return NULL;
-    }
+    char *result = icon_path_from_full_path(icon_name);
+    if (result)
+        return result;
 
     const GSList *basenames = get_icon_locations();
     GSList *extensions = NULL;
@@ -679,10 +694,10 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
             for (GSList *ext = extensions; ext; ext = g_slist_next(ext)) {
                 char *base_name = (char *)base->data;
                 char *extension = (char *)ext->data;
-                size_t file_name_size = strlen(base_name) + strlen(icon_name) + strlen(extension) + 100;
-                file_name = calloc(file_name_size, 1);
+                size_t file_name_size2 = strlen(base_name) + strlen(icon_name) + strlen(extension) + 100;
+                file_name = calloc(file_name_size2, 1);
                 // filename = directory/iconname.extension
-                snprintf(file_name, file_name_size, "%s/%s%s", base_name, icon_name, extension);
+                snprintf(file_name, file_name_size2, "%s/%s%s", base_name, icon_name, extension);
                 if (debug_icons)
                     fprintf(stderr, "tint2: Checking %s\n", file_name);
                 if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {
