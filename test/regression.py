@@ -296,13 +296,13 @@ def compile_remotely_and_report(host):
     print("Status: Failed!", error)
     print("Output:")
     print("```\n" + out.strip() + "\n```")
-  if "warning:" in out:
+  warnings = [ line for line in out.split("\n") if "warning:" in line and ".so." not in line.split(":", 1)[0] ]
+  if warnings:
     print("Status: Succeeded with warnings!", warning)
     print("Warnings:")
     print("```", end="")
-    for line in out.split("\n"):
-      if "warning:" in line:
-        print(line, end="")
+    for line in warnings:
+      print(line, end="")
     print("```", end="")
   else:
     print("Status: Succeeded in %.1f seconds" % (duration,), ok)
