@@ -367,7 +367,7 @@ def get_freebsd_versions():
 
 def get_openbsd_versions():
   print >> sys.stderr, "OpenBSD ..."
-  makefile = http_download_txt("http://cvsweb.openbsd.org/cgi-bin/cvsweb/~checkout~/ports/x11/tint2/Makefile?rev=1.5&content-type=text/plain")
+  makefile = http_download_txt("http://cvsweb.openbsd.org/cgi-bin/cvsweb/~checkout~/ports/x11/tint2/Makefile?content-type=text/plain")
   versions = []
   version = None
   for line in makefile.split("\n"):
