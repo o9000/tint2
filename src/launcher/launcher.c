@@ -470,7 +470,7 @@ void launcher_load_icons(Launcher *launcher)
         launcherIcon->area.size_mode = LAYOUT_FIXED;
         launcherIcon->area._resize = NULL;
         launcherIcon->area._compute_desired_size = launcher_icon_compute_desired_size;
-        sprintf(launcherIcon->area.name, "LauncherIcon %d", index);
+        snprintf(launcherIcon->area.name, sizeof(launcherIcon->area.name), "LauncherIcon %d", index);
         launcherIcon->area.resize_needed = 0;
         launcherIcon->area.has_mouse_over_effect = panel_config.mouse_effects;
         launcherIcon->area.has_mouse_press_effect = launcherIcon->area.has_mouse_over_effect;

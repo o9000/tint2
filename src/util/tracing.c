@@ -49,8 +49,9 @@ char *addr2name(void *func)
     free(strings);
     return result;
 #else
-    char *result = (char*) calloc(32, 1);
-    sprintf(result, "%p", func);
+    const size_t buf_size = 32;
+    char *result = (char*) calloc(buf_size, 1);
+    snprintf(result, buf_size, "%p", func);
     return result;
 #endif
 }

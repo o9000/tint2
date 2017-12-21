@@ -1312,19 +1312,19 @@ void set_panel_items(const char *items)
         } else if (v == ':') {
             separator_index++;
             buffer[0] = 0;
-            sprintf(buffer, "%s %d", _("Separator"), separator_index + 1);
+            snprintf(buffer, sizeof(buffer), "%s %d", _("Separator"), separator_index + 1);
             name = buffer;
             value = ":";
         } else if (v == 'E') {
             execp_index++;
             buffer[0] = 0;
-            sprintf(buffer, "%s %d", _("Executor"), execp_index + 1);
+            snprintf(buffer, sizeof(buffer), "%s %d", _("Executor"), execp_index + 1);
             name = buffer;
             value = "E";
         } else if (v == 'P') {
             button_index++;
             buffer[0] = 0;
-            sprintf(buffer, "%s %d", _("Button"), button_index + 1);
+            snprintf(buffer, sizeof(buffer), "%s %d", _("Button"), button_index + 1);
             name = buffer;
             value = "P";
         } else {
@@ -4097,7 +4097,7 @@ void create_separator(GtkWidget *notebook, int i)
     Separator *separator = &g_array_index(separators, Separator, i);
 
     separator->name[0] = 0;
-    sprintf(separator->name, "%s %d", _("Separator"), i + 1);
+    snprintf(separator->name, sizeof(separator->name), "%s %d", _("Separator"), i + 1);
     separator->page_label = gtk_label_new(separator->name);
     gtk_widget_show(separator->page_label);
     separator->page_separator = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
@@ -4223,7 +4223,7 @@ void create_execp(GtkWidget *notebook, int i)
     Executor *executor = &g_array_index(executors, Executor, i);
 
     executor->name[0] = 0;
-    sprintf(executor->name, "%s %d", _("Executor"), i + 1);
+    snprintf(executor->name, sizeof(executor->name), "%s %d", _("Executor"), i + 1);
     executor->page_label = gtk_label_new(executor->name);
     gtk_widget_show(executor->page_label);
     executor->page_execp = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
@@ -4644,7 +4644,7 @@ void create_button(GtkWidget *notebook, int i)
     Button *button = &g_array_index(buttons, Button, i);
 
     button->name[0] = 0;
-    sprintf(button->name, "%s %d", _("Button"), i + 1);
+    snprintf(button->name, sizeof(button->name), "%s %d", _("Button"), i + 1);
     button->page_label = gtk_label_new(button->name);
     gtk_widget_show(button->page_label);
     button->page_button = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
@@ -5033,7 +5033,7 @@ void separator_update_indices()
 {
     for (int i = 0; i < separators->len; i++) {
         Separator *separator = &g_array_index(separators, Separator, i);
-        sprintf(separator->name, "%s %d", _("Separator"), i + 1);
+        snprintf(separator->name, sizeof(separator->name), "%s %d", _("Separator"), i + 1);
         gtk_label_set_text(GTK_LABEL(separator->page_label), separator->name);
     }
 
@@ -5051,7 +5051,7 @@ void separator_update_indices()
             separator_index++;
             char buffer[256];
             buffer[0] = 0;
-            sprintf(buffer, "%s %d", _("Separator"), separator_index + 1);
+            snprintf(buffer, sizeof(buffer), "%s %d", _("Separator"), separator_index + 1);
 
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);
         }
@@ -5065,7 +5065,7 @@ void execp_update_indices()
 {
     for (int i = 0; i < executors->len; i++) {
         Executor *executor = &g_array_index(executors, Executor, i);
-        sprintf(executor->name, "%s %d", _("Executor"), i + 1);
+        snprintf(executor->name, sizeof(executor->name), "%s %d", _("Executor"), i + 1);
         gtk_label_set_text(GTK_LABEL(executor->page_label), executor->name);
     }
 
@@ -5083,7 +5083,7 @@ void execp_update_indices()
             execp_index++;
             char buffer[256];
             buffer[0] = 0;
-            sprintf(buffer, "%s %d", _("Executor"), execp_index + 1);
+            snprintf(buffer, sizeof(buffer), "%s %d", _("Executor"), execp_index + 1);
 
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);
         }
@@ -5097,7 +5097,7 @@ void button_update_indices()
 {
     for (int i = 0; i < buttons->len; i++) {
         Button *button = &g_array_index(buttons, Button, i);
-        sprintf(button->name, "%s %d", _("Button"), i + 1);
+        snprintf(button->name, sizeof(button->name), "%s %d", _("Button"), i + 1);
         gtk_label_set_text(GTK_LABEL(button->page_label), button->name);
     }
 
@@ -5115,7 +5115,7 @@ void button_update_indices()
             button_index++;
             char buffer[256];
             buffer[0] = 0;
-            sprintf(buffer, "%s %d", _("Button"), button_index + 1);
+            snprintf(buffer, sizeof(buffer), "%s %d", _("Button"), button_index + 1);
 
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);
         }

@@ -621,7 +621,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
                     }
                     file_name[0] = 0;
                     // filename = directory/$(themename)/subdirectory/iconname.extension
-                    sprintf(file_name, "%s/%s/%s/%s%s", base_name, theme_name, dir_name, icon_name, extension);
+                    snprintf(file_name, (size_t)file_name_size, "%s/%s/%s/%s%s", base_name, theme_name, dir_name, icon_name, extension);
                     if (debug_icons)
                         fprintf(stderr, "tint2: Checking %s\n", file_name);
                     if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {
@@ -679,9 +679,10 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
             for (GSList *ext = extensions; ext; ext = g_slist_next(ext)) {
                 char *base_name = (char *)base->data;
                 char *extension = (char *)ext->data;
-                file_name = calloc(strlen(base_name) + strlen(icon_name) + strlen(extension) + 100, 1);
+                size_t file_name_size = strlen(base_name) + strlen(icon_name) + strlen(extension) + 100;
+                file_name = calloc(file_name_size, 1);
                 // filename = directory/iconname.extension
-                sprintf(file_name, "%s/%s%s", base_name, icon_name, extension);
+                snprintf(file_name, file_name_size, "%s/%s%s", base_name, icon_name, extension);
                 if (debug_icons)
                     fprintf(stderr, "tint2: Checking %s\n", file_name);
                 if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {

@@ -60,9 +60,9 @@ void expand_exec(DesktopEntry *entry, const char *path)
     // %c -> Name
     // %k -> path
     if (entry->exec) {
-        char *exec2 = calloc(strlen(entry->exec) + (entry->name ? strlen(entry->name) : 1) +
-                                 (entry->icon ? strlen(entry->icon) : 1) + 100,
-                             1);
+        size_t buf_size = strlen(entry->exec) + (entry->name ? strlen(entry->name) : 1) +
+                (entry->icon ? strlen(entry->icon) : 1) + 100;
+        char *exec2 = calloc(buf_size, 1);
         char *p, *q;
         // p will never point to an escaped char
         for (p = entry->exec, q = exec2; *p; p++, q++) {
@@ -82,23 +82,30 @@ void expand_exec(DesktopEntry *entry, const char *path)
                 if (!*p)
                     break;
                 if (*p == 'i' && entry->icon != NULL) {
-                    sprintf(q, "--icon '%s'", entry->icon);
+                    snprintf(q, buf_size, "--icon '%s'", entry->icon);
+                    char *old = q;
                     q += strlen("--icon ''");
                     q += strlen(entry->icon);
+                    buf_size -= (size_t)(q - old);
                     q--; // To balance the q++ in the for
                 } else if (*p == 'c' && entry->name != NULL) {
-                    sprintf(q, "'%s'", entry->name);
+                    snprintf(q, buf_size, "'%s'", entry->name);
+                    char *old = q;
                     q += strlen("''");
                     q += strlen(entry->name);
+                    buf_size -= (size_t)(q - old);
                     q--; // To balance the q++ in the for
                 } else if (*p == 'c') {
-                    sprintf(q, "'%s'", path);
+                    snprintf(q, buf_size, "'%s'", path);
+                    char *old = q;
                     q += strlen("''");
                     q += strlen(path);
+                    buf_size -= (size_t)(q - old);
                     q--; // To balance the q++ in the for
                 } else if (*p == 'f' || *p == 'F') {
-                    sprintf(q, "%c%c", '%', *p);
+                    snprintf(q, buf_size, "%c%c", '%', *p);
                     q += 2;
+                    buf_size -= 2;
                     q--; // To balance the q++ in the for
                 } else {
                     // We don't care about other expansions

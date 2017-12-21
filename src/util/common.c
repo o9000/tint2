@@ -191,7 +191,7 @@ const char *signal_name(int sig)
         return "SIGSYS: Bad system call.";
     }
     static char s[64];
-    sprintf(s, "SIG=%d: Unknown", sig);
+    snprintf(s, sizeof(s), "SIG=%d: Unknown", sig);
     return s;
 }
 
@@ -266,7 +266,7 @@ extern char *config_path;
 int setenvd(const char *name, const int value)
 {
     char buf[256];
-    sprintf(buf, "%d", value);
+    snprintf(buf, sizeof(buf), "%d", value);
     return setenv(name, buf, 1);
 }
 
@@ -793,7 +793,7 @@ Imlib_Image load_image(const char *path, int cached)
     }
     if (!image && g_str_has_suffix(path, ".svg")) {
         char tmp_filename[128];
-        sprintf(tmp_filename, "/tmp/tint2-%d.png", (int)getpid());
+        snprintf(tmp_filename, sizeof(tmp_filename), "/tmp/tint2-%d.png", (int)getpid());
         int fd = open(tmp_filename, O_CREAT | O_EXCL, 0600);
         if (fd >= 0) {
             // We fork here because librsvg allocates memory like crazy

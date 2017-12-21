@@ -478,7 +478,7 @@ void config_write_task_font_color(FILE *fp, char *name, GtkWidget *task_color)
     GdkColor color;
     gtk_color_button_get_color(GTK_COLOR_BUTTON(task_color), &color);
     char full_name[128];
-    sprintf(full_name, "task%s_font_color", name);
+    snprintf(full_name, sizeof(full_name), "task%s_font_color", name);
     config_write_color(fp, full_name, color, gtk_color_button_get_alpha(GTK_COLOR_BUTTON(task_color)) * 100 / 0xffff);
 }
 
@@ -489,7 +489,7 @@ void config_write_task_icon_osb(FILE *fp,
                                 GtkWidget *widget_brightness)
 {
     char full_name[128];
-    sprintf(full_name, "task%s_icon_asb", name);
+    snprintf(full_name, sizeof(full_name), "task%s_icon_asb", name);
     fprintf(fp,
             "%s = %d %d %d\n",
             full_name,
@@ -501,7 +501,7 @@ void config_write_task_icon_osb(FILE *fp,
 void config_write_task_background(FILE *fp, char *name, GtkWidget *task_background)
 {
     char full_name[128];
-    sprintf(full_name, "task%s_background_id", name);
+    snprintf(full_name, sizeof(full_name), "task%s_background_id", name);
     fprintf(fp, "%s = %d\n", full_name, gtk_combo_box_get_active(GTK_COMBO_BOX(task_background)));
 }
 
