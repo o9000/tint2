@@ -598,7 +598,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
     char *next_larger = NULL;
     GSList *next_larger_theme = NULL;
 
-    int file_name_size = 4096;
+    size_t file_name_size = 4096;
     char *file_name = calloc(file_name_size, 1);
 
     for (theme = themes; theme; theme = g_slist_next(theme)) {
