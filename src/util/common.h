@@ -13,6 +13,7 @@
 #include <pango/pangocairo.h>
 #include "area.h"
 #include "colors.h"
+#include "strlcat.h"
 
 #define MAX3(a, b, c) MAX(MAX(a, b), c)
 #define MIN3(a, b, c) MIN(MIN(a, b), c)

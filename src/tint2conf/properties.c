@@ -20,6 +20,7 @@
 #include "gui.h"
 #include "background_gui.h"
 #include "gradient_gui.h"
+#include "strlcat.h"
 
 GtkWidget *panel_width, *panel_height, *panel_margin_x, *panel_margin_y, *panel_padding_x, *panel_padding_y,
     *panel_spacing;
@@ -1256,7 +1257,8 @@ gboolean panel_contains(const char *value)
 
 char *get_panel_items()
 {
-    char *result = calloc(1, 256 * sizeof(char));
+    size_t buf_size = 256;
+    char *result = calloc(buf_size, 1);
     GtkTreeModel *model = GTK_TREE_MODEL(panel_items);
 
     GtkTreeIter i;
@@ -1267,7 +1269,7 @@ char *get_panel_items()
     while (1) {
         gchar *v;
         gtk_tree_model_get(model, &i, itemsColValue, &v, -1);
-        strcat(result, v);
+        strlcat(result, v, buf_size);
 
         if (!gtk_tree_model_iter_next(model, &i)) {
             break;

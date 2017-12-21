@@ -207,7 +207,7 @@ gboolean update_snapshot(gpointer ignored)
 
         char hash[MD4_HEX_SIZE + 4];
         md4hexf(path, hash);
-        strcat(hash, ".png");
+        strlcat(hash, ".png", sizeof(hash));
 
         gchar *snap = g_build_filename(g_get_user_cache_dir(), "tint2", hash, NULL);
         pixbuf = force_refresh ? NULL : gdk_pixbuf_new_from_file(snap, NULL);

@@ -22,6 +22,11 @@
 /usr/include/librsvg-2.0
 /usr/include/gdk-pixbuf-2.0
 /usr/include/startup-notification-1.0
+/usr/include/gtk-2.0
+/usr/lib/x86_64-linux-gnu/gtk-2.0/include
+/usr/include/atk-1.0
+/usr/include/gio-unix-2.0
+/usr/include/harfbuzz
 /usr/include
 po
 src/tint2conf/po

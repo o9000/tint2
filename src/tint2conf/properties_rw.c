@@ -69,23 +69,23 @@ void config_read_file(const char *path)
     if (!config_has_panel_items) {
         char panel_items[256];
         panel_items[0] = 0;
-        strcat(panel_items, "T");
+        strlcat(panel_items, "T", sizeof(panel_items));
         if (config_has_battery) {
             if (config_battery_enabled)
-                strcat(panel_items, "B");
+                strlcat(panel_items, "B", sizeof(panel_items));
         } else {
             if (no_items_battery_enabled)
-                strcat(panel_items, "B");
+                strlcat(panel_items, "B", sizeof(panel_items));
         }
         if (config_has_systray) {
             if (config_systray_enabled)
-                strcat(panel_items, "S");
+                strlcat(panel_items, "S", sizeof(panel_items));
         } else {
             if (no_items_systray_enabled)
-                strcat(panel_items, "S");
+                strlcat(panel_items, "S", sizeof(panel_items));
         }
         if (no_items_clock_enabled)
-            strcat(panel_items, "C");
+            strlcat(panel_items, "C", sizeof(panel_items));
         set_panel_items(panel_items);
     }
 }
@@ -242,13 +242,13 @@ void config_write_backgrounds(FILE *fp)
         char sides[10];
         sides[0] = '\0';
         if (sideTop)
-            strcat(sides, "T");
+            strlcat(sides, "T", sizeof(sides));
         if (sideBottom)
-            strcat(sides, "B");
+            strlcat(sides, "B", sizeof(sides));
         if (sideLeft)
-            strcat(sides, "L");
+            strlcat(sides, "L", sizeof(sides));
         if (sideRight)
-            strcat(sides, "R");
+            strlcat(sides, "R", sizeof(sides));
         fprintf(fp, "border_sides = %s\n", sides);
 
         fprintf(fp, "border_content_tint_weight = %d\n", (int)(border_weight));

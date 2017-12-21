@@ -157,6 +157,7 @@ set( SOURCES src/config.c
              src/util/timer.c
              src/util/cache.c
              src/util/color.c
+             src/util/strlcat.c
              src/util/print.c
              src/util/gradient.c
              src/util/test.c

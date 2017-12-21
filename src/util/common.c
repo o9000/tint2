@@ -461,9 +461,10 @@ char *expand_tilde(const char *s)
 {
     const gchar *home = g_get_home_dir();
     if (home && (strcmp(s, "~") == 0 || strstr(s, "~/") == s)) {
-        char *result = calloc(strlen(home) + strlen(s), 1);
-        strcat(result, home);
-        strcat(result, s + 1);
+        size_t buf_size = strlen(home) + strlen(s);
+        char *result = calloc(buf_size, 1);
+        strlcat(result, home, buf_size);
+        strlcat(result, s + 1, buf_size);
         return result;
     } else {
         return strdup(s);
@@ -476,14 +477,16 @@ char *contract_tilde(const char *s)
     if (!home)
         return strdup(s);
 
-    char *home_slash = calloc(strlen(home) + 2, 1);
-    strcat(home_slash, home);
-    strcat(home_slash, "/");
+    size_t buf_size = strlen(home) + 2;
+    char *home_slash = calloc(buf_size, 1);
+    strlcat(home_slash, home, buf_size);
+    strlcat(home_slash, "/", buf_size);
 
     if ((strcmp(s, home) == 0 || strstr(s, home_slash) == s)) {
-        char *result = calloc(strlen(s) - strlen(home) + 2, 1);
-        strcat(result, "~");
-        strcat(result, s + strlen(home));
+        size_t buf_size = strlen(s) - strlen(home) + 2;
+        char *result = calloc(buf_size, 1);
+        strlcat(result, "~", buf_size);
+        strlcat(result, s + strlen(home), buf_size);
         free(home_slash);
         return result;
     } else {

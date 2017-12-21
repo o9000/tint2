@@ -25,6 +25,7 @@ set(SOURCES ../util/common.c
             ../util/timer.c
             ../config.c
             ../util/server.c
+            ../util/strlcat.c
             ../launcher/apps-common.c
             ../launcher/icon-theme-common.c
             md4.c
