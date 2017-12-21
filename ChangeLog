@@ -1,3 +1,7 @@
+2017-12-21 master
+- Fixes:
+  - Merged patches and fixed other warnings on OpenBSD
+
 2017-12-20 16.0
 - Fixes:
   - Taskbar: `taskbar_distribute_size = 1` now playes well with `task_align = center` and
