@@ -100,7 +100,7 @@ char *file_name_from_path(const char *filepath)
 
 void make_backup(const char *filepath)
 {
-    gchar *backup_path = g_strdup_printf("%s.backup.%ld", filepath, (long)time(NULL));
+    gchar *backup_path = g_strdup_printf("%s.backup.%lld", filepath, (long long)time(NULL));
     copy_file(filepath, backup_path);
     g_free(backup_path);
 }

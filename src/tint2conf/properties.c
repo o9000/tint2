@@ -181,7 +181,7 @@ void applyClicked(GtkWidget *widget, gpointer data)
     gchar *filepath = get_current_theme_path();
     if (filepath) {
         if (config_is_manual(filepath)) {
-            gchar *backup_path = g_strdup_printf("%s.backup.%ld", filepath, (long)time(NULL));
+            gchar *backup_path = g_strdup_printf("%s.backup.%lld", filepath, (long long)time(NULL));
             copy_file(filepath, backup_path);
             g_free(backup_path);
         }
