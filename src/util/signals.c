@@ -1,8 +1,10 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <glib.h>
+#ifndef TINT2CONF
 #ifdef HAVE_SN
 #include <libsn/sn.h>
+#endif
 #endif
 #include <signal.h>
 #include <stdio.h>
@@ -34,6 +36,7 @@ void reset_signals()
     sigprocmask(SIG_SETMASK, &signal_set, NULL);
 }
 
+#ifndef TINT2CONF
 void init_signals()
 {
     // Set signal handlers
@@ -164,3 +167,4 @@ int get_signal_pending()
 {
     return signal_pending;
 }
+#endif

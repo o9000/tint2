@@ -21,6 +21,7 @@
 #include <stdio.h>
 
 #include "timer.h"
+#include "test.h"
 
 GSList *timeout_list;
 struct timeval next_timeout;
@@ -85,8 +86,26 @@ void cleanup_timeout()
     }
 }
 
+static struct timespec mock_time = { 0, 0 };
+void set_mock_time(struct timespec *tp)
+{
+    mock_time = *tp;
+}
+
+void set_mock_time_ms(u_int64_t ms)
+{
+    struct timespec t;
+    t.tv_sec = ms / 1000;
+    t.tv_nsec = (ms % 1000) * 1000 * 1000;
+    set_mock_time(&t);
+}
+
 int gettime(struct timespec *tp)
 {
+    if (mock_time.tv_sec || mock_time.tv_nsec) {
+        *tp = mock_time;
+        return 0;
+    }
     // CLOCK_BOOTTIME under Linux is the same as CLOCK_MONOTONIC under *BSD.
 #ifdef CLOCK_BOOTTIME
     return clock_gettime(CLOCK_BOOTTIME, tp);
@@ -470,4 +489,40 @@ double profiling_get_time()
     double delta = t - profiling_get_time_old_time;
     profiling_get_time_old_time = t;
     return delta;
+}
+
+TEST(mock_time) {
+    struct timespec t1 = {1000, 2};
+    struct timespec t2 = {0, 0};
+    struct timespec t3 = {2000, 3};
+    int ret;
+    set_mock_time(&t1);
+    ret = gettime(&t2);
+    ASSERT_EQUAL(ret, 0);
+    ASSERT_EQUAL(t1.tv_sec, t2.tv_sec);
+    ASSERT_EQUAL(t1.tv_nsec, t2.tv_nsec);
+
+    set_mock_time(&t3);
+    ret = gettime(&t2);
+    ASSERT_EQUAL(ret, 0);
+    ASSERT_EQUAL(t3.tv_sec, t2.tv_sec);
+    ASSERT_EQUAL(t3.tv_nsec, t2.tv_nsec);
+}
+
+TEST(mock_time_ms) {
+    struct timespec t1 = {1000, 2 * 1000 * 1000};
+    struct timespec t2 = {0, 0};
+    struct timespec t3 = {2000, 3 * 1000 * 1000};
+    int ret;
+    set_mock_time_ms(1000 * 1000 + 2);
+    ret = gettime(&t2);
+    ASSERT_EQUAL(ret, 0);
+    ASSERT_EQUAL(t1.tv_sec, t2.tv_sec);
+    ASSERT_EQUAL(t1.tv_nsec, t2.tv_nsec);
+
+    set_mock_time_ms(2000 * 1000 + 3);
+    ret = gettime(&t2);
+    ASSERT_EQUAL(ret, 0);
+    ASSERT_EQUAL(t3.tv_sec, t2.tv_sec);
+    ASSERT_EQUAL(t3.tv_nsec, t2.tv_nsec);
 }

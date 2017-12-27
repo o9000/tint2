@@ -146,14 +146,16 @@ void run_all_tests()
         fprintf(stdout, BLUE "tint2: " RED "%lu" BLUE " out of %lu tests " RED "failed." RESET "\n", failed, count);
 }
 
+#if 0
 TEST(dummy) {
     int x = 2;
     int y = 2;
     ASSERT_EQUAL(x, y);
 }
 
-TEST(dummyBad) {
+TEST(dummy_bad) {
     int x = 2;
     int y = 3;
     ASSERT_EQUAL(x, y);
 }
+#endif
