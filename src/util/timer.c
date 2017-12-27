@@ -392,7 +392,7 @@ void callback_multi_timeout(void *arg)
     while (it) {
         GSList *next = it->next;
         timeout *t = it->data;
-        if (++t->multi_timeout->current_count >= t->multi_timeout->count_to_expiration) {
+        if (t->multi_timeout && ++t->multi_timeout->current_count >= t->multi_timeout->count_to_expiration) {
             t->_callback(t->arg);
             if (multi_timeouts && g_hash_table_lookup(multi_timeouts, t)) {
                 // Timer still exists
