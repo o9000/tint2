@@ -16,7 +16,7 @@ void register_test_(Test *test, const char *name);
     }                                                        \
     void test_##name(Status *test_result_)
 
-void run_all_tests();
+void run_all_tests(bool verbose);
 
 #define FAIL_TEST_           \
     *test_result_ = FAILURE; \

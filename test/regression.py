@@ -222,6 +222,37 @@ def test(tint2path, config, use_asan):
   stop_xvfb()
 
 
+def run_unit_tests(tint2path, use_asan):
+  print("# Unit tests", "(ASAN on)" if use_asan else "")
+  start_xvfb()
+  sleep(1)
+  start_xsettings()
+  start_wm()
+  sleep(1)
+  compton = start_compositor()
+  sleep(1)
+  os.environ["DEBUG_FPS"] = "1"
+  os.environ["ASAN_OPTIONS"] = "detect_leaks=1:exitcode=0"
+  tint2 = run([tint2path, "--test-verbose"], True)
+  if tint2.poll() != None:
+    raise RuntimeError("tint2 failed to start")
+  stop(tint2)
+  out, _ = tint2.communicate()
+  exitcode = tint2.returncode
+  if exitcode != 0 and exitcode != 23:
+    print("tint2 crashed with exit code {0}!".format(exitcode))
+    print("Output:")
+    print("```\n" + out.strip() + "\n```")
+    return
+  if "tests succeeded" in out:
+    num_tests = [line for line in out.split("\n") if "tint2: Running" in line][0]
+    print "All {0} tests succeeded.".format(num_tests)
+    return
+  if "tests failed" in out:
+    print out
+  stop_xvfb()
+
+
 def show_timestamp():
   utc_datetime = datetime.datetime.utcnow()
   print("Last updated:", utc_datetime.strftime("%Y-%m-%d %H:%M UTC"))
@@ -377,6 +408,7 @@ def main():
   compile_remotely_and_report("OpenBSD")
   for use_asan in [True, False]:
     compile_and_report(args.src_dir, use_asan)
+    run_unit_tests("./build/tint2", use_asan)
     run_tests(use_asan)
 
 

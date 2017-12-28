@@ -1665,7 +1665,7 @@ TEST(get_next_timeout_simple_multi) {
 
     set_mock_time_ms(origin + 0);
     timeout *t1 = add_timeout(100, 0, trigger_callback, &triggered, NULL);
-    timeout *t2 = add_timeout(200, 50, trigger_callback, &triggered, NULL);
+    add_timeout(200, 50, trigger_callback, &triggered, NULL);
     handle_expired_timers();
     ASSERT_EQUAL(triggered, 0);
     ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 100);

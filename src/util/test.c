@@ -123,7 +123,7 @@ static Status run_test(TestListItem *item)
     return run_test_parent(item, pid);
 }
 
-void run_all_tests()
+void run_all_tests(bool verbose)
 {
     fprintf(stdout, BLUE "tint2: Running %d tests..." RESET "\n", g_list_length(all_tests));
     size_t count = 0, succeeded = 0, failed = 0;
@@ -138,6 +138,19 @@ void run_all_tests()
         } else {
             fprintf(stdout, RED "failed" RESET "\n");
             failed++;
+            if (verbose) {
+                char *log_name = test_log_name_from_test_name(item->name);
+                FILE *log = fopen(log_name, "rt");
+                if (log) {
+                    char buffer[4096];
+                    size_t num_read;
+                    while ((num_read = fread(buffer, 1, sizeof(buffer), log)) > 0) {
+                        fwrite(buffer, 1, num_read, stdout);
+                    }
+                    fclose(log);
+                }
+                free(log_name);
+            }
         }
     }
     if (failed == 0)

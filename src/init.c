@@ -50,7 +50,10 @@ void handle_cli_arguments(int argc, char **argv)
             fprintf(stdout, "tint2 version %s\n", VERSION_STRING);
             exit(0);
         } else if (strcmp(argv[i], "--test") == 0) {
-            run_all_tests();
+            run_all_tests(false);
+            exit(0);
+        } else if (strcmp(argv[i], "--test-verbose") == 0) {
+            run_all_tests(true);
             exit(0);
         } else if (strcmp(argv[i], "-c") == 0) {
             if (i + 1 < argc) {
