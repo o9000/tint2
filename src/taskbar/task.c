@@ -463,7 +463,7 @@ void draw_task(void *obj, cairo_t *c)
         pango_layout_set_font_description(layout, panel->g_task.font_desc);
         pango_layout_set_text(layout, task->title, -1);
 
-        pango_layout_set_width(layout, ((Taskbar *)task->area.parent)->text_width * PANGO_SCALE);
+        pango_layout_set_width(layout, (((Taskbar *)task->area.parent)->text_width + 1) * PANGO_SCALE);
         pango_layout_set_height(layout, panel->g_task.text_height * PANGO_SCALE);
         pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
         pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);

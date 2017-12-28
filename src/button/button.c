@@ -460,7 +460,7 @@ void draw_button(void *obj, cairo_t *c)
         PangoLayout *layout = pango_cairo_create_layout(c);
 
         pango_layout_set_font_description(layout, button->backend->font_desc);
-        pango_layout_set_width(layout, button->frontend->textw * PANGO_SCALE);
+        pango_layout_set_width(layout, (button->frontend->textw + 1) * PANGO_SCALE);
         pango_layout_set_alignment(layout, button->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
         pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
         pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
