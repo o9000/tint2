@@ -544,6 +544,11 @@ typedef struct {
     bool add;
     int add_value_ms;
     int add_interval_ms;
+    bool stop_other;
+    bool change_other;
+    int change_other_value_ms;
+    int change_other_interval_ms;
+    timeout *other;
 } TimeoutContainer;
 
 void container_callback(void *arg) {
@@ -556,6 +561,12 @@ void container_callback(void *arg) {
     if (container->add) {
         add_timeout(container->add_value_ms, container->add_interval_ms, container_callback, arg, NULL);
         container->add = false;
+    }
+    if (container->stop_other)
+        stop_timeout(container->other);
+    else if (container->change_other) {
+        change_timeout(&container->other, container->change_other_value_ms, container->change_other_interval_ms, container_callback, arg);
+        container->change_other = false;
     }
 }
 
@@ -800,6 +811,37 @@ TEST(stop_timeout_simple_inside_callback) {
     ASSERT_EQUAL(container.triggered, 1);
 }
 
+TEST(stop_timeout_simple_other_inside_callback) {
+    u_int64_t origin = 2134523;
+    TimeoutContainer container;
+    bzero(&container, sizeof(container));
+    int triggered_other = 0;
+
+    set_mock_time_ms(origin + 0);
+
+    container.stop_other = true;
+    container.timeout = add_timeout(100, 0, container_callback, &container, NULL);
+    container.other = add_timeout(200, 0, trigger_callback, &triggered_other, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+    ASSERT_EQUAL(triggered_other, 0);
+}
+
 TEST(change_timeout_simple) {
     u_int64_t origin = 2134523;
     int triggered = 0;
@@ -901,6 +943,38 @@ TEST(change_timeout_simple_inside_callback) {
     set_mock_time_ms(origin + 400);
     handle_expired_timers();
     ASSERT_EQUAL(container.triggered, 3);
+}
+
+TEST(change_timeout_simple_other_inside_callback) {
+    u_int64_t origin = 2134523;
+    TimeoutContainer container;
+    bzero(&container, sizeof(container));
+    int triggered_other = 0;
+
+    set_mock_time_ms(origin + 0);
+
+    container.change_other = true;
+    container.change_other_value_ms = 100;
+    container.timeout = add_timeout(100, 0, container_callback, &container, NULL);
+    container.other = add_timeout(1000, 0, trigger_callback, &triggered_other, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 2);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 2);
+    ASSERT_EQUAL(triggered_other, 0);
 }
 
 TEST(add_change_two_timeout_simple_inside_callback) {
