@@ -29,7 +29,7 @@ void run_all_tests();
 
 #define ASSERT_EQUAL(a, b)                              \
     if (!(a == b)) {                                    \
-        printf("Assertion failed: %s == %s: ", #a, #b); \
+        printf("%s:%d: Assertion failed: %s == %s: ", __FILE__, __LINE__, #a, #b); \
         print(a);                                       \
         printf(" != ");                                 \
         print(b);                                       \
@@ -38,7 +38,7 @@ void run_all_tests();
 
 #define ASSERT_DIFFERENT(a, b) \
     if (a == b) {                                    \
-        printf("Assertion failed: %s != %s: ", #a, #b); \
+        printf("%s:%d: Assertion failed: %s != %s: ", __FILE__, __LINE__, #a, #b); \
         print(a);                                       \
         printf(" == ");                                 \
         print(b);                                       \
@@ -48,7 +48,7 @@ void run_all_tests();
 
 #define ASSERT_STR_EQUAL(a, b) \
     if (strcmp(a, b) != 0) {                                    \
-        printf("Assertion failed: %s == %s: ", #a, #b); \
+        printf("%s:%d: Assertion failed: %s == %s: ", __FILE__, __LINE__, #a, #b); \
         print(a);                                       \
         printf(" != ");                                 \
         print(b);                                       \
@@ -57,7 +57,7 @@ void run_all_tests();
 
 #define ASSERT_STR_DIFFERENT(a, b) \
     if (strcmp(a, b) == 0) {                                    \
-        printf("Assertion failed: %s != %s: ", #a, #b); \
+        printf("%s:%d: Assertion failed: %s != %s: ", __FILE__, __LINE__, #a, #b); \
         print(a);                                       \
         printf(" == ");                                 \
         print(b);                                       \

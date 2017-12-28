@@ -19,6 +19,7 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "timer.h"
 #include "test.h"
@@ -533,6 +534,31 @@ void trigger_callback(void *arg)
     *triggered += 1;
 }
 
+typedef struct {
+    timeout *timeout;
+    int triggered;
+    bool stop;
+    bool change;
+    int change_value_ms;
+    int change_interval_ms;
+    bool add;
+    int add_value_ms;
+    int add_interval_ms;
+} TimeoutContainer;
+
+void container_callback(void *arg) {
+    TimeoutContainer *container = (TimeoutContainer *)arg;
+    container->triggered += 1;
+    if (container->stop)
+        stop_timeout(container->timeout);
+    else if (container->change)
+        change_timeout(&container->timeout, container->change_value_ms, container->change_interval_ms, container_callback, arg);
+    if (container->add) {
+        add_timeout(container->add_value_ms, container->add_interval_ms, container_callback, arg, NULL);
+        container->add = false;
+    }
+}
+
 TEST(add_timeout_simple) {
     u_int64_t origin = 2134523;
     int triggered = 0;
@@ -633,6 +659,40 @@ TEST(add_timeout_simple_two_reversed) {
     ASSERT_EQUAL(triggered, 2);
 }
 
+TEST(add_timeout_simple_inside_callback) {
+    u_int64_t origin = 2134523;
+    TimeoutContainer container;
+    bzero(&container, sizeof(container));
+
+    set_mock_time_ms(origin + 0);
+
+    container.add = true;
+    container.add_value_ms = 100;
+    container.timeout = add_timeout(200, 0, container_callback, &container, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 250);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 2);
+
+    set_mock_time_ms(origin + 500);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 2);
+}
+
 TEST(stop_timeout_simple_two) {
     u_int64_t origin = 2134523;
     int triggered = 0;
@@ -707,6 +767,39 @@ TEST(stop_timeout_simple_two_reversed) {
     ASSERT_EQUAL(triggered, 1);
 }
 
+TEST(stop_timeout_simple_inside_callback) {
+    u_int64_t origin = 2134523;
+    TimeoutContainer container;
+    bzero(&container, sizeof(container));
+
+    set_mock_time_ms(origin + 0);
+
+    container.stop = true;
+    container.timeout = add_timeout(200, 0, container_callback, &container, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 250);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 500);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+}
+
 TEST(change_timeout_simple) {
     u_int64_t origin = 2134523;
     int triggered = 0;
@@ -770,6 +863,86 @@ TEST(change_timeout_simple_two) {
     set_mock_time_ms(origin + 500);
     handle_expired_timers();
     ASSERT_EQUAL(triggered, 2);
+}
+
+TEST(change_timeout_simple_inside_callback) {
+    u_int64_t origin = 2134523;
+    TimeoutContainer container;
+    bzero(&container, sizeof(container));
+
+    set_mock_time_ms(origin + 0);
+
+    container.change = true;
+    container.change_value_ms = 100;
+    container.timeout = add_timeout(200, 0, container_callback, &container, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 250);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 2);
+
+    set_mock_time_ms(origin + 350);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 2);
+
+    set_mock_time_ms(origin + 400);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 3);
+}
+
+TEST(add_change_two_timeout_simple_inside_callback) {
+    u_int64_t origin = 2134523;
+    TimeoutContainer container;
+    bzero(&container, sizeof(container));
+
+    set_mock_time_ms(origin + 0);
+
+    container.add = true;
+    container.add_value_ms = 100;
+    container.change = true;
+    container.change_value_ms = 100;
+    container.timeout = add_timeout(200, 0, container_callback, &container, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    // Now we have two running timers, one changing itself to expire after 100 ms when triggered,
+    // the other firing once after 100 ms
+    set_mock_time_ms(origin + 250);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 3);
+
+    set_mock_time_ms(origin + 350);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 3);
+
+    set_mock_time_ms(origin + 400);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 4);
 }
 
 int64_t timeval_to_ms(struct timeval *v)
