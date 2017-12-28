@@ -56,11 +56,11 @@ typedef struct {
     // Members used for rendering
     struct timespec time_last_render;
     int num_fast_renders;
-    timeout *render_timeout;
+    Timer render_timeout;
     // Members used for resizing
     int bad_size_counter;
     struct timespec time_last_resize;
-    timeout *resize_timeout;
+    Timer resize_timeout;
     // Icon contents if we are compositing the icon, otherwise null
     Imlib_Image image;
     // XDamage

@@ -58,10 +58,17 @@ err:
     free(output_name);
 }
 
+static void crash(int sig)
+{
+    kill(getpid(), SIGSEGV);
+}
+
 __attribute__((noreturn))
 static void run_test_child(TestListItem *item)
 {
     reset_signals();
+    struct sigaction sa = {.sa_handler = crash};
+    sigaction(SIGINT, &sa, 0);
     redirect_test_output(item->name);
     bool result = true;
     item->test(&result);
@@ -120,6 +127,8 @@ static Status run_test(TestListItem *item)
     pid_t pid = fork();
     if (pid == 0)
         run_test_child(item);
+    struct sigaction sa = {.sa_handler = SIG_IGN};
+    sigaction(SIGINT, &sa, 0);
     return run_test_parent(item, pid);
 }
 

@@ -84,7 +84,7 @@ typedef struct Task {
     double thumbnail_last_update;
 } Task;
 
-extern timeout *urgent_timeout;
+extern Timer urgent_timer;
 extern GSList *urgent_list;
 
 Task *add_task(Window win);

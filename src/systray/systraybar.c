@@ -543,11 +543,11 @@ static gint compare_traywindows(gconstpointer a, gconstpointer b)
     const TrayWindow *traywin_b = (const TrayWindow *)b;
 
 #if 0
-	// This breaks pygtk2 StatusIcon with blinking activated
-	if (traywin_a->empty && !traywin_b->empty)
-		return 1 * (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? -1 : 1);
-	if (!traywin_a->empty && traywin_b->empty)
-		return -1 * (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? -1 : 1);
+    // This breaks pygtk2 StatusIcon with blinking activated
+    if (traywin_a->empty && !traywin_b->empty)
+        return 1 * (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? -1 : 1);
+    if (!traywin_a->empty && traywin_b->empty)
+        return -1 * (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? -1 : 1);
 #endif
 
     if (systray.sort == SYSTRAY_SORT_ASCENDING || systray.sort == SYSTRAY_SORT_DESCENDING) {
@@ -940,8 +940,8 @@ void remove_icon(TrayWindow *traywin)
     XDestroyWindow(server.display, traywin->parent);
     XSync(server.display, False);
     XSetErrorHandler(old);
-    stop_timeout(traywin->render_timeout);
-    stop_timeout(traywin->resize_timeout);
+    stop_timer(&traywin->render_timeout);
+    stop_timer(&traywin->resize_timeout);
     free(traywin->name);
     if (traywin->image) {
         imlib_context_set_image(traywin->image);
@@ -1055,9 +1055,8 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
             if (traywin->bad_size_counter < min_bad_resize_events) {
                 systray_resize_icon(traywin);
             } else {
-                if (!traywin->resize_timeout)
-                    traywin->resize_timeout =
-                        add_timeout(fast_resize_period, 0, systray_resize_icon, traywin, &traywin->resize_timeout);
+                if (!traywin->resize_timeout.enabled_)
+                    change_timer(&traywin->resize_timeout, true, fast_resize_period, 0, systray_resize_icon, traywin);
             }
         } else {
             if (traywin->bad_size_counter == max_bad_resize_events) {
@@ -1071,14 +1070,13 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
             // FIXME Normally we should force the icon to resize fill_color to the size we resized it to when we
             // embedded it.
             // However this triggers a resize loop in new versions of GTK, which we must avoid.
-            if (!traywin->resize_timeout)
-                traywin->resize_timeout =
-                    add_timeout(slow_resize_period, 0, systray_resize_icon, traywin, &traywin->resize_timeout);
+            if (!traywin->resize_timeout.enabled_)
+                change_timer(&traywin->resize_timeout, true, slow_resize_period, 0, systray_resize_icon, traywin);
             return;
         }
     } else {
         // Correct size
-        stop_timeout(traywin->resize_timeout);
+        stop_timer(&traywin->resize_timeout);
     }
 
     // Resize and redraw the systray
@@ -1135,9 +1133,8 @@ void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
             if (traywin->bad_size_counter < min_bad_resize_events) {
                 systray_resize_icon(traywin);
             } else {
-                if (!traywin->resize_timeout)
-                    traywin->resize_timeout =
-                        add_timeout(fast_resize_period, 0, systray_resize_icon, traywin, &traywin->resize_timeout);
+                if (!traywin->resize_timeout.enabled_)
+                    change_timer(&traywin->resize_timeout, true, fast_resize_period, 0, systray_resize_icon, traywin);
             }
         } else {
             if (traywin->bad_size_counter == max_bad_resize_events) {
@@ -1150,14 +1147,13 @@ void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
             // Delayed resize
             // FIXME Normally we should force the icon to resize to the size we resized it to when we embedded it.
             // However this triggers a resize loop in some versions of GTK, which we must avoid.
-            if (!traywin->resize_timeout)
-                traywin->resize_timeout =
-                    add_timeout(slow_resize_period, 0, systray_resize_icon, traywin, &traywin->resize_timeout);
+            if (!traywin->resize_timeout.enabled_)
+                    change_timer(&traywin->resize_timeout, true, slow_resize_period, 0, systray_resize_icon, traywin);
             return;
         }
     } else {
         // Correct size
-        stop_timeout(traywin->resize_timeout);
+        stop_timer(&traywin->resize_timeout);
     }
 
     // Resize and redraw the systray
@@ -1224,8 +1220,7 @@ void systray_render_icon_composited(void *t)
     if (compare_timespecs(&earliest_render, &now) > 0) {
         traywin->num_fast_renders++;
         if (traywin->num_fast_renders > max_fast_refreshes) {
-            traywin->render_timeout =
-                add_timeout(min_refresh_period, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
+                change_timer(&traywin->render_timeout, true, min_refresh_period, 0, systray_render_icon_composited, traywin);
             if (systray_profile)
                 fprintf(stderr,
                         YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
@@ -1244,8 +1239,7 @@ void systray_render_icon_composited(void *t)
 
     if (traywin->width == 0 || traywin->height == 0) {
         // reschedule rendering since the geometry information has not yet been processed (can happen on slow cpu)
-        traywin->render_timeout =
-            add_timeout(min_refresh_period, 0, systray_render_icon_composited, traywin, &traywin->render_timeout);
+        change_timer(&traywin->render_timeout, true, min_refresh_period, 0, systray_render_icon_composited, traywin);
         if (systray_profile)
             fprintf(stderr,
                     YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
@@ -1257,9 +1251,8 @@ void systray_render_icon_composited(void *t)
         return;
     }
 
-    if (traywin->render_timeout) {
-        stop_timeout(traywin->render_timeout);
-        traywin->render_timeout = NULL;
+    if (traywin->render_timeout.enabled_) {
+        stop_timer(&traywin->render_timeout);
     }
 
     // good systray icons support 32 bit depth, but some icons are still 24 bit.
@@ -1423,9 +1416,8 @@ void systray_render_icon(void *t)
         //			        __LINE__,
         //			        traywin->win,
         //			        traywin->name);
-        stop_timeout(traywin->render_timeout);
-        traywin->render_timeout =
-            add_timeout(min_refresh_period, 0, systray_render_icon, traywin, &traywin->render_timeout);
+        stop_timer(&traywin->render_timeout);
+        change_timer(&traywin->render_timeout, true, min_refresh_period, 0, systray_render_icon, traywin);
         return;
     }
 
@@ -1448,19 +1440,17 @@ void systray_render_icon(void *t)
         unsigned int width, height, depth;
         Window root;
         if (!XGetGeometry(server.display, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
-            stop_timeout(traywin->render_timeout);
-            if (!traywin->render_timeout)
-                traywin->render_timeout =
-                    add_timeout(min_refresh_period, 0, systray_render_icon, traywin, &traywin->render_timeout);
+            stop_timer(&traywin->render_timeout);
+            if (!traywin->render_timeout.enabled_)
+                change_timer(&traywin->render_timeout, true, min_refresh_period, 0, systray_render_icon, traywin);
             systray_render_icon_from_image(traywin);
             XSetErrorHandler(old);
             return;
         } else {
             if (xpos != 0 || ypos != 0 || width != traywin->width || height != traywin->height) {
-                stop_timeout(traywin->render_timeout);
-                if (!traywin->render_timeout)
-                    traywin->render_timeout =
-                        add_timeout(min_refresh_period, 0, systray_render_icon, traywin, &traywin->render_timeout);
+                stop_timer(&traywin->render_timeout);
+                if (!traywin->render_timeout.enabled_)
+                    change_timer(&traywin->render_timeout, true, min_refresh_period, 0, systray_render_icon, traywin);
                 systray_render_icon_from_image(traywin);
                 if (systray_profile)
                     fprintf(stderr,

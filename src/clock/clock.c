@@ -51,7 +51,7 @@ static char buf_time[256];
 static char buf_date[256];
 static char buf_tooltip[512];
 int clock_enabled;
-static timeout *clock_timeout;
+static Timer clock_timeout;
 
 void clock_init_fonts();
 char *clock_get_tooltip(void *obj);
@@ -61,7 +61,6 @@ void clock_dump_geometry(void *obj, int indent);
 void default_clock()
 {
     clock_enabled = 0;
-    clock_timeout = NULL;
     time1_format = NULL;
     time1_timezone = NULL;
     time2_format = NULL;
@@ -110,8 +109,7 @@ void cleanup_clock()
     clock_uwheel_command = NULL;
     free(clock_dwheel_command);
     clock_dwheel_command = NULL;
-    stop_timeout(clock_timeout);
-    clock_timeout = NULL;
+    stop_timer(&clock_timeout);
 }
 
 struct tm *clock_gettime_for_tz(const char *timezone)
@@ -155,7 +153,7 @@ void update_clocks_sec(void *arg)
 {
     gettimeofday(&time_clock, 0);
     update_clocks();
-    clock_timeout = add_timeout(ms_until_second_change(&time_clock), 0, update_clocks_sec, 0, &clock_timeout);
+    change_timer(&clock_timeout, true, ms_until_second_change(&time_clock), 0, update_clocks_sec, 0);
 }
 
 void update_clocks_min(void *arg)
@@ -167,7 +165,7 @@ void update_clocks_min(void *arg)
     if (time_clock.tv_sec % 60 == 0 || time_clock.tv_sec - old_sec > 60 || (time1_format && !buf_time[0]) || (time2_format && !buf_date[0]))
         update_clocks();
     old_sec = time_clock.tv_sec;
-    clock_timeout = add_timeout(ms_until_second_change(&time_clock), 0, update_clocks_min, 0, &clock_timeout);
+    change_timer(&clock_timeout, true, ms_until_second_change(&time_clock), 0, update_clocks_min, 0);
 }
 
 gboolean time_format_needs_sec_ticks(char *time_format)
@@ -216,7 +214,7 @@ void init_clock_panel(void *p)
         strftime(buf_tooltip, sizeof(buf_tooltip), time_tooltip_format, clock_gettime_for_tz(time_tooltip_timezone));
     }
 
-    if (!clock_timeout) {
+    if (!clock_timeout.enabled_) {
         if (time_format_needs_sec_ticks(time1_format) || time_format_needs_sec_ticks(time2_format)) {
             update_clocks_sec(NULL);
         } else {

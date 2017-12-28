@@ -35,6 +35,10 @@ typedef struct {
     bool handled_;
 } Timer;
 
+#define DEFAULT_TIMER {"", 0, 0, 0, 0, 0, 0}
+
+#define INIT_TIMER(t) init_timer(&t, #t)
+
 // Initialize the timer module.
 void default_timers();
 

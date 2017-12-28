@@ -110,25 +110,25 @@ void handle_env_vars()
     }
 }
 
-static timeout *detect_compositor_timer = NULL;
+static Timer detect_compositor_timer = DEFAULT_TIMER;
 static int detect_compositor_timer_counter = 0;
 
 void detect_compositor(void *arg)
 {
     if (server.composite_manager) {
-        stop_timeout(detect_compositor_timer);
+        stop_timer(&detect_compositor_timer);
         return;
     }
 
     detect_compositor_timer_counter--;
     if (detect_compositor_timer_counter < 0) {
-        stop_timeout(detect_compositor_timer);
+        stop_timer(&detect_compositor_timer);
         return;
     }
 
     // No compositor, check for one
     if (XGetSelectionOwner(server.display, server.atom._NET_WM_CM_S0) != None) {
-        stop_timeout(detect_compositor_timer);
+        stop_timer(&detect_compositor_timer);
         // Restart tint2
         fprintf(stderr, "tint2: Detected compositor, restarting tint2...\n");
         kill(getpid(), SIGUSR1);
@@ -141,15 +141,15 @@ void start_detect_compositor()
     if (server.composite_manager)
         return;
 
-    stop_timeout(detect_compositor_timer);
     // Check every 0.5 seconds for up to 30 seconds
     detect_compositor_timer_counter = 60;
-    detect_compositor_timer = add_timeout(500, 500, detect_compositor, 0, &detect_compositor_timer);
+    init_timer(&detect_compositor_timer, "detect_compositor_timer");
+    change_timer(&detect_compositor_timer, true, 500, 500, detect_compositor, 0);
 }
 
 void create_default_elements()
 {
-    default_timeout();
+    default_timers();
     default_systray();
     memset(&server, 0, sizeof(server));
 #ifdef ENABLE_BATTERY
@@ -280,7 +280,7 @@ void cleanup()
     xsettings_client = NULL;
 
     cleanup_server();
-    cleanup_timeout();
+    cleanup_timers();
 
     if (server.display)
         XCloseDisplay(server.display);

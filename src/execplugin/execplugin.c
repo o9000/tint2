@@ -67,8 +67,7 @@ void destroy_execp(void *obj)
         free_and_null(execp);
     } else {
         // This is a backend element
-        stop_timeout(execp->backend->timer);
-        execp->backend->timer = NULL;
+        stop_timer(&execp->backend->timer);
 
         free_icon(execp->backend->icon);
         free_and_null(execp->backend->buf_stdout);
@@ -192,7 +191,7 @@ void init_execp_panel(void *p)
         execp->area.on_screen = TRUE;
         instantiate_area_gradients(&execp->area);
 
-        execp->backend->timer = add_timeout(10, 0, execp_timer_callback, execp, &execp->backend->timer);
+        change_timer(&execp->backend->timer, true, 10, 0, execp_timer_callback, execp);
 
         execp_update_post_read(execp);
     }
@@ -540,10 +539,8 @@ void execp_force_update(Execp *execp)
     if (execp->backend->child_pipe_stdout > 0) {
         // Command currently running, nothing to do
     } else {
-        if (execp->backend->timer)
-            stop_timeout(execp->backend->timer);
         // Run command right away
-        execp->backend->timer = add_timeout(10, 0, execp_timer_callback, execp, &execp->backend->timer);
+        change_timer(&execp->backend->timer, true, 10, 0, execp_timer_callback, execp);
     }
 }
 
@@ -757,8 +754,7 @@ gboolean read_execp(void *obj)
         close(execp->backend->child_pipe_stderr);
         execp->backend->child_pipe_stderr = -1;
         if (execp->backend->interval)
-            execp->backend->timer =
-                add_timeout(execp->backend->interval * 1000, 0, execp_timer_callback, execp, &execp->backend->timer);
+            change_timer(&execp->backend->timer, true, execp->backend->interval * 1000, 0, execp_timer_callback, execp);
     }
 
     char *ansi_clear_screen = (char*)"\x1b[2J";

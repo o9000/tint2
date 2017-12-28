@@ -35,7 +35,7 @@
 #include "tooltip.h"
 #include "window.h"
 
-timeout *urgent_timeout;
+Timer urgent_timer;
 GSList *urgent_list;
 
 void task_dump_geometry(void *obj, int indent);
@@ -782,8 +782,8 @@ void add_urgent(Task *task)
     // not yet in the list, so we have to add it
     urgent_list = g_slist_prepend(urgent_list, task);
 
-    if (!urgent_timeout)
-        urgent_timeout = add_timeout(10, 1000, blink_urgent, 0, &urgent_timeout);
+    if (!urgent_timer.enabled_)
+        change_timer(&urgent_timer, true, 10, 1000, blink_urgent, 0);
 
     Panel *panel = task->area.panel;
     if (panel->is_hidden)
@@ -793,10 +793,8 @@ void add_urgent(Task *task)
 void del_urgent(Task *task)
 {
     urgent_list = g_slist_remove(urgent_list, task);
-    if (!urgent_list) {
-        stop_timeout(urgent_timeout);
-        urgent_timeout = NULL;
-    }
+    if (!urgent_list)
+        stop_timer(&urgent_timer);
 }
 
 void task_handle_mouse_event(Task *task, MouseAction action)

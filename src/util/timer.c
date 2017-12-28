@@ -41,19 +41,17 @@ void cleanup_timers()
 
 void init_timer(Timer *timer, const char *name)
 {
-    if (g_list_find(timers, timer)) {
-        fprintf(stderr, RED "tint2: Attempt to init the same timer twice: %s" RESET "\n", timer->name_);
-        return;
-    }
     bzero(timer, sizeof(*timer));
     strncpy(timer->name_, name, sizeof(timer->name_));
-    timers = g_list_append(timers, timer);
+    if (!g_list_find(timers, timer)) {
+        timers = g_list_append(timers, timer);
+    }
 }
 
 void destroy_timer(Timer *timer)
 {
     if (!g_list_find(timers, timer)) {
-        fprintf(stderr, RED "tint2: Attempt to destroy unexisting timer: %s" RESET "\n", timer->name_);
+        fprintf(stderr, RED "tint2: Attempt to destroy nonexisting timer: %s" RESET "\n", timer->name_);
         return;
     }
     timers = g_list_remove(timers, timer);
@@ -62,8 +60,8 @@ void destroy_timer(Timer *timer)
 void change_timer(Timer *timer, bool enabled, int delay_ms, int period_ms, TimerCallback *callback, void *arg)
 {
     if (!g_list_find(timers, timer)) {
-        fprintf(stderr, RED "tint2: Attempt to change unexisting timer: %s" RESET "\n", timer->name_);
-        return;
+        fprintf(stderr, RED "tint2: Attempt to change unknown timer" RESET "\n");
+        init_timer(timer, "unknown");
     }
     timer->enabled_ = enabled;
     timer->expiration_time_ = get_time() + delay_ms / 1000.;
@@ -121,8 +119,9 @@ void handle_expired_timers()
         timer->handled_ = false;
     }
 
-    bool triggered = false;
+    bool triggered;
     do {
+        triggered = false;
         for (GList *it = current_timers; it; it = it->next) {
             Timer *timer = (Timer *)it->data;
             // Check that it is still registered.

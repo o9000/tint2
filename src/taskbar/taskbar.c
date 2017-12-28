@@ -47,9 +47,9 @@ gboolean hide_taskbar_if_empty;
 gboolean always_show_all_desktop_tasks;
 TaskbarSortMethod taskbar_sort_method;
 Alignment taskbar_alignment;
-static timeout *thumbnail_update_timer_all;
-static timeout *thumbnail_update_timer_active;
-static timeout *thumbnail_update_timer_tooltip;
+static Timer thumbnail_update_timer_all;
+static Timer thumbnail_update_timer_active;
+static Timer thumbnail_update_timer_tooltip;
 
 static GList *taskbar_task_orderings = NULL;
 static GList *taskbar_thumbnail_jobs_done = NULL;
@@ -80,7 +80,7 @@ void free_ptr_array(gpointer data)
 void default_taskbar()
 {
     win_to_task = NULL;
-    urgent_timeout = NULL;
+    INIT_TIMER(urgent_timer);
     urgent_list = NULL;
     taskbar_enabled = FALSE;
     taskbar_distribute_size = FALSE;
@@ -89,9 +89,9 @@ void default_taskbar()
     hide_task_diff_monitor = FALSE;
     hide_taskbar_if_empty = FALSE;
     always_show_all_desktop_tasks = FALSE;
-    thumbnail_update_timer_all = NULL;
-    thumbnail_update_timer_active = NULL;
-    thumbnail_update_timer_tooltip = NULL;
+    INIT_TIMER(thumbnail_update_timer_all);
+    INIT_TIMER(thumbnail_update_timer_active);
+    INIT_TIMER(thumbnail_update_timer_tooltip);
     taskbar_thumbnail_jobs_done = NULL;
     taskbar_sort_method = TASKBAR_NOSORT;
     taskbar_alignment = ALIGN_LEFT;
@@ -134,9 +134,9 @@ void taskbar_save_orderings()
 
 void cleanup_taskbar()
 {
-    stop_timeout(thumbnail_update_timer_all);
-    stop_timeout(thumbnail_update_timer_active);
-    stop_timeout(thumbnail_update_timer_tooltip);
+    destroy_timer(&thumbnail_update_timer_all);
+    destroy_timer(&thumbnail_update_timer_active);
+    destroy_timer(&thumbnail_update_timer_tooltip);
     g_list_free(taskbar_thumbnail_jobs_done);
     taskbar_save_orderings();
     if (win_to_task) {
@@ -170,7 +170,7 @@ void cleanup_taskbar()
     g_slist_free(urgent_list);
     urgent_list = NULL;
 
-    stop_timeout(urgent_timeout);
+    destroy_timer(&urgent_timer);
 
     for (int state = 0; state < TASK_STATE_COUNT; state++) {
         g_list_free(panel_config.g_task.gradient[state]);
@@ -384,12 +384,13 @@ void taskbar_start_thumbnail_timer(ThumbnailUpdateMode mode)
         return;
     if (debug_thumbnails)
         fprintf(stderr, BLUE "tint2: taskbar_start_thumbnail_timer %s" RESET "\n", mode == THUMB_MODE_ACTIVE_WINDOW ? "active" : mode == THUMB_MODE_TOOLTIP_WINDOW ? "tooltip" : "all");
-    change_timeout(mode == THUMB_MODE_ALL ? &thumbnail_update_timer_all :
+    change_timer(mode == THUMB_MODE_ALL ? &thumbnail_update_timer_all :
                                             mode == THUMB_MODE_ACTIVE_WINDOW ? &thumbnail_update_timer_active : &thumbnail_update_timer_tooltip,
-                   mode == THUMB_MODE_TOOLTIP_WINDOW ? 1000 : 500,
-                   mode == THUMB_MODE_ALL ? 10 * 1000 : 0,
-                   taskbar_update_thumbnails,
-                   (void *)(long)mode);
+                 true,
+                 mode == THUMB_MODE_TOOLTIP_WINDOW ? 1000 : 500,
+                 mode == THUMB_MODE_ALL ? 10 * 1000 : 0,
+                 taskbar_update_thumbnails,
+                 (void *)(long)mode);
 }
 
 void taskbar_init_fonts()
@@ -844,7 +845,7 @@ void taskbar_update_thumbnails(void *arg)
                 if (mode == THUMB_MODE_ALL) {
                     double now = get_time();
                     if (now - start_time > 0.030) {
-                        change_timeout(&thumbnail_update_timer_all, 50, 10 * 1000, taskbar_update_thumbnails, arg);
+                        change_timer(&thumbnail_update_timer_all, true, 50, 10 * 1000, taskbar_update_thumbnails, arg);
                         return;
                     }
                 }
@@ -855,7 +856,7 @@ void taskbar_update_thumbnails(void *arg)
         if (taskbar_thumbnail_jobs_done) {
             g_list_free(taskbar_thumbnail_jobs_done);
             taskbar_thumbnail_jobs_done = NULL;
-            change_timeout(&thumbnail_update_timer_all, 10 * 1000, 10 * 1000, taskbar_update_thumbnails, arg);
+            change_timer(&thumbnail_update_timer_all, true, 10 * 1000, 10 * 1000, taskbar_update_thumbnails, arg);
         }
     }
 }
