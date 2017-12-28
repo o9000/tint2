@@ -486,7 +486,7 @@ void draw_execp(void *obj, cairo_t *c)
 
     // draw layout
     pango_layout_set_font_description(layout, execp->backend->font_desc);
-    pango_layout_set_width(layout, execp->frontend->textw * PANGO_SCALE);
+    pango_layout_set_width(layout, (execp->frontend->textw + 1) * PANGO_SCALE);
     pango_layout_set_alignment(layout, execp->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
     pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
