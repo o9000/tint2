@@ -556,8 +556,11 @@ void container_callback(void *arg) {
     container->triggered += 1;
     if (container->stop)
         stop_timeout(container->timeout);
-    else if (container->change)
+    else if (container->change) {
         change_timeout(&container->timeout, container->change_value_ms, container->change_interval_ms, container_callback, arg);
+        if (container->change_interval_ms)
+            container->change = false;
+    }
     if (container->add) {
         add_timeout(container->add_value_ms, container->add_interval_ms, container_callback, arg, NULL);
         container->add = false;
@@ -1043,6 +1046,143 @@ TEST(stop_timeout_simple_other_inside_callback) {
     ASSERT_EQUAL(triggered_other, 0);
 }
 
+TEST(stop_timeout_multi) {
+    u_int64_t origin = 2134523;
+    int triggered = 0;
+
+    set_mock_time_ms(origin + 0);
+    timeout *t1 = add_timeout(100, 100, trigger_callback, &triggered, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+
+    set_mock_time_ms(origin + 50);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 1);
+
+    set_mock_time_ms(origin + 150);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 1);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 2);
+
+    stop_timeout(t1);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 2);
+
+    set_mock_time_ms(origin + 400);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 2);
+}
+
+TEST(stop_timeout_multi_two) {
+    u_int64_t origin = 2134523;
+    int triggered = 0;
+
+    set_mock_time_ms(origin + 0);
+    timeout *t1 = add_timeout(100, 100, trigger_callback, &triggered, NULL);
+    add_timeout(100, 100, trigger_callback, &triggered, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+
+    set_mock_time_ms(origin + 50);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 2);
+
+    set_mock_time_ms(origin + 150);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 2);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 4);
+
+    stop_timeout(t1);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 5);
+
+    set_mock_time_ms(origin + 400);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 6);
+}
+
+TEST(stop_timeout_multi_inside_callback) {
+    u_int64_t origin = 2134523;
+    TimeoutContainer container;
+    bzero(&container, sizeof(container));
+
+    set_mock_time_ms(origin + 0);
+
+    container.stop = true;
+    container.timeout = add_timeout(100, 100, container_callback, &container, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 50);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 150);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+}
+
+TEST(stop_timeout_multi_other_inside_callback) {
+    u_int64_t origin = 2134523;
+    TimeoutContainer container;
+    bzero(&container, sizeof(container));
+    int triggered_other = 0;
+
+    set_mock_time_ms(origin + 0);
+
+    container.stop_other = true;
+    container.timeout = add_timeout(100, 100, container_callback, &container, NULL);
+    container.other = add_timeout(200, 10, trigger_callback, &triggered_other, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+    ASSERT_EQUAL(triggered_other, 0);
+}
+
 TEST(change_timeout_simple) {
     u_int64_t origin = 2134523;
     int triggered = 0;
@@ -1172,7 +1312,7 @@ TEST(change_timeout_simple_other_inside_callback) {
     ASSERT_EQUAL(container.triggered, 2);
     ASSERT_EQUAL(triggered_other, 0);
 
-    set_mock_time_ms(origin + 200);
+    set_mock_time_ms(origin + 300);
     handle_expired_timers();
     ASSERT_EQUAL(container.triggered, 2);
     ASSERT_EQUAL(triggered_other, 0);
@@ -1220,6 +1360,208 @@ TEST(add_change_two_timeout_simple_inside_callback) {
     ASSERT_EQUAL(container.triggered, 4);
 }
 
+TEST(change_timeout_multi) {
+    u_int64_t origin = 2134523;
+    int triggered = 0;
+
+    set_mock_time_ms(origin + 0);
+    timeout *t1 = add_timeout(100, 50, trigger_callback, &triggered, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 1);
+
+    set_mock_time_ms(origin + 150);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 2);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 3);
+
+    change_timeout(&t1, 100, 100, trigger_callback, &triggered);
+
+    set_mock_time_ms(origin + 250);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 3);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 4);
+
+    set_mock_time_ms(origin + 350);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 4);
+
+    set_mock_time_ms(origin + 400);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 5);
+}
+
+TEST(change_timeout_simple_multi) {
+    u_int64_t origin = 2134523;
+    int triggered = 0;
+
+    set_mock_time_ms(origin + 0);
+    timeout *t1 = add_timeout(100, 0, trigger_callback, &triggered, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+
+    set_mock_time_ms(origin + 50);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+
+    change_timeout(&t1, 100, 100, trigger_callback, &triggered);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+
+    set_mock_time_ms(origin + 150);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 1);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 1);
+
+    set_mock_time_ms(origin + 250);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 2);
+
+    change_timeout(&t1, 50, 0, trigger_callback, &triggered);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 3);
+
+    set_mock_time_ms(origin + 350);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 3);
+
+    set_mock_time_ms(origin + 400);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 3);
+}
+
+TEST(change_timeout_multi_inside_callback) {
+    u_int64_t origin = 2134523;
+    TimeoutContainer container;
+    bzero(&container, sizeof(container));
+
+    set_mock_time_ms(origin + 0);
+
+    container.change = true;
+    container.change_value_ms = 100;
+    container.change_interval_ms = 100;
+    container.timeout = add_timeout(200, 200, container_callback, &container, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 250);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 2);
+
+    set_mock_time_ms(origin + 350);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 2);
+
+    set_mock_time_ms(origin + 400);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 3);
+}
+
+TEST(change_timeout_multi_other_inside_callback) {
+    u_int64_t origin = 2134523;
+    TimeoutContainer container;
+    bzero(&container, sizeof(container));
+    int triggered_other = 0;
+
+    set_mock_time_ms(origin + 0);
+
+    container.change_other = true;
+    container.change_other_value_ms = 100;
+    container.change_other_interval_ms = 100;
+    container.timeout = add_timeout(100, 0, container_callback, &container, NULL);
+    container.other = add_timeout(1000, 0, trigger_callback, &triggered_other, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 2);
+    ASSERT_EQUAL(triggered_other, 0);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 3);
+    ASSERT_EQUAL(triggered_other, 0);
+}
+
+TEST(add_change_two_timeout_multi_inside_callback) {
+    u_int64_t origin = 2134523;
+    TimeoutContainer container;
+    bzero(&container, sizeof(container));
+
+    set_mock_time_ms(origin + 0);
+
+    container.add = true;
+    container.add_value_ms = 100;
+    container.add_interval_ms = 100;
+    container.change = true;
+    container.change_value_ms = 100;
+    container.change_interval_ms = 100;
+    container.timeout = add_timeout(200, 200, container_callback, &container, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 0);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    // Now we have two running timers, one changing itself to expire after 100 ms when triggered,
+    // the other firing once after 100 ms
+    set_mock_time_ms(origin + 250);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 1);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 3);
+
+    set_mock_time_ms(origin + 350);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 3);
+
+    set_mock_time_ms(origin + 400);
+    handle_expired_timers();
+    ASSERT_EQUAL(container.triggered, 5);
+}
+
 int64_t timeval_to_ms(struct timeval *v)
 {
     if (!v)
@@ -1264,6 +1606,99 @@ TEST(get_next_timeout_simple) {
     handle_expired_timers();
     ASSERT_EQUAL(triggered, 1);
     ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), -1);
+}
+
+TEST(get_next_timeout_multi) {
+    u_int64_t origin = 2134523;
+    int triggered = 0;
+
+    set_mock_time_ms(origin + 0);
+    timeout *t1 = add_timeout(100, 200, trigger_callback, &triggered, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 100);
+
+    set_mock_time_ms(origin + 50);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 50);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 1);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 200);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 1);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 100);
+
+    set_mock_time_ms(origin + 300);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 2);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 200);
+
+    change_timeout(&t1, 100, 0, trigger_callback, &triggered);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 2);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 100);
+
+    change_timeout(&t1, 100, 300, trigger_callback, &triggered);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 2);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 100);
+
+    set_mock_time_ms(origin + 400);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 3);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 300);
+
+    set_mock_time_ms(origin + 700);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 4);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 300);
+}
+
+TEST(get_next_timeout_simple_multi) {
+    u_int64_t origin = 2134523;
+    int triggered = 0;
+
+    set_mock_time_ms(origin + 0);
+    timeout *t1 = add_timeout(100, 0, trigger_callback, &triggered, NULL);
+    timeout *t2 = add_timeout(200, 50, trigger_callback, &triggered, NULL);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 100);
+
+    set_mock_time_ms(origin + 50);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 0);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 50);
+
+    set_mock_time_ms(origin + 100);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 1);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 100);
+
+    set_mock_time_ms(origin + 200);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 2);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 50);
+
+    set_mock_time_ms(origin + 250);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 3);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 50);
+
+    change_timeout(&t1, 10, 0, trigger_callback, &triggered);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 3);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 10);
+
+    set_mock_time_ms(origin + 260);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 4);
+    ASSERT_EQUAL(timeval_to_ms(get_next_timeout()), 40);
 }
 
 TEST(cleanup_timeout_simple) {
