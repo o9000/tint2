@@ -236,7 +236,6 @@ def run_unit_tests(tint2path, use_asan):
   tint2 = run([tint2path, "--test-verbose"], True)
   if tint2.poll() != None:
     raise RuntimeError("tint2 failed to start")
-  stop(tint2)
   out, _ = tint2.communicate()
   exitcode = tint2.returncode
   if exitcode != 0 and exitcode != 23:
