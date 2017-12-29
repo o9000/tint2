@@ -23,12 +23,14 @@
 #include <sys/time.h>
 #include "bool.h"
 
+extern bool debug_timers;
+
 typedef void TimerCallback(void *arg);
 
 typedef struct {
     char name_[64];
     bool enabled_;
-    double expiration_time_;
+    long long expiration_time_ms_;
     int period_ms_;
     TimerCallback *callback_;
     void *arg_;

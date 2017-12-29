@@ -101,6 +101,7 @@ void handle_env_vars()
     debug_frames = getenv("DEBUG_FRAMES") != NULL;
     debug_dnd = getenv("DEBUG_DND") != NULL;
     debug_thumbnails = getenv("DEBUG_THUMBNAILS") != NULL;
+    debug_timers = getenv("DEBUG_TIMERS") != NULL;
     if (debug_fps) {
         init_fps_distribution();
         char *s = getenv("TRACING_FPS_THRESHOLD");
@@ -229,10 +230,10 @@ void init(int argc, char **argv)
     setlinebuf(stdout);
     setlinebuf(stderr);
     default_config();
+    handle_env_vars();
     handle_cli_arguments(argc, argv);
     create_default_elements();
     init_signals();
-    handle_env_vars();
 
     init_X11_pre_config();
     if (!config_read()) {

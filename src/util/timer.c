@@ -25,8 +25,13 @@
 #include "timer.h"
 #include "test.h"
 
+bool debug_timers = false;
+#define MOCK_ORIGIN 1000000
+
 // All active timers
 static GList *timers = NULL;
+
+long long get_time_ms();
 
 void default_timers()
 {
@@ -35,12 +40,16 @@ void default_timers()
 
 void cleanup_timers()
 {
+    if (debug_timers)
+        fprintf(stderr, "tint2: timers: %s\n", __FUNCTION__);
     g_list_free(timers);
     timers = NULL;
 }
 
 void init_timer(Timer *timer, const char *name)
 {
+    if (debug_timers)
+        fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, name, (void *)timer);
     bzero(timer, sizeof(*timer));
     strncpy(timer->name_, name, sizeof(timer->name_));
     if (!g_list_find(timers, timer)) {
@@ -54,6 +63,8 @@ void destroy_timer(Timer *timer)
         fprintf(stderr, RED "tint2: Attempt to destroy nonexisting timer: %s" RESET "\n", timer->name_);
         return;
     }
+    if (debug_timers)
+        fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, timer->name_, (void *)timer);
     timers = g_list_remove(timers, timer);
 }
 
@@ -64,10 +75,19 @@ void change_timer(Timer *timer, bool enabled, int delay_ms, int period_ms, Timer
         init_timer(timer, "unknown");
     }
     timer->enabled_ = enabled;
-    timer->expiration_time_ = get_time() + delay_ms / 1000.;
+    timer->expiration_time_ms_ = get_time_ms() + delay_ms;
     timer->period_ms_ = period_ms;
     timer->callback_ = callback;
     timer->arg_ = arg;
+    if (debug_timers)
+        fprintf(stderr,
+                "tint2: timers: %s: %s, %p: %s, expires %lld, period %d\n",
+                __FUNCTION__,
+                timer->name_,
+                (void *)timer,
+                timer->enabled_ ? "on" : "off",
+                timer->expiration_time_ms_,
+                timer->period_ms_);
 }
 
 void stop_timer(Timer *timer)
@@ -78,29 +98,49 @@ void stop_timer(Timer *timer)
 struct timeval *get_duration_to_next_timer_expiration()
 {
     static struct timeval result = {0, 0};
-    double min_expiration_time = -1;
+    long long min_expiration_time = -1;
+    Timer *next_timer = NULL;
     for (GList *it = timers; it; it = it->next) {
         Timer *timer = (Timer *)it->data;
         if (!timer->enabled_)
             continue;
-        if (min_expiration_time < 0 || timer->expiration_time_ < min_expiration_time)
-            min_expiration_time = timer->expiration_time_;
+        if (min_expiration_time < 0 || timer->expiration_time_ms_ < min_expiration_time) {
+            min_expiration_time = timer->expiration_time_ms_;
+            next_timer = timer;
+        }
     }
-    if (min_expiration_time < 0)
+    if (min_expiration_time < 0) {
+        if (debug_timers)
+            fprintf(stderr,
+                    "tint2: timers: %s: no active timer\n",
+                    __FUNCTION__);
         return NULL;
-    double duration = min_expiration_time - get_time();
-    result.tv_sec = (long long) duration;
-    result.tv_usec = (long long)(1.0e6 * (duration - result.tv_sec));
+    }
+    long long now = get_time_ms();
+    long long duration = min_expiration_time - now;
+    if (debug_timers)
+        fprintf(stderr,
+                "tint2: timers: %s: t=%lld, %lld to next timer: %s, %p: %s, expires %lld, period %d\n",
+                __FUNCTION__,
+                now,
+                duration,
+                next_timer->name_,
+                (void *)next_timer,
+                next_timer->enabled_ ? "on" : "off",
+                next_timer->expiration_time_ms_,
+                next_timer->period_ms_);
+    result.tv_sec = duration / 1000;
+    result.tv_usec = 1000 * (duration - result.tv_sec);
     return &result;
 }
 
 void handle_expired_timers()
 {
-    double now = get_time();
+    long long now = get_time_ms();
     bool expired_timers = false;
     for (GList *it = timers; it; it = it->next) {
         Timer *timer = (Timer *)it->data;
-        if (timer->enabled_ && timer->callback_ && timer->expiration_time_ <= now)
+        if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
             expired_timers = true;
     }
     if (!expired_timers)
@@ -127,7 +167,7 @@ void handle_expired_timers()
             // Check that it is still registered.
             if (!g_list_find(timers, timer))
                 continue;
-            if (!timer->enabled_ || timer->handled_ || !timer->callback_ || timer->expiration_time_ > now)
+            if (!timer->enabled_ || timer->handled_ || !timer->callback_ || timer->expiration_time_ms_ > now)
                 continue;
             timer->handled_ = true;
             if (timer->period_ms_ == 0) {
@@ -135,8 +175,18 @@ void handle_expired_timers()
                 timer->enabled_ = false;
             } else {
                 // Periodic timer, reschedule.
-                timer->expiration_time_ = now + timer->period_ms_ / 1000.;
+                timer->expiration_time_ms_ = now + timer->period_ms_;
             }
+            if (debug_timers)
+                fprintf(stderr,
+                        "tint2: timers: %s: t=%lld, triggering %s, %p: %s, expires %lld, period %d\n",
+                        __FUNCTION__,
+                        now,
+                        timer->name_,
+                        (void *)timer,
+                        timer->enabled_ ? "on" : "off",
+                        timer->expiration_time_ms_,
+                        timer->period_ms_);
             timer->callback_(timer->arg_);
             // The callback may have modified timers, so start from scratch
             triggered = true;
@@ -149,10 +199,15 @@ void handle_expired_timers()
 
 // Time helper functions
 
-static struct timespec mock_time = { 0, 0 };
+static struct timespec mock_time = {0, 0};
 void set_mock_time(struct timespec *tp)
 {
     mock_time = *tp;
+    if (debug_timers)
+        fprintf(stderr,
+                "tint2: timers: %s: t=%lld\n",
+                __FUNCTION__,
+                get_time_ms());
 }
 
 void set_mock_time_ms(u_int64_t ms)
@@ -169,7 +224,7 @@ int gettime(struct timespec *tp)
         *tp = mock_time;
         return 0;
     }
-    // CLOCK_BOOTTIME under Linux is the same as CLOCK_MONOTONIC under *BSD.
+// CLOCK_BOOTTIME under Linux is the same as CLOCK_MONOTONIC under *BSD.
 #ifdef CLOCK_BOOTTIME
     return clock_gettime(CLOCK_BOOTTIME, tp);
 #else
@@ -212,6 +267,13 @@ double get_time()
     return cur_time.tv_sec + cur_time.tv_nsec * 1.0e-9;
 }
 
+long long get_time_ms()
+{
+    struct timespec cur_time;
+    gettime(&cur_time);
+    return cur_time.tv_sec * 1000LL + cur_time.tv_nsec / 1000000LL;
+}
+
 double profiling_get_time()
 {
     double t = get_time();
@@ -234,7 +296,7 @@ static int64_t timeval_to_ms(struct timeval *v)
 
 static void trigger_callback(void *arg)
 {
-    int *triggered = (int*) arg;
+    int *triggered = (int *)arg;
     *triggered += 1;
 }
 
@@ -255,13 +317,19 @@ typedef struct {
     Timer *other;
 } TimeoutContainer;
 
-static void container_callback(void *arg) {
+static void container_callback(void *arg)
+{
     TimeoutContainer *container = (TimeoutContainer *)arg;
     container->triggered += 1;
     if (container->stop)
         stop_timer(container->timer);
     else if (container->change) {
-        change_timer(container->timer, true, container->change_value_ms, container->change_interval_ms, container_callback, arg);
+        change_timer(container->timer,
+                     true,
+                     container->change_value_ms,
+                     container->change_interval_ms,
+                     container_callback,
+                     arg);
         if (container->change_interval_ms)
             container->change = false;
     }
@@ -274,13 +342,18 @@ static void container_callback(void *arg) {
     if (container->stop_other)
         stop_timer(container->other);
     else if (container->change_other) {
-        change_timer(container->other, true, container->change_other_value_ms, container->change_other_interval_ms, container_callback, arg);
+        change_timer(container->other,
+                     true,
+                     container->change_other_value_ms,
+                     container->change_other_interval_ms,
+                     container_callback,
+                     arg);
         container->change_other = false;
     }
 }
 
-
-TEST(mock_time) {
+TEST(mock_time)
+{
     struct timespec t1 = {1000, 2};
     struct timespec t2 = {0, 0};
     struct timespec t3 = {2000, 3};
@@ -298,7 +371,8 @@ TEST(mock_time) {
     ASSERT_EQUAL(t3.tv_nsec, t2.tv_nsec);
 }
 
-TEST(mock_time_ms) {
+TEST(mock_time_ms)
+{
     struct timespec t1 = {1000, 2 * 1000 * 1000};
     struct timespec t2 = {0, 0};
     struct timespec t3 = {2000, 3 * 1000 * 1000};
@@ -316,8 +390,9 @@ TEST(mock_time_ms) {
     ASSERT_EQUAL(t3.tv_nsec, t2.tv_nsec);
 }
 
-TEST(change_timer_simple) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer timer;
     init_timer(&timer, __FUNCTION__);
@@ -348,8 +423,9 @@ TEST(change_timer_simple) {
     ASSERT_EQUAL(triggered, 1);
 }
 
-TEST(change_timer_simple_two) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple_two)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -387,8 +463,9 @@ TEST(change_timer_simple_two) {
     ASSERT_EQUAL(triggered, 2);
 }
 
-TEST(change_timer_simple_two_reversed) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple_two_reversed)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -426,8 +503,9 @@ TEST(change_timer_simple_two_reversed) {
     ASSERT_EQUAL(triggered, 2);
 }
 
-TEST(change_timer_simple_two_overlap) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple_two_overlap)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -457,8 +535,9 @@ TEST(change_timer_simple_two_overlap) {
     ASSERT_EQUAL(triggered, 2);
 }
 
-TEST(change_timer_simple_inside_callback) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple_inside_callback)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
     bzero(&container, sizeof(container));
     Timer timer;
@@ -494,8 +573,9 @@ TEST(change_timer_simple_inside_callback) {
     ASSERT_EQUAL(container.triggered, 2);
 }
 
-TEST(change_timer_multi) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_multi)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer timer;
     init_timer(&timer, __FUNCTION__);
@@ -534,8 +614,9 @@ TEST(change_timer_multi) {
     ASSERT_EQUAL(triggered, 4);
 }
 
-TEST(change_timer_multi_two) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_multi_two)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -569,8 +650,9 @@ TEST(change_timer_multi_two) {
     ASSERT_EQUAL(triggered, 6);
 }
 
-TEST(change_timer_multi_two_overlap) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_multi_two_overlap)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -608,8 +690,9 @@ TEST(change_timer_multi_two_overlap) {
     ASSERT_EQUAL(triggered, 8);
 }
 
-TEST(change_timer_simple_multi_two) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple_multi_two)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -647,8 +730,9 @@ TEST(change_timer_simple_multi_two) {
     ASSERT_EQUAL(triggered, 5);
 }
 
-TEST(change_timer_simple_multi_two_overlap) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple_multi_two_overlap)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -686,8 +770,9 @@ TEST(change_timer_simple_multi_two_overlap) {
     ASSERT_EQUAL(triggered, 5);
 }
 
-TEST(stop_timer_simple_two) {
-    u_int64_t origin = 2134523;
+TEST(stop_timer_simple_two)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -727,8 +812,9 @@ TEST(stop_timer_simple_two) {
     ASSERT_EQUAL(triggered, 1);
 }
 
-TEST(stop_timer_simple_two_reversed) {
-    u_int64_t origin = 2134523;
+TEST(stop_timer_simple_two_reversed)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -768,8 +854,9 @@ TEST(stop_timer_simple_two_reversed) {
     ASSERT_EQUAL(triggered, 1);
 }
 
-TEST(stop_timer_simple_inside_callback) {
-    u_int64_t origin = 2134523;
+TEST(stop_timer_simple_inside_callback)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
     bzero(&container, sizeof(container));
     Timer t1;
@@ -804,8 +891,9 @@ TEST(stop_timer_simple_inside_callback) {
     ASSERT_EQUAL(container.triggered, 1);
 }
 
-TEST(stop_timer_simple_other_inside_callback) {
-    u_int64_t origin = 2134523;
+TEST(stop_timer_simple_other_inside_callback)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
     bzero(&container, sizeof(container));
     Timer t1;
@@ -841,8 +929,9 @@ TEST(stop_timer_simple_other_inside_callback) {
     ASSERT_EQUAL(triggered_other, 0);
 }
 
-TEST(stop_timer_multi) {
-    u_int64_t origin = 2134523;
+TEST(stop_timer_multi)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -879,8 +968,9 @@ TEST(stop_timer_multi) {
     ASSERT_EQUAL(triggered, 2);
 }
 
-TEST(stop_timer_multi_two) {
-    u_int64_t origin = 2134523;
+TEST(stop_timer_multi_two)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -920,8 +1010,9 @@ TEST(stop_timer_multi_two) {
     ASSERT_EQUAL(triggered, 6);
 }
 
-TEST(stop_timer_multi_inside_callback) {
-    u_int64_t origin = 2134523;
+TEST(stop_timer_multi_inside_callback)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
     bzero(&container, sizeof(container));
     Timer t1;
@@ -956,8 +1047,9 @@ TEST(stop_timer_multi_inside_callback) {
     ASSERT_EQUAL(container.triggered, 1);
 }
 
-TEST(stop_timer_multi_other_inside_callback) {
-    u_int64_t origin = 2134523;
+TEST(stop_timer_multi_other_inside_callback)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
     bzero(&container, sizeof(container));
     Timer t1;
@@ -984,17 +1076,18 @@ TEST(stop_timer_multi_other_inside_callback) {
 
     set_mock_time_ms(origin + 200);
     handle_expired_timers();
-    ASSERT_EQUAL(container.triggered, 1);
+    ASSERT_EQUAL(container.triggered, 2);
     ASSERT_EQUAL(triggered_other, 0);
 
     set_mock_time_ms(origin + 300);
     handle_expired_timers();
-    ASSERT_EQUAL(container.triggered, 1);
+    ASSERT_EQUAL(container.triggered, 3);
     ASSERT_EQUAL(triggered_other, 0);
 }
 
-TEST(change_timer_simple_again) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple_again)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -1027,8 +1120,9 @@ TEST(change_timer_simple_again) {
     ASSERT_EQUAL(triggered, 1);
 }
 
-TEST(change_timer_simple_two_again) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple_two_again)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -1064,8 +1158,9 @@ TEST(change_timer_simple_two_again) {
     ASSERT_EQUAL(triggered, 2);
 }
 
-TEST(change_timer_simple_inside_callback_again) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple_inside_callback_again)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
     bzero(&container, sizeof(container));
     Timer t1;
@@ -1105,8 +1200,9 @@ TEST(change_timer_simple_inside_callback_again) {
     ASSERT_EQUAL(container.triggered, 3);
 }
 
-TEST(change_timer_simple_other_inside_callback) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple_other_inside_callback)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
     bzero(&container, sizeof(container));
     Timer t1;
@@ -1143,8 +1239,9 @@ TEST(change_timer_simple_other_inside_callback) {
     ASSERT_EQUAL(triggered_other, 0);
 }
 
-TEST(add_change_two_timeout_simple_inside_callback) {
-    u_int64_t origin = 2134523;
+TEST(add_change_two_timeout_simple_inside_callback)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
     bzero(&container, sizeof(container));
     Timer t1;
@@ -1188,8 +1285,9 @@ TEST(add_change_two_timeout_simple_inside_callback) {
     ASSERT_EQUAL(container.triggered, 4);
 }
 
-TEST(change_timer_multi_again) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_multi_again)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -1230,8 +1328,9 @@ TEST(change_timer_multi_again) {
     ASSERT_EQUAL(triggered, 5);
 }
 
-TEST(change_timer_simple_multi) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_simple_multi)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -1278,8 +1377,9 @@ TEST(change_timer_simple_multi) {
     ASSERT_EQUAL(triggered, 3);
 }
 
-TEST(change_timer_multi_inside_callback) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_multi_inside_callback)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
     bzero(&container, sizeof(container));
     Timer t1;
@@ -1320,8 +1420,9 @@ TEST(change_timer_multi_inside_callback) {
     ASSERT_EQUAL(container.triggered, 3);
 }
 
-TEST(change_timer_multi_other_inside_callback) {
-    u_int64_t origin = 2134523;
+TEST(change_timer_multi_other_inside_callback)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
     bzero(&container, sizeof(container));
     Timer t1;
@@ -1359,8 +1460,9 @@ TEST(change_timer_multi_other_inside_callback) {
     ASSERT_EQUAL(triggered_other, 0);
 }
 
-TEST(add_change_two_timeout_multi_inside_callback) {
-    u_int64_t origin = 2134523;
+TEST(add_change_two_timeout_multi_inside_callback)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
     bzero(&container, sizeof(container));
     Timer t1;
@@ -1406,8 +1508,9 @@ TEST(add_change_two_timeout_multi_inside_callback) {
     ASSERT_EQUAL(container.triggered, 5);
 }
 
-TEST(get_duration_to_next_timer_expiration_simple) {
-    u_int64_t origin = 2134523;
+TEST(get_duration_to_next_timer_expiration_simple)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -1447,8 +1550,9 @@ TEST(get_duration_to_next_timer_expiration_simple) {
     ASSERT_EQUAL(timeval_to_ms(get_duration_to_next_timer_expiration()), -1);
 }
 
-TEST(get_duration_to_next_timer_expiration_multi) {
-    u_int64_t origin = 2134523;
+TEST(get_duration_to_next_timer_expiration_multi)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
@@ -1500,15 +1604,18 @@ TEST(get_duration_to_next_timer_expiration_multi) {
     ASSERT_EQUAL(timeval_to_ms(get_duration_to_next_timer_expiration()), 300);
 }
 
-TEST(get_duration_to_next_timer_expiration_simple_multi) {
-    u_int64_t origin = 2134523;
+TEST(get_duration_to_next_timer_expiration_simple_multi)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     Timer t1;
     init_timer(&t1, "t1");
+    Timer t2;
+    init_timer(&t2, "t2");
     int triggered = 0;
 
     set_mock_time_ms(origin + 0);
     change_timer(&t1, true, 100, 0, trigger_callback, &triggered);
-    change_timer(&t1, true, 200, 50, trigger_callback, &triggered);
+    change_timer(&t2, true, 200, 50, trigger_callback, &triggered);
     handle_expired_timers();
     ASSERT_EQUAL(triggered, 0);
     ASSERT_EQUAL(timeval_to_ms(get_duration_to_next_timer_expiration()), 100);
@@ -1523,37 +1630,42 @@ TEST(get_duration_to_next_timer_expiration_simple_multi) {
     ASSERT_EQUAL(triggered, 1);
     ASSERT_EQUAL(timeval_to_ms(get_duration_to_next_timer_expiration()), 100);
 
+    set_mock_time_ms(origin + 150);
+    handle_expired_timers();
+    ASSERT_EQUAL(triggered, 1);
+    ASSERT_EQUAL(timeval_to_ms(get_duration_to_next_timer_expiration()), 50);
+
     set_mock_time_ms(origin + 200);
     handle_expired_timers();
     ASSERT_EQUAL(triggered, 2);
     ASSERT_EQUAL(timeval_to_ms(get_duration_to_next_timer_expiration()), 50);
 
-    set_mock_time_ms(origin + 250);
-    handle_expired_timers();
-    ASSERT_EQUAL(triggered, 3);
-    ASSERT_EQUAL(timeval_to_ms(get_duration_to_next_timer_expiration()), 50);
-
     change_timer(&t1, true, 10, 0, trigger_callback, &triggered);
     handle_expired_timers();
-    ASSERT_EQUAL(triggered, 3);
+    ASSERT_EQUAL(triggered, 2);
     ASSERT_EQUAL(timeval_to_ms(get_duration_to_next_timer_expiration()), 10);
 
-    set_mock_time_ms(origin + 260);
+    set_mock_time_ms(origin + 210);
     handle_expired_timers();
-    ASSERT_EQUAL(triggered, 4);
+    ASSERT_EQUAL(triggered, 3);
     ASSERT_EQUAL(timeval_to_ms(get_duration_to_next_timer_expiration()), 40);
 }
 
-TEST(cleanup_timeout_simple) {
-    u_int64_t origin = 2134523;
+TEST(cleanup_timeout_simple)
+{
+    u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
     Timer t1;
     init_timer(&t1, "t1");
+    Timer t2;
+    init_timer(&t1, "t2");
+    Timer t3;
+    init_timer(&t1, "t3");
 
     set_mock_time_ms(origin + 0);
     change_timer(&t1, true, 100, 0, trigger_callback, &triggered);
-    change_timer(&t1, true, 200, 0, trigger_callback, &triggered);
-    change_timer(&t1, true, 300, 0, trigger_callback, &triggered);
+    change_timer(&t2, true, 200, 0, trigger_callback, &triggered);
+    change_timer(&t3, true, 300, 0, trigger_callback, &triggered);
     handle_expired_timers();
     ASSERT_EQUAL(triggered, 0);
 
