@@ -21,7 +21,7 @@ then
     exit 1
 fi
 rm -f version.h
-VERSION=$(git describe --exact-match 2>/dev/null)
+VERSION=$(false 2>/dev/null)
 if [ $? -eq 0 ]
 then
     VERSION=$(echo "$VERSION" | sed 's/^v//')
@@ -49,7 +49,7 @@ echo "echo \"#define VERSION_STRING \\\"$VERSION\\\"\" > version.h" > $DIR/get_v
 # Copy the debian files into the source directory
 cp -r debian $DIR/debian
 
-for DISTRO in trusty xenial zesty artful
+for DISTRO in trusty xenial zesty artful bionic
 do
     # Cleanup from previous builds
     rm -rf tint2_$VERSION-*
