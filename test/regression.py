@@ -234,8 +234,12 @@ def run_unit_tests(tint2path, use_asan):
   os.environ["DEBUG_FPS"] = "1"
   os.environ["ASAN_OPTIONS"] = "detect_leaks=1:exitcode=0"
   tint2 = run([tint2path, "--test-verbose"], True)
-  if tint2.poll() != None:
-    raise RuntimeError("tint2 failed to start")
+  time_limit = time.time() + 60
+  while tint2.poll() == None:
+    if time.time() < time_limit:
+      time.sleep(1)
+      continue
+    tint2.stop()
   out, _ = tint2.communicate()
   exitcode = tint2.returncode
   if exitcode != 0 and exitcode != 23:
