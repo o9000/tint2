@@ -149,6 +149,8 @@ GString *tint2_g_string_replace(GString *s, const char *from, const char *to);
 
 void get_image_mean_color(const Imlib_Image image, Color *mean_color);
 
+void dump_image_data(const char *file_name, const char *name);
+
 #define free_and_null(p) \
     {                    \
         free(p);         \

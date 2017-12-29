@@ -134,6 +134,7 @@ set( SOURCES src/config.c
              src/util/tracing.c
              src/mouse_actions.c
              src/drag_and_drop.c
+             src/default_icon.c
              src/clock/clock.c
              src/systray/systraybar.c
              src/launcher/launcher.c

@@ -12,6 +12,7 @@
 #include <X11/extensions/XShm.h>
 
 #include "config.h"
+#include "default_icon.h"
 #include "drag_and_drop.h"
 #include "fps_distribution.h"
 #include "panel.h"
@@ -54,6 +55,9 @@ void handle_cli_arguments(int argc, char **argv)
             exit(0);
         } else if (strcmp(argv[i], "--test-verbose") == 0) {
             run_all_tests(true);
+            exit(0);
+        } else if (strcmp(argv[i], "--dump-image-data") == 0) {
+            dump_image_data(argv[i+1], argv[i+2]);
             exit(0);
         } else if (strcmp(argv[i], "-c") == 0) {
             if (i + 1 < argc) {
@@ -165,6 +169,22 @@ void create_default_elements()
     default_panel();
 }
 
+void load_default_task_icon()
+{
+    const gchar *const *data_dirs = g_get_system_data_dirs();
+    for (int i = 0; data_dirs[i] != NULL; i++) {
+        gchar *path = g_build_filename(data_dirs[i], "tint2", "default_icon.png", NULL);
+        if (g_file_test(path, G_FILE_TEST_EXISTS))
+            default_icon = load_image(path, TRUE);
+        g_free(path);
+    }
+    if (!default_icon) {
+        default_icon = imlib_create_image_using_data(default_icon_width,
+                                                     default_icon_height,
+                                                     default_icon_data);
+    }
+}
+
 void init_post_config()
 {
     server_init_visual();
@@ -175,20 +195,7 @@ void init_post_config()
     imlib_context_set_colormap(server.colormap);
 
     init_signals_postconfig();
-
-    // load default icon
-    const gchar *const *data_dirs = g_get_system_data_dirs();
-    for (int i = 0; data_dirs[i] != NULL; i++) {
-        gchar *path = g_build_filename(data_dirs[i], "tint2", "default_icon.png", NULL);
-        if (g_file_test(path, G_FILE_TEST_EXISTS))
-            default_icon = load_image(path, TRUE);
-        g_free(path);
-    }
-    if (!default_icon) {
-        fprintf(stderr,
-                RED "Could not load default_icon.png. Please check that tint2 has been installed correctly!" RESET
-                    "\n");
-    }
+    load_default_task_icon();
 
     XSync(server.display, False);
 }

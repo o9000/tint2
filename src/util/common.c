@@ -1114,3 +1114,63 @@ void adjust_color(Color *color, int alpha, int saturation, int brightness)
     color->rgb[1] = g / 255.;
     color->rgb[2] = b / 255.;
 }
+
+void dump_image_data(const char *file_name, const char *name)
+{
+    Imlib_Image image = load_image(file_name, false);
+    if (!image) {
+        fprintf(stderr, "tint2: Could not load image from file\n");
+        return;
+    }
+
+    gchar *header_name = g_strdup_printf("%s.h", name);
+    gchar *guard = g_strdup_printf("%s_h", name);
+    FILE *header = fopen(header_name, "wt");
+    fprintf(header,
+            "#ifndef %s\n"
+            "#define %s\n"
+            "\n"
+            "#include <Imlib2.h>\n"
+            "\n"
+            "extern int %s_width;\n"
+            "extern int %s_height;\n"
+            "extern DATA32 %s_data[];\n"
+            "\n"
+            "#endif\n",
+            guard,
+            guard,
+            name,
+            name,
+            name);
+    fclose(header);
+    g_free(guard);
+    g_free(header_name);
+
+    imlib_context_set_image(image);
+
+    gchar *source_name = g_strdup_printf("%s.c", name);
+    FILE *source = fopen(source_name, "wt");
+    fprintf(source,
+            "#include <%s.h>\n"
+            "\n"
+            "int %s_width = %d;\n"
+            "int %s_height = %d;\n"
+            "DATA32 %s_data[] = {",
+            name,
+            name,
+            imlib_image_get_width(),
+            name,
+            imlib_image_get_height(),
+            name);
+
+    size_t size = (size_t)imlib_image_get_width() * (size_t)imlib_image_get_height();
+    DATA32 *data = imlib_image_get_data_for_reading_only();
+    for (size_t i = 0; i < size; i++) {
+        fprintf(source, "%s%u", i == 0 ? "" : ", ", data[i]);
+    }
+    fprintf(source, "};\n");
+    fclose(source);
+    g_free(source_name);
+
+    imlib_free_image();
+}

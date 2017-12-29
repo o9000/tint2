@@ -20,6 +20,9 @@ src/battery/battery.c
 src/battery/battery.h
 src/clock/clock.c
 src/clock/clock.h
+src/default_icon.c
+src/default_icon.c
+src/default_icon.h
 src/execplugin/execplugin.c
 src/execplugin/execplugin.h
 src/launcher/launcher.c
