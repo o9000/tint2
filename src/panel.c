@@ -130,8 +130,6 @@ void cleanup_panel()
     if (!panels)
         return;
 
-    cleanup_taskbar();
-
     for (int i = 0; i < num_panels; i++) {
         Panel *p = &panels[i];
 

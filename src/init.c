@@ -267,6 +267,7 @@ void cleanup()
     cleanup_battery();
 #endif
     cleanup_separator();
+    cleanup_taskbar();
     cleanup_panel();
     cleanup_config();
 

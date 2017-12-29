@@ -80,7 +80,6 @@ void free_ptr_array(gpointer data)
 void default_taskbar()
 {
     win_to_task = NULL;
-    INIT_TIMER(urgent_timer);
     urgent_list = NULL;
     taskbar_enabled = FALSE;
     taskbar_distribute_size = FALSE;
@@ -89,9 +88,6 @@ void default_taskbar()
     hide_task_diff_monitor = FALSE;
     hide_taskbar_if_empty = FALSE;
     always_show_all_desktop_tasks = FALSE;
-    INIT_TIMER(thumbnail_update_timer_all);
-    INIT_TIMER(thumbnail_update_timer_active);
-    INIT_TIMER(thumbnail_update_timer_tooltip);
     taskbar_thumbnail_jobs_done = NULL;
     taskbar_sort_method = TASKBAR_NOSORT;
     taskbar_alignment = ALIGN_LEFT;
@@ -184,6 +180,11 @@ void cleanup_taskbar()
 
 void init_taskbar()
 {
+    INIT_TIMER(urgent_timer);
+    INIT_TIMER(thumbnail_update_timer_all);
+    INIT_TIMER(thumbnail_update_timer_active);
+    INIT_TIMER(thumbnail_update_timer_tooltip);
+
     if (!panel_config.g_task.has_text && !panel_config.g_task.has_icon) {
         panel_config.g_task.has_text = panel_config.g_task.has_icon = 1;
     }
