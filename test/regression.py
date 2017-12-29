@@ -10,6 +10,7 @@ sys.setdefaultencoding('utf8')
 import argparse
 import datetime
 import os
+import re
 import signal
 import subprocess
 import time
@@ -37,6 +38,10 @@ def print(*args, **kwargs):
 
 def print_err(*args, **kwargs):
   print(*args, file=sys.stderr, **kwargs)
+
+
+def clear_ansi_codes(s):
+  return re.sub(r"\x1B\[[0-9;]*[a-zA-Z]", "", s)
 
 
 def run(cmd, output=False):
@@ -188,6 +193,7 @@ def test(tint2path, config, use_asan):
   mem, mem_detail = get_mem_usage(tint2.pid)
   stop(tint2)
   out, _ = tint2.communicate()
+  out = clear_ansi_codes(out)
   exitcode = tint2.returncode
   if exitcode != 0 and exitcode != 23:
     print("tint2 crashed with exit code {0}!".format(exitcode))
@@ -241,6 +247,7 @@ def run_unit_tests(tint2path, use_asan):
       continue
     tint2.stop()
   out, _ = tint2.communicate()
+  out = clear_ansi_codes(out)
   exitcode = tint2.returncode
   if exitcode != 0 and exitcode != 23:
     print("tint2 crashed with exit code {0}!".format(exitcode))
