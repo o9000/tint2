@@ -1,6 +1,9 @@
-2017-12-21 master
+2017-12-29 master
 - Fixes:
+  - Fixed several use-after-free errors in the timer code
   - Merged patches and fixed other warnings on OpenBSD
+  - Task, Button, Executor: add a bit of slack in the pango text layout,
+    to avoid wrapping due to rounding errors
 
 2017-12-20 16.0
 - Fixes:

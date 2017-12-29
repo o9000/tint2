@@ -730,6 +730,8 @@ gboolean add_icon(Window win)
     traywin->pid = pid;
     traywin->name = name;
     traywin->chrono = chrono;
+    INIT_TIMER(traywin->render_timeout);
+    INIT_TIMER(traywin->resize_timeout);
     chrono++;
 
     show(&systray.area);
@@ -940,8 +942,8 @@ void remove_icon(TrayWindow *traywin)
     XDestroyWindow(server.display, traywin->parent);
     XSync(server.display, False);
     XSetErrorHandler(old);
-    stop_timer(&traywin->render_timeout);
-    stop_timer(&traywin->resize_timeout);
+    destroy_timer(&traywin->render_timeout);
+    destroy_timer(&traywin->resize_timeout);
     free(traywin->name);
     if (traywin->image) {
         imlib_context_set_image(traywin->image);

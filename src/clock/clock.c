@@ -65,6 +65,7 @@ void default_clock()
     time1_timezone = NULL;
     time2_format = NULL;
     time2_timezone = NULL;
+    INIT_TIMER(clock_timeout);
     time_tooltip_format = NULL;
     time_tooltip_timezone = NULL;
     clock_lclick_command = NULL;
@@ -109,7 +110,7 @@ void cleanup_clock()
     clock_uwheel_command = NULL;
     free(clock_dwheel_command);
     clock_dwheel_command = NULL;
-    stop_timer(&clock_timeout);
+    destroy_timer(&clock_timeout);
 }
 
 struct tm *clock_gettime_for_tz(const char *timezone)

@@ -145,7 +145,7 @@ void cleanup_panel()
         if (p->main_win)
             XDestroyWindow(server.display, p->main_win);
         p->main_win = 0;
-        stop_timer(&p->autohide_timeout);
+        destroy_timer(&p->autohide_timeout);
         cleanup_freespace(p);
     }
 
@@ -207,6 +207,7 @@ void init_panel()
     panels = calloc(num_panels, sizeof(Panel));
     for (int i = 0; i < num_panels; i++) {
         memcpy(&panels[i], &panel_config, sizeof(Panel));
+        INIT_TIMER(panels[i].autohide_timeout);
     }
 
     fprintf(stderr,

@@ -44,6 +44,9 @@ void default_tooltip()
     // give the tooltip some reasonable default values
     memset(&g_tooltip, 0, sizeof(Tooltip));
 
+    INIT_TIMER(g_tooltip.timeout);
+    INIT_TIMER(g_tooltip.update_timeout);
+
     g_tooltip.font_color.rgb[0] = 1;
     g_tooltip.font_color.rgb[1] = 1;
     g_tooltip.font_color.rgb[2] = 1;
@@ -54,7 +57,8 @@ void default_tooltip()
 void cleanup_tooltip()
 {
     stop_tooltip_timeout();
-    stop_timer(&g_tooltip.update_timeout);
+    destroy_timer(&g_tooltip.timeout);
+    destroy_timer(&g_tooltip.update_timeout);
     tooltip_hide(NULL);
     tooltip_update_contents_for(NULL);
     if (g_tooltip.window)

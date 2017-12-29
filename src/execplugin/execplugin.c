@@ -41,6 +41,7 @@ Execp *create_execp()
     execp->backend->cache_icon = TRUE;
     execp->backend->centered = TRUE;
     execp->backend->font_color.alpha = 0.5;
+    INIT_TIMER(execp->backend->timer);
     return execp;
 }
 
@@ -67,7 +68,7 @@ void destroy_execp(void *obj)
         free_and_null(execp);
     } else {
         // This is a backend element
-        stop_timer(&execp->backend->timer);
+        destroy_timer(&execp->backend->timer);
 
         free_icon(execp->backend->icon);
         free_and_null(execp->backend->buf_stdout);

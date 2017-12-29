@@ -144,7 +144,7 @@ void start_detect_compositor()
 
     // Check every 0.5 seconds for up to 30 seconds
     detect_compositor_timer_counter = 60;
-    init_timer(&detect_compositor_timer, "detect_compositor_timer");
+    INIT_TIMER(detect_compositor_timer);
     change_timer(&detect_compositor_timer, true, 500, 500, detect_compositor, 0);
 }
 

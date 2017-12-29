@@ -127,7 +127,7 @@ void cleanup_battery()
     ac_connected_cmd = NULL;
     free(ac_disconnected_cmd);
     ac_disconnected_cmd = NULL;
-    stop_timer(&battery_timeout);
+    destroy_timer(&battery_timeout);
     battery_found = FALSE;
 
     battery_os_free();
