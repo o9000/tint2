@@ -246,10 +246,10 @@ def run_unit_tests(tint2path, use_asan):
     return
   if "tests succeeded" in out:
     num_tests = [line for line in out.split("\n") if "tint2: Running" in line][0]
-    print "All {0} tests succeeded.".format(num_tests)
+    print("All {0} tests succeeded.".format(num_tests))
     return
   if "tests failed" in out:
-    print out
+    print("```\n" + out.strip() + "\n```")
   stop_xvfb()
 
 
