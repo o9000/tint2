@@ -36,8 +36,8 @@ typedef struct {
     PangoFontDescription *font_desc;
     Color font_color;
     Background *bg;
-    Timer timeout;
-    Timer update_timeout;
+    Timer visibility_timer;
+    Timer update_timer;
     cairo_surface_t *image;
 } Tooltip;
 

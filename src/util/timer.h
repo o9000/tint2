@@ -62,7 +62,7 @@ void stop_timer(Timer *timer);
 // Do not free the pointer; it is harmless to change its contents.
 struct timeval *get_duration_to_next_timer_expiration();
 
-// Callback of all expired timeouts
+// Trigger all expired timers, and reschedule them if they are periodic timers
 void handle_expired_timers();
 
 // Time helper functions.

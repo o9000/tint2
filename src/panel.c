@@ -145,7 +145,7 @@ void cleanup_panel()
         if (p->main_win)
             XDestroyWindow(server.display, p->main_win);
         p->main_win = 0;
-        destroy_timer(&p->autohide_timeout);
+        destroy_timer(&p->autohide_timer);
         cleanup_freespace(p);
     }
 
@@ -207,7 +207,7 @@ void init_panel()
     panels = calloc(num_panels, sizeof(Panel));
     for (int i = 0; i < num_panels; i++) {
         memcpy(&panels[i], &panel_config, sizeof(Panel));
-        INIT_TIMER(panels[i].autohide_timeout);
+        INIT_TIMER(panels[i].autohide_timer);
     }
 
     fprintf(stderr,
@@ -1061,15 +1061,15 @@ Button *click_button(Panel *panel, int x, int y)
     return NULL;
 }
 
-void stop_autohide_timeout(Panel *p)
+void stop_autohide_timer(Panel *p)
 {
-    stop_timer(&p->autohide_timeout);
+    stop_timer(&p->autohide_timer);
 }
 
 void autohide_show(void *p)
 {
     Panel *panel = (Panel *)p;
-    stop_autohide_timeout(panel);
+    stop_autohide_timer(panel);
     panel->is_hidden = 0;
     XMapSubwindows(server.display, panel->main_win); // systray windows
     set_panel_window_geometry(panel);
@@ -1081,7 +1081,7 @@ void autohide_show(void *p)
 void autohide_hide(void *p)
 {
     Panel *panel = (Panel *)p;
-    stop_autohide_timeout(panel);
+    stop_autohide_timer(panel);
     set_panel_layer(panel, panel_layer);
     panel->is_hidden = TRUE;
     XUnmapSubwindows(server.display, panel->main_win); // systray windows
@@ -1093,7 +1093,7 @@ void autohide_trigger_show(Panel *p)
 {
     if (!p)
         return;
-    change_timer(&p->autohide_timeout, true, panel_autohide_show_timeout, 0, autohide_show, p);
+    change_timer(&p->autohide_timer, true, panel_autohide_show_timeout, 0, autohide_show, p);
 }
 
 void autohide_trigger_hide(Panel *p)
@@ -1108,7 +1108,7 @@ void autohide_trigger_hide(Panel *p)
         if (child)
             return; // mouse over one of the system tray icons
 
-    change_timer(&p->autohide_timeout, true, panel_autohide_hide_timeout, 0, autohide_hide, p);
+    change_timer(&p->autohide_timer, true, panel_autohide_hide_timeout, 0, autohide_hide, p);
 }
 
 void shrink_panel(Panel *panel)

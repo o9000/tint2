@@ -41,7 +41,7 @@ struct BatteryState battery_state;
 gboolean battery_enabled;
 gboolean battery_tooltip_enabled;
 int percentage_hide;
-static Timer battery_timeout;
+static Timer battery_timer;
 
 #define BATTERY_BUF_SIZE 256
 static char buf_bat_line1[BATTERY_BUF_SIZE];
@@ -76,7 +76,7 @@ void default_battery()
     percentage_hide = 101;
     battery_low_cmd_sent = FALSE;
     battery_full_cmd_sent = FALSE;
-    INIT_TIMER(battery_timeout);
+    INIT_TIMER(battery_timer);
     bat1_has_font = FALSE;
     bat1_font_desc = NULL;
     bat1_format = NULL;
@@ -127,7 +127,7 @@ void cleanup_battery()
     ac_connected_cmd = NULL;
     free(ac_disconnected_cmd);
     ac_disconnected_cmd = NULL;
-    destroy_timer(&battery_timeout);
+    destroy_timer(&battery_timer);
     battery_found = FALSE;
 
     battery_os_free();
@@ -225,7 +225,7 @@ void init_battery()
 
     battery_found = battery_os_init();
 
-    change_timer(&battery_timeout, true, 10, 30000, update_battery_tick, 0);
+    change_timer(&battery_timer, true, 10, 30000, update_battery_tick, 0);
 
     update_battery();
 }

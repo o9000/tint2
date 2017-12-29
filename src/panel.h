@@ -144,7 +144,7 @@ typedef struct Panel {
     gboolean is_hidden;
     int hidden_width, hidden_height;
     Pixmap hidden_pixmap;
-    Timer autohide_timeout;
+    Timer autohide_timer;
 } Panel;
 
 extern Panel panel_config;

@@ -31,9 +31,9 @@ static int x, y, width, height;
 static gboolean just_shown;
 
 // the next functions are helper functions for tooltip handling
-void start_show_timeout();
-void start_hide_timeout();
-void stop_tooltip_timeout();
+void start_show_timer();
+void start_hide_timer();
+void stop_tooltip_timer();
 
 void tooltip_init_fonts();
 
@@ -44,8 +44,8 @@ void default_tooltip()
     // give the tooltip some reasonable default values
     memset(&g_tooltip, 0, sizeof(Tooltip));
 
-    INIT_TIMER(g_tooltip.timeout);
-    INIT_TIMER(g_tooltip.update_timeout);
+    INIT_TIMER(g_tooltip.visibility_timer);
+    INIT_TIMER(g_tooltip.update_timer);
 
     g_tooltip.font_color.rgb[0] = 1;
     g_tooltip.font_color.rgb[1] = 1;
@@ -56,9 +56,9 @@ void default_tooltip()
 
 void cleanup_tooltip()
 {
-    stop_tooltip_timeout();
-    destroy_timer(&g_tooltip.timeout);
-    destroy_timer(&g_tooltip.update_timeout);
+    stop_tooltip_timer();
+    destroy_timer(&g_tooltip.visibility_timer);
+    destroy_timer(&g_tooltip.update_timer);
     tooltip_hide(NULL);
     tooltip_update_contents_for(NULL);
     if (g_tooltip.window)
@@ -125,9 +125,9 @@ void tooltip_trigger_show(Area *area, Panel *p, XEvent *e)
     if (g_tooltip.mapped && g_tooltip.area != area) {
         tooltip_update_contents_for(area);
         tooltip_update();
-        stop_tooltip_timeout();
+        stop_tooltip_timer();
     } else if (!g_tooltip.mapped) {
-        start_show_timeout();
+        start_show_timer();
     }
 }
 
@@ -310,10 +310,10 @@ void tooltip_trigger_hide()
 {
     if (g_tooltip.mapped) {
         tooltip_update_contents_for(NULL);
-        start_hide_timeout();
+        start_hide_timer();
     } else {
-        // tooltip not visible yet, but maybe a timeout is still pending
-        stop_tooltip_timeout();
+        // tooltip not visible yet, but maybe a timer is still pending
+        stop_tooltip_timer();
     }
 }
 
@@ -327,19 +327,19 @@ void tooltip_hide(void *arg)
     g_tooltip.area = NULL;
 }
 
-void start_show_timeout()
+void start_show_timer()
 {
-    change_timer(&g_tooltip.timeout, true, g_tooltip.show_timeout_msec, 0, tooltip_show, 0);
+    change_timer(&g_tooltip.visibility_timer, true, g_tooltip.show_timeout_msec, 0, tooltip_show, 0);
 }
 
-void start_hide_timeout()
+void start_hide_timer()
 {
-    change_timer(&g_tooltip.timeout, true, g_tooltip.hide_timeout_msec, 0, tooltip_hide, 0);
+    change_timer(&g_tooltip.visibility_timer, true, g_tooltip.hide_timeout_msec, 0, tooltip_hide, 0);
 }
 
-void stop_tooltip_timeout()
+void stop_tooltip_timer()
 {
-    stop_timer(&g_tooltip.timeout);
+    stop_timer(&g_tooltip.visibility_timer);
 }
 
 void tooltip_update_contents_timeout(void *arg)
@@ -360,7 +360,7 @@ void tooltip_update_contents_for(Area *area)
         if (g_tooltip.image)
             cairo_surface_reference(g_tooltip.image);
         else
-            change_timer(&g_tooltip.update_timeout, true, 300, 0, tooltip_update_contents_timeout, NULL);
+            change_timer(&g_tooltip.update_timer, true, 300, 0, tooltip_update_contents_timeout, NULL);
     }
     g_tooltip.area = area;
 }

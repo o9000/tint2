@@ -1239,7 +1239,7 @@ TEST(change_timer_simple_other_inside_callback)
     ASSERT_EQUAL(triggered_other, 0);
 }
 
-TEST(add_change_two_timeout_simple_inside_callback)
+TEST(add_change_two_timer_simple_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
@@ -1460,7 +1460,7 @@ TEST(change_timer_multi_other_inside_callback)
     ASSERT_EQUAL(triggered_other, 0);
 }
 
-TEST(add_change_two_timeout_multi_inside_callback)
+TEST(add_change_two_timer_multi_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
@@ -1651,7 +1651,7 @@ TEST(get_duration_to_next_timer_expiration_simple_multi)
     ASSERT_EQUAL(timeval_to_ms(get_duration_to_next_timer_expiration()), 40);
 }
 
-TEST(cleanup_timeout_simple)
+TEST(cleanup_timers_simple)
 {
     u_int64_t origin = MOCK_ORIGIN;
     int triggered = 0;
