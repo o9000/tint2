@@ -1,4 +1,4 @@
-2017-12-29 master
+2017-12-30 16.1
 - Fixes:
   - Fixed several use-after-free errors in the timer code
   - Merged patches and fixed other warnings on OpenBSD
@@ -979,6 +979,7 @@ released tint-0.2
 2008-04-22
 - fork ttm projet from p://code.google.com/p/ttm/ (by Pål Staurland staura@gmail.com)
   while the projet is no longer in developpement, have not changed the name of 'tint'.
+.
 .
 .
 .

@@ -1,5 +1,5 @@
-# Latest stable release: 16.0
-Changes: https://gitlab.com/o9000/tint2/blob/16.0/ChangeLog
+# Latest stable release: 16.1
+Changes: https://gitlab.com/o9000/tint2/blob/16.1/ChangeLog
 
 Documentation: [doc/tint2.md](doc/tint2.md)
 
@@ -8,7 +8,7 @@ Compile it with (after you install the [dependencies](https://gitlab.com/o9000/t
 ```
 git clone https://gitlab.com/o9000/tint2.git
 cd tint2
-git checkout 16.0
+git checkout 16.1
 mkdir build
 cd build
 cmake ..
