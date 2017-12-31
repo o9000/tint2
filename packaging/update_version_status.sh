@@ -15,7 +15,7 @@ git reset --hard
 git pull
 
 
-timeout -k 600 ~/tint2/packaging/version_status.py > packaging.tmp.md
+timeout -k 10 600 ~/tint2/packaging/version_status.py > packaging.tmp.md
 cat packaging.tmp.md > packaging.md
 rm packaging.tmp.md
 
