@@ -528,6 +528,8 @@ gboolean resize_panel(void *obj)
                 }
             } else if (taskbar_alignment == ALIGN_CENTER) {
                 slack /= 2;
+                Taskbar *left_taskbar = NULL;
+                Taskbar *right_taskbar = NULL;
                 for (int i = 0; i < panel->num_desktops; i++) {
                     Taskbar *taskbar = &panel->taskbar[i];
                     if (!taskbar->area.on_screen)
@@ -537,6 +539,7 @@ gboolean resize_panel(void *obj)
                     else
                         taskbar->area.height += slack;
                     taskbar->area.alignment = ALIGN_RIGHT;
+                    left_taskbar = taskbar;
                     break;
                 }
                 for (int i = panel->num_desktops - 1; i >= 0; i--) {
@@ -548,8 +551,11 @@ gboolean resize_panel(void *obj)
                     else
                         taskbar->area.height += slack;
                     taskbar->area.alignment = ALIGN_LEFT;
+                    right_taskbar = taskbar;
                     break;
                 }
+                if (left_taskbar == right_taskbar)
+                    left_taskbar->area.alignment = ALIGN_CENTER;
             }
         } else {
             // No tasks => expand the first visible taskbar
