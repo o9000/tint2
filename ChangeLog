@@ -1,3 +1,7 @@
+2018-01-15 master
+- Fixes:
+  - Proper fix for issue #688
+
 2017-12-30 16.1
 - Fixes:
   - Fixed several use-after-free errors in the timer code
