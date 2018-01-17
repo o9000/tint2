@@ -19,11 +19,11 @@
 **************************************************************************/
 
 #include <X11/extensions/Xdamage.h>
-#include <X11/extensions/Xrender.h>
 #include <X11/extensions/Xrandr.h>
+#include <X11/extensions/Xrender.h>
 
-#include <stdio.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -311,6 +311,21 @@ void sort_monitors()
     qsort(server.monitors, server.num_monitors, sizeof(Monitor), compare_monitor_pos);
 }
 
+int compute_dpi(XRRCrtcInfo *crtc, XRROutputInfo *output)
+{
+    int width = output->mm_width;
+    int height = output->mm_height;
+    int x_res = crtc->width;
+    int y_res = crtc->height;
+
+    if (width > 0 && height > 0) {
+        int dpi_x = x_res / width * 25.4;
+        int dpi_y = y_res / height * 25.4;
+        return MAX(dpi_x, dpi_y);
+    }
+    return 0;
+}
+
 void get_monitors()
 {
     if (XineramaIsActive(server.display)) {
@@ -339,12 +354,22 @@ void get_monitors()
                 server.monitors[i_monitor].width = crtc_info->width;
                 server.monitors[i_monitor].height = crtc_info->height;
                 server.monitors[i_monitor].names = calloc((crtc_info->noutput + 1), sizeof(gchar *));
+                server.monitors[i_monitor].dpi = 96;
                 for (int j = 0; j < crtc_info->noutput; ++j) {
                     XRROutputInfo *output_info = XRRGetOutputInfo(server.display, res, crtc_info->outputs[j]);
-                    fprintf(stderr, "tint2: xRandr: Linking output %s with crtc %d\n", output_info->name, i);
                     server.monitors[i_monitor].names[j] = g_strdup(output_info->name);
                     XRRFreeOutputInfo(output_info);
                     server.monitors[i_monitor].primary = crtc_info->outputs[j] == primary_output;
+                    int dpi = compute_dpi(crtc_info, output_info);
+                    if (dpi)
+                        server.monitors[i_monitor].dpi = dpi;
+                    fprintf(stderr,
+                            "tint2: xRandr: Linking output %s with crtc %d, resolution %dx%d, DPI %d\n",
+                            output_info->name,
+                            i,
+                            server.monitors[i_monitor].width,
+                            server.monitors[i_monitor].height,
+                            server.monitors[i_monitor].dpi);
                 }
                 server.monitors[i_monitor].names[crtc_info->noutput] = NULL;
                 XRRFreeCrtcInfo(crtc_info);
@@ -357,6 +382,7 @@ void get_monitors()
                 server.monitors[i].width = info[i].width;
                 server.monitors[i].height = info[i].height;
                 server.monitors[i].names = NULL;
+                server.monitors[i].dpi = 96;
             }
         }
 
@@ -393,6 +419,7 @@ void get_monitors()
         server.monitors[0].width = DisplayWidth(server.display, server.screen);
         server.monitors[0].height = DisplayHeight(server.display, server.screen);
         server.monitors[0].names = 0;
+        server.monitors[0].dpi = 96;
     }
 }
 
@@ -523,7 +550,8 @@ int get_current_desktop()
     //	fprintf(stderr, "tint2: \n");
     //	fprintf(stderr, "tint2: Work area size: %d x %d\n", work_area_width, work_area_height);
     //	fprintf(stderr, "tint2: Viewport pos: %d x %d\n", viewport_x, viewport_y);
-    //	fprintf(stderr, "tint2: Viewport i: %d\n", (viewport_y / work_area_height) * ncols + viewport_x / work_area_width);
+    //	fprintf(stderr, "tint2: Viewport i: %d\n", (viewport_y / work_area_height) * ncols + viewport_x /
+    //work_area_width);
 
     int result = (viewport_y / work_area_height) * ncols + viewport_x / work_area_width;
     return MAX(0, MIN(server.num_desktops - 1, result));

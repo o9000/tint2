@@ -107,6 +107,7 @@ typedef struct Monitor {
     int y;
     int width;
     int height;
+    int dpi;
     gboolean primary;
     gchar **names;
 } Monitor;

@@ -61,6 +61,8 @@ src/util/blur.c
 src/util/blur.h
 src/util/common.c
 src/util/common.h
+src/util/server.c
+src/util/server.h
 src/util/strlcat.c
 src/util/strlcat.h
 src/util/timer.c
