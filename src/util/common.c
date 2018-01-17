@@ -934,7 +934,8 @@ void get_text_size2(const PangoFontDescription *font,
                     int text_len,
                     PangoWrapMode wrap,
                     PangoEllipsizeMode ellipsis,
-                    gboolean markup)
+                    gboolean markup,
+                    double scale)
 {
     PangoRectangle rect_ink, rect;
 
@@ -945,7 +946,9 @@ void get_text_size2(const PangoFontDescription *font,
         cairo_image_surface_create(CAIRO_FORMAT_ARGB32, available_height, available_width);
     cairo_t *c = cairo_create(cs);
 
-    PangoLayout *layout = pango_cairo_create_layout(c);
+    PangoContext *context = pango_cairo_create_context(c);
+    pango_cairo_context_set_resolution(context, 96 * scale);
+    PangoLayout *layout = pango_layout_new(context);
     pango_layout_set_width(layout, available_width * PANGO_SCALE);
     pango_layout_set_height(layout, available_height * PANGO_SCALE);
     pango_layout_set_wrap(layout, wrap);
@@ -964,6 +967,7 @@ void get_text_size2(const PangoFontDescription *font,
     // fprintf(stderr, "tint2: dimension : %d - %d\n", rect_ink.height, rect.height);
 
     g_object_unref(layout);
+    g_object_unref(context);
     cairo_destroy(c);
     cairo_surface_destroy(cs);
 }

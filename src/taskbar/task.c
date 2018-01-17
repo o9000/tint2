@@ -429,7 +429,7 @@ void draw_task_icon(Task *task, int text_width)
         else
             task->_icon_x = (task->area.width - panel->g_task.icon_size1) / 2;
     } else {
-        task->_icon_x = left_border_width(&task->area) + task->area.paddingxlr;
+        task->_icon_x = left_border_width(&task->area) + task->area.paddingxlr * panel->scale;
     }
 
     // Render
@@ -459,7 +459,9 @@ void draw_task(void *obj, cairo_t *c)
 
     task->_text_width = 0;
     if (panel->g_task.has_text) {
-        PangoLayout *layout = pango_cairo_create_layout(c);
+        PangoContext *context = pango_cairo_create_context(c);
+        pango_cairo_context_set_resolution(context, 96 * panel->scale);
+        PangoLayout *layout = pango_layout_new(context);
         pango_layout_set_font_description(layout, panel->g_task.font_desc);
         pango_layout_set_text(layout, task->title, -1);
 
@@ -480,6 +482,7 @@ void draw_task(void *obj, cairo_t *c)
         draw_text(layout, c, panel->g_task.text_posx, task->_text_posy, config_text, panel->font_shadow);
 
         g_object_unref(layout);
+        g_object_unref(context);
     }
 
     if (panel->g_task.has_icon)
@@ -532,7 +535,7 @@ int task_compute_desired_size(void *obj)
 {
     Task *task = (Task *)obj;
     Panel *panel = (Panel *)task->area.panel;
-    int size = panel_horizontal ? panel->g_task.maximum_width : panel->g_task.maximum_height;
+    int size = (panel_horizontal ? panel->g_task.maximum_width : panel->g_task.maximum_height) * panel->scale;
     return size;
 }
 

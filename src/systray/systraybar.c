@@ -141,11 +141,12 @@ void init_systray_panel(void *p)
 
 void systray_compute_geometry(int *size)
 {
+    Panel *panel = (Panel*)systray.area.panel;
     systray.icon_size = panel_horizontal ? systray.area.height : systray.area.width;
     systray.icon_size -=
-        MAX(left_right_border_width(&systray.area), top_bottom_border_width(&systray.area)) + 2 * systray.area.paddingy;
+        MAX(left_right_border_width(&systray.area), top_bottom_border_width(&systray.area)) + 2 * systray.area.paddingy * panel->scale;
     if (systray_max_icon_size > 0)
-        systray.icon_size = MIN(systray.icon_size, systray_max_icon_size);
+        systray.icon_size = MIN(systray.icon_size, systray_max_icon_size * panel->scale);
 
     int count = 0;
     for (GSList *l = systray.list_icons; l; l = l->next) {
@@ -153,24 +154,24 @@ void systray_compute_geometry(int *size)
     }
 
     if (panel_horizontal) {
-        int height = systray.area.height - top_bottom_border_width(&systray.area) - 2 * systray.area.paddingy;
+        int height = systray.area.height - top_bottom_border_width(&systray.area) - 2 * systray.area.paddingy * panel->scale;
         // here icons_per_column always higher than 0
-        systray.icons_per_column = (height + systray.area.paddingx) / (systray.icon_size + systray.area.paddingx);
+        systray.icons_per_column = (height + systray.area.paddingx * panel->scale) / (systray.icon_size + systray.area.paddingx * panel->scale);
         systray.margin =
-            height - (systray.icons_per_column - 1) * (systray.icon_size + systray.area.paddingx) - systray.icon_size;
+            height - (systray.icons_per_column - 1) * (systray.icon_size + systray.area.paddingx * panel->scale) - systray.icon_size;
         systray.icons_per_row = count / systray.icons_per_column + (count % systray.icons_per_column != 0);
-        *size = left_right_border_width(&systray.area) + 2 * systray.area.paddingxlr +
-                (systray.icon_size * systray.icons_per_row) + ((systray.icons_per_row - 1) * systray.area.paddingx);
+        *size = left_right_border_width(&systray.area) + 2 * systray.area.paddingxlr * panel->scale +
+                (systray.icon_size * systray.icons_per_row) + ((systray.icons_per_row - 1) * systray.area.paddingx * panel->scale);
     } else {
-        int width = systray.area.width - left_right_border_width(&systray.area) - 2 * systray.area.paddingy;
+        int width = systray.area.width - left_right_border_width(&systray.area) - 2 * systray.area.paddingy * panel->scale;
         // here icons_per_row always higher than 0
-        systray.icons_per_row = (width + systray.area.paddingx) / (systray.icon_size + systray.area.paddingx);
+        systray.icons_per_row = (width + systray.area.paddingx * panel->scale) / (systray.icon_size + systray.area.paddingx * panel->scale);
         systray.margin =
-            width - (systray.icons_per_row - 1) * (systray.icon_size + systray.area.paddingx) - systray.icon_size;
+            width - (systray.icons_per_row - 1) * (systray.icon_size + systray.area.paddingx * panel->scale) - systray.icon_size;
         systray.icons_per_column = count / systray.icons_per_row + (count % systray.icons_per_row != 0);
-        *size = top_bottom_border_width(&systray.area) + (2 * systray.area.paddingxlr) +
+        *size = top_bottom_border_width(&systray.area) + (2 * systray.area.paddingxlr * panel->scale) +
                 (systray.icon_size * systray.icons_per_column) +
-                ((systray.icons_per_column - 1) * systray.area.paddingx);
+                ((systray.icons_per_column - 1) * systray.area.paddingx * panel->scale);
     }
 }
 
@@ -281,13 +282,13 @@ void on_change_systray(void *obj)
     int posx, posy;
     int start;
     if (panel_horizontal) {
-        posy = start = top_border_width(&panel->area) + panel->area.paddingy + top_border_width(&systray.area) +
-                       systray.area.paddingy + systray.margin / 2;
-        posx = systray.area.posx + left_border_width(&systray.area) + systray.area.paddingxlr;
+        posy = start = top_border_width(&panel->area) + panel->area.paddingy * panel->scale + top_border_width(&systray.area) +
+                       systray.area.paddingy * panel->scale + systray.margin / 2;
+        posx = systray.area.posx + left_border_width(&systray.area) + systray.area.paddingxlr * panel->scale;
     } else {
-        posx = start = left_border_width(&panel->area) + panel->area.paddingy + left_border_width(&systray.area) +
-                       systray.area.paddingy + systray.margin / 2;
-        posy = systray.area.posy + top_border_width(&systray.area) + systray.area.paddingxlr;
+        posx = start = left_border_width(&panel->area) + panel->area.paddingy * panel->scale + left_border_width(&systray.area) +
+                       systray.area.paddingy * panel->scale + systray.margin / 2;
+        posy = systray.area.posy + top_border_width(&systray.area) + systray.area.paddingxlr * panel->scale;
     }
 
     TrayWindow *traywin;
@@ -312,17 +313,17 @@ void on_change_systray(void *obj)
         traywin->height = systray.icon_size;
         if (panel_horizontal) {
             if (i % systray.icons_per_column) {
-                posy += systray.icon_size + systray.area.paddingx;
+                posy += systray.icon_size + systray.area.paddingx * panel->scale;
             } else {
                 posy = start;
-                posx += (systray.icon_size + systray.area.paddingx);
+                posx += (systray.icon_size + systray.area.paddingx * panel->scale);
             }
         } else {
             if (i % systray.icons_per_row) {
-                posx += systray.icon_size + systray.area.paddingx;
+                posx += systray.icon_size + systray.area.paddingx * panel->scale;
             } else {
                 posx = start;
-                posy += (systray.icon_size + systray.area.paddingx);
+                posy += (systray.icon_size + systray.area.paddingx * panel->scale);
             }
         }
 

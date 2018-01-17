@@ -153,7 +153,9 @@ void tooltip_update_geometry()
 
     cairo_surface_t *cs = cairo_xlib_surface_create(server.display, g_tooltip.window, server.visual, width, height);
     cairo_t *c = cairo_create(cs);
-    PangoLayout *layout = pango_cairo_create_layout(c);
+    PangoContext *context = pango_cairo_create_context(c);
+    pango_cairo_context_set_resolution(context, 96 * panel->scale);
+    PangoLayout *layout = pango_layout_new(context);
 
     pango_layout_set_font_description(layout, g_tooltip.font_desc);
     PangoRectangle r1, r2;
@@ -161,7 +163,7 @@ void tooltip_update_geometry()
     pango_layout_get_pixel_extents(layout, &r1, &r2);
     int max_width = MIN(r2.width * 5, screen_width * 2 / 3);
     if (g_tooltip.image && cairo_image_surface_get_width(g_tooltip.image) > 0) {
-        max_width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx +
+        max_width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale +
                                 cairo_image_surface_get_width(g_tooltip.image);
     }
     pango_layout_set_width(layout, max_width * PANGO_SCALE);
@@ -169,12 +171,12 @@ void tooltip_update_geometry()
     pango_layout_set_text(layout, g_tooltip.tooltip_text ? g_tooltip.tooltip_text : "1234567890abcdef", -1);
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
     pango_layout_get_pixel_extents(layout, &r1, &r2);
-    width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx + r2.width;
-    height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy + r2.height;
+    width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + r2.width;
+    height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy * panel->scale + r2.height;
     if (g_tooltip.image && cairo_image_surface_get_width(g_tooltip.image) > 0) {
-        width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx +
+        width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale +
                                         cairo_image_surface_get_width(g_tooltip.image);
-        height += g_tooltip.paddingy + cairo_image_surface_get_height(g_tooltip.image);
+        height += g_tooltip.paddingy * panel->scale + cairo_image_surface_get_height(g_tooltip.image);
     }
 
     if (panel_horizontal && panel_position & BOTTOM)
@@ -187,6 +189,7 @@ void tooltip_update_geometry()
         x = panel->posx - width;
 
     g_object_unref(layout);
+    g_object_unref(context);
     cairo_destroy(c);
     cairo_surface_destroy(cs);
 }
@@ -243,6 +246,7 @@ void tooltip_update()
         tooltip_hide(0);
         return;
     }
+    Panel *panel = g_tooltip.panel;
 
     tooltip_update_geometry();
     if (just_shown) {
@@ -289,15 +293,15 @@ void tooltip_update()
     // I do not know why this is the right way, but with the below cairo_move_to it seems to be centered (horiz. and
     // vert.)
     cairo_move_to(c,
-                  -r1.x / 2 + left_bg_border_width(g_tooltip.bg) + g_tooltip.paddingx,
-                  -r1.y / 2 + 1 + top_bg_border_width(g_tooltip.bg) + g_tooltip.paddingy);
+                  -r1.x / 2 + left_bg_border_width(g_tooltip.bg) + g_tooltip.paddingx * panel->scale,
+                  -r1.y / 2 + 1 + top_bg_border_width(g_tooltip.bg) + g_tooltip.paddingy * panel->scale);
     pango_cairo_show_layout(c, layout);
     g_object_unref(layout);
 
     if (g_tooltip.image) {
         cairo_translate(c,
-                        left_bg_border_width(g_tooltip.bg) + g_tooltip.paddingx,
-                        height - bottom_bg_border_width(g_tooltip.bg) - g_tooltip.paddingy - cairo_image_surface_get_height(g_tooltip.image));
+                        left_bg_border_width(g_tooltip.bg) + g_tooltip.paddingx * panel->scale,
+                        height - bottom_bg_border_width(g_tooltip.bg) - g_tooltip.paddingy * panel->scale - cairo_image_surface_get_height(g_tooltip.image));
         cairo_set_source_surface(c, g_tooltip.image, 0, 0);
         cairo_paint(c);
     }

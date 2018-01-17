@@ -313,10 +313,10 @@ void sort_monitors()
 
 int compute_dpi(XRRCrtcInfo *crtc, XRROutputInfo *output)
 {
-    int width = output->mm_width;
-    int height = output->mm_height;
-    int x_res = crtc->width;
-    int y_res = crtc->height;
+    double width = output->mm_width;
+    double height = output->mm_height;
+    double x_res = crtc->width;
+    double y_res = crtc->height;
 
     if (width > 0 && height > 0) {
         int dpi_x = x_res / width * 25.4;
@@ -364,7 +364,7 @@ void get_monitors()
                     if (dpi)
                         server.monitors[i_monitor].dpi = dpi;
                     fprintf(stderr,
-                            "tint2: xRandr: Linking output %s with crtc %d, resolution %dx%d, DPI %d\n",
+                            BLUE "tint2: xRandr: Linking output %s with crtc %d, resolution %dx%d, DPI %d" RESET "\n",
                             output_info->name,
                             i,
                             server.monitors[i_monitor].width,

@@ -115,31 +115,33 @@ void cleanup_separator()
 int separator_compute_desired_size(void *obj)
 {
     Separator *separator = (Separator *)obj;
+    Panel *panel = (Panel*)separator->area.panel;
     if (!separator->area.on_screen)
         return 0;
 
     if (panel_horizontal)
-        return separator->thickness + 2 * separator->area.paddingxlr + left_right_border_width(&separator->area);
+        return separator->thickness + 2 * separator->area.paddingxlr * panel->scale + left_right_border_width(&separator->area);
     else
-        return separator->thickness + 2 * separator->area.paddingxlr + top_bottom_border_width(&separator->area);
+        return separator->thickness + 2 * separator->area.paddingxlr * panel->scale + top_bottom_border_width(&separator->area);
 }
 
 gboolean resize_separator(void *obj)
 {
     Separator *separator = (Separator *)obj;
+    Panel *panel = (Panel*)separator->area.panel;
     if (!separator->area.on_screen)
         return FALSE;
 
     if (panel_horizontal) {
         separator->area.width =
-            separator->thickness + 2 * separator->area.paddingxlr + left_right_border_width(&separator->area);
+            separator->thickness + 2 * separator->area.paddingxlr * panel->scale + left_right_border_width(&separator->area);
         separator->length =
-            separator->area.height - 2 * separator->area.paddingy - top_bottom_border_width(&separator->area);
+            separator->area.height - 2 * separator->area.paddingy * panel->scale - top_bottom_border_width(&separator->area);
     } else {
         separator->area.height =
-            separator->thickness + 2 * separator->area.paddingxlr + top_bottom_border_width(&separator->area);
+            separator->thickness + 2 * separator->area.paddingxlr * panel->scale + top_bottom_border_width(&separator->area);
         separator->length =
-            separator->area.width - 2 * separator->area.paddingy - left_right_border_width(&separator->area);
+            separator->area.width - 2 * separator->area.paddingy * panel->scale - left_right_border_width(&separator->area);
     }
 
     schedule_redraw(&separator->area);

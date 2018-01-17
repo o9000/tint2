@@ -312,9 +312,9 @@ void execp_compute_icon_text_geometry(Execp *execp,
 {
     Panel *panel = (Panel *)execp->area.panel;
     Area *area = &execp->area;
-    *horiz_padding = (panel_horizontal ? area->paddingxlr : area->paddingy);
-    *vert_padding = (panel_horizontal ? area->paddingy : area->paddingxlr);
-    *interior_padding = area->paddingx;
+    *horiz_padding = (panel_horizontal ? area->paddingxlr : area->paddingy) * panel->scale;
+    *vert_padding = (panel_horizontal ? area->paddingy : area->paddingxlr) * panel->scale;
+    *interior_padding = area->paddingx * panel->scale;
 
     if (reload_icon(execp)) {
         if (execp->backend->icon) {
@@ -333,7 +333,7 @@ void execp_compute_icon_text_geometry(Execp *execp,
     int available_w, available_h;
     if (panel_horizontal) {
         available_w = panel->area.width;
-        available_h = area->height - 2 * area->paddingy - left_right_border_width(area);
+        available_h = area->height - 2 * *horiz_padding - left_right_border_width(area);
     } else {
         available_w = !text_next_line
                           ? area->width - *icon_w - (*icon_w ? *interior_padding : 0) - 2 * *horiz_padding -
@@ -351,7 +351,8 @@ void execp_compute_icon_text_geometry(Execp *execp,
                    strlen(execp->backend->text),
                    PANGO_WRAP_WORD_CHAR,
                    PANGO_ELLIPSIZE_NONE,
-                   execp->backend->has_markup);
+                   execp->backend->has_markup,
+                   panel->scale);
 
     *resized = FALSE;
     if (panel_horizontal) {
@@ -476,7 +477,11 @@ gboolean resize_execp(void *obj)
 void draw_execp(void *obj, cairo_t *c)
 {
     Execp *execp = (Execp *)obj;
-    PangoLayout *layout = pango_cairo_create_layout(c);
+    Panel *panel = (Panel *)execp->area.panel;
+
+    PangoContext *context = pango_cairo_create_context(c);
+    pango_cairo_context_set_resolution(context, 96 * panel->scale);
+    PangoLayout *layout = pango_layout_new(context);
 
     if (execp->backend->has_icon && execp->backend->icon) {
         imlib_context_set_image(execp->backend->icon);
@@ -504,6 +509,7 @@ void draw_execp(void *obj, cairo_t *c)
               panel_config.font_shadow);
 
     g_object_unref(layout);
+    g_object_unref(context);
 }
 
 void execp_dump_geometry(void *obj, int indent)

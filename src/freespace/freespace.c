@@ -65,14 +65,14 @@ void cleanup_freespace(Panel *panel)
     panel->freespace_list = NULL;
 }
 
-int freespace_get_max_size(Panel *p)
+int freespace_get_max_size(Panel *panel)
 {
     if (panel_shrink)
         return 0;
     // Get space used by every element except the freespace
     int size = 0;
     int spacers = 0;
-    for (GList *walk = p->area.children; walk; walk = g_list_next(walk)) {
+    for (GList *walk = panel->area.children; walk; walk = g_list_next(walk)) {
         Area *a = (Area *)walk->data;
 
         if (!a->on_screen)
@@ -83,15 +83,15 @@ int freespace_get_max_size(Panel *p)
         }
 
         if (panel_horizontal)
-            size += a->width + p->area.paddingx;
+            size += a->width + panel->area.paddingx * panel->scale;
         else
-            size += a->height + p->area.paddingy;
+            size += a->height + panel->area.paddingy * panel->scale;
     }
 
     if (panel_horizontal)
-        size = p->area.width - size - left_right_border_width(&p->area) - p->area.paddingxlr;
+        size = panel->area.width - size - left_right_border_width(&panel->area) - panel->area.paddingxlr * panel->scale;
     else
-        size = p->area.height - size - top_bottom_border_width(&p->area) - p->area.paddingxlr;
+        size = panel->area.height - size - top_bottom_border_width(&panel->area) - panel->area.paddingxlr * panel->scale;
 
     return size / spacers;
 }

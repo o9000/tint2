@@ -420,6 +420,7 @@ gboolean resize_battery(void *obj)
 void draw_battery(void *obj, cairo_t *c)
 {
     Battery *battery = (Battery *)obj;
+    Panel *panel = (Panel *)battery->area.panel;
     draw_text_area(&battery->area,
                    c,
                    buf_bat_line1,
@@ -428,7 +429,8 @@ void draw_battery(void *obj, cairo_t *c)
                    bat2_font_desc,
                    battery->bat1_posy,
                    battery->bat2_posy,
-                   &battery->font_color);
+                   &battery->font_color,
+                   panel->scale);
 }
 
 void battery_dump_geometry(void *obj, int indent)

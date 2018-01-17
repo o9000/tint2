@@ -112,7 +112,7 @@ void init_launcher_panel(void *p)
         return;
 
     // This will be recomputed on resize, we just initialize to a non-zero value
-    launcher->icon_size = launcher_max_icon_size > 0 ? launcher_max_icon_size : 24;
+    launcher->icon_size = launcher_max_icon_size > 0 ? launcher_max_icon_size * panel->scale : 24;
 
     launcher->area.on_screen = TRUE;
     schedule_panel_redraw();
@@ -174,11 +174,12 @@ void cleanup_launcher_theme(Launcher *launcher)
 
 int launcher_compute_icon_size(Launcher *launcher)
 {
+    Panel *panel = launcher->area.panel;
     int icon_size = panel_horizontal ? launcher->area.height : launcher->area.width;
     icon_size = icon_size - MAX(left_right_border_width(&launcher->area), top_bottom_border_width(&launcher->area)) -
-                (2 * launcher->area.paddingy);
-    if (launcher_max_icon_size > 0 && icon_size > launcher_max_icon_size)
-        icon_size = launcher_max_icon_size;
+                (2 * launcher->area.paddingy * panel->scale);
+    if (launcher_max_icon_size)
+        icon_size = MIN(icon_size, launcher_max_icon_size * panel->scale);
     return icon_size;
 }
 
@@ -189,6 +190,7 @@ void launcher_compute_geometry(Launcher *launcher,
                                int *icons_per_row,
                                int *margin)
 {
+    Panel *panel = (Panel*)launcher->area.panel;
     int count = 0;
     for (GSList *l = launcher->list_icons; l; l = l->next) {
         LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
@@ -204,25 +206,25 @@ void launcher_compute_geometry(Launcher *launcher,
         if (!count) {
             *size = 0;
         } else {
-            int height = launcher->area.height - top_bottom_border_width(&launcher->area) - 2 * launcher->area.paddingy;
+            int height = launcher->area.height - top_bottom_border_width(&launcher->area) - 2 * launcher->area.paddingy * panel->scale;
             // here icons_per_column always higher than 0
-            *icons_per_column = (height + launcher->area.paddingx) / (*icon_size + launcher->area.paddingx);
-            *margin = height - (*icons_per_column - 1) * (*icon_size + launcher->area.paddingx) - *icon_size;
+            *icons_per_column = (height + launcher->area.paddingx * panel->scale) / (*icon_size + launcher->area.paddingx * panel->scale);
+            *margin = height - (*icons_per_column - 1) * (*icon_size + launcher->area.paddingx * panel->scale) - *icon_size;
             *icons_per_row = count / *icons_per_column + (count % *icons_per_column != 0);
-            *size = left_right_border_width(&launcher->area) + 2 * launcher->area.paddingxlr +
-                    (*icon_size * *icons_per_row) + ((*icons_per_row - 1) * launcher->area.paddingx);
+            *size = left_right_border_width(&launcher->area) + 2 * launcher->area.paddingxlr * panel->scale +
+                    (*icon_size * *icons_per_row) + ((*icons_per_row - 1) * launcher->area.paddingx * panel->scale);
         }
     } else {
         if (!count) {
             *size = 0;
         } else {
-            int width = launcher->area.width - top_bottom_border_width(&launcher->area) - 2 * launcher->area.paddingy;
+            int width = launcher->area.width - top_bottom_border_width(&launcher->area) - 2 * launcher->area.paddingy * panel->scale;
             // here icons_per_row always higher than 0
-            *icons_per_row = (width + launcher->area.paddingx) / (*icon_size + launcher->area.paddingx);
-            *margin = width - (*icons_per_row - 1) * (*icon_size + launcher->area.paddingx) - *icon_size;
+            *icons_per_row = (width + launcher->area.paddingx * panel->scale) / (*icon_size + launcher->area.paddingx * panel->scale);
+            *margin = width - (*icons_per_row - 1) * (*icon_size + launcher->area.paddingx * panel->scale) - *icon_size;
             *icons_per_column = count / *icons_per_row + (count % *icons_per_row != 0);
-            *size = top_bottom_border_width(&launcher->area) + 2 * launcher->area.paddingxlr +
-                    (*icon_size * *icons_per_column) + ((*icons_per_column - 1) * launcher->area.paddingx);
+            *size = top_bottom_border_width(&launcher->area) + 2 * launcher->area.paddingxlr * panel->scale +
+                    (*icon_size * *icons_per_column) + ((*icons_per_column - 1) * launcher->area.paddingx * panel->scale);
         }
     }
 }
@@ -239,6 +241,7 @@ int launcher_compute_desired_size(void *obj)
 gboolean resize_launcher(void *obj)
 {
     Launcher *launcher = (Launcher *)obj;
+    Panel *panel = (Panel*)launcher->area.panel;
 
     int size, icons_per_column, icons_per_row, margin;
     launcher_compute_geometry(launcher, &size, &launcher->icon_size, &icons_per_column, &icons_per_row, &margin);
@@ -281,11 +284,11 @@ gboolean resize_launcher(void *obj)
     int posx, posy;
     int start;
     if (panel_horizontal) {
-        posy = start = top_border_width(&launcher->area) + launcher->area.paddingy + margin / 2;
-        posx = left_border_width(&launcher->area) + launcher->area.paddingxlr;
+        posy = start = top_border_width(&launcher->area) + launcher->area.paddingy * panel->scale + margin / 2;
+        posx = left_border_width(&launcher->area) + launcher->area.paddingxlr * panel->scale;
     } else {
-        posx = start = left_border_width(&launcher->area) + launcher->area.paddingy + margin / 2;
-        posy = top_border_width(&launcher->area) + launcher->area.paddingxlr;
+        posx = start = left_border_width(&launcher->area) + launcher->area.paddingy * panel->scale + margin / 2;
+        posy = top_border_width(&launcher->area) + launcher->area.paddingxlr * panel->scale;
     }
 
     int i = 0;
@@ -300,17 +303,17 @@ gboolean resize_launcher(void *obj)
         // fprintf(stderr, "tint2: launcher %d : %d,%d\n", i, posx, posy);
         if (panel_horizontal) {
             if (i % icons_per_column) {
-                posy += launcher->icon_size + launcher->area.paddingx;
+                posy += launcher->icon_size + launcher->area.paddingx * panel->scale;
             } else {
                 posy = start;
-                posx += (launcher->icon_size + launcher->area.paddingx);
+                posx += (launcher->icon_size + launcher->area.paddingx * panel->scale);
             }
         } else {
             if (i % icons_per_row) {
-                posx += launcher->icon_size + launcher->area.paddingx;
+                posx += launcher->icon_size + launcher->area.paddingx * panel->scale;
             } else {
                 posx = start;
-                posy += (launcher->icon_size + launcher->area.paddingx);
+                posy += (launcher->icon_size + launcher->area.paddingx * panel->scale);
             }
         }
     }

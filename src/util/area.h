@@ -299,7 +299,8 @@ void draw_text_area(Area *area,
                     PangoFontDescription *line2_font_desc,
                     int line1_posy,
                     int line2_posy,
-                    Color *color);
+                    Color *color,
+                    double scale);
 
 int left_border_width(Area *a);
 int right_border_width(Area *a);

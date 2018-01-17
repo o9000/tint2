@@ -225,7 +225,7 @@ void init_panel()
             p->scale = server.monitors[p->monitor].dpi / ui_scale_dpi_ref;
         else
             p->scale = 1;
-        fprintf(stderr, "tint2: panel %d uses scale %f\n", i + 1, p->scale);
+        fprintf(stderr, BLUE "tint2: panel %d uses scale %g " RESET "\n", i + 1, p->scale);
         if (!p->area.bg)
             p->area.bg = &g_array_index(backgrounds, Background, 0);
         p->area.parent = p;
@@ -470,9 +470,9 @@ gboolean resize_panel(void *obj)
             if (!taskbar->area.on_screen)
                 continue;
             if (panel_horizontal)
-                taskbar->area.width = 2 * taskbar->area.paddingxlr;
+                taskbar->area.width = 2 * taskbar->area.paddingxlr * panel->scale;
             else
-                taskbar->area.height = 2 * taskbar->area.paddingxlr;
+                taskbar->area.height = 2 * taskbar->area.paddingxlr * panel->scale;
             if (taskbarname_enabled && taskbar->area.children) {
                 Area *name = (Area *)taskbar->area.children->data;
                 if (name->on_screen) {
@@ -489,9 +489,9 @@ gboolean resize_panel(void *obj)
                     continue;
                 if (!first_child) {
                     if (panel_horizontal)
-                        taskbar->area.width += taskbar->area.paddingx;
+                        taskbar->area.width += taskbar->area.paddingx * panel->scale;
                     else
-                        taskbar->area.height += taskbar->area.paddingy;
+                        taskbar->area.height += taskbar->area.paddingy * panel->scale;
                 }
                 first_child = FALSE;
             }

@@ -145,12 +145,13 @@ int taskbarname_compute_desired_size(void *obj)
                    strlen(taskbar_name->name),
                    PANGO_WRAP_WORD_CHAR,
                    PANGO_ELLIPSIZE_NONE,
-                   FALSE);
+                   FALSE,
+                   panel->scale);
 
     if (panel_horizontal) {
-        return name_width + 2 * taskbar_name->area.paddingxlr + left_right_border_width(&taskbar_name->area);
+        return name_width + 2 * taskbar_name->area.paddingxlr * panel->scale + left_right_border_width(&taskbar_name->area);
     } else {
-        return name_height + 2 * taskbar_name->area.paddingxlr + top_bottom_border_width(&taskbar_name->area);
+        return name_height + 2 * taskbar_name->area.paddingxlr * panel->scale + top_bottom_border_width(&taskbar_name->area);
     }
 }
 
@@ -172,7 +173,8 @@ gboolean resize_taskbarname(void *obj)
                    strlen(taskbar_name->name),
                    PANGO_WRAP_WORD_CHAR,
                    PANGO_ELLIPSIZE_NONE,
-                   FALSE);
+                   FALSE,
+                   panel->scale);
 
     gboolean result = FALSE;
     int new_size = taskbarname_compute_desired_size(obj);
@@ -195,11 +197,14 @@ gboolean resize_taskbarname(void *obj)
 void draw_taskbarname(void *obj, cairo_t *c)
 {
     TaskbarName *taskbar_name = obj;
+    Panel *panel = (Panel *)taskbar_name->area.panel;
     Taskbar *taskbar = taskbar_name->area.parent;
     Color *config_text = (taskbar->desktop == server.desktop) ? &taskbarname_active_font : &taskbarname_font;
 
     // draw content
-    PangoLayout *layout = pango_cairo_create_layout(c);
+    PangoContext *context = pango_cairo_create_context(c);
+    pango_cairo_context_set_resolution(context, 96 * panel->scale);
+    PangoLayout *layout = pango_layout_new(context);
     pango_layout_set_font_description(layout, panel_config.taskbarname_font_desc);
     pango_layout_set_width(layout, taskbar_name->area.width * PANGO_SCALE);
     pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
@@ -213,6 +218,7 @@ void draw_taskbarname(void *obj, cairo_t *c)
     draw_text(layout, c, 0, taskbar_name->posy, config_text, ((Panel *)taskbar_name->area.panel)->font_shadow);
 
     g_object_unref(layout);
+    g_object_unref(context);
 }
 
 void update_desktop_names()

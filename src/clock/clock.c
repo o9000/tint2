@@ -306,6 +306,7 @@ gboolean resize_clock(void *obj)
 void draw_clock(void *obj, cairo_t *c)
 {
     Clock *clock = (Clock *)obj;
+    Panel *panel = (Panel *)clock->area.panel;
     draw_text_area(&clock->area,
                    c,
                    buf_time,
@@ -314,7 +315,8 @@ void draw_clock(void *obj, cairo_t *c)
                    time2_font_desc,
                    clock->time1_posy,
                    clock->time2_posy,
-                   &clock->font);
+                   &clock->font,
+                   panel->scale);
 }
 
 void clock_dump_geometry(void *obj, int indent)
