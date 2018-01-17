@@ -386,6 +386,7 @@ gradient_id_pressed = 2
 <li><code>width</code> and <code>height</code> can be specified without units (e.g. <code>123</code>) as pixels, or followed by <code>%</code> as percentages of the monitor size (e.g. <code>50%</code>). Use <code>100%</code> for full monitor width/height.
 Example:</li>
 </ul></li>
+<li><p><code>scale_relative_to_dpi = integer</code> : If set to a non-zero value, HiDPI scaling is enabled. Each panel is visible on a different monitor. Thus each panel has a specific scaling factor. The scaling factor is computed as the ratio between the monitor DPI (obtained from the dimensions in pixels and millimeters from RandR) and a configured reference DPI - this is the DPI for which exising user configs looked normal, for backward compatibility.</p></li>
 </ul>
 <pre class="highlight plaintext"><code># The panel's width is 94% the size of the monitor, the height is 30 pixels:
 panel_size = 94% 30

@@ -343,6 +343,8 @@ Use \fB\fCpanel_monitor = all\fR to get a separate panel per monitor
 \fB\fCwidth\fR and \fB\fCheight\fR can be specified without units (e.g. \fB\fC123\fR) as pixels, or followed by \fB\fC%\fR as percentages of the monitor size (e.g. \fB\fC50%\fR). Use \fB\fC100%\fR for full monitor width/height.
 Example:
 .RE
+.IP \(bu 2
+\fB\fCscale_relative_to_dpi = integer\fR : If set to a non\-zero value, HiDPI scaling is enabled. Each panel is visible on a different monitor. Thus each panel has a specific scaling factor. The scaling factor is computed as the ratio between the monitor DPI (obtained from the dimensions in pixels and millimeters from RandR) and a configured reference DPI \- this is the DPI for which exising user configs looked normal, for backward compatibility.
 .RE
 .PP
 .RS
