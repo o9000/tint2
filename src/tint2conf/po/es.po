@@ -235,7 +235,7 @@ msgstr  "Crea un espacio entre el panel y el borde del monitor. Para paneles "
 
 #: ../properties.c:606
 msgid   "Scale relative to DPI"
-msgstr  ""
+msgstr  "Escala relativa a PPP"
 
 #: ../properties.c:619 ../properties.c:2268 ../properties.c:2744
 #: ../properties.c:3236 ../properties.c:3905 ../properties.c:4134
