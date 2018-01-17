@@ -118,6 +118,7 @@ typedef struct Panel {
     int mouse_pressed_alpha;
     int mouse_pressed_saturation;
     int mouse_pressed_brightness;
+    double scale;
 
     // Per-panel parameters and states for Taskbar and Task
     GlobalTaskbar g_taskbar;

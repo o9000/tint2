@@ -221,6 +221,11 @@ void init_panel()
 
         if (panel_config.monitor < 0)
             p->monitor = i;
+        if (ui_scale_dpi_ref > 0 && server.monitors[p->monitor].dpi > 0)
+            p->scale = server.monitors[p->monitor].dpi / ui_scale_dpi_ref;
+        else
+            p->scale = 1;
+        fprintf(stderr, "tint2: panel %d uses scale %f\n", i + 1, p->scale);
         if (!p->area.bg)
             p->area.bg = &g_array_index(backgrounds, Background, 0);
         p->area.parent = p;
@@ -356,6 +361,19 @@ void panel_compute_size(Panel *panel)
             panel->area.bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
             panel->area.bg->border.radius = panel->area.width / 2;
         }
+    }
+
+    if (!panel->fractional_width) {
+        if (panel_horizontal)
+            panel->area.width *= panel->scale;
+        else
+            panel->area.height *= panel->scale;
+    }
+    if (!panel->fractional_height) {
+        if (panel_horizontal)
+            panel->area.height *= panel->scale;
+        else
+            panel->area.width *= panel->scale;
     }
 
     if (panel->area.width + panel->marginx > server.monitors[panel->monitor].width)
