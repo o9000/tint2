@@ -281,7 +281,9 @@ void tooltip_update()
 
     Color fc = g_tooltip.font_color;
     cairo_set_source_rgba(c, fc.rgb[0], fc.rgb[1], fc.rgb[2], fc.alpha);
-    PangoLayout *layout = pango_cairo_create_layout(c);
+    PangoContext *context = pango_cairo_create_context(c);
+    pango_cairo_context_set_resolution(context, 96 * panel->scale);
+    PangoLayout *layout = pango_layout_new(context);
     pango_layout_set_font_description(layout, g_tooltip.font_desc);
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
     pango_layout_set_text(layout, g_tooltip.tooltip_text, -1);
@@ -297,6 +299,7 @@ void tooltip_update()
                   -r1.y / 2 + 1 + top_bg_border_width(g_tooltip.bg) + g_tooltip.paddingy * panel->scale);
     pango_cairo_show_layout(c, layout);
     g_object_unref(layout);
+    g_object_unref(context);
 
     if (g_tooltip.image) {
         cairo_translate(c,
