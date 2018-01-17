@@ -244,7 +244,9 @@ void add_entry(char *key, char *value)
     char *value1 = 0, *value2 = 0, *value3 = 0;
 
     /* Background and border */
-    if (strcmp(key, "rounded") == 0) {
+    if (strcmp(key, "scale_relative_to_dpi") == 0) {
+        ui_scale_dpi_ref = atof(value);
+    } else if (strcmp(key, "rounded") == 0) {
         // 'rounded' is the first parameter => alloc a new background
         if (backgrounds->len > 0) {
             Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);

@@ -79,11 +79,14 @@ int num_panels;
 GArray *backgrounds;
 GArray *gradients;
 
+double ui_scale_dpi_ref;
+
 Imlib_Image default_icon;
 char *default_font = NULL;
 
 void default_panel()
 {
+    ui_scale_dpi_ref = 0;
     panels = NULL;
     num_panels = 0;
     default_icon = NULL;
