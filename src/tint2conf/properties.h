@@ -9,6 +9,7 @@
 #include "../launcher/icon-theme-common.h"
 
 // panel
+extern GtkWidget *scale_relative_to_dpi;
 extern GtkWidget *panel_width, *panel_height, *panel_margin_x, *panel_margin_y, *panel_padding_x, *panel_padding_y,
     *panel_spacing;
 extern GtkWidget *panel_wm_menu, *panel_dock, *panel_autohide, *panel_autohide_show_time, *panel_autohide_hide_time,

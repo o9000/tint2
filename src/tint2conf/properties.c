@@ -22,6 +22,7 @@
 #include "gradient_gui.h"
 #include "strlcat.h"
 
+GtkWidget *scale_relative_to_dpi;
 GtkWidget *panel_width, *panel_height, *panel_margin_x, *panel_margin_y, *panel_padding_x, *panel_padding_y,
     *panel_spacing;
 GtkWidget *panel_wm_menu, *panel_dock, *panel_autohide, *panel_autohide_show_time, *panel_autohide_hide_time,
@@ -599,6 +600,19 @@ void create_panel(GtkWidget *parent)
                            "for bottom-aligned panels, it is created on the top; "
                            "for centered panels, it is evenly distributed on both sides of the panel."),
                          NULL);
+
+    row++;
+    col = 2;
+    label = gtk_label_new(_("Scale relative to DPI"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    scale_relative_to_dpi = gtk_spin_button_new_with_range(0, 9000, 1);
+    gtk_widget_show(scale_relative_to_dpi);
+    gtk_table_attach(GTK_TABLE(table), scale_relative_to_dpi, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
 
     change_paragraph(parent);
 
