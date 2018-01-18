@@ -7,6 +7,7 @@
 #define COMMON_H
 
 #define WM_CLASS_TINT "panel"
+#define TINT2_PANGO_SLACK 0
 
 #include <glib.h>
 #include <Imlib2.h>
