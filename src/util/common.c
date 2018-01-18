@@ -942,8 +942,9 @@ void get_text_size2(const PangoFontDescription *font,
     available_width = MAX(0, available_width);
     available_height = MAX(0, available_height);
 
+    Pixmap pmap = XCreatePixmap(server.display, server.root_win, available_height, available_width, server.depth);
     cairo_surface_t *cs =
-        cairo_image_surface_create(CAIRO_FORMAT_ARGB32, available_height, available_width);
+        cairo_xlib_surface_create(server.display, pmap, server.visual, available_height, available_width);
     cairo_t *c = cairo_create(cs);
 
     PangoContext *context = pango_cairo_create_context(c);
@@ -970,6 +971,7 @@ void get_text_size2(const PangoFontDescription *font,
     g_object_unref(context);
     cairo_destroy(c);
     cairo_surface_destroy(cs);
+    XFreePixmap(server.display, pmap);
 }
 
 #if !GLIB_CHECK_VERSION(2, 34, 0)
