@@ -225,7 +225,7 @@ void init_battery()
 
     battery_found = battery_os_init();
 
-    change_timer(&battery_timer, true, 10, 30000, update_battery_tick, 0);
+    change_timer(&battery_timer, true, battery_found ? 10 : 30000, 30000, update_battery_tick, 0);
 
     update_battery();
 }
