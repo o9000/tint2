@@ -358,7 +358,6 @@ void get_monitors()
                 for (int j = 0; j < crtc_info->noutput; ++j) {
                     XRROutputInfo *output_info = XRRGetOutputInfo(server.display, res, crtc_info->outputs[j]);
                     server.monitors[i_monitor].names[j] = g_strdup(output_info->name);
-                    XRRFreeOutputInfo(output_info);
                     server.monitors[i_monitor].primary = crtc_info->outputs[j] == primary_output;
                     int dpi = compute_dpi(crtc_info, output_info);
                     if (dpi)
@@ -370,6 +369,7 @@ void get_monitors()
                             server.monitors[i_monitor].width,
                             server.monitors[i_monitor].height,
                             server.monitors[i_monitor].dpi);
+                    XRRFreeOutputInfo(output_info);
                 }
                 server.monitors[i_monitor].names[crtc_info->noutput] = NULL;
                 XRRFreeCrtcInfo(crtc_info);
