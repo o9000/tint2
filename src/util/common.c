@@ -924,17 +924,17 @@ void clear_pixmap(Pixmap p, int x, int y, int w, int h)
     XRenderFreePicture(server.display, pict);
 }
 
-void get_text_size2(const PangoFontDescription *font,
-                    int *height,
-                    int *width,
-                    int available_height,
-                    int available_width,
-                    const char *text,
-                    int text_len,
-                    PangoWrapMode wrap,
-                    PangoEllipsizeMode ellipsis,
-                    gboolean markup,
-                    double scale)
+void get_text_size(const PangoFontDescription *font,
+                   int *height,
+                   int *width,
+                   int available_height,
+                   int available_width,
+                   const char *text,
+                   int text_len,
+                   PangoWrapMode wrap,
+                   PangoEllipsizeMode ellipsis,
+                   gboolean markup,
+                   double scale)
 {
     PangoRectangle rect_ink, rect;
 
@@ -963,6 +963,7 @@ void get_text_size2(const PangoFontDescription *font,
     pango_layout_get_pixel_extents(layout, &rect_ink, &rect);
     *height = rect.height;
     *width = rect.width;
+
     // fprintf(stderr, "tint2: dimension : %d - %d\n", rect_ink.height, rect.height);
 
     g_object_unref(layout);
@@ -970,6 +971,50 @@ void get_text_size2(const PangoFontDescription *font,
     cairo_destroy(c);
     cairo_surface_destroy(cs);
     XFreePixmap(server.display, pmap);
+}
+
+void get_text_size2(const PangoFontDescription *font,
+                    int *height,
+                    int *width,
+                    int available_height,
+                    int available_width,
+                    const char *text,
+                    int text_len,
+                    PangoWrapMode wrap,
+                    PangoEllipsizeMode ellipsis,
+                    gboolean markup,
+                    double scale)
+{
+    get_text_size(font, height, width, available_height, available_width, text, text_len, wrap, ellipsis, markup, scale);
+
+    // We do multiple passes, because pango sucks
+    int actual_height, actual_width, overflow = 0;
+    while (true) {
+        get_text_size(font, &actual_height, &actual_width, *height, *width, text, text_len, wrap, ellipsis, markup, scale);
+        if (actual_height <= *height)
+            break;
+        if (*width >= available_width + 50)
+            break;
+        overflow = 1;
+        fprintf(stderr, "tint2: text overflows, recomputing: available %dx%d, computed %dx%d, actual %dx%d\n",
+                available_width,
+                available_height,
+                *width,
+                *height,
+                actual_width,
+                actual_height);
+        (*width)++;
+    }
+    if (overflow) {
+        *height = actual_height;
+        fprintf(stderr, "tint2: text final size computed as: available %dx%d, computed %dx%d, actual %dx%d\n",
+                available_width,
+                available_height,
+                *width,
+                *height,
+                actual_width,
+                actual_height);
+    }
 }
 
 #if !GLIB_CHECK_VERSION(2, 34, 0)
