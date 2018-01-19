@@ -49,7 +49,7 @@ echo "echo \"#define VERSION_STRING \\\"$VERSION\\\"\" > version.h" > $DIR/get_v
 # Copy the debian files into the source directory
 cp -r debian $DIR/debian
 
-for DISTRO in trusty xenial zesty artful bionic
+for DISTRO in trusty xenial artful bionic
 do
     # Cleanup from previous builds
     rm -rf tint2_$VERSION-*
