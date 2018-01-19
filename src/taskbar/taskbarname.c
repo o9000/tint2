@@ -134,9 +134,8 @@ int taskbarname_compute_desired_size(void *obj)
 {
     TaskbarName *taskbar_name = (TaskbarName *)obj;
     Panel *panel = (Panel *)taskbar_name->area.panel;
-    int name_height, name_width, name_height_ink;
+    int name_height, name_width;
     get_text_size2(panel_config.taskbarname_font_desc,
-                   &name_height_ink,
                    &name_height,
                    &name_width,
                    panel->area.height,
@@ -162,9 +161,8 @@ gboolean resize_taskbarname(void *obj)
 
     schedule_redraw(&taskbar_name->area);
 
-    int name_height, name_width, name_height_ink;
+    int name_height, name_width;
     get_text_size2(panel_config.taskbarname_font_desc,
-                   &name_height_ink,
                    &name_height,
                    &name_width,
                    panel->area.height,

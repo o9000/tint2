@@ -304,7 +304,6 @@ void execp_compute_icon_text_geometry(Execp *execp,
                                       int *icon_w,
                                       int *icon_h,
                                       gboolean *text_next_line,
-                                      int *txt_height_ink,
                                       int *txt_height,
                                       int *txt_width,
                                       int *new_size,
@@ -342,7 +341,6 @@ void execp_compute_icon_text_geometry(Execp *execp,
         available_h = panel->area.height;
     }
     get_text_size2(execp->backend->font_desc,
-                   txt_height_ink,
                    txt_height,
                    txt_width,
                    available_h,
@@ -386,7 +384,7 @@ int execp_compute_desired_size(void *obj)
     int horiz_padding, vert_padding, interior_padding;
     int icon_w, icon_h;
     gboolean text_next_line;
-    int txt_height_ink, txt_height, txt_width;
+    int txt_height, txt_width;
     int new_size;
     gboolean resized;
     execp_compute_icon_text_geometry(execp,
@@ -396,7 +394,6 @@ int execp_compute_desired_size(void *obj)
                                      &icon_w,
                                      &icon_h,
                                      &text_next_line,
-                                     &txt_height_ink,
                                      &txt_height,
                                      &txt_width,
                                      &new_size,
@@ -411,7 +408,7 @@ gboolean resize_execp(void *obj)
     int horiz_padding, vert_padding, interior_padding;
     int icon_w, icon_h;
     gboolean text_next_line;
-    int txt_height_ink, txt_height, txt_width;
+    int txt_height, txt_width;
     int new_size;
     gboolean resized;
     execp_compute_icon_text_geometry(execp,
@@ -421,7 +418,6 @@ gboolean resize_execp(void *obj)
                                      &icon_w,
                                      &icon_h,
                                      &text_next_line,
-                                     &txt_height_ink,
                                      &txt_height,
                                      &txt_width,
                                      &new_size,
@@ -492,6 +488,7 @@ void draw_execp(void *obj, cairo_t *c)
     // draw layout
     pango_layout_set_font_description(layout, execp->backend->font_desc);
     pango_layout_set_width(layout, (execp->frontend->textw + TINT2_PANGO_SLACK) * PANGO_SCALE);
+    pango_layout_set_height(layout, (execp->frontend->texth + TINT2_PANGO_SLACK) * PANGO_SCALE);
     pango_layout_set_alignment(layout, execp->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
     pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);

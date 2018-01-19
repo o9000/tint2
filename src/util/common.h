@@ -114,7 +114,6 @@ void create_heuristic_mask(DATA32 *data, int w, int h);
 void render_image(Drawable d, int x, int y);
 
 void get_text_size2(const PangoFontDescription *font,
-                    int *height_ink,
                     int *height,
                     int *width,
                     int available_height,

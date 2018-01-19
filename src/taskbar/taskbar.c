@@ -333,9 +333,8 @@ void init_taskbar_panel(void *p)
     }
 
     // compute vertical position : text and icon
-    int height_ink, height, width;
+    int height, width;
     get_text_size2(panel->g_task.font_desc,
-                   &height_ink,
                    &height,
                    &width,
                    panel->area.height,

@@ -929,10 +929,8 @@ void area_compute_text_geometry(Area *area,
                                 const char *line2,
                                 PangoFontDescription *line1_font_desc,
                                 PangoFontDescription *line2_font_desc,
-                                int *line1_height_ink,
                                 int *line1_height,
                                 int *line1_width,
-                                int *line2_height_ink,
                                 int *line2_height,
                                 int *line2_width)
 {
@@ -941,7 +939,6 @@ void area_compute_text_geometry(Area *area,
 
     if (line1 && line1[0])
         get_text_size2(line1_font_desc,
-                       line1_height_ink,
                        line1_height,
                        line1_width,
                        available_h,
@@ -953,11 +950,10 @@ void area_compute_text_geometry(Area *area,
                        FALSE,
                        ((Panel*)area->panel)->scale);
     else
-        *line1_width = *line1_height_ink = *line1_height = 0;
+        *line1_width = *line1_height = 0;
 
     if (line2 && line2[0])
         get_text_size2(line2_font_desc,
-                       line2_height_ink,
                        line2_height,
                        line2_width,
                        available_h,
@@ -969,7 +965,7 @@ void area_compute_text_geometry(Area *area,
                        FALSE,
                        ((Panel*)area->panel)->scale);
     else
-        *line2_width = *line2_height_ink = *line2_height = 0;
+        *line2_width = *line2_height = 0;
 }
 
 int text_area_compute_desired_size(Area *area,
@@ -978,16 +974,14 @@ int text_area_compute_desired_size(Area *area,
                                    PangoFontDescription *line1_font_desc,
                                    PangoFontDescription *line2_font_desc)
 {
-    int line1_height_ink, line1_height, line1_width, line2_height_ink, line2_height, line2_width;
+    int line1_height, line1_width, line2_height, line2_width;
     area_compute_text_geometry(area,
                                line1,
                                line2,
                                line1_font_desc,
                                line2_font_desc,
-                               &line1_height_ink,
                                &line1_height,
                                &line1_width,
-                               &line2_height_ink,
                                &line2_height,
                                &line2_width);
 
@@ -1012,17 +1006,15 @@ gboolean resize_text_area(Area *area,
 
     schedule_redraw(area);
 
-    int line1_height_ink, line1_height, line1_width;
-    int line2_height_ink, line2_height, line2_width;
+    int line1_height, line1_width;
+    int line2_height, line2_width;
     area_compute_text_geometry(area,
                                line1,
                                line2,
                                line1_font_desc,
                                line2_font_desc,
-                               &line1_height_ink,
                                &line1_height,
                                &line1_width,
-                               &line2_height_ink,
                                &line2_height,
                                &line2_width);
 

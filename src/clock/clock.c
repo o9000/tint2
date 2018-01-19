@@ -261,10 +261,8 @@ void clock_default_font_changed()
 }
 
 void clock_compute_text_geometry(Clock *clock,
-                                 int *time_height_ink,
                                  int *time_height,
                                  int *time_width,
-                                 int *date_height_ink,
                                  int *date_height,
                                  int *date_width)
 {
@@ -273,10 +271,8 @@ void clock_compute_text_geometry(Clock *clock,
                                time2_format ? buf_date : NULL,
                                time1_font_desc,
                                time2_font_desc,
-                               time_height_ink,
                                time_height,
                                time_width,
-                               date_height_ink,
                                date_height,
                                date_width);
 }

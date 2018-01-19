@@ -287,11 +287,10 @@ int button_compute_desired_size(void *obj)
         icon_h = icon_w = 0;
     }
 
-    int txt_height_ink, txt_height, txt_width;
+    int txt_height, txt_width;
     if (button->backend->text) {
         if (panel_horizontal) {
             get_text_size2(button->backend->font_desc,
-                           &txt_height_ink,
                            &txt_height,
                            &txt_width,
                            panel->area.height,
@@ -304,7 +303,6 @@ int button_compute_desired_size(void *obj)
                            panel->scale);
         } else {
             get_text_size2(button->backend->font_desc,
-                           &txt_height_ink,
                            &txt_height,
                            &txt_width,
                            panel->area.height,
@@ -318,7 +316,7 @@ int button_compute_desired_size(void *obj)
                            panel->scale);
         }
     } else {
-        txt_height_ink = txt_height = txt_width = 0;
+        txt_height = txt_width = 0;
     }
 
     if (panel_horizontal) {
@@ -371,10 +369,9 @@ gboolean resize_button(void *obj)
         available_h = panel->area.height;
     }
 
-    int txt_height_ink, txt_height, txt_width;
+    int txt_height, txt_width;
     if (button->backend->text) {
         get_text_size2(button->backend->font_desc,
-                       &txt_height_ink,
                        &txt_height,
                        &txt_width,
                        available_h,
@@ -386,7 +383,7 @@ gboolean resize_button(void *obj)
                        FALSE,
                        panel->scale);
     } else {
-        txt_height_ink = txt_height = txt_width = 0;
+        txt_height = txt_width = 0;
     }
 
     gboolean result = FALSE;

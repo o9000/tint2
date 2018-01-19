@@ -925,7 +925,6 @@ void clear_pixmap(Pixmap p, int x, int y, int w, int h)
 }
 
 void get_text_size2(const PangoFontDescription *font,
-                    int *height_ink,
                     int *height,
                     int *width,
                     int available_height,
@@ -962,7 +961,6 @@ void get_text_size2(const PangoFontDescription *font,
         pango_layout_set_markup(layout, text, text_len);
 
     pango_layout_get_pixel_extents(layout, &rect_ink, &rect);
-    *height_ink = rect_ink.height;
     *height = rect.height;
     *width = rect.width;
     // fprintf(stderr, "tint2: dimension : %d - %d\n", rect_ink.height, rect.height);
