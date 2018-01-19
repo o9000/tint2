@@ -96,6 +96,7 @@ extern double tracing_fps_threshold;
 extern gboolean debug_frames;
 extern gboolean debug_thumbnails;
 extern double ui_scale_dpi_ref;
+extern double ui_scale_monitor_size_ref;
 
 typedef struct Panel {
     Area area;

@@ -381,6 +381,9 @@ void config_write_panel(FILE *fp)
     fprintf(fp,
             "scale_relative_to_dpi = %d\n",
             (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(scale_relative_to_dpi)));
+    fprintf(fp,
+            "scale_relative_to_screen_height = %d\n",
+            (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(scale_relative_to_screen_height)));
 
     fprintf(fp, "\n");
 }
@@ -1115,6 +1118,9 @@ void add_entry(char *key, char *value)
     if (strcmp(key, "scale_relative_to_dpi") == 0) {
         extract_values(value, &value1, &value2, &value3);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(scale_relative_to_dpi), atoi(value1));
+    } else if (strcmp(key, "scale_relative_to_screen_height") == 0) {
+        extract_values(value, &value1, &value2, &value3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(scale_relative_to_screen_height), atoi(value1));
     } else if (strcmp(key, "gradient") == 0) {
         finalize_gradient();
         GradientConfigType t;

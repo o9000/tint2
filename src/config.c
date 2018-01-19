@@ -246,6 +246,8 @@ void add_entry(char *key, char *value)
     /* Background and border */
     if (strcmp(key, "scale_relative_to_dpi") == 0) {
         ui_scale_dpi_ref = atof(value);
+    } else if (strcmp(key, "scale_relative_to_screen_height") == 0) {
+        ui_scale_monitor_size_ref = atof(value);
     } else if (strcmp(key, "rounded") == 0) {
         // 'rounded' is the first parameter => alloc a new background
         if (backgrounds->len > 0) {

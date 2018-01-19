@@ -80,6 +80,7 @@ GArray *backgrounds;
 GArray *gradients;
 
 double ui_scale_dpi_ref;
+double ui_scale_monitor_size_ref;
 
 Imlib_Image default_icon;
 char *default_font = NULL;
@@ -87,6 +88,7 @@ char *default_font = NULL;
 void default_panel()
 {
     ui_scale_dpi_ref = 0;
+    ui_scale_monitor_size_ref = 0;
     panels = NULL;
     num_panels = 0;
     default_icon = NULL;
@@ -225,6 +227,8 @@ void init_panel()
             p->scale = server.monitors[p->monitor].dpi / ui_scale_dpi_ref;
         else
             p->scale = 1;
+        if (ui_scale_monitor_size_ref > 0)
+            p->scale *= server.monitors[p->monitor].height / ui_scale_monitor_size_ref;
         fprintf(stderr, BLUE "tint2: panel %d uses scale %g " RESET "\n", i + 1, p->scale);
         if (!p->area.bg)
             p->area.bg = &g_array_index(backgrounds, Background, 0);
