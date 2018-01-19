@@ -225,7 +225,8 @@ void init_battery()
 
     battery_found = battery_os_init();
 
-    change_timer(&battery_timer, true, battery_found ? 10 : 30000, 30000, update_battery_tick, 0);
+    if (!battery_timer.enabled_)
+        change_timer(&battery_timer, true, 30000, 30000, update_battery_tick, 0);
 
     update_battery();
 }
@@ -272,6 +273,7 @@ void init_battery_panel(void *p)
         bat1_format = strdup("%p");
         bat2_format = strdup("%t");
     }
+    update_battery_tick(NULL);
 }
 
 void battery_init_fonts()
