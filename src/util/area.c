@@ -947,6 +947,7 @@ void area_compute_text_geometry(Area *area,
                        strlen(line1),
                        PANGO_WRAP_WORD_CHAR,
                        PANGO_ELLIPSIZE_NONE,
+                       PANGO_ALIGN_CENTER,
                        FALSE,
                        ((Panel*)area->panel)->scale);
     else
@@ -962,6 +963,7 @@ void area_compute_text_geometry(Area *area,
                        strlen(line2),
                        PANGO_WRAP_WORD_CHAR,
                        PANGO_ELLIPSIZE_NONE,
+                       PANGO_ALIGN_CENTER,
                        FALSE,
                        ((Panel*)area->panel)->scale);
     else

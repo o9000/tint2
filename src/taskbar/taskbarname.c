@@ -144,6 +144,7 @@ int taskbarname_compute_desired_size(void *obj)
                    strlen(taskbar_name->name),
                    PANGO_WRAP_WORD_CHAR,
                    PANGO_ELLIPSIZE_NONE,
+                   PANGO_ALIGN_CENTER,
                    FALSE,
                    panel->scale);
 
@@ -171,6 +172,7 @@ gboolean resize_taskbarname(void *obj)
                    strlen(taskbar_name->name),
                    PANGO_WRAP_WORD_CHAR,
                    PANGO_ELLIPSIZE_NONE,
+                   PANGO_ALIGN_CENTER,
                    FALSE,
                    panel->scale);
 

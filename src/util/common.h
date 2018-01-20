@@ -122,6 +122,7 @@ void get_text_size2(const PangoFontDescription *font,
                     int text_len,
                     PangoWrapMode wrap,
                     PangoEllipsizeMode ellipsis,
+                    PangoAlignment alignment,
                     gboolean markup,
                     double scale);
 

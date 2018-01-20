@@ -299,6 +299,7 @@ int button_compute_desired_size(void *obj)
                            strlen(button->backend->text),
                            PANGO_WRAP_WORD_CHAR,
                            PANGO_ELLIPSIZE_NONE,
+                           button->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
                            FALSE,
                            panel->scale);
         } else {
@@ -312,6 +313,7 @@ int button_compute_desired_size(void *obj)
                            strlen(button->backend->text),
                            PANGO_WRAP_WORD_CHAR,
                            PANGO_ELLIPSIZE_NONE,
+                           button->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
                            FALSE,
                            panel->scale);
         }
@@ -380,6 +382,7 @@ gboolean resize_button(void *obj)
                        strlen(button->backend->text),
                        PANGO_WRAP_WORD_CHAR,
                        PANGO_ELLIPSIZE_NONE,
+                       button->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
                        FALSE,
                        panel->scale);
     } else {

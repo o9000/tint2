@@ -349,6 +349,7 @@ void execp_compute_icon_text_geometry(Execp *execp,
                    strlen(execp->backend->text),
                    PANGO_WRAP_WORD_CHAR,
                    PANGO_ELLIPSIZE_NONE,
+                   execp->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
                    execp->backend->has_markup,
                    panel->scale);
 

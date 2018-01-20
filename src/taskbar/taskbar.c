@@ -343,6 +343,7 @@ void init_taskbar_panel(void *p)
                    5,
                    PANGO_WRAP_WORD_CHAR,
                    PANGO_ELLIPSIZE_END,
+                   panel->g_task.centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
                    FALSE,
                    panel->scale);
 
