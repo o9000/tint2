@@ -1,4 +1,4 @@
-2018-01-15 master
+2018-01-21 16.2
 - Fixes:
   - Proper fix for issue #688
   - Fix bad word wrapping (issue #693)
@@ -986,6 +986,7 @@ released tint-0.2
 2008-04-22
 - fork ttm projet from p://code.google.com/p/ttm/ (by Pål Staurland staura@gmail.com)
   while the projet is no longer in developpement, have not changed the name of 'tint'.
+.
 .
 .
 .
