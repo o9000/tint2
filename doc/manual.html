@@ -387,6 +387,7 @@ gradient_id_pressed = 2
 Example:</li>
 </ul></li>
 <li><p><code>scale_relative_to_dpi = integer</code> : If set to a non-zero value, HiDPI scaling is enabled. Each panel is visible on a different monitor. Thus each panel has a specific scaling factor. The scaling factor is computed as the ratio between the monitor DPI (obtained from the dimensions in pixels and millimeters from RandR) and a configured reference DPI - this is the DPI for which exising user configs looked normal, for backward compatibility.</p></li>
+<li><p><code>scale_relative_to_screen_height = integer</code> : Similar to <code>scale_relative_to_dpi</code>, except the scaling factor is computed as the ratio between the monitor height and <code>scale_relative_to_screen_height</code>. The effect is cumulative with <code>scale_relative_to_dpi</code>, i.e. if both options are present, the factors are multiplied.</p></li>
 </ul>
 <pre class="highlight plaintext"><code># The panel's width is 94% the size of the monitor, the height is 30 pixels:
 panel_size = 94% 30

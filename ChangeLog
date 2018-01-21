@@ -1,6 +1,9 @@
 2018-01-15 master
 - Fixes:
   - Proper fix for issue #688
+  - Fix bad word wrapping (issue #693)
+- Enhancements:
+  - Preliminary high DPI support
 
 2017-12-30 16.1
 - Fixes:

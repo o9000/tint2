@@ -345,6 +345,8 @@ Example:
 .RE
 .IP \(bu 2
 \fB\fCscale_relative_to_dpi = integer\fR : If set to a non\-zero value, HiDPI scaling is enabled. Each panel is visible on a different monitor. Thus each panel has a specific scaling factor. The scaling factor is computed as the ratio between the monitor DPI (obtained from the dimensions in pixels and millimeters from RandR) and a configured reference DPI \- this is the DPI for which exising user configs looked normal, for backward compatibility.
+.IP \(bu 2
+\fB\fCscale_relative_to_screen_height = integer\fR : Similar to \fB\fCscale_relative_to_dpi\fR, except the scaling factor is computed as the ratio between the monitor height and \fB\fCscale_relative_to_screen_height\fR\&. The effect is cumulative with \fB\fCscale_relative_to_dpi\fR, i.e. if both options are present, the factors are multiplied.
 .RE
 .PP
 .RS
