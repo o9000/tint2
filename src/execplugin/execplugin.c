@@ -332,7 +332,7 @@ void execp_compute_icon_text_geometry(Execp *execp,
     int available_w, available_h;
     if (panel_horizontal) {
         available_w = panel->area.width;
-        available_h = area->height - 2 * *horiz_padding - left_right_border_width(area);
+        available_h = area->height - 2 * *vert_padding - left_right_border_width(area);
     } else {
         available_w = !text_next_line
                           ? area->width - *icon_w - (*icon_w ? *interior_padding : 0) - 2 * *horiz_padding -
