@@ -229,6 +229,10 @@ void init_panel()
             p->scale = 1;
         if (ui_scale_monitor_size_ref > 0)
             p->scale *= server.monitors[p->monitor].height / ui_scale_monitor_size_ref;
+        if (p->scale > 8 || p->scale < 1./8) {
+            fprintf(stderr, RED "tint2: panel %d having scale %g outside bounds, resetting to 1.0" RESET "\n", i + 1, p->scale);
+            p->scale = 1;
+        }
         fprintf(stderr, BLUE "tint2: panel %d uses scale %g " RESET "\n", i + 1, p->scale);
         if (!p->area.bg)
             p->area.bg = &g_array_index(backgrounds, Background, 0);
