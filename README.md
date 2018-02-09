@@ -97,4 +97,3 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 ## More
 
 * [Tint2 wiki](https://gitlab.com/o9000/tint2/wikis/Home)
-Home)
