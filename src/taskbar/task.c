@@ -758,8 +758,8 @@ void blink_urgent(void *arg)
     GSList *urgent_task = urgent_list;
     while (urgent_task) {
         Task *t = urgent_task->data;
-        if (t->urgent_tick < max_tick_urgent) {
-            if (t->urgent_tick++ % 2)
+        if (t->urgent_tick <= max_tick_urgent) {
+            if (++t->urgent_tick % 2)
                 set_task_state(t, TASK_URGENT);
             else
                 set_task_state(t, window_is_iconified(t->win) ? TASK_ICONIFIED : TASK_NORMAL);
