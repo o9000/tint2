@@ -789,11 +789,7 @@ Imlib_Image load_image(const char *path, int cached)
 {
     Imlib_Image image;
 #ifdef HAVE_RSVG
-    if (cached) {
-        image = imlib_load_image_immediately(path);
-    } else {
-        image = imlib_load_image_immediately_without_cache(path);
-    }
+    image = imlib_load_image(path);
     if (!image && g_str_has_suffix(path, ".svg")) {
         char tmp_filename[128];
         snprintf(tmp_filename, sizeof(tmp_filename), "/tmp/tint2-%d.png", (int)getpid());
@@ -818,19 +814,17 @@ Imlib_Image load_image(const char *path, int cached)
                 // Parent
                 close(fd);
                 waitpid(pid, 0, 0);
-                image = imlib_load_image_immediately_without_cache(tmp_filename);
+                image = imlib_load_image_immediately(tmp_filename);
                 unlink(tmp_filename);
             }
         }
     } else
 #endif
     {
-        if (cached) {
-            image = imlib_load_image_immediately(path);
-        } else {
-            image = imlib_load_image_immediately_without_cache(path);
-        }
+        image = imlib_load_image(path);
     }
+    imlib_context_set_image(image);
+    imlib_image_set_changes_on_disk();
     return image;
 }
 
