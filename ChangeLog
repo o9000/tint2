@@ -1,4 +1,4 @@
-2018-01-26 master
+2018-04-17 16.3
 - Fixes:
   - Layout in executor (issue #695)
   - Other small issues
@@ -991,6 +991,7 @@ released tint-0.2
 2008-04-22
 - fork ttm projet from p://code.google.com/p/ttm/ (by Pål Staurland staura@gmail.com)
   while the projet is no longer in developpement, have not changed the name of 'tint'.
+.
 .
 .
 .
