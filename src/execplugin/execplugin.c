@@ -20,6 +20,8 @@
 
 #define MAX_TOOLTIP_LEN 4096
 
+bool debug_executors = false;
+
 void execp_timer_callback(void *arg);
 char *execp_get_tooltip(void *obj);
 void execp_init_fonts();
@@ -635,7 +637,8 @@ void execp_timer_callback(void *arg)
         close(pipe_fd_stderr[0]);
         return;
     } else if (child == 0) {
-        fprintf(stderr, "tint2: Executing: %s\n", execp->backend->command);
+        if (debug_executors)
+            fprintf(stderr, "tint2: Executing: %s\n", execp->backend->command);
         // We are in the child
         close(pipe_fd_stdout[0]);
         dup2(pipe_fd_stdout[1], 1); // 1 is stdout

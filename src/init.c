@@ -106,6 +106,7 @@ void handle_env_vars()
     debug_dnd = getenv("DEBUG_DND") != NULL;
     debug_thumbnails = getenv("DEBUG_THUMBNAILS") != NULL;
     debug_timers = getenv("DEBUG_TIMERS") != NULL;
+    debug_executors = getenv("DEBUG_EXECUTORS") != NULL;
     if (debug_fps) {
         init_fps_distribution();
         char *s = getenv("TRACING_FPS_THRESHOLD");

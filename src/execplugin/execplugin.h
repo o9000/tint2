@@ -8,6 +8,8 @@
 #include "common.h"
 #include "timer.h"
 
+extern bool debug_executors;
+
 // Architecture:
 // Panel panel_config contains an array of Execp, each storing all config options and all the state variables.
 // Only these run commands.

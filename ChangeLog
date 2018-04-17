@@ -1,5 +1,8 @@
 2018-04-17 master
 - Update AUTHORS
+- Fixes:
+  - Fix leak in image loading (issue #704)
+  - Executors no longer log unless env var DEBUG_EXECUTORS is set
 
 2018-04-17 16.3
 - Fixes:
