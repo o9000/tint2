@@ -1,6 +1,7 @@
-2018-01-26 master:
+2018-01-26 master
 - Fixes:
   - Layout in executor (issue #695)
+  - Other small issues
 
 2018-01-21 16.2
 - Fixes:
