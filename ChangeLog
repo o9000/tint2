@@ -1,4 +1,4 @@
-2018-04-17 master
+2018-05-03 16.4
 - Update AUTHORS
 - Fixes:
   - Fix leak in image loading (issue #704)
@@ -997,6 +997,7 @@ released tint-0.2
 2008-04-22
 - fork ttm projet from p://code.google.com/p/ttm/ (by Pål Staurland staura@gmail.com)
   while the projet is no longer in developpement, have not changed the name of 'tint'.
+.
 .
 .
 .
