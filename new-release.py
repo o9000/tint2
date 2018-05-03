@@ -194,3 +194,9 @@ if __name__ == '__main__':
   choice = raw_input().lower()
   if choice != "y":
     run("git reset --hard HEAD~ ; git tag -d %s ; git tag -d %s" % (version, readable_version))
+    sys.exit(1)
+  print "Publish? [y/n]"
+  choice = raw_input().lower()
+  if choice != "y":
+    sys.exit(1)
+  run("git push origin master && git push --tags origin master")
