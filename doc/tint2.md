@@ -385,6 +385,7 @@ panel_size = 94% 30
   * `taskbar_sort_order = none/title/center` : Specifies the sort order of the tasks on the taskbar.  *(since 0.12)*
     * `none` : No sorting. New tasks are simply appended at the end of the taskbar when they appear.
     * `title` : Sorts the tasks by title.
+    * `application` : Sorts the tasks by application name. *(since 16.3)*
     * `center` : Sorts the tasks by their window centers.
     * `mru` : Shows the most recently used tasks first. *(since 0.12.4)*
     * `lru` : Shows the most recently used tasks last. *(since 0.12.4)*

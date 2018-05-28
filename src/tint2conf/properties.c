@@ -2718,6 +2718,7 @@ void create_taskbar(GtkWidget *parent)
     col++;
     gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("None"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("By title"));
+    gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("By application"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("By center"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("Most recently used first"));
     gtk_combo_box_append_text(GTK_COMBO_BOX(taskbar_sort_order), _("Most recently used last"));
@@ -2728,6 +2729,7 @@ void create_taskbar(GtkWidget *parent)
                            "'None' means that new tasks are added to the end, and the user can also reorder task "
                            "buttons by mouse dragging. \n"
                            "'By title' means that tasks are sorted by their window titles. \n"
+                           "'By application' means that tasks are sorted by their application names. \n"
                            "'By center' means that tasks are sorted geometrically by their window centers."),
                          NULL);
 

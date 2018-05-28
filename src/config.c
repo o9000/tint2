@@ -1016,6 +1016,8 @@ void add_entry(char *key, char *value)
             taskbar_sort_method = TASKBAR_SORT_CENTER;
         } else if (strcmp(value, "title") == 0) {
             taskbar_sort_method = TASKBAR_SORT_TITLE;
+        } else if (strcmp(value, "application") == 0) {
+            taskbar_sort_method = TASKBAR_SORT_APPLICATION;
         } else if (strcmp(value, "lru") == 0) {
             taskbar_sort_method = TASKBAR_SORT_LRU;
         } else if (strcmp(value, "mru") == 0) {

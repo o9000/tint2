@@ -457,10 +457,12 @@ void config_write_taskbar(FILE *fp)
     } else if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_sort_order)) == 1) {
         fprintf(fp, "title");
     } else if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_sort_order)) == 2) {
-        fprintf(fp, "center");
+        fprintf(fp, "application");
     } else if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_sort_order)) == 3) {
-        fprintf(fp, "mru");
+        fprintf(fp, "center");
     } else if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_sort_order)) == 4) {
+        fprintf(fp, "mru");
+    } else if (gtk_combo_box_get_active(GTK_COMBO_BOX(taskbar_sort_order)) == 5) {
         fprintf(fp, "lru");
     } else {
         fprintf(fp, "none");
@@ -1559,12 +1561,14 @@ void add_entry(char *key, char *value)
             gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
         else if (strcmp(value, "title") == 0)
             gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 1);
-        else if (strcmp(value, "center") == 0)
+        else if (strcmp(value, "application") == 0)
             gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 2);
-        else if (strcmp(value, "mru") == 0)
+        else if (strcmp(value, "center") == 0)
             gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 3);
-        else if (strcmp(value, "lru") == 0)
+        else if (strcmp(value, "mru") == 0)
             gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 4);
+        else if (strcmp(value, "lru") == 0)
+            gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 5);
         else
             gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
     } else if (strcmp(key, "task_align") == 0) {

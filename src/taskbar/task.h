@@ -68,6 +68,7 @@ typedef struct Task {
     Color icon_color_hover;
     Color icon_color_press;
     char *title;
+    char *application;
     int urgent_tick;
     // These may not be up-to-date
     int win_x;

@@ -107,6 +107,21 @@ Task *add_task(Window win)
              (int)win,
              task_template.title ? task_template.title : "null");
 
+    // get application name
+    // use res_class property of WM_CLASS as res_name is easily overridable by user
+    XClassHint *classhint = XAllocClassHint();
+    if (classhint && XGetClassHint(server.display, win, classhint))
+        task_template.application = strdup(classhint->res_class);
+    else
+        task_template.application = strdup("Untitled");
+    if (classhint) {
+        if (classhint->res_name)
+            XFree(classhint->res_name);
+        if (classhint->res_class)
+            XFree(classhint->res_class);
+        XFree(classhint);
+    }
+
     GPtrArray *task_buttons = g_ptr_array_new();
     for (int j = 0; j < panels[monitor].num_desktops; j++) {
         if (task_template.desktop != ALL_DESKTOPS && task_template.desktop != j)
@@ -132,6 +147,7 @@ Task *add_task(Window win)
             task_instance->area.on_screen = always_show_all_desktop_tasks;
         }
         task_instance->title = task_template.title;
+        task_instance->application = task_template.application;
         if (panels[monitor].g_task.tooltip_enabled) {
             task_instance->area._get_tooltip_text = task_get_tooltip;
             task_instance->area._get_tooltip_image = task_get_thumbnail;
@@ -208,12 +224,14 @@ void remove_task(Task *task)
 
     Window win = task->win;
 
-    // free title and icon just for the first task
+    // free title, icon and application name just for the first task
     // even with task_on_all_desktop and with task_on_all_panel
     if (task->title)
         free(task->title);
     if (task->thumbnail)
         cairo_surface_destroy(task->thumbnail);
+    if (task->application)
+        free(task->application);
     task_remove_icon(task);
 
     GPtrArray *task_buttons = g_hash_table_lookup(win_to_task, &win);

@@ -735,6 +735,14 @@ gint compare_task_titles(Task *a, Task *b, Taskbar *taskbar)
     return strnatcasecmp(a->title ? a->title : "", b->title ? b->title : "");
 }
 
+gint compare_task_applications(Task *a, Task *b, Taskbar *taskbar)
+{
+    int trivial = compare_tasks_trivial(a, b, taskbar);
+    if (trivial != NONTRIVIAL)
+        return trivial;
+    return strnatcasecmp(a->application ? a->application : "", b->application ? b->application : "");
+}
+
 gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
 {
     int trivial = compare_tasks_trivial(a, b, taskbar);
@@ -746,6 +754,8 @@ gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
         return compare_task_centers(a, b, taskbar);
     } else if (taskbar_sort_method == TASKBAR_SORT_TITLE) {
         return compare_task_titles(a, b, taskbar);
+    } else if (taskbar_sort_method == TASKBAR_SORT_APPLICATION) {
+        return compare_task_applications(a, b, taskbar);
     } else if (taskbar_sort_method == TASKBAR_SORT_LRU) {
         return compare_timespecs(&a->last_activation_time, &b->last_activation_time);
     } else if (taskbar_sort_method == TASKBAR_SORT_MRU) {

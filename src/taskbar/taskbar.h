@@ -21,6 +21,7 @@ typedef enum TaskbarSortMethod {
     TASKBAR_NOSORT = 0,
     TASKBAR_SORT_CENTER,
     TASKBAR_SORT_TITLE,
+    TASKBAR_SORT_APPLICATION,
     TASKBAR_SORT_LRU,
     TASKBAR_SORT_MRU,
 } TaskbarSortMethod;
