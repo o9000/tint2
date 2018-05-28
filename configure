@@ -1,0 +1,527 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import argparse
+import errno
+import os
+import shlex
+import subprocess
+import sys
+import tempfile
+
+
+def check_c_compiles(cmd, code):
+    with tempfile.NamedTemporaryFile(suffix='.c') as f:
+        f.write(code)
+        f.flush()
+        cmd += [f.name, '-o', '/dev/null']
+        proc = subprocess.Popen(
+                  cmd,
+                  stdout=subprocess.PIPE,
+                  stderr=subprocess.PIPE)
+        out, err = proc.communicate()
+        ret = proc.returncode
+        return ret == 0
+
+
+def makedirs(path):
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        if e.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
+
+
+def pkg_config(lib):
+    def _pkgconfig(lib, query):
+        lib = lib.replace('>=', ' >= ')
+        cmd = 'pkg-config {} {}'.format(query, lib).split()
+        popen = subprocess.Popen(cmd,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+        out, err = popen.communicate()
+        if popen.returncode != 0:
+            print(cmd)
+            print(err)
+            raise ValueError("Could not find library: {}".format(lib))
+        return out.split()
+
+    lf = _pkgconfig(lib, '--libs-only-l')
+    cf = _pkgconfig(lib, '--cflags')
+    ldf = _pkgconfig(lib, '--libs-only-L')
+    return (lf, cf, ldf)
+
+
+def ninja_escape(s):
+    s = s.replace(' ', '$ ')
+    s = s.replace('\n', '$\n')
+    return s
+
+
+def ninja_join(words):
+    indent = '        '
+    if len(words) > 1:
+        prefix = '$\n' + indent
+    else:
+        prefix = ''
+    spacer = ' $\n' + indent
+    return prefix + spacer.join(ninja_escape(s) for s in words)
+
+
+def ninja_write_vars(f, **kwargs):
+    for k, v in kwargs.items():
+        f.write('{} = {}\n'.format(k, v))
+    f.write('\n')
+
+
+def ninja_write_rule(f, name, **kwargs):
+    f.write('rule {}\n'.format(name))
+    for k, v in kwargs.items():
+        f.write('  {} = {}\n'.format(k, v))
+    f.write('\n')
+
+
+def remove_prefix(s, prefix):
+    while prefix and s.startswith(prefix):
+        s = s[len(prefix):]
+    return s
+
+
+def install(prefix, suffix, dest_dir, dest_suffix=''):
+    src_path = os.path.join(prefix, suffix) if suffix else prefix
+    fname = os.path.basename(src_path)
+    if dest_suffix:
+        dest_dir = os.path.join(dest_dir, dest_suffix)
+    dst_path = os.path.join(dest_dir, fname)
+    return [(src_path, dst_path)]
+
+
+def install_dir(prefix, suffix, dest_dir, dest_suffix=''):
+    result = []
+    src_path = os.path.join(prefix, suffix)
+    for root, dirs, files in os.walk(src_path):
+        for f in files:
+            fname = os.path.join(root, f)
+            fsuffix = remove_prefix(remove_prefix(fname, prefix), '/')
+            result += install(prefix, fsuffix, dest_dir, os.path.join(dest_suffix, os.path.dirname(fsuffix)))
+    return result
+
+
+class Executable(object):
+    def __init__(self, name):
+        self.name = name
+        self.cc = 'cc'
+        self.cflags = []
+        self.lflags = []
+        self.libs = []
+        self.sources = []
+        self.pos = []
+        self.install_exec = []
+        self.install_data = []
+
+    def write_ninja(self, f):
+        f.write('# Executable: {}\n'.format(self.name))
+        ninja_write_vars(f, **{
+            'cc_' + self.name: self.cc,
+            'cflags_' + self.name: ninja_join(self.cflags),
+            'lflags_' + self.name: ninja_join(self.lflags),
+            'libs_' + self.name: ninja_join(self.libs)})
+        ninja_write_rule(f, 'cc_' + self.name,
+            command='$cc_{} -MMD -MT $out -MF $out.d $cflags_{} -c $in -o $out'.format(self.name, self.name),
+            description='CC $out',
+            depfile='$out.d',
+            deps='gcc')
+        ninja_write_rule(f, 'link_' + self.name,
+            command='$cc_{} $lflags_{} -o $out $in $libs_{}'.format(self.name, self.name, self.name),
+            description='LINK $out')
+        ninja_write_rule(f, 'po2mo_' + self.name,
+            command='msgfmt -o $out $in',
+            description='GEN $out')
+        f.write('# Compilation\n')
+        for src in self.sources:
+            f.write('build $build_dir/{}.{}.o: cc_{} $source_dir/{}\n'.format(src, self.name, self.name, src))
+        f.write('# Translation\n')
+        for po in self.pos:
+            f.write('build $build_dir/{}.mo: po2mo_{} $source_dir/{}\n'.format(os.path.splitext(po)[0], self.name, po))
+        f.write('# Linking\n')
+        f.write('build $build_dir/{}: link_{} '.format(self.name, self.name))
+        f.write(ninja_join(['$build_dir/{}.{}.o'.format(src, self.name) for src in self.sources]))
+        f.write('\n')
+        f.write('# Installation\n')
+        for fin, fout in self.install_exec:
+            f.write('build {}: install_exec {}\n'.format(fout, fin))
+        for fin, fout in self.install_data:
+            f.write('build {}: install_data {}\n'.format(fout, fin))
+        f.write('build install_{}: phony '.format(self.name))
+        f.write(ninja_join([fout for fin, fout in self.install_exec + self.install_data]))
+        f.write('\n')
+        f.write('# Uninstallation\n')
+        for fin, fout in self.install_exec + self.install_data:
+            f.write('build uninstall_{}: uninstall {}\n'.format(fout, fout))
+        f.write('build uninstall_{}: phony '.format(self.name))
+        f.write(ninja_join(['uninstall_{}'.format(fout) for fin, fout in self.install_exec + self.install_data]))
+        f.write('\n')
+        f.write('\n')
+
+
+
+def generate_ninja(targets, source_dir, build_dir):
+    ninja_file_name = os.path.join(build_dir, 'build.ninja')
+    f = open(ninja_file_name, 'w')
+    # `deps` was introduced in ninja 1.3.
+    ninja_write_vars(f, ninja_required_version='1.3')
+    ninja_write_vars(f, **{
+        'source_dir':source_dir,
+        'build_dir':build_dir
+    })
+    ninja_write_rule(f, 'install_exec',
+        command='install -D -m0755 $in $out',
+        description='INSTALL $out')
+    ninja_write_rule(f, 'install_data',
+        command='install -D -m0644 $in $out',
+        description='INSTALL $out')
+    ninja_write_rule(f, 'uninstall',
+        command='rm -f $in',
+        description='RM $in')
+    for t in targets:
+        t.write_ninja(f)
+    f.write('# Targets\n')
+    f.write('build all: phony ')
+    f.write(ninja_join(['$build_dir/{}'.format(t.name) for t in targets]))
+    f.write('\n')
+    installs = sum([(t.install_exec + t.install_data) for t in targets], [])
+    if installs:
+        f.write('build install: phony ')
+        f.write(ninja_join(['install_{}'.format(t.name) for t in targets]))
+        f.write('\n')
+        f.write('build uninstall: phony ')
+        f.write(ninja_join(['uninstall_{}'.format(t.name) for t in targets]))
+        f.write('\n')
+    f.write('\n')
+    f.write('default all\n')
+    f.close()
+    print('Wrote {}.'.format(ninja_file_name))
+    print('Run `ninja -v -C {} all` to compile.'.format(build_dir))
+    print('Run `ninja -v -C {} install` to install.'.format(build_dir))
+
+
+# Parse CLI options
+parser = argparse.ArgumentParser()
+parser.add_argument('--uevent', dest='uevent', action='store_true',
+                    help='Enable uevent support. Default: on under Linux')
+parser.add_argument('--debug', dest='debug', action='store_true',
+                    help='Enable debug build. Default: off')
+parser.add_argument('--asan', dest='asan', action='store_true',
+                    help='Enable AddressSanitizer. Default: off')
+parser.add_argument('--tracing', dest='tracing', action='store_true',
+                    help='Enable tracing. Default: off')
+parser.add_argument('--memory-tracing', dest='memory_tracing', action='store_true',
+                    help='Enable memory allocation tracing. Default: off')
+parser.add_argument('--prefix', help='Prefix for constructing the file installation paths. Default: /usr/local', default=None)
+parser.add_argument('--exec_prefix', help='Prefix for binary paths. Default: $prefix', default=None)
+parser.add_argument('--bindir', help='Path where executables must be installed. Default: $exec_prefix/bin', default=None)
+parser.add_argument('--sysconfdir', help='Path where config files must be installed. Default: /etc', default=None)
+parser.add_argument('--datarootdir', help='Path where data files must be installed. Default: $prefix/share', default=None)
+parser.add_argument('--localedir', help='Path where locale files must be installed. Default: $datarootdir/locale', default=None)
+parser.add_argument('--docdir', help='Path where documentation files must be installed. Default: $datarootdir/doc/tint2', default=None)
+parser.add_argument('--htmldir', help='Path where documentation files must be installed. Default: $docdir/html', default=None)
+parser.add_argument('--mandir', help='Path where man files must be installed. Default: $datarootdir/man', default=None)
+parser.add_argument('--home', dest='home', action='store_true',
+                    help='Install to $HOME (sets all paths accordingly). Default: off')
+args = parser.parse_args()
+
+# Get relevant environment variables
+CC = os.environ.get('CC', 'cc')
+CFLAGS = shlex.split(os.environ.get('CFLAGS', ''))
+LFLAGS = shlex.split(os.environ.get('LDFLAGS', ''))
+LIBS = []
+
+# Get paths
+source_dir = os.path.dirname(os.path.realpath(__file__))
+build_dir = os.path.join(os.getcwd(), 'build')
+if not args.home:
+    prefix = args.prefix or '/usr/local'
+    exec_prefix = args.exec_prefix or prefix
+    bindir = args.bindir or os.path.join(exec_prefix, 'bin')
+    datarootdir = args.datarootdir or os.path.join(prefix, 'share')
+    sysconfdir = args.sysconfdir or '/etc'
+    docdir = args.docdir or os.path.join(datarootdir, 'doc/tint2')
+    htmldir = args.htmldir or os.path.join(docdir, 'html')
+    localedir = args.localedir or os.path.join(datarootdir, 'locale')
+    mandir = args.mandir or os.path.join(datarootdir, 'man')
+else:
+    prefix = args.prefix or os.path.expanduser("~")
+    exec_prefix = args.exec_prefix or prefix
+    bindir = args.bindir or os.path.join(exec_prefix, 'bin')
+    datarootdir = args.datarootdir or os.path.join(prefix, '.local/share')
+    sysconfdir = args.sysconfdir or os.path.expanduser("~/.config/tint2")
+    docdir = args.docdir or os.path.join(datarootdir, 'doc/tint2')
+    htmldir = args.htmldir or os.path.join(docdir, 'html')
+    localedir = args.localedir or os.path.join(datarootdir, 'locale')
+    mandir = args.mandir or os.path.join(datarootdir, 'man')
+
+
+# Check if C11 is supported by the compiler, fall back to C99
+if check_c_compiles([CC],
+                    '''#define print(x) _Generic((x), default : print_unknown)(x)
+                    void print_unknown() {
+                    }
+                    int main () {
+                        print(0);
+                    }'''):
+    CFLAGS += ['-std=c11', '-DHAS_GENERIC']
+else:
+    print("No C11 support.")
+    CFLAGS += ['-std=c99']
+
+# Set mandatory flags
+CFLAGS += ['-g',
+           '-Wall',
+           '-Wextra',
+           '-Wshadow',
+           '-Wpointer-arith',
+           '-Wno-deprecated',
+           '-Wno-missing-field-initializers',
+           '-Wno-unused-parameter',
+           '-Wno-sign-compare',
+           '-fno-strict-aliasing',
+           '-pthread',
+           '-D_BSD_SOURCE',
+           '-D_DEFAULT_SOURCE',
+           '-D_WITH_GETLINE',
+           '-DENABLE_BATTERY']
+LFLAGS += ['-fno-strict-aliasing',
+           '-pthread']
+LFLAGS += ['-L' + build_dir]
+
+# Set platform dependent C flags
+if sys.platform.startswith('linux'):
+    CFLAGS += ['-D_POSIX_C_SOURCE=200809L']
+
+if sys.platform.startswith('freebsd') or sys.platform.startswith('openbsd') or sys.platform.startswith('dragonfly'):
+    CFLAGS += ['-I/usr/local/include']
+    LFLAGS += ['-L/usr/local/lib']
+
+if sys.platform.startswith('linux') or args.uevent:
+    CFLAGS += ['-DENABLE_UEVENT']
+
+# Turn on color messages if supported
+if check_c_compiles([CC, '-fdiagnostics-color', '-c', '-x', 'c'], ''):
+    CFLAGS += ['-fdiagnostics-color=always']
+
+# Set project-specific include dirs
+CFLAGS += ['-I.']
+for inc in ['src',
+            'src/battery',
+            'src/clock',
+            'src/systray',
+            'src/taskbar',
+            'src/launcher',
+            'src/tooltip',
+            'src/util',
+            'src/execplugin',
+            'src/button',
+            'src/freespace',
+            'src/separator']:
+    CFLAGS += ['-I' + os.path.join(source_dir, inc)]
+
+# Add mandatory library dependencies
+LIBS += ['-lm', '-lrt']
+
+# Add mandatory libray dependencies detected with pkg-config
+for dep in ['x11',
+            'xcomposite',
+            'xdamage',
+            'xinerama',
+            'xext',
+            'xrender',
+            'xrandr>=1.3',
+            'pangocairo',
+            'pango',
+            'cairo',
+            'glib-2.0',
+            'gobject-2.0',
+            'imlib2>=1.4.2']:
+    lib, cf, lf = pkg_config(dep)
+    LIBS += lib
+    CFLAGS += cf
+    LFLAGS += lf
+
+# Add optional library dependencies detected with pkg-config
+try:
+    lib, cf, lf = pkg_config('librsvg-2.0>=2.14.0')
+    LIBS += lib
+    CFLAGS += cf + ['-DHAVE_RSVG']
+    LFLAGS += lf
+except:
+    print("No SVG support.")
+
+try:
+    lib, cf, lf = pkg_config('libstartup-notification-1.0>=0.12')
+    LIBS += lib
+    CFLAGS += cf + ['-DHAVE_SN', '-DSN_API_NOT_YET_FROZEN']
+    LFLAGS += lf
+except:
+    print("No startup notification support.")
+
+# Add library dependencies detected with using successful compilation test
+if check_c_compiles([CC, '-lbacktrace'], '''#include <backtrace.h>
+        int main() {
+            return 0;
+        }'''):
+    CFLAGS += ['-DHAS_BACKTRACE']
+    LIBS += ['-lbacktrace']
+else:
+    print("No libbacktrace support.")
+
+# Add option-dependent flags
+if not args.debug:
+    CFLAGS += ['-O2']
+
+if args.asan:
+    asan_flags = ['-fsanitize=address']
+    CFLAGS += asan_flags
+    LFLAGS += asan_flags
+
+if args.tracing:
+    CFLAGS += ['-finstrument-functions',
+               '-finstrument-functions-exclude-file-list=tracing.c',
+               '-finstrument-functions-exclude-function-list=get_time,gettime']
+
+if args.asan or args.memory_tracing or args.tracing:
+    trace_flags = ['-O0',
+                   '-fno-common',
+                   '-fno-omit-frame-pointer',
+                   '-rdynamic']
+    CFLAGS += trace_flags
+    LFLAGS += trace_flags + ['-fuse-ld=gold']
+
+if args.memory_tracing:
+    LIBS += ['-ldl']
+
+# Define targets
+tint2 = Executable('tint2')
+tint2.cflags += CFLAGS
+tint2.lflags += LFLAGS
+tint2.libs += LIBS
+tint2.sources = ['src/config.c',
+                 'src/panel.c',
+                 'src/util/server.c',
+                 'src/main.c',
+                 'src/init.c',
+                 'src/util/signals.c',
+                 'src/util/tracing.c',
+                 'src/mouse_actions.c',
+                 'src/drag_and_drop.c',
+                 'src/default_icon.c',
+                 'src/clock/clock.c',
+                 'src/systray/systraybar.c',
+                 'src/launcher/launcher.c',
+                 'src/launcher/apps-common.c',
+                 'src/launcher/icon-theme-common.c',
+                 'src/launcher/xsettings-client.c',
+                 'src/launcher/xsettings-common.c',
+                 'src/taskbar/task.c',
+                 'src/taskbar/taskbar.c',
+                 'src/taskbar/taskbarname.c',
+                 'src/tooltip/tooltip.c',
+                 'src/execplugin/execplugin.c',
+                 'src/button/button.c',
+                 'src/freespace/freespace.c',
+                 'src/separator/separator.c',
+                 'src/tint2rc.c',
+                 'src/util/area.c',
+                 'src/util/common.c',
+                 'src/util/fps_distribution.c',
+                 'src/util/strnatcmp.c',
+                 'src/util/timer.c',
+                 'src/util/cache.c',
+                 'src/util/color.c',
+                 'src/util/strlcat.c',
+                 'src/util/print.c',
+                 'src/util/gradient.c',
+                 'src/util/test.c',
+                 'src/util/uevent.c',
+                 'src/util/window.c',
+                 'src/battery/battery.c']
+
+# Battery implementation is platform-specific
+if sys.platform.startswith('linux'):
+    tint2.sources += ['src/battery/linux.c']
+elif sys.platform.startswith('freebsd') or \
+     sys.platform.startswith('dragonfly') or \
+     sys.platform.startswith('gnukfreebsd'):
+    tint2.sources += ['src/battery/freebsd.c']
+elif sys.platform.startswith('openbsd') or \
+     sys.platform.startswith('netbsd'):
+    tint2.sources += ['src/battery/openbsd.c']
+else:
+    print("No battery support for platform:", sys.platform)
+    tint2.sources += ['src/battery/dummy.c']
+
+if args.memory_tracing:
+    tint2.sources += ['src/util/mem.c']
+
+tint2.install_exec = install(build_dir, 'tint2', bindir)
+tint2.install_data = (install(source_dir, 'tint2.svg', datarootdir, 'icons/hicolor/scalable/apps') +
+                      install(source_dir, 'tint2.desktop', datarootdir, 'applications') +
+                      install(source_dir, 'themes/tint2rc', sysconfdir, 'xdg/tint2') +
+                      install(source_dir, 'default_icon.png', datarootdir, 'tint2') +
+                      install(source_dir, 'AUTHORS', docdir) +
+                      install(source_dir, 'ChangeLog', docdir) +
+                      install(source_dir, 'README.md', docdir) +
+                      install(source_dir, 'doc/tint2.md', docdir) +
+                      install(source_dir, 'doc/manual.html', htmldir) +
+                      install(source_dir, 'doc/readme.html', htmldir) +
+                      install_dir(source_dir, 'doc/images', htmldir) +
+                      install(source_dir, 'doc/tint2.1', mandir, 'man1'))
+
+tint2conf = Executable('tint2conf')
+tint2conf.cflags += CFLAGS
+tint2conf.lflags += LFLAGS
+tint2conf.libs += LIBS
+
+for dep in ['gthread-2.0',
+            'gtk+-x11-2.0']:
+    lib, cf, lf = pkg_config(dep)
+    tint2conf.libs += lib
+    tint2conf.cflags += cf
+    tint2conf.lflags += lf
+
+tint2conf.cflags += ['-DTINT2CONF',
+                     '-DINSTALL_PREFIX=\\"{}\\"'.format(prefix),
+                     '-DLOCALEDIR=\\"{}\\"'.format(localedir),
+                     '-DGETTEXT_PACKAGE=\\"tint2conf\\"',
+                     '-DHAVE_VERSION_H']
+
+tint2conf.sources = ['src/util/common.c',
+                     'src/util/strnatcmp.c',
+                     'src/util/cache.c',
+                     'src/util/timer.c',
+                     'src/util/test.c',
+                     'src/util/print.c',
+                     'src/util/signals.c',
+                     'src/config.c',
+                     'src/util/server.c',
+                     'src/util/strlcat.c',
+                     'src/launcher/apps-common.c',
+                     'src/launcher/icon-theme-common.c',
+                     'src/tint2conf/md4.c',
+                     'src/tint2conf/main.c',
+                     'src/tint2conf/properties.c',
+                     'src/tint2conf/properties_rw.c',
+                     'src/tint2conf/theme_view.c',
+                     'src/tint2conf/background_gui.c',
+                     'src/tint2conf/gradient_gui.c']
+tint2conf.pos = [os.path.join('src/tint2conf/po', f) for f in os.listdir('src/tint2conf/po') if f.endswith('.po')]
+tint2conf.install_exec = install(build_dir, 'tint2conf', bindir)
+tint2conf.install_data = (install(source_dir, 'src/tint2conf/tint2conf.svg', datarootdir, 'icons/hicolor/scalable/apps') +
+                          install(source_dir, 'src/tint2conf/tint2conf.desktop', datarootdir, 'applications') +
+                          install(source_dir, 'src/tint2conf/tint2conf.xml', datarootdir, 'mime/packages'))
+
+makedirs(build_dir)
+assert 0 == os.system('cd {}; {}/get_version.sh'.format(build_dir, source_dir))
+generate_ninja([tint2, tint2conf], source_dir, build_dir)
