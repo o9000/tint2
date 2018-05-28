@@ -788,11 +788,15 @@ void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color
 Imlib_Image load_image(const char *path, int cached)
 {
     Imlib_Image image;
+    static unsigned long counter = 0;
+    if (debug_icons)
+        fprintf(stderr, "tint2: loading icon %s\n", path);
 #ifdef HAVE_RSVG
     image = imlib_load_image(path);
     if (!image && g_str_has_suffix(path, ".svg")) {
         char tmp_filename[128];
-        snprintf(tmp_filename, sizeof(tmp_filename), "/tmp/tint2-%d.png", (int)getpid());
+        snprintf(tmp_filename, sizeof(tmp_filename), "/tmp/tint2-%d-%lu.png", (int)getpid(), counter);
+        counter++;
         int fd = open(tmp_filename, O_CREAT | O_EXCL, 0600);
         if (fd >= 0) {
             // We fork here because librsvg allocates memory like crazy
