@@ -152,6 +152,7 @@ set( SOURCES src/config.c
              src/separator/separator.c
              src/tint2rc.c
              src/util/area.c
+             src/util/bt.c
              src/util/common.c
              src/util/fps_distribution.c
              src/util/strnatcmp.c

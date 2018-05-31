@@ -20,6 +20,7 @@ include_directories( ../util
                      ${RSVG_INCLUDE_DIRS} )
 
 set(SOURCES ../util/common.c
+            ../util/bt.c
             ../util/strnatcmp.c
             ../util/cache.c
             ../util/timer.c
