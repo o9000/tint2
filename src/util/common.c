@@ -48,18 +48,10 @@
 #include <librsvg/rsvg.h>
 #endif
 
-#ifdef ENABLE_LIBUNWIND
-#define UNW_LOCAL_ONLY
-#include <libunwind.h>
-#else
-#ifdef ENABLE_EXECINFO
-#include <execinfo.h>
-#endif
-#endif
-
 #include "../panel.h"
 #include "timer.h"
 #include "signals.h"
+#include "bt.h"
 
 void write_string(int fd, const char *s)
 {
@@ -83,39 +75,13 @@ void log_string(int fd, const char *s)
 
 void dump_backtrace(int log_fd)
 {
-#ifndef DISABLE_BACKTRACE
+    struct backtrace bt;
+    get_backtrace(&bt, 1);
     log_string(log_fd, "\n" YELLOW "Backtrace:" RESET "\n");
-
-#ifdef ENABLE_LIBUNWIND
-    unw_cursor_t cursor;
-    unw_context_t context;
-    unw_getcontext(&context);
-    unw_init_local(&cursor, &context);
-
-    while (unw_step(&cursor) > 0) {
-        unw_word_t offset;
-        char fname[128];
-        fname[0] = '\0';
-        (void)unw_get_proc_name(&cursor, fname, sizeof(fname), &offset);
-        log_string(log_fd, fname);
+    for (size_t i = 0; i < bt.frame_count; i++) {
+        log_string(log_fd, bt.frames[i].name);
         log_string(log_fd, "\n");
     }
-#else
-#ifdef ENABLE_EXECINFO
-#define MAX_TRACE_SIZE 128
-    void *array[MAX_TRACE_SIZE];
-    size_t size = backtrace(array, MAX_TRACE_SIZE);
-    char **strings = backtrace_symbols(array, size);
-
-    for (size_t i = 0; i < size; i++) {
-        log_string(log_fd, strings[i]);
-        log_string(log_fd, "\n");
-    }
-
-    free(strings);
-#endif // ENABLE_EXECINFO
-#endif // ENABLE_LIBUNWIND
-#endif // DISABLE_BACKTRACE
 }
 
 // sleep() returns early when signals arrive. This function does not.

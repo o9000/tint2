@@ -368,14 +368,28 @@ except:
     print("No startup notification support.")
 
 # Add library dependencies detected with using successful compilation test
-if check_c_compiles([CC, '-lbacktrace'], '''#include <backtrace.h>
-        int main() {
-            return 0;
-        }'''):
-    CFLAGS += ['-DHAS_BACKTRACE']
-    LIBS += ['-lbacktrace']
-else:
-    print("No libbacktrace support.")
+bt = False
+if not bt:
+    try:
+        lib, cf, lf = pkg_config('libunwind')
+        LIBS += lib
+        CFLAGS += cf + ['-DHAS_LIBUNWIND']
+        LFLAGS += lf
+        bt = True
+        print("Backtrace support via libunwind.")
+    except:
+        print("No backtrace support via libunwind.")
+if not bt:
+    if check_c_compiles([CC, '-lbacktrace'], '''#include <backtrace.h>
+            int main() {
+                return 0;
+            }'''):
+        CFLAGS += ['-DHAS_BACKTRACE']
+        LIBS += ['-lbacktrace']
+        bt = True
+        print("Backtrace support via libbacktrace.")
+    else:
+        print("No backtrace support via libbacktrace.")
 
 # Add option-dependent flags
 if not args.debug:
@@ -434,6 +448,7 @@ tint2.sources = ['src/config.c',
                  'src/separator/separator.c',
                  'src/tint2rc.c',
                  'src/util/area.c',
+                 'src/util/bt.c',
                  'src/util/common.c',
                  'src/util/fps_distribution.c',
                  'src/util/strnatcmp.c',
@@ -497,7 +512,8 @@ tint2conf.cflags += ['-DTINT2CONF',
                      '-DGETTEXT_PACKAGE=\\"tint2conf\\"',
                      '-DHAVE_VERSION_H']
 
-tint2conf.sources = ['src/util/common.c',
+tint2conf.sources = ['src/util/bt.c',
+                     'src/util/common.c',
                      'src/util/strnatcmp.c',
                      'src/util/cache.c',
                      'src/util/timer.c',
