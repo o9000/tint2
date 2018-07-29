@@ -547,7 +547,7 @@ The action semantics:
 
   * `battery_low_status = integer`: At what battery percentage the low command is executed.
 
-  * `battery_low_cmd = notify-send "battery low"` : Command to execute when the battery is low.
+  * `battery_low_cmd = xmessage 'tint2: Battery low!'` : Command to execute when the battery is low.
 
   * `battery_full_cmd = notify-send "battery full"` : Command to execute when the battery is full.
 

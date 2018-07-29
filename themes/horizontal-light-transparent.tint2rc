@@ -201,7 +201,7 @@ clock_dwheel_command =
 # Battery
 battery_tooltip = 1
 battery_low_status = 10
-battery_low_cmd = notify-send "battery low"
+battery_low_cmd = xmessage 'tint2: Battery low!'
 battery_full_cmd = 
 bat1_font = sans 8
 bat2_font = sans 6
