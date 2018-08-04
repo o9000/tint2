@@ -1,3 +1,4 @@
+configure
 doc/tint2.1
 sample/icon_and_text_1.tint2rc
 sample/icon_and_text_2.tint2rc
@@ -59,6 +60,8 @@ src/util/area.c
 src/util/area.h
 src/util/blur.c
 src/util/blur.h
+src/util/bt.c
+src/util/bt.h
 src/util/common.c
 src/util/common.h
 src/util/server.c
