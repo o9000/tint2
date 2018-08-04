@@ -399,7 +399,7 @@ void task_update_icon(Task *task)
         task->icon[k] = adjust_icon(orig_image,
                                     panel->g_task.alpha[k],
                                     panel->g_task.saturation[k],
-                                    panel->g_task.brightness[k] != 0);
+                                    panel->g_task.brightness[k]);
         if (panel_config.mouse_effects) {
             task->icon_hover[k] = adjust_icon(task->icon[k],
                                               panel_config.mouse_over_alpha,

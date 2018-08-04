@@ -1,3 +1,6 @@
+2018-08-04 master
+- Fix regression in task icon brightness (issue #714)
+
 2018-08-04 16.5
 - Add new build script
 - Add option to sort taskbar by application name
