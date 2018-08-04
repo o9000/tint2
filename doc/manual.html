@@ -466,6 +466,7 @@ panel_size = 94% 30
 <ul>
 <li><code>none</code> : No sorting. New tasks are simply appended at the end of the taskbar when they appear.</li>
 <li><code>title</code> : Sorts the tasks by title.</li>
+<li><code>application</code> : Sorts the tasks by application name. <em>(since 16.3)</em></li>
 <li><code>center</code> : Sorts the tasks by their window centers.</li>
 <li><code>mru</code> : Shows the most recently used tasks first. <em>(since 0.12.4)</em></li>
 <li><code>lru</code> : Shows the most recently used tasks last. <em>(since 0.12.4)</em></li>
@@ -572,7 +573,7 @@ panel_size = 94% 30
 <ul>
 <li><p><code>battery_hide = never/integer (0 to 100)</code> : At what battery percentage the battery item is hidden.</p></li>
 <li><p><code>battery_low_status = integer</code>: At what battery percentage the low command is executed.</p></li>
-<li><p><code>battery_low_cmd = notify-send &quot;battery low&quot;</code> : Command to execute when the battery is low.</p></li>
+<li><p><code>battery_low_cmd = xmessage &#39;tint2: Battery low!&#39;</code> : Command to execute when the battery is low.</p></li>
 <li><p><code>battery_full_cmd = notify-send &quot;battery full&quot;</code> : Command to execute when the battery is full.</p></li>
 <li><p><code>bat1_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]</code></p></li>
 <li><p><code>bat2_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]</code></p></li>

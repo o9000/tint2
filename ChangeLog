@@ -1,4 +1,4 @@
-2018-08-04 master
+2018-08-04 16.5
 - Add new build script
 - Add option to sort taskbar by application name
 - Fix regression in image loading
@@ -1002,6 +1002,7 @@ released tint-0.2
 2008-04-22
 - fork ttm projet from p://code.google.com/p/ttm/ (by Pål Staurland staura@gmail.com)
   while the projet is no longer in developpement, have not changed the name of 'tint'.
+.
 .
 .
 .

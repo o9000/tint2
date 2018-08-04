@@ -1,4 +1,4 @@
-.TH TINT2 1 "2018\-05\-03" 16.4
+.TH TINT2 1 "2018\-08\-04" 16.5
 .SH NAME
 .PP
 tint2 \- lightweight panel/taskbar
@@ -480,6 +480,8 @@ You can switch between virtual desktops.
 .IP \(bu 2
 \fB\fCtitle\fR : Sorts the tasks by title.
 .IP \(bu 2
+\fB\fCapplication\fR : Sorts the tasks by application name. \fI(since 16.3)\fP
+.IP \(bu 2
 \fB\fCcenter\fR : Sorts the tasks by their window centers.
 .IP \(bu 2
 \fB\fCmru\fR : Shows the most recently used tasks first. \fI(since 0.12.4)\fP
@@ -663,7 +665,7 @@ To hide the clock, comment \fB\fCtime1_format\fR and \fB\fCtime2_format\fR\&.
 .IP \(bu 2
 \fB\fCbattery_low_status = integer\fR: At what battery percentage the low command is executed.
 .IP \(bu 2
-\fB\fCbattery_low_cmd = notify\-send "battery low"\fR : Command to execute when the battery is low.
+\fB\fCbattery_low_cmd = xmessage 'tint2: Battery low!'\fR : Command to execute when the battery is low.
 .IP \(bu 2
 \fB\fCbattery_full_cmd = notify\-send "battery full"\fR : Command to execute when the battery is full.
 .IP \(bu 2
