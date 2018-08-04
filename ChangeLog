@@ -1,6 +1,7 @@
-2018-05-28 master
+2018-08-04 master
 - Add new build script
 - Add option to sort taskbar by application name
+- Fix regression in image loading
 
 2018-05-03 16.4
 - Update AUTHORS
