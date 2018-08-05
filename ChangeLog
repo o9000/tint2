@@ -1,3 +1,6 @@
+2018-08-05 master
+- Fix packaging regression for debian (issue #715)
+
 2018-08-04 16.6
 - Fix regression in task icon brightness (issue #714)
 

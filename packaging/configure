@@ -240,7 +240,7 @@ LFLAGS = shlex.split(os.environ.get('LDFLAGS', ''))
 LIBS = []
 
 # Get paths
-source_dir = os.path.dirname(os.path.realpath(__file__))
+source_dir = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/..')
 build_dir = os.path.join(os.getcwd(), 'build')
 if not args.home:
     prefix = args.prefix or '/usr/local'
