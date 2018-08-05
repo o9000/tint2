@@ -76,19 +76,23 @@ def get_last_version():
   return tags[-1]
 
 
-def inc_version(v, feature=False):
+def inc_version(v, feature=False, tiny=False):
   if v.startswith("v0."):
     assert v == "v0.14.6"
     return "v15.0"
-  # v4.11 -> v4.12 or v5.0
+  # v4.11 -> v4.12 or v5.0 or v4.11.1
   parts = v.split(".")
-  while len(parts) < 2:
+  while len(parts) < 3:
     parts.append("0")
-  assert len(parts) == 2
+  assert len(parts) == 3
   if feature:
+    del parts[-1]
     parts[-2] = "v" + str(int(parts[-2].replace("v", "")) + 1)
     parts[-1] = "0"
+  elif tiny:
+    parts[-1] = str(int(parts[-1]) + 1)
   else:
+    del parts[-1]
     parts[-1] = str(int(parts[-1]) + 1)
   return ".".join([s for s in parts if s])
 
@@ -153,23 +157,14 @@ def update_log(path, version, date):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument("--feature", action="store_true")
-  parser.add_argument("--undo", action="store_true")
+  parser.add_argument("--tiny", action="store_true")
   args = parser.parse_args()
   logging.basicConfig(format=ansi_lblue + "%(asctime)s %(pathname)s %(levelname)s" + ansi_reset + " %(message)s", level=logging.DEBUG)
   test_inc_version()
   # Read version from last tag and increment
   old_version = get_last_version()
-  if args.undo:
-    info("Revering last commit...")
-    run("git tag -d %s" % old_version)
-    run("git tag -d %s" % old_version.replace("v", ""))
-    run("git reset --soft HEAD~")
-    run("git reset")
-    run("git stash")
-    os.system("git log -1")
-    sys.exit(0)
   info("Old version:", old_version)
-  version = inc_version(old_version, args.feature)
+  version = inc_version(old_version, args.feature, args.tiny)
   readable_version = version.replace("v", "")
   date = datetime.datetime.now().strftime("%Y-%m-%d")
   info("New version:", readable_version, version, date)
