@@ -289,7 +289,7 @@ def get_gentoo_versions():
 
 def get_void_versions():
   print >> sys.stderr, "Void ..."
-  template = http_download_txt("https://raw.githubusercontent.com/voidlinux/void-packages/master/srcpkgs/tint2/template")
+  template = http_download_txt("https://raw.githubusercontent.com/void-linux/void-packages/master/srcpkgs/tint2/template")
   versions = []
   version = None
   maintainer = None
