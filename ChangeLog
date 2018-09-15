@@ -1,3 +1,6 @@
+2018-09-14 master
+- Fix spacing around icons in executor without text in vertical panels (issue #716)
+
 2018-08-05 16.6.1
 - Fix packaging regression for debian (issue #715)
 

@@ -373,7 +373,11 @@ void execp_compute_icon_text_geometry(Execp *execp,
             *new_size = *txt_height + 2 * *vert_padding + top_bottom_border_width(area);
             *new_size = MAX(*new_size, *icon_h + 2 * *vert_padding + top_bottom_border_width(area));
         } else {
-            *new_size = *icon_h + *interior_padding + *txt_height + 2 * *vert_padding + top_bottom_border_width(area);
+            if (strlen(execp->backend->text)) {
+                *new_size = *icon_h + *interior_padding + *txt_height + 2 * *vert_padding + top_bottom_border_width(area);
+            } else {
+                *new_size = *icon_h + 2 * *vert_padding + top_bottom_border_width(area);
+            }
         }
         if (*new_size != area->height) {
             *resized = TRUE;
@@ -441,10 +445,17 @@ gboolean resize_execp(void *obj)
                 execp->frontend->texty = (execp->area.height - txt_height) / 2;
                 execp->frontend->textx = execp->frontend->iconx + icon_w + interior_padding;
             } else {
-                execp->frontend->icony = (execp->area.height - icon_h - interior_padding - txt_height) / 2;
-                execp->frontend->iconx = (execp->area.width - icon_w) / 2;
-                execp->frontend->texty = execp->frontend->icony + icon_h + interior_padding;
-                execp->frontend->textx = (execp->area.width - txt_width) / 2;
+                if (strlen(execp->backend->text)) {
+                    execp->frontend->icony = (execp->area.height - icon_h - interior_padding - txt_height) / 2;
+                    execp->frontend->iconx = (execp->area.width - icon_w) / 2;
+                    execp->frontend->texty = execp->frontend->icony + icon_h + interior_padding;
+                    execp->frontend->textx = (execp->area.width - txt_width) / 2;
+                } else {
+                    execp->frontend->icony = (execp->area.height - icon_h) / 2;
+                    execp->frontend->iconx = (execp->area.width - icon_w) / 2;
+                    execp->frontend->texty = execp->frontend->icony + icon_h + interior_padding;
+                    execp->frontend->textx = (execp->area.width - txt_width) / 2;
+                }
             }
         } else {
             execp->frontend->texty = (execp->area.height - txt_height) / 2;
@@ -458,10 +469,17 @@ gboolean resize_execp(void *obj)
                 execp->frontend->texty = (execp->area.height - txt_height) / 2;
                 execp->frontend->textx = execp->frontend->iconx + icon_w + interior_padding;
             } else {
-                execp->frontend->icony = (execp->area.height - icon_h - interior_padding - txt_height) / 2;
-                execp->frontend->iconx = left_border_width(&execp->area) + horiz_padding;
-                execp->frontend->texty = execp->frontend->icony + icon_h + interior_padding;
-                execp->frontend->textx = execp->frontend->iconx;
+                if (strlen(execp->backend->text)) {
+                    execp->frontend->icony = (execp->area.height - icon_h - interior_padding - txt_height) / 2;
+                    execp->frontend->iconx = left_border_width(&execp->area) + horiz_padding;
+                    execp->frontend->texty = execp->frontend->icony + icon_h + interior_padding;
+                    execp->frontend->textx = execp->frontend->iconx;
+                } else {
+                    execp->frontend->icony = (execp->area.height - icon_h) / 2;
+                    execp->frontend->iconx = left_border_width(&execp->area) + horiz_padding;
+                    execp->frontend->texty = execp->frontend->icony + icon_h + interior_padding;
+                    execp->frontend->textx = execp->frontend->iconx;
+                }
             }
         } else {
             execp->frontend->texty = (execp->area.height - txt_height) / 2;
@@ -531,12 +549,13 @@ void execp_dump_geometry(void *obj, int indent)
             imlib_context_set_image(tmp);
     }
     fprintf(stderr,
-            "tint2: %*sText: x = %d, y = %d, w = %d, align = %s, text = %s\n",
+            "tint2: %*sText: x = %d, y = %d, w = %d, h = %d, align = %s, text = %s\n",
             indent,
             "",
             execp->frontend->textx,
             execp->frontend->texty,
             execp->frontend->textw,
+            execp->frontend->texth,
             execp->backend->centered ? "center" : "left",
             execp->backend->text);
 }
