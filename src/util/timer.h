@@ -23,6 +23,7 @@
 #include <sys/time.h>
 #include "bool.h"
 
+extern bool warnings_for_timers;
 extern bool debug_timers;
 
 typedef void TimerCallback(void *arg);

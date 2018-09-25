@@ -247,8 +247,9 @@ void init(int argc, char **argv)
     if (!config_read()) {
         fprintf(stderr, "tint2: Could not read config file.\n");
         print_usage();
+        warnings_for_timers = false;
         cleanup();
-        return;
+        exit(EXIT_FAILURE);
     }
 
     init_post_config();
