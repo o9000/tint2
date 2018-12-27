@@ -173,7 +173,13 @@ gboolean time_format_needs_sec_ticks(char *time_format)
 {
     if (!time_format)
         return FALSE;
-    if (strchr(time_format, 'S') || strchr(time_format, 'T') || strchr(time_format, 'r'))
+    if (strchr(time_format, 'c') ||
+        strchr(time_format, 'r') ||
+        strchr(time_format, 's') ||
+        strchr(time_format, 'S') ||
+        strchr(time_format, 'T') ||
+        strchr(time_format, 'X') ||
+        strchr(time_format, '+'))
         return TRUE;
     return FALSE;
 }
