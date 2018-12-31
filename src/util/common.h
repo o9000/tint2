@@ -126,7 +126,8 @@ void get_text_size2(const PangoFontDescription *font,
                     gboolean markup,
                     double scale);
 
-void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow);
+gboolean layout_set_markup_strip_colors(PangoLayout *layout, const char *markup);
+void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, PangoLayout *shadow_layout);
 
 // Draws a rounded rectangle
 void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);

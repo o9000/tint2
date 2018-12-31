@@ -478,7 +478,7 @@ void draw_button(void *obj, cairo_t *c)
                   button->frontend->textx,
                   button->frontend->texty,
                   &button->backend->font_color,
-                  panel_config.font_shadow);
+                  panel_config.font_shadow ? layout : NULL);
 
         g_object_unref(layout);
         g_object_unref(context);

@@ -724,27 +724,60 @@ void render_image(Drawable d, int x, int y)
     XFreePixmap(server.display, pixmap);
 }
 
-void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, int font_shadow)
+gboolean is_color_attribute(PangoAttribute *attr, gpointer user_data)
 {
-    if (font_shadow) {
-        const int shadow_size = 3;
-        const double shadow_edge_alpha = 0.0;
-        int i, j;
-        for (i = -shadow_size; i <= shadow_size; i++) {
-            for (j = -shadow_size; j <= shadow_size; j++) {
-                cairo_set_source_rgba(c,
-                                      0.0,
-                                      0.0,
-                                      0.0,
-                                      1.0 -
-                                          (1.0 - shadow_edge_alpha) *
-                                              sqrt((i * i + j * j) / (double)(shadow_size * shadow_size)));
-                pango_cairo_update_layout(c, layout);
-                cairo_move_to(c, posx + i, posy + j);
-                pango_cairo_show_layout(c, layout);
-            }
+    return attr->klass->type == PANGO_ATTR_FOREGROUND ||
+            attr->klass->type == PANGO_ATTR_BACKGROUND ||
+            attr->klass->type == PANGO_ATTR_UNDERLINE_COLOR ||
+            attr->klass->type == PANGO_ATTR_STRIKETHROUGH_COLOR ||
+            attr->klass->type == PANGO_ATTR_FOREGROUND_ALPHA ||
+            attr->klass->type == PANGO_ATTR_BACKGROUND_ALPHA;
+}
+
+gboolean layout_set_markup_strip_colors(PangoLayout *layout, const char *markup)
+{
+    PangoAttrList *attrs = NULL;
+    char *text = NULL;
+    GError *error = NULL;
+    if (!pango_parse_markup(markup, -1, 0, &attrs, &text, NULL, &error)) {
+        g_error_free(error);
+        return FALSE;
+    }
+
+    pango_layout_set_text(layout, text, -1);
+    g_free(text);
+
+    pango_attr_list_filter(attrs, is_color_attribute, NULL);
+    pango_layout_set_attributes(layout, attrs);
+    pango_attr_list_unref(attrs);
+    return TRUE;
+}
+
+void draw_shadow(cairo_t *c, int posx, int posy, PangoLayout *shadow_layout)
+{
+    const int shadow_size = 3;
+    const double shadow_edge_alpha = 0.0;
+    int i, j;
+    for (i = -shadow_size; i <= shadow_size; i++) {
+        for (j = -shadow_size; j <= shadow_size; j++) {
+            cairo_set_source_rgba(c,
+                                  0.0,
+                                  0.0,
+                                  0.0,
+                                  1.0 -
+                                      (1.0 - shadow_edge_alpha) *
+                                          sqrt((i * i + j * j) / (double)(shadow_size * shadow_size)));
+            pango_cairo_update_layout(c, shadow_layout);
+            cairo_move_to(c, posx + i, posy + j);
+            pango_cairo_show_layout(c, shadow_layout);
         }
     }
+}
+
+void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, PangoLayout *shadow_layout)
+{
+    if (shadow_layout)
+        draw_shadow(c, posx, posy, shadow_layout);
     cairo_set_source_rgba(c, color->rgb[0], color->rgb[1], color->rgb[2], color->alpha);
     pango_cairo_update_layout(c, layout);
     cairo_move_to(c, posx, posy);

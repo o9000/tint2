@@ -1,6 +1,7 @@
-2018-12-26 master
+2018-12-31 master
 - Fix spacing around icons in executor without text in vertical panels (issue #716)
 - Fix Bug: Clock Only Updates Every Minute With Format %s (issue #724)
+- Fix markup drawing when font shadow enabled (issue #709)
 
 2018-08-05 16.6.1
 - Fix packaging regression for debian (issue #715)

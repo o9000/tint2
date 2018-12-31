@@ -497,7 +497,7 @@ void draw_task(void *obj, cairo_t *c)
         task->_text_posy = (panel->g_task.area.height - task->_text_height) / 2.0;
 
         Color *config_text = &panel->g_task.font[task->current_state];
-        draw_text(layout, c, panel->g_task.text_posx, task->_text_posy, config_text, panel->font_shadow);
+        draw_text(layout, c, panel->g_task.text_posx, task->_text_posy, config_text, panel->font_shadow ? layout : NULL);
 
         g_object_unref(layout);
         g_object_unref(context);

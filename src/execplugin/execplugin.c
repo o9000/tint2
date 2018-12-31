@@ -491,6 +491,18 @@ gboolean resize_execp(void *obj)
     return resized;
 }
 
+PangoLayout *create_execp_text_layout(Execp *execp, PangoContext *context)
+{
+    PangoLayout *layout = pango_layout_new(context);
+    pango_layout_set_font_description(layout, execp->backend->font_desc);
+    pango_layout_set_width(layout, (execp->frontend->textw + TINT2_PANGO_SLACK) * PANGO_SCALE);
+    pango_layout_set_height(layout, (execp->frontend->texth + TINT2_PANGO_SLACK) * PANGO_SCALE);
+    pango_layout_set_alignment(layout, execp->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
+    pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
+    pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
+    return layout;
+}
+
 void draw_execp(void *obj, cairo_t *c)
 {
     Execp *execp = (Execp *)obj;
@@ -498,7 +510,8 @@ void draw_execp(void *obj, cairo_t *c)
 
     PangoContext *context = pango_cairo_create_context(c);
     pango_cairo_context_set_resolution(context, 96 * panel->scale);
-    PangoLayout *layout = pango_layout_new(context);
+    PangoLayout *layout = create_execp_text_layout(execp, context);
+    PangoLayout *shadow_layout = NULL;
 
     if (execp->backend->has_icon && execp->backend->icon) {
         imlib_context_set_image(execp->backend->icon);
@@ -507,16 +520,18 @@ void draw_execp(void *obj, cairo_t *c)
     }
 
     // draw layout
-    pango_layout_set_font_description(layout, execp->backend->font_desc);
-    pango_layout_set_width(layout, (execp->frontend->textw + TINT2_PANGO_SLACK) * PANGO_SCALE);
-    pango_layout_set_height(layout, (execp->frontend->texth + TINT2_PANGO_SLACK) * PANGO_SCALE);
-    pango_layout_set_alignment(layout, execp->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
-    pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
-    pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
-    if (!execp->backend->has_markup)
+    if (!execp->backend->has_markup) {
         pango_layout_set_text(layout, execp->backend->text, strlen(execp->backend->text));
-    else
+    } else {
         pango_layout_set_markup(layout, execp->backend->text, strlen(execp->backend->text));
+        if (panel_config.font_shadow) {
+            shadow_layout = create_execp_text_layout(execp, context);
+            if (!layout_set_markup_strip_colors(shadow_layout, execp->backend->text)) {
+                g_object_unref(shadow_layout);
+                shadow_layout = NULL;
+            }
+        }
+    }
 
     pango_cairo_update_layout(c, layout);
     draw_text(layout,
@@ -524,7 +539,7 @@ void draw_execp(void *obj, cairo_t *c)
               execp->frontend->textx,
               execp->frontend->texty,
               &execp->backend->font_color,
-              panel_config.font_shadow);
+              shadow_layout);
 
     g_object_unref(layout);
     g_object_unref(context);

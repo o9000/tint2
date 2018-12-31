@@ -215,7 +215,7 @@ void draw_taskbarname(void *obj, cairo_t *c)
     cairo_set_source_rgba(c, config_text->rgb[0], config_text->rgb[1], config_text->rgb[2], config_text->alpha);
 
     pango_cairo_update_layout(c, layout);
-    draw_text(layout, c, 0, taskbar_name->posy, config_text, ((Panel *)taskbar_name->area.panel)->font_shadow);
+    draw_text(layout, c, 0, taskbar_name->posy, config_text, ((Panel *)taskbar_name->area.panel)->font_shadow ? layout : NULL);
 
     g_object_unref(layout);
     g_object_unref(context);

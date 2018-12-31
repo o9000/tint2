@@ -1084,7 +1084,7 @@ void draw_text_area(Area *area,
         pango_layout_set_font_description(layout, line1_font_desc);
         pango_layout_set_text(layout, line1, strlen(line1));
         pango_cairo_update_layout(c, layout);
-        draw_text(layout, c, (area->width - inner_w) / 2, line1_posy, color, ((Panel *)area->panel)->font_shadow);
+        draw_text(layout, c, (area->width - inner_w) / 2, line1_posy, color, ((Panel *)area->panel)->font_shadow ? layout : NULL);
     }
 
     if (line2 && line2[0]) {
@@ -1092,7 +1092,7 @@ void draw_text_area(Area *area,
         pango_layout_set_indent(layout, 0);
         pango_layout_set_text(layout, line2, strlen(line2));
         pango_cairo_update_layout(c, layout);
-        draw_text(layout, c, (area->width - inner_w) / 2, line2_posy, color, ((Panel *)area->panel)->font_shadow);
+        draw_text(layout, c, (area->width - inner_w) / 2, line2_posy, color, ((Panel *)area->panel)->font_shadow ? layout : NULL);
     }
 
     g_object_unref(layout);
