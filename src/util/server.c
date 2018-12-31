@@ -36,8 +36,9 @@
 
 Server server;
 
-void server_catch_error(Display *d, XErrorEvent *ev)
+int server_catch_error(Display *d, XErrorEvent *ev)
 {
+    return 0;
 }
 
 void server_init_atoms()
@@ -676,9 +677,10 @@ void handle_crash(const char *reason)
 #endif
 }
 
-void x11_io_error(Display *display)
+int x11_io_error(Display *display)
 {
     handle_crash("X11 I/O error");
+    return 0;
 }
 
 #ifdef HAVE_SN

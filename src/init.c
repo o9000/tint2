@@ -209,8 +209,8 @@ void init_X11_pre_config()
         exit(EXIT_FAILURE);
     }
     server.x11_fd = ConnectionNumber(server.display);
-    XSetErrorHandler((XErrorHandler)server_catch_error);
-    XSetIOErrorHandler((XIOErrorHandler)x11_io_error);
+    XSetErrorHandler(server_catch_error);
+    XSetIOErrorHandler(x11_io_error);
     server_init_atoms();
     server.screen = DefaultScreen(server.display);
     server.root_win = RootWindow(server.display, server.screen);

@@ -383,6 +383,11 @@ static void menuAbout()
 
 // ====== Theme import/copy/delete ======
 
+static void free_data(gpointer data, gpointer userdata)
+{
+    g_free(data);
+}
+
 // Shows open dialog and copies the selected files to ~ without overwrite.
 static void menuImportFile()
 {
@@ -407,7 +412,7 @@ static void menuImportFile()
         gchar *newpath = import_no_overwrite(l->data);
         g_free(newpath);
     }
-    g_slist_foreach(list, (GFunc)g_free, NULL);
+    g_slist_foreach(list, free_data, NULL);
     g_slist_free(list);
     gtk_widget_destroy(dialog);
 }

@@ -510,7 +510,8 @@ tint2conf.cflags += ['-DTINT2CONF',
                      '-DINSTALL_PREFIX=\\"{}\\"'.format(prefix),
                      '-DLOCALEDIR=\\"{}\\"'.format(localedir),
                      '-DGETTEXT_PACKAGE=\\"tint2conf\\"',
-                     '-DHAVE_VERSION_H']
+                     '-DHAVE_VERSION_H',
+                     '-Wno-shadow']
 
 tint2conf.sources = ['src/util/bt.c',
                      'src/util/common.c',

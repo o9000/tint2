@@ -399,7 +399,12 @@ void launcher_icon_dump_geometry(void *obj, int indent)
 Imlib_Image scale_icon(Imlib_Image original, int icon_size)
 {
     Imlib_Image icon_scaled;
-    if (original) {
+    if (!icon_size) {
+        icon_scaled = imlib_create_image(1, 1);
+        imlib_context_set_image(icon_scaled);
+        imlib_context_set_color(255, 255, 255, 255);
+        imlib_image_fill_rectangle(0, 0, icon_size, icon_size);
+    } else if (original) {
         imlib_context_set_image(original);
         icon_scaled = imlib_create_cropped_scaled_image(0,
                                                         0,

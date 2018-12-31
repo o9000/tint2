@@ -362,8 +362,12 @@ pid_t tint_exec(const char *command,
         // Allow children to exist after parent destruction
         setsid();
         // Run the command
-        if (dir)
-            chdir(dir);
+        if (dir) {
+            int ret = chdir(dir);
+            if (ret != 0) {
+                fprintf(stderr, "tint2: failed to chdir to %s\n", dir);
+            }
+        }
         close_all_fds();
         reset_signals();
         if (terminal) {
