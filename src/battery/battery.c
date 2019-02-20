@@ -42,6 +42,7 @@ gboolean battery_enabled;
 gboolean battery_tooltip_enabled;
 int percentage_hide;
 static Timer battery_timer;
+static Timer battery_blink_timer;
 
 #define BATTERY_BUF_SIZE 256
 static char buf_bat_line1[BATTERY_BUF_SIZE];
@@ -60,6 +61,9 @@ char *battery_rclick_command;
 char *battery_uwheel_command;
 char *battery_dwheel_command;
 gboolean battery_found;
+gboolean battery_warn;
+gboolean battery_warn_red;
+Background *battery_warn_bg;
 
 char *battery_sys_prefix = (char *)"";
 
@@ -77,6 +81,10 @@ void default_battery()
     battery_low_cmd_sent = FALSE;
     battery_full_cmd_sent = FALSE;
     INIT_TIMER(battery_timer);
+    INIT_TIMER(battery_blink_timer);
+    battery_warn = FALSE;
+    battery_warn_red = FALSE;
+    battery_warn_bg = NULL;
     bat1_has_font = FALSE;
     bat1_font_desc = NULL;
     bat1_format = NULL;
@@ -128,7 +136,9 @@ void cleanup_battery()
     free(ac_disconnected_cmd);
     ac_disconnected_cmd = NULL;
     destroy_timer(&battery_timer);
+    destroy_timer(&battery_blink_timer);
     battery_found = FALSE;
+    free_and_null(battery_warn_bg);
 
     battery_os_free();
 }
@@ -310,6 +320,33 @@ void battery_default_font_changed()
     schedule_panel_redraw();
 }
 
+void blink_battery(void *arg)
+{
+    if (!battery_enabled)
+        return;
+    battery_warn_red = battery_warn ? !battery_warn_red : FALSE;
+    if (battery_warn_red && !battery_warn_bg) {
+        battery_warn_bg = calloc(1, sizeof(*battery_warn_bg));
+        *battery_warn_bg = *panel_config.battery.area.bg;
+        battery_warn_bg->fill_color.rgb[0] = 0.8;
+        battery_warn_bg->fill_color.rgb[1] = 0.1;
+        battery_warn_bg->fill_color.rgb[2] = 0.1;
+        battery_warn_bg->fill_color.alpha = 1.0;
+        battery_warn_bg->border.color.rgb[0] = 0.5;
+        battery_warn_bg->border.color.rgb[1] = 0.0;
+        battery_warn_bg->border.color.rgb[2] = 0.0;
+        battery_warn_bg->border.color.alpha = 1.0;
+    }
+    for (int i = 0; i < num_panels; i++) {
+        if (panels[i].battery.area.on_screen) {
+            panels[i].battery.area.bg = battery_warn_red ?
+                        battery_warn_bg :
+                        panel_config.battery.area.bg;
+            schedule_redraw(&panels[i].battery.area);
+        }
+    }
+}
+
 void update_battery_tick(void *arg)
 {
     if (!battery_enabled)
@@ -320,6 +357,7 @@ void update_battery_tick(void *arg)
     gboolean old_ac_connected = battery_state.ac_connected;
     int16_t old_hours = battery_state.time.hours;
     int8_t old_minutes = battery_state.time.minutes;
+    gboolean old_warn = battery_warn;
 
     if (!battery_found) {
         init_battery();
@@ -357,6 +395,19 @@ void update_battery_tick(void *arg)
         battery_full_cmd_sent = FALSE;
     }
 
+    if (!battery_blink_timer.enabled_) {
+        if (battery_state.percentage < battery_low_status &&
+            battery_state.state == BATTERY_DISCHARGING) {
+            change_timer(&battery_blink_timer, true, 10, 1000, blink_battery, 0);
+        }
+    } else {
+        if (battery_state.percentage > battery_low_status ||
+            battery_state.state != BATTERY_DISCHARGING) {
+            stop_timer(&battery_blink_timer);
+            battery_warn = FALSE;
+        }
+    }
+
     for (int i = 0; i < num_panels; i++) {
         // Show/hide if needed
         if (!battery_found) {
@@ -370,8 +421,11 @@ void update_battery_tick(void *arg)
         // Redraw if needed
         if (panels[i].battery.area.on_screen) {
             if (old_found != battery_found || old_percentage != battery_state.percentage ||
-                old_hours != battery_state.time.hours || old_minutes != battery_state.time.minutes) {
+                old_hours != battery_state.time.hours || old_minutes != battery_state.time.minutes ||
+                old_warn != battery_warn) {
                 panels[i].battery.area.resize_needed = TRUE;
+                if (!battery_warn)
+                    panels[i].battery.area.bg = panel_config.battery.area.bg;
                 schedule_panel_redraw();
             }
         }
