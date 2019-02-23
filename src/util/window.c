@@ -414,6 +414,8 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
         fw = tw;
         ox = oy = 0;
     }
+    if (!w || !h || !tw || !th || !fw)
+        goto err0;
 
     XShmSegmentInfo shminfo;
     XImage *ximg;
