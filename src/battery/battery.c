@@ -328,20 +328,27 @@ void blink_battery(void *arg)
     if (battery_warn_red && !battery_warn_bg) {
         battery_warn_bg = calloc(1, sizeof(*battery_warn_bg));
         *battery_warn_bg = *panel_config.battery.area.bg;
-        battery_warn_bg->fill_color.rgb[0] = 0.8;
+        battery_warn_bg->fill_color.alpha = 1.0;
+        battery_warn_bg->border.color.alpha = 1.0;
+    }
+    if (battery_warn_red) {
+        battery_warn_bg->fill_color.rgb[0] = 0.6;
         battery_warn_bg->fill_color.rgb[1] = 0.1;
         battery_warn_bg->fill_color.rgb[2] = 0.1;
-        battery_warn_bg->fill_color.alpha = 1.0;
         battery_warn_bg->border.color.rgb[0] = 0.5;
         battery_warn_bg->border.color.rgb[1] = 0.0;
         battery_warn_bg->border.color.rgb[2] = 0.0;
-        battery_warn_bg->border.color.alpha = 1.0;
+    } else {
+        battery_warn_bg->fill_color.rgb[0] = 0.9;
+        battery_warn_bg->fill_color.rgb[1] = 0.7;
+        battery_warn_bg->fill_color.rgb[2] = 0.1;
+        battery_warn_bg->border.color.rgb[0] = 0.7;
+        battery_warn_bg->border.color.rgb[1] = 0.5;
+        battery_warn_bg->border.color.rgb[2] = 0.1;
     }
     for (int i = 0; i < num_panels; i++) {
         if (panels[i].battery.area.on_screen) {
-            panels[i].battery.area.bg = battery_warn_red ?
-                        battery_warn_bg :
-                        panel_config.battery.area.bg;
+            panels[i].battery.area.bg = battery_warn_bg;
             schedule_redraw(&panels[i].battery.area);
         }
     }
@@ -399,6 +406,7 @@ void update_battery_tick(void *arg)
         if (battery_state.percentage < battery_low_status &&
             battery_state.state == BATTERY_DISCHARGING) {
             change_timer(&battery_blink_timer, true, 10, 1000, blink_battery, 0);
+            battery_warn = TRUE;
         }
     } else {
         if (battery_state.percentage > battery_low_status ||
