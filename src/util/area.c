@@ -478,14 +478,14 @@ void draw(Area *a)
         a->_clear(a);
     }
 
-    cairo_surface_t *cs = cairo_xlib_surface_create(server.display, a->pix, server.visual, a->width, a->height);
+    cairo_surface_t *cs = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, a->width, a->height);
     cairo_t *c = cairo_create(cs);
 
     draw_background(a, c);
-
     if (a->_draw_foreground)
         a->_draw_foreground(a, c);
 
+    draw_cairo_surface_to_xpixmap(cs, a->pix);
     cairo_destroy(c);
     cairo_surface_destroy(cs);
 }
