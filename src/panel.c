@@ -612,6 +612,21 @@ gboolean resize_panel(void *obj)
     return FALSE;
 }
 
+#define STRUT_LEFT      0
+#define STRUT_RIGHT     1
+#define STRUT_TOP       2
+#define STRUT_BOTTOM    3
+#define STRUT_LEFT_Y1   4
+#define STRUT_LEFT_Y2   5
+#define STRUT_RIGHT_Y1  6
+#define STRUT_RIGHT_Y2  7
+#define STRUT_TOP_X1    8
+#define STRUT_TOP_X2    9
+#define STRUT_BOTTOM_X1 10
+#define STRUT_BOTTOM_X2 11
+#define STRUT_COUNT     12
+#define STRUT_COUNT_OLD 4
+
 void update_strut(Panel *p)
 {
     if (panel_strut_policy == STRUT_NONE) {
@@ -626,36 +641,36 @@ void update_strut(Panel *p)
     int d3;
     XGetGeometry(server.display, server.root_win, &d2, &d3, &d3, &screen_width, &screen_height, &d1, &d1);
     Monitor monitor = server.monitors[p->monitor];
-    long struts[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    long struts[STRUT_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     if (panel_horizontal ^ panel_pivot_struts) {
         int height = p->area.height + p->marginy;
         if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide && p->is_hidden))
             height = p->hidden_height;
         if (panel_position & TOP) {
-            struts[2] = height + monitor.y;
-            struts[8] = p->posx;
+            struts[STRUT_TOP] = height + monitor.y;
+            struts[STRUT_TOP_X1] = p->posx;
             // p->area.width - 1 allowed full screen on monitor 2
-            struts[9] = p->posx + p->area.width - 1;
+            struts[STRUT_TOP_X2] = p->posx + p->area.width - 1;
         } else {
-            struts[3] = height + screen_height - monitor.y - monitor.height;
-            struts[10] = p->posx;
+            struts[STRUT_BOTTOM] = height + screen_height - monitor.y - monitor.height;
+            struts[STRUT_BOTTOM_X1] = p->posx;
             // p->area.width - 1 allowed full screen on monitor 2
-            struts[11] = p->posx + p->area.width - 1;
+            struts[STRUT_BOTTOM_X2] = p->posx + p->area.width - 1;
         }
     } else {
         int width = p->area.width + p->marginx;
         if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide && p->is_hidden))
             width = p->hidden_width;
         if (panel_position & LEFT) {
-            struts[0] = width + monitor.x;
-            struts[4] = p->posy;
+            struts[STRUT_LEFT] = width + monitor.x;
+            struts[STRUT_LEFT_Y1] = p->posy;
             // p->area.width - 1 allowed full screen on monitor 2
-            struts[5] = p->posy + p->area.height - 1;
+            struts[STRUT_LEFT_Y2] = p->posy + p->area.height - 1;
         } else {
-            struts[1] = width + screen_width - monitor.x - monitor.width;
-            struts[6] = p->posy;
+            struts[STRUT_RIGHT] = width + screen_width - monitor.x - monitor.width;
+            struts[STRUT_RIGHT_Y1] = p->posy;
             // p->area.width - 1 allowed full screen on monitor 2
-            struts[7] = p->posy + p->area.height - 1;
+            struts[STRUT_RIGHT_Y2] = p->posy + p->area.height - 1;
         }
     }
     // Old specification : fluxbox need _NET_WM_STRUT.
@@ -666,7 +681,7 @@ void update_strut(Panel *p)
                     32,
                     PropModeReplace,
                     (unsigned char *)&struts,
-                    4);
+                    STRUT_COUNT_OLD);
     XChangeProperty(server.display,
                     p->main_win,
                     server.atom._NET_WM_STRUT_PARTIAL,
@@ -674,7 +689,7 @@ void update_strut(Panel *p)
                     32,
                     PropModeReplace,
                     (unsigned char *)&struts,
-                    12);
+                    STRUT_COUNT);
 }
 
 void set_panel_items_order(Panel *p)
