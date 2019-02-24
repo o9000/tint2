@@ -379,9 +379,11 @@ panel_size = 94% 30
 .IP \(bu 2
 \fB\fCpanel_dock = boolean (0 or 1)\fR : Defines if tint2 is placed into the window manager's dock. For the openbox window manager it is advised to also use a modifier for the moveButton option, otherwise the mouse click is not forwarded to tint2 (in ~/.config/openbox/rc.xml).
 .IP \(bu 2
+\fB\fCpanel_pivot_struts = boolean (0 or 1)\fR : Defines if tint2 lies to the window manager about its orientation (horizontal vs vertical) when requesting reserved space with STRUTs (see \fB\fCstrut_policy\fR below). On some window managers, this allows placing a panel in the middle of the virtual screen, e.g. on the bottom edge of the top monitor in a vertical dual\-monitor setup. 
+.IP \(bu 2
 \fB\fCpanel_layer = bottom/normal/top\fR : Places tint2 into the bottom/normal/top layer. This is helpful for specifying if the panel can be covered by other windows or not. The default is the bottom layer, but with real transparency normal or top layer may be a nice alternative.
 .IP \(bu 2
-\fB\fCstrut_policy = follow_size/minimum/none\fR : STRUTs are used by the window manager to decide the size of maximized windows. Note: on multi\-monitor (Xinerama) setups, the panel must be placed at the edge (not in the middle) of the virtual screen for this to work correctly.
+\fB\fCstrut_policy = follow_size/minimum/none\fR : STRUTs are used by the window manager to decide the size of maximized windows. Note: on multi\-monitor (Xinerama) setups, the panel generally must be placed at the edge (not in the middle) of the virtual screen for this to work correctly (though on some window managers, setting \fB\fCpanel_pivot_struts\fR may work around this limitation). 
 .RS
 .IP \(bu 2
 \fB\fCfollow_size\fR means that the maximized windows always resize to have a common edge with tint2.

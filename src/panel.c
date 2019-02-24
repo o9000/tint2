@@ -49,6 +49,7 @@ MouseAction mouse_tilt_right;
 TaskbarMode taskbar_mode;
 gboolean wm_menu;
 gboolean panel_dock;
+gboolean panel_pivot_struts;
 Layer panel_layer;
 PanelPosition panel_position;
 gboolean panel_horizontal;
@@ -103,6 +104,7 @@ void default_panel()
     panel_shrink = FALSE;
     panel_strut_policy = STRUT_FOLLOW_SIZE;
     panel_dock = FALSE;         // default not in the dock
+    panel_pivot_struts = FALSE;
     panel_layer = BOTTOM_LAYER; // default is bottom layer
     panel_window_name = strdup("tint2");
     wm_menu = FALSE;
@@ -625,7 +627,7 @@ void update_strut(Panel *p)
     XGetGeometry(server.display, server.root_win, &d2, &d3, &d3, &screen_width, &screen_height, &d1, &d1);
     Monitor monitor = server.monitors[p->monitor];
     long struts[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    if (panel_horizontal) {
+    if (panel_horizontal ^ panel_pivot_struts) {
         int height = p->area.height + p->marginy;
         if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide && p->is_hidden))
             height = p->hidden_height;

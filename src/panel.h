@@ -69,6 +69,7 @@ typedef enum Strut {
 extern TaskbarMode taskbar_mode;
 extern gboolean wm_menu;
 extern gboolean panel_dock;
+extern gboolean panel_pivot_struts;
 extern Layer panel_layer;
 extern char *panel_window_name;
 extern PanelPosition panel_position;

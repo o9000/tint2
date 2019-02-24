@@ -273,7 +273,7 @@ Try to respect as much as possible the order of the options as given below.</p><
 <li><p><code>border_content_tint_weight = integer</code> : Mixes the border color with the content color (for tasks, this is the average color of the window icon). Values must be between 0 (no mixing) and 100 (fully replaces the color). <em>(since 16.0)</em></p></li>
 <li><p><code>background_content_tint_weight = integer</code> : Mixes the background color with the content color (for tasks, this is the average color of the window icon). Values must be between 0 (no mixing) and 100 (fully replaces the color). <em>(since 16.0)</em></p></li>
 </ul>
-<p>You can define as many backgrounds as you want. For example, the following config defines two backgrounds:</p><pre class="highlight plaintext"><code>rounded = 1
+<p>You can define as many backgrounds as you want. For example, the following config defines two backgrounds:</p><pre><code>rounded = 1
 border_width = 0
 background_color = #282828 100
 border_color = #000000 0
@@ -284,7 +284,7 @@ background_color = #f6b655 90
 border_color = #cccccc 40
 </code></pre>
 <p>tint2 automatically identifies each background with a number starting from 1 (1, 2, ...).
-Afterwards, you can apply a background to objects (panel, taskbar, task, clock, systray) using the background id, for example:</p><pre class="highlight plaintext"><code>panel_background_id = 1
+Afterwards, you can apply a background to objects (panel, taskbar, task, clock, systray) using the background id, for example:</p><pre><code>panel_background_id = 1
 taskbar_background_id = 0
 task_background_id = 0
 task_active_background_id = 2
@@ -300,21 +300,21 @@ the gradient index, starting from 1.</p><h4 id="gradient-types">Gradient types<a
 * vertical gradients: top-to-bottom;
 * horizontal gradients: left-to-right;
 * radial gradients: center-to-corners.</p><p>The user must specify the start and end colors, and can optionally add extra color stops in between
-using the <code>color_stop</code> option, as explained below.</p><h5 id="vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors">Vertical gradient, with color varying from the top edge to the bottom edge, two colors<a name="vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors" href="#vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>gradient = vertical
+using the <code>color_stop</code> option, as explained below.</p><h5 id="vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors">Vertical gradient, with color varying from the top edge to the bottom edge, two colors<a name="vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors" href="#vertical-gradient-with-color-varying-from-the-top-edge-to-the-bottom-edge-two-colors" class="md2man-permalink" title="permalink"></a></h5><pre><code>gradient = vertical
 start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 </code></pre>
-<h5 id="horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors">Horizontal gradient, with color varying from the left edge to the right edge, two colors<a name="horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors" href="#horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>gradient = horizontal
+<h5 id="horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors">Horizontal gradient, with color varying from the left edge to the right edge, two colors<a name="horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors" href="#horizontal-gradient-with-color-varying-from-the-left-edge-to-the-right-edge-two-colors" class="md2man-permalink" title="permalink"></a></h5><pre><code>gradient = horizontal
 start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 </code></pre>
-<h5 id="radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors">Radial gradient, with color varying from the center to the corner, two colors:<a name="radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors" href="#radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>gradient = radial
+<h5 id="radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors">Radial gradient, with color varying from the center to the corner, two colors:<a name="radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors" href="#radial-gradient-with-color-varying-from-the-center-to-the-corner-two-colors" class="md2man-permalink" title="permalink"></a></h5><pre><code>gradient = radial
 start_color = #rrggbb opacity
 end_color = #rrggbb opacity
 </code></pre>
-<h5 id="adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points">Adding extra color stops (0% and 100% remain fixed, more colors at x% between the start and end control points)<a name="adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points" href="#adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>color_stop = percentage #rrggbb opacity
+<h5 id="adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points">Adding extra color stops (0% and 100% remain fixed, more colors at x% between the start and end control points)<a name="adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points" href="#adding-extra-color-stops-0-and-100-remain-fixed-more-colors-at-x-between-the-start-and-end-control-points" class="md2man-permalink" title="permalink"></a></h5><pre><code>color_stop = percentage #rrggbb opacity
 </code></pre>
-<h4 id="gradient-examples">Gradient examples<a name="gradient-examples" href="#gradient-examples" class="md2man-permalink" title="permalink"></a></h4><pre class="highlight plaintext"><code># Gradient 1: thin film effect
+<h4 id="gradient-examples">Gradient examples<a name="gradient-examples" href="#gradient-examples" class="md2man-permalink" title="permalink"></a></h4><pre><code># Gradient 1: thin film effect
 gradient = horizontal
 start_color = #111122 30
 end_color = #112211 30
@@ -389,7 +389,7 @@ Example:</li>
 <li><p><code>scale_relative_to_dpi = integer</code> : If set to a non-zero value, HiDPI scaling is enabled. Each panel is visible on a different monitor. Thus each panel has a specific scaling factor. The scaling factor is computed as the ratio between the monitor DPI (obtained from the dimensions in pixels and millimeters from RandR) and a configured reference DPI - this is the DPI for which exising user configs looked normal, for backward compatibility.</p></li>
 <li><p><code>scale_relative_to_screen_height = integer</code> : Similar to <code>scale_relative_to_dpi</code>, except the scaling factor is computed as the ratio between the monitor height and <code>scale_relative_to_screen_height</code>. The effect is cumulative with <code>scale_relative_to_dpi</code>, i.e. if both options are present, the factors are multiplied.</p></li>
 </ul>
-<pre class="highlight plaintext"><code># The panel's width is 94% the size of the monitor, the height is 30 pixels:
+<pre><code># The panel&#39;s width is 94% the size of the monitor, the height is 30 pixels:
 panel_size = 94% 30
 </code></pre>
 
@@ -407,8 +407,9 @@ panel_size = 94% 30
 <li><p><code>panel_background_id = integer</code> : Which background to use for the panel.</p></li>
 <li><p><code>wm_menu = boolean (0 or 1)</code> : Defines if tint2 forwards unhandled mouse events to your window manager. Useful for window managers such as openbox, which display the start menu if you right click on the desktop.</p></li>
 <li><p><code>panel_dock = boolean (0 or 1)</code> : Defines if tint2 is placed into the window manager&#39;s dock. For the openbox window manager it is advised to also use a modifier for the moveButton option, otherwise the mouse click is not forwarded to tint2 (in ~/.config/openbox/rc.xml).</p></li>
+<li><p><code>panel_pivot_struts = boolean (0 or 1)</code> : Defines if tint2 lies to the window manager about its orientation (horizontal vs vertical) when requesting reserved space with STRUTs (see <code>strut_policy</code> below). On some window managers, this allows placing a panel in the middle of the virtual screen, e.g. on the bottom edge of the top monitor in a vertical dual-monitor setup. </p></li>
 <li><p><code>panel_layer = bottom/normal/top</code> : Places tint2 into the bottom/normal/top layer. This is helpful for specifying if the panel can be covered by other windows or not. The default is the bottom layer, but with real transparency normal or top layer may be a nice alternative.</p></li>
-<li><p><code>strut_policy = follow_size/minimum/none</code> : STRUTs are used by the window manager to decide the size of maximized windows. Note: on multi-monitor (Xinerama) setups, the panel must be placed at the edge (not in the middle) of the virtual screen for this to work correctly.</p>
+<li><p><code>strut_policy = follow_size/minimum/none</code> : STRUTs are used by the window manager to decide the size of maximized windows. Note: on multi-monitor (Xinerama) setups, the panel generally must be placed at the edge (not in the middle) of the virtual screen for this to work correctly (though on some window managers, setting <code>panel_pivot_struts</code> may work around this limitation). </p>
 <ul>
 <li><code>follow_size</code> means that the maximized windows always resize to have a common edge with tint2.</li>
 <li><code>minimum</code> means that the maximized windows always expand to have a common edge with the hidden panel. This is useful if the <code>autohide</code> option is enabled.</li>
@@ -621,16 +622,16 @@ panel_size = 94% 30
 <li><p><code>execp_uwheel_command = text</code> : Command to execute on wheel scroll up. If not defined, <code>execp_command</code> is  executed immediately, unless it is currently running. <em>(since 0.12.4)</em></p></li>
 <li><p><code>execp_dwheel_command = text</code> : Command to execute on wheel scroll down. If not defined, <code>execp_command</code> is  executed immediately, unless it is currently running. <em>(since 0.12.4)</em></p></li>
 </ul>
-<h4 id="executor-samples">Executor samples<a name="executor-samples" href="#executor-samples" class="md2man-permalink" title="permalink"></a></h4><h5 id="print-the-hostname">Print the hostname<a name="print-the-hostname" href="#print-the-hostname" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>execp = new
+<h4 id="executor-samples">Executor samples<a name="executor-samples" href="#executor-samples" class="md2man-permalink" title="permalink"></a></h4><h5 id="print-the-hostname">Print the hostname<a name="print-the-hostname" href="#print-the-hostname" class="md2man-permalink" title="permalink"></a></h5><pre><code>execp = new
 execp_command = hostname
 execp_interval = 0
 </code></pre>
-<h5 id="print-disk-usage-for-the-root-partition-every-10-seconds">Print disk usage for the root partition every 10 seconds<a name="print-disk-usage-for-the-root-partition-every-10-seconds" href="#print-disk-usage-for-the-root-partition-every-10-seconds" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>execp = new
-execp_command = df -h | awk '/\/$/ { print $6 ": " $2 " " $5}'
+<h5 id="print-disk-usage-for-the-root-partition-every-10-seconds">Print disk usage for the root partition every 10 seconds<a name="print-disk-usage-for-the-root-partition-every-10-seconds" href="#print-disk-usage-for-the-root-partition-every-10-seconds" class="md2man-permalink" title="permalink"></a></h5><pre><code>execp = new
+execp_command = df -h | awk &#39;/\/$/ { print $6 &quot;: &quot; $2 &quot; &quot; $5}&#39;
 execp_interval = 10
 </code></pre>
-<h5 id="button-with-icon-and-rich-text-executes-command-when-clicked">Button with icon and rich text, executes command when clicked<a name="button-with-icon-and-rich-text-executes-command-when-clicked" href="#button-with-icon-and-rich-text-executes-command-when-clicked" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>execp = new
-execp_command = echo /usr/share/icons/elementary-xfce/emblems/24/emblem-colors-blue.png; echo '&lt;span foreground="#7f7"&gt;Click&lt;/span&gt; &lt;span foreground="#77f"&gt;me&lt;/span&gt; &lt;span foreground="#f77"&gt;pls&lt;/span&gt;'
+<h5 id="button-with-icon-and-rich-text-executes-command-when-clicked">Button with icon and rich text, executes command when clicked<a name="button-with-icon-and-rich-text-executes-command-when-clicked" href="#button-with-icon-and-rich-text-executes-command-when-clicked" class="md2man-permalink" title="permalink"></a></h5><pre><code>execp = new
+execp_command = echo /usr/share/icons/elementary-xfce/emblems/24/emblem-colors-blue.png; echo &#39;&lt;span foreground=&quot;#7f7&quot;&gt;Click&lt;/span&gt; &lt;span foreground=&quot;#77f&quot;&gt;me&lt;/span&gt; &lt;span foreground=&quot;#f77&quot;&gt;pls&lt;/span&gt;&#39;
 execp_has_icon = 1
 execp_interval = 0
 execp_centered = 1
@@ -639,34 +640,34 @@ execp_markup = 1
 execp_font_color = #aaffaa 100
 execp_padding = 2 0
 execp_tooltip = I will tell you a secret...
-execp_lclick_command = zenity --info "--text=$(uname -sr)"
+execp_lclick_command = zenity --info &quot;--text=$(uname -sr)&quot;
 execp_background_id = 2
 </code></pre>
-<h5 id="desktop-pager-with-text">Desktop pager with text<a name="desktop-pager-with-text" href="#desktop-pager-with-text" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>execp = new
-execp_command = xprop -root -spy | awk '/^_NET_CURRENT_DESKTOP/ { print "Workspace " ($3 + 1) ; fflush(); }'
+<h5 id="desktop-pager-with-text">Desktop pager with text<a name="desktop-pager-with-text" href="#desktop-pager-with-text" class="md2man-permalink" title="permalink"></a></h5><pre><code>execp = new
+execp_command = xprop -root -spy | awk &#39;/^_NET_CURRENT_DESKTOP/ { print &quot;Workspace &quot; ($3 + 1) ; fflush(); }&#39;
 execp_interval = 1
 execp_continuous = 1
 </code></pre>
-<h5 id="desktop-pager-with-icon">Desktop pager with icon<a name="desktop-pager-with-icon" href="#desktop-pager-with-icon" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>execp_command = xprop -root -spy | awk -v home="$HOME" '/^_NET_CURRENT_DESKTOP/ { print home "/.config/myPager/" ($3 + 1) ".png\n" ; fflush(); }'
+<h5 id="desktop-pager-with-icon">Desktop pager with icon<a name="desktop-pager-with-icon" href="#desktop-pager-with-icon" class="md2man-permalink" title="permalink"></a></h5><pre><code>execp_command = xprop -root -spy | awk -v home=&quot;$HOME&quot; &#39;/^_NET_CURRENT_DESKTOP/ { print home &quot;/.config/myPager/&quot; ($3 + 1) &quot;.png\n&quot; ; fflush(); }&#39;
 execp_interval = 1
 execp_has_icon = 1
 execp_cache_icon = 1
 execp_continuous = 2
 </code></pre>
-<h5 id="round-trip-time-to-the-gateway-refreshed-every-second">Round-trip time to the gateway, refreshed every second<a name="round-trip-time-to-the-gateway-refreshed-every-second" href="#round-trip-time-to-the-gateway-refreshed-every-second" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>execp = new
-execp_command = ping -i 1 -c 1 -W 1 -O -D -n $(ip route | grep default | grep via | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*') | awk '/no/ { print "&lt;span foreground=\"#faa\"&gt;timeout&lt;/span&gt;"; fflush(); }; /time=/ { gsub(/time=/, "", $8); printf "&lt;span foreground=\"#7af\"&gt;%3.0f %s&lt;/span&gt;\n", $8, $9; fflush(); } '
+<h5 id="round-trip-time-to-the-gateway-refreshed-every-second">Round-trip time to the gateway, refreshed every second<a name="round-trip-time-to-the-gateway-refreshed-every-second" href="#round-trip-time-to-the-gateway-refreshed-every-second" class="md2man-permalink" title="permalink"></a></h5><pre><code>execp = new
+execp_command = ping -i 1 -c 1 -W 1 -O -D -n $(ip route | grep default | grep via | grep -o &#39;[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*&#39;) | awk &#39;/no/ { print &quot;&lt;span foreground=\&quot;#faa\&quot;&gt;timeout&lt;/span&gt;&quot;; fflush(); }; /time=/ { gsub(/time=/, &quot;&quot;, $8); printf &quot;&lt;span foreground=\&quot;#7af\&quot;&gt;%3.0f %s&lt;/span&gt;\n&quot;, $8, $9; fflush(); } &#39;
 execp_continuous = 0
 execp_interval = 1
 execp_markup = 1
 </code></pre>
-<h5 id="memory-usage">Memory usage<a name="memory-usage" href="#memory-usage" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>execp = new
-execp_command = free | awk '/^-/ { printf "Mem: '$(free -h | awk '/^Mem:/ { print $2 }')' %.0f%%\n", 100*$3/($3+$4); fflush(stdout) }'
+<h5 id="memory-usage">Memory usage<a name="memory-usage" href="#memory-usage" class="md2man-permalink" title="permalink"></a></h5><pre><code>execp = new
+execp_command = free | awk &#39;/^-/ { printf &quot;Mem: &#39;$(free -h | awk &#39;/^Mem:/ { print $2 }&#39;)&#39; %.0f%%\n&quot;, 100*$3/($3+$4); fflush(stdout) }&#39;
 execp_interval = 5
 execp_continuous = 0
 </code></pre>
-<h5 id="network-load">Network load<a name="network-load" href="#network-load" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code># Note the use of "stdbuf -oL" to force the program to flush the output line by line.
+<h5 id="network-load">Network load<a name="network-load" href="#network-load" class="md2man-permalink" title="permalink"></a></h5><pre><code># Note the use of &quot;stdbuf -oL&quot; to force the program to flush the output line by line.
 execp = new
-execp_command = stdbuf -oL bwm-ng -o csv -t 1000 | awk -F ';' '/total/ { printf "Net: %.0f Mb/s\n", ($5*8/1.0e6) }; fflush(stdout)'
+execp_command = stdbuf -oL bwm-ng -o csv -t 1000 | awk -F &#39;;&#39; &#39;/total/ { printf &quot;Net: %.0f Mb/s\n&quot;, ($5*8/1.0e6) }; fflush(stdout)&#39;
 execp_continuous = 1
 execp_interval = 1
 </code></pre>
