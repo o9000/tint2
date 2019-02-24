@@ -12,8 +12,8 @@
 extern GtkWidget *scale_relative_to_dpi, *scale_relative_to_screen_height;
 extern GtkWidget *panel_width, *panel_height, *panel_margin_x, *panel_margin_y, *panel_padding_x, *panel_padding_y,
     *panel_spacing;
-extern GtkWidget *panel_wm_menu, *panel_dock, *panel_autohide, *panel_autohide_show_time, *panel_autohide_hide_time,
-    *panel_autohide_size;
+extern GtkWidget *panel_wm_menu, *panel_dock, *panel_pivot_struts, *panel_autohide, *panel_autohide_show_time,
+    *panel_autohide_hide_time, *panel_autohide_size;
 extern GtkWidget *panel_combo_strut_policy, *panel_combo_layer, *panel_combo_width_type, *panel_combo_height_type,
     *panel_combo_monitor;
 extern GtkWidget *panel_window_name, *disable_transparency;

@@ -508,6 +508,8 @@ void add_entry(char *key, char *value)
         wm_menu = atoi(value);
     else if (strcmp(key, "panel_dock") == 0)
         panel_dock = atoi(value);
+    else if (strcmp(key, "panel_pivot_struts") == 0)
+        panel_pivot_struts = atoi(value);
     else if (strcmp(key, "urgent_nb_of_blink") == 0)
         max_tick_urgent = atoi(value);
     else if (strcmp(key, "panel_layer") == 0) {
