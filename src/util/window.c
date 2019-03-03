@@ -379,6 +379,7 @@ void smooth_thumbnail(cairo_surface_t *image_surface)
         u_int32_t b = (5 * (c1 & bmask) + 1 * (c2 & bmask) + 1 * (c3 & bmask) + 1 * (c4 & bmask)) / 8;
         u_int32_t g = (5 * (c1 & gmask) + 1 * (c2 & gmask) + 1 * (c3 & gmask) + 1 * (c4 & gmask)) / 8;
         u_int32_t r = (5 * (c1 & rmask) + 1 * (c2 & rmask) + 1 * (c3 & rmask) + 1 * (c4 & rmask)) / 8;
+        g_assert(i < tw * th);
         data[i] = (r & rmask) | (g & gmask) | (b & bmask);
     }
 }
@@ -445,7 +446,7 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
             goto err1;
         }
         shminfo.shmaddr = ximg->data = (char *)shmat(shminfo.shmid, 0, 0);
-        if (!shminfo.shmaddr) {
+        if (shminfo.shmaddr == (void*)-1) {
             fprintf(stderr, RED "tint2: !shmat" RESET "\n");
             goto err2;
         }
@@ -516,6 +517,7 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
             u_int32_t r = ((c1 & rmask) + (c2 & rmask) + (c3 & rmask) + (c4 & rmask) + (c5 & rmask) * 2 + (c6 & rmask) +
                            (c7 & rmask)) /
                           8;
+            g_assert(j < tw * th);
             data[j] = (r & rmask) | (g & gmask) | (b & bmask);
         }
     }
@@ -542,6 +544,7 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
 
     // 2nd pass
     smooth_thumbnail(result);
+    cairo_surface_mark_dirty(result);
 
     if (ximg) {
         XDestroyImage(ximg);
