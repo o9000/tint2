@@ -1,9 +1,10 @@
-2019-02-24 master
+2019-03-03 master
 - Fix spacing around icons in executor without text in vertical panels (issue #716)
 - Fix Bug: Clock Only Updates Every Minute With Format %s (issue #724)
 - Fix markup drawing when font shadow enabled (issue #709)
 - Blink battery when low (issue #723)
 - Struts pivoting: workaround for panel positioning between monitors in mutter
+- Add support for battery percentage without % sign (issue #730)
 
 2018-08-05 16.6.1
 - Fix packaging regression for debian (issue #715)
