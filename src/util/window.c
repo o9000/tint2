@@ -578,11 +578,12 @@ gboolean cairo_surface_is_blank(cairo_surface_t *image_surface)
     return empty;
 }
 
+gboolean thumb_use_shm;
+
 cairo_surface_t *get_window_thumbnail(Window win, int size)
 {
     cairo_surface_t *image_surface = NULL;
-    const gboolean shm_allowed = FALSE;
-    if (shm_allowed && server.has_shm && server.composite_manager) {
+    if (thumb_use_shm && server.has_shm && server.composite_manager) {
         image_surface = get_window_thumbnail_ximage(win, (size_t)size, TRUE);
         if (image_surface && cairo_surface_is_blank(image_surface)) {
             cairo_surface_destroy(image_surface);
