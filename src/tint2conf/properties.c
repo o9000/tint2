@@ -5845,7 +5845,8 @@ void create_battery(GtkWidget *parent)
                             " %m: Minutes left until completely charged/discharged (estimated).\n"
                             " %h: Hours left until completely charged/discharged (estimated).\n"
                             " %t: Time left. Shows \"hrs:mins\" when charging/discharging, or \"Full\".\n"
-                            " %p: Percentage. Includes the % sign.";
+                            " %p: Percentage. Includes the % sign.\n"
+                            " %p: Percentage. Without the % sign.";
     gtk_tooltips_set_tip(tooltips,
                          battery_format1,
                          _(bat_format_spec),

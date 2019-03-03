@@ -174,6 +174,7 @@ void battery_update_text(char *dest, char *format)
         // %h : Hours left (estimated).
         // %t :	Time left. This is equivalent to the old behaviour; i.e. "(plugged in)" or "hrs:mins" otherwise.
         // %p :	Percentage left. Includes the % sign.
+        // %P :	Percentage left without the % sign.
         if (*c == '%') {
             c++;
             o++; // Skip the format control character.
@@ -200,6 +201,10 @@ void battery_update_text(char *dest, char *format)
                 break;
             case 'p':
                 snprintf(buf, sizeof(buf), "%d%%", battery_state.percentage);
+                strnappend(dest, buf, BATTERY_BUF_SIZE);
+                break;
+            case 'P':
+                snprintf(buf, sizeof(buf), "%d", battery_state.percentage);
                 strnappend(dest, buf, BATTERY_BUF_SIZE);
                 break;
             case 't':

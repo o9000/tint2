@@ -565,6 +565,7 @@ The action semantics:
     * %h: Hours left until completely charged/discharged (estimated).
     * %t: Time left. Shows "hrs:mins" when charging/discharging, or "Ful\" when full.
     * %p: Percentage. Includes the % sign.
+    * %P: Percentage. Without the % sign.
 
   * `bat2_format = FORMAT_STRING` : Format for battery line 2. Default: %t. *(since 1.0)*
 
