@@ -391,13 +391,27 @@ void smooth_thumbnail(cairo_surface_t *image_surface)
 cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean use_shm)
 {
     cairo_surface_t *result = NULL;
-    XWindowAttributes wa;
+    XWindowAttributes wa = {};
     if (!XGetWindowAttributes(server.display, win, &wa) || wa.width <= 0 || wa.height <= 0 ||
-        wa.map_state != IsViewable)
+            wa.map_state != IsViewable) {
+        if (debug_thumbnails) {
+            fprintf(stderr, "tint2: could not get thumbnail, invalid geometry %d x %d\n",
+                    wa.width, wa.height);
+        }
         goto err0;
+    }
 
-    if (window_is_iconified(win))
+    if (window_is_iconified(win)) {
+        if (debug_thumbnails) {
+            fprintf(stderr, "tint2: could not get thumbnail, minimized window\n");
+        }
         goto err0;
+    }
+
+    if (debug_thumbnails) {
+        fprintf(stderr, "tint2: getting thumbnail for window with size %d x %d\n",
+                wa.width, wa.height);
+    }
 
     size_t w, h;
     w = (size_t)wa.width;
@@ -415,8 +429,20 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
         fw = tw;
         ox = oy = 0;
     }
-    if (!w || !h || !tw || !th || !fw)
+    if (debug_thumbnails) {
+        fprintf(stderr,
+                "tint2: thumbnail size %zu x %zu, "
+                "proportional width %zu, offset %zu\n",
+                tw, th, fw, ox);
+    }
+    if (!w || !h || !tw || !th || !fw) {
+        if (debug_thumbnails) {
+            fprintf(stderr, "tint2: could not get thumbnail, invalid thumbnail size: "
+                    "%zu x %zu => %zu x %zu, %zu\n",
+                    w, h, tw, th, fw);
+        }
         goto err0;
+    }
 
     XShmSegmentInfo shminfo;
     XImage *ximg;
@@ -462,8 +488,18 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
     }
 
     XGetWindowAttributes(server.display, win, &wa);
-    if (wa.map_state != IsViewable)
+    if (wa.map_state != IsViewable) {
+        if (debug_thumbnails) {
+            fprintf(stderr, "tint2: could not get thumbnail, window not viewable\n");
+        }
         goto err4;
+    }
+
+    if (debug_thumbnails) {
+        fprintf(stderr,
+                "tint2: creating cairo surface with size %zu x %zu = %zu px\n",
+                tw, th, tw * th);
+    }
 
     result = cairo_image_surface_create(CAIRO_FORMAT_RGB24, (int)tw, (int)th);
     u_int32_t *data = (u_int32_t *)cairo_image_surface_get_data(result);
@@ -562,7 +598,7 @@ err2:
 err1:
     if (ximg)
         XDestroyImage(ximg);
-err0:
+err0:    
     return result;
 }
 
