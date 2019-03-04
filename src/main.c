@@ -797,6 +797,13 @@ void tint2(int argc, char **argv, gboolean *restart)
 
 int main(int argc, char **argv)
 {
+    if (!getenv("G_SLICE") && setenv("G_SLICE", "always-malloc", 1) == 0) {
+        fprintf(stderr,
+                YELLOW "tint2: reexecuting tint2 without glib slice allocator..." RESET "\n");
+        execvp(argv[0], argv);
+        fprintf(stderr, RED "tint2: %s %d: execvp failed! carrying on..." RESET "\n",
+                __FILE__, __LINE__);
+    }
     gboolean restart;
     do {
         restart = FALSE;
