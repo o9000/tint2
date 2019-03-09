@@ -99,6 +99,7 @@ extern gboolean debug_thumbnails;
 extern double ui_scale_dpi_ref;
 extern double ui_scale_monitor_size_ref;
 extern gboolean thumb_use_shm;
+extern gboolean debug_blink;
 
 typedef struct Panel {
     Area area;

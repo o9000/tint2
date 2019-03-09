@@ -408,8 +408,8 @@ void update_battery_tick(void *arg)
     }
 
     if (!battery_blink_timer.enabled_) {
-        if (battery_state.percentage < battery_low_status &&
-            battery_state.state == BATTERY_DISCHARGING) {
+        if ((battery_state.percentage < battery_low_status &&
+            battery_state.state == BATTERY_DISCHARGING) || debug_blink) {
             change_timer(&battery_blink_timer, true, 10, 1000, blink_battery, 0);
             battery_warn = TRUE;
         }

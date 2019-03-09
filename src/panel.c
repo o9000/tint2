@@ -60,7 +60,7 @@ gboolean debug_geometry;
 gboolean debug_gradients;
 gboolean startup_notifications;
 gboolean debug_thumbnails;
-
+gboolean debug_blink;
 gboolean panel_autohide;
 int panel_autohide_show_timeout;
 int panel_autohide_hide_timeout;
