@@ -465,12 +465,6 @@ void draw_battery(void *obj, cairo_t *c)
 {
     Battery *battery = (Battery *)obj;
     Panel *panel = (Panel *)battery->area.panel;
-    if (battery_warn && battery_warn_red) {
-        cairo_set_source_rgb(c, 0.7, 0.3, 0);
-        cairo_set_line_width(c, 0);
-        cairo_rectangle(c, 0, 0, battery->area.width, battery->area.height);
-        cairo_fill(c);
-    }
     draw_text_area(&battery->area,
                    c,
                    buf_bat_line1,
@@ -481,6 +475,12 @@ void draw_battery(void *obj, cairo_t *c)
                    battery->bat2_posy,
                    &battery->font_color,
                    panel->scale);
+    if (battery_warn && battery_warn_red) {
+        cairo_set_source_rgba(c, 1, 0, 0, 1);
+        cairo_set_line_width(c, 0);
+        cairo_rectangle(c, 0, 0, battery->area.width, battery->area.height);
+        cairo_fill(c);
+    }
 }
 
 void battery_dump_geometry(void *obj, int indent)
