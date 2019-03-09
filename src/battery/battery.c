@@ -63,7 +63,6 @@ char *battery_dwheel_command;
 gboolean battery_found;
 gboolean battery_warn;
 gboolean battery_warn_red;
-Background *battery_warn_bg;
 
 char *battery_sys_prefix = (char *)"";
 
@@ -84,7 +83,6 @@ void default_battery()
     INIT_TIMER(battery_blink_timer);
     battery_warn = FALSE;
     battery_warn_red = FALSE;
-    battery_warn_bg = NULL;
     bat1_has_font = FALSE;
     bat1_font_desc = NULL;
     bat1_format = NULL;
@@ -138,7 +136,6 @@ void cleanup_battery()
     destroy_timer(&battery_timer);
     destroy_timer(&battery_blink_timer);
     battery_found = FALSE;
-    free_and_null(battery_warn_bg);
 
     battery_os_free();
 }
@@ -330,30 +327,8 @@ void blink_battery(void *arg)
     if (!battery_enabled)
         return;
     battery_warn_red = battery_warn ? !battery_warn_red : FALSE;
-    if (battery_warn_red && !battery_warn_bg) {
-        battery_warn_bg = calloc(1, sizeof(*battery_warn_bg));
-        *battery_warn_bg = *panel_config.battery.area.bg;
-        battery_warn_bg->fill_color.alpha = 1.0;
-        battery_warn_bg->border.color.alpha = 1.0;
-    }
-    if (battery_warn_red) {
-        battery_warn_bg->fill_color.rgb[0] = 0.6;
-        battery_warn_bg->fill_color.rgb[1] = 0.1;
-        battery_warn_bg->fill_color.rgb[2] = 0.1;
-        battery_warn_bg->border.color.rgb[0] = 0.5;
-        battery_warn_bg->border.color.rgb[1] = 0.0;
-        battery_warn_bg->border.color.rgb[2] = 0.0;
-    } else {
-        battery_warn_bg->fill_color.rgb[0] = 0.9;
-        battery_warn_bg->fill_color.rgb[1] = 0.7;
-        battery_warn_bg->fill_color.rgb[2] = 0.1;
-        battery_warn_bg->border.color.rgb[0] = 0.7;
-        battery_warn_bg->border.color.rgb[1] = 0.5;
-        battery_warn_bg->border.color.rgb[2] = 0.1;
-    }
     for (int i = 0; i < num_panels; i++) {
         if (panels[i].battery.area.on_screen) {
-            panels[i].battery.area.bg = battery_warn_bg;
             schedule_redraw(&panels[i].battery.area);
         }
     }
@@ -490,6 +465,12 @@ void draw_battery(void *obj, cairo_t *c)
 {
     Battery *battery = (Battery *)obj;
     Panel *panel = (Panel *)battery->area.panel;
+    if (battery_warn && battery_warn_red) {
+        cairo_set_source_rgb(c, 0.7, 0.3, 0);
+        cairo_set_line_width(c, 0);
+        cairo_rectangle(c, 0, 0, battery->area.width, battery->area.height);
+        cairo_fill(c);
+    }
     draw_text_area(&battery->area,
                    c,
                    buf_bat_line1,
