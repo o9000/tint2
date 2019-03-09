@@ -1229,19 +1229,3 @@ void dump_image_data(const char *file_name, const char *name)
 
     imlib_free_image();
 }
-
-void draw_cairo_surface_to_xpixmap(cairo_surface_t *cs, Pixmap pix)
-{
-    int w = cairo_image_surface_get_width(cs);
-    int h = cairo_image_surface_get_height(cs);
-    cairo_surface_t *cs_xlib = cairo_xlib_surface_create(server.display, pix, server.visual, w, h);
-    cairo_xlib_surface_set_size(cs_xlib, w, h);
-    cairo_t *c_xlib = cairo_create(cs_xlib);
-
-    cairo_set_source_surface(c_xlib, cs, 0, 0);
-    cairo_paint(c_xlib);
-    cairo_surface_flush(cs_xlib);
-
-    cairo_destroy(c_xlib);
-    cairo_surface_destroy(cs_xlib);
-}

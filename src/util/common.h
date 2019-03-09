@@ -154,8 +154,6 @@ void get_image_mean_color(const Imlib_Image image, Color *mean_color);
 
 void dump_image_data(const char *file_name, const char *name);
 
-void draw_cairo_surface_to_xpixmap(cairo_surface_t *cs, Pixmap pix);
-
 #define free_and_null(p) \
     {                    \
         free(p);         \
