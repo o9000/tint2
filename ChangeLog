@@ -1,4 +1,5 @@
-2019-03-03 master
+2019-06-02 master
+- Expand leading ~ in icon paths
 - Fix spacing around icons in executor without text in vertical panels (issue #716)
 - Fix Bug: Clock Only Updates Every Minute With Format %s (issue #724)
 - Fix markup drawing when font shadow enabled (issue #709)

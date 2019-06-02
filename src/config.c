@@ -794,7 +794,7 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "button_icon") == 0) {
         if (strlen(value)) {
             Button *button = get_or_create_last_button();
-            button->backend->icon_name = strdup(value);
+            button->backend->icon_name = expand_tilde(value);
         }
     } else if (strcmp(key, "button_text") == 0) {
         if (strlen(value)) {

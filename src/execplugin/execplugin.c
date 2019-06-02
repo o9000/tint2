@@ -891,7 +891,7 @@ gboolean read_execp(void *obj)
                 } else {
                     execp->backend->text = strdup("");
                 }
-                execp->backend->icon_path = strdup(execp->backend->buf_stdout);
+                execp->backend->icon_path = expand_tilde(execp->backend->buf_stdout);
             }
             size_t len = strlen(execp->backend->text);
             if (len > 0 && execp->backend->text[len - 1] == '\n')

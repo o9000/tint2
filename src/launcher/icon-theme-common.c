@@ -566,6 +566,10 @@ char *icon_path_from_full_path(const char *s)
 {
     if (is_full_path(s) && file_exists(s))
         return strdup(s);
+    char *expanded = expand_tilde(s);
+    if (is_full_path(expanded) && file_exists(expanded))
+        return expanded;
+    free(expanded);
     return NULL;
 }
 
