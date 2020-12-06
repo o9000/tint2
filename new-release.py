@@ -55,13 +55,14 @@ def cmd(s):
 
 
 def run(s):
-  proc = subprocess.Popen(cmd(s), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
+  proc = subprocess.Popen(cmd(s), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
   ret = proc.wait()
-  out = proc.communicate()[0]
+  out, err = proc.communicate()
   for line in out.split("\n"):
     debug(ansi_pinky + line + ansi_reset)
   debug(ansi_pinky + "Exit code: " + str(ret))
   if ret != 0:
+    print(err)
     raise Exception("Command failed!")
   return out
 

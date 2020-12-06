@@ -1,4 +1,4 @@
-# TINT2 1 "2018-08-05" 16.6.1
+# TINT2 1 "2019-07-14" 16.7
 
 ## NAME
 tint2 - lightweight panel/taskbar
@@ -768,4 +768,5 @@ and the wiki page at https://gitlab.com/o9000/tint2/wikis/home.
 
 This documentation is also provided in HTML and Markdown format in the system's default location
 for documentation files, usually `/usr/share/doc/tint2` or `/usr/local/share/doc/tint2`.
+.
 .

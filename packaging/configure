@@ -420,7 +420,8 @@ if args.asan or args.memory_tracing or args.tracing:
     trace_flags = ['-O0',
                    '-fno-common',
                    '-fno-omit-frame-pointer',
-                   '-rdynamic']
+                   '-rdynamic',
+                   '-DUSE_REAL_MALLOC']
     CFLAGS += trace_flags
     LFLAGS += trace_flags + ['-fuse-ld=gold']
 

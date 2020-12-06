@@ -371,7 +371,7 @@ void smooth_thumbnail(cairo_surface_t *image_surface)
     const size_t rmask = 0xff0000;
     const size_t gmask = 0xff00;
     const size_t bmask = 0xff;
-    for (size_t i = 0; i < tw * (th - 1) - 1; i++) {
+    for (size_t i = 0; i < tw * (th - 1) - 1 && i < tw * th; i++) {
         u_int32_t c1 = data[i];
         u_int32_t c2 = data[i + 1];
         u_int32_t c3 = data[i + tw];
@@ -379,7 +379,6 @@ void smooth_thumbnail(cairo_surface_t *image_surface)
         u_int32_t b = (5 * (c1 & bmask) + 1 * (c2 & bmask) + 1 * (c3 & bmask) + 1 * (c4 & bmask)) / 8;
         u_int32_t g = (5 * (c1 & gmask) + 1 * (c2 & gmask) + 1 * (c3 & gmask) + 1 * (c4 & gmask)) / 8;
         u_int32_t r = (5 * (c1 & rmask) + 1 * (c2 & rmask) + 1 * (c3 & rmask) + 1 * (c4 & rmask)) / 8;
-        g_assert(i < tw * th);
         data[i] = (r & rmask) | (g & gmask) | (b & bmask);
     }
 }
@@ -537,24 +536,25 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
     for (size_t yt = 0, y = 0; yt < th; yt++, y += ystep) {
         for (size_t xt = 0, x = 0; xt < fw; xt++, x += xstep) {
             size_t j = yt * tw + ox + xt;
-            u_int32_t c1 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x1) / prec), (int)((y + offset_y1) / prec));
-            u_int32_t c2 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x2) / prec), (int)((y + offset_y2) / prec));
-            u_int32_t c3 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x3) / prec), (int)((y + offset_y3) / prec));
-            u_int32_t c4 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x4) / prec), (int)((y + offset_y4) / prec));
-            u_int32_t c5 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x5) / prec), (int)((y + offset_y5) / prec));
-            u_int32_t c6 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x6) / prec), (int)((y + offset_y6) / prec));
-            u_int32_t c7 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x7) / prec), (int)((y + offset_y7) / prec));
-            u_int32_t b = ((c1 & bmask) + (c2 & bmask) + (c3 & bmask) + (c4 & bmask) + (c5 & bmask) * 2 + (c6 & bmask) +
-                           (c7 & bmask)) /
-                          8;
-            u_int32_t g = ((c1 & gmask) + (c2 & gmask) + (c3 & gmask) + (c4 & gmask) + (c5 & gmask) * 2 + (c6 & gmask) +
-                           (c7 & gmask)) /
-                          8;
-            u_int32_t r = ((c1 & rmask) + (c2 & rmask) + (c3 & rmask) + (c4 & rmask) + (c5 & rmask) * 2 + (c6 & rmask) +
-                           (c7 & rmask)) /
-                          8;
-            g_assert(j < tw * th);
-            data[j] = (r & rmask) | (g & gmask) | (b & bmask);
+            if (j < tw * th) {
+                u_int32_t c1 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x1) / prec), (int)((y + offset_y1) / prec));
+                u_int32_t c2 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x2) / prec), (int)((y + offset_y2) / prec));
+                u_int32_t c3 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x3) / prec), (int)((y + offset_y3) / prec));
+                u_int32_t c4 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x4) / prec), (int)((y + offset_y4) / prec));
+                u_int32_t c5 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x5) / prec), (int)((y + offset_y5) / prec));
+                u_int32_t c6 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x6) / prec), (int)((y + offset_y6) / prec));
+                u_int32_t c7 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x7) / prec), (int)((y + offset_y7) / prec));
+                u_int32_t b = ((c1 & bmask) + (c2 & bmask) + (c3 & bmask) + (c4 & bmask) + (c5 & bmask) * 2 + (c6 & bmask) +
+                               (c7 & bmask)) /
+                              8;
+                u_int32_t g = ((c1 & gmask) + (c2 & gmask) + (c3 & gmask) + (c4 & gmask) + (c5 & gmask) * 2 + (c6 & gmask) +
+                               (c7 & gmask)) /
+                              8;
+                u_int32_t r = ((c1 & rmask) + (c2 & rmask) + (c3 & rmask) + (c4 & rmask) + (c5 & rmask) * 2 + (c6 & rmask) +
+                               (c7 & rmask)) /
+                              8;
+                data[j] = (r & rmask) | (g & gmask) | (b & bmask);
+            }
         }
     }
     // Convert to argb32
@@ -614,7 +614,7 @@ gboolean cairo_surface_is_blank(cairo_surface_t *image_surface)
     return empty;
 }
 
-gboolean thumb_use_shm;
+gboolean thumb_use_shm = FALSE;
 
 cairo_surface_t *get_window_thumbnail(Window win, int size)
 {

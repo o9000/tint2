@@ -35,6 +35,7 @@
 gboolean taskbarname_enabled;
 Color taskbarname_font;
 Color taskbarname_active_font;
+Color taskbarname_unoccupied_font;
 
 void taskbarname_init_fonts();
 int taskbarname_compute_desired_size(void *obj);
@@ -193,13 +194,36 @@ gboolean resize_taskbarname(void *obj)
     }
     return result;
 }
+// gboolean taskbar_is_empty(Taskbar *taskbar)
+// {
+//     GList *l = taskbar->area.children;
+//     if (taskbarname_enabled)
+//         l = l->next;
+//     for (; l != NULL; l = l->next) {
+//         if (((Task *)l->data)->area.on_screen) {
+//             return FALSE;
+//         }
+//     }
+//     return TRUE;
+// }
+
 
 void draw_taskbarname(void *obj, cairo_t *c)
 {
     TaskbarName *taskbar_name = obj;
     Panel *panel = (Panel *)taskbar_name->area.panel;
     Taskbar *taskbar = taskbar_name->area.parent;
-    Color *config_text = (taskbar->desktop == server.desktop) ? &taskbarname_active_font : &taskbarname_font;
+    Color *config_text;
+    // Color *config_text = (taskbar->desktop == server.desktop) ? &taskbarname_active_font : &taskbarname_font;
+    if(taskbar->desktop == server.desktop) {
+        config_text = &taskbarname_active_font;
+    }
+    else if (taskbar->desktop != server.desktop && taskbar_is_empty(taskbar)) {
+        config_text = &taskbarname_unoccupied_font;
+    }
+    else {
+        config_text = &taskbarname_font;
+    }
 
     // draw content
     PangoContext *context = pango_cairo_create_context(c);

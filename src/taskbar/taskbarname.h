@@ -11,6 +11,7 @@
 extern gboolean taskbarname_enabled;
 extern Color taskbarname_font;
 extern Color taskbarname_active_font;
+extern Color taskbarname_unoccupied_font;
 
 void default_taskbarname();
 void cleanup_taskbarname();

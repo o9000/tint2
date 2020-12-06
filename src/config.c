@@ -1003,6 +1003,13 @@ void add_entry(char *key, char *value)
             taskbarname_active_font.alpha = (atoi(value2) / 100.0);
         else
             taskbarname_active_font.alpha = 0.5;
+    } else if (strcmp(key, "taskbar_name_unoccupied_font_color") == 0) {
+        extract_values(value, &value1, &value2, &value3);
+        get_color(value1, taskbarname_unoccupied_font.rgb);
+        if (value2)
+            taskbarname_unoccupied_font.alpha = (atoi(value2) / 100.0);
+        else
+            taskbarname_unoccupied_font.alpha = 0.5;
     } else if (strcmp(key, "taskbar_hide_inactive_tasks") == 0) {
         hide_inactive_tasks = atoi(value);
     } else if (strcmp(key, "taskbar_hide_different_monitor") == 0) {

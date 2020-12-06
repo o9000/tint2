@@ -203,8 +203,8 @@ Button *click_button(Panel *panel, int x, int y);
 
 void autohide_show(void *p);
 void autohide_hide(void *p);
-void autohide_trigger_show(Panel *p);
-void autohide_trigger_hide(Panel *p);
+void autohide_trigger_show(Panel *p, bool forced);
+void autohide_trigger_hide(Panel *p, bool forced);
 
 const char *get_default_font();
 
